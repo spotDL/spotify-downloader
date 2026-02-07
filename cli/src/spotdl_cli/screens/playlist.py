@@ -23,6 +23,8 @@ from textual.widgets import (
     Static,
 )
 
+from spotdl_cli.widgets import CoverArt
+
 from spotdl_cli.config import get_settings
 from spotdl_cli.core import (
     APIError,
@@ -83,7 +85,7 @@ class PlaylistScreen(Screen[None]):
             with Vertical(id="playlist-hero", classes="hero-section"):
                 with Horizontal(id="playlist-hero-content"):
                     # Left: Cover art placeholder
-                    yield Static("", id="playlist-cover", classes="cover-placeholder-large")
+                    yield CoverArt(id="playlist-cover", classes="cover-placeholder-large")
 
                     # Right: Playlist info
                     with Vertical(id="playlist-info"):
@@ -266,6 +268,11 @@ class PlaylistScreen(Screen[None]):
         self.query_one("#playlist-title", Static).update(
             data.get("name", "Unknown Playlist")
         )
+
+        # Cover art
+        cover_url = data.get("cover_url") or data.get("image_url")
+        if cover_url:
+            self.query_one("#playlist-cover", CoverArt).cover_url = cover_url
 
         # Owner
         owner = data.get("owner", {})

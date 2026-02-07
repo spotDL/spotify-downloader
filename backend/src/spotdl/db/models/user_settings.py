@@ -49,6 +49,11 @@ class UserSettings(Base, TimestampMixin):
         default="best",
         nullable=False,
     )
+    bitrate: Mapped[str | None] = mapped_column(
+        String(20),
+        default=None,
+        nullable=True,
+    )
     output_template: Mapped[str] = mapped_column(
         String(255),
         default="{artist} - {title}",
@@ -64,10 +69,20 @@ class UserSettings(Base, TimestampMixin):
         default=3,
         nullable=False,
     )
-    overwrite_existing: Mapped[bool] = mapped_column(
-        Boolean,
-        default=False,
+    overwrite: Mapped[str] = mapped_column(
+        String(10),
+        default="skip",
         nullable=False,
+    )
+    max_filename_length: Mapped[int] = mapped_column(
+        Integer,
+        default=255,
+        nullable=False,
+    )
+    restrict: Mapped[str | None] = mapped_column(
+        String(10),
+        default=None,
+        nullable=True,
     )
 
     # Metadata settings
@@ -81,10 +96,86 @@ class UserSettings(Base, TimestampMixin):
         default=True,
         nullable=False,
     )
-    embed_cover_art: Mapped[bool] = mapped_column(
+    embed_cover: Mapped[bool] = mapped_column(
         Boolean,
         default=True,
         nullable=False,
+    )
+    id3_separator: Mapped[str] = mapped_column(
+        String(5),
+        default="/",
+        nullable=False,
+    )
+
+    # SponsorBlock
+    sponsor_block: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        nullable=False,
+    )
+
+    # LRC / Lyrics files
+    generate_lrc: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        nullable=False,
+    )
+
+    # M3U playlist generation
+    m3u: Mapped[str | None] = mapped_column(
+        String(255),
+        default=None,
+        nullable=True,
+    )
+
+    # Archive (deduplication)
+    archive: Mapped[str | None] = mapped_column(
+        String(500),
+        default=None,
+        nullable=True,
+    )
+
+    # Content filtering
+    skip_explicit: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        nullable=False,
+    )
+    scan_for_songs: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        nullable=False,
+    )
+
+    # Playlist options
+    playlist_numbering: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        nullable=False,
+    )
+    fetch_albums: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        nullable=False,
+    )
+
+    # Proxy
+    proxy: Mapped[str | None] = mapped_column(
+        String(500),
+        default=None,
+        nullable=True,
+    )
+
+    # Custom arguments
+    ffmpeg_args: Mapped[str | None] = mapped_column(
+        String(500),
+        default=None,
+        nullable=True,
+    )
+    yt_dlp_args: Mapped[str | None] = mapped_column(
+        String(500),
+        default=None,
+        nullable=True,
     )
 
     # Spotify credentials (encrypted/hashed in production)

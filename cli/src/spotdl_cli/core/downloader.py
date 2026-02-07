@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import shlex
+import traceback
+import unicodedata
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -12,6 +15,9 @@ import httpx
 import yt_dlp
 
 from spotdl_cli.config import Settings, get_settings
+from spotdl_cli.core.archive import Archive
+from spotdl_cli.core.lrc import generate_lrc
+from spotdl_cli.core.metadata_reader import SUPPORTED_FORMATS, extract_spotify_url
 from spotdl_cli.core.types import (
     DownloadItem,
     DownloadResult,
@@ -61,10 +67,13 @@ class Downloader:
     async def _get_http_client(self) -> httpx.AsyncClient:
         """Get or create HTTP client for cover downloads."""
         if self._http_client is None or self._http_client.is_closed:
-            self._http_client = httpx.AsyncClient(
-                timeout=30.0,
-                follow_redirects=True,
-            )
+            kwargs: dict[str, Any] = {
+                "timeout": 30.0,
+                "follow_redirects": True,
+            }
+            if self._settings.proxy:
+                kwargs["proxy"] = self._settings.proxy
+            self._http_client = httpx.AsyncClient(**kwargs)
         return self._http_client
 
     async def close(self) -> None:
@@ -76,28 +85,78 @@ class Downloader:
     def _get_output_template(self, song: Song) -> str:
         """Generate output filename from template."""
         template = self._settings.output_template
+        first_artist = song.artists[0] if song.artists else "Unknown"
 
         # Replace template variables
         replacements = {
-            "{artist}": self._sanitize_filename(song.artist),
-            "{artists}": self._sanitize_filename(", ".join(song.artists)),
-            "{title}": self._sanitize_filename(song.name),
-            "{album}": self._sanitize_filename(song.album_name or "Unknown"),
+            "{artist}": first_artist,
+            "{artists}": ", ".join(song.artists) if song.artists else "Unknown",
+            "{title}": song.name,
+            "{album}": song.album_name or "Unknown",
+            "{album-artist}": song.album_artist or first_artist,
+            "{genre}": song.genres[0] if song.genres else "",
             "{year}": str(song.year) if song.year else "Unknown",
+            "{track-number}": str(song.track_number).zfill(2),
             "{track_number}": str(song.track_number).zfill(2),
+            "{disc-number}": str(song.disc_number),
             "{disc_number}": str(song.disc_number),
+            "{disc-count}": str(song.disc_count),
+            "{duration}": str(song.duration),
+            "{original-date}": song.date or "",
+            "{tracks-count}": str(song.tracks_count),
+            "{isrc}": song.isrc or "",
+            "{track-id}": song.song_id or "",
+            "{publisher}": song.publisher or "",
+            "{list-length}": str(song.list_length) if song.list_length else "",
+            "{list-position}": f"{song.list_position:02d}" if song.list_position else "",
+            "{list-name}": song.list_name or "",
+            "{output-ext}": self._settings.audio_format,
         }
 
         result = template
         for key, value in replacements.items():
-            result = result.replace(key, value)
+            result = result.replace(key, self._sanitize_filename(value))
+
+        # Prepend playlist numbering if enabled
+        if self._settings.playlist_numbering and song.list_position:
+            result = f"{song.list_position:02d}. {result}"
+
+        # Enforce filename length limit
+        result = self._limit_filename_length(result, song)
 
         return result
 
-    @staticmethod
-    def _sanitize_filename(name: str) -> str:
+    def _limit_filename_length(self, result: str, song: Song) -> str:
+        """Ensure the filename doesn't exceed the max length."""
+        max_len = self._settings.max_filename_length
+        ext_len = len(self._settings.audio_format) + 1  # +1 for the dot
+
+        if len(result) + ext_len <= max_len:
+            return result
+
+        # Try short format: artist - title
+        short = f"{self._sanitize_filename(song.artist)} - {self._sanitize_filename(song.name)}"
+        if len(short) + ext_len <= max_len:
+            return short
+
+        # Truncate to fit
+        available = max_len - ext_len
+        return short[:available]
+
+    def _sanitize_filename(self, name: str) -> str:
         """Sanitize a string for use as filename."""
-        # Remove/replace invalid characters
+        restrict = self._settings.restrict
+
+        if restrict == "strict":
+            # Use yt-dlp's sanitize_filename for ASCII-safe output
+            return yt_dlp.utils.sanitize_filename(name, restricted=True) or "Unknown"
+        elif restrict == "loose":
+            # NFKD normalize + ASCII encode/decode (remove accents)
+            normalized = unicodedata.normalize("NFKD", name)
+            ascii_name = normalized.encode("ascii", "ignore").decode("ascii")
+            name = ascii_name or name
+
+        # Default: replace invalid filesystem characters
         invalid_chars = '<>:"/\\|?*'
         for char in invalid_chars:
             name = name.replace(char, "_")
@@ -146,24 +205,82 @@ class Downloader:
             "0",
         )
 
+        # Handle granular bitrate setting
+        bitrate = self._settings.bitrate
+        if bitrate == "disable":
+            # No transcoding - copy stream
+            audio_format = "best"
+            audio_quality = "0"
+        elif bitrate and bitrate != "auto":
+            if bitrate.isdigit():
+                # VBR mode
+                audio_quality = bitrate
+            else:
+                # CBR mode (e.g. "128k" -> "128")
+                audio_quality = bitrate.rstrip("kK")
+
+        postprocessors: list[dict[str, Any]] = []
+
+        if bitrate != "disable":
+            postprocessors.append({
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": audio_format,
+                "preferredquality": audio_quality,
+            })
+
+        # SponsorBlock integration
+        if self._settings.sponsor_block:
+            postprocessors.extend([
+                {
+                    "key": "SponsorBlock",
+                    "categories": self._settings.sponsor_block_categories,
+                },
+                {
+                    "key": "ModifyChapters",
+                    "remove_sponsor_segments": self._settings.sponsor_block_categories,
+                },
+            ])
+
         options: dict[str, Any] = {
             "format": "bestaudio/best",
             "outtmpl": str(output_path),
             "quiet": True,
             "no_warnings": True,
             "extract_flat": False,
-            "postprocessors": [
-                {
-                    "key": "FFmpegExtractAudio",
-                    "preferredcodec": audio_format,
-                    "preferredquality": audio_quality,
-                }
-            ],
+            "postprocessors": postprocessors,
         }
 
         # Add cookies if available
         if self._settings.cookies_path.exists():
             options["cookiefile"] = str(self._settings.cookies_path)
+
+        # Add proxy
+        if self._settings.proxy:
+            options["proxy"] = self._settings.proxy
+
+        # Add custom FFmpeg arguments
+        if self._settings.ffmpeg_args:
+            options["postprocessor_args"] = {
+                "ffmpeg": shlex.split(self._settings.ffmpeg_args),
+            }
+
+        # Add custom yt-dlp arguments
+        if self._settings.yt_dlp_args:
+            custom_args = shlex.split(self._settings.yt_dlp_args)
+            # Parse as key-value pairs
+            i = 0
+            while i < len(custom_args):
+                arg = custom_args[i]
+                if arg.startswith("--"):
+                    key = arg[2:].replace("-", "_")
+                    if i + 1 < len(custom_args) and not custom_args[i + 1].startswith("--"):
+                        options[key] = custom_args[i + 1]
+                        i += 2
+                    else:
+                        options[key] = True
+                        i += 1
+                else:
+                    i += 1
 
         # Add progress hook
         if progress_callback:
@@ -261,11 +378,29 @@ class Downloader:
         # Base path without extension (yt-dlp adds extension)
         base_path = output_dir / output_name
 
-        # Check if file exists and overwrite setting
+        # Check if file exists and handle overwrite modes
         expected_path = base_path.with_suffix(f".{self._settings.audio_format}")
-        if expected_path.exists() and not self._settings.overwrite:
-            logger.info(f"File already exists: {expected_path}")
+
+        # Check for .skip file
+        skip_file = expected_path.with_suffix(expected_path.suffix + ".skip")
+        if self._settings.respect_skip_file and skip_file.exists():
+            logger.info("Skipping (skip file exists): %s", expected_path)
             return expected_path
+
+        overwrite = self._settings.overwrite
+        if expected_path.exists():
+            if overwrite == "skip":
+                logger.info("File already exists (skip): %s", expected_path)
+                return expected_path
+            elif overwrite == "metadata":
+                logger.info("File exists, will update metadata only: %s", expected_path)
+                return expected_path
+            elif overwrite == "force":
+                logger.info("Overwriting existing file: %s", expected_path)
+                expected_path.unlink()
+
+        # Ensure parent directories exist
+        base_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Get yt-dlp options
         options = self._get_yt_dlp_options(
@@ -288,7 +423,14 @@ class Downloader:
             if not output_file:
                 raise DownloadError(f"Output file not found: {base_path}")
 
-            logger.info(f"Downloaded: {output_file}")
+            # Create skip file if enabled
+            if self._settings.create_skip_file:
+                try:
+                    output_file.with_suffix(output_file.suffix + ".skip").touch()
+                except OSError:
+                    pass
+
+            logger.info("Downloaded: %s", output_file)
             return output_file
 
         except yt_dlp.utils.DownloadError as e:
@@ -362,6 +504,7 @@ class Downloader:
         from mutagen.id3 import ID3NoHeaderError
 
         loop = asyncio.get_event_loop()
+        sep = self._settings.id3_separator
 
         def _embed() -> None:
             try:
@@ -372,7 +515,7 @@ class Downloader:
                 audio = EasyID3(file_path)
 
             audio["title"] = song.name
-            audio["artist"] = song.artists
+            audio["artist"] = [sep.join(song.artists)] if sep != "/" else song.artists
             audio["albumartist"] = [song.album_artist or song.artist]
             audio["album"] = [song.album_name] if song.album_name else []
             audio["genre"] = song.genres if song.genres else []
@@ -550,7 +693,6 @@ class Downloader:
     async def _embed_ogg_cover(self, file_path: Path, cover_url: str) -> None:
         """Embed cover art into OGG/Opus file using METADATA_BLOCK_PICTURE."""
         import base64
-        import struct
 
         from mutagen.flac import Picture
         from mutagen.oggopus import OggOpus
@@ -697,9 +839,73 @@ class DownloadManager:
         self._active_tasks: dict[str, asyncio.Task[Path | None]] = {}
         self._stop_event = asyncio.Event()
 
+        # Archive for URL deduplication
+        self._archive = Archive()
+        if self._settings.archive:
+            self._archive.load(self._settings.archive)
+
+        # Known songs (from scan_for_songs)
+        self._known_songs: dict[str, list[Path]] = {}
+        if self._settings.scan_for_songs:
+            self._scan_existing_songs()
+
+    def _scan_existing_songs(self) -> None:
+        """Scan output directory for existing songs by reading Spotify URLs from metadata."""
+        output_dir = self._settings.output_dir
+        if not output_dir.exists():
+            return
+
+        for ext in SUPPORTED_FORMATS:
+            for file_path in output_dir.rglob(f"*{ext}"):
+                try:
+                    url = extract_spotify_url(file_path)
+                    if url:
+                        self._known_songs.setdefault(url, []).append(file_path)
+                except Exception:
+                    continue
+
+        if self._known_songs:
+            logger.info("Found %d existing songs in %s", len(self._known_songs), output_dir)
+
+    def is_song_archived(self, song: Song) -> bool:
+        """Check if a song URL is in the archive."""
+        return song.url in self._archive
+
+    def is_song_known(self, song: Song) -> bool:
+        """Check if a song exists in the scanned local files."""
+        return song.url in self._known_songs
+
+    def filter_songs(self, songs: list[Song]) -> list[Song]:
+        """Filter out songs that are already archived or known.
+
+        Args:
+            songs: Songs to filter.
+
+        Returns:
+            Songs that should be downloaded.
+        """
+        filtered = []
+        for song in songs:
+            if self._settings.skip_explicit and song.explicit:
+                logger.info("Skipping explicit track: %s", song.name)
+                continue
+            if song.url in self._archive:
+                logger.debug("Skipping archived: %s", song.display_name)
+                continue
+            if song.url in self._known_songs and self._settings.overwrite == "skip":
+                logger.debug("Skipping known: %s", song.display_name)
+                continue
+            filtered.append(song)
+        return filtered
+
     async def close(self) -> None:
         """Close the download manager."""
         self._stop_event.set()
+
+        # Save archive
+        if self._settings.archive:
+            self._archive.save(self._settings.archive)
+
         await self._downloader.close()
 
         # Cancel active tasks
@@ -736,6 +942,28 @@ class DownloadManager:
                     DownloadStatus.FAILED,
                     0.0, "", "",
                     "No download result available",
+                )
+            return None
+
+        # Skip explicit tracks
+        if self._settings.skip_explicit and item.song.explicit:
+            logger.info("Skipping explicit track: %s", item.song.name)
+            if status_callback:
+                status_callback(
+                    item_id,
+                    DownloadStatus.COMPLETED,
+                    100.0, "", "", None,
+                )
+            return None
+
+        # Skip if archived
+        if item.song.url in self._archive:
+            logger.debug("Skipping archived: %s", item.song.display_name)
+            if status_callback:
+                status_callback(
+                    item_id,
+                    DownloadStatus.COMPLETED,
+                    100.0, "", "", None,
                 )
             return None
 
@@ -784,6 +1012,21 @@ class DownloadManager:
             if item.song.lyrics:
                 await self._downloader.embed_lyrics(output_path, item.song.lyrics)
 
+            # Generate LRC file if enabled
+            if self._settings.generate_lrc:
+                generate_lrc(
+                    item.song.name,
+                    item.song.artists,
+                    output_path,
+                    item.song.lyrics,
+                )
+
+            # Add to archive
+            self._archive.add(item.song.url)
+
+            # Track as known song
+            self._known_songs.setdefault(item.song.url, []).append(output_path)
+
             # Complete
             if status_callback:
                 status_callback(
@@ -795,7 +1038,13 @@ class DownloadManager:
             return output_path
 
         except DownloadError as e:
-            logger.error(f"Download failed for {item.song.display_name}: {e}")
+            logger.error("Download failed for %s: %s", item.song.display_name, e)
+            self._log_error(item.song, e)
+
+            # Archive unavailable songs if configured
+            if self._settings.add_unavailable:
+                self._archive.add(item.song.url)
+
             if status_callback:
                 status_callback(
                     item_id,
@@ -806,7 +1055,12 @@ class DownloadManager:
             return None
 
         except Exception as e:
-            logger.error(f"Unexpected error downloading {item.song.display_name}: {e}")
+            logger.error("Unexpected error downloading %s: %s", item.song.display_name, e)
+            self._log_error(item.song, e)
+
+            if self._settings.add_unavailable:
+                self._archive.add(item.song.url)
+
             if status_callback:
                 status_callback(
                     item_id,
@@ -815,3 +1069,20 @@ class DownloadManager:
                     f"Unexpected error: {e}",
                 )
             return None
+
+    def _log_error(self, song: Song, error: Exception) -> None:
+        """Log download errors to file if configured."""
+        if self._settings.print_errors:
+            traceback.print_exc()
+
+        if self._settings.save_errors:
+            try:
+                error_path = Path(self._settings.save_errors)
+                error_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(error_path, "a", encoding="utf-8") as f:
+                    f.write(f"{song.display_name} | {song.url} | {error}\n")
+                    if self._settings.print_errors:
+                        f.write(traceback.format_exc())
+                        f.write("\n")
+            except OSError:
+                pass

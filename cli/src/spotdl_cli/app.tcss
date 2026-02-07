@@ -1548,6 +1548,11 @@ MarkdownOrderedList {
     align: left top;
 }
 
+/* CoverArt widget */
+CoverArt {
+    overflow: hidden;
+}
+
 /* Cover/Avatar placeholders */
 .cover-placeholder {
     width: 12;

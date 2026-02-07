@@ -38,16 +38,78 @@ class Settings(BaseSettings):
     # Download settings
     audio_format: Literal["mp3", "m4a", "flac", "opus", "ogg", "wav"] = "mp3"
     audio_quality: Literal["best", "320k", "256k", "192k", "128k"] = "best"
+    bitrate: str | None = None  # "auto", "disable", "128k", "320k", or VBR "0"-"9"
     threads: int = Field(default=4, ge=1, le=16)
-    overwrite: bool = False
+    overwrite: Literal["skip", "force", "metadata"] = "skip"
 
     # Output template
     output_template: str = "{artist} - {title}"
+    max_filename_length: int = 255
+    restrict: str | None = None  # "strict" or "loose" filename sanitization
 
     # Metadata
     embed_metadata: bool = True
     embed_lyrics: bool = True
     embed_cover: bool = True
+    id3_separator: str = "/"
+
+    # Archive / deduplication
+    archive: str | None = None  # Path to archive file
+    add_unavailable: bool = False  # Also archive songs that fail to download
+
+    # LRC generation
+    generate_lrc: bool = False
+
+    # SponsorBlock
+    sponsor_block: bool = False
+    sponsor_block_categories: list[str] = Field(default_factory=lambda: [
+        "sponsor", "intro", "outro", "selfpromo", "preview", "filler",
+        "interaction", "music_offtopic",
+    ])
+
+    # M3U playlist generation
+    m3u: str | None = None  # M3U output file template (supports {list} variable)
+
+    # Save command
+    save_file: str | None = None  # Default save output path
+
+    # Sync command
+    sync_without_deleting: bool = False
+    sync_remove_lrc: bool = False
+
+    # Skip/overwrite helpers
+    create_skip_file: bool = False
+    respect_skip_file: bool = False
+
+    # Scan for existing songs
+    scan_for_songs: bool = False
+
+    # Skip explicit tracks
+    skip_explicit: bool = False
+
+    # Custom FFmpeg / yt-dlp arguments
+    ffmpeg_args: str | None = None
+    yt_dlp_args: str | None = None
+
+    # Proxy
+    proxy: str | None = None
+
+    # Provider selection
+    audio_providers: list[str] = Field(default_factory=lambda: ["youtube-music"])
+    lyrics_providers: list[str] = Field(
+        default_factory=lambda: ["genius", "musixmatch", "azlyrics", "synced"]
+    )
+
+    # Search customization
+    search_query: str | None = None  # Custom search query template
+
+    # Playlist options
+    playlist_numbering: bool = False
+    fetch_albums: bool = False
+
+    # Error logging
+    save_errors: str | None = None  # Path to save error log
+    print_errors: bool = False
 
     # Spotify credentials (optional, enables Spotify URL support)
     spotify_client_id: str | None = None
@@ -101,12 +163,39 @@ class Settings(BaseSettings):
             "offline_mode",
             "audio_format",
             "audio_quality",
+            "bitrate",
             "threads",
             "overwrite",
             "output_template",
+            "max_filename_length",
+            "restrict",
             "embed_metadata",
             "embed_lyrics",
             "embed_cover",
+            "id3_separator",
+            "archive",
+            "add_unavailable",
+            "generate_lrc",
+            "sponsor_block",
+            "sponsor_block_categories",
+            "m3u",
+            "save_file",
+            "sync_without_deleting",
+            "sync_remove_lrc",
+            "create_skip_file",
+            "respect_skip_file",
+            "scan_for_songs",
+            "skip_explicit",
+            "ffmpeg_args",
+            "yt_dlp_args",
+            "proxy",
+            "audio_providers",
+            "lyrics_providers",
+            "search_query",
+            "playlist_numbering",
+            "fetch_albums",
+            "save_errors",
+            "print_errors",
             "spotify_client_id",
             "spotify_client_secret",
             "spotify_user_auth",

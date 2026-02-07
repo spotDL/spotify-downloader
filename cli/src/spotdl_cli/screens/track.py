@@ -26,6 +26,8 @@ from textual.widgets import (
     Static,
 )
 
+from spotdl_cli.widgets import CoverArt
+
 from spotdl_cli.config import get_settings
 from spotdl_cli.core import (
     APIError,
@@ -89,7 +91,7 @@ class TrackScreen(Screen[None]):
             with Vertical(id="track-hero", classes="hero-section"):
                 with Horizontal(id="track-hero-content"):
                     # Left: Cover art placeholder
-                    yield Static("", id="track-cover", classes="cover-placeholder")
+                    yield CoverArt(id="track-cover", classes="cover-placeholder")
 
                     # Right: Track info
                     with Vertical(id="track-info"):
@@ -270,6 +272,10 @@ class TrackScreen(Screen[None]):
         platform_content.update(
             f"{platform_icon} [{song.platform.value}]({song.url})"
         )
+
+        # Cover art
+        cover_widget = self.query_one("#track-cover", CoverArt)
+        cover_widget.cover_url = song.cover_url
 
     async def _load_track_data(self) -> None:
         """Load detailed track data from API or offline."""

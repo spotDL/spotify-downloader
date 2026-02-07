@@ -37,6 +37,11 @@ dependencies = [
     "platformdirs>=4.3.0",
     # SoundCloud OAuth (CLI-only feature)
     "soundcloudpy>=0.1.4",
+    # Synced lyrics search
+    "syncedlyrics>=0.10.0",
+    # Cover art rendering in terminal
+    "rich-pixels>=3.0.0",
+    "Pillow>=10.0.0",
 ]
 
 [project.optional-dependencies]
@@ -110,6 +115,9 @@ module = [
     "mutagen.*",
     "soundcloudpy.*",
     "spotdl_core.*",
+    "rich_pixels.*",
+    "PIL.*",
+    "syncedlyrics.*",
 ]
 ignore_missing_imports = true
 

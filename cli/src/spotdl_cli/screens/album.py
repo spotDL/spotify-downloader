@@ -23,6 +23,8 @@ from textual.widgets import (
     Static,
 )
 
+from spotdl_cli.widgets import CoverArt
+
 from spotdl_cli.config import get_settings
 from spotdl_cli.core import (
     APIError,
@@ -83,7 +85,7 @@ class AlbumScreen(Screen[None]):
             with Vertical(id="album-hero", classes="hero-section"):
                 with Horizontal(id="album-hero-content"):
                     # Left: Cover art placeholder
-                    yield Static("", id="album-cover", classes="cover-placeholder-large")
+                    yield CoverArt(id="album-cover", classes="cover-placeholder-large")
 
                     # Right: Album info
                     with Vertical(id="album-info"):
@@ -270,6 +272,11 @@ class AlbumScreen(Screen[None]):
 
         # Title
         self.query_one("#album-title", Static).update(data.get("name", "Unknown Album"))
+
+        # Cover art
+        cover_url = data.get("cover_url") or data.get("image_url")
+        if cover_url:
+            self.query_one("#album-cover", CoverArt).cover_url = cover_url
 
         # Artist
         artist = data.get("artist") or ", ".join(data.get("artists", ["Unknown"]))

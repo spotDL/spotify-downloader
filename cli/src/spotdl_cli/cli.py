@@ -57,6 +57,26 @@ def _truncate_album(album_name: str | None, max_len: int = 20) -> str:
     return album_name
 
 
+def _print_cover_art(cover_url: str) -> None:
+    """Fetch and print cover art for CLI output."""
+    try:
+        import httpx
+        from PIL import Image
+        from rich_pixels import Pixels
+
+        response = httpx.get(cover_url, timeout=10.0, follow_redirects=True)
+        response.raise_for_status()
+
+        from io import BytesIO
+
+        img = Image.open(BytesIO(response.content)).convert("RGB")
+        img.thumbnail((64, 64), Image.Resampling.LANCZOS)
+        pixels = Pixels.from_image(img, resize=(32, 16))
+        console.print(pixels)
+    except Exception:
+        pass  # Silently skip if cover art can't be rendered
+
+
 def setup_logging(verbose: bool) -> None:
     """Setup logging configuration."""
     level = logging.DEBUG if verbose else logging.WARNING
@@ -295,9 +315,9 @@ def download(
         typer.Option("-t", "--threads", help="Number of download threads (1-16)"),
     ] = 4,
     overwrite: Annotated[
-        bool,
-        typer.Option("--overwrite", help="Overwrite existing files"),
-    ] = False,
+        str,
+        typer.Option("--overwrite", help="Overwrite mode: skip, force, or metadata"),
+    ] = "skip",
     verbose: Annotated[
         bool,
         typer.Option("-v", "--verbose", help="Enable verbose output"),
@@ -328,12 +348,17 @@ def download(
         console.print("[red]Threads must be between 1 and 16[/]")
         raise typer.Exit(1)
 
+    valid_overwrite = ("skip", "force", "metadata")
+    if overwrite not in valid_overwrite:
+        console.print(f"[red]Invalid overwrite mode. Choose from: {', '.join(valid_overwrite)}[/]")
+        raise typer.Exit(1)
+
     # Update settings
     settings = get_settings()
     settings.audio_format = format  # type: ignore
     settings.audio_quality = quality  # type: ignore
     settings.threads = threads
-    settings.overwrite = overwrite
+    settings.overwrite = overwrite  # type: ignore
 
     console.print(f"[cyan]Resolving {len(queries)} query(ies)...[/]")
 
@@ -527,6 +552,11 @@ def info(
         if len(songs) == 1:
             # Single track info
             song = songs[0]
+
+            # Render cover art if available
+            if song.cover_url:
+                _print_cover_art(song.cover_url)
+
             console.print(f"\n[bold cyan]{song.name}[/]")
             console.print(f"[green]Artist:[/] {song.artist}")
             if song.album_name:
@@ -565,6 +595,460 @@ def info(
                 console.print(f"\n[dim]Total duration: {hours}h {minutes}m {seconds}s[/]")
             else:
                 console.print(f"\n[dim]Total duration: {minutes}m {seconds}s[/]")
+
+
+@app.command()
+def save(
+    queries: Annotated[
+        list[str],
+        typer.Argument(help="Songs/playlists/albums to save"),
+    ],
+    output: Annotated[
+        str,
+        typer.Option("-o", "--output", help="Output JSON file path"),
+    ] = "songs.spotdl",
+    preload: Annotated[
+        bool,
+        typer.Option("--preload", help="Pre-search download URLs"),
+    ] = False,
+    with_lyrics: Annotated[
+        bool,
+        typer.Option("--lyrics", help="Include lyrics"),
+    ] = False,
+    format: Annotated[
+        str | None,
+        typer.Option("-f", "--format", help="Audio format"),
+    ] = None,
+    verbose: Annotated[
+        bool,
+        typer.Option("-v", "--verbose", help="Enable verbose output"),
+    ] = False,
+) -> None:
+    """Save song metadata to a .spotdl JSON file without downloading.
+
+    Examples:
+        spotdl save "https://open.spotify.com/playlist/..."
+        spotdl save "artist:Daft Punk" -o daft_punk.spotdl --preload
+        spotdl save "album:Random Access Memories" --lyrics
+    """
+    setup_logging(verbose)
+    settings = get_settings()
+    if format:
+        settings.audio_format = format  # type: ignore
+
+    console.print(f"[cyan]Resolving {len(queries)} query(ies)...[/]")
+    songs = asyncio.run(resolve_queries(queries, settings))
+
+    if not songs:
+        console.print("[yellow]No songs found for the given queries.[/]")
+        raise typer.Exit(0)
+
+    console.print(f"[green]Found {len(songs)} song(s)[/]")
+
+    async def _process_songs() -> list[dict]:
+        offline_matcher = get_offline_matcher()
+        processed = []
+        for song in songs:
+            entry: dict = song.json if hasattr(song, "json") else song.to_dict()
+
+            if preload:
+                try:
+                    result = await offline_matcher.get_best_match(song, min_score=60.0)
+                    if result:
+                        entry["download_url"] = result.url
+                except Exception:
+                    pass
+
+            if with_lyrics and not entry.get("lyrics"):
+                # Try to fetch lyrics via API
+                try:
+                    api_client = get_api_client()
+                    is_online = await api_client.is_online()
+                    if is_online:
+                        lyrics_data = await api_client.get_lyrics(
+                            song.platform_id, song.platform.value
+                        )
+                        if lyrics_data.get("lyrics"):
+                            entry["lyrics"] = lyrics_data["lyrics"]
+                    await api_client.close()
+                except Exception:
+                    pass
+
+            processed.append(entry)
+        return processed
+
+    song_data = asyncio.run(_process_songs())
+
+    # Write output
+    if output == "-":
+        console.print(json.dumps(song_data, indent=2, ensure_ascii=False))
+    else:
+        output_path = Path(output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(song_data, f, indent=2, ensure_ascii=False)
+        console.print(f"[green]Saved {len(song_data)} song(s) to {output_path}[/]")
+
+    # Generate M3U if configured
+    if settings.m3u:
+        from spotdl_cli.core.m3u import gen_m3u_files
+        gen_m3u_files(
+            songs, settings.m3u, settings.output_template, settings.audio_format
+        )
+
+
+@app.command()
+def url(
+    queries: Annotated[
+        list[str],
+        typer.Argument(help="Songs/playlists/albums to get URLs for"),
+    ],
+    verbose: Annotated[
+        bool,
+        typer.Option("-v", "--verbose", help="Enable verbose output"),
+    ] = False,
+) -> None:
+    """Print download URLs to stdout for scripting/piping.
+
+    Examples:
+        spotdl url "https://open.spotify.com/track/..."
+        spotdl url "Daft Punk - Get Lucky"
+    """
+    setup_logging(verbose)
+    settings = get_settings()
+
+    console.print("[cyan]Resolving queries...[/]", stderr=True)
+    songs = asyncio.run(resolve_queries(queries, settings))
+
+    if not songs:
+        console.print("[yellow]No songs found.[/]", stderr=True)
+        raise typer.Exit(0)
+
+    async def _find_urls() -> list[str]:
+        offline_matcher = get_offline_matcher()
+        urls = []
+        for song in songs:
+            try:
+                result = await offline_matcher.get_best_match(song, min_score=60.0)
+                if result:
+                    urls.append(result.url)
+                else:
+                    logger.warning("No match found for: %s", song.display_name)
+            except Exception as e:
+                logger.warning("Failed to find URL for %s: %s", song.display_name, e)
+        return urls
+
+    found_urls = asyncio.run(_find_urls())
+
+    for u in found_urls:
+        print(u)
+
+
+@app.command()
+def sync(
+    queries: Annotated[
+        list[str],
+        typer.Argument(help="Queries or .spotdl sync file"),
+    ],
+    output: Annotated[
+        Path | None,
+        typer.Option("-o", "--output", help="Output directory"),
+    ] = None,
+    format: Annotated[
+        str | None,
+        typer.Option("-f", "--format", help="Audio format"),
+    ] = None,
+    no_delete: Annotated[
+        bool,
+        typer.Option("--no-delete", help="Don't delete removed songs"),
+    ] = False,
+    remove_lrc: Annotated[
+        bool,
+        typer.Option("--remove-lrc", help="Also remove LRC files for deleted songs"),
+    ] = False,
+    verbose: Annotated[
+        bool,
+        typer.Option("-v", "--verbose", help="Enable verbose output"),
+    ] = False,
+) -> None:
+    """Synchronize a local music library with a remote playlist.
+
+    First run creates a sync file. Subsequent runs update the library.
+
+    Examples:
+        spotdl sync "https://open.spotify.com/playlist/..."
+        spotdl sync my_playlist.spotdl
+    """
+    from spotdl_cli.core.sync import PlaylistSyncManager, SyncFile
+
+    setup_logging(verbose)
+    settings = get_settings()
+    if format:
+        settings.audio_format = format  # type: ignore
+    if output:
+        settings.output_dir = output
+    no_delete = no_delete or settings.sync_without_deleting
+    remove_lrc = remove_lrc or settings.sync_remove_lrc
+
+    # Check if first argument is an existing .spotdl sync file
+    sync_file_path = Path(queries[0]) if len(queries) == 1 else None
+    is_update = sync_file_path and sync_file_path.exists() and sync_file_path.suffix == ".spotdl"
+
+    if is_update and sync_file_path:
+        # Update mode: load existing sync file and compare
+        console.print(f"[cyan]Loading sync file: {sync_file_path}[/]")
+        try:
+            sync_data = SyncFile.load(sync_file_path)
+        except (ValueError, json.JSONDecodeError) as e:
+            console.print(f"[red]Invalid sync file: {e}[/]")
+            raise typer.Exit(1)
+
+        old_songs = sync_data.songs
+
+        # Re-resolve original queries to get current state
+        console.print("[cyan]Fetching current playlist state...[/]")
+        new_songs = asyncio.run(resolve_queries(sync_data.query, settings))
+
+        if not new_songs:
+            console.print("[yellow]No songs found in current playlist state.[/]")
+            raise typer.Exit(0)
+
+        # Compute sync actions
+        sync_manager = PlaylistSyncManager(settings)
+        actions = sync_manager.compute_sync_actions(
+            old_songs, new_songs, no_delete=no_delete, remove_lrc=remove_lrc
+        )
+
+        if not actions.has_changes:
+            console.print("[green]Already in sync. No changes needed.[/]")
+            # Update sync file with new state anyway
+            sync_data.songs = new_songs
+            sync_data.save(sync_file_path)
+            raise typer.Exit(0)
+
+        console.print(f"[cyan]Sync actions: {actions.summary()}[/]")
+
+        # Execute renames
+        if actions.renames:
+            renamed = sync_manager.execute_renames(actions.renames)
+            console.print(f"[green]Renamed {renamed} file(s)[/]")
+
+        # Execute deletions
+        if actions.deletions:
+            deleted = sync_manager.execute_deletions(actions.deletions)
+            console.print(f"[yellow]Deleted {deleted} file(s)[/]")
+
+        # Download new songs
+        if actions.downloads:
+            console.print(f"[cyan]Downloading {len(actions.downloads)} new song(s)...[/]")
+            success, failed = asyncio.run(download_songs(actions.downloads, settings))
+            if success > 0:
+                console.print(f"[green]Downloaded {success} song(s)[/]")
+            if failed > 0:
+                console.print(f"[red]Failed to download {failed} song(s)[/]")
+
+        # Update sync file with new state
+        sync_data.songs = new_songs
+        sync_data.save(sync_file_path)
+        console.print(f"[green]Sync file updated: {sync_file_path}[/]")
+
+    else:
+        # Create mode: resolve queries, save sync file, download
+        console.print(f"[cyan]Resolving {len(queries)} query(ies)...[/]")
+        songs = asyncio.run(resolve_queries(queries, settings))
+
+        if not songs:
+            console.print("[yellow]No songs found for the given queries.[/]")
+            raise typer.Exit(0)
+
+        console.print(f"[green]Found {len(songs)} song(s)[/]")
+
+        # Save sync file
+        sync_file_name = settings.save_file or "sync.spotdl"
+        sync_path = Path(sync_file_name)
+        sync_data = SyncFile(query=queries, songs=songs)
+        sync_data.save(sync_path)
+        console.print(f"[green]Created sync file: {sync_path}[/]")
+
+        # Download all songs
+        success, failed = asyncio.run(download_songs(songs, settings))
+
+        if success > 0:
+            console.print(f"[green]Downloaded {success} song(s)[/]")
+        if failed > 0:
+            console.print(f"[red]Failed to download {failed} song(s)[/]")
+
+    # Generate M3U if configured
+    if settings.m3u:
+        from spotdl_cli.core.m3u import gen_m3u_files
+        gen_m3u_files(
+            new_songs if is_update else songs,
+            settings.m3u,
+            settings.output_template,
+            settings.audio_format,
+        )
+
+
+@app.command()
+def meta(
+    paths: Annotated[
+        list[str],
+        typer.Argument(help="Audio files or directories to update metadata for"),
+    ],
+    force: Annotated[
+        bool,
+        typer.Option("--force", help="Force update all metadata"),
+    ] = False,
+    with_lrc: Annotated[
+        bool,
+        typer.Option("--lrc", help="Generate LRC files"),
+    ] = False,
+    verbose: Annotated[
+        bool,
+        typer.Option("-v", "--verbose", help="Enable verbose output"),
+    ] = False,
+) -> None:
+    """Update metadata on existing local audio files.
+
+    Reads ID3 tags, searches Spotify for matching songs, and re-embeds
+    corrected metadata.
+
+    Examples:
+        spotdl meta ./music/
+        spotdl meta song.mp3 --force
+        spotdl meta ./downloads/ --lrc
+    """
+    from spotdl_cli.core.downloader import Downloader
+    from spotdl_cli.core.lrc import generate_lrc
+    from spotdl_cli.core.metadata_reader import find_audio_files, read_file_metadata
+
+    setup_logging(verbose)
+    settings = get_settings()
+
+    # Find all audio files
+    file_paths = [Path(p) for p in paths]
+    audio_files = find_audio_files(file_paths)
+
+    if not audio_files:
+        console.print("[yellow]No audio files found.[/]")
+        raise typer.Exit(0)
+
+    console.print(f"[cyan]Found {len(audio_files)} audio file(s)[/]")
+
+    async def _process_files() -> tuple[int, int]:
+        downloader = Downloader(settings)
+        api_client = get_api_client()
+        offline_matcher = get_offline_matcher()
+
+        is_online = False
+        try:
+            is_online = await api_client.is_online()
+        except Exception:
+            pass
+
+        updated = 0
+        skipped = 0
+
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            MofNCompleteColumn(),
+            console=console,
+        ) as progress:
+            task = progress.add_task("[cyan]Processing...", total=len(audio_files))
+
+            for file_path in audio_files:
+                try:
+                    # Read existing metadata
+                    existing = read_file_metadata(file_path)
+
+                    # Skip if metadata looks complete and not forcing
+                    if not force and existing.get("name") and existing.get("artists"):
+                        if not with_lrc:
+                            skipped += 1
+                            progress.update(task, advance=1)
+                            continue
+
+                    # Try to find the song
+                    song: Song | None = None
+
+                    # If we have a Spotify URL in metadata, use it directly
+                    spotify_url = existing.get("spotify_url")
+                    if spotify_url:
+                        try:
+                            if is_online:
+                                resolved = await api_client.resolve_url(spotify_url)
+                                if resolved:
+                                    song = resolved[0]
+                            else:
+                                resolved = await offline_matcher.resolve_url(spotify_url)
+                                if resolved:
+                                    song = resolved[0]
+                        except Exception:
+                            pass
+
+                    # Otherwise search by filename/tags
+                    if song is None:
+                        search_term = existing.get("name", "")
+                        if existing.get("artists"):
+                            search_term = f"{existing['artists'][0]} {search_term}"
+                        if not search_term:
+                            search_term = file_path.stem
+
+                        if search_term:
+                            try:
+                                if is_online:
+                                    results = await api_client.search(search_term, limit=1)
+                                    if results:
+                                        song = results[0]
+                                else:
+                                    results = await offline_matcher.search_all(
+                                        search_term, limit=1
+                                    )
+                                    if results:
+                                        song = results[0]
+                            except Exception:
+                                pass
+
+                    if song is None:
+                        logger.warning("No match found for: %s", file_path.name)
+                        skipped += 1
+                        progress.update(task, advance=1)
+                        continue
+
+                    # Embed metadata
+                    await downloader.embed_metadata(file_path, song)
+
+                    # Embed lyrics
+                    if song.lyrics:
+                        await downloader.embed_lyrics(file_path, song.lyrics)
+
+                    # Generate LRC if requested
+                    if with_lrc:
+                        generate_lrc(
+                            song.name, song.artists, file_path, song.lyrics
+                        )
+
+                    updated += 1
+
+                except Exception as e:
+                    logger.error("Failed to process %s: %s", file_path.name, e)
+                    skipped += 1
+
+                progress.update(task, advance=1)
+
+        await downloader.close()
+        await api_client.close()
+        return updated, skipped
+
+    updated, skipped = asyncio.run(_process_files())
+
+    console.print()
+    if updated > 0:
+        console.print(f"[green]Updated metadata for {updated} file(s)[/]")
+    if skipped > 0:
+        console.print(f"[yellow]Skipped {skipped} file(s)[/]")
 
 
 def main() -> None:

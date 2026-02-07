@@ -1,3 +1,5 @@
 """Custom widgets for SpotDL CLI."""
 
-# Widgets will be added as needed for custom components
+from spotdl_cli.widgets.cover_art import CoverArt
+
+__all__ = ["CoverArt"]

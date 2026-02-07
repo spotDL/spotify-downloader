@@ -26,6 +26,8 @@ from textual.widgets import (
     TabPane,
 )
 
+from spotdl_cli.widgets import CoverArt
+
 from spotdl_cli.config import get_settings
 from spotdl_cli.core import (
     APIError,
@@ -88,7 +90,7 @@ class ArtistScreen(Screen[None]):
             with Vertical(id="artist-hero", classes="hero-section"):
                 with Horizontal(id="artist-hero-content"):
                     # Left: Avatar placeholder (circle)
-                    yield Static("", id="artist-avatar", classes="avatar-placeholder")
+                    yield CoverArt(id="artist-avatar", classes="avatar-placeholder")
 
                     # Right: Artist info
                     with Vertical(id="artist-info"):
@@ -287,6 +289,12 @@ class ArtistScreen(Screen[None]):
 
         # Name
         self.query_one("#artist-name", Static).update(data.get("name", "Unknown Artist"))
+
+        # Avatar / cover art
+        images = data.get("images", [])
+        cover_url = data.get("image_url") or (images[0].get("url") if images else None)
+        if cover_url:
+            self.query_one("#artist-avatar", CoverArt).cover_url = cover_url
 
         # Followers
         followers = data.get("followers", {})

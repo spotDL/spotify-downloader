@@ -52,15 +52,46 @@ class UserSettingsResponse(BaseModel):
     # Download settings
     audio_format: str = "mp3"
     audio_quality: str = "best"
+    bitrate: str | None = None
     output_template: str = "{artist} - {title}"
     output_directory: str | None = None
     max_concurrent_downloads: int = 3
-    overwrite_existing: bool = False
+    overwrite: str = "skip"
+    max_filename_length: int = 255
+    restrict: str | None = None
 
     # Metadata settings
     embed_metadata: bool = True
     embed_lyrics: bool = True
-    embed_cover_art: bool = True
+    embed_cover: bool = True
+    id3_separator: str = "/"
+
+    # SponsorBlock
+    sponsor_block: bool = False
+
+    # LRC / Lyrics files
+    generate_lrc: bool = False
+
+    # M3U playlist generation
+    m3u: str | None = None
+
+    # Archive (deduplication)
+    archive: str | None = None
+
+    # Content filtering
+    skip_explicit: bool = False
+    scan_for_songs: bool = False
+
+    # Playlist options
+    playlist_numbering: bool = False
+    fetch_albums: bool = False
+
+    # Proxy
+    proxy: str | None = None
+
+    # Custom arguments
+    ffmpeg_args: str | None = None
+    yt_dlp_args: str | None = None
 
     # Spotify credentials
     spotify_client_id: str | None = None
@@ -103,15 +134,46 @@ class UserSettingsUpdate(BaseModel):
     # Download settings
     audio_format: str | None = Field(None, pattern="^(mp3|m4a|flac|opus|ogg|wav)$")
     audio_quality: str | None = Field(None, pattern="^(best|320k|256k|192k|128k)$")
+    bitrate: str | None = Field(None, max_length=20)
     output_template: str | None = Field(None, max_length=255)
     output_directory: str | None = Field(None, max_length=500)
     max_concurrent_downloads: int | None = Field(None, ge=1, le=10)
-    overwrite_existing: bool | None = None
+    overwrite: str | None = Field(None, pattern="^(skip|force|metadata)$")
+    max_filename_length: int | None = Field(None, ge=50, le=500)
+    restrict: str | None = Field(None, pattern="^(strict|loose)$")
 
     # Metadata settings
     embed_metadata: bool | None = None
     embed_lyrics: bool | None = None
-    embed_cover_art: bool | None = None
+    embed_cover: bool | None = None
+    id3_separator: str | None = Field(None, max_length=5)
+
+    # SponsorBlock
+    sponsor_block: bool | None = None
+
+    # LRC / Lyrics files
+    generate_lrc: bool | None = None
+
+    # M3U playlist generation
+    m3u: str | None = Field(None, max_length=255)
+
+    # Archive (deduplication)
+    archive: str | None = Field(None, max_length=500)
+
+    # Content filtering
+    skip_explicit: bool | None = None
+    scan_for_songs: bool | None = None
+
+    # Playlist options
+    playlist_numbering: bool | None = None
+    fetch_albums: bool | None = None
+
+    # Proxy
+    proxy: str | None = Field(None, max_length=500)
+
+    # Custom arguments
+    ffmpeg_args: str | None = Field(None, max_length=500)
+    yt_dlp_args: str | None = Field(None, max_length=500)
 
     # Spotify credentials
     spotify_client_id: str | None = Field(None, max_length=255)

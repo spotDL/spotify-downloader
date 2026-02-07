@@ -15,6 +15,7 @@ from spotdl_cli.core import (
     DownloadManager,
     DownloadQueue,
     get_api_client,
+    get_image_service,
 )
 from spotdl_cli.screens.main import MainScreen
 from spotdl_cli.screens.onboarding import OnboardingScreen, should_show_onboarding
@@ -138,6 +139,10 @@ class SpotDLApp(App[None]):
             await self._api_client.close()
         if self._download_manager:
             await self._download_manager.close()
+
+        # Close image service HTTP client
+        image_service = get_image_service()
+        await image_service.close()
 
         self.exit()
 
