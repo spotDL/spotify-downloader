@@ -7,8 +7,8 @@ As common issues or questions are encountered solutions will be added to this gu
     Python/(site packages) is not added to PATH correctly. You need to install Python from
     <https://www.python.org/downloads/>
 
-    Or you are using python from microsoft store. If so uninstall it and restart cmd. If this
-    doesn't work reinstall python.
+    Or you are using Python from the Microsoft Store. If so, uninstall it and restart cmd. If this
+    doesn't work, reinstall Python.
 
     ### Error message
 
@@ -24,7 +24,7 @@ As common issues or questions are encountered solutions will be added to this gu
 ??? "spotdl: command not found"
 
     If you see this error after installing spotdl, that means that the bin (Binaries) folder is not
-    on `$PATH`
+    in `$PATH`.
 
     ### Solution
 
@@ -40,8 +40,8 @@ As common issues or questions are encountered solutions will be added to this gu
 
 ??? "pkg_resources.DistributionNotFound"
 
-    Sometimes not all packages are installed but are required by yt-dlp for example: `brotli` or
-    `websockets`
+    Sometimes not all packages are installed but are required by yt-dlp, for example: `brotli` or
+    `websockets`.
 
     ### Error Message
 
@@ -61,7 +61,7 @@ As common issues or questions are encountered solutions will be added to this gu
 
     ### Solution
 
-    Update spotdl to the latest version which contains workaround.
+    Update spotdl to the latest version which contains a workaround.
 
     `pip install -U spotdl`
 
@@ -87,7 +87,7 @@ As common issues or questions are encountered solutions will be added to this gu
 
     ### Solution
 
-    Update spotdl
+    Update spotdl:
 
     `pip install spotdl -U`
 
@@ -105,11 +105,11 @@ As common issues or questions are encountered solutions will be added to this gu
 
     ### Solution
 
-    You can ignore this error or just run spotdl directly
+    You can ignore this error or just run spotdl directly.
 
 ??? "Not found '\_raw_ecb.so'"
 
-    This error is specific for M1 Macs only.
+    This error is specific to M1 Macs only.
 
     https://discord.com/channels/771628785447337985/871006150357823498
     https://discord.com/channels/771628785447337985/939475659238043738
