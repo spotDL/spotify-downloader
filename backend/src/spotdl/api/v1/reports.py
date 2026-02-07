@@ -190,12 +190,13 @@ async def list_reports(
         query = query.where(MetadataReport.entity_type == entity_type.value)
 
     # Count total
-    count_query = select(func.count()).select_from(
-        select(MetadataReport).where(
-            (MetadataReport.status == status.value if status else True)
-            & (MetadataReport.entity_type == entity_type.value if entity_type else True)
-        ).subquery()
-    )
+    count_subquery = select(MetadataReport)
+    if status:
+        count_subquery = count_subquery.where(MetadataReport.status == status.value)
+    if entity_type:
+        count_subquery = count_subquery.where(MetadataReport.entity_type == entity_type.value)
+
+    count_query = select(func.count()).select_from(count_subquery.subquery())
     total = (await db.execute(count_query)).scalar() or 0
 
     # Get page

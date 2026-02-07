@@ -7,8 +7,8 @@ Added comprehensive test coverage to the SpotDL backend incrementally.
 
 ### Backend Tests
 - **Initial Coverage**: 52.37%
-- **Current Coverage**: 67.27%
-- **Improvement**: +14.90%
+- **Current Coverage**: 75.29%
+- **Improvement**: +22.92%
 
 ### Tests Added
 1. **Repository Tests** (7 tests)
@@ -117,14 +117,55 @@ Added comprehensive test coverage to the SpotDL backend incrementally.
    - Complex multi-source merging
    - Disabled fields handling
 
-16. **Bug Fixes**
+16. **Extended Entities API Tests** (27 additional tests) - 33% → 60%
+   - Happy path tests with real database
+   - Metadata sources and resolved endpoints
+   - Enrichment workflows (single and all providers)
+   - Platform-based retrieval with redirects
+   - Refresh cooldown enforcement
+   - ISRC deduplication and multiple platform links
+
+17. **Reports API Tests** (47 tests) - 36% → 99%
+   - Report creation with reputation integration
+   - Listing with filters (status, entity type)
+   - Status updates (fixed, reviewed, dismissed)
+   - Admin vs owner access control
+   - Import/export functionality
+   - Pagination and validation
+
+18. **Extended Repository Tests** (96 additional tests) - ~45% → ~99%
+   - Complete CRUD operations for all repositories
+   - Platform link management
+   - Search functionality
+   - Specialized queries and relationships
+   - Edge cases and error handling
+
+19. **Lyrics Provider Tests** (68 tests) - ~17% → ~91%
+   - Genius provider (with and without API token)
+   - AZLyrics provider with x_code auth
+   - MusixMatch provider
+   - Synced lyrics provider
+   - HTML parsing and error handling
+   - Rate limiting and retry logic
+
+20. **Extended Songs API Tests** (37 additional tests) - 65% → 94.5%
+   - Multi-platform search with error handling
+   - Cross-platform match saving
+   - Entity URL builders for all platforms
+   - Helper function testing
+   - Advanced entity search scenarios
+   - Platform display names
+
+21. **Bug Fixes**
+   - Fixed reports API count query boolean logic
+   - Fixed download service NameError (req → request)
    - Fixed 15 initially failing tests
    - Fixed provider initialization (enabled all platforms for testing)
    - Fixed authentication in API tests (use authenticated_client)
    - Fixed database directory creation
    - Fixed Result type tests (artists tuple conversion, isrc_search field)
 
-### Total New Tests: **407 tests** (155 + 252 from parallel agents)
+### Total New Tests: **~682 tests** (155 manual + 527 from parallel agents)
 
 ## Module Coverage Improvements
 - `spotdl.core.providers_config`: 91% → **100%** ✅

@@ -442,7 +442,14 @@ class DownloadManager:
             raise
 
         except Exception as e:
-            logger.error("Download failed: %s", e)
+            # Log the full exception with traceback for debugging
+            logger.error(
+                "Download %s failed for '%s' by %s",
+                download_id,
+                request.title,
+                request.artist,
+                exc_info=True,  # This includes the full traceback
+            )
             self._downloads[download_id].status = DownloadStatus.FAILED
             self._downloads[download_id].error = str(e)
             self._notify_progress(download_id)
