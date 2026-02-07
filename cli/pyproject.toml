@@ -39,8 +39,8 @@ dependencies = [
     "soundcloudpy>=0.1.4",
     # Synced lyrics search
     "syncedlyrics>=0.10.0",
-    # Cover art rendering in terminal
-    "rich-pixels>=3.0.0",
+    # Cover art rendering in terminal (Sixel/TGP with Unicode fallback)
+    "textual-image[textual]>=0.8.5",
     "Pillow>=10.0.0",
 ]
 
@@ -115,7 +115,7 @@ module = [
     "mutagen.*",
     "soundcloudpy.*",
     "spotdl_core.*",
-    "rich_pixels.*",
+    "textual_image.*",
     "PIL.*",
     "syncedlyrics.*",
 ]

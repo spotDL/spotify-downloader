@@ -62,7 +62,7 @@ def _print_cover_art(cover_url: str) -> None:
     try:
         import httpx
         from PIL import Image
-        from rich_pixels import Pixels
+        from textual_image.renderable import Image as RichImage
 
         response = httpx.get(cover_url, timeout=10.0, follow_redirects=True)
         response.raise_for_status()
@@ -70,9 +70,8 @@ def _print_cover_art(cover_url: str) -> None:
         from io import BytesIO
 
         img = Image.open(BytesIO(response.content)).convert("RGB")
-        img.thumbnail((64, 64), Image.Resampling.LANCZOS)
-        pixels = Pixels.from_image(img, resize=(32, 16))
-        console.print(pixels)
+        img.thumbnail((512, 512), Image.Resampling.LANCZOS)
+        console.print(RichImage(img, width=32, height=16))
     except Exception:
         pass  # Silently skip if cover art can't be rendered
 

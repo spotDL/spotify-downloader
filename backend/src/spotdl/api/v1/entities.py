@@ -991,8 +991,6 @@ async def get_playlist_by_platform(
             song_key = f"{song.platform.value}:{song.platform_id}"
             song_id = persist_result.song_ids.get(song_key)
             if song_id:
-                from spotdl.db.repositories.playlist import PlaylistRepository
-
                 playlist_repo = PlaylistRepository(db)
                 await playlist_repo.add_track(playlist.id, song_id, i)
 

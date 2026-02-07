@@ -416,79 +416,72 @@ Rule {
 
 /* ==================== MAIN SCREEN ==================== */
 
-#main-layout {
+/* Main container — full bleed, tight padding */
+#main-container {
     width: 100%;
     height: 100%;
+    padding: 0 1;
 }
 
-#search-panel {
-    width: 75%;
-    padding: 1 2;
-}
-
-#info-panel {
-    width: 25%;
-    padding: 1;
+/* ---- Search bar: single compact row ---- */
+#search-bar {
+    height: 3;
+    width: 100%;
+    align: left middle;
+    margin-bottom: 0;
+    padding: 0;
     background: $bg-panel;
-    border-left: wide $border-color;
+    border-bottom: solid $border-subtle;
 }
 
-/* Search section */
-#search-section {
-    height: auto;
-    margin-bottom: 1;
-}
-
-#search-header {
-    height: auto;
-    margin-bottom: 1;
-}
-
-#search-title {
-    text-style: bold;
+#search-icon {
+    width: 3;
+    text-align: center;
     color: $accent-primary;
 }
 
-#search-mode-badge {
-    margin-left: 2;
-}
-
-/* Search form */
-#search-form {
-    height: auto;
-    margin-bottom: 1;
-}
-
-#search-input-row {
-    height: 3;
-    margin-bottom: 1;
-}
-
-#search-box {
+#search-input {
     width: 1fr;
+    margin: 0;
+    border: none;
+    background: $bg-panel;
+}
+
+#search-input:focus {
+    border: none;
+    background: $bg-elevated;
 }
 
 #search-btn {
     width: auto;
-    min-width: 12;
-    margin-left: 1;
+    min-width: 10;
+    margin: 0;
+    height: 3;
 }
 
 #status-bar {
     height: 1;
+    width: auto;
+    min-width: 20;
     padding: 0 1;
     color: $text-muted;
+    text-align: right;
 }
 
-/* Filter tabs */
+/* ---- Filter pills: compact row ---- */
 #filter-tabs {
-    height: 3;
-    margin-bottom: 1;
+    height: auto;
+    max-height: 3;
+    margin: 0;
+    padding: 0 1;
     align: left middle;
+    background: $bg-chassis;
+    border-bottom: solid $border-subtle;
 }
 
 .filter-btn {
-    min-width: 10;
+    min-width: 8;
+    padding: 0 2;
     margin-right: 1;
     background: $bg-surface;
     border: tall $border-color;
@@ -510,23 +503,13 @@ Rule {
     border: tall $accent-primary;
 }
 
-/* Results container */
+/* ---- Results container ---- */
 #results-container {
     height: auto;
-    padding: 1;
+    padding: 0 1;
 }
 
-#results-scroll {
-    height: 100%;
-    width: 100%;
-}
-
-#results-table {
-    width: 100%;
-    height: 100%;
-}
-
-/* Entity sections */
+/* ---- Entity sections ---- */
 .entity-section {
     height: auto;
     margin-bottom: 1;
@@ -534,13 +517,13 @@ Rule {
 
 .section-header {
     height: auto;
-    margin-bottom: 1;
+    margin: 1 0 0 0;
     align: left middle;
 }
 
 .section-title {
     text-style: bold;
-    padding: 0 1;
+    padding: 0;
 }
 
 .section-count {
@@ -565,98 +548,269 @@ Rule {
     color: $accent-primary;
 }
 
-/* Entity cards grid */
-.entity-grid {
-    height: auto;
-    padding: 0 1;
-}
-
-.entity-list {
-    height: auto;
-}
-
-/* Entity card */
-.entity-card {
-    height: 9;
-    max-width: 120;
-    padding: 0 1;
-    margin-bottom: 0;
-    background: $bg-elevated;
-    border: wide $border-color;
-    align: left middle;
-}
-
-.entity-card:hover {
-    background: $bg-hover;
-    border: wide $accent-primary;
-}
-
-.entity-card:focus {
-    background: $bg-hover;
-    border: wide $accent-primary;
-}
-
-/* Card layout */
-.card-main {
+/* ---- Artist grid: compact tiles in a wrapping horizontal row ---- */
+.artist-grid {
     height: auto;
     width: 100%;
-    align: left middle;
+    padding: 0;
+    overflow-x: auto;
 }
 
-.card-icon {
-    width: 3;
+.artist-tile {
+    width: 22;
+    height: auto;
+    padding: 0 1;
+    margin: 0 1 0 0;
+    background: $bg-elevated;
+    border: wide $border-color;
+    text-align: center;
+    content-align: center top;
+}
+
+.artist-tile:hover {
+    background: $bg-hover;
+    border: wide $accent-warning;
+}
+
+.artist-tile:focus {
+    background: $bg-hover;
+    border: wide $accent-warning;
+}
+
+.artist-tile-cover {
+    width: 18;
+    height: 5;
+    background: $bg-surface;
+    border: solid $border-subtle;
+    overflow: hidden;
+    content-align: center middle;
+    margin: 0;
+}
+
+.tile-name {
+    color: $text-primary;
+    text-style: bold;
+    height: 1;
     text-align: center;
 }
 
-.card-info {
+.tile-meta {
+    color: $text-muted;
+    height: 1;
+    text-align: center;
+}
+
+.tile-action {
     width: 1fr;
+    min-width: 6;
+    padding: 0 1;
+    margin: 0;
+    background: $bg-surface;
+    border: tall $border-color;
+}
+
+.tile-action:hover {
+    background: $accent-primary;
+    border: tall $accent-primary;
+}
+
+.tile-action-dl {
+    background: $bg-surface;
+}
+
+.tile-action-dl:hover {
+    background: $accent-success;
+    border: tall $accent-success;
+}
+
+.tile-actions-row {
+    height: auto;
+    width: 100%;
+    align: center middle;
+}
+
+/* ---- Album grid: compact tiles ---- */
+.album-grid {
+    height: auto;
+    width: 100%;
+    padding: 0;
+    overflow-x: auto;
+}
+
+.album-tile {
+    width: 22;
     height: auto;
     padding: 0 1;
+    margin: 0 1 0 0;
+    background: $bg-elevated;
+    border: wide $border-color;
+    text-align: center;
+    content-align: center top;
 }
 
-.card-name {
-    text-style: bold;
-    color: $text-primary;
+.album-tile:hover {
+    background: $bg-hover;
+    border: wide $accent-secondary;
 }
 
-.card-subtitle {
-    color: $text-secondary;
+.album-tile:focus {
+    background: $bg-hover;
+    border: wide $accent-secondary;
 }
 
-.card-platforms {
+.album-tile-cover {
+    width: 18;
+    height: 5;
+    background: $bg-surface;
+    border: solid $border-subtle;
+    overflow: hidden;
+    content-align: center middle;
+    margin: 0;
+}
+
+/* ---- Compact track/playlist rows ---- */
+.track-list {
     height: auto;
-    margin-top: 1;
+    width: 100%;
+}
+
+.compact-row {
+    height: auto;
+    max-height: 5;
+    width: 100%;
+    padding: 0 1;
+    margin: 0;
+    background: $bg-elevated;
+    border-bottom: solid $border-subtle;
     align: left middle;
 }
 
-.card-action {
-    width: auto;
+.compact-row:hover {
+    background: $bg-hover;
+}
+
+.compact-row:focus {
+    background: $bg-hover;
+    border-bottom: solid $accent-primary;
+}
+
+.row-icon {
+    width: 3;
+    text-align: center;
+    height: 1;
+}
+
+.row-info {
+    width: 1fr;
     height: auto;
     padding: 0;
 }
 
-/* Card cover art (search results) */
+.row-title {
+    color: $text-primary;
+    height: 1;
+}
+
+.row-subtitle {
+    color: $text-secondary;
+    height: 1;
+}
+
+.row-platforms {
+    width: auto;
+    height: 1;
+    margin: 0 1;
+}
+
+.row-duration {
+    width: 6;
+    text-align: right;
+    height: 1;
+}
+
+.row-action {
+    width: auto;
+    min-width: 4;
+    padding: 0;
+    margin: 0;
+    background: $bg-elevated;
+    border: tall $border-subtle;
+    color: $text-muted;
+}
+
+.row-action:hover {
+    color: $accent-primary;
+    background: $bg-surface;
+    border: tall $accent-primary;
+}
+
+.row-action-dl:hover {
+    color: $accent-success;
+    border: tall $accent-success;
+}
+
+/* ---- Card cover (generic, used in tiles) ---- */
 .card-cover {
     overflow: hidden;
     content-align: center middle;
-    margin-right: 1;
 }
 
-.card-cover-small {
-    width: 14;
-    height: 7;
-    background: $bg-surface;
-    border: wide $border-color;
-}
-
-/* Card meta row (type badge + platform dots) */
-.card-meta-row {
+/* ---- Empty states ---- */
+#empty-state {
     height: auto;
-    align: left middle;
-    margin-bottom: 0;
+    padding: 3;
+    text-align: center;
+    align: center middle;
 }
 
-/* Entity type badges */
+.empty-state {
+    height: auto;
+    padding: 3;
+    text-align: center;
+}
+
+.empty-message {
+    color: $text-secondary;
+    text-style: bold;
+    margin-bottom: 1;
+    text-align: center;
+}
+
+.empty-hint {
+    color: $text-muted;
+    text-style: italic;
+    text-align: center;
+}
+
+#no-results {
+    height: auto;
+    padding: 3;
+    text-align: center;
+    align: center middle;
+}
+
+/* ---- Load More buttons ---- */
+.load-more-btn {
+    width: 100%;
+    margin: 1 0 0 0;
+    padding: 0 2;
+    background: $bg-surface;
+    border: tall $border-color;
+    color: $text-muted;
+}
+
+.load-more-btn:hover {
+    background: $bg-hover;
+    border: tall $accent-primary;
+    color: $text-primary;
+}
+
+.load-more-btn:focus {
+    background: $bg-hover;
+    border: tall $accent-primary;
+}
+
+/* ---- Entity type badges (used in detail screens) ---- */
 .badge-artist {
     background: #332200;
     color: $accent-warning;
@@ -677,114 +831,6 @@ Rule {
     color: $accent-primary;
 }
 
-/* Platform badges in cards */
-.platform-badge {
-    width: auto;
-    padding: 0 1;
-    margin-right: 1;
-    text-style: bold;
-}
-
-/* Empty states */
-#empty-state {
-    height: auto;
-    padding: 4;
-    text-align: center;
-    align: center middle;
-}
-
-.empty-state {
-    height: auto;
-    padding: 4;
-    text-align: center;
-}
-
-.empty-message {
-    color: $text-secondary;
-    text-style: bold;
-    margin-bottom: 1;
-    text-align: center;
-}
-
-.empty-hint {
-    color: $text-muted;
-    text-style: italic;
-    text-align: center;
-}
-
-#no-results {
-    height: auto;
-    padding: 4;
-    text-align: center;
-    align: center middle;
-}
-
-/* Load More buttons */
-.load-more-btn {
-    width: 100%;
-    margin-top: 1;
-    background: $bg-surface;
-    border: tall $border-color;
-}
-
-.load-more-btn:hover {
-    background: $bg-hover;
-    border: tall $accent-primary;
-}
-
-.load-more-btn:focus {
-    background: $bg-hover;
-    border: tall $accent-primary;
-}
-
-/* Main container */
-#main-container {
-    width: 100%;
-    height: 100%;
-    padding: 1 2;
-}
-
-/* Page title */
-#page-title {
-    text-style: bold;
-    color: $accent-primary;
-    padding: 1 0;
-}
-
-/* Artist cards (horizontal grid) */
-.artist-card {
-    width: 18;
-    height: auto;
-    padding: 1;
-    margin-right: 1;
-    background: $bg-elevated;
-    border: wide $border-color;
-    text-align: center;
-}
-
-.artist-card:hover {
-    background: $bg-hover;
-    border: wide $accent-warning;
-}
-
-.artist-card:focus {
-    background: $bg-hover;
-    border: wide $accent-warning;
-}
-
-/* Entity icon */
-.entity-icon {
-    width: 3;
-    text-align: center;
-    padding: 0 1;
-}
-
-/* Card title */
-.card-title {
-    color: $text-primary;
-    text-style: bold;
-}
-
 /* Platform badges */
 .platform-badges {
     width: auto;
@@ -792,16 +838,61 @@ Rule {
     margin-left: 1;
 }
 
-/* Search input */
-#search-input {
-    width: 1fr;
+.platform-badge {
+    width: auto;
+    padding: 0 1;
+    margin-right: 1;
+    text-style: bold;
 }
 
-/* Actions bar */
-#actions-bar {
-    margin-top: 1;
-    height: 3;
+/* ---- Legacy card styles (kept for detail screens) ---- */
+.card-info {
+    width: 1fr;
+    height: auto;
+    padding: 0 1;
+}
+
+.card-title {
+    color: $text-primary;
+    text-style: bold;
+}
+
+.card-subtitle {
+    color: $text-secondary;
+}
+
+.card-action {
+    width: auto;
+    height: auto;
+    padding: 0;
+}
+
+.card-meta-row {
+    height: auto;
     align: left middle;
+    margin-bottom: 0;
+}
+
+.entity-card {
+    height: 9;
+    max-width: 120;
+    padding: 0 1;
+    margin-bottom: 0;
+    background: $bg-elevated;
+    border: wide $border-color;
+    align: left middle;
+}
+
+.entity-card:hover {
+    background: $bg-hover;
+    border: wide $accent-primary;
+}
+
+.card-cover-small {
+    width: 14;
+    height: 7;
+    background: $bg-surface;
+    border: wide $border-color;
 }
 
 /* Info panel sections */
@@ -1612,6 +1703,11 @@ MarkdownOrderedList {
 /* CoverArt widget */
 CoverArt {
     overflow: hidden;
+}
+
+CoverArt #cover-image {
+    width: 1fr;
+    height: 1fr;
 }
 
 /* Cover/Avatar placeholders */

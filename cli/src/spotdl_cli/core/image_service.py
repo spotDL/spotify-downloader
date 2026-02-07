@@ -17,7 +17,7 @@ from spotdl_cli.config import get_settings
 logger = logging.getLogger(__name__)
 
 CACHE_SIZE = 50
-CACHE_RESOLUTION = (128, 128)
+CACHE_RESOLUTION = (512, 512)
 
 
 class ImageService:

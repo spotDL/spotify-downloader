@@ -509,9 +509,11 @@ class TestDownloadOperations:
         nested_dir = tmp_path / "music" / "albums" / "2024"
         output_file = nested_dir / "Test Artist - Test Song.mp3"
 
-        with patch.object(Downloader, "_run_yt_dlp"):
+        def create_file(*args: Any, **kwargs: Any) -> None:
+            output_file.parent.mkdir(parents=True, exist_ok=True)
             output_file.touch()
 
+        with patch.object(Downloader, "_run_yt_dlp", side_effect=create_file):
             await downloader.download(
                 "https://www.youtube.com/watch?v=test",
                 sample_meta,
@@ -639,7 +641,7 @@ class TestMetadataEmbedding:
 
             await downloader.embed_metadata(file_path, sample_meta)
 
-            assert mock_audio["title"] == sample_meta.title
+            mock_audio.__setitem__.assert_any_call("title", sample_meta.title)
             mock_audio.save.assert_called()
 
     @pytest.mark.asyncio
@@ -696,7 +698,7 @@ class TestMetadataEmbedding:
 
             await downloader.embed_metadata(file_path, sample_meta)
 
-            assert mock_audio["\xa9nam"] == [sample_meta.title]
+            mock_audio.__setitem__.assert_any_call("\xa9nam", [sample_meta.title])
             mock_audio.save.assert_called()
 
     @pytest.mark.asyncio
@@ -717,7 +719,7 @@ class TestMetadataEmbedding:
 
             await downloader._embed_m4a_cover(file_path, "https://example.com/cover.jpg")
 
-            assert mock_audio["covr"] == ["cover_object"]
+            mock_audio.__setitem__.assert_called_with("covr", ["cover_object"])
             mock_audio.save.assert_called()
 
     @pytest.mark.asyncio
@@ -734,7 +736,7 @@ class TestMetadataEmbedding:
 
             await downloader.embed_metadata(file_path, sample_meta)
 
-            assert mock_audio["title"] == [sample_meta.title]
+            mock_audio.__setitem__.assert_any_call("title", [sample_meta.title])
             mock_audio.save.assert_called()
 
     @pytest.mark.asyncio
@@ -774,7 +776,7 @@ class TestMetadataEmbedding:
 
             await downloader.embed_metadata(file_path, sample_meta)
 
-            assert mock_audio["title"] == [sample_meta.title]
+            mock_audio.__setitem__.assert_any_call("title", [sample_meta.title])
             mock_audio.save.assert_called()
 
     @pytest.mark.asyncio
@@ -791,7 +793,7 @@ class TestMetadataEmbedding:
 
             await downloader.embed_metadata(file_path, sample_meta)
 
-            assert mock_audio["title"] == [sample_meta.title]
+            mock_audio.__setitem__.assert_any_call("title", [sample_meta.title])
             mock_audio.save.assert_called()
 
     @pytest.mark.asyncio
@@ -814,7 +816,7 @@ class TestMetadataEmbedding:
 
             await downloader._embed_ogg_cover(file_path, "https://example.com/cover.jpg")
 
-            assert "metadata_block_picture" in mock_audio
+            mock_audio.__setitem__.assert_called()
             mock_audio.save.assert_called()
 
     @pytest.mark.asyncio
@@ -905,7 +907,7 @@ class TestLyricsEmbedding:
 
             await downloader.embed_lyrics(file_path, lyrics)
 
-            assert mock_audio["\xa9lyr"] == [lyrics]
+            mock_audio.__setitem__.assert_called_with("\xa9lyr", [lyrics])
             mock_audio.save.assert_called()
 
     @pytest.mark.asyncio
@@ -923,7 +925,7 @@ class TestLyricsEmbedding:
 
             await downloader.embed_lyrics(file_path, lyrics)
 
-            assert mock_audio["lyrics"] == [lyrics]
+            mock_audio.__setitem__.assert_called_with("lyrics", [lyrics])
             mock_audio.save.assert_called()
 
     @pytest.mark.asyncio

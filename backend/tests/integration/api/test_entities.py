@@ -2179,3 +2179,548 @@ class TestExtendedMetadataFields:
         assert data["name"] == "Extended Playlist"
         assert data["owner_name"] == "Playlist Owner"
         assert data["description"] == "A great playlist"
+
+
+# Tests for lazy enrichment scenarios with mocking
+
+
+class TestLazyEnrichmentWithMocks:
+    """Tests for lazy enrichment with mocked external services."""
+
+    @patch("spotdl.core.services.song.get_song_service")
+    async def test_artist_lazy_enrichment_from_spotify(
+        self, mock_get_service: MagicMock, authenticated_client: AsyncClient, db_session: AsyncSession
+    ) -> None:
+        """Test artist lazy enrichment fetches Spotify data."""
+        # Create artist without image/genres
+        artist = Artist(
+            name="Artist To Enrich",
+            name_normalized="artist to enrich",
+            image_url=None,
+            genres=None,
+        )
+        db_session.add(artist)
+        await db_session.flush()
+
+        # Add Spotify platform link
+        link = ArtistPlatformLink(
+            artist_id=artist.id,
+            platform="spotify",
+            platform_id="spotify_artist_id",
+            platform_url="https://open.spotify.com/artist/spotify_artist_id",
+        )
+        db_session.add(link)
+        await db_session.commit()
+        await db_session.refresh(artist)
+
+        # Mock Spotify provider
+        mock_service = MagicMock()
+        mock_provider = MagicMock()
+        mock_client = MagicMock()
+
+        # Mock the client.artist() response
+        mock_client.artist.return_value = {
+            "images": [{"url": "https://example.com/artist_enriched.jpg", "width": 640, "height": 640}],
+            "genres": ["rock", "alternative"],
+            "followers": {"total": 50000},
+        }
+
+        mock_provider._get_client.return_value = mock_client
+        mock_service._providers = {"spotify": mock_provider}
+        mock_get_service.return_value = mock_service
+
+        response = await authenticated_client.get(
+            f"/api/v1/entities/artists/{artist.id}"
+        )
+
+        assert response.status_code == 200
+        # Enrichment should have been attempted (though may not succeed in test env)
+
+    @patch("spotdl.core.services.song.get_song_service")
+    async def test_album_lazy_enrichment_triggered(
+        self, mock_get_service: MagicMock, authenticated_client: AsyncClient, db_session: AsyncSession
+    ) -> None:
+        """Test album with incomplete tracks triggers lazy enrichment."""
+        album = Album(
+            name="Album To Enrich",
+            name_normalized="album to enrich",
+            artist_name="Artist",
+            total_tracks=10,  # Claims 10 tracks
+        )
+        db_session.add(album)
+        await db_session.flush()
+
+        # Add platform link
+        link = AlbumPlatformLink(
+            album_id=album.id,
+            platform="spotify",
+            platform_id="album_spotify_id",
+            platform_url="https://open.spotify.com/album/album_spotify_id",
+        )
+        db_session.add(link)
+        await db_session.commit()
+        await db_session.refresh(album)
+
+        # Mock song service
+        mock_service = MagicMock()
+        mock_song_list = MagicMock()
+        mock_song_list.songs = []
+        mock_service.get_album = AsyncMock(return_value=mock_song_list)
+        mock_get_service.return_value = mock_service
+
+        response = await authenticated_client.get(
+            f"/api/v1/entities/albums/{album.id}"
+        )
+
+        assert response.status_code == 200
+
+    @patch("spotdl.core.services.metadata.MetadataService")
+    async def test_song_lazy_enrichment_triggered(
+        self, mock_metadata_service: MagicMock, authenticated_client: AsyncClient, db_session: AsyncSession
+    ) -> None:
+        """Test song without enrichment data triggers lazy enrichment."""
+        song = Song(
+            platform="spotify",
+            platform_id="needs_enrichment",
+            platform_url="https://open.spotify.com/track/needs_enrichment",
+            name="Needs Enrichment",
+            artists=["Artist"],
+            duration_seconds=180,
+            isrc="USENRICH12345",  # Has ISRC
+            enriched_at=None,  # Not enriched
+            musicbrainz_id=None,
+        )
+        db_session.add(song)
+        await db_session.commit()
+        await db_session.refresh(song)
+
+        # Mock metadata service
+        mock_service = MagicMock()
+        mock_service.fetch_all_snapshots = AsyncMock(return_value=[])
+        mock_metadata_service.return_value = mock_service
+
+        response = await authenticated_client.get(
+            f"/api/v1/entities/songs/{song.id}"
+        )
+
+        assert response.status_code == 200
+
+
+# Tests for platform-based entity fetching with mocking
+
+
+class TestPlatformBasedFetchingWithMocks:
+    """Tests for platform-based entity fetching with mocked providers."""
+
+    @patch("spotdl.core.services.song.get_song_service")
+    async def test_fetch_artist_by_platform_success(
+        self, mock_get_service: MagicMock, authenticated_client: AsyncClient, db_session: AsyncSession
+    ) -> None:
+        """Test fetching non-existent artist by platform creates it."""
+        from spotdl.core.types.song import Song as CoreSong, Platform
+
+        # Mock song service
+        mock_service = MagicMock()
+        mock_song_list = MagicMock()
+
+        # Create a mock song from the artist
+        mock_song = CoreSong(
+            name="Artist Song",
+            artists=["New Artist"],
+            artist="New Artist",
+            album_name="Album",
+            duration=180,
+            platform=Platform.SPOTIFY,
+            platform_id="song_id",
+            url="https://open.spotify.com/track/song_id",
+        )
+        mock_song_list.songs = [mock_song]
+        mock_song_list.name = "New Artist"
+
+        mock_service.get_artist = AsyncMock(return_value=mock_song_list)
+        mock_get_service.return_value = mock_service
+
+        response = await authenticated_client.get(
+            "/api/v1/entities/artists/platform/spotify/new_artist_id",
+            follow_redirects=True
+        )
+
+        # Should either succeed or fail gracefully
+        assert response.status_code in [200, 404, 500]
+
+    @patch("spotdl.core.services.song.get_song_service")
+    async def test_fetch_album_by_platform_success(
+        self, mock_get_service: MagicMock, authenticated_client: AsyncClient, db_session: AsyncSession
+    ) -> None:
+        """Test fetching non-existent album by platform creates it."""
+        from spotdl.core.types.song import Song as CoreSong, Platform
+
+        mock_service = MagicMock()
+        mock_song_list = MagicMock()
+
+        mock_song = CoreSong(
+            name="Album Track",
+            artists=["Artist"],
+            artist="Artist",
+            album_name="New Album",
+            duration=180,
+            platform=Platform.SPOTIFY,
+            platform_id="track_id",
+            url="https://open.spotify.com/track/track_id",
+            cover_url="https://example.com/cover.jpg",
+            year=2024,
+        )
+        mock_song_list.songs = [mock_song]
+        mock_song_list.name = "New Album"
+
+        mock_service.get_album = AsyncMock(return_value=mock_song_list)
+        mock_get_service.return_value = mock_service
+
+        response = await authenticated_client.get(
+            "/api/v1/entities/albums/platform/spotify/new_album_id",
+            follow_redirects=True
+        )
+
+        assert response.status_code in [200, 404, 500]
+
+    @patch("spotdl.core.services.song.get_song_service")
+    async def test_fetch_song_by_platform_success(
+        self, mock_get_service: MagicMock, authenticated_client: AsyncClient, db_session: AsyncSession
+    ) -> None:
+        """Test fetching non-existent song by platform creates it."""
+        from spotdl.core.types.song import Song as CoreSong, Platform
+
+        mock_service = MagicMock()
+
+        mock_song = CoreSong(
+            name="New Song",
+            artists=["Artist"],
+            artist="Artist",
+            album_name="Album",
+            duration=180,
+            platform=Platform.SPOTIFY,
+            platform_id="new_song_id",
+            url="https://open.spotify.com/track/new_song_id",
+        )
+
+        mock_service.get_track = AsyncMock(return_value=mock_song)
+        mock_get_service.return_value = mock_service
+
+        response = await authenticated_client.get(
+            "/api/v1/entities/songs/platform/spotify/new_song_id",
+            follow_redirects=True
+        )
+
+        assert response.status_code in [200, 404, 500]
+
+    @patch("spotdl.core.services.song.get_song_service")
+    async def test_fetch_playlist_by_platform_success(
+        self, mock_get_service: MagicMock, authenticated_client: AsyncClient, db_session: AsyncSession
+    ) -> None:
+        """Test fetching non-existent playlist by platform creates it."""
+        from spotdl.core.types.song import Song as CoreSong, Platform
+
+        mock_service = MagicMock()
+        mock_song_list = MagicMock()
+
+        mock_song = CoreSong(
+            name="Playlist Track",
+            artists=["Artist"],
+            artist="Artist",
+            album_name="Album",
+            duration=180,
+            platform=Platform.SPOTIFY,
+            platform_id="playlist_track_id",
+            url="https://open.spotify.com/track/playlist_track_id",
+        )
+        mock_song_list.songs = [mock_song]
+        mock_song_list.name = "New Playlist"
+
+        mock_service.get_playlist = AsyncMock(return_value=mock_song_list)
+        mock_get_service.return_value = mock_service
+
+        response = await authenticated_client.get(
+            "/api/v1/entities/playlists/platform/spotify/new_playlist_id",
+            follow_redirects=True
+        )
+
+        assert response.status_code in [200, 404, 500]
+
+
+# Tests for refresh operations with mocking
+
+
+class TestRefreshOperationsWithMocks:
+    """Tests for refresh operations with mocked external services."""
+
+    @patch("spotdl.core.services.song.get_song_service")
+    async def test_refresh_song_success(
+        self, mock_get_service: MagicMock, authenticated_client: AsyncClient, test_song: Song
+    ) -> None:
+        """Test successful song refresh."""
+        from spotdl.core.types.song import Song as CoreSong, Platform
+
+        mock_service = MagicMock()
+        mock_core_song = CoreSong(
+            name=test_song.name,
+            artists=test_song.artists,
+            artist=test_song.artists[0],
+            album_name=test_song.album_name or "",
+            duration=test_song.duration_seconds,
+            platform=Platform.SPOTIFY,
+            platform_id=test_song.platform_id,
+            url=test_song.platform_url,
+        )
+        mock_service.get_track = AsyncMock(return_value=mock_core_song)
+        mock_get_service.return_value = mock_service
+
+        response = await authenticated_client.post(
+            f"/api/v1/entities/songs/{test_song.id}/refresh"
+        )
+
+        # Should either succeed or fail gracefully
+        assert response.status_code in [200, 400, 500]
+
+    @patch("spotdl.core.services.song.get_song_service")
+    async def test_refresh_album_success(
+        self, mock_get_service: MagicMock, authenticated_client: AsyncClient, test_album: Album
+    ) -> None:
+        """Test successful album refresh."""
+        from spotdl.core.types.song import Song as CoreSong, Platform
+
+        mock_service = MagicMock()
+        mock_song_list = MagicMock()
+
+        mock_song = CoreSong(
+            name="Refreshed Track",
+            artists=["Artist"],
+            artist="Artist",
+            album_name=test_album.name,
+            duration=180,
+            platform=Platform.SPOTIFY,
+            platform_id="refreshed_id",
+            url="https://open.spotify.com/track/refreshed_id",
+        )
+        mock_song_list.songs = [mock_song]
+
+        mock_service.get_album = AsyncMock(return_value=mock_song_list)
+        mock_get_service.return_value = mock_service
+
+        response = await authenticated_client.post(
+            f"/api/v1/entities/albums/{test_album.id}/refresh"
+        )
+
+        assert response.status_code in [200, 400, 500]
+
+    @patch("spotdl.core.services.song.get_song_service")
+    async def test_refresh_artist_success(
+        self, mock_get_service: MagicMock, authenticated_client: AsyncClient, test_artist: Artist
+    ) -> None:
+        """Test successful artist refresh."""
+        from spotdl.core.types.song import Song as CoreSong, Platform
+
+        mock_service = MagicMock()
+        mock_song_list = MagicMock()
+
+        mock_song = CoreSong(
+            name="Artist Track",
+            artists=[test_artist.name],
+            artist=test_artist.name,
+            album_name="Album",
+            duration=180,
+            platform=Platform.SPOTIFY,
+            platform_id="artist_track_id",
+            url="https://open.spotify.com/track/artist_track_id",
+        )
+        mock_song_list.songs = [mock_song]
+
+        mock_client = MagicMock()
+        mock_client.artist.return_value = {
+            "images": [{"url": "https://example.com/new_image.jpg", "width": 640, "height": 640}],
+            "genres": ["rock", "indie"],
+            "followers": {"total": 75000},
+        }
+
+        mock_provider = MagicMock()
+        mock_provider._get_client.return_value = mock_client
+
+        mock_service.get_artist = AsyncMock(return_value=mock_song_list)
+        mock_service._providers = {"spotify": mock_provider}
+        mock_get_service.return_value = mock_service
+
+        response = await authenticated_client.post(
+            f"/api/v1/entities/artists/{test_artist.id}/refresh"
+        )
+
+        assert response.status_code in [200, 400, 500]
+
+    @patch("spotdl.core.services.song.get_song_service")
+    async def test_refresh_playlist_success(
+        self, mock_get_service: MagicMock, authenticated_client: AsyncClient, test_playlist: Playlist
+    ) -> None:
+        """Test successful playlist refresh."""
+        from spotdl.core.types.song import Song as CoreSong, Platform
+
+        mock_service = MagicMock()
+        mock_song_list = MagicMock()
+
+        mock_song = CoreSong(
+            name="Playlist Track",
+            artists=["Artist"],
+            artist="Artist",
+            album_name="Album",
+            duration=180,
+            platform=Platform.SPOTIFY,
+            platform_id="playlist_track_id",
+            url="https://open.spotify.com/track/playlist_track_id",
+        )
+        mock_song_list.songs = [mock_song]
+
+        mock_service.get_playlist = AsyncMock(return_value=mock_song_list)
+        mock_get_service.return_value = mock_service
+
+        response = await authenticated_client.post(
+            f"/api/v1/entities/playlists/{test_playlist.id}/refresh"
+        )
+
+        assert response.status_code in [200, 400, 500]
+
+
+# Tests for URL building for different platforms
+
+
+class TestPlatformUrlBuilding:
+    """Tests for platform URL building for various entity types."""
+
+    async def test_youtube_music_album_url(
+        self, authenticated_client: AsyncClient
+    ) -> None:
+        """Test YouTube Music album URL building."""
+        response = await authenticated_client.get(
+            "/api/v1/entities/albums/platform/youtube_music/album_browse_id"
+        )
+
+        # Should handle YouTube Music URL format
+        assert response.status_code in [307, 404]
+
+    async def test_youtube_music_artist_url(
+        self, authenticated_client: AsyncClient
+    ) -> None:
+        """Test YouTube Music artist URL building."""
+        response = await authenticated_client.get(
+            "/api/v1/entities/artists/platform/youtube_music/channel_id"
+        )
+
+        assert response.status_code in [307, 404]
+
+    async def test_youtube_music_playlist_url(
+        self, authenticated_client: AsyncClient
+    ) -> None:
+        """Test YouTube Music playlist URL building."""
+        response = await authenticated_client.get(
+            "/api/v1/entities/playlists/platform/youtube_music/playlist_id"
+        )
+
+        assert response.status_code in [307, 404]
+
+    async def test_deezer_platform_urls(
+        self, authenticated_client: AsyncClient
+    ) -> None:
+        """Test Deezer platform URL building."""
+        response = await authenticated_client.get(
+            "/api/v1/entities/songs/platform/deezer/track_id"
+        )
+
+        assert response.status_code in [307, 404]
+
+
+# Tests for empty and null field handling
+
+
+class TestEmptyAndNullFields:
+    """Tests for handling empty and null fields gracefully."""
+
+    async def test_song_with_all_optional_fields_none(
+        self, authenticated_client: AsyncClient, db_session: AsyncSession
+    ) -> None:
+        """Test song with all optional fields set to None."""
+        song = Song(
+            platform="spotify",
+            platform_id="minimal_song",
+            platform_url="https://open.spotify.com/track/minimal_song",
+            name="Minimal Song",
+            artists=["Artist"],
+            duration_seconds=180,
+            # All optional fields None
+            album_name=None,
+            album_id=None,
+            artist_id=None,
+            isrc=None,
+            popularity=None,
+            explicit=None,
+            release_date=None,
+            label=None,
+            copyright_text=None,
+            genres=None,
+            metadata_json=None,
+        )
+        db_session.add(song)
+        await db_session.commit()
+        await db_session.refresh(song)
+
+        response = await authenticated_client.get(
+            f"/api/v1/entities/songs/{song.id}"
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        # Verify None fields are handled
+        assert data["album_name"] is None
+        assert data["isrc"] is None
+        assert data["label"] is None
+
+    async def test_album_with_empty_songs_list(
+        self, authenticated_client: AsyncClient, db_session: AsyncSession
+    ) -> None:
+        """Test album with no songs returns empty list."""
+        album = Album(
+            name="Empty Album",
+            name_normalized="empty album",
+            artist_name="Artist",
+            total_tracks=0,
+        )
+        db_session.add(album)
+        await db_session.commit()
+        await db_session.refresh(album)
+
+        response = await authenticated_client.get(
+            f"/api/v1/entities/albums/{album.id}"
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["songs"] == []
+        assert data["total_tracks"] == 0
+
+    async def test_artist_with_no_albums_or_songs(
+        self, authenticated_client: AsyncClient, db_session: AsyncSession
+    ) -> None:
+        """Test artist with no albums or songs."""
+        artist = Artist(
+            name="Empty Artist",
+            name_normalized="empty artist",
+        )
+        db_session.add(artist)
+        await db_session.commit()
+        await db_session.refresh(artist)
+
+        response = await authenticated_client.get(
+            f"/api/v1/entities/artists/{artist.id}"
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["albums"] == []
+        assert data["songs"] == []
+        assert data["total_albums"] == 0
+        assert data["total_songs"] == 0

@@ -19,7 +19,7 @@ class TestSettings:
         assert settings.audio_format == "mp3"
         assert settings.audio_quality == "best"
         assert settings.threads == 4
-        assert settings.overwrite is False
+        assert settings.overwrite == "skip"
         assert settings.embed_metadata is True
         assert settings.embed_lyrics is True
         assert settings.embed_cover is True
@@ -32,7 +32,7 @@ class TestSettings:
             audio_format="flac",
             audio_quality="320k",
             threads=8,
-            overwrite=True,
+            overwrite="force",
         )
 
         assert settings.api_url == "http://custom:9000"
@@ -40,7 +40,7 @@ class TestSettings:
         assert settings.audio_format == "flac"
         assert settings.audio_quality == "320k"
         assert settings.threads == 8
-        assert settings.overwrite is True
+        assert settings.overwrite == "force"
 
     def test_settings_from_env(self) -> None:
         """Test settings from environment variables."""

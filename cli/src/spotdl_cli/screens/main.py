@@ -19,7 +19,6 @@ from textual.screen import Screen
 from textual.widgets import (
     Button,
     Input,
-    Rule,
     Static,
 )
 
@@ -65,19 +64,19 @@ ENTITY_ICONS = {
     EntityType.PLAYLIST: "📋",
 }
 
-# Display limits (lazy loading)
+# Display limits (lazy loading) — compact layout fits more at once
 INITIAL_DISPLAY_LIMIT = {
-    EntityType.ARTIST: 6,
+    EntityType.ARTIST: 8,
     EntityType.ALBUM: 8,
-    EntityType.TRACK: 10,
-    EntityType.PLAYLIST: 6,
+    EntityType.TRACK: 15,
+    EntityType.PLAYLIST: 10,
 }
 
 LOAD_MORE_INCREMENT = {
-    EntityType.ARTIST: 6,
+    EntityType.ARTIST: 8,
     EntityType.ALBUM: 8,
-    EntityType.TRACK: 10,
-    EntityType.PLAYLIST: 6,
+    EntityType.TRACK: 15,
+    EntityType.PLAYLIST: 10,
 }
 
 
@@ -113,6 +112,13 @@ class MainScreen(Screen[None]):
         }
         # Cache songs from offline search for navigation
         self._offline_songs: dict[str, Song] = {}
+        # Widget ID counter for uniqueness
+        self._widget_counter: int = 0
+
+    def _next_id(self, prefix: str) -> str:
+        """Generate a unique widget ID."""
+        self._widget_counter += 1
+        return f"{prefix}-{self._widget_counter}"
 
     @property
     def spotdl_app(self) -> SpotDLApp:
@@ -125,22 +131,17 @@ class MainScreen(Screen[None]):
     def compose(self) -> ComposeResult:
         """Compose the screen layout."""
         with VerticalScroll(id="main-container"):
-            # Search header section
-            with Vertical(id="search-header"):
-                yield Static("Search", id="page-title", classes="title-xl")
-
-                # Search form
-                with Horizontal(id="search-form"):
-                    yield Input(
-                        placeholder="Search for songs, artists, albums, or paste a URL...",
-                        id="search-input",
-                    )
-                    yield Button("Search", id="search-btn", variant="primary")
-
-                # Status bar
+            # Compact search bar: input + button + status inline
+            with Horizontal(id="search-bar"):
+                yield Static("🔍", id="search-icon")
+                yield Input(
+                    placeholder="Search songs, artists, albums or paste a URL...",
+                    id="search-input",
+                )
+                yield Button("Search", id="search-btn", variant="primary")
                 yield Static("", id="status-bar", classes="status-muted")
 
-            # Filter tabs
+            # Compact filter pills
             with Horizontal(id="filter-tabs"):
                 yield Button("All", id="filter-all", classes="filter-btn active")
                 yield Button("Songs", id="filter-track", classes="filter-btn")
@@ -148,25 +149,22 @@ class MainScreen(Screen[None]):
                 yield Button("Albums", id="filter-album", classes="filter-btn")
                 yield Button("Playlists", id="filter-playlist", classes="filter-btn")
 
-            yield Rule()
-
             # Results container
             with Vertical(id="results-container"):
                 # Empty state (shown before search)
                 with Vertical(id="empty-state"):
                     yield Static(
-                        "🔍 Enter a search query above",
+                        "Search for artists, albums, tracks, or playlists",
                         id="empty-title",
                         classes="empty-message",
                     )
                     yield Static(
-                        "Search for artists, albums, tracks, or playlists\n"
                         "You can also paste URLs from Spotify, YouTube, etc.",
                         id="empty-subtitle",
                         classes="empty-hint",
                     )
 
-                # Artists section
+                # Artists section — uses horizontal grid of compact tiles
                 with Vertical(id="artists-section", classes="entity-section hidden"):
                     with Horizontal(classes="section-header"):
                         yield Static(
@@ -175,16 +173,16 @@ class MainScreen(Screen[None]):
                         )
                         yield Static("", id="artists-count", classes="section-count")
 
-                    with Vertical(id="artists-list", classes="entity-list"):
-                        pass  # Populated dynamically
+                    with Horizontal(id="artists-list", classes="artist-grid"):
+                        pass  # Populated dynamically with compact tiles
 
                     yield Button(
-                        "Load More Artists",
+                        "More Artists ▾",
                         id="load-more-artists",
                         classes="load-more-btn hidden",
                     )
 
-                # Albums section
+                # Albums section — compact horizontal grid
                 with Vertical(id="albums-section", classes="entity-section hidden"):
                     with Horizontal(classes="section-header"):
                         yield Static(
@@ -193,16 +191,16 @@ class MainScreen(Screen[None]):
                         )
                         yield Static("", id="albums-count", classes="section-count")
 
-                    with Vertical(id="albums-list", classes="entity-list"):
-                        pass  # Populated dynamically
+                    with Horizontal(id="albums-list", classes="album-grid"):
+                        pass  # Populated dynamically with compact tiles
 
                     yield Button(
-                        "Load More Albums",
+                        "More Albums ▾",
                         id="load-more-albums",
                         classes="load-more-btn hidden",
                     )
 
-                # Tracks section
+                # Tracks section — slim single-line rows
                 with Vertical(id="tracks-section", classes="entity-section hidden"):
                     with Horizontal(classes="section-header"):
                         yield Static(
@@ -211,16 +209,16 @@ class MainScreen(Screen[None]):
                         )
                         yield Static("", id="tracks-count", classes="section-count")
 
-                    with Vertical(id="tracks-list", classes="entity-list"):
+                    with Vertical(id="tracks-list", classes="track-list"):
                         pass  # Populated dynamically
 
                     yield Button(
-                        "Load More Songs",
+                        "More Songs ▾",
                         id="load-more-tracks",
                         classes="load-more-btn hidden",
                     )
 
-                # Playlists section
+                # Playlists section — slim rows
                 with Vertical(id="playlists-section", classes="entity-section hidden"):
                     with Horizontal(classes="section-header"):
                         yield Static(
@@ -229,11 +227,11 @@ class MainScreen(Screen[None]):
                         )
                         yield Static("", id="playlists-count", classes="section-count")
 
-                    with Vertical(id="playlists-list", classes="entity-list"):
+                    with Vertical(id="playlists-list", classes="track-list"):
                         pass  # Populated dynamically
 
                     yield Button(
-                        "Load More Playlists",
+                        "More Playlists ▾",
                         id="load-more-playlists",
                         classes="load-more-btn hidden",
                     )
@@ -485,9 +483,9 @@ class MainScreen(Screen[None]):
 
     def _clear_results(self) -> None:
         """Clear all result sections."""
+        self._widget_counter = 0
         for section_id in ["artists-list", "albums-list", "tracks-list", "playlists-list"]:
-            container = self.query_one(f"#{section_id}")
-            container.remove_children()
+            self.query_one(f"#{section_id}").remove_children()
 
         # Hide all sections and load more buttons
         for section_id in [
@@ -508,7 +506,8 @@ class MainScreen(Screen[None]):
     ) -> None:
         """Display a section of entities with lazy loading."""
         section = self.query_one(f"#{section_name}-section", Vertical)
-        container = self.query_one(f"#{section_name}-list", Vertical)
+        # Artists/albums use Horizontal grid, tracks/playlists use Vertical list
+        container = self.query_one(f"#{section_name}-list")
         count_label = self.query_one(f"#{section_name}-count", Static)
         load_more_btn = self.query_one(f"#load-more-{section_name}", Button)
 
@@ -523,8 +522,10 @@ class MainScreen(Screen[None]):
         for entity in entities_to_show:
             if entity_type == EntityType.ARTIST:
                 card = self._create_artist_card(entity)
+            elif entity_type == EntityType.ALBUM:
+                card = self._create_album_tile(entity)
             else:
-                card = self._create_entity_card(entity, entity_type)
+                card = self._create_compact_row(entity, entity_type)
             cards.append(card)
 
         # Batch mount all cards at once and await completion
@@ -568,13 +569,15 @@ class MainScreen(Screen[None]):
             return
 
         # Create and mount new cards
-        container = self.query_one(f"#{section_name}-list", Vertical)
+        container = self.query_one(f"#{section_name}-list")
         cards: list[Container] = []
         for entity in new_entities:
             if entity_type == EntityType.ARTIST:
                 card = self._create_artist_card(entity)
+            elif entity_type == EntityType.ALBUM:
+                card = self._create_album_tile(entity)
             else:
-                card = self._create_entity_card(entity, entity_type)
+                card = self._create_compact_row(entity, entity_type)
             cards.append(card)
 
         await container.mount(*cards)
@@ -585,82 +588,105 @@ class MainScreen(Screen[None]):
             load_more_btn.add_class("hidden")
 
     def _create_artist_card(self, artist: EntityResult) -> Container:
-        """Create an artist card for display."""
+        """Create a compact artist tile for the grid."""
         platform_badges = self._get_platform_badges(artist)
-        cover = CoverArt(classes="card-cover card-cover-small")
+        cover = CoverArt(classes="card-cover artist-tile-cover")
         cover.cover_url = artist.image_url
         safe_id = _sanitize_id(artist.id)
+        uid = self._next_id("at")
 
-        card = Horizontal(
+        tile = Vertical(
             cover,
-            Vertical(
-                Horizontal(
-                    Static("ARTIST", classes="badge badge-artist"),
-                    Static(platform_badges, classes="platform-badges"),
-                    classes="card-meta-row",
-                ),
-                Static(
-                    f"[bold]{_truncate(artist.name, 30)}[/bold]",
-                    classes="card-title",
-                ),
-                classes="card-info",
+            Static(
+                f"[bold]{_truncate(artist.name, 18)}[/bold]",
+                classes="tile-name",
             ),
-            Button("View", id=f"entity-artist-{safe_id}", classes="card-action"),
-            classes="entity-card",
-            id=f"artist-card-{safe_id}",
+            Static(
+                f"Artist {platform_badges}",
+                classes="tile-meta",
+            ),
+            Button("View", id=f"entity-artist-{safe_id}-{uid}", classes="tile-action"),
+            classes="artist-tile",
+            id=f"artist-card-{uid}",
         )
-        return card
+        return tile
 
-    def _create_entity_card(
-        self, entity: EntityResult, entity_type: EntityType
-    ) -> Container:
-        """Create an entity card for list display."""
+    def _create_album_tile(self, entity: EntityResult) -> Container:
+        """Create a compact album tile for the grid."""
         platform_badges = self._get_platform_badges(entity)
-        cover = CoverArt(classes="card-cover card-cover-small")
+        cover = CoverArt(classes="card-cover album-tile-cover")
         cover.cover_url = entity.image_url
         safe_id = _sanitize_id(entity.id)
+        uid = self._next_id("al")
 
-        # Build info line
+        subtitle = _truncate(entity.subtitle, 18) if entity.subtitle else ""
+
+        tile = Vertical(
+            cover,
+            Static(
+                f"[bold]{_truncate(entity.name, 18)}[/bold]",
+                classes="tile-name",
+            ),
+            Static(
+                f"[dim]{subtitle}[/dim] {platform_badges}",
+                classes="tile-meta",
+            ),
+            Horizontal(
+                Button("View", id=f"entity-album-{safe_id}-{uid}", classes="tile-action"),
+                Button("DL", id=f"dl-album-{safe_id}-{uid}", classes="tile-action tile-action-dl"),
+                classes="tile-actions-row",
+            ),
+            classes="album-tile",
+            id=f"card-album-{uid}",
+        )
+        return tile
+
+    def _create_compact_row(
+        self, entity: EntityResult, entity_type: EntityType
+    ) -> Container:
+        """Create a compact single-line row for tracks/playlists."""
+        platform_badges = self._get_platform_badges(entity)
+        safe_id = _sanitize_id(entity.id)
+        uid = self._next_id("r")
+
+        # Build info parts
         info_parts = []
         if entity.subtitle:
             info_parts.append(entity.subtitle)
-        if entity.duration:
-            info_parts.append(entity.duration_str)
-        info_line = " • ".join(info_parts) if info_parts else ""
 
-        # Type label
-        type_labels = {
-            EntityType.TRACK: "SONG",
-            EntityType.ALBUM: "ALBUM",
-            EntityType.PLAYLIST: "PLAYLIST",
+        # Duration on the right for tracks
+        duration_str = entity.duration_str if entity.duration else ""
+
+        # Type indicator
+        type_icons = {
+            EntityType.TRACK: "[#00d084]♫[/#00d084]",
+            EntityType.PLAYLIST: "[#ff6b35]☰[/#ff6b35]",
         }
-        type_label = type_labels.get(entity_type, entity_type.value.upper())
-        badge_class = f"badge badge-{entity_type.value}"
+        icon = type_icons.get(entity_type, "●")
 
-        card = Horizontal(
-            cover,
+        subtitle_text = f"[dim]{_truncate(' · '.join(info_parts), 40)}[/dim]" if info_parts else ""
+
+        row = Horizontal(
+            Static(icon, classes="row-icon"),
             Vertical(
-                Horizontal(
-                    Static(type_label, classes=badge_class),
-                    Static(platform_badges, classes="platform-badges"),
-                    classes="card-meta-row",
-                ),
                 Static(
-                    f"[bold]{_truncate(entity.name, 40)}[/bold]",
-                    classes="card-title",
+                    f"[bold]{_truncate(entity.name, 45)}[/bold]",
+                    classes="row-title",
                 ),
-                Static(
-                    f"[dim]{_truncate(info_line, 50)}[/dim]",
-                    classes="card-subtitle",
-                ) if info_line else Static(""),
-                classes="card-info",
+                Static(subtitle_text, classes="row-subtitle") if subtitle_text else Static(""),
+                classes="row-info",
             ),
-            Button("View", id=f"entity-{entity_type.value}-{safe_id}", classes="card-action"),
-            Button("Download", id=f"dl-{entity_type.value}-{safe_id}", classes="card-action"),
-            classes="entity-card",
-            id=f"card-{entity_type.value}-{safe_id}",
+            Static(platform_badges, classes="row-platforms"),
+            Static(
+                f"[dim]{duration_str}[/dim]",
+                classes="row-duration",
+            ) if duration_str else Static("", classes="row-duration"),
+            Button("▶", id=f"entity-{entity_type.value}-{safe_id}-{uid}", classes="row-action"),
+            Button("↓", id=f"dl-{entity_type.value}-{safe_id}-{uid}", classes="row-action row-action-dl"),
+            classes="compact-row",
+            id=f"card-{entity_type.value}-{uid}",
         )
-        return card
+        return row
 
     def _get_platform_badges(self, entity: EntityResult) -> str:
         """Get platform badge string for an entity."""
