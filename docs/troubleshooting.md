@@ -130,3 +130,33 @@ As common issues or questions are encountered solutions will be added to this gu
 
     <https://discord.com/channels/771628785447337985/871006150357823498>
     <https://discord.com/channels/771628785447337985/939475659238043738>
+
+??? "KeyError: 'header' - YouTube Music API error"
+
+    This error occurs when YouTube Music's API response structure changes intermittently. The error has been fixed in ytmusicapi v1.11.1, which is the minimum version required by spotdl v4.4.3.
+
+    ### Error Message
+
+    ```
+    KeyError: "Unable to find 'header' using path ['header', 'musicCardShelfHeaderBasicRenderer', 'title', 'runs', 0, 'text']"
+    ```
+
+    ### Solution
+
+    1. Update ytmusicapi to v1.11.1 or later:
+
+        ```bash
+        pip install -U ytmusicapi
+        ```
+
+    2. If the error persists, reinstall spotdl:
+
+        ```bash
+        pip install -U --force spotdl
+        ```
+
+    3. If you're still experiencing issues, the error may be intermittent due to YouTube's anti-bot mechanisms. Wait a few minutes and try again.
+
+    ### Background
+
+    YouTube Music occasionally returns different response structures from their API. Version 1.11.1 of ytmusicapi includes a fallback mechanism that handles cases where the `header` field is missing from search results. This fix was implemented in PR #800 (https://github.com/sigma67/ytmusicapi/pull/800) to address issue #799.

@@ -203,6 +203,8 @@ def create_m3u_file(
         *(sanitize_string(part) for part in Path(file_name).parts)
     ).absolute()
 
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
     with open(file_path, "w", encoding="utf-8") as m3u_file:
         m3u_file.write(m3u_content)
 
