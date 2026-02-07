@@ -36,6 +36,15 @@ from spotdl_cli.core.types import PlatformInfo, Platform, Song
 from spotdl_cli.theme import truncate as _truncate
 from spotdl_cli.widgets import CoverArt
 
+# Regex for sanitizing strings into valid Textual CSS identifiers
+import re
+_ID_INVALID = re.compile(r"[^a-zA-Z0-9_-]")
+
+
+def _sanitize_id(text: str) -> str:
+    """Convert arbitrary text to a valid Textual widget ID."""
+    return _ID_INVALID.sub("-", text).strip("-") or "unknown"
+
 if TYPE_CHECKING:
     from spotdl_cli.app import SpotDLApp
 
@@ -394,8 +403,9 @@ class MainScreen(Screen[None]):
             # Derive artist entity (deduplicate by lowercase name)
             artist_key = song.artist.lower().strip()
             if artist_key and artist_key not in seen_artists:
+                safe_artist_id = _sanitize_id(f"offline-artist-{artist_key}")
                 seen_artists[artist_key] = EntityResult(
-                    id=f"offline-artist-{artist_key}",
+                    id=safe_artist_id,
                     entity_type=EntityType.ARTIST,
                     name=song.artist,
                     image_url=song.cover_url,
@@ -410,8 +420,9 @@ class MainScreen(Screen[None]):
             if song.album_name:
                 album_key = f"{artist_key}|{song.album_name.lower().strip()}"
                 if album_key not in seen_albums:
+                    safe_album_id = _sanitize_id(f"offline-album-{artist_key}-{song.album_name.lower().strip()}")
                     seen_albums[album_key] = EntityResult(
-                        id=f"offline-album-{album_key}",
+                        id=safe_album_id,
                         entity_type=EntityType.ALBUM,
                         name=song.album_name,
                         subtitle=song.artist,
@@ -577,6 +588,7 @@ class MainScreen(Screen[None]):
         platform_badges = self._get_platform_badges(artist)
         cover = CoverArt(classes="card-cover card-cover-small")
         cover.cover_url = artist.image_url
+        safe_id = _sanitize_id(artist.id)
 
         card = Horizontal(
             cover,
@@ -592,9 +604,9 @@ class MainScreen(Screen[None]):
                 ),
                 classes="card-info",
             ),
-            Button("View", id=f"entity-artist-{artist.id}", classes="card-action"),
+            Button("View", id=f"entity-artist-{safe_id}", classes="card-action"),
             classes="entity-card",
-            id=f"artist-card-{artist.id}",
+            id=f"artist-card-{safe_id}",
         )
         return card
 
@@ -605,6 +617,7 @@ class MainScreen(Screen[None]):
         platform_badges = self._get_platform_badges(entity)
         cover = CoverArt(classes="card-cover card-cover-small")
         cover.cover_url = entity.image_url
+        safe_id = _sanitize_id(entity.id)
 
         # Build info line
         info_parts = []
@@ -641,10 +654,10 @@ class MainScreen(Screen[None]):
                 ) if info_line else Static(""),
                 classes="card-info",
             ),
-            Button("View", id=f"entity-{entity_type.value}-{entity.id}", classes="card-action"),
-            Button("Download", id=f"dl-{entity_type.value}-{entity.id}", classes="card-action"),
+            Button("View", id=f"entity-{entity_type.value}-{safe_id}", classes="card-action"),
+            Button("Download", id=f"dl-{entity_type.value}-{safe_id}", classes="card-action"),
             classes="entity-card",
-            id=f"card-{entity_type.value}-{entity.id}",
+            id=f"card-{entity_type.value}-{safe_id}",
         )
         return card
 
