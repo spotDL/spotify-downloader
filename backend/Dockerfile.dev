@@ -13,14 +13,20 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 # Set working directory
 WORKDIR /app
 
-# Copy dependency files
-COPY pyproject.toml uv.lock* ./
+# Copy core package first (dependency)
+COPY ./core /core
 
-# Install all dependencies including dev
+# Copy backend dependency files
+COPY ./backend/pyproject.toml ./backend/uv.lock* ./
+
+# Create virtual environment and install dependencies
 RUN uv sync --frozen --no-install-project
 
+# Install core package after sync (so it doesn't get removed)
+RUN uv pip install -e /core
+
 # Copy alembic config (migrations will be mounted)
-COPY alembic.ini .
+COPY ./backend/alembic.ini .
 
 # Create data directory
 RUN mkdir -p /app/data

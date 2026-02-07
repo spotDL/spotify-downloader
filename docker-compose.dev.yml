@@ -9,8 +9,8 @@
 services:
   api:
     build:
-      context: ./backend
-      dockerfile: Dockerfile.dev
+      context: .
+      dockerfile: ./backend/Dockerfile.dev
     ports:
       - "8000:8000"
     environment:
@@ -26,6 +26,7 @@ services:
     volumes:
       - ./backend/src:/app/src
       - ./backend/alembic:/app/alembic
+      - ./core/src/spotdl_core:/core/src/spotdl_core
       - spotdl_data:/app/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
