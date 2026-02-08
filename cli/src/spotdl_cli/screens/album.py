@@ -43,6 +43,8 @@ logger = logging.getLogger(__name__)
 class AlbumScreen(Screen[None]):
     """Album detail screen matching frontend layout."""
 
+    TITLE = "Album Detail"
+
     BINDINGS: ClassVar[list[Binding]] = [
         Binding("escape", "app.pop_screen", "Back"),
         Binding("d", "download_all", "Download All"),
@@ -162,6 +164,11 @@ class AlbumScreen(Screen[None]):
                             yield Static("", id="detail-total-tracks")
                             yield Static("", id="detail-total-duration")
 
+                    # Copyright info card
+                    with Vertical(classes="card", id="copyright-card"):
+                        yield Static("Copyright", classes="card-title")
+                        yield Static("", id="copyright-text", classes="detail-row")
+
                     # Quick stats card
                     with Vertical(classes="card"):
                         yield Static("Quick Stats", classes="card-title")
@@ -193,13 +200,13 @@ class AlbumScreen(Screen[None]):
         # Load album data
         await self._load_album_data()
 
-    async def _load_album_data(self) -> None:
+    async def _load_album_data(self, force_refresh: bool = False) -> None:
         """Load album data from API or offline."""
         status = self.query_one("#tracks-status", Static)
         status.update("[dim]Loading album...[/]")
 
-        if self.spotdl_app.is_online and not self._album_data:
-            await self._load_online_data()
+        if self.spotdl_app.is_online and (force_refresh or not self._album_data or not self._album_data.get("tracks")):
+            await self._load_online_data(use_cache=not force_refresh)
         elif self._album_data and self._album_data.get("tracks"):
             # We already have full data with tracks
             self._update_display()
@@ -207,18 +214,22 @@ class AlbumScreen(Screen[None]):
             # We have partial data (just name/artist) or no data - load offline
             await self._load_offline_data()
 
-    async def _load_online_data(self) -> None:
+    async def _load_online_data(self, use_cache: bool = True) -> None:
         """Load album data from API server."""
         try:
             api_client = get_api_client()
             if self._entity_id:
-                self._album_data = await api_client.get_entity_album(self._entity_id)
+                self._album_data = await api_client.get_entity_album(
+                    self._entity_id, use_cache=use_cache
+                )
                 if self._album_data.get("platform"):
                     self._platform = self._album_data["platform"]
                 if self._album_data.get("platform_id"):
                     self._album_id = self._album_data["platform_id"]
             else:
-                self._album_data = await api_client.get_album(self._album_id, self._platform)
+                self._album_data = await api_client.get_album(
+                    self._album_id, self._platform, use_cache=use_cache
+                )
                 if self._album_data.get("id"):
                     self._entity_id = self._album_data["id"]
             self._update_display()
@@ -320,14 +331,24 @@ class AlbumScreen(Screen[None]):
         artist = data.get("artist") or ", ".join(data.get("artists", ["Unknown"]))
         self.query_one("#album-artist", Static).update(f"by {artist}")
 
-        # Type badge
+        # Type badge with colors
         album_type = data.get("album_type", data.get("type", "album")).upper()
         type_badge = self.query_one("#album-type-badge", Static)
         type_badge.update(album_type)
+        # Apply type-specific CSS class
+        type_lower = album_type.lower()
+        for cls in ("badge-album-single", "badge-album-ep", "badge-album-compilation"):
+            type_badge.remove_class(cls)
+        if type_lower == "single":
+            type_badge.add_class("badge-album-single")
+        elif type_lower == "ep":
+            type_badge.add_class("badge-album-ep")
+        elif type_lower == "compilation":
+            type_badge.add_class("badge-album-compilation")
 
-        # Popularity
+        # Popularity (only show when >= 70)
         popularity = data.get("popularity")
-        if popularity:
+        if popularity and popularity >= 70:
             pop_badge = self.query_one("#album-popularity-badge", Static)
             pop_badge.update(f"{popularity}%")
             pop_badge.remove_class("hidden")
@@ -359,9 +380,10 @@ class AlbumScreen(Screen[None]):
         if len(disc_numbers) > 1:
             self.query_one("#album-discs", Static).update(f"[dim]Discs:[/] {len(disc_numbers)}")
 
-        # Genres
+        # Genres (clear old badges first)
         genres = data.get("genres", [])
         genres_container = self.query_one("#album-genres", Horizontal)
+        genres_container.remove_children()
         for genre in genres[:4]:
             genres_container.mount(Static(genre, classes="badge badge-muted"))
 
@@ -396,6 +418,8 @@ class AlbumScreen(Screen[None]):
                 if len(str(copyright_text)) > 50
                 else f"[dim]Copyright:[/] {copyright_text}"
             )
+            # Also update the dedicated copyright card
+            self.query_one("#copyright-text", Static).update(str(copyright_text))
 
         self.query_one("#detail-total-tracks", Static).update(f"[dim]Tracks:[/] {track_count}")
         dur_display = duration_str if total_duration else "--"
@@ -547,6 +571,21 @@ class AlbumScreen(Screen[None]):
             track = self._tracks[table.cursor_row]
             self.run_worker(self._view_track(track))
 
+    def action_download_selected_track(self) -> None:
+        """Download the selected track."""
+        self.run_worker(self._download_selected_track())
+
+    async def _download_selected_track(self) -> None:
+        """Download the currently selected track."""
+        table = self.query_one("#tracks-table", DataTable)
+        if table.cursor_row is None or table.cursor_row >= len(self._tracks):
+            self.notify("No track selected", severity="warning")
+            return
+        track = self._tracks[table.cursor_row]
+        queue = self.spotdl_app.download_queue
+        await queue.add(track)
+        self.notify(f"Added to queue: {track.display_name}")
+
     async def _refresh_metadata(self) -> None:
         """Refresh album metadata from the API if possible."""
         if self.spotdl_app.is_online and self._entity_id:
@@ -566,7 +605,7 @@ class AlbumScreen(Screen[None]):
         if artist:
             self._album_data["artist"] = artist
         self._tracks = []
-        await self._load_album_data()
+        await self._load_album_data(force_refresh=True)
 
     async def _open_report(self) -> None:
         """Open report data screen."""

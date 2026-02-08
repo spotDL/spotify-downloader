@@ -39,6 +39,8 @@ logger = logging.getLogger(__name__)
 class QueueScreen(Screen[None]):
     """Download queue management screen."""
 
+    TITLE = "Downloads"
+
     BINDINGS: ClassVar[list[Binding]] = [
         Binding("escape", "app.pop_screen", "Back"),
         Binding("space", "toggle_download", "Start/Pause"),
@@ -54,6 +56,7 @@ class QueueScreen(Screen[None]):
         self._offline_matcher = get_offline_matcher()
         self._poll_tasks: dict[str, asyncio.Task[None]] = {}
         self._remote_downloads_enabled: bool | None = None
+        self._active_filter: str = "all"
 
     @property
     def spotdl_app(self) -> SpotDLApp:
@@ -77,9 +80,36 @@ class QueueScreen(Screen[None]):
                     yield Button("Clear Done", id="clear-done-btn")
                     yield Button("Retry Failed", id="retry-failed-btn")
 
+            # Filter tabs
+            with Horizontal(id="queue-filter-tabs"):
+                yield Button("All (0)", id="filter-all", classes="filter-btn active")
+                yield Button("Active (0)", id="filter-active", classes="filter-btn")
+                yield Button("Done (0)", id="filter-done", classes="filter-btn")
+                yield Button("Failed (0)", id="filter-failed", classes="filter-btn")
+
+            # Overall progress
+            yield ProgressBar(id="overall-progress", total=100, show_eta=False)
+
             # Content split
             with Horizontal(id="queue-content"):
                 with Vertical(id="queue-main"):
+                    # Empty state
+                    with Vertical(id="queue-empty-state", classes="empty-state hidden"):
+                        yield Static("No downloads yet", classes="empty-title")
+                        yield Static(
+                            "Search for music and add tracks to the download queue.",
+                            classes="empty-subtitle",
+                        )
+                        yield Button(
+                            "Go to Search",
+                            id="go-search-btn",
+                            variant="primary",
+                        )
+
+                    # Complete notice
+                    with Vertical(id="queue-complete-notice", classes="hidden"):
+                        yield Static("", id="complete-notice-text")
+
                     with Vertical(id="queue-table-container"):
                         yield DataTable(id="queue-table")
 
@@ -104,6 +134,7 @@ class QueueScreen(Screen[None]):
         table.add_columns(
             "Title",
             "Artist",
+            "Platform",
             "Status",
             "Progress",
             "Speed",
@@ -142,24 +173,63 @@ class QueueScreen(Screen[None]):
             self._update_stats()
             self._update_progress(event.item_id)
 
+    def _get_filtered_items(self) -> list:
+        """Get queue items filtered by the active filter."""
+        queue = self.spotdl_app.download_queue
+        items = list(queue.items)
+
+        active_statuses = {
+            DownloadStatus.SEARCHING,
+            DownloadStatus.DOWNLOADING,
+            DownloadStatus.CONVERTING,
+            DownloadStatus.EMBEDDING,
+            DownloadStatus.PENDING,
+        }
+
+        if self._active_filter == "active":
+            return [i for i in items if i.status in active_statuses]
+        elif self._active_filter == "done":
+            return [i for i in items if i.status == DownloadStatus.COMPLETED]
+        elif self._active_filter == "failed":
+            return [i for i in items if i.status == DownloadStatus.FAILED]
+        return items
+
+    def _get_platform_mapping(self, item) -> str:
+        """Get platform mapping string for an item."""
+        source = "SPOTIFY"
+        target = "YOUTUBE"
+        if item.result and item.result.platform:
+            target = item.result.platform.value.upper()
+        return f"{source} \u2192 {target}"
+
     def _update_table(self) -> None:
         """Update the queue table."""
         table = self.query_one("#queue-table", DataTable)
         table.clear()
 
         queue = self.spotdl_app.download_queue
-        if not queue.items:
-            return
+        filtered = self._get_filtered_items()
 
-        for item in queue.items:
+        # Toggle empty state
+        empty_state = self.query_one("#queue-empty-state")
+        if not queue.items:
+            empty_state.remove_class("hidden")
+            table.add_class("hidden")
+        else:
+            empty_state.add_class("hidden")
+            table.remove_class("hidden")
+
+        for item in filtered:
             item_id = queue.get_item_id(item)
             progress = f"{item.progress:.0f}%" if item.progress > 0 else "-"
             status = self._format_status(item.status)
             eta = item.eta or "-"
+            platform = self._get_platform_mapping(item)
 
             table.add_row(
                 item.song.name,
                 item.song.artist,
+                platform,
                 status,
                 progress,
                 item.speed or "-",
@@ -182,12 +252,14 @@ class QueueScreen(Screen[None]):
             progress = f"{item.progress:.0f}%" if item.progress > 0 else "-"
             status = self._format_status(item.status)
             eta = item.eta or "-"
+            platform = self._get_platform_mapping(item)
 
-            # Update cells
-            table.update_cell_at((row_key, 2), status)
-            table.update_cell_at((row_key, 3), progress)
-            table.update_cell_at((row_key, 4), item.speed or "-")
-            table.update_cell_at((row_key, 5), eta)
+            # Update cells (columns: Title, Artist, Platform, Status, Progress, Speed, ETA)
+            table.update_cell_at((row_key, 2), platform)
+            table.update_cell_at((row_key, 3), status)
+            table.update_cell_at((row_key, 4), progress)
+            table.update_cell_at((row_key, 5), item.speed or "-")
+            table.update_cell_at((row_key, 6), eta)
         except Exception:
             # Row not found, refresh table
             self._update_table()
@@ -198,10 +270,12 @@ class QueueScreen(Screen[None]):
         stats = self.query_one("#queue-stats", Static)
         summary = self.query_one("#queue-summary", Static)
 
+        total = len(queue.items)
         pending = queue.pending_count
         active = queue.active_count
         completed = len(queue.completed_items)
         failed = len(queue.failed_items)
+        active_total = pending + active
 
         stats.update(
             f"Pending: {pending} | Active: {active} | "
@@ -213,6 +287,41 @@ class QueueScreen(Screen[None]):
             f"[bold]{completed}[/bold] done\n"
             f"[bold]{failed}[/bold] failed"
         )
+
+        # Update filter tab counts
+        try:
+            self.query_one("#filter-all", Button).label = f"All ({total})"
+            self.query_one("#filter-active", Button).label = f"Active ({active_total})"
+            self.query_one("#filter-done", Button).label = f"Done ({completed})"
+            self.query_one("#filter-failed", Button).label = f"Failed ({failed})"
+        except Exception:
+            pass
+
+        # Update overall progress bar
+        try:
+            overall = self.query_one("#overall-progress", ProgressBar)
+            if total > 0:
+                overall_pct = (completed / total) * 100
+                overall.update(progress=overall_pct)
+            else:
+                overall.update(progress=0)
+        except Exception:
+            pass
+
+        # Show/hide complete notice
+        try:
+            notice = self.query_one("#queue-complete-notice")
+            notice_text = self.query_one("#complete-notice-text", Static)
+            if total > 0 and active_total == 0 and completed > 0:
+                settings = get_settings()
+                notice_text.update(
+                    f"All downloads complete! Files saved to: {settings.output_dir}"
+                )
+                notice.remove_class("hidden")
+            else:
+                notice.add_class("hidden")
+        except Exception:
+            pass
 
         if active == 0:
             current = self.query_one("#current-download", Static)
@@ -265,6 +374,17 @@ class QueueScreen(Screen[None]):
         color = colors.get(status, "white")
         return f"[{color}]{status.value.title()}[/{color}]"
 
+    def _set_active_filter(self, filter_name: str) -> None:
+        """Set the active filter tab."""
+        self._active_filter = filter_name
+        for btn_id in ("filter-all", "filter-active", "filter-done", "filter-failed"):
+            btn = self.query_one(f"#{btn_id}", Button)
+            if btn_id == f"filter-{filter_name}":
+                btn.add_class("active")
+            else:
+                btn.remove_class("active")
+        self._update_table()
+
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses."""
         if event.button.id == "start-btn":
@@ -277,6 +397,16 @@ class QueueScreen(Screen[None]):
             await self._clear_completed()
         elif event.button.id == "retry-failed-btn":
             await self._retry_failed()
+        elif event.button.id == "go-search-btn":
+            await self.app.push_screen("search")
+        elif event.button.id == "filter-all":
+            self._set_active_filter("all")
+        elif event.button.id == "filter-active":
+            self._set_active_filter("active")
+        elif event.button.id == "filter-done":
+            self._set_active_filter("done")
+        elif event.button.id == "filter-failed":
+            self._set_active_filter("failed")
 
     async def _start_downloads(self) -> None:
         """Start downloading."""

@@ -154,6 +154,14 @@ class Settings(BaseSettings):
     artist_match_threshold: float = 70.0
     time_match_threshold: float = 25.0
 
+    # Advanced
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
+    cookie_file: str | None = None
+
+    # Appearance
+    compact_mode: bool = False
+    enable_animations: bool = True
+
     def ensure_directories(self) -> None:
         """Create necessary directories if they don't exist."""
         self.config_dir.mkdir(parents=True, exist_ok=True)
@@ -238,6 +246,10 @@ class Settings(BaseSettings):
             "artist_match_threshold",
             "time_match_threshold",
             "output_dir",
+            "log_level",
+            "cookie_file",
+            "compact_mode",
+            "enable_animations",
         }
 
         config_data: dict[str, Any] = {}

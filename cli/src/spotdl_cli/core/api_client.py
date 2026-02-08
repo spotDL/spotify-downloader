@@ -955,6 +955,190 @@ class APIClient:
         except httpx.HTTPError as e:
             raise APIError(f"Request failed: {e}") from e
 
+    async def login(self, username: str, password: str) -> dict[str, Any]:
+        """
+        Login to the backend.
+
+        Args:
+            username: Username
+            password: Password
+
+        Returns:
+            Token response (access_token, refresh_token, user)
+        """
+        try:
+            client = await self._get_client()
+            response = await client.post(
+                "/api/v1/auth/login",
+                json={"username": username, "password": password},
+            )
+            response.raise_for_status()
+            data = response.json()
+
+            # Update settings with token
+            token = data.get("access_token")
+            if not token:
+                raise APIError("Login response missing access_token")
+            self._settings.auth_token = token
+            self._settings.save()
+
+            # Recreate client to use new token
+            await self.close()
+
+            return data
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"Login failed: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def register(self, username: str, email: str, password: str) -> dict[str, Any]:
+        """
+        Register a new user.
+
+        Args:
+            username: Username
+            email: Email address
+            password: Password
+
+        Returns:
+            Token response (access_token, refresh_token, user)
+        """
+        try:
+            client = await self._get_client()
+            response = await client.post(
+                "/api/v1/auth/register",
+                json={"username": username, "email": email, "password": password},
+            )
+            response.raise_for_status()
+            data = response.json()
+
+            # Update settings with token
+            token = data.get("access_token")
+            if not token:
+                raise APIError("Registration response missing access_token")
+            self._settings.auth_token = token
+            self._settings.save()
+
+            # Recreate client to use new token
+            await self.close()
+
+            return data
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"Registration failed: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def get_me(self) -> dict[str, Any]:
+        """Get current user profile."""
+        try:
+            client = await self._get_client()
+            response = await client.get("/api/v1/auth/me")
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def change_password(
+        self, current_password: str, new_password: str
+    ) -> dict[str, Any]:
+        """Change user password."""
+        try:
+            client = await self._get_client()
+            response = await client.put(
+                "/api/v1/auth/password",
+                json={
+                    "current_password": current_password,
+                    "new_password": new_password,
+                },
+            )
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"Password change failed: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def delete_account(self) -> None:
+        """Delete current user account."""
+        try:
+            client = await self._get_client()
+            response = await client.delete("/api/v1/auth/me")
+            response.raise_for_status()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"Account deletion failed: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+        self._settings.auth_token = None
+        self._settings.save()
+        await self.close()
+
+    async def logout(self) -> None:
+        """Logout and clear token."""
+        try:
+            client = await self._get_client()
+            await client.post("/api/v1/auth/logout")
+        except Exception:
+            pass  # Ignore errors on logout
+        
+        self._settings.auth_token = None
+        self._settings.save()
+        await self.close()
+
+    async def get_user_settings(self) -> dict[str, Any]:
+        """Get user settings from server."""
+        try:
+            client = await self._get_client()
+            response = await client.get("/api/v1/settings/me")
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def update_user_settings(self, settings: dict[str, Any]) -> dict[str, Any]:
+        """Update user settings on server."""
+        try:
+            client = await self._get_client()
+            response = await client.put("/api/v1/settings/me", json=settings)
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def reset_user_settings(self) -> dict[str, Any]:
+        """Reset user settings on server."""
+        try:
+            client = await self._get_client()
+            response = await client.delete("/api/v1/settings/me")
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
     # ============== Detail Endpoints ==============
 
     async def get_track(

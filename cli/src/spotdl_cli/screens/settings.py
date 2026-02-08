@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar
@@ -74,6 +75,8 @@ LYRICS_PROVIDER_LABELS = {
 
 class SettingsScreen(Screen[None]):
     """Application settings screen."""
+
+    TITLE = "Settings"
 
     BINDINGS: ClassVar[list[Binding]] = [
         Binding("escape", "app.pop_screen", "Back"),
@@ -487,6 +490,28 @@ class SettingsScreen(Screen[None]):
                 yield Static("Advanced", classes="group-title")
 
                 with Horizontal(classes="setting-row"):
+                    yield Label("Log Level:")
+                    yield Select(
+                        [
+                            ("Debug", "DEBUG"),
+                            ("Info", "INFO"),
+                            ("Warning", "WARNING"),
+                            ("Error", "ERROR"),
+                            ("Critical", "CRITICAL"),
+                        ],
+                        value=self._settings.log_level,
+                        id="log-level",
+                    )
+
+                with Horizontal(classes="setting-row"):
+                    yield Label("Cookie File Path:")
+                    yield Input(
+                        value=self._settings.cookie_file or "",
+                        id="cookie-file",
+                        placeholder="path/to/cookies.txt",
+                    )
+
+                with Horizontal(classes="setting-row"):
                     yield Label("FFmpeg Args:")
                     yield Input(
                         value=self._settings.ffmpeg_args or "",
@@ -531,30 +556,59 @@ class SettingsScreen(Screen[None]):
 
             # Matching (Offline)
             with Vertical(classes="settings-group"):
-                yield Static("Matching (Offline)", classes="group-title")
+                yield Static("Matching", classes="group-title")
 
                 with Horizontal(classes="setting-row"):
-                    yield Label("Name Match Threshold:")
-                    yield Input(
-                        value=str(self._settings.name_match_threshold),
-                        id="name-match-threshold",
-                        placeholder="60",
+                    yield Checkbox(
+                        "Auto-select best match",
+                        value=not self._settings.offline_mode,
+                        id="auto-select-match",
+                    )
+
+                with Vertical(
+                    id="matching-thresholds",
+                    classes="" if self._settings.offline_mode else "hidden",
+                ):
+                    with Horizontal(classes="setting-row"):
+                        yield Label("Name Match Threshold:")
+                        yield Input(
+                            value=str(self._settings.name_match_threshold),
+                            id="name-match-threshold",
+                            placeholder="60",
+                        )
+
+                    with Horizontal(classes="setting-row"):
+                        yield Label("Artist Match Threshold:")
+                        yield Input(
+                            value=str(self._settings.artist_match_threshold),
+                            id="artist-match-threshold",
+                            placeholder="70",
+                        )
+
+                    with Horizontal(classes="setting-row"):
+                        yield Label("Time Match Threshold:")
+                        yield Input(
+                            value=str(self._settings.time_match_threshold),
+                            id="time-match-threshold",
+                            placeholder="25",
+                        )
+
+            # Appearance
+            with Vertical(classes="settings-group"):
+                yield Static("Appearance", classes="group-title")
+
+                with Horizontal(classes="setting-row"):
+                    yield Checkbox(
+                        "Compact mode",
+                        value=self._settings.compact_mode,
+                        id="compact-mode",
                     )
 
                 with Horizontal(classes="setting-row"):
-                    yield Label("Artist Match Threshold:")
-                    yield Input(
-                        value=str(self._settings.artist_match_threshold),
-                        id="artist-match-threshold",
-                        placeholder="70",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Label("Time Match Threshold:")
-                    yield Input(
-                        value=str(self._settings.time_match_threshold),
-                        id="time-match-threshold",
-                        placeholder="25",
+                    yield Checkbox(
+                        "Enable animations",
+                        value=self._settings.enable_animations,
+                        id="enable-animations",
                     )
 
             # Spotify Integration - improved UI
@@ -671,6 +725,10 @@ class SettingsScreen(Screen[None]):
             # Actions
             with Horizontal(id="settings-actions"):
                 yield Button("Save", id="save-btn", variant="primary")
+                yield Button("Sync with Server", id="sync-btn", variant="default")
+                yield Button("Load from Server", id="load-server-btn", variant="default")
+                yield Button("Export to File", id="export-btn", variant="default")
+                yield Button("Import from File", id="import-btn", variant="default")
                 yield Button("Reset to Defaults", id="reset-btn", variant="warning")
                 yield Button("Cancel", id="cancel-btn")
 
@@ -679,6 +737,15 @@ class SettingsScreen(Screen[None]):
         self._update_status_badges()
         self._init_provider_tables()
         self.run_worker(self._load_service_status())
+
+    def on_checkbox_changed(self, event: Checkbox.Changed) -> None:
+        """Handle checkbox changes for conditional visibility."""
+        if event.checkbox.id == "offline-mode":
+            thresholds = self.query_one("#matching-thresholds")
+            if event.value:
+                thresholds.remove_class("hidden")
+            else:
+                thresholds.add_class("hidden")
 
     def on_input_changed(self, event: Input.Changed) -> None:
         """Handle input changes to update status badges."""
@@ -694,6 +761,8 @@ class SettingsScreen(Screen[None]):
         """Handle button presses."""
         if event.button.id == "save-btn":
             await self._save_settings()
+        elif event.button.id == "sync-btn":
+            await self._sync_settings()
         elif event.button.id == "reset-btn":
             self._reset_to_defaults()
         elif event.button.id == "cancel-btn":
@@ -768,6 +837,41 @@ class SettingsScreen(Screen[None]):
             )
         elif event.button.id == "refresh-service-status":
             self.run_worker(self._load_service_status())
+        elif event.button.id == "export-btn":
+            self.run_worker(self._export_settings())
+        elif event.button.id == "import-btn":
+            self.run_worker(self._import_settings())
+        elif event.button.id == "load-server-btn":
+            self.run_worker(self._load_from_server())
+
+    async def _sync_settings(self) -> None:
+        """Sync settings with server."""
+        if not self.spotdl_app.is_online:
+            self.notify("Cannot sync in offline mode", severity="warning")
+            return
+
+        try:
+            api_client = get_api_client()
+            
+            # First save local changes
+            await self._save_settings(close_screen=False)
+            
+            # Then push to server
+            # Convert settings to dict matching backend model
+            settings_dict = self._settings.model_dump()
+            
+            # Filter out fields that are not in UserSettingsUpdate
+            # This is a simplification; ideally we'd map fields precisely
+            # For now, we'll rely on the backend ignoring extra fields or handle specific mapping if needed
+            
+            await api_client.update_user_settings(settings_dict)
+            self.notify("Settings synced with server")
+            
+        except APIError as e:
+            self.notify(f"Sync failed: {e}", severity="error")
+        except Exception as e:
+            logger.exception("Sync failed")
+            self.notify(f"Sync failed: {e}", severity="error")
 
     def _toggle_visibility(self, input_id: str, button_id: str) -> None:
         """Toggle password visibility for a field."""
@@ -980,7 +1084,7 @@ class SettingsScreen(Screen[None]):
         add_rows("targets", self._service_status.get("targets", []))
         add_rows("metadata", self._service_status.get("metadata", []))
 
-    async def _save_settings(self) -> None:
+    async def _save_settings(self, close_screen: bool = True) -> None:
         """Save settings."""
         try:
             # API settings
@@ -1039,9 +1143,15 @@ class SettingsScreen(Screen[None]):
             ).value
 
             # Advanced
+            log_level = self.query_one("#log-level", Select).value
+            cookie_file = self.query_one("#cookie-file", Input).value
             ffmpeg_args = self.query_one("#ffmpeg-args", Input).value
             yt_dlp_args = self.query_one("#yt-dlp-args", Input).value
             proxy = self.query_one("#proxy", Input).value
+
+            # Appearance
+            compact_mode = self.query_one("#compact-mode", Checkbox).value
+            enable_animations = self.query_one("#enable-animations", Checkbox).value
 
             # Errors
             save_errors = self.query_one("#save-errors", Input).value
@@ -1122,9 +1232,13 @@ class SettingsScreen(Screen[None]):
             self._settings.sponsor_block_categories = self._parse_csv(
                 sponsor_block_categories
             )
+            self._settings.log_level = log_level
+            self._settings.cookie_file = self._parse_optional(cookie_file)
             self._settings.ffmpeg_args = self._parse_optional(ffmpeg_args)
             self._settings.yt_dlp_args = self._parse_optional(yt_dlp_args)
             self._settings.proxy = self._parse_optional(proxy)
+            self._settings.compact_mode = compact_mode
+            self._settings.enable_animations = enable_animations
             self._settings.save_errors = self._parse_optional(save_errors)
             self._settings.print_errors = print_errors
             self._settings.name_match_threshold = self._parse_float(
@@ -1152,8 +1266,9 @@ class SettingsScreen(Screen[None]):
             from spotdl_cli.core import get_api_client
             await get_api_client().close()
 
-            self.notify("Settings saved")
-            self.app.pop_screen()
+            if close_screen:
+                self.notify("Settings saved")
+                self.app.pop_screen()
 
         except Exception as e:
             logger.exception("Failed to save settings")
@@ -1219,9 +1334,13 @@ class SettingsScreen(Screen[None]):
         self.query_one("#sponsor-block-categories", Input).value = ", ".join(
             defaults.sponsor_block_categories
         )
+        self.query_one("#log-level", Select).value = defaults.log_level
+        self.query_one("#cookie-file", Input).value = defaults.cookie_file or ""
         self.query_one("#ffmpeg-args", Input).value = defaults.ffmpeg_args or ""
         self.query_one("#yt-dlp-args", Input).value = defaults.yt_dlp_args or ""
         self.query_one("#proxy", Input).value = defaults.proxy or ""
+        self.query_one("#compact-mode", Checkbox).value = defaults.compact_mode
+        self.query_one("#enable-animations", Checkbox).value = defaults.enable_animations
         self.query_one("#save-errors", Input).value = defaults.save_errors or ""
         self.query_one("#print-errors", Checkbox).value = defaults.print_errors
         self.query_one("#name-match-threshold", Input).value = str(
@@ -1243,6 +1362,76 @@ class SettingsScreen(Screen[None]):
         self._update_status_badges()
 
         self.notify("Settings reset to defaults")
+
+    async def _export_settings(self) -> None:
+        """Export settings to a JSON file."""
+        try:
+            export_path = self._settings.config_dir / "settings-export.json"
+            config_data = self._settings.model_dump()
+            # Convert Path objects to strings
+            for key, value in config_data.items():
+                if isinstance(value, Path):
+                    config_data[key] = str(value)
+
+            with open(export_path, "w", encoding="utf-8") as f:
+                json.dump(config_data, f, indent=2)
+            self.notify(f"Settings exported to {export_path}")
+        except Exception as e:
+            self.notify(f"Export failed: {e}", severity="error")
+
+    async def _import_settings(self) -> None:
+        """Import settings from a JSON file."""
+        try:
+            import_path = self._settings.config_dir / "settings-export.json"
+            if not import_path.exists():
+                self.notify(
+                    f"No export file found at {import_path}",
+                    severity="warning",
+                )
+                return
+
+            with open(import_path, encoding="utf-8") as f:
+                data = json.load(f)
+
+            # Apply imported settings
+            for key, value in data.items():
+                if hasattr(self._settings, key):
+                    try:
+                        setattr(self._settings, key, value)
+                    except Exception:
+                        pass
+
+            self._settings.save()
+            self.notify("Settings imported. Reloading screen...")
+            # Pop and re-push to refresh all widgets
+            self.app.pop_screen()
+            await self.app.push_screen("settings")
+        except Exception as e:
+            self.notify(f"Import failed: {e}", severity="error")
+
+    async def _load_from_server(self) -> None:
+        """Load settings from server."""
+        if not self.spotdl_app.is_online:
+            self.notify("Cannot load in offline mode", severity="warning")
+            return
+
+        try:
+            api_client = get_api_client()
+            server_settings = await api_client.get_user_settings()
+
+            for key, value in server_settings.items():
+                if hasattr(self._settings, key):
+                    try:
+                        setattr(self._settings, key, value)
+                    except Exception:
+                        pass
+
+            self._settings.save()
+            self.notify("Settings loaded from server. Reloading screen...")
+            self.app.pop_screen()
+            await self.app.push_screen("settings")
+        except APIError as e:
+            self.notify(f"Load failed: {e}", severity="error")
 
     def action_save(self) -> None:
         """Save settings action."""

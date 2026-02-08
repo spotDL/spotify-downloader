@@ -19,10 +19,13 @@ from textual.containers import Container, Horizontal, Vertical, VerticalScroll
 from textual.screen import Screen
 from textual.widgets import (
     Button,
+    Collapsible,
     DataTable,
+    Input,
     Label,
     ProgressBar,
     Rule,
+    Select,
     Static,
 )
 
@@ -48,6 +51,8 @@ logger = logging.getLogger(__name__)
 
 class TrackScreen(Screen[None]):
     """Track detail screen matching frontend layout."""
+
+    TITLE = "Track Detail"
 
     BINDINGS: ClassVar[list[Binding]] = [
         Binding("escape", "app.pop_screen", "Back"),
@@ -84,6 +89,8 @@ class TrackScreen(Screen[None]):
         self._matches: list[MatchEntry] = []
         self._lyrics: str | None = None
         self._lyrics_sources_count: int | None = None
+        self._all_lyrics: dict[str, str] = {}  # source -> lyrics text
+        self._active_lyrics_source: str | None = None
         self._audio_features: dict[str, Any] = {}
         self._track_details: dict[str, Any] = {}
 
@@ -177,9 +184,36 @@ class TrackScreen(Screen[None]):
 
                     yield Rule()
 
+                    # Inline match submission form
+                    with Collapsible(title="Submit a Match", id="submit-match-form"):
+                        with Horizontal(classes="setting-row"):
+                            yield Select(
+                                [
+                                    ("YouTube", "youtube"),
+                                    ("YouTube Music", "youtube_music"),
+                                    ("SoundCloud", "soundcloud"),
+                                    ("Bandcamp", "bandcamp"),
+                                ],
+                                value="youtube",
+                                id="submit-platform-select",
+                            )
+                            yield Input(
+                                placeholder="Paste match URL here",
+                                id="submit-match-url",
+                            )
+                            yield Button("Submit", id="inline-submit-btn", variant="primary")
+
+                    yield Rule()
+
                     # Lyrics card
                     with Vertical(classes="card", id="lyrics-card"):
-                        yield Static("Lyrics", classes="card-title")
+                        with Horizontal(classes="card-header-row"):
+                            yield Static("Lyrics", classes="card-title")
+                            yield Select(
+                                [("Default", "default")],
+                                value="default",
+                                id="lyrics-source-select",
+                            )
 
                         with VerticalScroll(id="lyrics-container", classes="lyrics-scroll"):
                             yield Static("", id="lyrics-content", classes="lyrics-text")
@@ -220,6 +254,36 @@ class TrackScreen(Screen[None]):
                                 yield Label("Valence", classes="feature-label")
                                 yield ProgressBar(id="feature-valence", total=100, show_eta=False)
 
+                            # Speechiness
+                            with Horizontal(classes="feature-row"):
+                                yield Label("Speechiness", classes="feature-label")
+                                yield ProgressBar(id="feature-speechiness", total=100, show_eta=False)
+
+                            # Acousticness
+                            with Horizontal(classes="feature-row"):
+                                yield Label("Acousticness", classes="feature-label")
+                                yield ProgressBar(id="feature-acousticness", total=100, show_eta=False)
+
+                            # Instrumentalness
+                            with Horizontal(classes="feature-row"):
+                                yield Label("Instrumental", classes="feature-label")
+                                yield ProgressBar(id="feature-instrumentalness", total=100, show_eta=False)
+
+                            # Liveness
+                            with Horizontal(classes="feature-row"):
+                                yield Label("Liveness", classes="feature-label")
+                                yield ProgressBar(id="feature-liveness", total=100, show_eta=False)
+
+                            # Loudness
+                            with Horizontal(classes="feature-row"):
+                                yield Label("Loudness", classes="feature-label")
+                                yield Static("--", id="feature-loudness", classes="feature-value")
+
+                            # Time Signature
+                            with Horizontal(classes="feature-row"):
+                                yield Label("Time Sig.", classes="feature-label")
+                                yield Static("--", id="feature-time-sig", classes="feature-value")
+
                     # Track details
                     with Vertical(classes="card", id="track-details-card"):
                         yield Static("Track Details", classes="card-title")
@@ -228,6 +292,20 @@ class TrackScreen(Screen[None]):
                             yield Static("", id="detail-label", classes="detail-row")
                             yield Static("", id="detail-popularity", classes="detail-row")
                             yield Static("", id="detail-platform-id", classes="detail-row")
+
+                    # Technical info
+                    with Vertical(classes="card", id="technical-info-card"):
+                        yield Static("Technical Info", classes="card-title")
+                        with Vertical(id="technical-info-content"):
+                            yield Static("", id="detail-internal-id", classes="detail-row")
+                            yield Static("", id="detail-matches-count", classes="detail-row")
+                            yield Static("", id="detail-musicbrainz-id", classes="detail-row")
+                            yield Static("", id="detail-last-enriched", classes="detail-row")
+
+                    # Rights information
+                    with Vertical(classes="card", id="rights-info-card"):
+                        yield Static("Rights", classes="card-title")
+                        yield Static("", id="detail-copyright", classes="detail-row")
 
     async def on_mount(self) -> None:
         """Handle screen mount."""
@@ -288,8 +366,9 @@ class TrackScreen(Screen[None]):
             badge.update("EXPLICIT")
             badge.remove_class("hidden")
 
-        # Genres
+        # Genres (clear old badges first)
         genres_container = self.query_one("#track-genres", Horizontal)
+        genres_container.remove_children()
         for genre in (song.genres or [])[:4]:
             genres_container.mount(Static(genre, classes="badge badge-muted"))
 
@@ -308,18 +387,18 @@ class TrackScreen(Screen[None]):
         cover_widget = self.query_one("#track-cover", CoverArt)
         cover_widget.cover_url = song.cover_url
 
-    async def _load_track_data(self) -> None:
+    async def _load_track_data(self, force_refresh: bool = False) -> None:
         """Load detailed track data from API or offline."""
         status = self.query_one("#matches-status", Static)
         status.update("[dim]Loading matches...[/]")
 
         # Try online first
         if self.spotdl_app.is_online:
-            await self._load_online_data()
+            await self._load_online_data(use_cache=not force_refresh)
         else:
             await self._load_offline_data()
 
-    async def _load_online_data(self) -> None:
+    async def _load_online_data(self, use_cache: bool = True) -> None:
         """Load data from API server."""
         try:
             api_client = get_api_client()
@@ -327,11 +406,13 @@ class TrackScreen(Screen[None]):
             # Get track details
             try:
                 if self._entity_id:
-                    self._track_details = await api_client.get_entity_song(self._entity_id)
+                    self._track_details = await api_client.get_entity_song(
+                        self._entity_id, use_cache=use_cache
+                    )
                     self._sync_song_from_entity(self._track_details)
                 else:
                     self._track_details = await api_client.get_track(
-                        self._track_id, self._platform
+                        self._track_id, self._platform, use_cache=use_cache
                     )
                     if self._track_details.get("id"):
                         self._entity_id = self._track_details["id"]
@@ -374,6 +455,32 @@ class TrackScreen(Screen[None]):
                     )
                     all_lyrics = await api_client.get_all_lyrics(self._entity_id)
                     self._lyrics_sources_count = all_lyrics.get("total_sources")
+
+                    # Populate all lyrics sources
+                    sources = all_lyrics.get("sources", [])
+                    if sources:
+                        self._all_lyrics = {}
+                        for src in sources:
+                            name = src.get("source", src.get("name", "unknown"))
+                            text = (
+                                src.get("lyrics_text")
+                                or src.get("lyrics")
+                                or src.get("lyrics_synced")
+                                or ""
+                            )
+                            if text:
+                                self._all_lyrics[name] = text
+                        if self._all_lyrics:
+                            options = [(name.title(), name) for name in self._all_lyrics]
+                            try:
+                                select = self.query_one("#lyrics-source-select", Select)
+                                select.set_options(options)
+                                first_source = next(iter(self._all_lyrics))
+                                select.value = first_source
+                                self._active_lyrics_source = first_source
+                            except Exception:
+                                pass
+
                 self._update_lyrics_display()
             except APIError as e:
                 logger.debug(f"No lyrics available: {e}")
@@ -426,6 +533,7 @@ class TrackScreen(Screen[None]):
             self._update_song_display()
         except Exception as e:
             logger.warning(f"Offline enrichment failed: {e}")
+            self.notify(f"Offline enrichment failed: {e}", severity="warning")
 
         # Show track details from the Song object itself
         self.query_one("#detail-platform-id", Static).update(
@@ -517,15 +625,34 @@ class TrackScreen(Screen[None]):
             platform_icon = get_platform_icon(result.platform.value)
 
             # Score display
-            score_str = f"{match.score:.0f}%" if match.score > 0 else "—"
-            votes_str = f"{match.net_votes:+d}"
+            score_str = f"{match.score:.0f}%" if match.score > 0 else "\u2014"
 
-            # Status
-            status_str = (
-                match.status.title()
-                if match.status
-                else ("Verified" if result.verified else "Unverified")
-            )
+            # Color-coded votes
+            net = match.net_votes
+            if net > 0:
+                votes_str = f"[green]+{net}[/green]"
+            elif net < 0:
+                votes_str = f"[red]{net}[/red]"
+            else:
+                votes_str = "0"
+
+            # Status with badges
+            badges: list[str] = []
+            if i == 1 and result.verified:
+                badges.append("[green]Best Match[/green]")
+            if match.match_type == "user":
+                badges.append("[cyan]User Submitted[/cyan]")
+            if match.status == "pending":
+                badges.append("[yellow]Pending Review[/yellow]")
+            elif match.status == "verified":
+                badges.append("[green]Verified[/green]")
+            elif match.status:
+                badges.append(match.status.title())
+            elif result.verified:
+                badges.append("[green]Verified[/green]")
+            else:
+                badges.append("[dim]Unverified[/dim]")
+            status_str = " ".join(badges)
 
             table.add_row(
                 str(i),
@@ -577,28 +704,38 @@ class TrackScreen(Screen[None]):
         if not self._audio_features:
             return
 
+        def set_bar(feature_id: str, key: str) -> None:
+            val = self._audio_features.get(key)
+            if val is not None:
+                try:
+                    bar = self.query_one(f"#feature-{feature_id}", ProgressBar)
+                    bar.update(progress=int(float(val) * 100))
+                except Exception:
+                    pass
+
         # BPM
         bpm = self._audio_features.get("tempo") or self._audio_features.get("bpm")
         if bpm:
             self.query_one("#feature-bpm", Static).update(f"{bpm:.0f}")
 
-        # Energy (0-1 scale to percentage)
-        energy = self._audio_features.get("energy")
-        if energy is not None:
-            bar = self.query_one("#feature-energy", ProgressBar)
-            bar.update(progress=int(energy * 100))
+        # Progress bar features (0-1 scale)
+        set_bar("energy", "energy")
+        set_bar("danceability", "danceability")
+        set_bar("valence", "valence")
+        set_bar("speechiness", "speechiness")
+        set_bar("acousticness", "acousticness")
+        set_bar("instrumentalness", "instrumentalness")
+        set_bar("liveness", "liveness")
 
-        # Danceability
-        dance = self._audio_features.get("danceability")
-        if dance is not None:
-            bar = self.query_one("#feature-danceability", ProgressBar)
-            bar.update(progress=int(dance * 100))
+        # Loudness (dB value)
+        loudness = self._audio_features.get("loudness")
+        if loudness is not None:
+            self.query_one("#feature-loudness", Static).update(f"{loudness:.1f} dB")
 
-        # Valence
-        valence = self._audio_features.get("valence")
-        if valence is not None:
-            bar = self.query_one("#feature-valence", ProgressBar)
-            bar.update(progress=int(valence * 100))
+        # Time signature
+        time_sig = self._audio_features.get("time_signature")
+        if time_sig is not None:
+            self.query_one("#feature-time-sig", Static).update(f"{time_sig}/4")
 
         # Key signature (if available)
         key = self._audio_features.get("key")
@@ -637,18 +774,65 @@ class TrackScreen(Screen[None]):
             f"[dim]ID:[/] {self._track_id}"
         )
 
+        # Technical info
+        if self._entity_id:
+            self.query_one("#detail-internal-id", Static).update(
+                f"[dim]Internal ID:[/] {self._entity_id}"
+            )
+
+        matches_count = self._track_details.get("matches_count", len(self._matches))
+        self.query_one("#detail-matches-count", Static).update(
+            f"[dim]Matches:[/] {matches_count}"
+        )
+
+        # External IDs
+        external_ids = self._track_details.get("external_ids", {})
+        mb_id = external_ids.get("musicbrainz") or self._track_details.get("musicbrainz_id")
+        if mb_id:
+            self.query_one("#detail-musicbrainz-id", Static).update(
+                f"[dim]MusicBrainz:[/] {mb_id}"
+            )
+
+        last_enriched = self._track_details.get("last_enriched") or self._track_details.get("updated_at")
+        if last_enriched:
+            date_str = last_enriched[:10] if len(last_enriched) >= 10 else last_enriched
+            self.query_one("#detail-last-enriched", Static).update(
+                f"[dim]Last Enriched:[/] {date_str}"
+            )
+
+        # Copyright / Rights
+        copyright_text = (
+            self._track_details.get("copyright")
+            or self._track_details.get("label")
+        )
+        if copyright_text:
+            self.query_one("#detail-copyright", Static).update(
+                f"[dim]\u00a9[/] {copyright_text}"
+            )
+
+    def on_select_changed(self, event: Select.Changed) -> None:
+        """Handle select widget changes."""
+        if event.select.id == "lyrics-source-select" and self._all_lyrics:
+            source = str(event.value)
+            if source in self._all_lyrics:
+                self._active_lyrics_source = source
+                self._lyrics = self._all_lyrics[source]
+                self._update_lyrics_display()
+
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses."""
         if event.button.id == "download-btn":
             await self._download_best_match()
         elif event.button.id == "refresh-btn":
-            await self._load_track_data()
+            await self._load_track_data(force_refresh=True)
         elif event.button.id == "refresh-meta-btn":
             await self._refresh_metadata()
         elif event.button.id == "submit-match-btn":
             await self._open_submit_match()
         elif event.button.id == "report-btn":
             await self._open_report()
+        elif event.button.id == "inline-submit-btn":
+            await self._inline_submit_match()
 
     async def _download_best_match(self) -> None:
         """Download the best available match."""
@@ -668,7 +852,7 @@ class TrackScreen(Screen[None]):
 
     def action_refresh(self) -> None:
         """Refresh action."""
-        self.run_worker(self._load_track_data())
+        self.run_worker(self._load_track_data(force_refresh=True))
 
     def action_refresh_metadata(self) -> None:
         """Refresh metadata action."""
@@ -697,7 +881,7 @@ class TrackScreen(Screen[None]):
                 offline_matcher = get_offline_matcher()
                 self._song = await offline_matcher.enrich_song(self._song)
                 self._update_song_display()
-                await self._load_track_data()
+                await self._load_track_data(force_refresh=True)
                 self.notify("Offline metadata refreshed")
             except Exception as e:
                 self.notify(f"Offline refresh failed: {e}", severity="error")
@@ -712,10 +896,12 @@ class TrackScreen(Screen[None]):
             await api_client.refresh_entity("songs", self._entity_id)
             await api_client.enrich_song_all_sources(self._entity_id)
             await api_client.fetch_all_lyrics(self._entity_id)
-            self._track_details = await api_client.get_entity_song(self._entity_id)
+            self._track_details = await api_client.get_entity_song(
+                self._entity_id, use_cache=False
+            )
             self._sync_song_from_entity(self._track_details)
             self._audio_features = self._track_details.get("audio_features") or {}
-            await self._load_track_data()
+            await self._load_track_data(force_refresh=True)
             self.notify("Metadata refreshed")
         except APIError as e:
             self.notify(f"Metadata refresh failed: {e}", severity="error")
@@ -724,6 +910,8 @@ class TrackScreen(Screen[None]):
         """Open submit match screen."""
         if not self.spotdl_app.is_online:
             self.notify("Submit match requires online mode", severity="warning")
+            return
+        if not await self._ensure_authenticated():
             return
         if not self._song.url:
             self.notify("Source URL unavailable", severity="warning")
@@ -761,6 +949,16 @@ class TrackScreen(Screen[None]):
             )
         )
 
+    async def _ensure_authenticated(self) -> bool:
+        """Check if user is authenticated, prompt login if not. Returns True if authenticated."""
+        settings = get_settings()
+        if settings.auth_token:
+            return True
+
+        from spotdl_cli.screens.login import LoginScreen
+        result = await self.app.push_screen_wait(LoginScreen())
+        return result is True
+
     async def _vote_selected(self, vote_type: str) -> None:
         """Vote on the selected match."""
         table = self.query_one("#matches-table", DataTable)
@@ -771,6 +969,9 @@ class TrackScreen(Screen[None]):
         match = self._matches[table.cursor_row]
         if not match.id:
             self.notify("Voting requires a saved match", severity="warning")
+            return
+
+        if not await self._ensure_authenticated():
             return
 
         try:
@@ -809,6 +1010,34 @@ class TrackScreen(Screen[None]):
         add_field("track_number", "Track Number", track.get("track_number"))
         add_field("disc_number", "Disc Number", track.get("disc_number"))
         return fields
+
+    async def _inline_submit_match(self) -> None:
+        """Submit a match from the inline form."""
+        if not self.spotdl_app.is_online:
+            self.notify("Submit match requires online mode", severity="warning")
+            return
+
+        if not await self._ensure_authenticated():
+            return
+
+        url = self.query_one("#submit-match-url", Input).value.strip()
+        if not url:
+            self.notify("Please enter a URL", severity="warning")
+            return
+
+        try:
+            api_client = get_api_client()
+            match = await api_client.submit_match(
+                source_url=self._song.url,
+                target_url=url,
+                fallback_song=self._song,
+            )
+            self.notify("Match submitted successfully")
+            self.query_one("#submit-match-url", Input).value = ""
+            if isinstance(match, dict) and match.get("id"):
+                await self._load_track_data()
+        except APIError as e:
+            self.notify(f"Submit failed: {e}", severity="error")
 
     def _on_match_submitted(self, match: MatchEntry) -> None:
         """Handle new match submission."""

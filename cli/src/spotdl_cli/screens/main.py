@@ -143,6 +143,7 @@ class MainScreen(Screen[None]):
                     id="search-input",
                 )
                 yield Button("Search", id="search-btn", variant="primary")
+                yield Button("Login", id="login-btn", variant="default")
                 yield Static("", id="status-bar", classes="status-muted")
 
             # Compact filter pills
@@ -254,9 +255,27 @@ class MainScreen(Screen[None]):
                         classes="empty-hint",
                     )
 
+    async def _on_login_complete(self, success: bool) -> None:
+        """Handle login completion."""
+        if success:
+            self._update_auth_button()
+            # Reload connection status to show authenticated state
+            await self._load_connection_status()
+
+    def _update_auth_button(self) -> None:
+        """Update login/logout button state."""
+        btn = self.query_one("#login-btn", Button)
+        if self._settings.auth_token:
+            btn.label = "Logout"
+            btn.variant = "warning"
+        else:
+            btn.label = "Login"
+            btn.variant = "default"
+
     async def on_mount(self) -> None:
         """Handle screen mount."""
         self.query_one("#search-input", Input).focus()
+        self._update_auth_button()
         self.run_worker(self._load_connection_status())
 
     async def on_input_submitted(self, event: Input.Submitted) -> None:
@@ -270,6 +289,17 @@ class MainScreen(Screen[None]):
 
         if button_id == "search-btn":
             await self._do_search()
+        elif button_id == "login-btn":
+            if self._settings.auth_token:
+                # Logout
+                api_client = get_api_client()
+                await api_client.logout()
+                self._update_auth_button()
+                self.notify("Logged out")
+                await self._load_connection_status()
+            else:
+                from spotdl_cli.screens.login import LoginScreen
+                await self.app.push_screen(LoginScreen(), self._on_login_complete)
         elif button_id and button_id.startswith("filter-"):
             filter_type = button_id.replace("filter-", "")
             self._set_active_filter(filter_type)
@@ -357,11 +387,13 @@ class MainScreen(Screen[None]):
             self._search_response = response
             await self._display_results(response)
 
-            # Update status
+            # Update status with query type info
             total = response.total
+            query_type_label = response.query_type or "text"
+            mode = "online" if self.spotdl_app.is_online else "offline"
             status_bar.update(
                 f"Found {total} result{'s' if total != 1 else ''} "
-                f"({'online' if self.spotdl_app.is_online else 'offline'})"
+                f"for {query_type_label} query ({mode})"
             )
 
         except APIError as e:
@@ -710,7 +742,7 @@ class MainScreen(Screen[None]):
             ),
             Horizontal(
                 Button("View", id=view_id, classes="tile-action"),
-                Button("DL", id=dl_id, classes="tile-action tile-action-dl"),
+                Button("Queue", id=dl_id, classes="tile-action tile-action-dl"),
                 classes="tile-actions-row",
             ),
             classes="album-tile",
@@ -768,7 +800,7 @@ class MainScreen(Screen[None]):
                 classes="row-duration",
             ) if duration_str else Static("", classes="row-duration"),
             Button("View", id=view_id, classes="row-action"),
-            Button("DL", id=dl_id, classes="row-action row-action-dl"),
+            Button("Queue", id=dl_id, classes="row-action row-action-dl"),
             classes="compact-row",
             id=f"card-{entity_type.value}-{uid}",
         )

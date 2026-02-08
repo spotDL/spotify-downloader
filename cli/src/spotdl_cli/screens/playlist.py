@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 from typing import TYPE_CHECKING, Any, ClassVar
 
 from textual.app import ComposeResult
@@ -42,6 +43,8 @@ logger = logging.getLogger(__name__)
 
 class PlaylistScreen(Screen[None]):
     """Playlist detail screen matching frontend layout."""
+
+    TITLE = "Playlist Detail"
 
     BINDINGS: ClassVar[list[Binding]] = [
         Binding("escape", "app.pop_screen", "Back"),
@@ -147,6 +150,11 @@ class PlaylistScreen(Screen[None]):
                         with Vertical(id="platform-links"):
                             yield Static("", id="platform-links-content")
 
+                    # Created By card
+                    with Vertical(classes="card", id="created-by-card"):
+                        yield Static("Created By", classes="card-title")
+                        yield Static("", id="created-by-name")
+
                     # Playlist details
                     with Vertical(classes="card"):
                         yield Static("Playlist Details", classes="card-title")
@@ -189,13 +197,13 @@ class PlaylistScreen(Screen[None]):
         # Load playlist data
         await self._load_playlist_data()
 
-    async def _load_playlist_data(self) -> None:
+    async def _load_playlist_data(self, force_refresh: bool = False) -> None:
         """Load playlist data from API or offline."""
         status = self.query_one("#tracks-status", Static)
         status.update("[dim]Loading playlist...[/]")
 
-        if self.spotdl_app.is_online and not self._playlist_data:
-            await self._load_online_data()
+        if self.spotdl_app.is_online and (force_refresh or not self._playlist_data or not self._playlist_data.get("tracks")):
+            await self._load_online_data(use_cache=not force_refresh)
         elif self._playlist_data and self._playlist_data.get("tracks"):
             # We already have full data with tracks
             self._update_display()
@@ -203,19 +211,21 @@ class PlaylistScreen(Screen[None]):
             # We have partial data (just name) or no data - load offline
             await self._load_offline_data()
 
-    async def _load_online_data(self) -> None:
+    async def _load_online_data(self, use_cache: bool = True) -> None:
         """Load playlist data from API server."""
         try:
             api_client = get_api_client()
             if self._entity_id:
-                self._playlist_data = await api_client.get_entity_playlist(self._entity_id)
+                self._playlist_data = await api_client.get_entity_playlist(
+                    self._entity_id, use_cache=use_cache
+                )
                 if self._playlist_data.get("platform"):
                     self._platform = self._playlist_data["platform"]
                 if self._playlist_data.get("platform_id"):
                     self._playlist_id = self._playlist_data["platform_id"]
             else:
                 self._playlist_data = await api_client.get_playlist(
-                    self._playlist_id, self._platform
+                    self._playlist_id, self._platform, use_cache=use_cache
                 )
                 if self._playlist_data.get("id"):
                     self._entity_id = self._playlist_data["id"]
@@ -314,13 +324,21 @@ class PlaylistScreen(Screen[None]):
             owner_name = "Unknown"
         self.query_one("#playlist-owner", Static).update(f"by {owner_name}")
 
-        # Description
+        # Created By card
+        self.query_one("#created-by-name", Static).update(f"👤 {owner_name}")
+
+        # Description - strip HTML tags and format paragraphs
         description = data.get("description", "")
         if description:
+            # Strip HTML tags
+            description = re.sub(r"<[^>]+>", "", description)
             # Truncate long descriptions
-            if len(description) > 200:
-                description = description[:200] + "..."
-            self.query_one("#playlist-description", Static).update(description)
+            if len(description) > 300:
+                description = description[:300] + "..."
+            # Split on double newlines for paragraph formatting
+            paragraphs = [p.strip() for p in description.split("\n\n") if p.strip()]
+            formatted = "\n\n".join(paragraphs) if paragraphs else description
+            self.query_one("#playlist-description", Static).update(formatted)
 
         # Track count
         tracks = data.get("tracks", [])
@@ -563,7 +581,7 @@ class PlaylistScreen(Screen[None]):
         name = self._playlist_data.get("name", "")
         self._playlist_data = {"name": name} if name else {}
         self._tracks = []
-        await self._load_playlist_data()
+        await self._load_playlist_data(force_refresh=True)
 
     async def _open_report(self) -> None:
         """Open report data screen."""
@@ -598,7 +616,9 @@ class PlaylistScreen(Screen[None]):
             fields.append({"name": name, "label": label, "current_value": str(value)})
 
         add_field("name", "Name", data.get("name"))
-        add_field("owner_name", "Owner", data.get("owner", {}).get("display_name"))
+        owner = data.get("owner", {})
+        owner_name = owner if isinstance(owner, str) else owner.get("display_name") if isinstance(owner, dict) else None
+        add_field("owner_name", "Owner", owner_name)
         add_field("description", "Description", data.get("description"))
         add_field("total_tracks", "Total Tracks", data.get("total_tracks"))
         add_field("is_public", "Visibility", "Public" if data.get("public", True) else "Private")

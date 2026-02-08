@@ -46,6 +46,8 @@ logger = logging.getLogger(__name__)
 class ArtistScreen(Screen[None]):
     """Artist detail screen matching frontend layout."""
 
+    TITLE = "Artist Detail"
+
     BINDINGS: ClassVar[list[Binding]] = [
         Binding("escape", "app.pop_screen", "Back"),
         Binding("d", "download_all", "Download All"),
@@ -80,6 +82,8 @@ class ArtistScreen(Screen[None]):
         self._albums_filtered: dict[str, list[dict[str, Any]]] = {}
         self._top_tracks: list[Song] = []
         self._current_tab = "all"
+        self._full_bio: str = ""
+        self._bio_expanded = False
 
     @property
     def spotdl_app(self) -> SpotDLApp:
@@ -109,6 +113,7 @@ class ArtistScreen(Screen[None]):
                         # Quick stats
                         with Horizontal(id="artist-stats", classes="stats-row"):
                             yield Static("", id="artist-followers", classes="stat-item")
+                            yield Static("", id="artist-monthly-listeners", classes="stat-item")
                             yield Static("", id="artist-albums-count", classes="stat-item")
                             yield Static("", id="artist-tracks-count", classes="stat-item")
 
@@ -158,6 +163,8 @@ class ArtistScreen(Screen[None]):
                                 yield DataTable(id="albums-table-singles")
                             with TabPane("EPs", id="tab-eps"):
                                 yield DataTable(id="albums-table-eps")
+                            with TabPane("Compilations", id="tab-compilations"):
+                                yield DataTable(id="albums-table-compilations")
 
                         yield Static("", id="discography-status", classes="status-muted")
 
@@ -173,6 +180,18 @@ class ArtistScreen(Screen[None]):
                     with Vertical(classes="card", id="about-card"):
                         yield Static("About", classes="card-title")
                         yield Static("", id="artist-bio", classes="bio-text")
+                        yield Button(
+                            "Read more",
+                            id="expand-bio-btn",
+                            variant="default",
+                            classes="hidden",
+                        )
+
+                    # Related artists
+                    with Vertical(classes="card", id="related-artists-card"):
+                        yield Static("Related Artists", classes="card-title")
+                        with Vertical(id="related-artists-list"):
+                            yield Static("[dim]No related artists[/dim]", id="related-artists-content")
 
                     # Quick stats
                     with Vertical(classes="card"):
@@ -196,6 +215,7 @@ class ArtistScreen(Screen[None]):
         self._setup_table("#albums-table-albums", ["Title", "Tracks", "Year"])
         self._setup_table("#albums-table-singles", ["Title", "Year"])
         self._setup_table("#albums-table-eps", ["Title", "Tracks", "Year"])
+        self._setup_table("#albums-table-compilations", ["Title", "Tracks", "Year"])
 
         # Load artist data
         await self._load_artist_data()
@@ -207,13 +227,13 @@ class ArtistScreen(Screen[None]):
         table.zebra_stripes = True
         table.add_columns(*columns)
 
-    async def _load_artist_data(self) -> None:
+    async def _load_artist_data(self, force_refresh: bool = False) -> None:
         """Load artist data from API or offline."""
         status = self.query_one("#top-tracks-status", Static)
         status.update("[dim]Loading artist...[/]")
 
-        if self.spotdl_app.is_online and not self._artist_data:
-            await self._load_online_data()
+        if self.spotdl_app.is_online and (force_refresh or not self._artist_data or not self._artist_data.get("top_tracks")):
+            await self._load_online_data(use_cache=not force_refresh)
         elif self._artist_data and self._artist_data.get("top_tracks"):
             # We already have full data with tracks
             self._update_display()
@@ -221,14 +241,18 @@ class ArtistScreen(Screen[None]):
             # We have partial data (just name) or no data - load offline
             await self._load_offline_data()
 
-    async def _load_online_data(self) -> None:
+    async def _load_online_data(self, use_cache: bool = True) -> None:
         """Load artist data from API server."""
         try:
             api_client = get_api_client()
             if self._entity_id:
-                self._artist_data = await api_client.get_entity_artist(self._entity_id)
+                self._artist_data = await api_client.get_entity_artist(
+                    self._entity_id, use_cache=use_cache
+                )
             else:
-                self._artist_data = await api_client.get_artist(self._artist_id, self._platform)
+                self._artist_data = await api_client.get_artist(
+                    self._artist_id, self._platform, use_cache=use_cache
+                )
                 if self._artist_data.get("id"):
                     self._entity_id = self._artist_data["id"]
             self._update_display()
@@ -381,21 +405,41 @@ class ArtistScreen(Screen[None]):
         self.query_one("#stat-albums", Static).update(str(album_count))
         self.query_one("#stat-singles", Static).update(str(single_count))
 
-        # Genres
+        # Genres (clear old badges first)
         genres = data.get("genres", [])
         genres_container = self.query_one("#artist-genres", Horizontal)
+        genres_container.remove_children()
         for genre in genres[:4]:
             genres_container.mount(Static(genre, classes="badge badge-muted"))
 
-        # Bio
+        # Monthly listeners
+        monthly = data.get("monthly_listeners")
+        if monthly:
+            ml_str = format_number(monthly)
+            self.query_one("#artist-monthly-listeners", Static).update(
+                f"[dim]Monthly Listeners:[/] {ml_str}"
+            )
+
+        # Bio with expandable behavior
         bio = data.get("bio") or data.get("description", "")
         if bio:
-            # Truncate long bios
-            if len(bio) > 300:
-                bio = bio[:300] + "..."
-            self.query_one("#artist-bio", Static).update(bio)
+            self._full_bio = bio
+            if len(bio) > 280:
+                self.query_one("#artist-bio", Static).update(bio[:280] + "...")
+                self.query_one("#expand-bio-btn").remove_class("hidden")
+            else:
+                self.query_one("#artist-bio", Static).update(bio)
         else:
             self.query_one("#about-card", Vertical).add_class("hidden")
+
+        # Related artists
+        related = data.get("related_artists", [])
+        if related:
+            names = [r.get("name", "") for r in related[:8] if r.get("name")]
+            if names:
+                self.query_one("#related-artists-content", Static).update(
+                    "\n".join(f"\u2022 {name}" for name in names)
+                )
 
         # Platform link
         url = data.get("url") or f"https://open.spotify.com/artist/{self._artist_id}"
@@ -461,10 +505,14 @@ class ArtistScreen(Screen[None]):
         table_eps = self.query_one("#albums-table-eps", DataTable)
         table_eps.clear()
 
+        table_compilations = self.query_one("#albums-table-compilations", DataTable)
+        table_compilations.clear()
+
         # Build per-tab album lists for correct row selection
         filtered_albums: list[dict[str, Any]] = []
         filtered_singles: list[dict[str, Any]] = []
         filtered_eps: list[dict[str, Any]] = []
+        filtered_compilations: list[dict[str, Any]] = []
 
         for album in albums:
             name = album.get("name", "Unknown")[:40]
@@ -483,15 +531,19 @@ class ArtistScreen(Screen[None]):
             elif type_lower == "single":
                 table_singles.add_row(name, year)
                 filtered_singles.append(album)
-            elif type_lower in ("ep", "compilation"):
+            elif type_lower == "ep":
                 table_eps.add_row(name, tracks, year)
                 filtered_eps.append(album)
+            elif type_lower == "compilation":
+                table_compilations.add_row(name, tracks, year)
+                filtered_compilations.append(album)
 
         self._albums_filtered = {
             "albums-table-all": albums,
             "albums-table-albums": filtered_albums,
             "albums-table-singles": filtered_singles,
             "albums-table-eps": filtered_eps,
+            "albums-table-compilations": filtered_compilations,
         }
 
         status = self.query_one("#discography-status", Static)
@@ -531,6 +583,21 @@ class ArtistScreen(Screen[None]):
             await self._refresh_metadata()
         elif event.button.id == "report-btn":
             await self._open_report()
+        elif event.button.id == "expand-bio-btn":
+            self._toggle_bio()
+
+    def _toggle_bio(self) -> None:
+        """Toggle bio between truncated and full."""
+        bio_widget = self.query_one("#artist-bio", Static)
+        btn = self.query_one("#expand-bio-btn", Button)
+        if self._bio_expanded:
+            bio_widget.update(self._full_bio[:280] + "...")
+            btn.label = "Read more"
+            self._bio_expanded = False
+        else:
+            bio_widget.update(self._full_bio)
+            btn.label = "Show less"
+            self._bio_expanded = True
 
     async def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
         """Handle row selection."""
@@ -622,7 +689,11 @@ class ArtistScreen(Screen[None]):
                 await api_client.refresh_entity("artists", self._entity_id)
             except APIError as e:
                 self.notify(f"Refresh failed: {e}", severity="error")
-        await self._load_artist_data()
+                return
+        self._artist_data = {}
+        self._albums = []
+        self._top_tracks = []
+        await self._load_artist_data(force_refresh=True)
 
     async def _open_report(self) -> None:
         """Open report data screen."""

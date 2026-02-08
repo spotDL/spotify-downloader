@@ -11,6 +11,7 @@ from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.widgets import Footer, Header
 
+from spotdl_cli import __version__
 from spotdl_cli.config import get_settings
 from spotdl_cli.core import (
     APIClient,
@@ -19,6 +20,7 @@ from spotdl_cli.core import (
     get_api_client,
     get_image_service,
 )
+from spotdl_cli.screens.account import AccountScreen
 from spotdl_cli.screens.main import MainScreen
 from spotdl_cli.screens.onboarding import OnboardingScreen, should_show_onboarding
 from spotdl_cli.screens.queue import QueueScreen
@@ -34,7 +36,7 @@ class SpotDLApp(App[None]):
     """SpotDL CLI - Interactive music downloader."""
 
     TITLE = "SpotDL"
-    SUB_TITLE = "Music Downloader"
+    SUB_TITLE = f"v{__version__}"
     CSS_PATH = "app.tcss"
 
     BINDINGS: ClassVar[list[Binding]] = [
@@ -42,6 +44,8 @@ class SpotDLApp(App[None]):
         Binding("s", "push_screen('search')", "Search", show=True),
         Binding("d", "push_screen('queue')", "Downloads", show=True),
         Binding("comma", "push_screen('settings')", "Settings", show=True),
+        Binding("a", "push_screen('account')", "Account", show=True),
+        Binding("ctrl+k", "command_palette", "Commands"),
         Binding("?", "toggle_help", "Help"),
     ]
 
@@ -49,6 +53,7 @@ class SpotDLApp(App[None]):
         "search": MainScreen,
         "queue": QueueScreen,
         "settings": SettingsScreen,
+        "account": AccountScreen,
         "onboarding": OnboardingScreen,
     }
 
@@ -120,19 +125,19 @@ class SpotDLApp(App[None]):
         """Check if backend is available."""
         if self._settings.offline_mode:
             self._is_online = False
-            self.sub_title = "Offline Mode"
+            self.sub_title = f"v{__version__} - Offline Mode"
             return
 
         try:
             self._is_online = await self.api_client.is_online()
             if self._is_online:
-                self.sub_title = "Connected"
+                self.sub_title = f"v{__version__} - Connected"
             else:
-                self.sub_title = "Offline Mode"
+                self.sub_title = f"v{__version__} - Offline Mode"
         except Exception as e:
             logger.warning(f"Failed to check connectivity: {e}")
             self._is_online = False
-            self.sub_title = "Offline Mode"
+            self.sub_title = f"v{__version__} - Offline Mode"
 
     async def action_quit(self) -> None:
         """Quit the application."""
@@ -151,7 +156,7 @@ class SpotDLApp(App[None]):
     def action_toggle_help(self) -> None:
         """Toggle help display."""
         self.notify(
-            "Help: Press S for Search, D for Downloads, , for Settings, Q to Quit"
+            "S: Search  D: Downloads  ,: Settings  A: Account  Ctrl+K: Commands  Q: Quit"
         )
 
 
