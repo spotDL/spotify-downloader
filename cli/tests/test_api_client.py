@@ -1031,6 +1031,248 @@ class TestAPIClient:
             assert result == mock_instance
 
 
+class TestAPIClientAuth:
+    """Tests for APIClient auth methods."""
+
+    @pytest.fixture
+    def client(self, settings: Settings) -> APIClient:
+        """Create test API client with a mock-friendly settings object."""
+        client = APIClient(settings)
+        # Replace pydantic settings with a MagicMock so .save() works
+        mock_settings = MagicMock()
+        mock_settings.api_url = settings.api_url
+        mock_settings.offline_mode = settings.offline_mode
+        mock_settings.api_timeout = settings.api_timeout
+        mock_settings.auth_token = settings.auth_token
+        mock_settings.audio_providers = []
+        client._settings = mock_settings
+        return client
+
+    @pytest.mark.asyncio
+    async def test_login_success(self, client: APIClient) -> None:
+        """Verify POST to /api/v1/auth/login, token saved, client closed."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "access_token": "new-token-123",
+            "refresh_token": "refresh-456",
+            "user": {"username": "testuser"},
+        }
+        mock_response.raise_for_status = MagicMock()
+
+        with patch.object(client, "_get_client") as mock_get:
+            mock_http = AsyncMock()
+            mock_http.post = AsyncMock(return_value=mock_response)
+            mock_http.is_closed = False
+            mock_http.aclose = AsyncMock()
+            mock_get.return_value = mock_http
+
+            result = await client.login("testuser", "password123")
+
+            assert result["access_token"] == "new-token-123"
+            assert client._settings.auth_token == "new-token-123"
+            client._settings.save.assert_called()
+            mock_http.post.assert_called_once_with(
+                "/api/v1/auth/login",
+                json={"username": "testuser", "password": "password123"},
+            )
+
+    @pytest.mark.asyncio
+    async def test_login_missing_token(self, client: APIClient) -> None:
+        """Regression: response without access_token raises APIError."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"user": {"username": "testuser"}}
+        mock_response.raise_for_status = MagicMock()
+
+        with patch.object(client, "_get_client") as mock_get:
+            mock_http = AsyncMock()
+            mock_http.post = AsyncMock(return_value=mock_response)
+            mock_get.return_value = mock_http
+
+            with pytest.raises(APIError, match="missing access_token"):
+                await client.login("testuser", "password123")
+
+    @pytest.mark.asyncio
+    async def test_login_connection_error(self, client: APIClient) -> None:
+        """ConnectError raised as ConnectionError."""
+        with patch.object(client, "_get_client") as mock_get:
+            mock_http = AsyncMock()
+            mock_http.post = AsyncMock(side_effect=httpx.ConnectError("Failed"))
+            mock_get.return_value = mock_http
+
+            with pytest.raises(ConnectionError):
+                await client.login("user", "pass")
+
+    @pytest.mark.asyncio
+    async def test_login_http_error(self, client: APIClient) -> None:
+        """HTTPStatusError raised as APIError."""
+        mock_response = MagicMock()
+        mock_response.status_code = 401
+        mock_response.text = "Invalid credentials"
+        mock_response.raise_for_status = MagicMock(
+            side_effect=httpx.HTTPStatusError(
+                "Error", request=MagicMock(), response=mock_response
+            )
+        )
+
+        with patch.object(client, "_get_client") as mock_get:
+            mock_http = AsyncMock()
+            mock_http.post = AsyncMock(return_value=mock_response)
+            mock_get.return_value = mock_http
+
+            with pytest.raises(APIError, match="Login failed"):
+                await client.login("user", "wrong")
+
+    @pytest.mark.asyncio
+    async def test_register_success(self, client: APIClient) -> None:
+        """Verify POST to /api/v1/auth/register, token saved."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "access_token": "reg-token-123",
+            "user": {"username": "newuser"},
+        }
+        mock_response.raise_for_status = MagicMock()
+
+        with patch.object(client, "_get_client") as mock_get:
+            mock_http = AsyncMock()
+            mock_http.post = AsyncMock(return_value=mock_response)
+            mock_http.is_closed = False
+            mock_http.aclose = AsyncMock()
+            mock_get.return_value = mock_http
+
+            result = await client.register("newuser", "new@example.com", "password123")
+
+            assert result["access_token"] == "reg-token-123"
+            assert client._settings.auth_token == "reg-token-123"
+            client._settings.save.assert_called()
+            mock_http.post.assert_called_once_with(
+                "/api/v1/auth/register",
+                json={"username": "newuser", "email": "new@example.com", "password": "password123"},
+            )
+
+    @pytest.mark.asyncio
+    async def test_register_missing_token(self, client: APIClient) -> None:
+        """Regression: response without access_token raises APIError."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"user": {"username": "newuser"}}
+        mock_response.raise_for_status = MagicMock()
+
+        with patch.object(client, "_get_client") as mock_get:
+            mock_http = AsyncMock()
+            mock_http.post = AsyncMock(return_value=mock_response)
+            mock_get.return_value = mock_http
+
+            with pytest.raises(APIError, match="missing access_token"):
+                await client.register("newuser", "new@example.com", "pass")
+
+    @pytest.mark.asyncio
+    async def test_register_connection_error(self, client: APIClient) -> None:
+        """Connection error handling."""
+        with patch.object(client, "_get_client") as mock_get:
+            mock_http = AsyncMock()
+            mock_http.post = AsyncMock(side_effect=httpx.ConnectError("Failed"))
+            mock_get.return_value = mock_http
+
+            with pytest.raises(ConnectionError):
+                await client.register("user", "email@test.com", "pass")
+
+    @pytest.mark.asyncio
+    async def test_get_me_success(self, client: APIClient) -> None:
+        """Verify GET to /api/v1/auth/me."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "username": "testuser",
+            "email": "test@example.com",
+            "is_admin": False,
+        }
+        mock_response.raise_for_status = MagicMock()
+
+        with patch.object(client, "_get_client") as mock_get:
+            mock_http = AsyncMock()
+            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_get.return_value = mock_http
+
+            result = await client.get_me()
+
+            assert result["username"] == "testuser"
+            mock_http.get.assert_called_once_with("/api/v1/auth/me")
+
+    @pytest.mark.asyncio
+    async def test_change_password_success(self, client: APIClient) -> None:
+        """Verify PUT to /api/v1/auth/password."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"message": "Password updated"}
+        mock_response.raise_for_status = MagicMock()
+
+        with patch.object(client, "_get_client") as mock_get:
+            mock_http = AsyncMock()
+            mock_http.put = AsyncMock(return_value=mock_response)
+            mock_get.return_value = mock_http
+
+            result = await client.change_password("oldpass", "newpass123")
+
+            assert result["message"] == "Password updated"
+            mock_http.put.assert_called_once_with(
+                "/api/v1/auth/password",
+                json={"current_password": "oldpass", "new_password": "newpass123"},
+            )
+
+    @pytest.mark.asyncio
+    async def test_delete_account_success(self, client: APIClient) -> None:
+        """Verify DELETE to /api/v1/auth/me, token cleared."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.raise_for_status = MagicMock()
+
+        with patch.object(client, "_get_client") as mock_get:
+            mock_http = AsyncMock()
+            mock_http.delete = AsyncMock(return_value=mock_response)
+            mock_http.is_closed = False
+            mock_http.aclose = AsyncMock()
+            mock_get.return_value = mock_http
+
+            await client.delete_account()
+
+            assert client._settings.auth_token is None
+            client._settings.save.assert_called()
+            mock_http.delete.assert_called_once_with("/api/v1/auth/me")
+
+    @pytest.mark.asyncio
+    async def test_logout_success(self, client: APIClient) -> None:
+        """Verify POST to /api/v1/auth/logout, token cleared."""
+        with patch.object(client, "_get_client") as mock_get:
+            mock_http = AsyncMock()
+            mock_http.post = AsyncMock()
+            mock_http.is_closed = False
+            mock_http.aclose = AsyncMock()
+            mock_get.return_value = mock_http
+
+            await client.logout()
+
+            assert client._settings.auth_token is None
+            client._settings.save.assert_called()
+
+    @pytest.mark.asyncio
+    async def test_logout_ignores_errors(self, client: APIClient) -> None:
+        """Verify logout succeeds even on API errors."""
+        with patch.object(client, "_get_client") as mock_get:
+            mock_http = AsyncMock()
+            mock_http.post = AsyncMock(side_effect=httpx.HTTPError("Error"))
+            mock_http.is_closed = False
+            mock_http.aclose = AsyncMock()
+            mock_get.return_value = mock_http
+
+            # Should not raise
+            await client.logout()
+
+            assert client._settings.auth_token is None
+
+
 class TestGetApiClient:
     """Tests for get_api_client function."""
 
