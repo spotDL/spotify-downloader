@@ -117,14 +117,40 @@ class AccountScreen(Screen[None]):
                         classes="hidden",
                     )
 
+    @property
+    def spotdl_app(self) -> SpotDLApp:
+        """Get the parent SpotDL app."""
+        from spotdl_cli.app import SpotDLApp
+
+        assert isinstance(self.app, SpotDLApp)
+        return self.app
+
     async def on_mount(self) -> None:
         """Load user data on mount."""
+        if not self.spotdl_app.is_online:
+            self._show_offline()
+            return
         settings = get_settings()
         if settings.auth_token:
             await self._load_profile()
         else:
             # Show not-logged-in state, hide authenticated cards
             self._show_unauthenticated()
+
+    def _show_offline(self) -> None:
+        """Show offline mode state - hide login prompt."""
+        not_logged_in = self.query_one("#not-logged-in")
+        not_logged_in.remove_class("hidden")
+        # Update the description text (second Static, with text-muted class)
+        desc = not_logged_in.query(".text-muted").first(Static)
+        desc.update(
+            "Account features are available when connected to a server. "
+            "Switch to online mode in Settings to access your profile."
+        )
+        sign_in_btn = not_logged_in.query_one("#sign-in-btn", Button)
+        sign_in_btn.add_class("hidden")
+        for card_id in ["profile-card", "reputation-card", "security-card", "session-card", "danger-zone-card"]:
+            self.query_one(f"#{card_id}").add_class("hidden")
 
     def _show_unauthenticated(self) -> None:
         """Show the not-logged-in state."""

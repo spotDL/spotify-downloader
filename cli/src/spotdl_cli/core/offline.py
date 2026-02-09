@@ -675,6 +675,78 @@ class OfflineMatcher:
         
         return None
 
+    async def get_audio_features(self, song: Song) -> dict[str, Any] | None:
+        """Get Spotify audio features for a song.
+
+        Uses spotipy directly since SpotifyProvider doesn't expose audio_features.
+        """
+        self._init_providers()
+        if not self._spotify_provider:
+            return None
+
+        try:
+            client = self._spotify_provider._get_client()
+            loop = asyncio.get_event_loop()
+
+            # Resolve track ID
+            track_id: str | None = None
+            if song.platform == Platform.SPOTIFY and song.platform_id:
+                track_id = song.platform_id
+            else:
+                # Search for the track on Spotify to get its ID
+                query = create_search_query(song.name, song.artists)
+                results = await loop.run_in_executor(
+                    None, lambda: client.search(q=query, type="track", limit=1)
+                )
+                items = results.get("tracks", {}).get("items", [])
+                if items:
+                    track_id = items[0]["id"]
+
+            if not track_id:
+                return None
+
+            features_list = await loop.run_in_executor(
+                None, client.audio_features, [track_id]
+            )
+            if features_list and features_list[0]:
+                return features_list[0]
+        except Exception as e:
+            logger.debug(f"Audio features fetch failed: {e}")
+
+        return None
+
+    async def get_all_lyrics(self, song: Song) -> dict[str, str]:
+        """Get lyrics from all available providers.
+
+        Returns a dict mapping provider name to lyrics text.
+        """
+        self._init_providers()
+
+        from spotdl_core import (
+            AzLyricsProvider,
+            GeniusProvider,
+            MusixmatchProvider,
+            SyncedProvider,
+        )
+
+        providers = [
+            ("Synced", SyncedProvider()),
+            ("Genius", GeniusProvider()),
+            ("Musixmatch", MusixmatchProvider()),
+            ("AzLyrics", AzLyricsProvider()),
+        ]
+
+        all_lyrics: dict[str, str] = {}
+        for name, provider in providers:
+            try:
+                lyrics = await provider.get_lyrics(song.name, song.artists)
+                if lyrics:
+                    all_lyrics[name] = lyrics
+            except Exception as e:
+                logger.debug(f"Lyrics provider {name} failed: {e}")
+
+        return all_lyrics
+
     # ============== Cleanup ==============
 
     async def close(self) -> None:

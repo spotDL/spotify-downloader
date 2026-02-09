@@ -989,7 +989,7 @@ class SettingsScreen(Screen[None]):
         table = self.query_one(table_id, DataTable)
         table.cursor_type = "row"
         table.zebra_stripes = True
-        if table.column_count == 0:
+        if len(table.columns) == 0:
             table.add_columns("#", "Provider", "Enabled")
         table.clear()
         for idx, pref in enumerate(prefs, 1):
@@ -1061,7 +1061,7 @@ class SettingsScreen(Screen[None]):
         table = self.query_one("#service-status-table", DataTable)
         table.cursor_type = "row"
         table.zebra_stripes = True
-        if table.column_count == 0:
+        if len(table.columns) == 0:
             table.add_columns("Type", "Service", "State", "Latency")
         table.clear()
         overall = self.query_one("#service-status-overall", Static)

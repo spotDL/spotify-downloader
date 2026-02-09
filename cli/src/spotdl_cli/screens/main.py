@@ -263,8 +263,12 @@ class MainScreen(Screen[None]):
             await self._load_connection_status()
 
     def _update_auth_button(self) -> None:
-        """Update login/logout button state."""
+        """Update login/logout button state. Hidden in offline mode."""
         btn = self.query_one("#login-btn", Button)
+        if not self.spotdl_app.is_online:
+            btn.add_class("hidden")
+            return
+        btn.remove_class("hidden")
         if self._settings.auth_token:
             btn.label = "Logout"
             btn.variant = "warning"

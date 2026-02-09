@@ -525,37 +525,80 @@ class TrackScreen(Screen[None]):
         self._song.cover_url = data.get("cover_url", self._song.cover_url)
 
     async def _load_offline_data(self) -> None:
-        """Load data using offline providers."""
+        """Load data using offline providers, mirroring online data flow."""
+        offline_matcher = get_offline_matcher()
+
         # Enrich song metadata
         try:
-            offline_matcher = get_offline_matcher()
             self._song = await offline_matcher.enrich_song(self._song)
             self._update_song_display()
         except Exception as e:
             logger.warning(f"Offline enrichment failed: {e}")
-            self.notify(f"Offline enrichment failed: {e}", severity="warning")
 
-        # Show track details from the Song object itself
-        self.query_one("#detail-platform-id", Static).update(
-            f"[dim]ID:[/] {self._track_id}"
-        )
-        if self._song.isrc:
-            self.query_one("#detail-isrc", Static).update(
-                f"[dim]ISRC:[/] {self._song.isrc}"
-            )
+        # Build track_details from Song object so _update_track_details works
+        self._track_details = self._build_track_details_from_song()
+        self._update_track_details()
 
+        # Audio features from Spotify API
+        try:
+            features = await offline_matcher.get_audio_features(self._song)
+            if features:
+                self._audio_features = features
+                self._update_audio_features()
+        except Exception as e:
+            logger.debug(f"Audio features unavailable: {e}")
+
+        # Find matches
         await self._find_offline_matches()
 
-        # Lyrics
+        # Lyrics from all providers
         if self._song.lyrics:
             self._lyrics = self._song.lyrics
-        else:
-            try:
-                self._lyrics = await offline_matcher.get_lyrics(self._song)
-            except Exception as e:
-                logger.warning(f"Offline lyrics fetch failed: {e}")
-        
+
+        try:
+            all_lyrics = await offline_matcher.get_all_lyrics(self._song)
+            if all_lyrics:
+                self._all_lyrics = all_lyrics
+                self._lyrics_sources_count = len(all_lyrics)
+
+                # Use first available if we don't already have lyrics
+                if not self._lyrics:
+                    self._lyrics = next(iter(all_lyrics.values()))
+
+                # Populate lyrics source selector
+                options = [(name, name) for name in all_lyrics]
+                try:
+                    select = self.query_one("#lyrics-source-select", Select)
+                    select.set_options(options)
+                    first_source = next(iter(all_lyrics))
+                    select.value = first_source
+                    self._active_lyrics_source = first_source
+                except Exception:
+                    pass
+        except Exception as e:
+            logger.warning(f"Offline lyrics fetch failed: {e}")
+
         self._update_lyrics_display()
+
+    def _build_track_details_from_song(self) -> dict[str, Any]:
+        """Build a track_details dict from the Song object for offline display."""
+        song = self._song
+        details: dict[str, Any] = {
+            "name": song.name,
+            "artist": song.artist,
+            "artists": song.artists,
+            "duration": song.duration,
+            "album_name": song.album_name,
+            "isrc": song.isrc,
+            "label": song.publisher or None,
+            "popularity": song.popularity,
+            "copyright": song.copyright_text,
+            "cover_url": song.cover_url,
+            "matches_count": len(self._matches),
+        }
+        if self._entity_id:
+            details["id"] = self._entity_id
+        return details
 
     async def _find_offline_matches(self) -> None:
         """Find matches using offline matcher."""
@@ -666,6 +709,14 @@ class TrackScreen(Screen[None]):
             )
 
         status.update(f"[dim]Found {len(self._matches)} match(es)[/]")
+
+        # Update matches count in sidebar
+        try:
+            self.query_one("#detail-matches-count", Static).update(
+                f"[dim]Matches:[/] {len(self._matches)}"
+            )
+        except Exception:
+            pass
 
     def _wrap_download_result(self, result: DownloadResult) -> MatchEntry:
         """Wrap a download result into a match entry."""
@@ -878,11 +929,10 @@ class TrackScreen(Screen[None]):
         """Refresh metadata and enrichment for the current track."""
         if not self.spotdl_app.is_online:
             try:
-                offline_matcher = get_offline_matcher()
-                self._song = await offline_matcher.enrich_song(self._song)
+                self.notify("Refreshing metadata from local providers...")
+                await self._load_offline_data()
                 self._update_song_display()
-                await self._load_track_data(force_refresh=True)
-                self.notify("Offline metadata refreshed")
+                self.notify("Metadata refreshed")
             except Exception as e:
                 self.notify(f"Offline refresh failed: {e}", severity="error")
             return
@@ -951,6 +1001,10 @@ class TrackScreen(Screen[None]):
 
     async def _ensure_authenticated(self) -> bool:
         """Check if user is authenticated, prompt login if not. Returns True if authenticated."""
+        if not self.spotdl_app.is_online:
+            self.notify("This feature requires online mode", severity="warning")
+            return False
+
         settings = get_settings()
         if settings.auth_token:
             return True
