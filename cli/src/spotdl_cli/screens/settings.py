@@ -1044,7 +1044,11 @@ class SettingsScreen(Screen[None]):
     async def _load_service_status(self) -> None:
         """Load backend service status."""
         overall = self.query_one("#service-status-overall", Static)
-        if not self.spotdl_app.is_online:
+        try:
+            is_online = self.spotdl_app.is_online
+        except (AssertionError, AttributeError):
+            is_online = True
+        if not is_online:
             overall.update("[dim]Offline mode — status unavailable[/]")
             return
         try:

@@ -265,7 +265,11 @@ class MainScreen(Screen[None]):
     def _update_auth_button(self) -> None:
         """Update login/logout button state. Hidden in offline mode."""
         btn = self.query_one("#login-btn", Button)
-        if not self.spotdl_app.is_online:
+        try:
+            is_online = self.spotdl_app.is_online
+        except (AssertionError, AttributeError):
+            is_online = True  # default to showing button
+        if not is_online:
             btn.add_class("hidden")
             return
         btn.remove_class("hidden")
@@ -411,7 +415,11 @@ class MainScreen(Screen[None]):
     async def _load_connection_status(self) -> None:
         """Load compact connection status."""
         status_widget = self.query_one("#connection-status", Static)
-        if not self.spotdl_app.is_online:
+        try:
+            is_online = self.spotdl_app.is_online
+        except (AssertionError, AttributeError):
+            is_online = True
+        if not is_online:
             status_widget.update("Offline mode")
             return
         try:

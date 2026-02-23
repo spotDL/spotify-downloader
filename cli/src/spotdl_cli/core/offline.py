@@ -648,31 +648,22 @@ class OfflineMatcher:
         return song
 
     async def get_lyrics(self, song: Song) -> str | None:
-        """Get lyrics for a song using available providers."""
-        self._init_providers()
-        
-        from spotdl_core import (
-            GeniusProvider,
-            MusixmatchProvider,
-            SyncedProvider,
-            AzLyricsProvider,
-        )
+        """Get lyrics for a song using syncedlyrics."""
+        search_term = f"{song.name} {song.artist}"
+        loop = asyncio.get_event_loop()
 
-        providers = [
-            SyncedProvider(),
-            GeniusProvider(),
-            MusixmatchProvider(),
-            AzLyricsProvider(),
-        ]
+        try:
+            from syncedlyrics import search as lyrics_search
 
-        for provider in providers:
-            try:
-                lyrics = await provider.get_lyrics(song.name, song.artists)
-                if lyrics:
-                    return lyrics
-            except Exception as e:
-                logger.debug(f"Lyrics provider {provider.__class__.__name__} failed: {e}")
-        
+            result = await loop.run_in_executor(
+                None,
+                lambda: lyrics_search(search_term, plain_only=True),
+            )
+            if result:
+                return result
+        except Exception as e:
+            logger.debug(f"Lyrics search failed: {e}")
+
         return None
 
     async def get_audio_features(self, song: Song) -> dict[str, Any] | None:
@@ -719,29 +710,29 @@ class OfflineMatcher:
         """Get lyrics from all available providers.
 
         Returns a dict mapping provider name to lyrics text.
+        Uses syncedlyrics provider classes directly to get per-provider results.
         """
-        self._init_providers()
+        from syncedlyrics import Genius, Lrclib, Musixmatch
 
-        from spotdl_core import (
-            AzLyricsProvider,
-            GeniusProvider,
-            MusixmatchProvider,
-            SyncedProvider,
-        )
+        search_term = f"{song.name} {song.artist}"
+        loop = asyncio.get_event_loop()
 
-        providers = [
-            ("Synced", SyncedProvider()),
-            ("Genius", GeniusProvider()),
-            ("Musixmatch", MusixmatchProvider()),
-            ("AzLyrics", AzLyricsProvider()),
+        provider_instances = [
+            ("Musixmatch", Musixmatch()),
+            ("Genius", Genius()),
+            ("Lrclib", Lrclib()),
         ]
 
         all_lyrics: dict[str, str] = {}
-        for name, provider in providers:
+        for name, provider in provider_instances:
             try:
-                lyrics = await provider.get_lyrics(song.name, song.artists)
-                if lyrics:
-                    all_lyrics[name] = lyrics
+                result = await loop.run_in_executor(
+                    None, provider.get_lrc, search_term
+                )
+                if result:
+                    text = result.unsynced or result.synced
+                    if text:
+                        all_lyrics[name] = text
             except Exception as e:
                 logger.debug(f"Lyrics provider {name} failed: {e}")
 

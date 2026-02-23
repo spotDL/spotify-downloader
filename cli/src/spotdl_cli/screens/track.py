@@ -226,7 +226,7 @@ class TrackScreen(Screen[None]):
                     with Vertical(classes="card"):
                         yield Static("Platform Links", classes="card-title")
                         with Vertical(id="platform-links"):
-                            yield Static("", id="platform-links-content")
+                            yield Static("[dim]Loading...[/]", id="platform-links-content")
 
                     # Audio features
                     with Vertical(classes="card", id="audio-features-card"):
@@ -288,24 +288,24 @@ class TrackScreen(Screen[None]):
                     with Vertical(classes="card", id="track-details-card"):
                         yield Static("Track Details", classes="card-title")
                         with Vertical(id="track-details-content"):
-                            yield Static("", id="detail-isrc", classes="detail-row")
-                            yield Static("", id="detail-label", classes="detail-row")
-                            yield Static("", id="detail-popularity", classes="detail-row")
-                            yield Static("", id="detail-platform-id", classes="detail-row")
+                            yield Static("[dim]ISRC:[/] --", id="detail-isrc", classes="detail-row")
+                            yield Static("[dim]Label:[/] --", id="detail-label", classes="detail-row")
+                            yield Static("[dim]Popularity:[/] --", id="detail-popularity", classes="detail-row")
+                            yield Static("[dim]ID:[/] --", id="detail-platform-id", classes="detail-row")
 
                     # Technical info
                     with Vertical(classes="card", id="technical-info-card"):
                         yield Static("Technical Info", classes="card-title")
                         with Vertical(id="technical-info-content"):
-                            yield Static("", id="detail-internal-id", classes="detail-row")
-                            yield Static("", id="detail-matches-count", classes="detail-row")
-                            yield Static("", id="detail-musicbrainz-id", classes="detail-row")
-                            yield Static("", id="detail-last-enriched", classes="detail-row")
+                            yield Static("[dim]Internal ID:[/] --", id="detail-internal-id", classes="detail-row")
+                            yield Static("[dim]Matches:[/] --", id="detail-matches-count", classes="detail-row")
+                            yield Static("[dim]MusicBrainz:[/] --", id="detail-musicbrainz-id", classes="detail-row")
+                            yield Static("[dim]Last Enriched:[/] --", id="detail-last-enriched", classes="detail-row")
 
                     # Rights information
                     with Vertical(classes="card", id="rights-info-card"):
                         yield Static("Rights", classes="card-title")
-                        yield Static("", id="detail-copyright", classes="detail-row")
+                        yield Static("[dim]Copyright:[/] --", id="detail-copyright", classes="detail-row")
 
     async def on_mount(self) -> None:
         """Handle screen mount."""
@@ -799,67 +799,69 @@ class TrackScreen(Screen[None]):
             self.query_one("#track-key", Static).update(f"[dim]Key:[/] {label}")
 
     def _update_track_details(self) -> None:
-        """Update track details from API response."""
-        if not self._track_details:
-            return
+        """Update track details and technical info sidebar cards.
 
-        # ISRC
-        isrc = self._track_details.get("isrc")
-        if isrc:
-            self.query_one("#detail-isrc", Static).update(f"[dim]ISRC:[/] {isrc}")
+        Always updates every field, using '--' for missing values so
+        widgets maintain height and the layout stays stable.
+        """
+        data = self._track_details or {}
 
-        # Label
-        label = self._track_details.get("label")
-        if label:
-            self.query_one("#detail-label", Static).update(f"[dim]Label:[/] {label}")
-
-        # Popularity
-        popularity = self._track_details.get("popularity")
-        if popularity is not None:
-            self.query_one("#detail-popularity", Static).update(
-                f"[dim]Popularity:[/] {popularity}/100"
-            )
-
-        # Platform ID
-        self.query_one("#detail-platform-id", Static).update(
-            f"[dim]ID:[/] {self._track_id}"
+        # Track Details card
+        isrc = data.get("isrc")
+        self.query_one("#detail-isrc", Static).update(
+            f"[dim]ISRC:[/] {isrc}" if isrc else "[dim]ISRC:[/] --"
         )
 
-        # Technical info
-        if self._entity_id:
-            self.query_one("#detail-internal-id", Static).update(
-                f"[dim]Internal ID:[/] {self._entity_id}"
-            )
+        label = data.get("label")
+        self.query_one("#detail-label", Static).update(
+            f"[dim]Label:[/] {label}" if label else "[dim]Label:[/] --"
+        )
 
-        matches_count = self._track_details.get("matches_count", len(self._matches))
+        popularity = data.get("popularity")
+        self.query_one("#detail-popularity", Static).update(
+            f"[dim]Popularity:[/] {popularity}/100"
+            if popularity is not None
+            else "[dim]Popularity:[/] --"
+        )
+
+        self.query_one("#detail-platform-id", Static).update(
+            f"[dim]ID:[/] {self._track_id or '--'}"
+        )
+
+        # Technical Info card
+        self.query_one("#detail-internal-id", Static).update(
+            f"[dim]Internal ID:[/] {self._entity_id}"
+            if self._entity_id
+            else "[dim]Internal ID:[/] --"
+        )
+
+        matches_count = data.get("matches_count", len(self._matches))
         self.query_one("#detail-matches-count", Static).update(
             f"[dim]Matches:[/] {matches_count}"
         )
 
-        # External IDs
-        external_ids = self._track_details.get("external_ids", {})
-        mb_id = external_ids.get("musicbrainz") or self._track_details.get("musicbrainz_id")
-        if mb_id:
-            self.query_one("#detail-musicbrainz-id", Static).update(
-                f"[dim]MusicBrainz:[/] {mb_id}"
-            )
+        external_ids = data.get("external_ids", {})
+        mb_id = external_ids.get("musicbrainz") or data.get("musicbrainz_id")
+        self.query_one("#detail-musicbrainz-id", Static).update(
+            f"[dim]MusicBrainz:[/] {mb_id}" if mb_id else "[dim]MusicBrainz:[/] --"
+        )
 
-        last_enriched = self._track_details.get("last_enriched") or self._track_details.get("updated_at")
+        last_enriched = data.get("last_enriched") or data.get("updated_at")
         if last_enriched:
             date_str = last_enriched[:10] if len(last_enriched) >= 10 else last_enriched
             self.query_one("#detail-last-enriched", Static).update(
                 f"[dim]Last Enriched:[/] {date_str}"
             )
+        else:
+            self.query_one("#detail-last-enriched", Static).update(
+                "[dim]Last Enriched:[/] --"
+            )
 
         # Copyright / Rights
-        copyright_text = (
-            self._track_details.get("copyright")
-            or self._track_details.get("label")
+        copyright_text = data.get("copyright") or data.get("label")
+        self.query_one("#detail-copyright", Static).update(
+            f"[dim]\u00a9[/] {copyright_text}" if copyright_text else "[dim]Copyright:[/] --"
         )
-        if copyright_text:
-            self.query_one("#detail-copyright", Static).update(
-                f"[dim]\u00a9[/] {copyright_text}"
-            )
 
     def on_select_changed(self, event: Select.Changed) -> None:
         """Handle select widget changes."""
