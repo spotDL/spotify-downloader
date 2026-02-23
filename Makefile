@@ -1,15 +1,19 @@
 # SpotDL Development Makefile
 # Common commands for development and deployment
 
-.PHONY: help dev dev-cli cli console up down logs build migrate migrate-create test lint clean
+.PHONY: help dev dev-backend dev-frontend dev-cli cli console up down logs build migrate migrate-create test lint clean
 
 # Default target
 help:
 	@echo "SpotDL Development Commands"
 	@echo ""
+	@echo "Local Development (no Docker):"
+	@echo "  make dev-backend      - Run backend with hot reload (http://localhost:8000)"
+	@echo "  make dev-frontend     - Run frontend Vite dev server (http://localhost:5173)"
+	@echo ""
 	@echo "Docker Services:"
-	@echo "  make dev              - Start development environment (docker compose up)"
-	@echo "  make up               - Start services in background"
+	@echo "  make dev              - Start dev environment with hot reload (docker-compose.dev.yml)"
+	@echo "  make up               - Start services in background (docker-compose.dev.yml)"
 	@echo "  make down             - Stop all services"
 	@echo "  make logs             - Show logs from all services"
 	@echo "  make build            - Rebuild Docker images"
@@ -36,21 +40,28 @@ help:
 	@echo "  make clean            - Remove build artifacts"
 	@echo "  make clean-db         - Remove database (WARNING: destructive)"
 
+# Local Development (no Docker)
+dev-backend:
+	cd backend && uv run uvicorn spotdl.main:app --reload --host 0.0.0.0 --port 8000
+
+dev-frontend:
+	cd frontend && pnpm dev
+
 # Docker Development
 dev:
-	docker compose up
+	docker compose -f docker-compose.dev.yml up
 
 up:
-	docker compose up -d
+	docker compose -f docker-compose.dev.yml up -d
 
 down:
-	docker compose down
+	docker compose -f docker-compose.dev.yml down
 
 logs:
-	docker compose logs -f
+	docker compose -f docker-compose.dev.yml logs -f
 
 build:
-	docker compose build
+	docker compose -f docker-compose.dev.yml build
 
 # CLI Development
 dev-cli:
@@ -68,25 +79,25 @@ console:
 # Migrations are auto-applied on startup, but these commands allow manual control
 
 migrate:
-	docker compose exec api alembic upgrade head
+	docker compose -f docker-compose.dev.yml exec api alembic upgrade head
 
 migrate-create:
 ifndef MSG
 	$(error MSG is required. Usage: make migrate-create MSG='description of changes')
 endif
-	docker compose exec api alembic revision --autogenerate -m "$(MSG)"
+	docker compose -f docker-compose.dev.yml exec api alembic revision --autogenerate -m "$(MSG)"
 	@echo ""
 	@echo "Migration created. Please review the generated file in backend/alembic/versions/"
 	@echo "Run 'make migrate' to apply it."
 
 migrate-history:
-	docker compose exec api alembic history
+	docker compose -f docker-compose.dev.yml exec api alembic history
 
 migrate-downgrade:
-	docker compose exec api alembic downgrade -1
+	docker compose -f docker-compose.dev.yml exec api alembic downgrade -1
 
 migrate-current:
-	docker compose exec api alembic current
+	docker compose -f docker-compose.dev.yml exec api alembic current
 
 # Testing
 test: test-backend test-frontend
@@ -112,5 +123,5 @@ clean:
 clean-db:
 	@echo "WARNING: This will delete the database!"
 	@read -p "Are you sure? [y/N] " confirm && [ "$$confirm" = "y" ] || exit 1
-	docker compose down -v
+	docker compose -f docker-compose.dev.yml down -v
 	@echo "Database volume removed."
