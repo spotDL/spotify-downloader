@@ -259,3 +259,4 @@ class TestGUIDTypeExtended:
 
         result = guid.load_dialect_impl(MockDialect())
         assert isinstance(result.type, String)
+

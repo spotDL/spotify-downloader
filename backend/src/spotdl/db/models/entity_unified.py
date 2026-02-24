@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-import uuid
-from datetime import datetime
+import uuid  # noqa: TC003
+from datetime import datetime  # noqa: TC003
 from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import (
     JSON,
     Boolean,
+    DateTime,
     Float,
     ForeignKey,
     Index,
@@ -19,7 +20,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from spotdl.db.models.base import Base, GUID, TimestampMixin, generate_uuid, utc_now
+from spotdl.db.models.base import GUID, Base, TimestampMixin, generate_uuid, utc_now
 
 if TYPE_CHECKING:
     from spotdl.db.models.user import User
@@ -70,6 +71,7 @@ class Entity(Base, TimestampMixin):
         default=0.0,
     )
     last_merged_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
         nullable=False,
         default=utc_now,
     )
@@ -156,10 +158,12 @@ class EntitySnapshot(Base, TimestampMixin):
         default=0.5,
     )
     fetched_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
         nullable=False,
         default=utc_now,
     )
     expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
         nullable=True,
     )
     capabilities: Mapped[dict[str, Any]] = mapped_column(

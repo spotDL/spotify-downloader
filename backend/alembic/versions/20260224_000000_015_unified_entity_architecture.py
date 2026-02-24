@@ -5,23 +5,29 @@ Revises: 014_download_features
 Create Date: 2026-02-24
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
+from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision: str = "015_unified_entity_architecture"
-down_revision: Union[str, None] = "014_download_features"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = "014_download_features"
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
     """Create unified entity, snapshot, provenance, relation, and relation vote tables."""
+    bind = op.get_bind()
+    dialect = bind.dialect.name
+
+    uuid_type = postgresql.UUID(as_uuid=True) if dialect == "postgresql" else sa.String(36)
+
     op.create_table(
         "entities",
-        sa.Column("id", sa.String(length=36), nullable=False),
+        sa.Column("id", uuid_type, nullable=False),
         sa.Column("entity_type", sa.String(length=20), nullable=False),
         sa.Column("entity_key", sa.String(length=255), nullable=False),
         sa.Column("name", sa.String(length=512), nullable=False, server_default="Unknown"),
@@ -40,8 +46,8 @@ def upgrade() -> None:
 
     op.create_table(
         "entity_snapshots",
-        sa.Column("id", sa.String(length=36), nullable=False),
-        sa.Column("entity_id", sa.String(length=36), nullable=False),
+        sa.Column("id", uuid_type, nullable=False),
+        sa.Column("entity_id", uuid_type, nullable=False),
         sa.Column("provider_id", sa.String(length=64), nullable=False),
         sa.Column("provider_entity_id", sa.String(length=255), nullable=True),
         sa.Column("provider_url", sa.Text(), nullable=True),
@@ -77,10 +83,10 @@ def upgrade() -> None:
 
     op.create_table(
         "entity_field_provenance",
-        sa.Column("id", sa.String(length=36), nullable=False),
-        sa.Column("entity_id", sa.String(length=36), nullable=False),
+        sa.Column("id", uuid_type, nullable=False),
+        sa.Column("entity_id", uuid_type, nullable=False),
         sa.Column("field_name", sa.String(length=128), nullable=False),
-        sa.Column("snapshot_id", sa.String(length=36), nullable=False),
+        sa.Column("snapshot_id", uuid_type, nullable=False),
         sa.Column("score", sa.Float(), nullable=False, server_default="0"),
         sa.Column("selected", sa.Boolean(), nullable=False, server_default=sa.text("false")),
         sa.Column("reason", sa.Text(), nullable=True),
@@ -111,9 +117,9 @@ def upgrade() -> None:
 
     op.create_table(
         "entity_relations",
-        sa.Column("id", sa.String(length=36), nullable=False),
-        sa.Column("from_entity_id", sa.String(length=36), nullable=False),
-        sa.Column("to_entity_id", sa.String(length=36), nullable=False),
+        sa.Column("id", uuid_type, nullable=False),
+        sa.Column("from_entity_id", uuid_type, nullable=False),
+        sa.Column("to_entity_id", uuid_type, nullable=False),
         sa.Column("relation_type", sa.String(length=64), nullable=False),
         sa.Column("match_score", sa.Float(), nullable=True),
         sa.Column("status", sa.String(length=32), nullable=False, server_default="suggested"),
@@ -154,9 +160,9 @@ def upgrade() -> None:
 
     op.create_table(
         "relation_votes",
-        sa.Column("id", sa.String(length=36), nullable=False),
-        sa.Column("relation_id", sa.String(length=36), nullable=False),
-        sa.Column("user_id", sa.String(length=36), nullable=False),
+        sa.Column("id", uuid_type, nullable=False),
+        sa.Column("relation_id", uuid_type, nullable=False),
+        sa.Column("user_id", uuid_type, nullable=False),
         sa.Column("vote_type", sa.String(length=8), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
