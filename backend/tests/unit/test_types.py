@@ -31,7 +31,6 @@ class TestTargetPlatformEnum:
         assert TargetPlatform.SOUNDCLOUD.value == "soundcloud"
         assert TargetPlatform.BANDCAMP.value == "bandcamp"
         assert TargetPlatform.PIPED.value == "piped"
-        assert TargetPlatform.SLIDER_KZ.value == "slider.kz"
 
 
 class TestSong:

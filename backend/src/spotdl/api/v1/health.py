@@ -11,9 +11,56 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.config import Settings, get_settings
+from spotdl.core.providers_config import (
+    AUDIO_SOURCE_PROVIDERS,
+    LYRICS_PROVIDERS,
+    METADATA_PROVIDERS,
+)
 from spotdl.db.database import get_db_session
 
 router = APIRouter()
+
+SOURCE_SERVICE_URLS = {
+    "spotify": "https://api.spotify.com",
+    "youtube_music": "https://music.youtube.com",
+    "deezer": "https://api.deezer.com",
+    "apple_music": "https://api.music.apple.com",
+    "tidal": "https://listen.tidal.com",
+    "soundcloud": "https://soundcloud.com",
+    "bandcamp": "https://bandcamp.com",
+}
+
+SOURCE_PROVIDERS = [
+    {"id": "spotify", "name": "Spotify"},
+    {"id": "youtube_music", "name": "YouTube Music"},
+    {"id": "deezer", "name": "Deezer"},
+    {"id": "apple_music", "name": "Apple Music"},
+    {"id": "tidal", "name": "Tidal"},
+    {"id": "soundcloud", "name": "SoundCloud"},
+    {"id": "bandcamp", "name": "Bandcamp"},
+]
+
+TARGET_SERVICE_URLS = {
+    "youtube": "https://www.youtube.com",
+    "youtube_music": "https://music.youtube.com",
+    "soundcloud": "https://soundcloud.com",
+    "bandcamp": "https://bandcamp.com",
+    # Piped uses community/public instances and does not have a single canonical endpoint.
+    "piped": None,
+}
+
+METADATA_SERVICE_URLS = {
+    "spotify": "https://api.spotify.com",
+    "musicbrainz": "https://musicbrainz.org",
+    "discogs": "https://www.discogs.com",
+}
+
+LYRICS_SERVICE_URLS = {
+    "synced": None,
+    "genius": "https://genius.com",
+    "musixmatch": "https://www.musixmatch.com",
+    "azlyrics": "https://www.azlyrics.com",
+}
 
 
 class HealthResponse(BaseModel):
@@ -97,8 +144,10 @@ async def detailed_health_check(
     components: dict[str, Any] = {
         "matching_engine": "operational",
         "providers": {
-            "sources": ["spotify", "deezer", "apple_music", "tidal", "youtube_music"],
+            "sources": [p["id"] for p in SOURCE_PROVIDERS],
             "targets": ["youtube", "youtube_music", "soundcloud", "bandcamp", "piped"],
+            "metadata": [p["id"] for p in METADATA_PROVIDERS],
+            "lyrics": [p["id"] for p in LYRICS_PROVIDERS],
         },
     }
 
@@ -174,24 +223,30 @@ async def service_status(
                 error=str(e)[:50],
             )
 
-    # Define services to check with their health check URLs
+    # Define services to check from canonical provider configuration.
     source_services = [
-        ("spotify", "Spotify", "https://api.spotify.com"),
-        ("deezer", "Deezer", "https://api.deezer.com"),
-        ("apple_music", "Apple Music", "https://api.music.apple.com"),
-        ("youtube_music", "YouTube Music", "https://music.youtube.com"),
+        (provider["id"], provider["name"], SOURCE_SERVICE_URLS.get(provider["id"]))
+        for provider in SOURCE_PROVIDERS
     ]
 
     target_services = [
-        ("youtube", "YouTube", "https://www.youtube.com"),
-        ("soundcloud", "SoundCloud", "https://soundcloud.com"),
-        ("bandcamp", "Bandcamp", "https://bandcamp.com"),
+        ("youtube", "YouTube", TARGET_SERVICE_URLS["youtube"]),
+        ("youtube_music", "YouTube Music", TARGET_SERVICE_URLS["youtube_music"]),
+        ("soundcloud", "SoundCloud", TARGET_SERVICE_URLS["soundcloud"]),
+        ("bandcamp", "Bandcamp", TARGET_SERVICE_URLS["bandcamp"]),
+        ("piped", "Piped", TARGET_SERVICE_URLS["piped"]),
     ]
 
     metadata_services = [
-        ("musicbrainz", "MusicBrainz", "https://musicbrainz.org"),
-        ("genius", "Genius (Lyrics)", "https://genius.com"),
-        ("musixmatch", "Musixmatch (Lyrics)", "https://www.musixmatch.com"),
+        (provider["id"], provider["name"], METADATA_SERVICE_URLS.get(provider["id"]))
+        for provider in METADATA_PROVIDERS
+    ] + [
+        (
+            provider["id"],
+            f"{provider['name']} (Lyrics)",
+            LYRICS_SERVICE_URLS.get(provider["id"]),
+        )
+        for provider in LYRICS_PROVIDERS
     ]
 
     # Check all services concurrently

@@ -25,8 +25,6 @@ from spotdl_core.matching.scoring import (
     check_common_word,
     check_forbidden_words,
 )
-from spotdl_core.types.result import TargetPlatform
-
 if TYPE_CHECKING:
     from spotdl_core.types.result import Result
     from spotdl_core.types.song import Song
@@ -166,8 +164,7 @@ def order_results(
             )
             continue
 
-        # slider.kz is exempt from artist match threshold
-        if artists_match < effective_min_artist and result.platform != TargetPlatform.SLIDER_KZ:
+        if artists_match < effective_min_artist:
             logger.debug(
                 "[%s|%s] Skipping - artist match %.2f < %.2f",
                 song.song_id,
@@ -227,7 +224,6 @@ def order_results(
         # Factor in time match for lower-quality matches
         if (
             (not result.isrc_search and average_match <= HIGH_MATCH_THRESHOLD)
-            or result.platform == TargetPlatform.SLIDER_KZ
             or time_match < 0
         ):
             average_match = (average_match + time_match) / 2

@@ -1,7 +1,7 @@
 # SpotDL Development Makefile
 # Common commands for development and deployment
 
-.PHONY: help dev dev-backend dev-frontend dev-cli cli console up down logs build migrate migrate-create test lint clean
+.PHONY: help dev dev-backend dev-frontend dev-cli cli console up down logs build migrate migrate-create test lint clean railway-link railway-status railway-deploy-backend railway-deploy-frontend
 
 # Default target
 help:
@@ -39,6 +39,12 @@ help:
 	@echo "Cleanup:"
 	@echo "  make clean            - Remove build artifacts"
 	@echo "  make clean-db         - Remove database (WARNING: destructive)"
+	@echo ""
+	@echo "Railway:"
+	@echo "  make railway-link     - Link local directory to Railway project/env/service"
+	@echo "  make railway-status   - Show Railway service status (all services)"
+	@echo "  make railway-deploy-backend - Deploy backend service from backend/ context"
+	@echo "  make railway-deploy-frontend - Deploy frontend service from frontend/ context"
 
 # Local Development (no Docker)
 dev-backend:
@@ -125,3 +131,20 @@ clean-db:
 	@read -p "Are you sure? [y/N] " confirm && [ "$$confirm" = "y" ] || exit 1
 	docker compose -f docker-compose.dev.yml down -v
 	@echo "Database volume removed."
+
+# Railway deployment helpers (prevents accidental deploys from wrong Docker context)
+RAILWAY_PROJECT ?= 5ca1e572-ddd5-4894-9ce0-82d2332fdf33
+RAILWAY_ENV ?= production
+
+railway-link:
+	railway link --project $(RAILWAY_PROJECT) --environment $(RAILWAY_ENV)
+
+railway-status:
+	railway status
+	railway service status -a --environment $(RAILWAY_ENV)
+
+railway-deploy-backend:
+	railway up --service backend --project $(RAILWAY_PROJECT) --environment $(RAILWAY_ENV) --detach --path-as-root backend
+
+railway-deploy-frontend:
+	railway up --service frontend --project $(RAILWAY_PROJECT) --environment $(RAILWAY_ENV) --detach --path-as-root frontend

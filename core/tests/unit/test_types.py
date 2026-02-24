@@ -51,7 +51,6 @@ class TestTargetPlatform:
         assert TargetPlatform.SOUNDCLOUD == "soundcloud"
         assert TargetPlatform.BANDCAMP == "bandcamp"
         assert TargetPlatform.PIPED == "piped"
-        assert TargetPlatform.SLIDER_KZ == "slider.kz"
 
     def test_target_platform_from_string(self):
         """Test creating target platform from string."""

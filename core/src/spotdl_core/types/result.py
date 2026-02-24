@@ -16,7 +16,6 @@ class TargetPlatform(StrEnum):
     SOUNDCLOUD = "soundcloud"
     BANDCAMP = "bandcamp"
     PIPED = "piped"
-    SLIDER_KZ = "slider.kz"
 
 
 @dataclass(frozen=True)

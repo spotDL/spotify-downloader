@@ -389,52 +389,6 @@ class TestOrderResultsISRCSearch:
         assert result in scores
 
 
-class TestOrderResultsSliderKZ:
-    """Tests for slider.kz specific handling."""
-
-    def test_slider_kz_exempt_from_artist_threshold(self):
-        """Test that slider.kz results are exempt from artist match threshold."""
-        from spotdl.core.types.result import TargetPlatform
-
-        song = create_song(
-            name="Test Song",
-            artists=["Real Artist"],
-            duration=180,
-        )
-        # Use a result with artist that doesn't match well
-        result = create_result(
-            name="Test Song",
-            artists=("Unknown",),
-            duration=180.0,
-            verified=True,
-            platform=TargetPlatform.SLIDER_KZ,
-        )
-
-        scores = order_results([result], song)
-        # slider.kz should be exempt from artist threshold
-        # Result may or may not pass based on other criteria
-
-    def test_slider_kz_factors_in_time_match(self):
-        """Test that slider.kz always factors in time match."""
-        from spotdl.core.types.result import TargetPlatform
-
-        song = create_song(
-            name="Test Song",
-            artists=["Artist"],
-            duration=180,
-        )
-        result = create_result(
-            name="Artist - Test Song",
-            artists=("Artist",),
-            duration=180.0,
-            verified=True,
-            platform=TargetPlatform.SLIDER_KZ,
-        )
-
-        scores = order_results([result], song)
-        # Should include time match in scoring for slider.kz
-
-
 class TestOrderResultsEdgeCases:
     """Tests for edge cases in order_results."""
 

@@ -10,6 +10,8 @@ from spotdl.core.provider_preferences import (
     get_enabled_lyrics_provider_ids,
     get_enabled_metadata_provider_ids,
 )
+from spotdl.core.providers_config import AUDIO_SOURCE_PROVIDERS
+from spotdl.core.services.match import MatchService
 from spotdl.core.types.result import TargetPlatform
 
 
@@ -36,6 +38,17 @@ class TestAudioPlatformConstants:
         """Test AUDIO_PLATFORM_MAP keys match audio provider IDs."""
         expected_keys = {"youtube_music", "youtube", "soundcloud", "bandcamp", "piped"}
         assert set(AUDIO_PLATFORM_MAP.keys()) == expected_keys
+
+    def test_audio_provider_ids_align_with_config(self) -> None:
+        """Test audio platform map stays in sync with provider config."""
+        config_ids = {provider["id"] for provider in AUDIO_SOURCE_PROVIDERS}
+        assert set(AUDIO_PLATFORM_MAP.keys()) == config_ids
+
+    def test_match_service_supports_all_mapped_platforms(self) -> None:
+        """Test MatchService wiring matches mapped audio target platforms."""
+        audio_prefs = [{"id": provider["id"], "enabled": True} for provider in AUDIO_SOURCE_PROVIDERS]
+        service = MatchService(audio_preferences=audio_prefs)
+        assert set(service.supported_platforms) == set(AUDIO_PLATFORM_MAP.values())
 
 
 class TestGetEnabledAudioPlatforms:

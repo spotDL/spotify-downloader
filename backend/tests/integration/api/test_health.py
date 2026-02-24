@@ -8,6 +8,19 @@ from httpx import AsyncClient
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
+from spotdl.core.providers_config import LYRICS_PROVIDERS, METADATA_PROVIDERS
+
+NO_HEALTH_CHECK_SERVICES = {"piped", "synced"}
+CANONICAL_SOURCE_IDS = {
+    "spotify",
+    "youtube_music",
+    "deezer",
+    "apple_music",
+    "tidal",
+    "soundcloud",
+    "bandcamp",
+}
+
 
 @pytest.mark.asyncio
 async def test_health_check(client: AsyncClient):
@@ -58,6 +71,21 @@ async def test_detailed_health_response_structure(client: AsyncClient):
     assert "providers" in data["components"]
     assert "sources" in data["components"]["providers"]
     assert "targets" in data["components"]["providers"]
+    assert "metadata" in data["components"]["providers"]
+    assert "lyrics" in data["components"]["providers"]
+
+    assert set(data["components"]["providers"]["sources"]) == CANONICAL_SOURCE_IDS
+    assert set(data["components"]["providers"]["targets"]) == {
+        "youtube",
+        "youtube_music",
+        "soundcloud",
+        "bandcamp",
+        "piped",
+    }
+    expected_metadata_ids = {provider["id"] for provider in METADATA_PROVIDERS}
+    assert set(data["components"]["providers"]["metadata"]) == expected_metadata_ids
+    expected_lyrics_ids = {provider["id"] for provider in LYRICS_PROVIDERS}
+    assert set(data["components"]["providers"]["lyrics"]) == expected_lyrics_ids
 
 
 @pytest.mark.asyncio
@@ -126,6 +154,19 @@ async def test_service_status_all_connected(client: AsyncClient):
         assert len(data["targets"]) > 0
         assert len(data["metadata"]) > 0
 
+        source_ids = {item["name"] for item in data["sources"]}
+        target_ids = {item["name"] for item in data["targets"]}
+        metadata_ids = {item["name"] for item in data["metadata"]}
+
+        expected_metadata_ids = (
+            {provider["id"] for provider in METADATA_PROVIDERS}
+            | {provider["id"] for provider in LYRICS_PROVIDERS}
+        )
+
+        assert source_ids == CANONICAL_SOURCE_IDS
+        assert target_ids == {"youtube", "youtube_music", "soundcloud", "bandcamp", "piped"}
+        assert metadata_ids == expected_metadata_ids
+
 
 @pytest.mark.asyncio
 async def test_service_status_some_errors(client: AsyncClient):
@@ -180,8 +221,11 @@ async def test_service_status_timeout(client: AsyncClient):
         data = response.json()
         all_services = data["sources"] + data["targets"] + data["metadata"]
 
-        # All services should have timeout errors
+        # Services with URLs should have timeout errors.
         for service in all_services:
+            if service["name"] in NO_HEALTH_CHECK_SERVICES:
+                assert service["state"] == "connected"
+                continue
             assert service["state"] == "error"
             assert "Timeout" in service["error"]
 
@@ -205,8 +249,11 @@ async def test_service_status_connection_error(client: AsyncClient):
         data = response.json()
         all_services = data["sources"] + data["targets"] + data["metadata"]
 
-        # All services should have connection errors
+        # Services with URLs should have connection errors.
         for service in all_services:
+            if service["name"] in NO_HEALTH_CHECK_SERVICES:
+                assert service["state"] == "connected"
+                continue
             assert service["state"] == "error"
             assert service["error"] is not None
 
@@ -282,7 +329,8 @@ async def test_service_status_overall_state_disconnected(client: AsyncClient):
         assert response.status_code == 200
 
         data = response.json()
-        assert data["overall_state"] == "disconnected"
+        # URL-less services are treated as connected, so overall can be partial.
+        assert data["overall_state"] in {"disconnected", "partial"}
 
 
 @pytest.mark.asyncio

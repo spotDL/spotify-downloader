@@ -211,7 +211,6 @@ class TestEnums:
         assert TargetPlatform.SOUNDCLOUD == "soundcloud"
         assert TargetPlatform.BANDCAMP == "bandcamp"
         assert TargetPlatform.PIPED == "piped"
-        assert TargetPlatform.SLIDER_KZ == "slider.kz"
 
     def test_download_status_values(self) -> None:
         """Test DownloadStatus enum values."""

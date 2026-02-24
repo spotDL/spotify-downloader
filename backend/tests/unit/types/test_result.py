@@ -15,7 +15,6 @@ class TestTargetPlatform:
         assert hasattr(TargetPlatform, "SOUNDCLOUD")
         assert hasattr(TargetPlatform, "BANDCAMP")
         assert hasattr(TargetPlatform, "PIPED")
-        assert hasattr(TargetPlatform, "SLIDER_KZ")
 
     def test_target_platform_values_are_strings(self) -> None:
         """Test TargetPlatform enum values are strings."""
@@ -24,7 +23,6 @@ class TestTargetPlatform:
         assert TargetPlatform.SOUNDCLOUD.value == "soundcloud"
         assert TargetPlatform.BANDCAMP.value == "bandcamp"
         assert TargetPlatform.PIPED.value == "piped"
-        assert TargetPlatform.SLIDER_KZ.value == "slider.kz"
 
     def test_target_platform_from_string(self) -> None:
         """Test creating TargetPlatform from string."""
@@ -104,7 +102,6 @@ class TestResult:
             TargetPlatform.SOUNDCLOUD,
             TargetPlatform.BANDCAMP,
             TargetPlatform.PIPED,
-            TargetPlatform.SLIDER_KZ,
         ]
 
         for platform in platforms:

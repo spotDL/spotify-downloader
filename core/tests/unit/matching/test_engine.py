@@ -288,21 +288,6 @@ class TestOrderResults:
         if result in results:
             assert results[result] > 0.0
 
-    def test_order_results_slider_kz_platform(self, song: Song):
-        """Test order_results handles slider.kz platform specially."""
-        result = Result(
-            name="Test Song",
-            artists=("Different Artist",),
-            artist="Different Artist",
-            duration=180,
-            platform=TargetPlatform.SLIDER_KZ,
-            platform_id="slider123",
-            url="https://slider.kz/test",
-        )
-        results = order_results([result], song)
-        # slider.kz should be exempt from artist match threshold
-        assert len(results) >= 0
-
     def test_order_results_isrc_search(self, song: Song):
         """Test order_results handles ISRC search results."""
         result = Result(
