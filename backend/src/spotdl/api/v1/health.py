@@ -1,70 +1,47 @@
-"""Health check endpoints."""
+"""Health and service status endpoints for unified entity architecture."""
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Annotated, Any
+import asyncio
+import time
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Annotated, Any
 
+import httpx
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.config import Settings, get_settings
-from spotdl.core.providers_config import (
-    AUDIO_SOURCE_PROVIDERS,
-    LYRICS_PROVIDERS,
-    METADATA_PROVIDERS,
-)
+from spotdl.core.capabilities import Capability
+from spotdl.core.provider_registry import ProviderHealth, get_provider_registry
 from spotdl.db.database import get_db_session
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 
-SOURCE_SERVICE_URLS = {
+PROVIDER_SERVICE_URLS: dict[str, str | None] = {
     "spotify": "https://api.spotify.com",
     "youtube_music": "https://music.youtube.com",
+    "youtube": "https://www.youtube.com",
+    "piped": None,  # community/public instances
     "deezer": "https://api.deezer.com",
-    "apple_music": "https://api.music.apple.com",
+    "apple_music": "https://music.apple.com",
     "tidal": "https://listen.tidal.com",
     "soundcloud": "https://soundcloud.com",
     "bandcamp": "https://bandcamp.com",
-}
-
-SOURCE_PROVIDERS = [
-    {"id": "spotify", "name": "Spotify"},
-    {"id": "youtube_music", "name": "YouTube Music"},
-    {"id": "deezer", "name": "Deezer"},
-    {"id": "apple_music", "name": "Apple Music"},
-    {"id": "tidal", "name": "Tidal"},
-    {"id": "soundcloud", "name": "SoundCloud"},
-    {"id": "bandcamp", "name": "Bandcamp"},
-]
-
-TARGET_SERVICE_URLS = {
-    "youtube": "https://www.youtube.com",
-    "youtube_music": "https://music.youtube.com",
-    "soundcloud": "https://soundcloud.com",
-    "bandcamp": "https://bandcamp.com",
-    # Piped uses community/public instances and does not have a single canonical endpoint.
-    "piped": None,
-}
-
-METADATA_SERVICE_URLS = {
-    "spotify": "https://api.spotify.com",
     "musicbrainz": "https://musicbrainz.org",
     "discogs": "https://www.discogs.com",
-}
-
-LYRICS_SERVICE_URLS = {
-    "synced": None,
     "genius": "https://genius.com",
     "musixmatch": "https://www.musixmatch.com",
-    "azlyrics": "https://www.azlyrics.com",
+    "synced": None,
 }
 
 
 class HealthResponse(BaseModel):
-    """Health check response model."""
+    """Basic health payload."""
 
     status: str
     version: str
@@ -73,7 +50,7 @@ class HealthResponse(BaseModel):
 
 
 class DetailedHealthResponse(HealthResponse):
-    """Detailed health check with component status."""
+    """Detailed component-level health payload."""
 
     database: str
     cache: str
@@ -81,36 +58,84 @@ class DetailedHealthResponse(HealthResponse):
 
 
 class ServiceStatusItem(BaseModel):
-    """Individual service status."""
+    """Provider connectivity and latency status."""
 
     name: str
     display_name: str
-    state: str  # "connected", "connecting", "disconnected", "error"
+    state: str  # connected, connecting, disconnected, error
     latency: int | None = None
     error: str | None = None
 
 
 class ServiceStatusResponse(BaseModel):
-    """Service status response for all platforms and metadata sources."""
+    """Capability-grouped provider status."""
 
     sources: list[ServiceStatusItem]
     targets: list[ServiceStatusItem]
     metadata: list[ServiceStatusItem]
+    capabilities: dict[str, list[ServiceStatusItem]] = Field(default_factory=dict)
     overall_state: str
+
+
+def _provider_groups(matrix: list[ProviderHealth]) -> dict[str, list[str]]:
+    groups: dict[str, list[str]] = {
+        "resolve": [],
+        "match": [],
+        "download": [],
+        "enrich": [],
+        "lyrics": [],
+        "sources": [],
+        "targets": [],
+        "metadata": [],
+        "lyrics_only": [],
+    }
+
+    for provider in matrix:
+        caps = set(provider.capabilities)
+        provider_id = provider.provider_id
+
+        if Capability.RESOLVE.value in caps:
+            groups["resolve"].append(provider_id)
+            groups["sources"].append(provider_id)
+        if Capability.MATCH.value in caps:
+            groups["match"].append(provider_id)
+            groups["targets"].append(provider_id)
+        if Capability.DOWNLOAD.value in caps:
+            groups["download"].append(provider_id)
+            groups["targets"].append(provider_id)
+        if Capability.ENRICH.value in caps:
+            groups["enrich"].append(provider_id)
+            groups["metadata"].append(provider_id)
+        if Capability.LYRICS.value in caps:
+            groups["lyrics"].append(provider_id)
+            groups["metadata"].append(provider_id)
+            groups["lyrics_only"].append(provider_id)
+
+    for key, values in groups.items():
+        groups[key] = sorted(dict.fromkeys(values))
+    return groups
+
+
+def _status_from_counts(connected_count: int, total_count: int) -> str:
+    if total_count == 0:
+        return "disconnected"
+    if connected_count == total_count:
+        return "connected"
+    if connected_count > total_count / 2:
+        return "degraded"
+    if connected_count > 0:
+        return "partial"
+    return "disconnected"
 
 
 @router.get("/health", response_model=HealthResponse)
 async def health_check(settings: Settings = Depends(get_settings)) -> HealthResponse:
-    """
-    Basic health check endpoint.
-
-    Returns the application status, version, and environment.
-    """
+    """Basic API health."""
     return HealthResponse(
         status="healthy",
         version=settings.app_version,
         environment=settings.environment,
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
     )
 
 
@@ -119,12 +144,7 @@ async def detailed_health_check(
     settings: Settings = Depends(get_settings),
     db: Annotated[AsyncSession, Depends(get_db_session)] = None,
 ) -> DetailedHealthResponse:
-    """
-    Detailed health check with component status.
-
-    Checks database connectivity, cache availability, and other components.
-    """
-    # Check database connectivity
+    """Component-level health including unified pipeline and provider capabilities."""
     database_status = "not configured"
     if settings.database_url:
         try:
@@ -133,21 +153,40 @@ async def detailed_health_check(
                 database_status = "connected"
             else:
                 database_status = "connection failed"
-        except Exception as e:
-            database_status = f"error: {str(e)}"
+        except Exception as exc:
+            database_status = f"error: {exc}"
 
-    # Check cache (Redis) connectivity
-    cache_status = "not configured"
-    if settings.redis_url:
-        cache_status = "configured"
+    cache_status = "configured" if settings.redis_url else "not configured"
+
+    registry = get_provider_registry()
+    matrix = registry.health_matrix()
+    groups = _provider_groups(matrix)
+    provider_ids = [item.provider_id for item in matrix]
+    capability_map = {
+        "resolve": groups["resolve"],
+        "match": groups["match"],
+        "download": groups["download"],
+        "enrich": groups["enrich"],
+        "lyrics": groups["lyrics"],
+    }
 
     components: dict[str, Any] = {
-        "matching_engine": "operational",
+        "matching_engine": "operational (relation discovery)",
+        "unified_entity_model": "operational",
+        "merge_engine": "operational",
+        "capability_router": "operational",
+        "download_orchestrator": "operational",
         "providers": {
-            "sources": [p["id"] for p in SOURCE_PROVIDERS],
-            "targets": ["youtube", "youtube_music", "soundcloud", "bandcamp", "piped"],
-            "metadata": [p["id"] for p in METADATA_PROVIDERS],
-            "lyrics": [p["id"] for p in LYRICS_PROVIDERS],
+            "all": provider_ids,
+            "sources": groups["sources"],
+            "targets": groups["targets"],
+            "metadata": groups["enrich"],
+            "lyrics": groups["lyrics"],
+            "capabilities": capability_map,
+        },
+        "api_surfaces": {
+            "entity_first": "operational",
+            "legacy_music_domain": "disabled",
         },
     }
 
@@ -155,7 +194,7 @@ async def detailed_health_check(
         status="healthy" if database_status == "connected" else "degraded",
         version=settings.app_version,
         environment=settings.environment,
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
         database=database_status,
         cache=cache_status,
         components=components,
@@ -167,141 +206,83 @@ async def service_status(
     settings: Settings = Depends(get_settings),
     db: Annotated[AsyncSession, Depends(get_db_session)] = None,
 ) -> ServiceStatusResponse:
-    """
-    Get connectivity status for all external services.
+    """Provider service connectivity grouped by capabilities."""
+    del settings, db
 
-    Checks source platforms, target platforms, and metadata providers.
-    Returns latency measurements where available.
-    """
-    import asyncio
-    import time
-    import httpx
+    registry = get_provider_registry()
+    matrix = registry.health_matrix()
+    groups = _provider_groups(matrix)
 
-    async def check_service(name: str, display_name: str, check_url: str | None = None) -> ServiceStatusItem:
-        """Check a single service's availability."""
-        if not check_url:
-            # Service doesn't have a health check URL - assume operational
+    async def check_provider(provider: ProviderHealth) -> ServiceStatusItem:
+        check_url = PROVIDER_SERVICE_URLS.get(provider.provider_id)
+        if check_url is None:
             return ServiceStatusItem(
-                name=name,
-                display_name=display_name,
-                state="connected",
+                name=provider.provider_id,
+                display_name=provider.display_name,
+                state="connected" if provider.status == "healthy" else "error",
                 latency=None,
+                error=None if provider.status == "healthy" else provider.status,
             )
 
         try:
             start = time.monotonic()
             async with httpx.AsyncClient(timeout=5.0) as client:
                 response = await client.head(check_url)
-                latency = int((time.monotonic() - start) * 1000)
-
-                if response.status_code < 500:
-                    return ServiceStatusItem(
-                        name=name,
-                        display_name=display_name,
-                        state="connected",
-                        latency=latency,
-                    )
-                else:
-                    return ServiceStatusItem(
-                        name=name,
-                        display_name=display_name,
-                        state="error",
-                        error=f"HTTP {response.status_code}",
-                    )
+            latency_ms = int((time.monotonic() - start) * 1000)
+            if response.status_code < 500:
+                return ServiceStatusItem(
+                    name=provider.provider_id,
+                    display_name=provider.display_name,
+                    state="connected",
+                    latency=latency_ms,
+                )
+            return ServiceStatusItem(
+                name=provider.provider_id,
+                display_name=provider.display_name,
+                state="error",
+                error=f"HTTP {response.status_code}",
+            )
         except httpx.TimeoutException:
             return ServiceStatusItem(
-                name=name,
-                display_name=display_name,
+                name=provider.provider_id,
+                display_name=provider.display_name,
                 state="error",
                 error="Timeout",
             )
-        except Exception as e:
+        except Exception as exc:
             return ServiceStatusItem(
-                name=name,
-                display_name=display_name,
+                name=provider.provider_id,
+                display_name=provider.display_name,
                 state="error",
-                error=str(e)[:50],
+                error=str(exc)[:60],
             )
 
-    # Define services to check from canonical provider configuration.
-    source_services = [
-        (provider["id"], provider["name"], SOURCE_SERVICE_URLS.get(provider["id"]))
-        for provider in SOURCE_PROVIDERS
-    ]
+    status_items = await asyncio.gather(*(check_provider(item) for item in matrix))
+    status_by_id = {item.name: item for item in status_items}
 
-    target_services = [
-        ("youtube", "YouTube", TARGET_SERVICE_URLS["youtube"]),
-        ("youtube_music", "YouTube Music", TARGET_SERVICE_URLS["youtube_music"]),
-        ("soundcloud", "SoundCloud", TARGET_SERVICE_URLS["soundcloud"]),
-        ("bandcamp", "Bandcamp", TARGET_SERVICE_URLS["bandcamp"]),
-        ("piped", "Piped", TARGET_SERVICE_URLS["piped"]),
-    ]
+    def map_group(ids: list[str]) -> list[ServiceStatusItem]:
+        return [status_by_id[provider_id] for provider_id in ids if provider_id in status_by_id]
 
-    metadata_services = [
-        (provider["id"], provider["name"], METADATA_SERVICE_URLS.get(provider["id"]))
-        for provider in METADATA_PROVIDERS
-    ] + [
-        (
-            provider["id"],
-            f"{provider['name']} (Lyrics)",
-            LYRICS_SERVICE_URLS.get(provider["id"]),
-        )
-        for provider in LYRICS_PROVIDERS
-    ]
+    sources = map_group(groups["sources"])
+    targets = map_group(groups["targets"])
+    metadata = map_group(sorted(set(groups["enrich"] + groups["lyrics"])))
 
-    # Check all services concurrently
-    all_checks = []
-    for name, display_name, url in source_services + target_services + metadata_services:
-        all_checks.append(check_service(name, display_name, url))
+    capabilities = {
+        "resolve": map_group(groups["resolve"]),
+        "match": map_group(groups["match"]),
+        "download": map_group(groups["download"]),
+        "enrich": map_group(groups["enrich"]),
+        "lyrics": map_group(groups["lyrics"]),
+    }
 
-    results = await asyncio.gather(*all_checks, return_exceptions=True)
-
-    # Process results
-    source_results = []
-    target_results = []
-    metadata_results = []
-
-    for i, result in enumerate(results):
-        if isinstance(result, Exception):
-            # Handle unexpected exceptions
-            if i < len(source_services):
-                name, display_name, _ = source_services[i]
-            elif i < len(source_services) + len(target_services):
-                name, display_name, _ = target_services[i - len(source_services)]
-            else:
-                name, display_name, _ = metadata_services[i - len(source_services) - len(target_services)]
-
-            result = ServiceStatusItem(
-                name=name,
-                display_name=display_name,
-                state="error",
-                error="Check failed",
-            )
-
-        if i < len(source_services):
-            source_results.append(result)
-        elif i < len(source_services) + len(target_services):
-            target_results.append(result)
-        else:
-            metadata_results.append(result)
-
-    # Determine overall state
-    all_results = source_results + target_results + metadata_results
-    connected_count = sum(1 for r in all_results if r.state == "connected")
-    total_count = len(all_results)
-
-    if connected_count == total_count:
-        overall_state = "connected"
-    elif connected_count > total_count / 2:
-        overall_state = "degraded"
-    elif connected_count > 0:
-        overall_state = "partial"
-    else:
-        overall_state = "disconnected"
+    all_unique = list(status_by_id.values())
+    connected_count = sum(1 for item in all_unique if item.state == "connected")
+    overall_state = _status_from_counts(connected_count, len(all_unique))
 
     return ServiceStatusResponse(
-        sources=source_results,
-        targets=target_results,
-        metadata=metadata_results,
+        sources=sources,
+        targets=targets,
+        metadata=metadata,
+        capabilities=capabilities,
         overall_state=overall_state,
     )

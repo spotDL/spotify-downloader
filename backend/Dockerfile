@@ -54,6 +54,7 @@ RUN mkdir -p /app/data /app/static && chown -R spotdl:spotdl /app
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONPATH="/app/src"
 ENV PYTHONUNBUFFERED=1
+ENV PORT=8000
 
 # Switch to non-root user
 USER spotdl
@@ -63,7 +64,7 @@ EXPOSE 8000
 
 # Health check using curl
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
-    CMD curl -f http://localhost:8000/api/v1/health || exit 1
+    CMD sh -c 'curl -f "http://localhost:${PORT:-8000}/api/v1/health" || exit 1'
 
 # Run the application
-CMD ["python", "-m", "uvicorn", "spotdl.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "python -m uvicorn spotdl.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

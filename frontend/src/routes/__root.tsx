@@ -99,7 +99,7 @@ function RootLayoutContent() {
           {features.isHosted && (
             <div className="bg-gradient-to-r from-[var(--accent-needle)]/10 via-[var(--accent-warm)]/10 to-[var(--accent-safe)]/10 border-b border-[var(--accent-needle)]/20 py-2 px-4 text-center">
               <p className="text-sm text-[var(--accent-warm)]">
-                Welcome to the SpotDL Matching Service - crowdsourced & verified matches.{" "}
+                Welcome to the SpotDL Unified Entity Service - capability-driven metadata, relations, and downloads.{" "}
                 <a
                   href={config.githubUrl}
                   target="_blank"

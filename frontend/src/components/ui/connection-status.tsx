@@ -33,6 +33,7 @@ interface ServiceStatusResponse {
   sources: ServiceStatusItem[];
   targets: ServiceStatusItem[];
   metadata: ServiceStatusItem[];
+  capabilities?: Record<string, ServiceStatusItem[]>;
   overall_state: string;
 }
 
@@ -45,12 +46,14 @@ function useServiceStatus(): {
   sources: ServiceStatus[];
   targets: ServiceStatus[];
   metadata: ServiceStatus[];
+  capabilities: Record<string, ServiceStatus[]>;
   isLoading: boolean;
   refetch: () => void;
 } {
   const [sources, setSources] = useState<ServiceStatus[]>([]);
   const [targets, setTargets] = useState<ServiceStatus[]>([]);
   const [metadata, setMetadata] = useState<ServiceStatus[]>([]);
+  const [capabilities, setCapabilities] = useState<Record<string, ServiceStatus[]>>({});
   const [isLoading, setIsLoading] = useState(true);
 
   const mapApiToStatus = (item: ServiceStatusItem): ServiceStatus => ({
@@ -71,24 +74,33 @@ function useServiceStatus(): {
       setSources(data.sources.map(mapApiToStatus));
       setTargets(data.targets.map(mapApiToStatus));
       setMetadata(data.metadata.map(mapApiToStatus));
+      const capabilityGroups: Record<string, ServiceStatus[]> = {};
+      for (const [capability, items] of Object.entries(data.capabilities || {})) {
+        capabilityGroups[capability] = items.map(mapApiToStatus);
+      }
+      setCapabilities(capabilityGroups);
     } catch {
       // On error, show all services as unknown/error state
       setSources([
         { name: "spotify", displayName: "Spotify", state: "error", error: "Check failed" },
-        { name: "deezer", displayName: "Deezer", state: "error", error: "Check failed" },
-        { name: "apple_music", displayName: "Apple Music", state: "error", error: "Check failed" },
         { name: "youtube_music", displayName: "YouTube Music", state: "error", error: "Check failed" },
-      ]);
-      setTargets([
-        { name: "youtube", displayName: "YouTube", state: "error", error: "Check failed" },
         { name: "soundcloud", displayName: "SoundCloud", state: "error", error: "Check failed" },
         { name: "bandcamp", displayName: "Bandcamp", state: "error", error: "Check failed" },
       ]);
+      setTargets([
+        { name: "youtube", displayName: "YouTube", state: "error", error: "Check failed" },
+        { name: "youtube_music", displayName: "YouTube Music", state: "error", error: "Check failed" },
+        { name: "soundcloud", displayName: "SoundCloud", state: "error", error: "Check failed" },
+        { name: "bandcamp", displayName: "Bandcamp", state: "error", error: "Check failed" },
+        { name: "piped", displayName: "Piped", state: "error", error: "Check failed" },
+      ]);
       setMetadata([
         { name: "musicbrainz", displayName: "MusicBrainz", state: "error", error: "Check failed" },
+        { name: "discogs", displayName: "Discogs", state: "error", error: "Check failed" },
         { name: "genius", displayName: "Genius (Lyrics)", state: "error", error: "Check failed" },
-        { name: "musixmatch", displayName: "Musixmatch (Lyrics)", state: "error", error: "Check failed" },
+        { name: "musixmatch", displayName: "MusixMatch (Lyrics)", state: "error", error: "Check failed" },
       ]);
+      setCapabilities({});
     } finally {
       setIsLoading(false);
     }
@@ -106,6 +118,7 @@ function useServiceStatus(): {
     sources,
     targets,
     metadata,
+    capabilities,
     isLoading,
     refetch: checkServices,
   };
@@ -171,7 +184,7 @@ export function ConnectionStatusCompact({ className }: { className?: string }) {
       <div className="flex items-center gap-2">
         <StatusDot state={connectedSources === sources.length ? "connected" : connectedSources > 0 ? "connecting" : "error"} />
         <span className="text-xs text-zinc-400">
-          <span className="font-medium text-zinc-300">{connectedSources}/{sources.length}</span> Sources
+          <span className="font-medium text-zinc-300">{connectedSources}/{sources.length}</span> Resolve
         </span>
       </div>
 
@@ -181,7 +194,7 @@ export function ConnectionStatusCompact({ className }: { className?: string }) {
       <div className="flex items-center gap-2">
         <StatusDot state={connectedTargets === targets.length ? "connected" : connectedTargets > 0 ? "connecting" : "error"} />
         <span className="text-xs text-zinc-400">
-          <span className="font-medium text-zinc-300">{connectedTargets}/{targets.length}</span> Targets
+          <span className="font-medium text-zinc-300">{connectedTargets}/{targets.length}</span> Match/Download
         </span>
       </div>
 
@@ -191,7 +204,7 @@ export function ConnectionStatusCompact({ className }: { className?: string }) {
       <div className="flex items-center gap-2">
         <StatusDot state={connectedMetadata === metadata.length ? "connected" : connectedMetadata > 0 ? "connecting" : "error"} />
         <span className="text-xs text-zinc-400">
-          <span className="font-medium text-zinc-300">{connectedMetadata}/{metadata.length}</span> Metadata
+          <span className="font-medium text-zinc-300">{connectedMetadata}/{metadata.length}</span> Enrich/Lyrics
         </span>
       </div>
     </div>
@@ -234,7 +247,7 @@ function ServiceRow({ service }: { service: ServiceStatus }) {
 // ============================================================================
 
 export function ConnectionStatusDetailed({ className }: { className?: string }) {
-  const { services, sources, targets, metadata, isLoading, refetch } = useServiceStatus();
+  const { services, sources, targets, metadata, capabilities, isLoading, refetch } = useServiceStatus();
 
   const totalConnected = services.filter(s => s.state === "connected").length;
   const overallState: ConnectionState =
@@ -292,7 +305,7 @@ export function ConnectionStatusDetailed({ className }: { className?: string }) 
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
                 </svg>
-                Source Platforms
+                Resolve Providers
               </h4>
               <div className="bg-zinc-900/50 rounded-xl border border-zinc-800/50 divide-y divide-zinc-800/50">
                 {sources.map((service) => (
@@ -307,7 +320,7 @@ export function ConnectionStatusDetailed({ className }: { className?: string }) 
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                Download Targets
+                Match & Download Providers
               </h4>
               <div className="bg-zinc-900/50 rounded-xl border border-zinc-800/50 divide-y divide-zinc-800/50">
                 {targets.map((service) => (
@@ -322,7 +335,7 @@ export function ConnectionStatusDetailed({ className }: { className?: string }) 
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" />
                 </svg>
-                Metadata & Lyrics
+                Enrich & Lyrics Providers
               </h4>
               <div className="bg-zinc-900/50 rounded-xl border border-zinc-800/50 divide-y divide-zinc-800/50">
                 {metadata.map((service) => (
@@ -330,6 +343,29 @@ export function ConnectionStatusDetailed({ className }: { className?: string }) 
                 ))}
               </div>
             </div>
+
+            {/* Capability Matrix Summary */}
+            {Object.keys(capabilities).length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium text-zinc-400 mb-2 flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h18M3 12h18M3 19h18" />
+                  </svg>
+                  Capability Matrix
+                </h4>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                  {Object.entries(capabilities).map(([capability, items]) => {
+                    const online = items.filter((item) => item.state === "connected").length;
+                    return (
+                      <div key={capability} className="rounded-lg border border-zinc-800/60 bg-zinc-900/40 px-3 py-2">
+                        <p className="text-[11px] uppercase tracking-wide text-zinc-500">{capability}</p>
+                        <p className="text-sm text-zinc-200 mt-1">{online}/{items.length}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </>
         )}
       </CardContent>

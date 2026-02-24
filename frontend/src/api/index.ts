@@ -80,7 +80,15 @@ export {
 } from "./votes";
 
 // Health
-export { checkHealth, useHealth, healthKeys } from "./health";
+export {
+  checkHealth,
+  checkDetailedHealth,
+  checkServiceHealth,
+  useHealth,
+  useDetailedHealth,
+  useServiceHealth,
+  healthKeys,
+} from "./health";
 
 // Settings
 export {

@@ -5,7 +5,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from spotdl.core.capabilities import Capability, DownloadCapability, DownloadHookResult, ProviderPlugin
+from spotdl.core.capabilities import (
+    Capability,
+    DownloadCapability,
+    DownloadHookResult,
+    ProviderPlugin,
+)
 from spotdl.core.services.download import DownloadRequest, create_download_id, get_download_manager
 
 
@@ -98,6 +103,16 @@ class ProviderRegistry:
             HookedDownloadPlugin(
                 provider_id="youtube",
                 display_name="YouTube",
+                capabilities={
+                    Capability.MATCH,
+                    Capability.DOWNLOAD,
+                },
+            )
+        )
+        self.register(
+            GenericProviderPlugin(
+                provider_id="piped",
+                display_name="Piped",
                 capabilities={
                     Capability.MATCH,
                     Capability.DOWNLOAD,

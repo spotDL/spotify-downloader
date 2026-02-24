@@ -5,10 +5,9 @@ from __future__ import annotations
 import logging
 import sys
 import time
-import traceback
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import AsyncGenerator
 
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -64,7 +63,7 @@ def setup_logging() -> None:
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(_app: FastAPI):
     """Application lifespan handler for startup/shutdown events."""
     # Configure logging first
     setup_logging()
@@ -199,6 +198,16 @@ def create_app() -> FastAPI:
         allow_methods=settings.cors_allow_methods,
         allow_headers=settings.cors_allow_headers,
     )
+
+    @app.get("/health")
+    async def root_health_check():
+        """Infrastructure-friendly liveness endpoint."""
+        return {
+            "status": "healthy",
+            "version": settings.app_version,
+            "environment": settings.environment,
+            "timestamp": datetime.now(UTC),
+        }
 
     # Include API routers
     app.include_router(api_v1_router)

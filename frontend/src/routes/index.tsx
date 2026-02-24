@@ -193,7 +193,7 @@ function HostedHomePage() {
       <Card variant="bordered" className="max-w-3xl mx-auto">
         <CardContent className="py-6 text-center">
           <h3 className="text-lg font-semibold text-zinc-100 mb-2">
-            This is the SpotDL Matching Service
+            This is the SpotDL Unified Entity Service
           </h3>
           <p className="text-zinc-400 mb-4">
             A crowdsourced database of cross-platform song matches.
@@ -378,7 +378,7 @@ function SelfHostedHomePage() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-[var(--accent-safe)]">•</span>
-              View song details to find cross-platform matches
+              Open entity details to discover and vote on audio relations
             </li>
           </ul>
         </CardContent>
