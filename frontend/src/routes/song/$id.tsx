@@ -425,11 +425,41 @@ function SongPage() {
     }
   };
 
+  const extendedSnapshotsInfo = useMemo(() => {
+    const backendSnapshots = snapshotsData?.snapshots || [];
+    const syntheticSnapshots = matches.map(match => ({
+      id: `synthetic-${match.id || Math.random()}`,
+      source: match.target_platform,
+      confidence: match.score / 100,
+      data: {
+        name: match.result.name,
+        artist: match.result.artist,
+        duration: match.result.duration,
+        cover_url: match.result.cover_url,
+      },
+      fetchedAt: new Date().toISOString(), // Use current time or matching time
+    }));
+
+    // For the UI we need typed snapshots
+    const combined = [...backendSnapshots, ...syntheticSnapshots] as any[];
+
+    // Build sets of sources
+    const allSources = Array.from(new Set([
+      ...(snapshotsData?.sources || []),
+      ...matches.map(m => m.target_platform)
+    ]));
+
+    return {
+      snapshots: combined,
+      sources: allSources
+    };
+  }, [snapshotsData, matches]);
+
   // Get active snapshot data
   const activeSnapshot = useMemo(() => {
-    if (!snapshotsData?.snapshots || !activeMetadataSource) return null;
-    return snapshotsData.snapshots.find((s) => s.source === activeMetadataSource) || null;
-  }, [snapshotsData, activeMetadataSource]);
+    if (!activeMetadataSource) return extendedSnapshotsInfo.snapshots[0] || null;
+    return extendedSnapshotsInfo.snapshots.find((s) => s.source === activeMetadataSource) || null;
+  }, [extendedSnapshotsInfo, activeMetadataSource]);
 
   // Merge snapshot metadata with song for display
   const displayMetadata = useMemo(() => {
@@ -674,22 +704,22 @@ function SongPage() {
       </div>
 
       {/* Multi-Source Metadata Controls */}
-      {snapshotsData && snapshotsData.snapshots.length > 0 && (
+      {extendedSnapshotsInfo.snapshots.length > 0 && (
         <Card variant="bordered" className="overflow-hidden">
           <CardContent className="py-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               {/* Source Selector */}
               <MetadataSourceSelector
-                sources={snapshotsData.sources}
+                sources={extendedSnapshotsInfo.sources}
                 activeSource={activeMetadataSource || ""}
                 onSourceChange={setActiveMetadataSource}
-                snapshots={snapshotsData.snapshots}
+                snapshots={extendedSnapshotsInfo.snapshots as any}
                 showConfidence={true}
                 size="md"
               />
 
               {/* Compare Sources Button */}
-              {snapshotsData.snapshots.length > 1 && (
+              {extendedSnapshotsInfo.snapshots.length > 1 && (
                 <Button
                   variant={showComparison ? "primary" : "outline"}
                   size="sm"
@@ -711,7 +741,7 @@ function SongPage() {
                 <span>•</span>
                 <span>Confidence: {Math.round(activeSnapshot.confidence * 100)}%</span>
                 <span>•</span>
-                <span>Fetched: {new Date(activeSnapshot.fetchedAt).toLocaleDateString()}</span>
+                <span>Fetched: {new Date((activeSnapshot as any).fetched_at || (activeSnapshot as any).fetchedAt || new Date()).toLocaleDateString()}</span>
               </div>
             )}
           </CardContent>
@@ -719,9 +749,9 @@ function SongPage() {
       )}
 
       {/* Metadata Comparison Table */}
-      {showComparison && snapshotsData && snapshotsData.snapshots.length > 1 && (
+      {showComparison && extendedSnapshotsInfo.snapshots.length > 1 && (
         <MetadataComparisonTable
-          snapshots={snapshotsData.snapshots}
+          snapshots={extendedSnapshotsInfo.snapshots as any}
           showOnlyDifferences={false}
           className="animate-slide-up"
         />
@@ -975,14 +1005,16 @@ function SongPage() {
         {/* Right Column - Metadata & Links */}
         <div className="space-y-6">
           {/* Platform Links */}
-          <Card variant="bordered">
-            <CardHeader className="border-b border-zinc-800/50">
-              <CardTitle className="text-base">Listen On</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <PlatformLinksGrid platforms={platformsForGrid} />
-            </CardContent>
-          </Card>
+          {(!matchesLoaded || allMatches.length === 0) && (
+            <Card variant="bordered">
+              <CardHeader className="border-b border-zinc-800/50">
+                <CardTitle className="text-base">Listen On</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <PlatformLinksGrid platforms={platformsForGrid} />
+              </CardContent>
+            </Card>
+          )}
 
           {/* Audio Features Panel */}
           {displayMetadata?.audio_features && (
