@@ -133,7 +133,18 @@ function createUserFriendlyError(error: AxiosError): Error {
   const message = getErrorMessage(error);
   const userError = new Error(message);
   // Preserve original error for debugging
-  (userError as Error & { cause?: unknown }).cause = error;
+  const enrichedError = userError as Error & {
+    cause?: unknown;
+    status?: number;
+    response?: unknown;
+    headers?: unknown;
+    data?: unknown;
+  };
+  enrichedError.cause = error;
+  enrichedError.status = error.response?.status;
+  enrichedError.response = error.response;
+  enrichedError.headers = error.response?.headers;
+  enrichedError.data = error.response?.data;
   return userError;
 }
 

@@ -103,12 +103,205 @@ class EntityPersistenceService:
 
         return name
 
+    @staticmethod
+    def _clean_platform_field(value: str | None) -> str | None:
+        """Normalize optional platform identifiers/URLs."""
+        if value is None:
+            return None
+        cleaned = value.strip()
+        return cleaned or None
+
+    @staticmethod
+    def _build_platform_entity_url(
+        platform: str,
+        entity_type: str,
+        platform_id: str,
+    ) -> str | None:
+        """Build a canonical URL for platforms where ID -> URL mapping is stable."""
+        platform_lower = platform.lower()
+        if platform_lower == "spotify":
+            return f"https://open.spotify.com/{entity_type}/{platform_id}"
+        if platform_lower == "deezer":
+            return f"https://www.deezer.com/{entity_type}/{platform_id}"
+        if platform_lower == "youtube_music":
+            if entity_type == "track":
+                return f"https://music.youtube.com/watch?v={platform_id}"
+            if entity_type == "playlist":
+                return f"https://music.youtube.com/playlist?list={platform_id}"
+            if entity_type == "artist":
+                if platform_id.startswith("UC"):
+                    return f"https://music.youtube.com/channel/{platform_id}"
+                return f"https://music.youtube.com/browse/{platform_id}"
+            if entity_type == "album":
+                return f"https://music.youtube.com/browse/{platform_id}"
+        if platform_lower == "tidal":
+            return f"https://tidal.com/browse/{entity_type}/{platform_id}"
+        return None
+
+    @staticmethod
+    def _extract_platform_id_from_url(
+        platform: str,
+        entity_type: str,
+        url: str,
+    ) -> str | None:
+        """Extract entity IDs from known platform URLs."""
+        platform_lower = platform.lower()
+        url = url.strip()
+
+        if platform_lower == "spotify":
+            match = re.search(
+                rf"(?:open\.spotify\.com/(?:intl-\w+/)?|spotify:){entity_type}[/:]([a-zA-Z0-9]+)",
+                url,
+            )
+            return match.group(1) if match else None
+
+        if platform_lower == "deezer":
+            match = re.search(
+                rf"deezer\.com/(?:\w+/)?{entity_type}/(\d+)",
+                url,
+            )
+            return match.group(1) if match else None
+
+        if platform_lower == "youtube_music":
+            if entity_type == "track":
+                match = re.search(r"[?&]v=([a-zA-Z0-9_-]+)", url)
+                return match.group(1) if match else None
+            if entity_type == "playlist":
+                match = re.search(r"[?&]list=([a-zA-Z0-9_-]+)", url)
+                return match.group(1) if match else None
+            if entity_type == "artist":
+                match = re.search(r"/(?:channel|browse)/([a-zA-Z0-9_-]+)", url)
+                return match.group(1) if match else None
+            if entity_type == "album":
+                match = re.search(r"/browse/([a-zA-Z0-9_-]+)", url)
+                return match.group(1) if match else None
+
+        if platform_lower == "apple_music":
+            if entity_type == "track":
+                match = re.search(r"[?&]i=(\d+)", url)
+                return match.group(1) if match else None
+            match = re.search(
+                rf"music\.apple\.com/\w+/{entity_type}/[^/]+/([a-zA-Z0-9._-]+)",
+                url,
+            )
+            return match.group(1) if match else None
+
+        if platform_lower == "tidal":
+            match = re.search(
+                rf"(?:tidal\.com|listen\.tidal\.com)/(?:browse/)?{entity_type}/(\d+)",
+                url,
+            )
+            return match.group(1) if match else None
+
+        if platform_lower == "soundcloud":
+            path_match = re.search(r"soundcloud\.com/([^?#]+)", url)
+            if not path_match:
+                return None
+            parts = [p for p in path_match.group(1).strip("/").split("/") if p]
+            if entity_type == "artist" and len(parts) >= 1:
+                return parts[0]
+            if entity_type == "playlist" and len(parts) >= 3 and parts[1] == "sets":
+                return f"{parts[0]}/sets/{parts[2]}"
+            if entity_type == "track" and len(parts) >= 2:
+                return f"{parts[0]}/{parts[1]}"
+            return None
+
+        if platform_lower == "bandcamp":
+            base_match = re.search(r"https?://([^.]+)\.bandcamp\.com", url)
+            if not base_match:
+                return None
+            subdomain = base_match.group(1)
+            if entity_type == "artist":
+                return subdomain
+            if entity_type in {"track", "album"}:
+                slug_match = re.search(rf"/{entity_type}/([^/?#]+)", url)
+                if slug_match:
+                    return f"{subdomain}:{slug_match.group(1)}"
+            return None
+
+        return None
+
+    def _resolve_artist_platform_identity(self, song: Song) -> tuple[str | None, str | None]:
+        """Get best-effort artist platform ID + URL from song data."""
+        platform = song.platform.value
+        artist_platform_id = self._clean_platform_field(song.artist_id)
+        artist_url = self._clean_platform_field(song.list_url)
+
+        if artist_url:
+            extracted = self._extract_platform_id_from_url(platform, "artist", artist_url)
+            if extracted:
+                artist_platform_id = artist_platform_id or extracted
+            else:
+                artist_url = None
+
+        if not artist_platform_id:
+            extracted_from_track = self._extract_platform_id_from_url(platform, "artist", song.url)
+            if extracted_from_track:
+                artist_platform_id = extracted_from_track
+
+        if not artist_platform_id:
+            return None, None
+
+        if not artist_url:
+            if platform == "soundcloud":
+                match = re.search(r"https?://(?:www\.)?soundcloud\.com/([^/?#]+)", song.url)
+                if match:
+                    artist_url = f"https://soundcloud.com/{match.group(1)}"
+            elif platform == "bandcamp":
+                match = re.search(r"https?://([^.]+)\.bandcamp\.com", song.url)
+                if match:
+                    artist_url = f"https://{match.group(1)}.bandcamp.com"
+
+        if not artist_url:
+            artist_url = self._build_platform_entity_url(platform, "artist", artist_platform_id)
+
+        return artist_platform_id, artist_url
+
+    def _resolve_album_platform_identity(self, song: Song) -> tuple[str | None, str | None]:
+        """Get best-effort album platform ID + URL from song data."""
+        platform = song.platform.value
+        album_platform_id = self._clean_platform_field(song.album_id)
+        album_url = self._clean_platform_field(song.list_url)
+
+        if album_url:
+            extracted = self._extract_platform_id_from_url(platform, "album", album_url)
+            if extracted:
+                album_platform_id = album_platform_id or extracted
+            else:
+                album_url = None
+
+        if not album_platform_id:
+            extracted_from_track = self._extract_platform_id_from_url(platform, "album", song.url)
+            if extracted_from_track:
+                album_platform_id = extracted_from_track
+
+        if not album_platform_id:
+            return None, None
+
+        if not album_url and platform == "apple_music" and "/album/" in song.url:
+            # Apple track URLs often point to the album page with a track query
+            # parameter. Drop query params to keep an album-refreshable URL.
+            album_url = song.url.split("?", 1)[0]
+
+        if not album_url:
+            if platform == "bandcamp":
+                match = re.search(r"https?://([^.]+)\.bandcamp\.com/album/([^/?#]+)", song.url)
+                if match:
+                    album_url = song.url
+                elif song.list_url and "/album/" in song.list_url:
+                    album_url = song.list_url
+
+        if not album_url:
+            album_url = self._build_platform_entity_url(platform, "album", album_platform_id)
+
+        return album_platform_id, album_url
+
     async def find_or_create_artist(
         self,
         name: str,
-        platform: str,
-        platform_id: str,
-        platform_url: str,
+        platform: str | None = None,
+        platform_id: str | None = None,
+        platform_url: str | None = None,
         image_url: str | None = None,
         genres: list[str] | None = None,
         followers: int | None = None,
@@ -133,12 +326,25 @@ class EntityPersistenceService:
         Returns:
             Tuple of (Artist, created_flag)
         """
+        platform = self._clean_platform_field(platform)
+        platform_id = self._clean_platform_field(platform_id)
+        platform_url = self._clean_platform_field(platform_url)
+
         # 1. Check if platform link already exists
-        existing_link = await self.artist_repo.get_platform_link(platform, platform_id)
-        if existing_link:
-            artist = await self.artist_repo.get_by_id_with_links(existing_link.artist_id)
-            if artist:
-                return artist, False
+        if platform and platform_id:
+            existing_link = await self.artist_repo.get_platform_link(platform, platform_id)
+            if existing_link:
+                artist = await self.artist_repo.get_by_id_with_links(existing_link.artist_id)
+                if artist:
+                    if image_url and not artist.image_url:
+                        artist.image_url = image_url
+                    if genres:
+                        existing_genres = set(artist.genres or [])
+                        artist.genres = list(existing_genres | set(genres))
+                    if followers is not None and existing_link.followers is None:
+                        existing_link.followers = followers
+                    await self.session.flush()
+                    return artist, False
 
         # 2. Try to find by normalized name
         name_normalized = self.normalize_name(name)
@@ -146,13 +352,14 @@ class EntityPersistenceService:
 
         if artist:
             # Link existing artist to this platform
-            await self.artist_repo.add_platform_link(
-                artist_id=artist.id,
-                platform=platform,
-                platform_id=platform_id,
-                platform_url=platform_url,
-                followers=followers,
-            )
+            if platform and platform_id and platform_url:
+                await self.artist_repo.add_platform_link(
+                    artist_id=artist.id,
+                    platform=platform,
+                    platform_id=platform_id,
+                    platform_url=platform_url,
+                    followers=followers,
+                )
             # Update image if we don't have one
             if image_url and not artist.image_url:
                 artist.image_url = image_url
@@ -170,22 +377,23 @@ class EntityPersistenceService:
             image_url=image_url,
             genres=genres or [],
         )
-        await self.artist_repo.add_platform_link(
-            artist_id=artist.id,
-            platform=platform,
-            platform_id=platform_id,
-            platform_url=platform_url,
-            followers=followers,
-        )
+        if platform and platform_id and platform_url:
+            await self.artist_repo.add_platform_link(
+                artist_id=artist.id,
+                platform=platform,
+                platform_id=platform_id,
+                platform_url=platform_url,
+                followers=followers,
+            )
         return artist, True
 
     async def find_or_create_album(
         self,
         name: str,
         artist_name: str,
-        platform: str,
-        platform_id: str,
-        platform_url: str,
+        platform: str | None = None,
+        platform_id: str | None = None,
+        platform_url: str | None = None,
         artist_id: uuid.UUID | None = None,
         cover_url: str | None = None,
         year: int | None = None,
@@ -208,12 +416,26 @@ class EntityPersistenceService:
         Returns:
             Tuple of (Album, created_flag)
         """
+        platform = self._clean_platform_field(platform)
+        platform_id = self._clean_platform_field(platform_id)
+        platform_url = self._clean_platform_field(platform_url)
+
         # 1. Check if platform link already exists
-        existing_link = await self.album_repo.get_platform_link(platform, platform_id)
-        if existing_link:
-            album = await self.album_repo.get_by_id_with_links(existing_link.album_id)
-            if album:
-                return album, False
+        if platform and platform_id:
+            existing_link = await self.album_repo.get_platform_link(platform, platform_id)
+            if existing_link:
+                album = await self.album_repo.get_by_id_with_links(existing_link.album_id)
+                if album:
+                    if artist_id and not album.artist_id:
+                        album.artist_id = artist_id
+                    if cover_url and not album.cover_url:
+                        album.cover_url = cover_url
+                    if year and not album.year:
+                        album.year = year
+                    if total_tracks and total_tracks > (album.total_tracks or 0):
+                        album.total_tracks = total_tracks
+                    await self.session.flush()
+                    return album, False
 
         # 2. Try to find by normalized name and artist
         name_normalized = self.normalize_name(name)
@@ -223,15 +445,22 @@ class EntityPersistenceService:
 
         if album:
             # Link existing album to this platform
-            await self.album_repo.add_platform_link(
-                album_id=album.id,
-                platform=platform,
-                platform_id=platform_id,
-                platform_url=platform_url,
-            )
+            if platform and platform_id and platform_url:
+                await self.album_repo.add_platform_link(
+                    album_id=album.id,
+                    platform=platform,
+                    platform_id=platform_id,
+                    platform_url=platform_url,
+                )
             # Update cover if we don't have one
             if cover_url and not album.cover_url:
                 album.cover_url = cover_url
+            if year and not album.year:
+                album.year = year
+            if total_tracks and total_tracks > (album.total_tracks or 0):
+                album.total_tracks = total_tracks
+            if artist_id and not album.artist_id:
+                album.artist_id = artist_id
             await self.session.flush()
             return album, False
 
@@ -245,12 +474,13 @@ class EntityPersistenceService:
             year=year,
             total_tracks=total_tracks,
         )
-        await self.album_repo.add_platform_link(
-            album_id=album.id,
-            platform=platform,
-            platform_id=platform_id,
-            platform_url=platform_url,
-        )
+        if platform and platform_id and platform_url:
+            await self.album_repo.add_platform_link(
+                album_id=album.id,
+                platform=platform,
+                platform_id=platform_id,
+                platform_url=platform_url,
+            )
         return album, True
 
     async def find_or_create_playlist(
@@ -328,16 +558,56 @@ class EntityPersistenceService:
         Returns:
             Tuple of (SongModel, created_flag)
         """
+        platform_id = (song.platform_id or "").strip()
+        if not platform_id:
+            # Keep platform identity stable even for providers that omit IDs in
+            # lightweight search responses.
+            if song.url:
+                platform_id = song.url.strip()
+            else:
+                platform_id = f"{self.normalize_name(song.artist)}:{self.normalize_name(song.name)}"
+            song.platform_id = platform_id
+
         # Check if song already exists
         existing = await self.song_repo.get_by_platform_id(
             song.platform.value, song.platform_id
         )
         if existing:
-            # Update links if provided and not set
-            if artist_id and not existing.artist_id:
+            # Keep existing rows fresh when the provider returns better data.
+            existing.name = song.name or existing.name
+            if song.artists:
+                existing.artists = song.artists
+            existing.album_name = song.album_name or existing.album_name
+            if song.duration > 0:
+                existing.duration_seconds = song.duration
+            if song.url:
+                existing.platform_url = song.url
+            if song.isrc:
+                existing.isrc = song.isrc
+            if song.json:
+                existing.metadata_json = song.json
+
+            # Update links if provided
+            if artist_id:
                 existing.artist_id = artist_id
-            if album_id and not existing.album_id:
+            if album_id:
                 existing.album_id = album_id
+
+            # Keep enriched fields synchronized
+            if song.genres:
+                existing.genres = song.genres
+            if song.copyright_text:
+                existing.copyright_text = song.copyright_text
+            if song.explicit is not None:
+                existing.explicit = song.explicit
+
+            from datetime import date as date_type
+            if song.year and song.year > 0:
+                try:
+                    existing.release_date = date_type(song.year, 1, 1)
+                except ValueError as e:
+                    logger.debug("Invalid year %d for song '%s': %s", song.year, song.name, e)
+
             await self.session.flush()
             return existing, False
 
@@ -401,10 +671,9 @@ class EntityPersistenceService:
 
                 # Get or create artist
                 if artist_normalized not in result.artist_ids:
-                    # Use song's artist_id if available, otherwise generate one
-                    artist_platform_id = song.artist_id or f"artist_{song.platform_id}"
-                    # Build artist URL from song URL pattern
-                    artist_url = f"https://{song.platform.value}.com/artist/{artist_platform_id}"
+                    artist_platform_id, artist_url = self._resolve_artist_platform_identity(
+                        song
+                    )
 
                     artist, created = await self.find_or_create_artist(
                         name=primary_artist,
@@ -412,6 +681,7 @@ class EntityPersistenceService:
                         platform_id=artist_platform_id,
                         platform_url=artist_url,
                         image_url=None,
+                        genres=song.genres if song.genres else None,
                     )
                     result.artist_ids[artist_normalized] = artist.id
                     if created:
@@ -428,12 +698,15 @@ class EntityPersistenceService:
                     album_key = f"{artist_normalized}:{album_normalized}"
 
                     if album_key not in result.album_ids:
-                        # Use song's album_id if available, otherwise generate one
-                        album_platform_id = song.album_id or f"album_{song.platform_id}"
-                        # Build album URL from song URL pattern
-                        album_url = f"https://{song.platform.value}.com/album/{album_platform_id}"
+                        album_platform_id, album_url = self._resolve_album_platform_identity(
+                            song
+                        )
                         album_cover = song.cover_url
                         album_year = song.year if song.year else None
+                        album_total_tracks = max(
+                            int(song.tracks_count or 0),
+                            int(song.list_length or 0),
+                        )
 
                         album, created = await self.find_or_create_album(
                             name=song.album_name,
@@ -444,6 +717,7 @@ class EntityPersistenceService:
                             artist_id=artist_id,
                             cover_url=album_cover,
                             year=album_year,
+                            total_tracks=album_total_tracks,
                         )
                         result.album_ids[album_key] = album.id
                         if created:

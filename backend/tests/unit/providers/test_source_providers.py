@@ -133,6 +133,24 @@ class TestYouTubeMusicProvider:
         )
         assert result == "UCabc123"
 
+    def test_get_url_type_browse_album(self) -> None:
+        """Test YT Music browse album URL type detection."""
+        assert (
+            YouTubeMusicProvider.get_url_type(
+                "https://music.youtube.com/browse/album_wuO4_P_8p-Q"
+            )
+            == "album"
+        )
+
+    def test_get_url_type_browse_artist(self) -> None:
+        """Test YT Music browse artist URL type detection."""
+        assert (
+            YouTubeMusicProvider.get_url_type(
+                "https://music.youtube.com/browse/UCabc123"
+            )
+            == "artist"
+        )
+
     def test_song_to_song(self) -> None:
         """Test converting YouTube Music song data to Song."""
         provider = YouTubeMusicProvider()
@@ -281,6 +299,7 @@ class TestProviderURLPatterns:
             "https://music.youtube.com/watch?v=abc123",
             "https://music.youtube.com/playlist?list=PLabc",
             "https://music.youtube.com/channel/UCabc",
+            "https://music.youtube.com/browse/album_wuO4_P_8p-Q",
         ],
     )
     def test_ytmusic_matches(self, url: str) -> None:

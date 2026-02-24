@@ -39,6 +39,21 @@ class YouTubeMusicProvider(SourceProvider):
     display_name = "YouTube Music"
     url_patterns = YTMUSIC_URL_PATTERNS
 
+    @classmethod
+    def get_url_type(cls, url: str) -> str | None:
+        """Determine the YouTube Music resource type from URL structure."""
+        url_lower = url.lower()
+        if "/watch" in url_lower and "v=" in url_lower:
+            return "track"
+        if "/playlist" in url_lower and "list=" in url_lower:
+            return "playlist"
+        if "/channel/" in url_lower:
+            return "artist"
+        if "/browse/" in url_lower:
+            browse_id = cls._extract_channel_id(url) or ""
+            return "artist" if browse_id.startswith("UC") else "album"
+        return None
+
     def __init__(self, auth_file: str | None = None) -> None:
         """
         Initialize the YouTube Music provider.
@@ -130,6 +145,13 @@ class YouTubeMusicProvider(SourceProvider):
         # Get album info
         album_data = song_data.get("album", {}) or {}
         album_name = album_data.get("name", "") if isinstance(album_data, dict) else ""
+        album_id = None
+        if isinstance(album_data, dict):
+            album_id = album_data.get("id") or album_data.get("browseId")
+
+        artist_id = None
+        if artists_data and isinstance(artists_data[0], dict):
+            artist_id = artists_data[0].get("id") or artists_data[0].get("browseId")
 
         # Get thumbnail
         thumbnails = song_data.get("thumbnails", [])
@@ -162,9 +184,11 @@ class YouTubeMusicProvider(SourceProvider):
             url=f"https://music.youtube.com/watch?v={video_id}",
             album_name=album_name,
             album_artist=primary_artist,
+            album_id=album_id,
             year=year,
             explicit=song_data.get("isExplicit", False),
             cover_url=cover_url,
+            artist_id=artist_id,
         )
 
         # Add list context if provided

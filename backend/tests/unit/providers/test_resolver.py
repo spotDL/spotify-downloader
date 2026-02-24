@@ -29,6 +29,7 @@ class TestDetectPlatform:
             ("https://music.youtube.com/watch?v=abc123", Platform.YOUTUBE_MUSIC),
             ("https://music.youtube.com/playlist?list=PLxyz", Platform.YOUTUBE_MUSIC),
             ("https://music.youtube.com/channel/UCxyz", Platform.YOUTUBE_MUSIC),
+            ("https://music.youtube.com/browse/album_wuO4_P_8p-Q", Platform.YOUTUBE_MUSIC),
             # Deezer URLs
             ("https://www.deezer.com/track/123456", Platform.DEEZER),
             ("https://deezer.com/album/789012", Platform.DEEZER),
@@ -97,7 +98,15 @@ class TestExtractUrlInfo:
         """Test extracting info from YouTube Music URL."""
         info = extract_url_info("https://music.youtube.com/watch?v=abc123xyz")
         assert info["platform"] == "youtube_music"
+        assert info["type"] == "track"
         assert info["id"] == "abc123xyz"
+
+    def test_extract_youtube_music_browse_album(self) -> None:
+        """Test extracting info from YouTube Music browse album URL."""
+        info = extract_url_info("https://music.youtube.com/browse/album_wuO4_P_8p-Q")
+        assert info["platform"] == "youtube_music"
+        assert info["type"] == "album"
+        assert info["id"] == "album_wuO4_P_8p-Q"
 
     def test_extract_unsupported(self) -> None:
         """Test extracting info from unsupported URL."""

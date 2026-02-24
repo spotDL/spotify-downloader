@@ -18,7 +18,7 @@ from spotdl.api.v1.dependencies import UserPreferences, get_user_preferences, ge
 from spotdl.core.metadata_embed_config import MetadataEmbedPreferences
 from spotdl.api.v1.validation import validate_uuid, UUIDPath, SkipQuery, LimitQuery
 from spotdl.core.services.entity import EntityPersistenceService
-from spotdl.core.services.song import get_song_service
+from spotdl.core.services.song import SongServiceError, UnsupportedURLError, get_song_service
 from spotdl.db.database import get_db_session
 from spotdl.db.models.album import Album
 from spotdl.db.models.artist import Artist
@@ -693,18 +693,33 @@ async def get_album(
 
     if needs_enrichment:
         try:
-            link = album.platform_links[0]
-            url = _build_platform_url(link.platform, "album", link.platform_id)
-            if url:
-                song_service = get_song_service()
-                song_list = await song_service.get_album(url)
-                if song_list.songs:
-                    entity_service = EntityPersistenceService(db)
-                    await entity_service.persist_from_search(song_list.songs)
-                    await db.commit()
-                    # Re-fetch songs after enrichment
-                    result = await db.execute(query)
-                    songs = result.scalars().all()
+            song_service = get_song_service()
+            song_list = None
+
+            for link in album.platform_links:
+                for candidate_url in _candidate_urls_for_link(link, "album"):
+                    try:
+                        song_list = await song_service.get_album(candidate_url)
+                        if song_list.songs:
+                            break
+                    except Exception as e:
+                        logger.debug(
+                            "Album lazy enrichment candidate failed (%s): %s",
+                            candidate_url,
+                            e,
+                        )
+                if song_list and song_list.songs:
+                    break
+
+            if song_list and song_list.songs:
+                entity_service = EntityPersistenceService(db)
+                await entity_service.persist_from_search(song_list.songs)
+                if len(song_list.songs) > (album.total_tracks or 0):
+                    album.total_tracks = len(song_list.songs)
+                await db.commit()
+                # Re-fetch songs after enrichment
+                result = await db.execute(query)
+                songs = result.scalars().all()
         except Exception as e:
             # Enrichment failed, continue with what we have
             logger.warning(f"Lazy album enrichment failed: {e}")
@@ -1303,6 +1318,29 @@ async def record_refresh_cooldown(
     await cooldown_repo.record_refresh(entity_type, entity_id, user_id)
 
 
+def _raise_refresh_error(error: Exception) -> None:
+    """Normalize provider/service refresh errors into actionable HTTP codes."""
+    if isinstance(error, HTTPException):
+        raise error
+
+    detail = str(error)
+    lowered = detail.lower()
+
+    if isinstance(error, UnsupportedURLError) or "unsupported url" in lowered:
+        status_code = 400
+    elif "invalid" in lowered and "url" in lowered:
+        status_code = 400
+    elif "not found" in lowered:
+        status_code = 404
+    elif isinstance(error, SongServiceError):
+        status_code = 502
+    else:
+        status_code = 500
+
+    logger.error("Refresh failed (%s): %s", status_code, detail)
+    raise HTTPException(status_code=status_code, detail=f"Failed to refresh: {detail}") from error
+
+
 @router.post("/songs/{id}/refresh")
 async def refresh_song(
     id: Annotated[str, Path(description="Internal song UUID")],
@@ -1325,18 +1363,37 @@ async def refresh_song(
     if not song:
         raise HTTPException(status_code=404, detail="Song not found")
 
-    # Build URL and refetch
-    url = _build_platform_url(song.platform, "track", song.platform_id)
-    if not url:
+    # Use stored source URL first, then fallback to reconstructed URL.
+    source_urls = []
+    if song.platform_url and song.platform_url.strip():
+        source_urls.append(song.platform_url.strip())
+    rebuilt_url = _build_platform_url(song.platform, "track", song.platform_id)
+    if rebuilt_url and rebuilt_url not in source_urls:
+        source_urls.append(rebuilt_url)
+
+    if not source_urls:
         raise HTTPException(status_code=400, detail="Cannot refresh from this platform")
 
     try:
         song_service = get_song_service()
-        track = await song_service.get_track(url)
+        track = None
+        for candidate_url in source_urls:
+            try:
+                track = await song_service.get_track(candidate_url)
+                break
+            except Exception as e:
+                logger.debug("Song refresh candidate failed (%s): %s", candidate_url, e)
+
+        if track is None:
+            raise HTTPException(status_code=400, detail="Cannot refresh from this platform")
 
         # Update the existing song with fresh data
         entity_service = EntityPersistenceService(db)
-        await entity_service.persist_song(track)
+        await entity_service.persist_song(
+            track,
+            artist_id=song.artist_id,
+            album_id=song.album_id,
+        )
 
         # Record cooldown
         await record_refresh_cooldown("song", song_uuid, current_user, db)
@@ -1345,8 +1402,7 @@ async def refresh_song(
 
         return RefreshResponse(success=True, message="Song metadata refreshed successfully")
     except Exception as e:
-        logger.error(f"Failed to refresh song: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to refresh: {str(e)}") from e
+        _raise_refresh_error(e)
 
 
 @router.post("/albums/{id}/refresh")
@@ -1371,32 +1427,91 @@ async def refresh_album(
     if not album:
         raise HTTPException(status_code=404, detail="Album not found")
 
-    # Get first platform link
-    if not album.platform_links:
-        raise HTTPException(status_code=400, detail="No platform link available for refresh")
-
-    link = album.platform_links[0]
-    url = _build_platform_url(link.platform, "album", link.platform_id)
-    if not url:
-        raise HTTPException(status_code=400, detail="Cannot refresh from this platform")
-
     try:
         song_service = get_song_service()
-        song_list = await song_service.get_album(url)
+        song_list = None
+
+        for link in album.platform_links:
+            for candidate_url in _candidate_urls_for_link(link, "album"):
+                try:
+                    song_list = await song_service.get_album(candidate_url)
+                    if song_list.songs:
+                        break
+                except Exception as e:
+                    logger.debug(
+                        "Album refresh candidate failed (%s): %s",
+                        candidate_url,
+                        e,
+                    )
+            if song_list and song_list.songs:
+                break
+
+        # Fallback for legacy rows with invalid synthetic platform links:
+        # derive album candidates from existing songs linked to this album.
+        if not song_list:
+            from sqlalchemy import select
+
+            song_rows = (
+                await db.execute(
+                    select(Song).where(Song.album_id == album_uuid).limit(100)
+                )
+            ).scalars().all()
+
+            fallback_urls: list[str] = []
+            for song_row in song_rows:
+                metadata = song_row.metadata_json or {}
+                list_url = metadata.get("list_url")
+                if isinstance(list_url, str) and list_url.startswith("http"):
+                    fallback_urls.append(list_url)
+
+                if song_row.platform == "apple_music" and "/album/" in song_row.platform_url:
+                    fallback_urls.append(song_row.platform_url.split("?", 1)[0])
+
+                album_platform_id = metadata.get("album_id")
+                if album_platform_id:
+                    built_url = _build_platform_url(
+                        song_row.platform,
+                        "album",
+                        str(album_platform_id),
+                    )
+                    if built_url:
+                        fallback_urls.append(built_url)
+
+            seen_urls: set[str] = set()
+            for candidate_url in fallback_urls:
+                if candidate_url in seen_urls:
+                    continue
+                seen_urls.add(candidate_url)
+                try:
+                    song_list = await song_service.get_album(candidate_url)
+                    if song_list.songs:
+                        break
+                except Exception as e:
+                    logger.debug(
+                        "Album refresh metadata fallback failed (%s): %s",
+                        candidate_url,
+                        e,
+                    )
+
+        if not song_list:
+            raise HTTPException(status_code=400, detail="Cannot refresh from this platform")
 
         if song_list.songs:
             entity_service = EntityPersistenceService(db)
             await entity_service.persist_from_search(song_list.songs)
+            if len(song_list.songs) > (album.total_tracks or 0):
+                album.total_tracks = len(song_list.songs)
 
             # Record cooldown
             await record_refresh_cooldown("album", album_uuid, current_user, db)
 
             await db.commit()
+        else:
+            raise HTTPException(status_code=404, detail="No tracks returned from source")
 
         return RefreshResponse(success=True, message="Album metadata refreshed successfully")
     except Exception as e:
-        logger.error(f"Failed to refresh album: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to refresh: {str(e)}") from e
+        _raise_refresh_error(e)
 
 
 @router.post("/artists/{id}/refresh")
@@ -1421,25 +1536,83 @@ async def refresh_artist(
     if not artist:
         raise HTTPException(status_code=404, detail="Artist not found")
 
-    # Get first platform link
-    if not artist.platform_links:
-        raise HTTPException(status_code=400, detail="No platform link available for refresh")
-
-    link = artist.platform_links[0]
-    url = _build_platform_url(link.platform, "artist", link.platform_id)
-    if not url:
-        raise HTTPException(status_code=400, detail="Cannot refresh from this platform")
-
     try:
         song_service = get_song_service()
-        song_list = await song_service.get_artist(url)
+        song_list = None
 
-        if song_list.songs:
-            entity_service = EntityPersistenceService(db)
-            await entity_service.persist_from_search(song_list.songs)
+        for link in artist.platform_links:
+            for candidate_url in _candidate_urls_for_link(link, "artist"):
+                try:
+                    song_list = await song_service.get_artist(candidate_url)
+                    if song_list.songs:
+                        break
+                except Exception as e:
+                    logger.debug(
+                        "Artist refresh candidate failed (%s): %s",
+                        candidate_url,
+                        e,
+                    )
+            if song_list and song_list.songs:
+                break
 
-        # Fetch artist image from Spotify if it's a Spotify link
-        if link.platform == "spotify":
+        # Fallback for legacy rows with invalid synthetic platform links:
+        # derive artist candidates from existing songs linked to this artist.
+        if not song_list:
+            from sqlalchemy import select
+
+            song_rows = (
+                await db.execute(
+                    select(Song).where(Song.artist_id == artist_uuid).limit(100)
+                )
+            ).scalars().all()
+
+            fallback_urls: list[str] = []
+            for song_row in song_rows:
+                metadata = song_row.metadata_json or {}
+                list_url = metadata.get("list_url")
+                if isinstance(list_url, str) and list_url.startswith("http"):
+                    fallback_urls.append(list_url)
+
+                artist_platform_id = metadata.get("artist_id")
+                if artist_platform_id:
+                    built_url = _build_platform_url(
+                        song_row.platform,
+                        "artist",
+                        str(artist_platform_id),
+                    )
+                    if built_url:
+                        fallback_urls.append(built_url)
+
+            seen_urls: set[str] = set()
+            for candidate_url in fallback_urls:
+                if candidate_url in seen_urls:
+                    continue
+                seen_urls.add(candidate_url)
+                try:
+                    song_list = await song_service.get_artist(candidate_url)
+                    if song_list.songs:
+                        break
+                except Exception as e:
+                    logger.debug(
+                        "Artist refresh metadata fallback failed (%s): %s",
+                        candidate_url,
+                        e,
+                    )
+
+        if not song_list:
+            raise HTTPException(status_code=400, detail="Cannot refresh from this platform")
+        if not song_list.songs:
+            raise HTTPException(status_code=404, detail="No tracks returned from source")
+
+        entity_service = EntityPersistenceService(db)
+        await entity_service.persist_from_search(song_list.songs)
+
+        spotify_link = next(
+            (platform_link for platform_link in artist.platform_links if platform_link.platform == "spotify"),
+            None,
+        )
+        # Fetch artist image from Spotify if a Spotify link exists
+        if spotify_link is not None:
             try:
                 import asyncio
                 from spotdl.core.types.song import Platform
@@ -1447,7 +1620,11 @@ async def refresh_artist(
                 if spotify_provider:
                     client = spotify_provider._get_client()
                     loop = asyncio.get_event_loop()
-                    artist_data = await loop.run_in_executor(None, client.artist, link.platform_id)
+                    artist_data = await loop.run_in_executor(
+                        None,
+                        client.artist,
+                        spotify_link.platform_id,
+                    )
                 else:
                     artist_data = None
 
@@ -1473,7 +1650,7 @@ async def refresh_artist(
                     # Update followers count in platform link
                     followers = artist_data.get("followers", {}).get("total")
                     if followers:
-                        link.followers = followers
+                        spotify_link.followers = followers
 
                     # Ensure changes are tracked
                     db.add(artist)
@@ -1489,8 +1666,7 @@ async def refresh_artist(
 
         return RefreshResponse(success=True, message="Artist metadata refreshed successfully")
     except Exception as e:
-        logger.error(f"Failed to refresh artist: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to refresh: {str(e)}") from e
+        _raise_refresh_error(e)
 
 
 @router.post("/playlists/{id}/refresh")
@@ -1515,39 +1691,79 @@ async def refresh_playlist(
     if not playlist:
         raise HTTPException(status_code=404, detail="Playlist not found")
 
-    # Get first platform link
-    if not playlist.platform_links:
-        raise HTTPException(status_code=400, detail="No platform link available for refresh")
-
-    link = playlist.platform_links[0]
-    url = _build_platform_url(link.platform, "playlist", link.platform_id)
-    if not url:
-        raise HTTPException(status_code=400, detail="Cannot refresh from this platform")
-
     try:
         song_service = get_song_service()
-        song_list = await song_service.get_playlist(url)
+        song_list = None
+
+        for link in playlist.platform_links:
+            for candidate_url in _candidate_urls_for_link(link, "playlist"):
+                try:
+                    song_list = await song_service.get_playlist(candidate_url)
+                    if song_list.songs:
+                        break
+                except Exception as e:
+                    logger.debug(
+                        "Playlist refresh candidate failed (%s): %s",
+                        candidate_url,
+                        e,
+                    )
+            if song_list and song_list.songs:
+                break
+
+        # Fallback for legacy rows with invalid synthetic platform links:
+        # derive playlist candidates from existing track metadata.
+        if not song_list:
+            fallback_urls: list[str] = []
+            for playlist_track in playlist.tracks:
+                metadata = (playlist_track.song.metadata_json or {}) if playlist_track.song else {}
+                list_url = metadata.get("list_url")
+                if isinstance(list_url, str) and list_url.startswith("http"):
+                    fallback_urls.append(list_url)
+
+            seen_urls: set[str] = set()
+            for candidate_url in fallback_urls:
+                if candidate_url in seen_urls:
+                    continue
+                seen_urls.add(candidate_url)
+                try:
+                    song_list = await song_service.get_playlist(candidate_url)
+                    if song_list.songs:
+                        break
+                except Exception as e:
+                    logger.debug(
+                        "Playlist refresh metadata fallback failed (%s): %s",
+                        candidate_url,
+                        e,
+                    )
+
+        if not song_list:
+            raise HTTPException(status_code=400, detail="Cannot refresh from this platform")
 
         if song_list.songs:
             entity_service = EntityPersistenceService(db)
             persist_result = await entity_service.persist_from_search(song_list.songs)
 
             # Update playlist tracks
+            await playlist_repo.clear_tracks(playlist.id)
             for i, song in enumerate(song_list.songs):
                 song_key = f"{song.platform.value}:{song.platform_id}"
                 song_id = persist_result.song_ids.get(song_key)
                 if song_id:
                     await playlist_repo.add_track(playlist.id, song_id, i)
 
+            if len(song_list.songs) > (playlist.total_tracks or 0):
+                playlist.total_tracks = len(song_list.songs)
+
             # Record cooldown
             await record_refresh_cooldown("playlist", playlist_uuid, current_user, db)
 
             await db.commit()
+        else:
+            raise HTTPException(status_code=404, detail="No tracks returned from source")
 
         return RefreshResponse(success=True, message="Playlist metadata refreshed successfully")
     except Exception as e:
-        logger.error(f"Failed to refresh playlist: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to refresh: {str(e)}") from e
+        _raise_refresh_error(e)
 
 
 class EnrichResponse(BaseModel):
@@ -1682,7 +1898,9 @@ def _build_platform_url(platform: str, entity_type: str, platform_id: str) -> st
         elif entity_type == "playlist":
             return f"https://music.youtube.com/playlist?list={platform_id}"
         elif entity_type == "artist":
-            return f"https://music.youtube.com/channel/{platform_id}"
+            if platform_id.startswith("UC"):
+                return f"https://music.youtube.com/channel/{platform_id}"
+            return f"https://music.youtube.com/browse/{platform_id}"
     elif platform == "soundcloud":
         # SoundCloud URLs are more complex, would need the full URL
         return None
@@ -1696,6 +1914,21 @@ def _build_platform_url(platform: str, entity_type: str, platform_id: str) -> st
         return None
 
     return None
+
+
+def _candidate_urls_for_link(link, entity_type: str) -> list[str]:
+    """Return preferred URL candidates for refreshing an entity link."""
+    candidates: list[str] = []
+
+    existing_url = (getattr(link, "platform_url", None) or "").strip()
+    if existing_url:
+        candidates.append(existing_url)
+
+    built_url = _build_platform_url(link.platform, entity_type, link.platform_id)
+    if built_url and built_url not in candidates:
+        candidates.append(built_url)
+
+    return candidates
 
 
 class FullEnrichmentResponse(BaseModel):

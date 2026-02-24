@@ -171,6 +171,7 @@ export function useMetadataSources(songId: string, options?: { enabled?: boolean
 export interface RefreshResponse {
   success: boolean;
   message: string;
+  cooldown_seconds?: number | null;
 }
 
 export async function refreshSongMetadata(songId: string): Promise<RefreshResponse> {

@@ -42,6 +42,7 @@ URL_PATTERNS: dict[Platform, list[re.Pattern[str]]] = {
         re.compile(r"https?://music\.youtube\.com/watch\?v=([a-zA-Z0-9_-]+)"),
         re.compile(r"https?://music\.youtube\.com/playlist\?list=([a-zA-Z0-9_-]+)"),
         re.compile(r"https?://music\.youtube\.com/channel/([a-zA-Z0-9_-]+)"),
+        re.compile(r"https?://music\.youtube\.com/browse/([a-zA-Z0-9_-]+)"),
     ],
     Platform.SOUNDCLOUD: [
         re.compile(r"https?://(?:www\.)?soundcloud\.com/([^/]+)/([^/]+)(?:/([^/]+))?"),
@@ -85,6 +86,22 @@ def extract_url_info(url: str) -> dict[str, str | None]:
 
     if platform is None:
         return {"platform": None, "type": None, "id": None}
+
+    # YouTube Music has multiple URL forms that don't consistently include a
+    # resource type token in the path.
+    if platform == Platform.YOUTUBE_MUSIC:
+        if match := re.search(r"[?&]v=([a-zA-Z0-9_-]+)", url):
+            return {"platform": platform.value, "type": "track", "id": match.group(1)}
+        if match := re.search(r"[?&]list=([a-zA-Z0-9_-]+)", url):
+            return {"platform": platform.value, "type": "playlist", "id": match.group(1)}
+        if match := re.search(r"/channel/([a-zA-Z0-9_-]+)", url):
+            return {"platform": platform.value, "type": "artist", "id": match.group(1)}
+        if match := re.search(r"/browse/([a-zA-Z0-9_-]+)", url):
+            browse_id = match.group(1)
+            # Channel-like browse IDs are artist pages; everything else is
+            # treated as album-style browse content.
+            url_type = "artist" if browse_id.startswith("UC") else "album"
+            return {"platform": platform.value, "type": url_type, "id": browse_id}
 
     url_type = None
     resource_id = None

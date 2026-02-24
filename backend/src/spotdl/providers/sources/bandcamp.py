@@ -635,13 +635,23 @@ class BandcampProvider(SourceProvider):
                     img = result.find("img")
                     cover_url = img.get("src") if img else None
 
+                    # Build a stable platform ID from Bandcamp URL parts
+                    url_info = self._extract_url_info(track_url)
+                    platform_id = ""
+                    if url_info.get("subdomain") and url_info.get("slug"):
+                        platform_id = f"{url_info['subdomain']}:{url_info['slug']}"
+                    elif url_info.get("slug"):
+                        platform_id = str(url_info["slug"])
+                    elif track_url:
+                        platform_id = track_url.rstrip("/").split("/")[-1]
+
                     song = Song(
                         name=name,
                         artists=[artist_name],
                         artist=artist_name,
                         duration=0,
                         platform=Platform.BANDCAMP,
-                        platform_id="",
+                        platform_id=platform_id,
                         url=track_url,
                         cover_url=cover_url,
                     )

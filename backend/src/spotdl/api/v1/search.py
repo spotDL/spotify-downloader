@@ -290,7 +290,12 @@ async def _search_url(
 
             # Add album result (deduplicated)
             if song.album_name:
-                album_key = f"{artist_normalized}:{EntityPersistenceService.normalize_name(song.album_name)}"
+                artist_norm = (
+                    EntityPersistenceService.normalize_name(song.artists[0])
+                    if song.artists
+                    else ""
+                )
+                album_key = f"{artist_norm}:{EntityPersistenceService.normalize_name(song.album_name)}"
                 if album_key not in seen_albums:
                     album_id = persist_result.album_ids.get(album_key)
                     if album_id:
@@ -357,13 +362,24 @@ async def _search_text(
             *[search_platform(p) for p in SEARCHABLE_PLATFORMS]
         )
 
-        # Flatten results and remove duplicates
+        # Interleave provider results (round-robin) so one provider cannot
+        # starve all others when applying the global limit.
         all_songs = []
         seen_isrcs: set[str] = set()
         seen_keys: set[str] = set()
+        indices = [0 for _ in platform_results]
 
-        for songs in platform_results:
-            for song in songs:
+        while len(all_songs) < limit:
+            any_added_this_pass = False
+
+            for platform_index, songs in enumerate(platform_results):
+                current_index = indices[platform_index]
+                if current_index >= len(songs):
+                    continue
+
+                song = songs[current_index]
+                indices[platform_index] += 1
+
                 # Deduplicate by ISRC if available
                 if song.isrc and song.isrc in seen_isrcs:
                     continue
@@ -377,9 +393,13 @@ async def _search_text(
                 seen_keys.add(key)
 
                 all_songs.append(song)
+                any_added_this_pass = True
 
-        # Limit total results
-        all_songs = all_songs[:limit]
+                if len(all_songs) >= limit:
+                    break
+
+            if not any_added_this_pass:
+                break
 
         logger.debug(f"Text search for '{query}' found {len(all_songs)} songs after deduplication")
 

@@ -3,6 +3,8 @@ import { clsx } from "clsx";
 import { Button } from "./button";
 import { useAuthStore } from "@/stores/auth";
 
+const DEFAULT_COOLDOWN_SECONDS = 4 * 60 * 60;
+
 interface RefreshMetadataButtonProps {
   /** Unique entity ID for tracking cooldown per entity */
   entityId: string;
@@ -73,22 +75,29 @@ function recordCooldown(entityId: string, retryAfterSeconds: number): void {
 }
 
 /**
- * Clear cooldown for an entity
- */
-function clearCooldown(entityId: string): void {
-  const key = getCooldownKey(entityId);
-  localStorage.removeItem(key);
-}
-
-/**
  * Check if error is a 429 rate limit error
  */
 function isCooldownError(error: unknown): error is { response?: { status: number; headers?: Headers }; status?: number } {
   if (error && typeof error === "object") {
+    const enriched = error as {
+      response?: { status?: number };
+      status?: number;
+      cause?: { response?: { status?: number }; status?: number };
+    };
+
+    if (enriched.status === 429 || enriched.cause?.status === 429) {
+      return true;
+    }
+
     // Axios-style error
     if ("response" in error && (error as { response?: { status?: number } }).response?.status === 429) {
       return true;
     }
+
+    if (enriched.cause?.response?.status === 429) {
+      return true;
+    }
+
     // Fetch-style error
     if ("status" in error && (error as { status?: number }).status === 429) {
       return true;
@@ -102,12 +111,23 @@ function isCooldownError(error: unknown): error is { response?: { status: number
  */
 function getRetryAfterSeconds(error: unknown): number {
   // Default to 4 hours if we can't parse
-  const defaultSeconds = 4 * 60 * 60;
+  const defaultSeconds = DEFAULT_COOLDOWN_SECONDS;
 
   try {
-    // Try to get from error message (e.g., "Try again in 3h 45m")
-    if (error && typeof error === "object" && "response" in error) {
-      const response = (error as { response?: { data?: { detail?: string } } }).response;
+    if (error && typeof error === "object") {
+      const enriched = error as {
+        response?: { data?: { detail?: string }; headers?: Record<string, string | number | undefined> };
+        cause?: { response?: { data?: { detail?: string }; headers?: Record<string, string | number | undefined> } };
+      };
+      const response = enriched.response ?? enriched.cause?.response;
+      const retryAfterRaw =
+        response?.headers?.["retry-after"] ?? response?.headers?.["Retry-After"];
+      const retryAfter = Number(retryAfterRaw);
+      if (!Number.isNaN(retryAfter) && retryAfter > 0) {
+        return Math.floor(retryAfter);
+      }
+
+      // Try to get from error message (e.g., "Try again in 3h 45m")
       const detail = response?.data?.detail;
       if (detail && typeof detail === "string") {
         // Parse "Try again in Xh Ym" format
@@ -183,9 +203,10 @@ export function RefreshMetadataButton({
         await onEnrich();
       }
 
-      // Clear any cached cooldown on success (server tracks the real cooldown)
+      // Server enforces a 4h cooldown for non-admin users; mirror that locally.
       if (!isAdmin) {
-        clearCooldown(entityId);
+        recordCooldown(entityId, DEFAULT_COOLDOWN_SECONDS);
+        updateCooldown();
       }
 
       setFeedback("success");

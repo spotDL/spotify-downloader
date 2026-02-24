@@ -1523,7 +1523,7 @@ class TestRefreshWithNoLinks:
         )
 
         assert response.status_code == 400
-        assert "No platform link" in response.json()["detail"]
+        assert "Cannot refresh" in response.json()["detail"]
 
     async def test_refresh_artist_no_platform_links(
         self, authenticated_client: AsyncClient, db_session: AsyncSession
@@ -1542,7 +1542,7 @@ class TestRefreshWithNoLinks:
         )
 
         assert response.status_code == 400
-        assert "No platform link" in response.json()["detail"]
+        assert "Cannot refresh" in response.json()["detail"]
 
     async def test_refresh_playlist_no_platform_links(
         self, authenticated_client: AsyncClient, db_session: AsyncSession
@@ -1562,7 +1562,7 @@ class TestRefreshWithNoLinks:
         )
 
         assert response.status_code == 400
-        assert "No platform link" in response.json()["detail"]
+        assert "Cannot refresh" in response.json()["detail"]
 
 
 # Tests for complex enrichment scenarios

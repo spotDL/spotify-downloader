@@ -621,7 +621,7 @@ function SearchPage() {
             <section className="space-y-0">
               <SectionDivider type="artist" count={artists.length} />
               <div className="flex gap-2 overflow-x-auto pb-4 -mx-2 px-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-zinc-700">
-                {artists.slice(0, 10).map((result) => (
+                {artists.map((result) => (
                   <ArtistCard key={result.id} result={result} onAddToQueue={handleAddToQueue} />
                 ))}
               </div>
@@ -634,13 +634,13 @@ function SearchPage() {
               <SectionDivider type="album" count={albums.length} />
               {viewMode === "grid" ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                  {albums.slice(0, 12).map((result) => (
+                  {albums.map((result) => (
                     <AlbumCard key={result.id} result={result} onAddToQueue={handleAddToQueue} />
                   ))}
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {albums.slice(0, 8).map((result) => (
+                  {albums.map((result) => (
                     <SearchResultCard key={result.id} result={result} size="large" onAddToQueue={handleAddToQueue} />
                   ))}
                 </div>
@@ -670,7 +670,7 @@ function SearchPage() {
             <section className="space-y-0">
               <SectionDivider type="playlist" count={playlists.length} />
               <div className="space-y-2">
-                {playlists.slice(0, 8).map((result) => (
+                {playlists.map((result) => (
                   <SearchResultCard key={result.id} result={result} size="large" onAddToQueue={handleAddToQueue} />
                 ))}
               </div>
