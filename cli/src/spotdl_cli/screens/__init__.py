@@ -1,5 +1,7 @@
 """Textual screens for SpotDL CLI."""
 
+from spotdl_cli.screens.account import AccountScreen
+from spotdl_cli.screens.admin import AdminScreen
 from spotdl_cli.screens.album import AlbumScreen
 from spotdl_cli.screens.artist import ArtistScreen
 from spotdl_cli.screens.main import MainScreen
@@ -10,6 +12,8 @@ from spotdl_cli.screens.settings import SettingsScreen
 from spotdl_cli.screens.track import TrackScreen
 
 __all__ = [
+    "AccountScreen",
+    "AdminScreen",
     "AlbumScreen",
     "ArtistScreen",
     "MainScreen",

@@ -25,6 +25,7 @@ from spotdl_cli.screens.main import MainScreen
 from spotdl_cli.screens.onboarding import OnboardingScreen, should_show_onboarding
 from spotdl_cli.screens.queue import QueueScreen
 from spotdl_cli.screens.settings import SettingsScreen
+from spotdl_cli.providers import SpotDLCommandProvider
 
 if TYPE_CHECKING:
     from textual.screen import Screen
@@ -38,6 +39,8 @@ class SpotDLApp(App[None]):
     TITLE = "SpotDL"
     SUB_TITLE = f"v{__version__}"
     CSS_PATH = "app.tcss"
+    
+    COMMANDS = App.COMMANDS | {SpotDLCommandProvider}
 
     BINDINGS: ClassVar[list[Binding]] = [
         Binding("q", "quit", "Quit", priority=True),

@@ -1,0 +1,8 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+watchPatterns = ["frontend/**"]
+
+[deploy]
+healthcheckPath = "/"
+restartPolicyType = "ON_FAILURE"

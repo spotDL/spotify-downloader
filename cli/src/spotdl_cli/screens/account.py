@@ -50,6 +50,7 @@ class AccountScreen(Screen[None]):
                 yield Static("", id="profile-role", classes="account-field")
                 yield Static("", id="profile-member-since", classes="account-field")
                 yield Static("", id="profile-status", classes="account-field")
+                yield Button("Admin Dashboard", id="admin-dashboard-btn", variant="success", classes="hidden")
 
             # Reputation card
             with Vertical(id="reputation-card", classes="card settings-group hidden"):
@@ -200,6 +201,12 @@ class AccountScreen(Screen[None]):
         )
         role_text = "Admin" if is_admin else "User"
         self.query_one("#profile-role", Static).update(f"Role: {role_text}")
+        
+        admin_btn = self.query_one("#admin-dashboard-btn", Button)
+        if is_admin:
+            admin_btn.remove_class("hidden")
+        else:
+            admin_btn.add_class("hidden")
 
         if created_at:
             date_str = created_at[:10] if len(created_at) >= 10 else created_at
@@ -230,6 +237,9 @@ class AccountScreen(Screen[None]):
         if button_id == "sign-in-btn":
             from spotdl_cli.screens.login import LoginScreen
             await self.app.push_screen(LoginScreen(), self._on_login_complete)
+        elif button_id == "admin-dashboard-btn":
+            from spotdl_cli.screens.admin import AdminScreen
+            await self.app.push_screen(AdminScreen())
         elif button_id == "change-password-btn":
             await self._change_password()
         elif button_id == "logout-btn":

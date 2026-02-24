@@ -930,7 +930,7 @@ class TestAPIClient:
             mock_http.get = AsyncMock(return_value=mock_response)
             mock_get.return_value = mock_http
 
-            result = await client.get_metadata_sources()
+            result = await client.get_metadata_sources("song123")
 
             assert "musicbrainz" in result.get("sources", [])
 

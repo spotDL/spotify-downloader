@@ -1560,6 +1560,155 @@ class APIClient:
         except httpx.HTTPError as e:
             raise APIError(f"Request failed: {e}") from e
 
+    async def get_admin_stats(self) -> dict[str, Any]:
+        """Get admin dashboard statistics."""
+        try:
+            client = await self._get_client()
+            response = await client.get("/api/v1/admin/stats")
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def get_admin_matches(
+        self, status: str | None = None, limit: int = 50, offset: int = 0
+    ) -> dict[str, Any]:
+        """Get matches for admin review."""
+        try:
+            client = await self._get_client()
+            params = {"limit": limit, "offset": offset}
+            if status:
+                params["status"] = status
+            response = await client.get("/api/v1/admin/matches", params=params)
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def approve_match(self, match_id: str) -> dict[str, Any]:
+        """Approve a match submission."""
+        try:
+            client = await self._get_client()
+            response = await client.post(f"/api/v1/admin/matches/{match_id}/approve")
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def reject_match(self, match_id: str) -> dict[str, Any]:
+        """Reject a match submission."""
+        try:
+            client = await self._get_client()
+            response = await client.post(f"/api/v1/admin/matches/{match_id}/reject")
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def get_admin_reports(
+        self, status: str | None = None, limit: int = 50, offset: int = 0
+    ) -> dict[str, Any]:
+        """Get reports for admin review."""
+        try:
+            client = await self._get_client()
+            params = {"limit": limit, "offset": offset}
+            if status:
+                params["status"] = status
+            response = await client.get("/api/v1/admin/reports", params=params)
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def resolve_report(
+        self, report_id: str, action: str, details: str = ""
+    ) -> dict[str, Any]:
+        """Resolve a report."""
+        try:
+            client = await self._get_client()
+            response = await client.post(
+                f"/api/v1/admin/reports/{report_id}/resolve",
+                json={"action": action, "details": details},
+            )
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def get_admin_users(
+        self, limit: int = 50, offset: int = 0
+    ) -> dict[str, Any]:
+        """Get users for admin view."""
+        try:
+            client = await self._get_client()
+            response = await client.get(
+                "/api/v1/admin/users", params={"limit": limit, "offset": offset}
+            )
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def update_user_role(self, user_id: str, is_admin: bool) -> dict[str, Any]:
+        """Update a user's role."""
+        try:
+            client = await self._get_client()
+            response = await client.patch(
+                f"/api/v1/admin/users/{user_id}/role", json={"is_admin": is_admin}
+            )
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def ban_user(self, user_id: str, reason: str = "") -> dict[str, Any]:
+        """Ban or unban a user."""
+        try:
+            client = await self._get_client()
+            response = await client.post(
+                f"/api/v1/admin/users/{user_id}/ban", json={"reason": reason}
+            )
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
 
 # Global client instance
 _api_client: APIClient | None = None
