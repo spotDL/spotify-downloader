@@ -54,6 +54,10 @@ interface DiscoverApiResponse {
   top_relations: Record<string, RelationApiResponse[]>;
 }
 
+type DiscoverEntityType = EntityApiResponse["type"];
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const entityIdResolutionCache = new Map<string, string>();
+
 interface EntitySnapshotsApiResponse {
   entity_id: string;
   snapshots: Array<{
@@ -111,6 +115,138 @@ function asBool(value: unknown, fallback = false): boolean {
   return typeof value === "boolean" ? value : fallback;
 }
 
+function isUuid(value: string): boolean {
+  return UUID_REGEX.test(value);
+}
+
+function buildCandidateUrls(entityId: string, expectedType?: DiscoverEntityType): string[] {
+  if (!entityId || entityId.includes("/") || entityId.includes(":")) {
+    return [];
+  }
+
+  const candidates = new Set<string>();
+  const add = (url: string) => candidates.add(url);
+  const type = expectedType ?? "track";
+
+  if (type === "track") {
+    add(`https://open.spotify.com/track/${entityId}`);
+    add(`https://www.youtube.com/watch?v=${entityId}`);
+    add(`https://music.youtube.com/watch?v=${entityId}`);
+  }
+  if (type === "album") {
+    add(`https://open.spotify.com/album/${entityId}`);
+    add(`https://music.youtube.com/browse/${entityId}`);
+  }
+  if (type === "artist") {
+    add(`https://open.spotify.com/artist/${entityId}`);
+    add(`https://music.youtube.com/channel/${entityId}`);
+    add(`https://music.youtube.com/browse/${entityId}`);
+  }
+  if (type === "playlist") {
+    add(`https://open.spotify.com/playlist/${entityId}`);
+    add(`https://www.youtube.com/playlist?list=${entityId}`);
+    add(`https://music.youtube.com/playlist?list=${entityId}`);
+    add(`https://music.youtube.com/browse/${entityId}`);
+  }
+
+  if (!expectedType) {
+    add(`https://open.spotify.com/track/${entityId}`);
+    add(`https://open.spotify.com/album/${entityId}`);
+    add(`https://open.spotify.com/artist/${entityId}`);
+    add(`https://open.spotify.com/playlist/${entityId}`);
+  }
+
+  return Array.from(candidates);
+}
+
+function pickDiscoveredEntity(
+  entities: EntityApiResponse[],
+  expectedType?: DiscoverEntityType
+): EntityApiResponse | null {
+  if (!entities.length) return null;
+  if (expectedType) {
+    return entities.find((entity) => entity.type === expectedType) ?? null;
+  }
+  return entities[0];
+}
+
+async function discoverEntity(
+  payload: { query?: string; url?: string; types?: string[]; limit?: number },
+  expectedType?: DiscoverEntityType
+): Promise<EntityApiResponse | null> {
+  try {
+    const response = await apiClient.post<DiscoverApiResponse>("/entities/discover", payload);
+    return pickDiscoveredEntity(response.data.entities, expectedType);
+  } catch {
+    return null;
+  }
+}
+
+export async function resolveEntityId(
+  entityIdOrExternalId: string,
+  expectedType?: DiscoverEntityType
+): Promise<string> {
+  if (!entityIdOrExternalId) {
+    throw new Error("Entity ID is required");
+  }
+
+  if (isUuid(entityIdOrExternalId)) {
+    return entityIdOrExternalId;
+  }
+
+  const cacheKey = `${expectedType ?? "any"}:${entityIdOrExternalId}`;
+  const cached = entityIdResolutionCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const isUrl = entityIdOrExternalId.startsWith("http://") || entityIdOrExternalId.startsWith("https://");
+
+  const byUrl = isUrl
+    ? await discoverEntity(
+      {
+        url: entityIdOrExternalId,
+        types: expectedType ? [expectedType] : undefined,
+        limit: 20,
+      },
+      expectedType
+    )
+    : null;
+  if (byUrl) {
+    entityIdResolutionCache.set(cacheKey, byUrl.id);
+    return byUrl.id;
+  }
+
+  const byQuery = await discoverEntity(
+    {
+      query: entityIdOrExternalId,
+      types: expectedType ? [expectedType] : undefined,
+      limit: 20,
+    },
+    expectedType
+  );
+  if (byQuery) {
+    entityIdResolutionCache.set(cacheKey, byQuery.id);
+    return byQuery.id;
+  }
+
+  const fallbackUrls = buildCandidateUrls(entityIdOrExternalId, expectedType);
+  for (const url of fallbackUrls) {
+    const found = await discoverEntity(
+      { url, types: expectedType ? [expectedType] : undefined, limit: 20 },
+      expectedType
+    );
+    if (found) {
+      entityIdResolutionCache.set(cacheKey, found.id);
+      return found.id;
+    }
+  }
+
+  throw new Error(
+    `Could not resolve '${entityIdOrExternalId}' to a canonical entity ID`
+  );
+}
+
 function buildPlatformFromCanonical(canonical: Record<string, unknown>): PlatformInfo[] {
   const platform = asString(canonical.platform);
   const platformId = asString(canonical.platform_id);
@@ -156,17 +292,20 @@ function relationTargetToSong(target: EntityApiResponse): InternalSong {
 }
 
 async function getEntity(entityId: string): Promise<EntityApiResponse> {
-  const response = await apiClient.get<EntityApiResponse>(`/entities/${entityId}`);
+  const resolvedId = await resolveEntityId(entityId);
+  const response = await apiClient.get<EntityApiResponse>(`/entities/${resolvedId}`);
   return response.data;
 }
 
 async function getEntitySnapshots(entityId: string): Promise<EntitySnapshotsApiResponse> {
-  const response = await apiClient.get<EntitySnapshotsApiResponse>(`/entities/${entityId}/snapshots`);
+  const resolvedId = await resolveEntityId(entityId);
+  const response = await apiClient.get<EntitySnapshotsApiResponse>(`/entities/${resolvedId}/snapshots`);
   return response.data;
 }
 
 async function getEntityRelations(entityId: string, relationType = "audio_match"): Promise<RelationsApiResponse> {
-  const response = await apiClient.get<RelationsApiResponse>(`/entities/${entityId}/relations`, {
+  const resolvedId = await resolveEntityId(entityId);
+  const response = await apiClient.get<RelationsApiResponse>(`/entities/${resolvedId}/relations`, {
     params: { relation_type: relationType },
   });
   return response.data;
@@ -486,7 +625,8 @@ export interface MetadataSourcesResponse {
 }
 
 export async function getSongMetadataSources(songId: string): Promise<MetadataSourcesResponse> {
-  const response = await apiClient.get<EntitySnapshotsApiResponse>(`/entities/${songId}/snapshots`);
+  const resolvedId = await resolveEntityId(songId, "track");
+  const response = await apiClient.get<EntitySnapshotsApiResponse>(`/entities/${resolvedId}/snapshots`);
   const sources = response.data.snapshots.map((snapshot) => snapshot.provider_id);
   return {
     song_id: songId,
@@ -517,7 +657,8 @@ export interface RefreshResponse {
 }
 
 async function refreshEntityMetadata(entityId: string): Promise<RefreshApiResponse> {
-  const response = await apiClient.post<RefreshApiResponse>(`/entities/${entityId}/refresh`, {});
+  const resolvedId = await resolveEntityId(entityId);
+  const response = await apiClient.post<RefreshApiResponse>(`/entities/${resolvedId}/refresh`, {});
   return response.data;
 }
 
@@ -643,7 +784,8 @@ export async function getMetadataSnapshots(
   songId: string,
   _includeRaw = false
 ): Promise<TypedMetadataSourcesResponse> {
-  const response = await apiClient.get<EntitySnapshotsApiResponse>(`/entities/${songId}/snapshots`);
+  const resolvedId = await resolveEntityId(songId, "track");
+  const response = await apiClient.get<EntitySnapshotsApiResponse>(`/entities/${resolvedId}/snapshots`);
   return {
     songId: songId,
     sources: response.data.snapshots.map((snapshot) => snapshot.provider_id),
