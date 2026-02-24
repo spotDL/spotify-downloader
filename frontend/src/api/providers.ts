@@ -35,7 +35,7 @@ export const providerKeys = {
  * Get all available providers grouped by category.
  */
 export async function getProviders(): Promise<ProvidersResponse> {
-  const response = await apiClient.get<ProvidersResponse>("/api/v1/providers");
+  const response = await apiClient.get<ProvidersResponse>("/providers");
   return response.data;
 }
 
@@ -43,7 +43,7 @@ export async function getProviders(): Promise<ProvidersResponse> {
  * Get default provider preferences.
  */
 export async function getDefaultProviderPreferences(): Promise<DefaultPreferencesResponse> {
-  const response = await apiClient.get<DefaultPreferencesResponse>("/api/v1/providers/defaults");
+  const response = await apiClient.get<DefaultPreferencesResponse>("/providers/defaults");
   return response.data;
 }
 

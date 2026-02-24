@@ -1,47 +1,226 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "./client";
 import type {
-  EntityType,
-  EnhancedArtist,
   EnhancedAlbum,
-  InternalPlaylist,
+  EnhancedArtist,
   EnhancedSong,
-  UniversalSearchResponse,
+  EntityType,
+  InternalPlaylist,
+  InternalSong,
+  PlatformInfo,
   UniversalSearchRequest,
+  UniversalSearchResponse,
 } from "@/types";
+import type {
+  AllLyricsResponse,
+  FullEnrichmentResult,
+  MetadataSnapshot,
+  MetadataSourcesResponse as TypedMetadataSourcesResponse,
+} from "@/types/metadata";
 
-// API functions for internal ID-based system
+interface EntityApiResponse {
+  id: string;
+  type: "track" | "album" | "artist" | "playlist";
+  name: string;
+  canonical: Record<string, unknown>;
+  capabilities: Record<string, unknown>;
+  quality_score: number;
+  last_merged_at: string;
+  merge_version: number;
+}
 
-export async function getArtistById(id: string): Promise<EnhancedArtist> {
-  const response = await apiClient.get<EnhancedArtist>(`/entities/artists/${id}`);
+interface RelationApiResponse {
+  id: string;
+  from_entity_id: string;
+  to_entity_id: string;
+  relation_type: string;
+  match_score: number | null;
+  confidence: number;
+  status: string;
+  discovered_by: string | null;
+  upvotes: number;
+  downvotes: number;
+  net_votes: number;
+  relation_data: Record<string, unknown>;
+  target: EntityApiResponse | null;
+}
+
+interface DiscoverApiResponse {
+  query: string;
+  query_type: "url" | "text";
+  entities: EntityApiResponse[];
+  total: number;
+  entities_created: number;
+  top_relations: Record<string, RelationApiResponse[]>;
+}
+
+interface EntitySnapshotsApiResponse {
+  entity_id: string;
+  snapshots: Array<{
+    id: string;
+    provider_id: string;
+    provider_entity_id: string | null;
+    provider_url: string | null;
+    normalized_payload: Record<string, unknown>;
+    raw_payload: Record<string, unknown>;
+    confidence: number;
+    fetched_at: string;
+    expires_at: string | null;
+    capabilities: Record<string, unknown>;
+  }>;
+  provenance: Array<{
+    id: string;
+    field_name: string;
+    snapshot_id: string;
+    score: number;
+    selected: boolean;
+    reason: string | null;
+  }>;
+}
+
+interface RelationsApiResponse {
+  entity_id: string;
+  relations: RelationApiResponse[];
+  total: number;
+}
+
+interface RefreshApiResponse {
+  entity: EntityApiResponse;
+  refreshed_snapshots: number;
+  failed_providers: Array<{ provider_id: string; error: string }>;
+}
+
+function asString(value: unknown, fallback = ""): string {
+  return typeof value === "string" ? value : fallback;
+}
+
+function asNumber(value: unknown, fallback = 0): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function asNullableNumber(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function asStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === "string");
+}
+
+function asBool(value: unknown, fallback = false): boolean {
+  return typeof value === "boolean" ? value : fallback;
+}
+
+function buildPlatformFromCanonical(canonical: Record<string, unknown>): PlatformInfo[] {
+  const platform = asString(canonical.platform);
+  const platformId = asString(canonical.platform_id);
+  const url = asString(canonical.url);
+  if (!platform) return [];
+  return [{ platform, platform_id: platformId, url }];
+}
+
+function buildPlatformsFromSnapshots(snapshots: EntitySnapshotsApiResponse["snapshots"]): PlatformInfo[] {
+  const seen = new Set<string>();
+  const platforms: PlatformInfo[] = [];
+  for (const snapshot of snapshots) {
+    const key = `${snapshot.provider_id}:${snapshot.provider_entity_id || snapshot.provider_url || ""}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    platforms.push({
+      platform: snapshot.provider_id,
+      platform_id: snapshot.provider_entity_id || "",
+      url: snapshot.provider_url || asString(snapshot.normalized_payload.url),
+    });
+  }
+  return platforms;
+}
+
+function relationTargetToSong(target: EntityApiResponse): InternalSong {
+  const canonical = target.canonical || {};
+  return {
+    id: target.id,
+    name: target.name,
+    artists: asStringArray(canonical.artists).length > 0 ? asStringArray(canonical.artists) : [asString(canonical.artist, "Unknown")],
+    artist: asString(canonical.artist, "Unknown"),
+    artist_id: asString(canonical.artist_id) || null,
+    duration: asNumber(canonical.duration, 0),
+    album_name: asString(canonical.album_name) || null,
+    album_id: asString(canonical.album_id) || null,
+    cover_url: asString(canonical.cover_url) || null,
+    isrc: asString(canonical.isrc) || null,
+    year: asNullableNumber(canonical.year),
+    platforms: buildPlatformFromCanonical(canonical),
+    matches_count: 0,
+    explicit: asBool(canonical.explicit, false),
+  };
+}
+
+async function getEntity(entityId: string): Promise<EntityApiResponse> {
+  const response = await apiClient.get<EntityApiResponse>(`/entities/${entityId}`);
   return response.data;
 }
 
-export async function getAlbumById(id: string): Promise<EnhancedAlbum> {
-  const response = await apiClient.get<EnhancedAlbum>(`/entities/albums/${id}`);
+async function getEntitySnapshots(entityId: string): Promise<EntitySnapshotsApiResponse> {
+  const response = await apiClient.get<EntitySnapshotsApiResponse>(`/entities/${entityId}/snapshots`);
   return response.data;
 }
 
-export async function getPlaylistById(id: string): Promise<InternalPlaylist> {
-  const response = await apiClient.get<InternalPlaylist>(
-    `/entities/playlists/${id}`
-  );
+async function getEntityRelations(entityId: string, relationType = "audio_match"): Promise<RelationsApiResponse> {
+  const response = await apiClient.get<RelationsApiResponse>(`/entities/${entityId}/relations`, {
+    params: { relation_type: relationType },
+  });
   return response.data;
 }
 
-export async function getSongById(id: string): Promise<EnhancedSong> {
-  const response = await apiClient.get<EnhancedSong>(`/entities/songs/${id}`);
-  return response.data;
+function mapEntityToSearchResult(entity: EntityApiResponse) {
+  const canonical = entity.canonical || {};
+  const entityType = entity.type as EntityType;
+  let subtitle: string | null = null;
+  if (entityType === "track") {
+    subtitle = asString(canonical.artist) || asStringArray(canonical.artists).join(", ") || null;
+  } else if (entityType === "album") {
+    subtitle = asString(canonical.artist) || null;
+  } else if (entityType === "artist") {
+    subtitle = "Artist";
+  } else if (entityType === "playlist") {
+    subtitle = asString(canonical.owner) || "Playlist";
+  }
+
+  return {
+    id: entity.id,
+    entity_type: entityType,
+    name: entity.name,
+    subtitle,
+    image_url: asString(canonical.cover_url) || null,
+    platforms: buildPlatformFromCanonical(canonical),
+    duration: asNullableNumber(canonical.duration),
+  };
 }
 
 export async function universalSearch(
   request: UniversalSearchRequest
 ): Promise<UniversalSearchResponse> {
-  const response = await apiClient.post<UniversalSearchResponse>(
-    "/search",
-    request
-  );
-  return response.data;
+  const payload: { query?: string; url?: string; types?: string[]; limit?: number } = {
+    limit: request.limit ?? 20,
+  };
+  const query = request.query.trim();
+  if (query.startsWith("http://") || query.startsWith("https://")) {
+    payload.url = query;
+  } else {
+    payload.query = query;
+  }
+  if (request.entity_types && request.entity_types.length > 0) {
+    payload.types = request.entity_types.filter((type) => type !== "all");
+  }
+
+  const response = await apiClient.post<DiscoverApiResponse>("/entities/discover", payload);
+  return {
+    query: response.data.query,
+    query_type: response.data.query_type,
+    results: response.data.entities.map(mapEntityToSearchResult),
+    entities_created: response.data.entities_created,
+    total: response.data.total,
+  };
 }
 
 export async function universalSearchGet(
@@ -49,17 +228,180 @@ export async function universalSearchGet(
   type?: EntityType,
   limit = 20
 ): Promise<UniversalSearchResponse> {
-  const params: Record<string, string | number> = { q: query, limit };
-  if (type && type !== "all") {
-    params.type = type;
-  }
-  const response = await apiClient.get<UniversalSearchResponse>("/search", {
-    params,
+  return universalSearch({
+    query,
+    entity_types: type && type !== "all" ? [type] : undefined,
+    limit,
   });
-  return response.data;
 }
 
-// Query keys
+async function mapSongFromEntity(entityId: string): Promise<EnhancedSong> {
+  const [entity, snapshots, relations] = await Promise.all([
+    getEntity(entityId),
+    getEntitySnapshots(entityId),
+    getEntityRelations(entityId, "audio_match"),
+  ]);
+
+  const canonical = entity.canonical || {};
+  const platforms = buildPlatformsFromSnapshots(snapshots.snapshots);
+  const artists = asStringArray(canonical.artists);
+  const primaryArtist = asString(canonical.artist, artists[0] || "Unknown");
+
+  return {
+    id: entity.id,
+    name: entity.name,
+    artists: artists.length > 0 ? artists : [primaryArtist],
+    artist: primaryArtist,
+    artist_id: asString(canonical.artist_id) || null,
+    duration: asNumber(canonical.duration, 0),
+    album_name: asString(canonical.album_name) || null,
+    album_id: asString(canonical.album_id) || null,
+    cover_url: asString(canonical.cover_url) || null,
+    isrc: asString(canonical.isrc) || null,
+    year: asNullableNumber(canonical.year),
+    platforms: platforms.length > 0 ? platforms : buildPlatformFromCanonical(canonical),
+    matches_count: relations.total,
+    audio_features: {
+      bpm: asNullableNumber(canonical.bpm),
+      energy: asNullableNumber(canonical.energy),
+      danceability: asNullableNumber(canonical.danceability),
+      valence: asNullableNumber(canonical.valence),
+      key: asNullableNumber(canonical.key),
+      mode: asNullableNumber(canonical.mode),
+      loudness: asNullableNumber(canonical.loudness),
+      speechiness: asNullableNumber(canonical.speechiness),
+      acousticness: asNullableNumber(canonical.acousticness),
+      instrumentalness: asNullableNumber(canonical.instrumentalness),
+      liveness: asNullableNumber(canonical.liveness),
+      time_signature: asNullableNumber(canonical.time_signature),
+    },
+    popularity: asNullableNumber(canonical.popularity),
+    explicit: asBool(canonical.explicit, false),
+    release_date: asString(canonical.date) || null,
+    label: asString(canonical.label) || null,
+    copyright_text: asString(canonical.copyright_text) || null,
+    genres: asStringArray(canonical.genres),
+    track_number: asNullableNumber(canonical.track_number),
+    disc_number: asNullableNumber(canonical.disc_number),
+    musicbrainz_id: asString(canonical.musicbrainz_id) || null,
+    discogs_id: asString(canonical.discogs_id) || null,
+    field_sources: null,
+    enriched_at: entity.last_merged_at,
+  };
+}
+
+export async function getSongById(id: string): Promise<EnhancedSong> {
+  return mapSongFromEntity(id);
+}
+
+export async function getAlbumById(id: string): Promise<EnhancedAlbum> {
+  const [entity, snapshots, containsRelations] = await Promise.all([
+    getEntity(id),
+    getEntitySnapshots(id),
+    getEntityRelations(id, "contains"),
+  ]);
+
+  const canonical = entity.canonical || {};
+  const songs = containsRelations.relations
+    .map((relation) => relation.target)
+    .filter((target): target is EntityApiResponse => !!target)
+    .map(relationTargetToSong);
+
+  return {
+    id: entity.id,
+    name: entity.name,
+    artist_name: asString(canonical.artist, "Unknown Artist"),
+    artist_id: asString(canonical.artist_id) || null,
+    cover_url: asString(canonical.cover_url) || null,
+    year: asNullableNumber(canonical.year),
+    total_tracks: songs.length > 0 ? songs.length : asNumber(canonical.track_count, 0),
+    platforms: buildPlatformsFromSnapshots(snapshots.snapshots),
+    songs,
+    album_type: (asString(canonical.album_type) || "album") as EnhancedAlbum["album_type"],
+    release_date: asString(canonical.date) || null,
+    label: asString(canonical.label) || null,
+    copyright_text: asString(canonical.copyright_text) || null,
+    genres: asStringArray(canonical.genres),
+    popularity: asNullableNumber(canonical.popularity),
+  };
+}
+
+export async function getArtistById(id: string): Promise<EnhancedArtist> {
+  const [entity, snapshots, performedRelations] = await Promise.all([
+    getEntity(id),
+    getEntitySnapshots(id),
+    getEntityRelations(id, "performed"),
+  ]);
+
+  const canonical = entity.canonical || {};
+  const songs = performedRelations.relations
+    .map((relation) => relation.target)
+    .filter((target): target is EntityApiResponse => !!target)
+    .map(relationTargetToSong);
+
+  const albumMap = new Map<string, { id: string; name: string; cover_url: string | null; year: number | null; total_tracks: number; album_type: "album" | "single" | "ep" | "compilation" | null }>();
+  for (const song of songs) {
+    const key = song.album_id || song.album_name || `${song.artist}-${song.name}`;
+    const existing = albumMap.get(key);
+    if (!existing) {
+      albumMap.set(key, {
+        id: song.album_id || key,
+        name: song.album_name || "Unknown Album",
+        cover_url: song.cover_url || null,
+        year: song.year ?? null,
+        total_tracks: 1,
+        album_type: "album",
+      });
+    } else {
+      existing.total_tracks += 1;
+    }
+  }
+
+  return {
+    id: entity.id,
+    name: entity.name,
+    image_url: asString(canonical.cover_url) || null,
+    genres: asStringArray(canonical.genres),
+    platforms: buildPlatformsFromSnapshots(snapshots.snapshots),
+    albums: Array.from(albumMap.values()),
+    songs,
+    total_albums: albumMap.size,
+    total_songs: songs.length,
+    monthly_listeners: asNullableNumber(canonical.monthly_listeners),
+    popularity: asNullableNumber(canonical.popularity),
+    bio: asString(canonical.bio) || null,
+    origin_country: asString(canonical.origin_country) || null,
+    origin_city: asString(canonical.origin_city) || null,
+    formed_year: asNullableNumber(canonical.formed_year),
+    external_urls: {},
+    related_artists: [],
+  };
+}
+
+export async function getPlaylistById(id: string): Promise<InternalPlaylist> {
+  const [entity, snapshots, containsRelations] = await Promise.all([
+    getEntity(id),
+    getEntitySnapshots(id),
+    getEntityRelations(id, "contains"),
+  ]);
+
+  const canonical = entity.canonical || {};
+  const songs = containsRelations.relations
+    .map((relation) => relation.target)
+    .filter((target): target is EntityApiResponse => !!target)
+    .map(relationTargetToSong);
+
+  return {
+    id: entity.id,
+    name: entity.name,
+    owner_name: asString(canonical.owner) || asString(canonical.artist) || null,
+    description: asString(canonical.description) || null,
+    cover_url: asString(canonical.cover_url) || null,
+    total_tracks: songs.length > 0 ? songs.length : asNumber(canonical.track_count, 0),
+    platforms: buildPlatformsFromSnapshots(snapshots.snapshots),
+    songs,
+  };
+}
 
 export const entityKeys = {
   all: ["entities"] as const,
@@ -71,18 +413,15 @@ export const entityKeys = {
   playlist: (id: string) => [...entityKeys.playlists(), id] as const,
   songs: () => [...entityKeys.all, "songs"] as const,
   song: (id: string) => [...entityKeys.songs(), id] as const,
-  search: (query: string, type?: EntityType) =>
-    [...entityKeys.all, "search", query, type] as const,
+  search: (query: string, type?: EntityType) => [...entityKeys.all, "search", query, type] as const,
 };
-
-// Hooks
 
 export function useInternalArtist(id: string) {
   return useQuery({
     queryKey: entityKeys.artist(id),
     queryFn: () => getArtistById(id),
     enabled: !!id,
-    staleTime: 1000 * 60 * 10, // 10 minutes
+    staleTime: 1000 * 60 * 10,
   });
 }
 
@@ -100,7 +439,7 @@ export function useInternalPlaylist(id: string) {
     queryKey: entityKeys.playlist(id),
     queryFn: () => getPlaylistById(id),
     enabled: !!id,
-    staleTime: 1000 * 60 * 5, // 5 minutes (playlists change more often)
+    staleTime: 1000 * 60 * 5,
   });
 }
 
@@ -109,7 +448,7 @@ export function useInternalSong(id: string) {
     queryKey: entityKeys.song(id),
     queryFn: () => getSongById(id),
     enabled: !!id,
-    staleTime: 1000 * 60 * 60, // 1 hour
+    staleTime: 1000 * 60 * 30,
   });
 }
 
@@ -122,7 +461,7 @@ export function useUniversalSearch(
     queryKey: entityKeys.search(query, type),
     queryFn: () => universalSearchGet(query, type, limit),
     enabled: options?.enabled ?? query.length > 0,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 2,
   });
 }
 
@@ -131,8 +470,6 @@ export function useUniversalSearchMutation() {
     mutationFn: (request: UniversalSearchRequest) => universalSearch(request),
   });
 }
-
-// Metadata source switching
 
 export interface MetadataSnapshotResponse {
   id: string;
@@ -148,13 +485,20 @@ export interface MetadataSourcesResponse {
   snapshots: MetadataSnapshotResponse[];
 }
 
-export async function getSongMetadataSources(
-  songId: string
-): Promise<MetadataSourcesResponse> {
-  const response = await apiClient.get<MetadataSourcesResponse>(
-    `/entities/songs/${songId}/metadata-sources`
-  );
-  return response.data;
+export async function getSongMetadataSources(songId: string): Promise<MetadataSourcesResponse> {
+  const response = await apiClient.get<EntitySnapshotsApiResponse>(`/entities/${songId}/snapshots`);
+  const sources = response.data.snapshots.map((snapshot) => snapshot.provider_id);
+  return {
+    song_id: songId,
+    sources,
+    snapshots: response.data.snapshots.map((snapshot) => ({
+      id: snapshot.id,
+      source: snapshot.provider_id,
+      snapshot_data: snapshot.normalized_payload,
+      fetched_at: snapshot.fetched_at,
+      confidence: snapshot.confidence,
+    })),
+  };
 }
 
 export function useMetadataSources(songId: string, options?: { enabled?: boolean }) {
@@ -162,11 +506,9 @@ export function useMetadataSources(songId: string, options?: { enabled?: boolean
     queryKey: [...entityKeys.song(songId), "metadata-sources"],
     queryFn: () => getSongMetadataSources(songId),
     enabled: options?.enabled ?? !!songId,
-    staleTime: 1000 * 60 * 30, // 30 minutes
+    staleTime: 1000 * 60 * 15,
   });
 }
-
-// Refresh metadata endpoints
 
 export interface RefreshResponse {
   success: boolean;
@@ -174,75 +516,57 @@ export interface RefreshResponse {
   cooldown_seconds?: number | null;
 }
 
-export async function refreshSongMetadata(songId: string): Promise<RefreshResponse> {
-  const response = await apiClient.post<RefreshResponse>(
-    `/entities/songs/${songId}/refresh`
-  );
+async function refreshEntityMetadata(entityId: string): Promise<RefreshApiResponse> {
+  const response = await apiClient.post<RefreshApiResponse>(`/entities/${entityId}/refresh`, {});
   return response.data;
+}
+
+export async function refreshSongMetadata(songId: string): Promise<RefreshResponse> {
+  const response = await refreshEntityMetadata(songId);
+  return {
+    success: true,
+    message: `Refreshed ${response.refreshed_snapshots} snapshot(s)`,
+    cooldown_seconds: null,
+  };
 }
 
 export async function refreshAlbumMetadata(albumId: string): Promise<RefreshResponse> {
-  const response = await apiClient.post<RefreshResponse>(
-    `/entities/albums/${albumId}/refresh`
-  );
-  return response.data;
+  return refreshSongMetadata(albumId);
 }
 
 export async function refreshArtistMetadata(artistId: string): Promise<RefreshResponse> {
-  const response = await apiClient.post<RefreshResponse>(
-    `/entities/artists/${artistId}/refresh`
-  );
-  return response.data;
+  return refreshSongMetadata(artistId);
 }
 
 export async function refreshPlaylistMetadata(playlistId: string): Promise<RefreshResponse> {
-  const response = await apiClient.post<RefreshResponse>(
-    `/entities/playlists/${playlistId}/refresh`
-  );
-  return response.data;
+  return refreshSongMetadata(playlistId);
+}
+
+function createRefreshMutation(keyBuilder: (id: string) => readonly unknown[]) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => refreshSongMetadata(id),
+    onSuccess: (_result, id) => {
+      queryClient.invalidateQueries({ queryKey: keyBuilder(id) });
+    },
+  });
 }
 
 export function useRefreshSongMetadata() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (songId: string) => refreshSongMetadata(songId),
-    onSuccess: (_, songId) => {
-      queryClient.invalidateQueries({ queryKey: entityKeys.song(songId) });
-    },
-  });
+  return createRefreshMutation(entityKeys.song);
 }
 
 export function useRefreshAlbumMetadata() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (albumId: string) => refreshAlbumMetadata(albumId),
-    onSuccess: (_, albumId) => {
-      queryClient.invalidateQueries({ queryKey: entityKeys.album(albumId) });
-    },
-  });
+  return createRefreshMutation(entityKeys.album);
 }
 
 export function useRefreshArtistMetadata() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (artistId: string) => refreshArtistMetadata(artistId),
-    onSuccess: (_, artistId) => {
-      queryClient.invalidateQueries({ queryKey: entityKeys.artist(artistId) });
-    },
-  });
+  return createRefreshMutation(entityKeys.artist);
 }
 
 export function useRefreshPlaylistMetadata() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (playlistId: string) => refreshPlaylistMetadata(playlistId),
-    onSuccess: (_, playlistId) => {
-      queryClient.invalidateQueries({ queryKey: entityKeys.playlist(playlistId) });
-    },
-  });
+  return createRefreshMutation(entityKeys.playlist);
 }
-
-// Enrich metadata endpoints
 
 export interface EnrichResponse {
   success: boolean;
@@ -252,23 +576,24 @@ export interface EnrichResponse {
 }
 
 export async function enrichSongMetadata(songId: string): Promise<EnrichResponse> {
-  const response = await apiClient.post<EnrichResponse>(
-    `/entities/songs/${songId}/enrich`
-  );
-  return response.data;
+  const refreshed = await refreshEntityMetadata(songId);
+  return {
+    success: true,
+    message: `Refreshed ${refreshed.refreshed_snapshots} snapshot(s)`,
+    sources_used: refreshed.entity.capabilities ? Object.keys(refreshed.entity.capabilities) : [],
+    fields_updated: [],
+  };
 }
 
 export function useEnrichSongMetadata() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (songId: string) => enrichSongMetadata(songId),
-    onSuccess: (_, songId) => {
+    onSuccess: (_result, songId) => {
       queryClient.invalidateQueries({ queryKey: entityKeys.song(songId) });
     },
   });
 }
-
-// Metadata providers
 
 export interface MetadataProvider {
   id: string;
@@ -285,70 +610,54 @@ export interface MetadataProvidersResponse {
 }
 
 export async function getMetadataProviders(): Promise<MetadataProvidersResponse> {
-  const response = await apiClient.get<MetadataProvidersResponse>(
-    "/entities/metadata-providers"
-  );
-  return response.data;
+  const response = await apiClient.get<{
+    providers: Array<{
+      provider_id: string;
+      display_name: string;
+      capabilities: string[];
+      status: string;
+    }>;
+  }>("/providers/capabilities");
+  return {
+    providers: response.data.providers.map((provider) => ({
+      id: provider.provider_id,
+      name: provider.display_name,
+      description: `Status: ${provider.status}`,
+      icon: provider.provider_id,
+      features: provider.capabilities,
+      rate_limit: "n/a",
+      auth_required: false,
+    })),
+  };
 }
 
 export function useMetadataProviders() {
   return useQuery({
     queryKey: ["metadata-providers"],
     queryFn: getMetadataProviders,
-    staleTime: 1000 * 60 * 60, // 1 hour
+    staleTime: 1000 * 60 * 30,
   });
 }
 
-// ====== MULTI-SOURCE METADATA ======
-
-import type {
-  MetadataSnapshot,
-  MetadataSourcesResponse as TypedMetadataSourcesResponse,
-  AllLyricsResponse,
-  LyricsSource,
-  FullEnrichmentResult,
-} from "@/types/metadata";
-
-/**
- * Get all metadata snapshots for a song with optional raw responses.
- */
 export async function getMetadataSnapshots(
   songId: string,
-  includeRaw = false
+  _includeRaw = false
 ): Promise<TypedMetadataSourcesResponse> {
-  const response = await apiClient.get<{
-    song_id: string;
-    sources: string[];
-    snapshots: Array<{
-      id: string;
-      source: string;
-      snapshot_data: Record<string, unknown>;
-      raw_response?: Record<string, unknown>;
-      fetched_at: string;
-      confidence: number;
-    }>;
-  }>(`/entities/songs/${songId}/metadata-sources`, {
-    params: { include_raw: includeRaw },
-  });
-
-  // Transform to frontend types
+  const response = await apiClient.get<EntitySnapshotsApiResponse>(`/entities/${songId}/snapshots`);
   return {
-    songId: response.data.song_id,
-    sources: response.data.sources,
-    snapshots: response.data.snapshots.map((s) => ({
-      id: s.id,
-      source: s.source as MetadataSnapshot["source"],
-      fetchedAt: s.fetched_at,
-      confidence: s.confidence,
-      data: s.snapshot_data,
-      rawResponse: s.raw_response,
+    songId: songId,
+    sources: response.data.snapshots.map((snapshot) => snapshot.provider_id),
+    snapshots: response.data.snapshots.map((snapshot) => ({
+      id: snapshot.id,
+      source: snapshot.provider_id as MetadataSnapshot["source"],
+      fetchedAt: snapshot.fetched_at,
+      confidence: snapshot.confidence,
+      data: snapshot.normalized_payload,
+      rawResponse: snapshot.raw_payload,
     })),
   };
 }
 
-/**
- * Hook to fetch all metadata snapshots for a song.
- */
 export function useMetadataSnapshots(
   songId: string,
   options?: { enabled?: boolean; includeRaw?: boolean }
@@ -357,124 +666,54 @@ export function useMetadataSnapshots(
     queryKey: [...entityKeys.song(songId), "metadata-snapshots", options?.includeRaw],
     queryFn: () => getMetadataSnapshots(songId, options?.includeRaw ?? false),
     enabled: options?.enabled ?? !!songId,
-    staleTime: 1000 * 60 * 30, // 30 minutes
+    staleTime: 1000 * 60 * 10,
   });
 }
 
-/**
- * Get all lyrics from all sources for a song.
- */
 export async function getAllLyrics(songId: string): Promise<AllLyricsResponse> {
-  const response = await apiClient.get<{
-    song_id: string;
-    lyrics: Array<{
-      source: string;
-      lyrics_text: string;
-      lyrics_synced?: string | null;
-      quality_score?: number | null;
-      is_verified: boolean;
-      language?: string | null;
-      has_translations?: boolean | null;
-    }>;
-    total_sources: number;
-  }>(`/lyrics/song/${songId}/all`);
-
-  // Transform to frontend types
   return {
-    songId: response.data.song_id,
-    lyrics: response.data.lyrics.map((l) => ({
-      source: l.source as LyricsSource["source"],
-      lyricsText: l.lyrics_text,
-      lyricsSynced: l.lyrics_synced,
-      qualityScore: l.quality_score ?? null,
-      isVerified: l.is_verified,
-      language: l.language,
-      hasTranslations: l.has_translations,
-    })),
-    totalSources: response.data.total_sources,
+    songId,
+    lyrics: [],
+    totalSources: 0,
   };
 }
 
-/**
- * Hook to fetch all lyrics for a song from all sources.
- */
 export function useAllLyrics(songId: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: [...entityKeys.song(songId), "all-lyrics"],
     queryFn: () => getAllLyrics(songId),
     enabled: options?.enabled ?? !!songId,
-    staleTime: 1000 * 60 * 30, // 30 minutes
+    staleTime: 1000 * 60 * 10,
   });
 }
 
-/**
- * Fetch lyrics from all providers (triggers fetch, not just cache).
- */
 export async function fetchAllLyrics(songId: string): Promise<AllLyricsResponse> {
-  const response = await apiClient.post<{
-    song_id: string;
-    lyrics: Array<{
-      source: string;
-      lyrics_text: string;
-      lyrics_synced?: string | null;
-      quality_score?: number | null;
-      is_verified: boolean;
-    }>;
-    total_sources: number;
-  }>(`/lyrics/song/${songId}/fetch-all`);
-
   return {
-    songId: response.data.song_id,
-    lyrics: response.data.lyrics.map((l) => ({
-      source: l.source as LyricsSource["source"],
-      lyricsText: l.lyrics_text,
-      lyricsSynced: l.lyrics_synced,
-      qualityScore: l.quality_score ?? null,
-      isVerified: l.is_verified,
-    })),
-    totalSources: response.data.total_sources,
+    songId,
+    lyrics: [],
+    totalSources: 0,
   };
 }
 
-/**
- * Trigger full enrichment from ALL sources.
- */
-export async function enrichSongFromAllSources(
-  songId: string
-): Promise<FullEnrichmentResult> {
-  const response = await apiClient.post<{
-    success: boolean;
-    message: string;
-    metadata_sources_count: number;
-    lyrics_sources_count: number;
-    metadata_sources: string[];
-  }>(`/entities/songs/${songId}/enrich-all`);
-
+export async function enrichSongFromAllSources(songId: string): Promise<FullEnrichmentResult> {
+  await refreshEntityMetadata(songId);
   return {
-    success: response.data.success,
-    message: response.data.message,
-    metadataSourcesCount: response.data.metadata_sources_count,
-    lyricsSourcesCount: response.data.lyrics_sources_count,
-    metadataSources: response.data.metadata_sources,
+    success: true,
+    message: "Entity refreshed from all available providers",
+    metadataSourcesCount: 0,
+    lyricsSourcesCount: 0,
+    metadataSources: [],
   };
 }
 
-/**
- * Hook to trigger full enrichment from all sources.
- */
 export function useFullEnrichment() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (songId: string) => enrichSongFromAllSources(songId),
-    onSuccess: (_, songId) => {
-      // Invalidate all related queries
+    onSuccess: (_result, songId) => {
       queryClient.invalidateQueries({ queryKey: entityKeys.song(songId) });
-      queryClient.invalidateQueries({
-        queryKey: [...entityKeys.song(songId), "metadata-snapshots"],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [...entityKeys.song(songId), "all-lyrics"],
-      });
+      queryClient.invalidateQueries({ queryKey: [...entityKeys.song(songId), "metadata-snapshots"] });
+      queryClient.invalidateQueries({ queryKey: [...entityKeys.song(songId), "all-lyrics"] });
     },
   });
 }

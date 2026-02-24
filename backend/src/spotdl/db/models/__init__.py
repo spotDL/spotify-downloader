@@ -3,6 +3,13 @@
 from spotdl.db.models.album import Album, AlbumPlatformLink
 from spotdl.db.models.artist import Artist, ArtistPlatformLink
 from spotdl.db.models.base import Base
+from spotdl.db.models.entity_unified import (
+    Entity,
+    EntityFieldProvenance,
+    EntityRelation,
+    EntitySnapshot,
+    RelationVote,
+)
 from spotdl.db.models.lyrics import Lyrics
 from spotdl.db.models.match import Match
 from spotdl.db.models.metadata_report import (
@@ -24,6 +31,11 @@ __all__ = [
     "User",
     "UserSettings",
     "Song",
+    "Entity",
+    "EntitySnapshot",
+    "EntityFieldProvenance",
+    "EntityRelation",
+    "RelationVote",
     "Match",
     "Vote",
     "Artist",

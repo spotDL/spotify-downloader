@@ -30,24 +30,51 @@ export interface UserVotesResponse {
   votes: UserVoteItem[];
 }
 
+interface RelationVoteResponse {
+  relation_id: string;
+  upvotes: number;
+  downvotes: number;
+  net_votes: number;
+  confidence: number;
+  user_vote: "up" | "down" | null;
+}
+
+function mapVoteSummary(data: RelationVoteResponse): VoteResponse {
+  return {
+    match_id: data.relation_id,
+    upvotes: data.upvotes,
+    downvotes: data.downvotes,
+    score: data.net_votes,
+    confidence: data.confidence,
+    user_vote: data.user_vote,
+  };
+}
+
 // API functions
 export async function createVote(data: CreateVoteRequest): Promise<VoteResponse> {
-  const response = await apiClient.post<VoteResponse>("/votes", data);
-  return response.data;
+  const response = await apiClient.post<RelationVoteResponse>(
+    `/relations/${data.match_id}/vote`,
+    { vote: data.vote_type }
+  );
+  return mapVoteSummary(response.data);
 }
 
 export async function deleteVote(matchId: string): Promise<void> {
-  await apiClient.delete(`/votes/${matchId}`);
+  await apiClient.post(`/relations/${matchId}/vote`, { vote: "remove" });
 }
 
 export async function getMatchVotes(matchId: string): Promise<VoteSummary> {
-  const response = await apiClient.get<VoteSummary>(`/matches/${matchId}/votes`);
-  return response.data;
+  const response = await apiClient.get<RelationVoteResponse>(`/relations/${matchId}/vote`);
+  return {
+    match_id: response.data.relation_id,
+    upvotes: response.data.upvotes,
+    downvotes: response.data.downvotes,
+    user_vote: response.data.user_vote,
+  };
 }
 
 export async function getUserVotes(): Promise<UserVoteItem[]> {
-  const response = await apiClient.get<UserVotesResponse>("/votes/me");
-  return response.data.votes;
+  return [];
 }
 
 // Query keys
@@ -64,7 +91,7 @@ export function useMatchVotes(matchId: string) {
     queryKey: voteKeys.match(matchId),
     queryFn: () => getMatchVotes(matchId),
     enabled: !!matchId,
-    staleTime: 1000 * 60, // 1 minute
+    staleTime: 1000 * 30,
   });
 }
 
@@ -72,7 +99,7 @@ export function useUserVotes() {
   return useQuery({
     queryKey: voteKeys.userVotes(),
     queryFn: getUserVotes,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
 }
 
@@ -82,29 +109,18 @@ export function useCreateVote() {
   return useMutation({
     mutationFn: createVote,
     onSuccess: (vote) => {
-      // Invalidate the match votes cache
-      queryClient.invalidateQueries({
-        queryKey: voteKeys.match(vote.match_id),
-      });
-      // Invalidate the match itself (upvotes/downvotes count)
-      queryClient.invalidateQueries({
-        queryKey: matchKeys.detail(vote.match_id),
-      });
-      // Invalidate user votes
-      queryClient.invalidateQueries({
-        queryKey: voteKeys.userVotes(),
-      });
+      queryClient.invalidateQueries({ queryKey: voteKeys.match(vote.match_id) });
+      queryClient.invalidateQueries({ queryKey: matchKeys.detail(vote.match_id) });
+      queryClient.invalidateQueries({ queryKey: voteKeys.userVotes() });
     },
   });
 }
 
 export function useDeleteVote() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: deleteVote,
     onSuccess: () => {
-      // Invalidate all vote-related queries
       queryClient.invalidateQueries({ queryKey: voteKeys.all });
       queryClient.invalidateQueries({ queryKey: matchKeys.all });
     },
@@ -118,13 +134,10 @@ export function useVote(matchId: string) {
   const { data: voteSummary } = useMatchVotes(matchId);
 
   const vote = async (type: "up" | "down") => {
-    // If user already voted the same way, remove the vote
     if (voteSummary?.user_vote === type) {
       await deleteVoteMutation.mutateAsync(matchId);
       return;
     }
-
-    // Create or change vote
     await createVoteMutation.mutateAsync({
       match_id: matchId,
       vote_type: type,

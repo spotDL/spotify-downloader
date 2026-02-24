@@ -3,7 +3,6 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "./client";
 import type { Lyrics } from "@/types";
 
 // Response types
@@ -35,12 +34,11 @@ export async function getLyricsForSong(
   songId: string,
   forceRefresh: boolean = false
 ): Promise<LyricsResponse | LyricsNotFoundResponse> {
-  const params = forceRefresh ? { force_refresh: "true" } : {};
-  const response = await apiClient.get<LyricsResponse | LyricsNotFoundResponse>(
-    `/api/v1/lyrics/song/${songId}`,
-    { params }
-  );
-  return response.data;
+  void forceRefresh;
+  return {
+    song_id: songId,
+    message: "Lyrics not available for this entity yet",
+  };
 }
 
 /**
@@ -50,11 +48,10 @@ export async function searchLyrics(
   name: string,
   artist: string
 ): Promise<LyricsResponse | LyricsNotFoundResponse> {
-  const response = await apiClient.get<LyricsResponse | LyricsNotFoundResponse>(
-    "/api/v1/lyrics/search",
-    { params: { name, artist } }
-  );
-  return response.data;
+  return {
+    song_id: `${artist}:${name}`,
+    message: "Lyrics search is not available in unified mode yet",
+  };
 }
 
 /**

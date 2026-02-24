@@ -5,11 +5,11 @@ from __future__ import annotations
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from spotdl.core.provider_registry import get_provider_registry
 from spotdl.core.providers_config import (
     AUDIO_SOURCE_PROVIDERS,
     LYRICS_PROVIDERS,
     METADATA_PROVIDERS,
-    ProviderInfo,
     get_default_preferences,
 )
 
@@ -48,6 +48,18 @@ class DefaultPreferencesResponse(BaseModel):
     lyrics: list[ProviderPreferenceResponse]
 
 
+class ProviderCapabilityItem(BaseModel):
+    provider_id: str
+    display_name: str
+    capabilities: list[str]
+    status: str
+
+
+class ProviderCapabilitiesResponse(BaseModel):
+    providers: list[ProviderCapabilityItem]
+    total: int
+
+
 @router.get("", response_model=ProvidersResponse)
 async def list_providers() -> ProvidersResponse:
     """
@@ -81,4 +93,24 @@ async def get_default_provider_preferences() -> DefaultPreferencesResponse:
         lyrics=[
             ProviderPreferenceResponse(**p) for p in get_default_preferences("lyrics")
         ],
+    )
+
+
+@router.get("/capabilities", response_model=ProviderCapabilitiesResponse)
+async def get_provider_capabilities() -> ProviderCapabilitiesResponse:
+    """Return unified capability matrix for all registered providers."""
+    registry = get_provider_registry()
+    matrix = registry.health_matrix()
+    items = [
+        ProviderCapabilityItem(
+            provider_id=item.provider_id,
+            display_name=item.display_name,
+            capabilities=item.capabilities,
+            status=item.status,
+        )
+        for item in matrix
+    ]
+    return ProviderCapabilitiesResponse(
+        providers=items,
+        total=len(items),
     )
