@@ -143,6 +143,26 @@ docker compose -f docker-compose.prod.yml up -d
 
 See [Self-Hosting Guide](./docs/guides/self-hosting.md) for detailed instructions.
 
+### Railway (Multi-Service)
+
+Use service-specific deploy commands so Railway builds from the correct context:
+
+```bash
+# Link local repo to Railway project/environment once
+make railway-link
+
+# Deploy backend from backend/ context
+make railway-deploy-backend
+
+# Deploy frontend from frontend/ context
+make railway-deploy-frontend
+
+# Check deployment status
+make railway-status
+```
+
+Avoid running a generic `railway up` from the repo root for service deploys, because this can pick the root `Dockerfile` and deploy the wrong container image to a service.
+
 ## Configuration
 
 ### Environment Variables
