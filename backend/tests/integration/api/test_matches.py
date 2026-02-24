@@ -134,6 +134,7 @@ class TestMatchesFindWithMock:
             assert data["total"] == 1
             assert data["matches"][0]["score"] == 85.0
             assert data["matches"][0]["target_platform"] == "youtube"
+            assert data["matches"][0]["id"] is not None
 
     async def test_find_matches_no_songs(self, client: AsyncClient) -> None:
         """Test match finding when no songs found."""
@@ -382,3 +383,55 @@ class TestMatchesSubmit:
         assert response.status_code == 200
         data = response.json()
         assert data["message"] == "Match already exists."
+
+
+class TestMatchesPreview:
+    """Tests for match link preview endpoint."""
+
+    async def test_preview_match_provider_success(
+        self,
+        client: AsyncClient,
+        mock_target_song: Song,
+    ) -> None:
+        """Preview resolves metadata from source provider when available."""
+        with patch("spotdl.api.v1.matches.get_song_service") as mock_song_svc:
+            mock_song_service = MagicMock()
+            mock_song_service.resolve_url = AsyncMock(return_value=[mock_target_song])
+            mock_song_svc.return_value = mock_song_service
+
+            response = await client.get(
+                "/api/v1/matches/preview",
+                params={"target_url": "https://music.youtube.com/watch?v=xyz789"},
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert data["target_platform"] == "youtube_music"
+            assert data["result"]["name"] == "Target Song"
+            assert data["result"]["resolved_via"] == "provider"
+
+    async def test_preview_match_open_graph_fallback(self, client: AsyncClient) -> None:
+        """Preview falls back to Open Graph metadata when provider parsing fails."""
+        with patch("spotdl.api.v1.matches.get_song_service") as mock_song_svc, \
+             patch("spotdl.api.v1.matches._fetch_open_graph") as mock_og:
+            mock_song_service = MagicMock()
+            mock_song_service.resolve_url = AsyncMock(return_value=[])
+            mock_song_svc.return_value = mock_song_service
+            mock_og.return_value = {
+                "title": "Test Link Title",
+                "description": "Test description",
+                "site_name": "Example",
+                "image": "https://example.com/image.jpg",
+            }
+
+            response = await client.get(
+                "/api/v1/matches/preview",
+                params={"target_url": "https://www.youtube.com/watch?v=xyz789"},
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert data["target_platform"] == "youtube"
+            assert data["result"]["name"] == "Test Link Title"
+            assert data["result"]["description"] == "Test description"
+            assert data["result"]["resolved_via"] == "open_graph"

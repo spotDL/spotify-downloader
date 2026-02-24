@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from urllib.parse import urljoin, urlparse
 from typing import Annotated
 from uuid import UUID
 
+import httpx
+from bs4 import BeautifulSoup
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, HttpUrl
 from sqlalchemy import select
@@ -50,19 +53,30 @@ class MatchResult(BaseModel):
     explicit: bool = False
     verified: bool = False
     song_id: str | None = None
+    description: str | None = None
+    site_name: str | None = None
+    resolved_via: str | None = None
 
 
 class MatchResponse(BaseModel):
     """Response model for a match."""
 
+    id: str | None = None
     source_url: str
     source_song_id: str | None = None
+    source_platform: str | None = None
     target_url: str
     target_song_id: str | None = None
     target_platform: str
     score: float
     confidence: float
     match_type: str
+    status: str | None = None
+    upvotes: int | None = None
+    downvotes: int | None = None
+    net_votes: int | None = None
+    submitted_by_username: str | None = None
+    verified_by_username: str | None = None
     result: MatchResult
 
 
@@ -104,6 +118,14 @@ class FindMatchesResponse(BaseModel):
     source_url: str
     matches: list[MatchResponse]
     total: int
+
+
+class MatchPreviewResponse(BaseModel):
+    """Response model for previewing a target match URL."""
+
+    target_url: str
+    target_platform: str
+    result: MatchResult
 
 
 class SubmitMatchRequest(BaseModel):
@@ -168,6 +190,123 @@ def _result_from_song(song) -> MatchResult:
         views=getattr(song, "views", None),
         explicit=bool(getattr(song, "explicit", False)),
         verified=bool(getattr(song, "verified", False)),
+        description=None,
+        site_name=None,
+        resolved_via="provider",
+    )
+
+
+def _extract_meta_tag(soup: BeautifulSoup, *keys: str) -> str | None:
+    """Extract first matching meta tag content by property/name."""
+    for key in keys:
+        tag = soup.find("meta", attrs={"property": key})
+        if tag and tag.get("content"):
+            return str(tag.get("content")).strip() or None
+        tag = soup.find("meta", attrs={"name": key})
+        if tag and tag.get("content"):
+            return str(tag.get("content")).strip() or None
+    return None
+
+
+async def _fetch_open_graph(url: str) -> dict[str, str | None] | None:
+    """Fetch basic Open Graph metadata for a URL."""
+    try:
+        async with httpx.AsyncClient(
+            timeout=10.0,
+            follow_redirects=True,
+            headers={
+                "User-Agent": (
+                    "Mozilla/5.0 (compatible; SpotDLBot/1.0; "
+                    "+https://github.com/spotDL/spotify-downloader)"
+                )
+            },
+        ) as client:
+            response = await client.get(url)
+    except Exception:
+        return None
+
+    if response.status_code >= 400 or not response.text:
+        return None
+
+    try:
+        soup = BeautifulSoup(response.text, "lxml")
+    except Exception:
+        return None
+
+    title = _extract_meta_tag(soup, "og:title", "twitter:title")
+    if not title and soup.title and soup.title.string:
+        title = soup.title.string.strip() or None
+
+    description = _extract_meta_tag(soup, "og:description", "twitter:description", "description")
+    site_name = _extract_meta_tag(soup, "og:site_name")
+    image = _extract_meta_tag(soup, "og:image", "twitter:image")
+
+    if image:
+        image = urljoin(str(response.url), image)
+
+    if not title and not description and not site_name and not image:
+        return None
+
+    return {
+        "title": title,
+        "description": description,
+        "site_name": site_name,
+        "image": image,
+    }
+
+
+async def _resolve_match_result(
+    target_url: str,
+    target_platform: str,
+    song_service,
+) -> MatchResult:
+    """Resolve target URL details via provider first, then Open Graph fallback."""
+    try:
+        songs = await song_service.resolve_url(target_url)
+        if songs:
+            return _result_from_song(songs[0])
+    except Exception:
+        pass
+
+    og_data = await _fetch_open_graph(target_url)
+    if og_data is not None:
+        hostname = urlparse(target_url).hostname or ""
+        source_name = og_data.get("site_name") or hostname.replace("www.", "") or "Unknown"
+        title = og_data.get("title") or "Unknown"
+        return MatchResult(
+            name=title,
+            artists=[source_name] if source_name != "Unknown" else [],
+            artist=source_name,
+            duration=0,
+            platform=target_platform,
+            platform_id="",
+            url=target_url,
+            album_name=None,
+            cover_url=og_data.get("image"),
+            views=None,
+            explicit=False,
+            verified=False,
+            description=og_data.get("description"),
+            site_name=og_data.get("site_name"),
+            resolved_via="open_graph",
+        )
+
+    return MatchResult(
+        name="Unknown",
+        artists=[],
+        artist="Unknown",
+        duration=0,
+        platform=target_platform,
+        platform_id="",
+        url=target_url,
+        album_name=None,
+        cover_url=None,
+        views=None,
+        explicit=False,
+        verified=False,
+        description=None,
+        site_name=None,
+        resolved_via="fallback",
     )
 
 
@@ -211,30 +350,7 @@ async def _match_to_detail(
     """Convert a Match DB row to a detailed response."""
     score = float(match.match_score) if match.match_score is not None else 0.0
     confidence = max(0.0, min(1.0, score / 100.0))
-
-    result = None
-    try:
-        songs = await song_service.resolve_url(match.target_url)
-        if songs:
-            result = _result_from_song(songs[0])
-    except Exception:
-        result = None
-
-    if result is None:
-        result = MatchResult(
-            name="Unknown",
-            artists=[],
-            artist="Unknown",
-            duration=0,
-            platform=match.target_platform,
-            platform_id="",
-            url=match.target_url,
-            album_name=None,
-            cover_url=None,
-            views=None,
-            explicit=False,
-            verified=False,
-        )
+    result = await _resolve_match_result(match.target_url, match.target_platform, song_service)
 
     return MatchDetailResponse(
         id=str(match.id),
@@ -285,6 +401,7 @@ async def find_matches(
     song_service = get_song_service()
     match_service = get_match_service(audio_preferences=preferences["audio"])
     entity_service = EntityPersistenceService(db)
+    match_repo = MatchRepository(db)
 
     # Resolve source URL to song
     try:
@@ -351,34 +468,87 @@ async def find_matches(
         except Exception:
             target_song_id_by_url = {}
 
-    match_responses = [
-        MatchResponse(
-            source_url=m.source_url,
-            source_song_id=source_song_id,
-            target_url=m.target_url,
-            target_song_id=target_song_id_by_url.get(m.target_url),
-            target_platform=m.target_platform.value,
-            score=m.score,
-            confidence=m.confidence,
-            match_type=m.match_type,
-            result=MatchResult(
-                name=m.target_result.name,
-                artists=list(m.target_result.artists),
-                artist=m.target_result.artist,
-                duration=m.target_result.duration,
-                platform=m.target_result.platform.value,
-                platform_id=m.target_result.platform_id,
-                url=m.target_result.url,
-                album_name=m.target_result.album_name,
-                cover_url=m.target_result.cover_url,
-                views=m.target_result.views,
-                explicit=m.target_result.explicit,
-                verified=m.target_result.verified,
-                song_id=target_song_id_by_url.get(m.target_result.url),
-            ),
+    source_platform = detect_platform(song.url)
+    source_platform_value = source_platform.value if source_platform else song.platform.value
+    source_song_uuid: UUID | None = None
+    if source_song_id:
+        try:
+            source_song_uuid = UUID(source_song_id)
+        except ValueError:
+            source_song_uuid = None
+    persisted_matches: dict[tuple[str, str], Match] = {}
+
+    for matched in matches:
+        target_platform_value = matched.target_platform.value
+        existing_match = await match_repo.get_by_source_and_target(
+            source_url=matched.source_url,
+            target_platform=target_platform_value,
+            target_url=matched.target_url,
         )
-        for m in matches
-    ]
+
+        if existing_match is not None:
+            if source_song_uuid is not None and existing_match.source_song_id is None:
+                existing_match.source_song_id = source_song_uuid
+            if existing_match.source_platform != source_platform_value:
+                existing_match.source_platform = source_platform_value
+            if existing_match.match_type != MatchType.USER:
+                existing_match.match_type = MatchType.SYSTEM
+                existing_match.match_score = matched.score
+            persisted = existing_match
+        else:
+            persisted = await match_repo.create(
+                source_song_id=source_song_uuid,
+                source_platform=source_platform_value,
+                source_url=matched.source_url,
+                target_platform=target_platform_value,
+                target_url=matched.target_url,
+                match_type=MatchType.SYSTEM,
+                match_score=matched.score,
+            )
+
+        persisted_matches[(target_platform_value, matched.target_url)] = persisted
+
+    await db.flush()
+
+    match_responses: list[MatchResponse] = []
+    for m in matches:
+        persisted = persisted_matches.get((m.target_platform.value, m.target_url))
+        match_responses.append(
+            MatchResponse(
+                id=str(persisted.id) if persisted else None,
+                source_url=m.source_url,
+                source_song_id=source_song_id,
+                source_platform=source_platform_value,
+                target_url=m.target_url,
+                target_song_id=target_song_id_by_url.get(m.target_url),
+                target_platform=m.target_platform.value,
+                score=m.score,
+                confidence=m.confidence,
+                match_type=persisted.match_type if persisted else m.match_type,
+                status=persisted.status if persisted else None,
+                upvotes=persisted.upvotes if persisted else 0,
+                downvotes=persisted.downvotes if persisted else 0,
+                net_votes=persisted.net_votes if persisted else 0,
+                result=MatchResult(
+                    name=m.target_result.name,
+                    artists=list(m.target_result.artists),
+                    artist=m.target_result.artist,
+                    duration=m.target_result.duration,
+                    platform=m.target_result.platform.value,
+                    platform_id=m.target_result.platform_id,
+                    url=m.target_result.url,
+                    album_name=m.target_result.album_name,
+                    cover_url=m.target_result.cover_url,
+                    views=m.target_result.views,
+                    explicit=m.target_result.explicit,
+                    verified=m.target_result.verified,
+                    song_id=target_song_id_by_url.get(m.target_result.url),
+                    description=None,
+                    site_name=None,
+                    resolved_via="provider",
+                ),
+            )
+        )
 
     return FindMatchesResponse(
         source_url=str(request.source_url),
@@ -391,6 +561,7 @@ async def find_matches(
 async def find_matches_get(
     source_url: Annotated[str, Query(description="Source URL to find matches for")],
     preferences: Annotated[UserPreferences, Depends(get_user_preferences)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
     target_platforms: Annotated[
         list[str] | None, Query(description="Target platforms")
     ] = None,
@@ -416,7 +587,31 @@ async def find_matches_get(
         target_platforms=target_platforms,
         limit=limit,
     )
-    return await find_matches(request, preferences)
+    return await find_matches(request, preferences, db)
+
+
+@router.get("/preview", response_model=MatchPreviewResponse)
+async def preview_match_url(
+    target_url: Annotated[str, Query(description="Target URL to preview")],
+) -> MatchPreviewResponse:
+    """Preview metadata for a target link using provider parsing and OG fallback."""
+    target_platform = detect_target_platform(target_url)
+    if target_platform is None:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Unsupported target platform. Supported: youtube, youtube_music, "
+                "soundcloud, bandcamp, piped"
+            ),
+        )
+
+    song_service = get_song_service()
+    result = await _resolve_match_result(target_url, target_platform, song_service)
+    return MatchPreviewResponse(
+        target_url=target_url,
+        target_platform=target_platform,
+        result=result,
+    )
 
 
 @router.post("/submit", response_model=MatchDetailResponse)

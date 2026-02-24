@@ -267,6 +267,7 @@ async def get_vote_summary(
     )
 
 
+@router.get("/me")
 @router.get("/user/me")
 async def get_my_votes(
     user_id: Annotated[UUID, Depends(get_current_user_id)],

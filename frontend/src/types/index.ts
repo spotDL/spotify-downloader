@@ -71,6 +71,9 @@ export interface MatchResult {
   explicit: boolean;
   verified: boolean;
   song_id?: string | null;
+  description?: string | null;
+  site_name?: string | null;
+  resolved_via?: "provider" | "open_graph" | "fallback" | null;
 }
 
 export interface Match {

@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "./client";
-import type { Vote } from "@/types";
 import { matchKeys } from "./matches";
 
 // Types
@@ -16,9 +15,24 @@ export interface VoteSummary {
   user_vote: "up" | "down" | null;
 }
 
+export interface VoteResponse extends VoteSummary {
+  score: number;
+  confidence: number;
+}
+
+export interface UserVoteItem {
+  match_id: string;
+  vote_type: "up" | "down";
+  created_at: string;
+}
+
+export interface UserVotesResponse {
+  votes: UserVoteItem[];
+}
+
 // API functions
-export async function createVote(data: CreateVoteRequest): Promise<Vote> {
-  const response = await apiClient.post<Vote>("/votes", data);
+export async function createVote(data: CreateVoteRequest): Promise<VoteResponse> {
+  const response = await apiClient.post<VoteResponse>("/votes", data);
   return response.data;
 }
 
@@ -31,9 +45,9 @@ export async function getMatchVotes(matchId: string): Promise<VoteSummary> {
   return response.data;
 }
 
-export async function getUserVotes(): Promise<Vote[]> {
-  const response = await apiClient.get<Vote[]>("/votes/me");
-  return response.data;
+export async function getUserVotes(): Promise<UserVoteItem[]> {
+  const response = await apiClient.get<UserVotesResponse>("/votes/me");
+  return response.data.votes;
 }
 
 // Query keys

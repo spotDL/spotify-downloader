@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "./client";
-import type { Match, FindMatchesRequest, FindMatchesResponse } from "@/types";
+import type { Match, MatchResult, FindMatchesRequest, FindMatchesResponse } from "@/types";
 
 // API functions
 export async function findMatches(
@@ -25,8 +25,23 @@ export interface SubmitMatchRequest {
   target_platform: string;
 }
 
+export interface MatchPreviewResponse {
+  target_url: string;
+  target_platform: string;
+  result: MatchResult;
+}
+
 export async function submitMatch(data: SubmitMatchRequest): Promise<Match> {
   const response = await apiClient.post<Match>("/matches/submit", data);
+  return response.data;
+}
+
+export async function previewMatchUrl(targetUrl: string): Promise<MatchPreviewResponse> {
+  const response = await apiClient.get<MatchPreviewResponse>("/matches/preview", {
+    params: {
+      target_url: targetUrl,
+    },
+  });
   return response.data;
 }
 
@@ -45,6 +60,7 @@ export const matchKeys = {
   detail: (id: string) => [...matchKeys.details(), id] as const,
   find: (sourceUrl: string, platforms: string[]) =>
     [...matchKeys.all, "find", sourceUrl, platforms] as const,
+  preview: (targetUrl: string) => [...matchKeys.all, "preview", targetUrl] as const,
 };
 
 // Hooks
@@ -66,6 +82,15 @@ export function useMatch(id: string) {
     queryKey: matchKeys.detail(id),
     queryFn: () => getMatch(id),
     enabled: !!id,
+  });
+}
+
+export function useMatchPreview(targetUrl: string, enabled = true) {
+  return useQuery({
+    queryKey: matchKeys.preview(targetUrl),
+    queryFn: () => previewMatchUrl(targetUrl),
+    enabled: enabled && !!targetUrl,
+    retry: false,
   });
 }
 

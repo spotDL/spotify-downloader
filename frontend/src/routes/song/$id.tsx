@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useMemo, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   useInternalSong,
   useRefreshSongMetadata,
@@ -7,7 +8,20 @@ import {
   useFullEnrichment,
   useAllLyrics,
 } from "@/api/entities";
-import { useFindMatchesMutation, useMatchesForSong, useLyrics, hasLyrics, toLyrics, useCreateReport, useSubmitMatch, useCreateVote, useMatchVotes } from "@/api";
+import {
+  matchKeys,
+  useFindMatchesMutation,
+  useMatchesForSong,
+  useLyrics,
+  hasLyrics,
+  toLyrics,
+  useCreateReport,
+  useMatchPreview,
+  useSubmitMatch,
+  useCreateVote,
+  useDeleteVote,
+  useMatchVotes,
+} from "@/api";
 import { useUpdateMatchStatus } from "@/api/admin";
 import { useQueueStore } from "@/stores/queue";
 import { useAuthStore } from "@/stores/auth";
@@ -19,6 +33,7 @@ import {
   Badge,
   Button,
   RefreshMetadataButton,
+  useToast,
 } from "@/components/ui";
 import { CoverArt } from "@/components/ui/cover-art";
 import { Spinner } from "@/components/ui";
@@ -40,6 +55,55 @@ export const Route = createFileRoute("/song/$id")({
 });
 
 const TARGET_PLATFORMS = ["youtube", "youtube_music", "soundcloud", "bandcamp"];
+
+function mergeMatches(existing: Match[], incoming: Match[]): Match[] {
+  const merged = new Map<string, Match>();
+
+  const mergeIn = (match: Match) => {
+    const key = `${match.target_platform}:${match.target_url}`;
+    const current = merged.get(key);
+    if (!current) {
+      merged.set(key, match);
+      return;
+    }
+
+    merged.set(key, {
+      ...current,
+      ...match,
+      id: match.id ?? current.id,
+      source_song_id: match.source_song_id ?? current.source_song_id,
+      target_song_id: match.target_song_id ?? current.target_song_id,
+      status: match.status ?? current.status,
+      upvotes: match.upvotes ?? current.upvotes,
+      downvotes: match.downvotes ?? current.downvotes,
+      net_votes: match.net_votes ?? current.net_votes,
+      submitted_by_username: match.submitted_by_username ?? current.submitted_by_username,
+      verified_by_username: match.verified_by_username ?? current.verified_by_username,
+      result: {
+        ...current.result,
+        ...match.result,
+      },
+    });
+  };
+
+  existing.forEach(mergeIn);
+  incoming.forEach(mergeIn);
+
+  return Array.from(merged.values()).sort((a, b) => b.score - a.score);
+}
+
+function useDebouncedValue<T>(value: T, delayMs: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delayMs);
+    return () => clearTimeout(timeoutId);
+  }, [delayMs, value]);
+
+  return debouncedValue;
+}
 
 function formatDuration(seconds: number): string {
   const mins = Math.floor(seconds / 60);
@@ -91,6 +155,7 @@ function getIntensityColor(value: number): string {
 
 function SongPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { id } = Route.useParams();
   const { data: song, isLoading, error } = useInternalSong(id);
   const { data: lyricsData, isLoading: lyricsLoading } = useLyrics(id, { enabled: !!song });
@@ -101,6 +166,7 @@ function SongPage() {
   const refreshMetadata = useRefreshSongMetadata();
   const addItem = useQueueStore((state) => state.addItem);
   const { isAuthenticated } = useAuthStore();
+  const { success: showSuccess, error: showError } = useToast();
   const { features } = useDevConfig();
 
   const [showReportModal, setShowReportModal] = useState(false);
@@ -121,12 +187,27 @@ function SongPage() {
   const [showSubmitMatch, setShowSubmitMatch] = useState(false);
   const [submitMatchUrl, setSubmitMatchUrl] = useState("");
   const [submitMatchPlatform, setSubmitMatchPlatform] = useState("youtube");
+  const debouncedSubmitMatchUrl = useDebouncedValue(submitMatchUrl.trim(), 450);
   const submitMatchMutation = useSubmitMatch();
   const updateMatchStatus = useUpdateMatchStatus();
+  const {
+    data: previewData,
+    isLoading: previewLoading,
+    error: previewError,
+  } = useMatchPreview(
+    debouncedSubmitMatchUrl,
+    showSubmitMatch && debouncedSubmitMatchUrl.length > 0
+  );
 
   // Check if user can verify matches (admin or high reputation)
   const { user } = useAuthStore();
   const canVerifyMatches = user && (user.is_admin || user.reputation_score >= VERIFICATION_REP_THRESHOLD);
+
+  useEffect(() => {
+    if (previewData?.target_platform && previewData.target_platform !== submitMatchPlatform) {
+      setSubmitMatchPlatform(previewData.target_platform);
+    }
+  }, [previewData?.target_platform, submitMatchPlatform]);
 
   // Fetch metadata snapshots from all sources
   const { data: snapshotsData } = useMetadataSnapshots(id, {
@@ -150,7 +231,7 @@ function SongPage() {
 
     // If we have existing matches in the database, use them
     if (existingMatches && existingMatches.length > 0) {
-      setMatches(existingMatches);
+      setMatches((prev) => mergeMatches(existingMatches, prev));
       setMatchesLoaded(true);
       return;
     }
@@ -162,8 +243,9 @@ function SongPage() {
         { sourceUrl: song.platforms[0].url, targetPlatforms: TARGET_PLATFORMS },
         {
           onSuccess: (result) => {
-            setMatches(result.matches);
+            setMatches((prev) => mergeMatches(prev, result.matches));
             setMatchesLoaded(true);
+            queryClient.invalidateQueries({ queryKey: matchKeys.list({ songId: id }) });
           },
           onError: () => {
             setMatchesLoaded(true);
@@ -171,7 +253,16 @@ function SongPage() {
         }
       );
     }
-  }, [existingMatches, existingMatchesLoading, song, autoSearchTriggered, matchesLoaded, findMatchesMutation]);
+  }, [
+    autoSearchTriggered,
+    existingMatches,
+    existingMatchesLoading,
+    findMatchesMutation,
+    id,
+    matchesLoaded,
+    queryClient,
+    song,
+  ]);
 
   // Handler to find matches (manual refresh)
   const handleFindMatches = () => {
@@ -180,11 +271,18 @@ function SongPage() {
         { sourceUrl: song.platforms[0].url, targetPlatforms: TARGET_PLATFORMS },
         {
           onSuccess: (result) => {
-            setMatches(result.matches);
+            setMatches((prev) => mergeMatches(prev, result.matches));
             setMatchesLoaded(true);
+            queryClient.invalidateQueries({ queryKey: matchKeys.list({ songId: id }) });
+            showSuccess(
+              result.matches.length > 0
+                ? `Found ${result.matches.length} cross-platform matches`
+                : "No new matches found"
+            );
           },
-          onError: () => {
+          onError: (err) => {
             setMatchesLoaded(true);
+            showError(err instanceof Error ? err.message : "Failed to find matches");
           },
         }
       );
@@ -203,11 +301,13 @@ function SongPage() {
       });
 
       // Add to matches list
-      setMatches((prev) => [...prev, newMatch]);
+      setMatches((prev) => mergeMatches(prev, [newMatch]));
       setShowSubmitMatch(false);
       setSubmitMatchUrl("");
-    } catch {
-      // Error handled by mutation
+      queryClient.invalidateQueries({ queryKey: matchKeys.list({ songId: id }) });
+      showSuccess("Match submitted successfully");
+    } catch (err) {
+      showError(err instanceof Error ? err.message : "Failed to submit match");
     }
   };
 
@@ -225,8 +325,9 @@ function SongPage() {
           m.id === matchId ? { ...m, status, verified_by_username: user?.username } : m
         )
       );
-    } catch {
-      // Error handled by mutation
+      showSuccess(status === "verified" ? "Match verified" : "Match rejected");
+    } catch (err) {
+      showError(err instanceof Error ? err.message : "Failed to update match status");
     }
   };
 
@@ -619,6 +720,7 @@ function SongPage() {
                       <option value="youtube_music">YouTube Music</option>
                       <option value="soundcloud">SoundCloud</option>
                       <option value="bandcamp">Bandcamp</option>
+                      <option value="piped">Piped</option>
                     </select>
                     <input
                       type="url"
@@ -637,6 +739,32 @@ function SongPage() {
                       Submit
                     </Button>
                   </div>
+                  {previewLoading && (
+                    <p className="text-xs text-zinc-500 mt-2">Fetching link preview...</p>
+                  )}
+                  {!previewLoading && previewData?.result && submitMatchUrl.trim() && (
+                    <div className="mt-3 p-3 rounded-lg border border-zinc-800 bg-zinc-900/70">
+                      <p className="text-xs uppercase tracking-wide text-zinc-500 mb-1">
+                        Link preview ({previewData.target_platform.replace("_", " ")})
+                      </p>
+                      <p className="text-sm text-zinc-200 font-medium truncate">
+                        {previewData.result.name}
+                      </p>
+                      <p className="text-xs text-zinc-400 truncate">
+                        {previewData.result.artist}
+                      </p>
+                      {previewData.result.description && (
+                        <p className="text-xs text-zinc-500 truncate mt-1">
+                          {previewData.result.description}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  {!previewLoading && previewError && submitMatchUrl.trim() && (
+                    <p className="text-xs text-zinc-500 mt-2">
+                      Could not preview this link yet. You can still submit it.
+                    </p>
+                  )}
                   {submitMatchMutation.isError && (
                     <p className="text-sm text-accent-peak mt-2">
                       Failed to submit match. Please check the URL and try again.
@@ -1168,18 +1296,29 @@ function MatchRow({
 }) {
   const { isAuthenticated } = useAuthStore();
   const createVoteMutation = useCreateVote();
+  const deleteVoteMutation = useDeleteVote();
   const { data: voteSummary } = useMatchVotes(match.id || "");
+  const { success: showSuccess, error: showError } = useToast();
+  const isVotePending = createVoteMutation.isPending || deleteVoteMutation.isPending;
 
   const handleVote = async (type: "up" | "down") => {
     if (!match.id || !isAuthenticated) return;
 
-    // Don't vote the same way twice
-    if (voteSummary?.user_vote === type) return;
+    try {
+      if (voteSummary?.user_vote === type) {
+        await deleteVoteMutation.mutateAsync(match.id);
+        showSuccess("Vote removed");
+        return;
+      }
 
-    await createVoteMutation.mutateAsync({
-      match_id: match.id,
-      vote_type: type,
-    });
+      await createVoteMutation.mutateAsync({
+        match_id: match.id,
+        vote_type: type,
+      });
+      showSuccess(type === "up" ? "Upvoted match" : "Downvoted match");
+    } catch (err) {
+      showError(err instanceof Error ? err.message : "Failed to update vote");
+    }
   };
 
   const isUserSubmitted = match.match_type === "user";
@@ -1241,6 +1380,11 @@ function MatchRow({
             <span className="text-zinc-600"> • by {match.submitted_by_username}</span>
           )}
         </p>
+        {match.result.description && (
+          <p className="text-xs text-zinc-600 truncate mt-0.5">
+            {match.result.description}
+          </p>
+        )}
       </div>
 
       {/* Score */}
@@ -1253,7 +1397,7 @@ function MatchRow({
         <div className="flex items-center gap-1">
           <button
             onClick={() => handleVote("up")}
-            disabled={createVoteMutation.isPending}
+            disabled={isVotePending}
             className={`p-1.5 rounded transition-colors ${
               voteSummary?.user_vote === "up"
                 ? "bg-accent-safe/20 text-accent-safe"
@@ -1276,7 +1420,7 @@ function MatchRow({
           </span>
           <button
             onClick={() => handleVote("down")}
-            disabled={createVoteMutation.isPending}
+            disabled={isVotePending}
             className={`p-1.5 rounded transition-colors ${
               voteSummary?.user_vote === "down"
                 ? "bg-accent-peak/20 text-accent-peak"

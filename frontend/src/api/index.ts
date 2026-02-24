@@ -50,13 +50,16 @@ export {
   findMatches,
   getMatch,
   submitMatch,
+  previewMatchUrl,
   getMatchesForSong,
   useFindMatches,
   useMatch,
+  useMatchPreview,
   useMatchesForSong,
   useFindMatchesMutation,
   useSubmitMatch,
   matchKeys,
+  type MatchPreviewResponse,
   type SubmitMatchRequest,
 } from "./matches";
 
