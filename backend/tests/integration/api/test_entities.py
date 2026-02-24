@@ -1014,13 +1014,11 @@ class TestNormalizedNames:
 class TestMetadataEnrichment:
     """Tests for metadata enrichment functionality."""
 
-    @patch("spotdl.core.services.metadata.MetadataService.enrich_song")
+    @patch("spotdl.core.services.metadata.MetadataService.fetch_all_snapshots")
     async def test_enrich_song_updates_fields(
-        self, mock_enrich: AsyncMock, authenticated_client: AsyncClient, db_session: AsyncSession
+        self, mock_fetch_all: AsyncMock, authenticated_client: AsyncClient, db_session: AsyncSession
     ) -> None:
         """Test that enrich_song endpoint updates database fields."""
-        from spotdl.core.types.song import Song as CoreSong, Platform
-
         # Create a song without genres/label to be enriched
         song_to_enrich = Song(
             platform="spotify",
@@ -1037,20 +1035,18 @@ class TestMetadataEnrichment:
         await db_session.commit()
         await db_session.refresh(song_to_enrich)
 
-        # Create a mock enriched song result
-        enriched = CoreSong(
-            name="Enrich Me",
-            artists=["Artist"],
-            artist="Artist",
-            album_name="",
-            duration=180,
-            platform=Platform.SPOTIFY,
-            platform_id="enrich_me",
-            url="http://test.com",
-            genres=["enriched_genre"],
-            publisher="Enriched Label",
-        )
-        mock_enrich.return_value = enriched
+        # Mock metadata provider snapshot enrichment path
+        mock_fetch_all.return_value = [
+            MetadataSnapshot(
+                song_id=song_to_enrich.id,
+                source="musicbrainz",
+                snapshot_data={
+                    "genres": ["enriched_genre"],
+                    "label": "Enriched Label",
+                },
+                confidence=2.0,
+            )
+        ]
 
         response = await authenticated_client.post(
             f"/api/v1/entities/songs/{song_to_enrich.id}/enrich"
@@ -1059,8 +1055,10 @@ class TestMetadataEnrichment:
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
-        # Should have updated genres and label
-        assert len(data["fields_updated"]) >= 1
+        assert "genres" in data["fields_updated"]
+        assert "label" in data["fields_updated"]
+        assert data["snapshot_count"] >= 2  # primary snapshot + metadata provider snapshot
+        assert "musicbrainz" in data["sources_used"]
 
     async def test_enrich_song_without_isrc(
         self, authenticated_client: AsyncClient, db_session: AsyncSession

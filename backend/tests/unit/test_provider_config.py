@@ -83,12 +83,12 @@ class TestGetDefaultPreferences:
         assert yt_music is not None
         assert yt_music["enabled"] is True
 
-    def test_soundcloud_disabled_by_default(self) -> None:
-        """Test SoundCloud is disabled by default."""
+    def test_soundcloud_enabled_by_default(self) -> None:
+        """Test SoundCloud is enabled by default."""
         prefs = get_default_preferences("audio")
         soundcloud = next((p for p in prefs if p["id"] == "soundcloud"), None)
         assert soundcloud is not None
-        assert soundcloud["enabled"] is False
+        assert soundcloud["enabled"] is True
 
 
 class TestValidatePreferences:

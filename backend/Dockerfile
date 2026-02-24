@@ -4,6 +4,7 @@ FROM python:3.13-slim AS builder
 # Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv
@@ -12,11 +13,16 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 # Set working directory
 WORKDIR /app
 
-# Copy dependency files from backend package
-COPY backend/pyproject.toml backend/uv.lock* ./
+# Copy dependency files
+COPY pyproject.toml uv.lock* ./
 
 # Install dependencies
 RUN uv sync --frozen --no-dev --no-install-project
+
+# Install shared core package into the backend venv.
+# Railway currently builds this service from /backend root, so we pull core as a package.
+RUN uv pip install --python /app/.venv/bin/python \
+    "git+https://github.com/xnetcat/spotify-downloader.git@xnetcat-rewrite#subdirectory=core"
 
 # Production image
 FROM python:3.13-slim
@@ -36,11 +42,10 @@ WORKDIR /app
 # Copy virtual environment from builder
 COPY --from=builder /app/.venv /app/.venv
 
-# Copy backend app and shared core package
-COPY backend/src/spotdl/ src/spotdl/
-COPY core/src/spotdl_core/ src/spotdl_core/
-COPY backend/alembic/ alembic/
-COPY backend/alembic.ini .
+# Copy backend app
+COPY src/spotdl/ src/spotdl/
+COPY alembic/ alembic/
+COPY alembic.ini .
 
 # Create data and static directories
 RUN mkdir -p /app/data /app/static && chown -R spotdl:spotdl /app

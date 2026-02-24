@@ -38,9 +38,9 @@ def mock_target_song() -> Song:
         artists=["Target Artist"],
         artist="Target Artist",
         duration=200,
-        platform=Platform.YOUTUBE,
+        platform=Platform.YOUTUBE_MUSIC,
         platform_id="xyz789",
-        url="https://www.youtube.com/watch?v=xyz789",
+        url="https://music.youtube.com/watch?v=xyz789",
     )
 
 
@@ -92,10 +92,12 @@ class TestMatchesEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert "platforms" in data
-        # Only YouTube and YouTube Music are enabled by default
+        # All target providers are enabled by default
         assert "youtube" in data["platforms"]
         assert "youtube_music" in data["platforms"]
-        # SoundCloud, Bandcamp, Piped are disabled by default
+        assert "soundcloud" in data["platforms"]
+        assert "bandcamp" in data["platforms"]
+        assert "piped" in data["platforms"]
         assert isinstance(data["platforms"], list)
 
 

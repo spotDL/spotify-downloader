@@ -97,7 +97,10 @@ SEARCHABLE_PLATFORMS = [
     Platform.SPOTIFY,
     Platform.YOUTUBE_MUSIC,
     Platform.DEEZER,
+    Platform.APPLE_MUSIC,
+    Platform.TIDAL,
     Platform.SOUNDCLOUD,
+    Platform.BANDCAMP,
 ]
 
 

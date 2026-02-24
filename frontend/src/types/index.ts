@@ -70,12 +70,15 @@ export interface MatchResult {
   views: number | null;
   explicit: boolean;
   verified: boolean;
+  song_id?: string | null;
 }
 
 export interface Match {
   id?: string;
   source_url: string;
+  source_song_id?: string | null;
   target_url: string;
+  target_song_id?: string | null;
   source_platform?: string;
   target_platform: string;
   score: number;

@@ -15,12 +15,14 @@ from spotdl.api.v1.auth import get_current_user_id, get_current_user_id_optional
 from spotdl.api.v1.dependencies import UserPreferences, get_user_preferences
 from spotdl.api.v1.votes import calculate_wilson_score
 from spotdl.core.reputation import ReputationReward
+from spotdl.core.services.entity import EntityPersistenceService
 from spotdl.core.services.match import get_match_service
 from spotdl.core.services.song import (
     SongServiceError,
     UnsupportedURLError,
     get_song_service,
 )
+from spotdl.core.types.song import Platform, Song
 from spotdl.core.types.result import TargetPlatform
 from spotdl.db.database import get_db_session
 from spotdl.db.models.match import Match, MatchType
@@ -47,13 +49,16 @@ class MatchResult(BaseModel):
     views: int | None = None
     explicit: bool = False
     verified: bool = False
+    song_id: str | None = None
 
 
 class MatchResponse(BaseModel):
     """Response model for a match."""
 
     source_url: str
+    source_song_id: str | None = None
     target_url: str
+    target_song_id: str | None = None
     target_platform: str
     score: float
     confidence: float
@@ -66,8 +71,10 @@ class MatchDetailResponse(BaseModel):
 
     id: str
     source_url: str
+    source_song_id: str | None = None
     source_platform: str
     target_url: str
+    target_song_id: str | None = None
     target_platform: str
     score: float
     confidence: float
@@ -164,6 +171,37 @@ def _result_from_song(song) -> MatchResult:
     )
 
 
+def _target_result_to_song(result) -> Song | None:
+    """Convert a target Result into a persistable Song DTO when possible."""
+    platform_map: dict[TargetPlatform, Platform] = {
+        TargetPlatform.YOUTUBE: Platform.YOUTUBE_MUSIC,
+        TargetPlatform.YOUTUBE_MUSIC: Platform.YOUTUBE_MUSIC,
+        TargetPlatform.PIPED: Platform.YOUTUBE_MUSIC,
+        TargetPlatform.SOUNDCLOUD: Platform.SOUNDCLOUD,
+        TargetPlatform.BANDCAMP: Platform.BANDCAMP,
+    }
+    mapped_platform = platform_map.get(result.platform)
+    if mapped_platform is None:
+        return None
+
+    source_url = result.url
+    if result.platform in {TargetPlatform.YOUTUBE, TargetPlatform.PIPED}:
+        source_url = f"https://music.youtube.com/watch?v={result.platform_id}"
+
+    return Song(
+        name=result.name,
+        artists=list(result.artists),
+        artist=result.artist,
+        duration=result.duration,
+        platform=mapped_platform,
+        platform_id=result.platform_id,
+        url=source_url,
+        album_name=result.album_name or "",
+        cover_url=result.cover_url,
+        explicit=bool(result.explicit),
+    )
+
+
 async def _match_to_detail(
     match: Match,
     song_service,
@@ -201,8 +239,10 @@ async def _match_to_detail(
     return MatchDetailResponse(
         id=str(match.id),
         source_url=match.source_url,
+        source_song_id=str(match.source_song_id) if match.source_song_id else None,
         source_platform=match.source_platform,
         target_url=match.target_url,
+        target_song_id=None,
         target_platform=match.target_platform,
         score=score,
         confidence=confidence,
@@ -227,6 +267,7 @@ async def _match_to_detail(
 async def find_matches(
     request: FindMatchesRequest,
     preferences: Annotated[UserPreferences, Depends(get_user_preferences)],
+    db: AsyncSession = Depends(get_db_session),
 ) -> FindMatchesResponse:
     """
     Find matches for a source URL on target platforms.
@@ -243,6 +284,7 @@ async def find_matches(
     """
     song_service = get_song_service()
     match_service = get_match_service(audio_preferences=preferences["audio"])
+    entity_service = EntityPersistenceService(db)
 
     # Resolve source URL to song
     try:
@@ -269,6 +311,17 @@ async def find_matches(
                 detail=f"Invalid target platform. Supported: {[p.value for p in TargetPlatform]}",
             ) from e
 
+    # Persist source entity so downstream consumers always get internal IDs.
+    source_song_id: str | None = None
+    try:
+        persist_result = await entity_service.persist_from_search([song])
+        source_key = f"{song.platform.value}:{song.platform_id}"
+        source_id = persist_result.song_ids.get(source_key)
+        source_song_id = str(source_id) if source_id else None
+        await db.flush()
+    except Exception:
+        source_song_id = None
+
     # Find matches
     matches = await match_service.find_matches(
         song,
@@ -276,10 +329,34 @@ async def find_matches(
         limit=request.limit,
     )
 
+    # Persist target entities for platforms that map to source Song platforms.
+    target_song_id_by_url: dict[str, str] = {}
+    target_songs: list[tuple[str, Song]] = []
+    for matched in matches:
+        target_song = _target_result_to_song(matched.target_result)
+        if target_song is not None:
+            target_songs.append((matched.target_result.url, target_song))
+
+    if target_songs:
+        try:
+            target_persist = await entity_service.persist_from_search(
+                [song_obj for _, song_obj in target_songs]
+            )
+            for original_url, target_song in target_songs:
+                key = f"{target_song.platform.value}:{target_song.platform_id}"
+                target_id = target_persist.song_ids.get(key)
+                if target_id:
+                    target_song_id_by_url[original_url] = str(target_id)
+            await db.flush()
+        except Exception:
+            target_song_id_by_url = {}
+
     match_responses = [
         MatchResponse(
             source_url=m.source_url,
+            source_song_id=source_song_id,
             target_url=m.target_url,
+            target_song_id=target_song_id_by_url.get(m.target_url),
             target_platform=m.target_platform.value,
             score=m.score,
             confidence=m.confidence,
@@ -297,6 +374,7 @@ async def find_matches(
                 views=m.target_result.views,
                 explicit=m.target_result.explicit,
                 verified=m.target_result.verified,
+                song_id=target_song_id_by_url.get(m.target_result.url),
             ),
         )
         for m in matches
@@ -419,6 +497,15 @@ async def submit_match(
     )
 
 
+@router.get("/platforms")
+async def get_target_platforms() -> dict[str, list[str]]:
+    """Get list of supported target platforms."""
+    match_service = get_match_service()
+    return {
+        "platforms": [p.value for p in match_service.supported_platforms],
+    }
+
+
 @router.get("/{match_id}", response_model=MatchDetailResponse)
 async def get_match(
     match_id: str,
@@ -478,12 +565,3 @@ async def get_match_votes(
         confidence=confidence,
         user_vote=user_vote,
     )
-
-
-@router.get("/platforms")
-async def get_target_platforms() -> dict[str, list[str]]:
-    """Get list of supported target platforms."""
-    match_service = get_match_service()
-    return {
-        "platforms": [p.value for p in match_service.supported_platforms],
-    }

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date as date_type
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
@@ -399,6 +399,106 @@ def _song_to_response(song: Song, include_enhanced: bool = False) -> SongRespons
     return response
 
 
+def _build_song_snapshot_data(song: Song) -> dict[str, object]:
+    """Build normalized snapshot data from a Song DB model."""
+    metadata = song.metadata_json or {}
+    snapshot_data: dict[str, object] = {
+        "name": song.name,
+        "artists": song.artists,
+        "album_name": song.album_name,
+        "isrc": song.isrc,
+        "genres": song.genres or [],
+        "year": song.release_date.year if song.release_date else metadata.get("year"),
+        "release_date": str(song.release_date) if song.release_date else None,
+        "explicit": song.explicit,
+        "popularity": song.popularity,
+        "label": song.label,
+        "copyright_text": song.copyright_text,
+        "track_number": metadata.get("track_number"),
+        "disc_number": metadata.get("disc_number"),
+        "musicbrainz_id": song.musicbrainz_id,
+        "discogs_id": song.discogs_id,
+    }
+
+    if any([song.bpm, song.energy, song.danceability, song.valence]):
+        snapshot_data.update({
+            "bpm": float(song.bpm) if song.bpm else None,
+            "energy": float(song.energy) if song.energy else None,
+            "danceability": float(song.danceability) if song.danceability else None,
+            "valence": float(song.valence) if song.valence else None,
+            "key": song.key,
+            "mode": song.mode,
+            "loudness": float(song.loudness) if song.loudness else None,
+            "speechiness": float(song.speechiness) if song.speechiness else None,
+            "acousticness": float(song.acousticness) if song.acousticness else None,
+            "instrumentalness": float(song.instrumentalness) if song.instrumentalness else None,
+            "liveness": float(song.liveness) if song.liveness else None,
+            "time_signature": song.time_signature,
+        })
+
+    return {k: v for k, v in snapshot_data.items() if v is not None}
+
+
+async def _ensure_song_platform_snapshot(
+    song: Song,
+    db: AsyncSession,
+) -> MetadataSnapshot:
+    """Ensure the primary platform snapshot exists/up-to-date for a song."""
+    from spotdl.db.repositories import MetadataSnapshotRepository
+
+    snapshot_repo = MetadataSnapshotRepository(db)
+    return await snapshot_repo.upsert(
+        song_id=song.id,
+        source=song.platform,
+        snapshot_data=_build_song_snapshot_data(song),
+        raw_response=None,
+        confidence=1.0,
+    )
+
+
+def _apply_snapshot_to_song(song: Song, snapshot: MetadataSnapshot) -> list[str]:
+    """Apply normalized snapshot data to song model and return updated field names."""
+    data = snapshot.snapshot_data or {}
+    updated_fields: list[str] = []
+    field_sources = song.field_sources or {}
+
+    if data.get("musicbrainz_id") and not song.musicbrainz_id:
+        song.musicbrainz_id = str(data["musicbrainz_id"])
+        field_sources["musicbrainz_id"] = snapshot.source
+        updated_fields.append("musicbrainz_id")
+
+    if data.get("discogs_id") and not song.discogs_id:
+        song.discogs_id = str(data["discogs_id"])
+        field_sources["discogs_id"] = snapshot.source
+        updated_fields.append("discogs_id")
+
+    if data.get("genres") and not song.genres:
+        song.genres = list(data["genres"])
+        field_sources["genres"] = snapshot.source
+        updated_fields.append("genres")
+
+    if data.get("label") and not song.label:
+        song.label = str(data["label"])
+        field_sources["label"] = snapshot.source
+        updated_fields.append("label")
+
+    if data.get("isrc") and not song.isrc:
+        song.isrc = str(data["isrc"])
+        field_sources["isrc"] = snapshot.source
+        updated_fields.append("isrc")
+
+    if not song.release_date and data.get("year"):
+        try:
+            song.release_date = date_type(int(data["year"]), 1, 1)
+            field_sources["release_date"] = snapshot.source
+            updated_fields.append("release_date")
+        except (TypeError, ValueError):
+            pass
+
+    song.field_sources = field_sources
+    return updated_fields
+
+
 @router.get("/artists/{id}")
 async def get_artist(
     id: Annotated[str, Path(description="Internal artist UUID")],
@@ -667,65 +767,15 @@ async def get_song(
     if not song:
         raise HTTPException(status_code=404, detail="Song not found")
 
-    # Lazy enrichment: fetch metadata from MusicBrainz/Discogs if not enriched
-    # Check if song lacks enrichment data (no enriched_at timestamp or missing key metadata)
-    needs_enrichment = (
-        not song.enriched_at
-        and song.isrc  # Need ISRC for reliable matching
-        and not song.musicbrainz_id  # Not already enriched from MusicBrainz
-    )
+    # Lazy enrichment: fetch metadata snapshots from all configured providers
+    # when we have never enriched this song.
+    needs_enrichment = not song.enriched_at
 
     if needs_enrichment:
         try:
             from spotdl.core.services.metadata import MetadataService
-            from spotdl.db.repositories import MetadataSnapshotRepository
-
-            # First, create a snapshot from the existing platform data (e.g., Spotify)
-            snapshot_repo = MetadataSnapshotRepository(db)
-
-            # Build snapshot data from current song
-            metadata = song.metadata_json or {}
-            spotify_snapshot_data = {
-                "name": song.name,
-                "artists": song.artists,
-                "album_name": song.album_name,
-                "isrc": song.isrc,
-                "genres": song.genres or [],
-                "year": song.release_date.year if song.release_date else metadata.get("year"),
-                "release_date": str(song.release_date) if song.release_date else None,
-                "explicit": song.explicit,
-                "popularity": song.popularity,
-                "label": song.label,
-                "copyright_text": song.copyright_text,
-                "track_number": metadata.get("track_number"),
-                "disc_number": metadata.get("disc_number"),
-            }
-
-            # Add audio features if available
-            if any([song.bpm, song.energy, song.danceability, song.valence]):
-                spotify_snapshot_data.update({
-                    "bpm": float(song.bpm) if song.bpm else None,
-                    "energy": float(song.energy) if song.energy else None,
-                    "danceability": float(song.danceability) if song.danceability else None,
-                    "valence": float(song.valence) if song.valence else None,
-                    "key": song.key,
-                    "mode": song.mode,
-                    "loudness": float(song.loudness) if song.loudness else None,
-                    "speechiness": float(song.speechiness) if song.speechiness else None,
-                    "acousticness": float(song.acousticness) if song.acousticness else None,
-                    "instrumentalness": float(song.instrumentalness) if song.instrumentalness else None,
-                    "liveness": float(song.liveness) if song.liveness else None,
-                    "time_signature": song.time_signature,
-                })
-
-            # Create Spotify snapshot (primary platform data)
-            await snapshot_repo.upsert(
-                song_id=song_uuid,
-                source=song.platform,
-                snapshot_data={k: v for k, v in spotify_snapshot_data.items() if v is not None},
-                raw_response=None,  # We don't have the raw response
-                confidence=1.0,  # Platform data is authoritative
-            )
+            # Always capture/update the primary platform snapshot first.
+            primary_snapshot = await _ensure_song_platform_snapshot(song, db)
 
             # Use MetadataService to fetch and save snapshots from other providers
             # Use user's metadata preferences if available
@@ -743,33 +793,21 @@ async def get_song(
                 session=db,
             )
 
-            # Update song with best snapshot data
-            if snapshots:
-                best_snapshot = max(snapshots, key=lambda s: s.confidence)
-                data = best_snapshot.snapshot_data
-
-                # Update song fields if not already set
-                if data.get("musicbrainz_id") and not song.musicbrainz_id:
-                    song.musicbrainz_id = data["musicbrainz_id"]
-                if data.get("discogs_id") and not song.discogs_id:
-                    song.discogs_id = data["discogs_id"]
-                if data.get("genres") and not song.genres:
-                    song.genres = data["genres"]
-                if data.get("label") and not song.label:
-                    song.label = data["label"]
-
-                # Track field sources
-                field_sources = song.field_sources or {}
-                for field in ["genres", "label", "musicbrainz_id", "discogs_id"]:
-                    if data.get(field) and getattr(song, field, None):
-                        field_sources[field] = best_snapshot.source
-                song.field_sources = field_sources
+            # Update song from the highest-confidence snapshot among all sources.
+            all_snapshots = [primary_snapshot, *snapshots]
+            if all_snapshots:
+                best_snapshot = max(all_snapshots, key=lambda s: s.confidence)
+                _apply_snapshot_to_song(song, best_snapshot)
 
             song.enriched_at = datetime.now(timezone.utc)
             await db.commit()
             await db.refresh(song)
 
-            logger.info(f"Lazy song enrichment saved {len(snapshots) + 1} snapshots for {song_uuid}")
+            logger.info(
+                "Lazy song enrichment saved %d snapshots for %s",
+                len(all_snapshots),
+                song_uuid,
+            )
 
         except Exception as e:
             # Enrichment failed, continue with what we have
@@ -1103,13 +1141,16 @@ async def get_song_metadata_sources(
         .order_by(MetadataSnapshot.confidence.desc())
     )
     result = await db.execute(query)
-    snapshots = result.scalars().all()
+    snapshots = list(result.scalars().all())
 
-    # If no snapshots exist, create one from the current song data
-    sources = list({s.source for s in snapshots})
-    if not sources:
-        # Return the primary platform data as the only source
-        sources = [song.platform]
+    # If no snapshots exist, capture the primary platform snapshot so the UI
+    # always has at least one concrete metadata source to display.
+    if not snapshots:
+        platform_snapshot = await _ensure_song_platform_snapshot(song, db)
+        await db.commit()
+        snapshots = [platform_snapshot]
+
+    sources = sorted({s.source for s in snapshots})
 
     return MetadataSourcesResponse(
         song_id=str(song_uuid),
@@ -1180,6 +1221,11 @@ async def get_song_resolved_metadata(
     )
     result = await db.execute(query)
     snapshots = list(result.scalars().all())
+
+    if not snapshots:
+        platform_snapshot = await _ensure_song_platform_snapshot(song, db)
+        await db.commit()
+        snapshots = [platform_snapshot]
 
     # Resolve metadata using user's embed preferences
     resolver = MetadataResolver(preferences=embed_preferences)
@@ -1511,6 +1557,7 @@ class EnrichResponse(BaseModel):
     message: str
     sources_used: list[str] = []
     fields_updated: list[str] = []
+    snapshot_count: int = 0
 
 
 @router.post("/songs/{id}/enrich")
@@ -1528,9 +1575,7 @@ async def enrich_song(
     Uses user's metadata source preferences to determine which providers to use
     and in what order. Unauthenticated users get default provider set.
     """
-    from datetime import datetime, timezone
     from spotdl.core.services.metadata import MetadataService
-    from spotdl.core.types.song import Song as SongType
 
     song_uuid = validate_uuid(id, "song ID")
 
@@ -1541,75 +1586,31 @@ async def enrich_song(
         raise HTTPException(status_code=404, detail="Song not found")
 
     try:
-        # Import Platform enum
-        from spotdl.core.types.song import Platform
-
-        # Convert platform string to enum
-        try:
-            platform_enum = Platform(song.platform)
-        except ValueError:
-            platform_enum = Platform.SPOTIFY  # Default fallback
-
-        # Convert DB song to core song type for enrichment
-        core_song = SongType(
-            name=song.name,
-            artists=song.artists,
-            artist=song.artists[0] if song.artists else "",
-            album_name=song.album_name or "",
-            duration=song.duration_seconds,
-            platform=platform_enum,
-            platform_id=song.platform_id,
-            url=song.platform_url,
-            isrc=song.isrc,
-            genres=song.genres or [],
-            year=song.release_date.year if song.release_date else 0,
-        )
+        # Always create/update the primary snapshot first.
+        primary_snapshot = await _ensure_song_platform_snapshot(song, db)
 
         # Initialize metadata service with user preferences
         metadata_service = MetadataService(
             metadata_preferences=preferences["metadata"],
         )
 
-        # Track which fields exist before enrichment
-        fields_before = {
-            "genres": bool(song.genres),
-            "label": bool(song.label),
-            "isrc": bool(song.isrc),
-            "musicbrainz_id": bool(song.musicbrainz_id),
-            "discogs_id": bool(song.discogs_id),
-        }
+        # Fetch and save snapshots from all metadata providers.
+        provider_snapshots = await metadata_service.fetch_all_snapshots(
+            song_id=song_uuid,
+            isrc=song.isrc,
+            name=song.name,
+            artist=song.artists[0] if song.artists else "",
+            album_name=song.album_name,
+            session=db,
+        )
 
-        # Enrich the song - returns the enriched Song object
-        enriched_song = await metadata_service.enrich_song(core_song, use_all_providers=True)
+        all_snapshots = [primary_snapshot, *provider_snapshots]
+        fields_updated: list[str] = []
+        if all_snapshots:
+            best_snapshot = max(all_snapshots, key=lambda s: s.confidence)
+            fields_updated = _apply_snapshot_to_song(song, best_snapshot)
 
-        # Update database fields
-        field_sources = song.field_sources or {}
-        fields_updated = []
-        sources_used = set()
-
-        # Update genres if we got new ones
-        if enriched_song.genres and not song.genres:
-            song.genres = enriched_song.genres
-            field_sources["genres"] = "musicbrainz"
-            fields_updated.append("genres")
-            sources_used.add("musicbrainz")
-
-        # Update label (publisher field in Song type)
-        if enriched_song.publisher and not song.label:
-            song.label = enriched_song.publisher
-            field_sources["label"] = "discogs"
-            fields_updated.append("label")
-            sources_used.add("discogs")
-
-        # Update ISRC if we got one
-        if enriched_song.isrc and not song.isrc:
-            song.isrc = enriched_song.isrc
-            field_sources["isrc"] = "musicbrainz"
-            fields_updated.append("isrc")
-            sources_used.add("musicbrainz")
-
-        # Update tracking
-        song.field_sources = field_sources
+        sources_used = sorted({snapshot.source for snapshot in all_snapshots})
         song.enriched_at = datetime.now(timezone.utc)
 
         await db.commit()
@@ -1617,8 +1618,9 @@ async def enrich_song(
         return EnrichResponse(
             success=True,
             message=f"Enrichment complete. Updated {len(fields_updated)} fields.",
-            sources_used=list(sources_used),
+            sources_used=sources_used,
             fields_updated=fields_updated,
+            snapshot_count=len(all_snapshots),
         )
 
     except Exception as e:
@@ -1633,6 +1635,15 @@ async def list_metadata_providers() -> dict:
     """
     return {
         "providers": [
+            {
+                "id": "spotify",
+                "name": "Spotify (Primary Snapshot)",
+                "description": "Snapshot of the song metadata from the primary source platform",
+                "icon": "spotify",
+                "features": ["name", "artists", "album", "isrc", "audio_features"],
+                "rate_limit": "n/a",
+                "auth_required": False,
+            },
             {
                 "id": "musicbrainz",
                 "name": "MusicBrainz",
@@ -1724,54 +1735,8 @@ async def enrich_song_from_all_sources(
         raise HTTPException(status_code=404, detail="Song not found")
 
     try:
-        from spotdl.db.repositories import MetadataSnapshotRepository
-
-        # First, create a snapshot from the existing platform data (e.g., Spotify)
-        snapshot_repo = MetadataSnapshotRepository(db)
-
-        # Build snapshot data from current song
-        metadata = song.metadata_json or {}
-        platform_snapshot_data = {
-            "name": song.name,
-            "artists": song.artists,
-            "album_name": song.album_name,
-            "isrc": song.isrc,
-            "genres": song.genres or [],
-            "year": song.release_date.year if song.release_date else metadata.get("year"),
-            "release_date": str(song.release_date) if song.release_date else None,
-            "explicit": song.explicit,
-            "popularity": song.popularity,
-            "label": song.label,
-            "copyright_text": song.copyright_text,
-            "track_number": metadata.get("track_number"),
-            "disc_number": metadata.get("disc_number"),
-        }
-
-        # Add audio features if available
-        if any([song.bpm, song.energy, song.danceability, song.valence]):
-            platform_snapshot_data.update({
-                "bpm": float(song.bpm) if song.bpm else None,
-                "energy": float(song.energy) if song.energy else None,
-                "danceability": float(song.danceability) if song.danceability else None,
-                "valence": float(song.valence) if song.valence else None,
-                "key": song.key,
-                "mode": song.mode,
-                "loudness": float(song.loudness) if song.loudness else None,
-                "speechiness": float(song.speechiness) if song.speechiness else None,
-                "acousticness": float(song.acousticness) if song.acousticness else None,
-                "instrumentalness": float(song.instrumentalness) if song.instrumentalness else None,
-                "liveness": float(song.liveness) if song.liveness else None,
-                "time_signature": song.time_signature,
-            })
-
-        # Create platform snapshot (primary platform data)
-        platform_snapshot = await snapshot_repo.upsert(
-            song_id=song_uuid,
-            source=song.platform,
-            snapshot_data={k: v for k, v in platform_snapshot_data.items() if v is not None},
-            raw_response=None,  # We don't have the raw response
-            confidence=1.0,  # Platform data is authoritative
-        )
+        # First, create/update a snapshot from the current primary platform data.
+        platform_snapshot = await _ensure_song_platform_snapshot(song, db)
 
         # Initialize services
         metadata_service = MetadataService(

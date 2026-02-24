@@ -39,19 +39,19 @@ AUDIO_SOURCE_PROVIDERS: list[ProviderInfo] = [
         "id": "soundcloud",
         "name": "SoundCloud",
         "icon": "soundcloud",
-        "default_enabled": False,
+        "default_enabled": True,
     },
     {
         "id": "bandcamp",
         "name": "Bandcamp",
         "icon": "bandcamp",
-        "default_enabled": False,
+        "default_enabled": True,
     },
     {
         "id": "piped",
         "name": "Piped",
         "icon": "piped",
-        "default_enabled": False,
+        "default_enabled": True,
     },
 ]
 

@@ -174,7 +174,10 @@ class SongService:
             # Enrich songs with metadata if enabled
             should_enrich = enrich if enrich is not None else self._enable_enrichment
             if should_enrich and self._metadata_service and songs:
-                songs = await self._metadata_service.enrich_songs(songs)
+                songs = await self._metadata_service.enrich_songs(
+                    songs,
+                    use_all_providers=True,
+                )
 
             return songs
         except SourceProviderError as e:
@@ -210,7 +213,10 @@ class SongService:
             # Enrich with metadata if enabled
             should_enrich = enrich if enrich is not None else self._enable_enrichment
             if should_enrich and self._metadata_service:
-                song = await self._metadata_service.enrich_song(song)
+                song = await self._metadata_service.enrich_song(
+                    song,
+                    use_all_providers=True,
+                )
 
             return song
         except SourceProviderError as e:
@@ -356,7 +362,10 @@ class SongService:
             Enriched Song object (same instance, modified)
         """
         if self._metadata_service:
-            return await self._metadata_service.enrich_song(song)
+            return await self._metadata_service.enrich_song(
+                song,
+                use_all_providers=True,
+            )
         return song
 
     async def enrich_songs(self, songs: list[Song]) -> list[Song]:
@@ -370,7 +379,10 @@ class SongService:
             List of enriched Song objects
         """
         if self._metadata_service:
-            return await self._metadata_service.enrich_songs(songs)
+            return await self._metadata_service.enrich_songs(
+                songs,
+                use_all_providers=True,
+            )
         return songs
 
     async def lookup_isrc(self, isrc: str) -> dict | None:
