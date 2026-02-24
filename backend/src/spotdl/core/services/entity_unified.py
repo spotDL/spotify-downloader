@@ -819,6 +819,9 @@ class UnifiedEntityService:
         entities: list[Entity] = []
         relations: dict[str, list[EntityRelation]] = {}
 
+        bundles_to_upsert: dict[str, ProviderEntityBundle] = {}
+        relations_to_create: list[tuple[str, str, str, str, dict[str, Any] | None]] = []
+
         source_platform = detect_platform(url)
         if source_platform is not None:
             url_info = extract_url_info(url)
@@ -826,65 +829,45 @@ class UnifiedEntityService:
             try:
                 if url_type == "album":
                     album = await self._song_service.get_album(url)
-                    root = await self._upsert_entity_snapshot(
-                        self._bundle_from_songlist(album, "album")
-                    )
-                    entities.append(root)
-                    created_entities += 1
+                    root_bundle = self._bundle_from_songlist(album, "album")
+                    root_key = self._entity_key("album", root_bundle.normalized_payload)
+                    bundles_to_upsert[root_key] = root_bundle
                     for track in album.songs:
-                        track_entity = await self._upsert_entity_snapshot(self._bundle_from_song(track))
-                        relation = await self._create_or_update_relation(
-                            root.id,
-                            track_entity.id,
-                            "contains",
-                            None,
-                            SOURCE_PLATFORM_TO_ID.get(source_platform, "system"),
-                            {"position": track.track_number},
+                        track_bundle = self._bundle_from_song(track)
+                        track_key = self._entity_key("track", track_bundle.normalized_payload)
+                        bundles_to_upsert[track_key] = track_bundle
+                        relations_to_create.append(
+                            (root_key, track_key, "contains", SOURCE_PLATFORM_TO_ID.get(source_platform, "system"), {"position": track.track_number})
                         )
-                        relations.setdefault(str(root.id), []).append(relation)
-                        entities.append(track_entity)
                 elif url_type == "artist":
                     artist = await self._song_service.get_artist(url)
-                    root = await self._upsert_entity_snapshot(
-                        self._bundle_from_songlist(artist, "artist")
-                    )
-                    entities.append(root)
-                    created_entities += 1
+                    root_bundle = self._bundle_from_songlist(artist, "artist")
+                    root_key = self._entity_key("artist", root_bundle.normalized_payload)
+                    bundles_to_upsert[root_key] = root_bundle
                     for track in artist.songs:
-                        track_entity = await self._upsert_entity_snapshot(self._bundle_from_song(track))
-                        relation = await self._create_or_update_relation(
-                            root.id,
-                            track_entity.id,
-                            "performed",
-                            None,
-                            SOURCE_PLATFORM_TO_ID.get(source_platform, "system"),
+                        track_bundle = self._bundle_from_song(track)
+                        track_key = self._entity_key("track", track_bundle.normalized_payload)
+                        bundles_to_upsert[track_key] = track_bundle
+                        relations_to_create.append(
+                            (root_key, track_key, "performed", SOURCE_PLATFORM_TO_ID.get(source_platform, "system"), None)
                         )
-                        relations.setdefault(str(root.id), []).append(relation)
-                        entities.append(track_entity)
                 elif url_type == "playlist":
                     playlist = await self._song_service.get_playlist(url)
-                    root = await self._upsert_entity_snapshot(
-                        self._bundle_from_songlist(playlist, "playlist")
-                    )
-                    entities.append(root)
-                    created_entities += 1
+                    root_bundle = self._bundle_from_songlist(playlist, "playlist")
+                    root_key = self._entity_key("playlist", root_bundle.normalized_payload)
+                    bundles_to_upsert[root_key] = root_bundle
                     for idx, track in enumerate(playlist.songs):
-                        track_entity = await self._upsert_entity_snapshot(self._bundle_from_song(track))
-                        relation = await self._create_or_update_relation(
-                            root.id,
-                            track_entity.id,
-                            "contains",
-                            None,
-                            SOURCE_PLATFORM_TO_ID.get(source_platform, "system"),
-                            {"position": idx + 1},
+                        track_bundle = self._bundle_from_song(track)
+                        track_key = self._entity_key("track", track_bundle.normalized_payload)
+                        bundles_to_upsert[track_key] = track_bundle
+                        relations_to_create.append(
+                            (root_key, track_key, "contains", SOURCE_PLATFORM_TO_ID.get(source_platform, "system"), {"position": idx + 1})
                         )
-                        relations.setdefault(str(root.id), []).append(relation)
-                        entities.append(track_entity)
                 else:
                     track = await self._song_service.get_track(url, enrich=True)
-                    entity = await self._upsert_entity_snapshot(self._bundle_from_song(track))
-                    entities.append(entity)
-                    created_entities += 1
+                    track_bundle = self._bundle_from_song(track)
+                    track_key = self._entity_key("track", track_bundle.normalized_payload)
+                    bundles_to_upsert[track_key] = track_bundle
             except (SongServiceError, UnsupportedURLError) as exc:
                 logger.warning("Failed source discovery for %s: %s", url, exc)
                 raise UnifiedEntityError(f"Failed to discover source URL: {exc}") from exc
@@ -893,19 +876,35 @@ class UnifiedEntityService:
             if target_platform:
                 bundle = await self._resolve_target_url(url, target_platform)
                 if bundle:
-                    entity = await self._upsert_entity_snapshot(bundle)
-                    entities.append(entity)
-                    created_entities += 1
-            if not entities:
+                    bundle_key = self._entity_key(bundle.entity_type, bundle.normalized_payload)
+                    bundles_to_upsert[bundle_key] = bundle
+            if not bundles_to_upsert:
                 og_payload = await _fetch_open_graph(url)
                 if og_payload:
-                    entity = await self._upsert_entity_snapshot(
-                        self._bundle_from_open_graph(url, og_payload)
-                    )
-                    entities.append(entity)
-                    created_entities += 1
+                    bundle = self._bundle_from_open_graph(url, og_payload)
+                    bundle_key = self._entity_key(bundle.entity_type, bundle.normalized_payload)
+                    bundles_to_upsert[bundle_key] = bundle
                 else:
                     raise UnifiedEntityError(f"Unsupported URL and no metadata available: {url}")
+
+        entities_by_key: dict[str, Entity] = {}
+        for key in sorted(bundles_to_upsert.keys()):
+            entity = await self._upsert_entity_snapshot(bundles_to_upsert[key])
+            entities_by_key[key] = entity
+            entities.append(entity)
+            created_entities += 1
+
+        for r_tuple in sorted(relations_to_create, key=lambda x: (x[0], x[1], x[2])):
+            from_key, to_key, rel_type, provider_id, rel_data = r_tuple
+            relation = await self._create_or_update_relation(
+                entities_by_key[from_key].id,
+                entities_by_key[to_key].id,
+                rel_type,
+                None,
+                provider_id,
+                relation_data=rel_data,
+            )
+            relations.setdefault(str(entities_by_key[from_key].id), []).append(relation)
 
         deduped: dict[str, Entity] = {}
         for entity in entities:
@@ -937,34 +936,55 @@ class UnifiedEntityService:
         source_tasks = [search_source(platform) for platform in source_platforms]
         source_results = await asyncio.gather(*source_tasks, return_exceptions=False)
 
-        entities: list[Entity] = []
+        # Collect all bundles and relations to upsert in sorted order to prevent deadlocks
+        bundles_to_upsert: dict[str, ProviderEntityBundle] = {}
+        # relations: list of (from_key, to_key, relation_type, provider_id, relation_data)
+        relations_to_create: list[tuple[str, str, str, str, dict[str, Any] | None]] = []
+
         for songs in source_results:
             for song in songs:
-                track_entity = await self._upsert_entity_snapshot(self._bundle_from_song(song))
-                entities.append(track_entity)
+                track_bundle = self._bundle_from_song(song)
+                track_key = self._entity_key(track_bundle.entity_type, track_bundle.normalized_payload)
+                bundles_to_upsert[track_key] = track_bundle
+                
                 artist_bundle = self._bundle_from_song_artist(song)
                 if artist_bundle:
-                    artist_entity = await self._upsert_entity_snapshot(artist_bundle)
-                    entities.append(artist_entity)
-                    await self._create_or_update_relation(
-                        artist_entity.id,
-                        track_entity.id,
-                        "performed",
-                        None,
-                        artist_bundle.provider_id,
+                    artist_key = self._entity_key(artist_bundle.entity_type, artist_bundle.normalized_payload)
+                    bundles_to_upsert[artist_key] = artist_bundle
+                    relations_to_create.append(
+                        (artist_key, track_key, "performed", artist_bundle.provider_id, None)
                     )
+                
                 album_bundle = self._bundle_from_song_album(song)
                 if album_bundle:
-                    album_entity = await self._upsert_entity_snapshot(album_bundle)
-                    entities.append(album_entity)
-                    await self._create_or_update_relation(
-                        album_entity.id,
-                        track_entity.id,
-                        "contains",
-                        None,
-                        album_bundle.provider_id,
-                        relation_data={"track_number": song.track_number},
+                    album_key = self._entity_key(album_bundle.entity_type, album_bundle.normalized_payload)
+                    bundles_to_upsert[album_key] = album_bundle
+                    relations_to_create.append(
+                        (album_key, track_key, "contains", album_bundle.provider_id, {"track_number": song.track_number})
                     )
+
+        entities_by_key: dict[str, Entity] = {}
+        for key in sorted(bundles_to_upsert.keys()):
+            entity = await self._upsert_entity_snapshot(bundles_to_upsert[key])
+            entities_by_key[key] = entity
+            entities.append(entity)
+            
+        # Deduplicate relations to avoid duplicate sorted inserts
+        unique_relations = {}
+        for r in relations_to_create:
+            # key by (from_key, to_key, relation_type)
+            unique_relations[(r[0], r[1], r[2])] = r
+            
+        for r_tuple in sorted(unique_relations.values(), key=lambda x: (x[0], x[1], x[2])):
+            from_key, to_key, rel_type, provider_id, rel_data = r_tuple
+            await self._create_or_update_relation(
+                entities_by_key[from_key].id,
+                entities_by_key[to_key].id,
+                rel_type,
+                None,
+                provider_id,
+                relation_data=rel_data,
+            )
 
         # Query target providers by using a pseudo song to preserve target capability coverage.
         pseudo_song = Song(
