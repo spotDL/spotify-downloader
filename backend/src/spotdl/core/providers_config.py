@@ -163,9 +163,6 @@ def validate_preferences(
     valid_providers = providers_map.get(category, [])
     valid_ids = {p["id"] for p in valid_providers}
 
-    # Filter out invalid provider IDs
-    existing_prefs = {p["id"]: p for p in preferences if p["id"] in valid_ids}
-
     # Build normalized list maintaining user order for existing prefs
     result: list[ProviderPreference] = []
     seen_ids: set[str] = set()

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
 
 from spotdl.core.services.metadata import MetadataService
 from spotdl.core.types.song import Platform, Song, SongList
@@ -20,9 +19,6 @@ from spotdl.providers.sources import (
     YouTubeMusicProvider,
     detect_platform,
 )
-
-if TYPE_CHECKING:
-    pass
 
 logger = logging.getLogger(__name__)
 
