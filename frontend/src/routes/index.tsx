@@ -184,9 +184,6 @@ function HostedHomePage() {
         <CardContent className="py-4">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-sm font-medium text-zinc-300">Service Status</h4>
-            <Link to="/settings" className="text-xs text-accent-needle hover:underline">
-              View Details
-            </Link>
           </div>
           <ConnectionStatusCompact />
         </CardContent>

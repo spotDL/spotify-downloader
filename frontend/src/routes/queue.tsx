@@ -14,9 +14,16 @@ import {
 import { CoverArt } from "@/components/ui/cover-art";
 import { useDevConfig } from "@/contexts/DevConfigContext";
 import { useAuthStore } from "@/stores/auth";
+import { config } from "@/config";
 
 export const Route = createFileRoute("/queue")({
   beforeLoad: () => {
+    if (config.mode === "hosted") {
+      throw redirect({
+        to: "/",
+      });
+    }
+
     const { isAuthenticated } = useAuthStore.getState();
     if (!isAuthenticated) {
       throw redirect({

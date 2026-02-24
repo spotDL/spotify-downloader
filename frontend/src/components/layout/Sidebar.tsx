@@ -117,7 +117,9 @@ export function Sidebar({ queueCount = 0 }: SidebarProps) {
     ...(features.hasQueue
       ? [{ to: "/queue", label: "Queue", icon: <QueueIcon />, badge: queueCount > 0 ? queueCount : undefined, requiresAuth: true }]
       : []),
-    { to: "/settings", label: "Settings", icon: <SettingsIcon />, requiresAuth: true },
+    ...(features.hasDownloadSettings
+      ? [{ to: "/settings", label: "Settings", icon: <SettingsIcon />, requiresAuth: true }]
+      : []),
     { to: "/admin", label: "Admin", icon: <AdminIcon />, adminOnly: true },
   ];
 

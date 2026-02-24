@@ -28,6 +28,7 @@ import {
 } from "@/components/ui";
 import { useProviders } from "@/api";
 import { useDevConfig } from "@/contexts/DevConfigContext";
+import { config } from "@/config";
 
 // Debounce hook for auto-save
 function useDebounce<T>(value: T, delay: number): T {
@@ -48,6 +49,12 @@ function useDebounce<T>(value: T, delay: number): T {
 
 export const Route = createFileRoute("/settings")({
   beforeLoad: () => {
+    if (config.mode === "hosted") {
+      throw redirect({
+        to: "/",
+      });
+    }
+
     const { isAuthenticated } = useAuthStore.getState();
     if (!isAuthenticated) {
       throw redirect({
