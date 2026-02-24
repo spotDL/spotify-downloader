@@ -13,6 +13,7 @@ import {
   Button,
   RefreshMetadataButton,
   useToast,
+  EntityErrorCard,
 } from "@/components/ui";
 import { CoverArt } from "@/components/ui/cover-art";
 import { Spinner } from "@/components/ui";
@@ -216,33 +217,8 @@ function AlbumPage() {
     );
   }
 
-  if (error) {
-    return (
-      <Card variant="bordered" className="max-w-2xl mx-auto border-red-900/50">
-        <CardContent className="py-8 text-center">
-          <p className="text-accent-peak">Failed to load album</p>
-          <p className="text-sm text-zinc-500 mt-2">
-            {error instanceof Error ? error.message : "An error occurred"}
-          </p>
-          <Link to="/" className="text-accent-needle hover:underline mt-4 inline-block">
-            Back to home
-          </Link>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!album) {
-    return (
-      <Card variant="bordered" className="max-w-2xl mx-auto">
-        <CardContent className="py-8 text-center">
-          <p className="text-zinc-400">Album not found</p>
-          <Link to="/" className="text-accent-needle hover:underline mt-4 inline-block">
-            Back to home
-          </Link>
-        </CardContent>
-      </Card>
-    );
+  if (error || !album) {
+    return <EntityErrorCard entityType="album" error={error ?? null} entityId={id} />;
   }
 
   const totalDuration = album.songs.reduce((sum, song) => sum + song.duration, 0);

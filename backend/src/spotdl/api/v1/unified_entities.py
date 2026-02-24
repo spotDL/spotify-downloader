@@ -159,12 +159,88 @@ class CreateRelationRequest(BaseModel):
     match_score: float | None = None
 
 
+async def _resolve_entity_canonical(
+    entity: Entity,
+    db: AsyncSession,
+) -> dict[str, Any]:
+    """Return the canonical dict enriched with internal UUID cross-references.
+
+    For track entities, inject:
+      - ``album_entity_id``: internal UUID of the album that contains this track
+        (resolved via an incoming ``contains`` relation)
+      - ``artist_entity_id``: internal UUID of the primary artist that performed
+        this track (resolved via an incoming ``performed`` relation)
+
+    For album entities, inject:
+      - ``artist_entity_id``: internal UUID of the artist that performed the album
+        (resolved via an incoming ``performed`` relation)
+
+    These fields let the frontend navigate directly with internal UUIDs instead
+    of the raw Spotify platform IDs stored in the ``canonical`` blob.
+    """
+    from sqlalchemy import or_, select
+
+    canonical = dict(entity.canonical or {})
+
+    # Only enrich tracks and albums — playlists/artists don't need cross-refs.
+    if entity.entity_type not in {"track", "album"}:
+        return canonical
+
+    # Fetch all incoming relations for this entity in a single query.
+    result = await db.execute(
+        select(EntityRelation).where(
+            EntityRelation.to_entity_id == entity.id,
+            or_(
+                EntityRelation.relation_type == "contains",
+                EntityRelation.relation_type == "performed",
+            ),
+        )
+    )
+    incoming: list[EntityRelation] = list(result.scalars().all())
+
+    if entity.entity_type == "track":
+        # The album entity that *contains* this track.
+        for rel in incoming:
+            if rel.relation_type == "contains" and "album_entity_id" not in canonical:
+                canonical["album_entity_id"] = str(rel.from_entity_id)
+            # The artist entity that *performed* this track.
+            if rel.relation_type == "performed" and "artist_entity_id" not in canonical:
+                canonical["artist_entity_id"] = str(rel.from_entity_id)
+            if "album_entity_id" in canonical and "artist_entity_id" in canonical:
+                break
+
+    elif entity.entity_type == "album":
+        for rel in incoming:
+            if rel.relation_type == "performed" and "artist_entity_id" not in canonical:
+                canonical["artist_entity_id"] = str(rel.from_entity_id)
+                break
+
+    return canonical
+
+
 def _entity_to_response(entity: Entity) -> EntityResponse:
     return EntityResponse(
         id=str(entity.id),
         type=entity.entity_type,
         name=entity.name,
         canonical=entity.canonical or {},
+        capabilities=entity.capabilities or {},
+        quality_score=float(entity.quality_score or 0.0),
+        last_merged_at=entity.last_merged_at.isoformat(),
+        merge_version=int(entity.merge_version or 1),
+    )
+
+
+async def _entity_to_enriched_response(
+    entity: Entity, db: AsyncSession
+) -> EntityResponse:
+    """Build an EntityResponse with resolved internal UUID cross-references."""
+    canonical = await _resolve_entity_canonical(entity, db)
+    return EntityResponse(
+        id=str(entity.id),
+        type=entity.entity_type,
+        name=entity.name,
+        canonical=canonical,
         capabilities=entity.capabilities or {},
         quality_score=float(entity.quality_score or 0.0),
         last_merged_at=entity.last_merged_at.isoformat(),
@@ -271,7 +347,10 @@ async def discover_entities(
         return DiscoverResponse(
             query=value,
             query_type="url" if request.url else "text",
-            entities=[_entity_to_response(entity) for entity in result.entities],
+            entities=[
+                await _entity_to_enriched_response(entity, db)
+                for entity in result.entities
+            ],
             total=len(result.entities),
             entities_created=result.created_entities,
             top_relations=top_relations,
@@ -291,7 +370,7 @@ async def get_entity(
     service = UnifiedEntityService(db)
     try:
         entity = await service.get_entity(entity_uuid)
-        return _entity_to_response(entity)
+        return await _entity_to_enriched_response(entity, db)
     except Exception as exc:
         raise _translate_error(exc) from exc
     finally:

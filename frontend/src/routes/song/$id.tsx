@@ -34,6 +34,7 @@ import {
   Button,
   RefreshMetadataButton,
   useToast,
+  EntityErrorCard,
 } from "@/components/ui";
 import { CoverArt } from "@/components/ui/cover-art";
 import { Spinner } from "@/components/ui";
@@ -423,33 +424,8 @@ function SongPage() {
     );
   }
 
-  if (error) {
-    return (
-      <Card variant="bordered" className="max-w-2xl mx-auto border-red-900/50">
-        <CardContent className="py-8 text-center">
-          <p className="text-accent-peak">Failed to load track</p>
-          <p className="text-sm text-zinc-500 mt-2">
-            {error instanceof Error ? error.message : "An error occurred"}
-          </p>
-          <Link to="/" className="text-accent-needle hover:underline mt-4 inline-block">
-            Back to home
-          </Link>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!song) {
-    return (
-      <Card variant="bordered" className="max-w-2xl mx-auto">
-        <CardContent className="py-8 text-center">
-          <p className="text-zinc-400">Track not found</p>
-          <Link to="/" className="text-accent-needle hover:underline mt-4 inline-block">
-            Back to home
-          </Link>
-        </CardContent>
-      </Card>
-    );
+  if (error || !song) {
+    return <EntityErrorCard entityType="song" error={error ?? null} entityId={id} />;
   }
 
   // Platforms for the grid

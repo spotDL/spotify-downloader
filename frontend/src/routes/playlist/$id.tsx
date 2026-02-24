@@ -13,6 +13,7 @@ import {
   Button,
   RefreshMetadataButton,
   useToast,
+  EntityErrorCard,
 } from "@/components/ui";
 import { CoverArt } from "@/components/ui/cover-art";
 import { Spinner } from "@/components/ui";
@@ -196,33 +197,8 @@ function PlaylistPage() {
     );
   }
 
-  if (error) {
-    return (
-      <Card variant="bordered" className="max-w-2xl mx-auto border-red-900/50">
-        <CardContent className="py-8 text-center">
-          <p className="text-accent-peak">Failed to load playlist</p>
-          <p className="text-sm text-zinc-500 mt-2">
-            {error instanceof Error ? error.message : "An error occurred"}
-          </p>
-          <Link to="/" className="text-accent-needle hover:underline mt-4 inline-block">
-            Back to home
-          </Link>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!playlist) {
-    return (
-      <Card variant="bordered" className="max-w-2xl mx-auto">
-        <CardContent className="py-8 text-center">
-          <p className="text-zinc-400">Playlist not found</p>
-          <Link to="/" className="text-accent-needle hover:underline mt-4 inline-block">
-            Back to home
-          </Link>
-        </CardContent>
-      </Card>
-    );
+  if (error || !playlist) {
+    return <EntityErrorCard entityType="playlist" error={error ?? null} entityId={id} />;
   }
 
   const totalDuration = playlist.songs.reduce((sum, song) => sum + song.duration, 0);

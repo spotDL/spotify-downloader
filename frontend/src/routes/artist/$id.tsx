@@ -5,12 +5,11 @@ import { useFindMatchesMutation, useCreateReport } from "@/api";
 import { useQueueStore } from "@/stores/queue";
 import { useAuthStore } from "@/stores/auth";
 import {
-  Card,
-  CardContent,
   Badge,
   Button,
   RefreshMetadataButton,
   useToast,
+  EntityErrorCard,
 } from "@/components/ui";
 import { CoverArt } from "@/components/ui/cover-art";
 import { Spinner } from "@/components/ui";
@@ -428,19 +427,12 @@ function ArtistPage() {
     );
   }
 
-  if (error || !artist) {
-    return (
-      <div className="max-w-md mx-auto py-20">
-        <Card variant="bordered" className="border-red-900/50 bg-red-950/10">
-          <CardContent className="py-10 text-center">
-            <p className="text-red-400">{error ? "Failed to load artist" : "Artist not found"}</p>
-            <Link to="/" className="inline-block mt-6">
-              <Button variant="outline">Back to home</Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-    );
+  if (error) {
+    return <EntityErrorCard entityType="artist" error={error} entityId={id} />;
+  }
+
+  if (!artist) {
+    return <EntityErrorCard entityType="artist" error={null} entityId={id} />;
   }
 
   const enhancedArtist = artist as typeof artist & {

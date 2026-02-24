@@ -123,3 +123,11 @@ export {
 
 // Refresh Metadata Button
 export { RefreshMetadataButton } from "./refresh-metadata-button";
+
+// Entity Error Card
+export {
+  EntityErrorCard,
+  classifyEntityError,
+  type EntityErrorKind,
+  type ClassifiedEntityError,
+} from "./entity-error-card";
