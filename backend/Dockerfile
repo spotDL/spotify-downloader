@@ -12,8 +12,8 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 # Set working directory
 WORKDIR /app
 
-# Copy dependency files
-COPY pyproject.toml uv.lock* ./
+# Copy dependency files from backend package
+COPY backend/pyproject.toml backend/uv.lock* ./
 
 # Install dependencies
 RUN uv sync --frozen --no-dev --no-install-project
@@ -36,10 +36,11 @@ WORKDIR /app
 # Copy virtual environment from builder
 COPY --from=builder /app/.venv /app/.venv
 
-# Copy application code
-COPY src/ src/
-COPY alembic/ alembic/
-COPY alembic.ini .
+# Copy backend app and shared core package
+COPY backend/src/spotdl/ src/spotdl/
+COPY core/src/spotdl_core/ src/spotdl_core/
+COPY backend/alembic/ alembic/
+COPY backend/alembic.ini .
 
 # Create data and static directories
 RUN mkdir -p /app/data /app/static && chown -R spotdl:spotdl /app
