@@ -24,7 +24,7 @@ function TopBar({
   breadcrumbs,
 }: {
   onSearchClick: () => void;
-  breadcrumbs: { label: string; to?: string }[];
+  breadcrumbs: import('@/types').BreadcrumbItem[];
 }) {
   return (
     <header className="h-14 bg-[var(--bg-chassis)] border-b border-[var(--color-border-subtle)] flex items-center justify-between px-6">

@@ -1,6 +1,15 @@
 import { Link } from "@tanstack/react-router";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { useQuery } from "@tanstack/react-query";
+import { 
+  entityKeys, 
+  getSongById, 
+  getAlbumById, 
+  getArtistById, 
+  getPlaylistById, 
+  isUuid 
+} from "@/api/entities";
 import type { BreadcrumbItem } from "@/types";
 
 // Home icon
@@ -127,6 +136,41 @@ export function Breadcrumb({
 }
 
 /**
+ * Component to display a dynamic entity label using React Query
+ */
+function DynamicEntityLabel({ 
+  type, 
+  id, 
+  fallback 
+}: { 
+  type: string; 
+  id: string; 
+  fallback: string; 
+}) {
+  const { data } = useQuery({
+    queryKey: 
+      type === 'song' ? entityKeys.song(id) :
+      type === 'album' ? entityKeys.album(id) :
+      type === 'artist' ? entityKeys.artist(id) :
+      entityKeys.playlist(id),
+    queryFn: async () => {
+      if (type === 'song') return getSongById(id);
+      if (type === 'album') return getAlbumById(id);
+      if (type === 'artist') return getArtistById(id);
+      return getPlaylistById(id);
+    },
+    enabled: isUuid(id) && ['song', 'album', 'artist', 'playlist'].includes(type),
+    staleTime: 1000 * 60 * 5,
+  });
+
+  if (data && 'name' in data) {
+    return <span className="animate-fade-in">{data.name}</span>;
+  }
+  
+  return <span>{fallback}</span>;
+}
+
+/**
  * Build breadcrumb items from a route path
  */
 export function buildBreadcrumbsFromPath(
@@ -137,10 +181,33 @@ export function buildBreadcrumbsFromPath(
   const items: BreadcrumbItem[] = [];
   let currentPath = "";
 
-  for (const segment of segments) {
+  for (let i = 0; i < segments.length; i++) {
+    const segment = segments[i];
     currentPath += `/${segment}`;
-    const label = labelMap?.[segment] || formatSegmentLabel(segment);
-    items.push({ label, href: currentPath });
+    
+    let href: string | undefined = currentPath;
+    const prevSegment = i > 0 ? segments[i - 1] : null;
+    const nextSegment = i + 1 < segments.length ? segments[i + 1] : null;
+
+    // Make intermediate entity segments (e.g., /song when followed by an ID) unclickable
+    if (
+      ["song", "album", "artist", "playlist"].includes(segment) &&
+      nextSegment &&
+      isUuid(nextSegment)
+    ) {
+      href = undefined;
+    }
+
+    let label: React.ReactNode = labelMap?.[segment];
+    if (!label) {
+      if (prevSegment && ["song", "album", "artist", "playlist"].includes(prevSegment) && isUuid(segment)) {
+        label = <DynamicEntityLabel type={prevSegment} id={segment} fallback={formatSegmentLabel(segment)} />;
+      } else {
+        label = formatSegmentLabel(segment);
+      }
+    }
+
+    items.push({ label, href });
   }
 
   return items;
@@ -151,7 +218,7 @@ export function buildBreadcrumbsFromPath(
  */
 function formatSegmentLabel(segment: string): string {
   // Check if it's a UUID (skip formatting)
-  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segment)) {
+  if (isUuid(segment)) {
     return segment.slice(0, 8) + "...";
   }
 

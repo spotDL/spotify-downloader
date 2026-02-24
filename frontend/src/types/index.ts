@@ -457,7 +457,7 @@ export interface DownloadQueueStats {
 
 // ====== NAVIGATION ======
 export interface BreadcrumbItem {
-  label: string;
+  label: React.ReactNode;
   href?: string;
   icon?: React.ComponentType<{ className?: string }>;
 }

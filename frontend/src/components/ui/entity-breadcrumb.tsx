@@ -91,7 +91,7 @@ export function EntityBreadcrumb({ items, className }: EntityBreadcrumbProps) {
                   "max-w-[150px] sm:max-w-[200px] md:max-w-none truncate"
                 )}
                 aria-current={isLast ? "page" : undefined}
-                title={item.label}
+                title={typeof item.label === 'string' ? item.label : undefined}
               >
                 {Icon && <Icon className="w-4 h-4 flex-shrink-0" />}
                 <span className="truncate">{item.label}</span>
@@ -113,7 +113,7 @@ export function EntityBreadcrumb({ items, className }: EntityBreadcrumbProps) {
                   // Truncate long text on mobile
                   "max-w-[150px] sm:max-w-[200px] md:max-w-none"
                 )}
-                title={item.label}
+                title={typeof item.label === 'string' ? item.label : undefined}
               >
                 {Icon && <Icon className="w-4 h-4 flex-shrink-0" />}
                 <span className="truncate">{item.label}</span>
