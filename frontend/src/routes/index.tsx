@@ -193,7 +193,7 @@ function HostedHomePage() {
       <Card variant="bordered" className="max-w-3xl mx-auto">
         <CardContent className="py-6 text-center">
           <h3 className="text-lg font-semibold text-zinc-100 mb-2">
-            This is the SpotDL Unified Entity Service
+            This is SpotDL
           </h3>
           <p className="text-zinc-400 mb-4">
             A crowdsourced database of cross-platform song matches.

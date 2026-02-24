@@ -17,6 +17,7 @@ from urllib.parse import urljoin, urlparse
 import httpx
 from bs4 import BeautifulSoup
 from sqlalchemy import and_, delete, desc, func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.core.capabilities import (
@@ -217,6 +218,11 @@ class MergeEngine:
         return self._priorities.get(provider_id, 0.6)
 
     def _recency_factor(self, fetched_at: datetime) -> float:
+        if fetched_at.tzinfo is None:
+            fetched_at = fetched_at.replace(tzinfo=UTC)
+        else:
+            fetched_at = fetched_at.astimezone(UTC)
+
         age_seconds = max((_now_utc() - fetched_at).total_seconds(), 0.0)
         age_days = age_seconds / 86400.0
         if age_days <= 1:
@@ -590,16 +596,28 @@ class UnifiedEntityService:
         created = False
 
         if entity is None:
-            entity = Entity(
-                entity_type=entity_type,
-                entity_key=entity_key,
-                name=str(bundle.normalized_payload.get("name") or "Unknown"),
-                canonical={},
-                capabilities={},
-            )
-            self._db.add(entity)
-            await self._db.flush()
-            created = True
+            try:
+                async with self._db.begin_nested():
+                    entity = Entity(
+                        entity_type=entity_type,
+                        entity_key=entity_key,
+                        name=str(bundle.normalized_payload.get("name") or "Unknown"),
+                        canonical={},
+                        capabilities={},
+                    )
+                    self._db.add(entity)
+                    await self._db.flush()
+                    created = True
+            except IntegrityError:
+                entity = None
+
+            if entity is None:
+                entity_result = await self._db.execute(entity_query)
+                entity = entity_result.scalar_one_or_none()
+            if entity is None:
+                raise UnifiedEntityError(
+                    f"Failed to create or load canonical entity for key '{entity_key}'."
+                )
 
         snapshot_query = select(EntitySnapshot).where(
             and_(
@@ -626,27 +644,57 @@ class UnifiedEntityService:
         plugin = self._registry.get(bundle.provider_id)
         if plugin is not None:
             capability_ids = plugin.capability_ids()
+        normalized_confidence = float(max(bundle.confidence, 0.01))
+        snapshot_capabilities = {"provider_capabilities": capability_ids}
+        snapshot_changed = False
 
         if snapshot is None:
-            snapshot = EntitySnapshot(
-                entity_id=entity.id,
-                provider_id=bundle.provider_id,
-                provider_entity_id=bundle.provider_entity_id,
-                provider_url=bundle.provider_url,
-                normalized_payload=bundle.normalized_payload,
-                raw_payload=bundle.raw_payload,
-                confidence=float(max(bundle.confidence, 0.01)),
-                fetched_at=_now_utc(),
-                capabilities={"provider_capabilities": capability_ids},
-            )
-            self._db.add(snapshot)
-        else:
-            snapshot.provider_url = bundle.provider_url
-            snapshot.normalized_payload = bundle.normalized_payload
-            snapshot.raw_payload = bundle.raw_payload
-            snapshot.confidence = float(max(bundle.confidence, 0.01))
-            snapshot.fetched_at = _now_utc()
-            snapshot.capabilities = {"provider_capabilities": capability_ids}
+            try:
+                async with self._db.begin_nested():
+                    snapshot = EntitySnapshot(
+                        entity_id=entity.id,
+                        provider_id=bundle.provider_id,
+                        provider_entity_id=bundle.provider_entity_id,
+                        provider_url=bundle.provider_url,
+                        normalized_payload=bundle.normalized_payload,
+                        raw_payload=bundle.raw_payload,
+                        confidence=normalized_confidence,
+                        fetched_at=_now_utc(),
+                        capabilities=snapshot_capabilities,
+                    )
+                    self._db.add(snapshot)
+                    await self._db.flush()
+                    snapshot_changed = True
+            except IntegrityError:
+                snapshot = None
+                snapshot_result = await self._db.execute(snapshot_query)
+                snapshot = snapshot_result.scalar_one_or_none()
+                if snapshot is None and bundle.provider_url:
+                    fallback_result = await self._db.execute(fallback_query)
+                    snapshot = fallback_result.scalar_one_or_none()
+
+            if snapshot is None:
+                raise UnifiedEntityError(
+                    f"Failed to create or load snapshot for provider '{bundle.provider_id}'."
+                )
+
+            if (
+                snapshot.provider_url != bundle.provider_url
+                or snapshot.normalized_payload != bundle.normalized_payload
+                or snapshot.raw_payload != bundle.raw_payload
+                or not math.isclose(float(snapshot.confidence), normalized_confidence, rel_tol=1e-9)
+                or snapshot.capabilities != snapshot_capabilities
+            ):
+                snapshot.provider_url = bundle.provider_url
+                snapshot.normalized_payload = bundle.normalized_payload
+                snapshot.raw_payload = bundle.raw_payload
+                snapshot.confidence = normalized_confidence
+                snapshot.fetched_at = _now_utc()
+                snapshot.capabilities = snapshot_capabilities
+                snapshot_changed = True
+
+        if not created and not snapshot_changed and entity.canonical:
+            return entity
 
         await self._db.flush()
         entity.capabilities = self._capability_map_for_entity(
@@ -678,20 +726,34 @@ class UnifiedEntityService:
         result = await self._db.execute(query)
         relation = result.scalar_one_or_none()
         if relation is None:
-            relation = EntityRelation(
-                from_entity_id=from_entity_id,
-                to_entity_id=to_entity_id,
-                relation_type=relation_type,
-                match_score=match_score,
-                status="suggested",
-                discovered_by=discovered_by,
-                relation_data=relation_data or {},
-            )
-            self._db.add(relation)
-        else:
-            relation.match_score = match_score
-            relation.discovered_by = discovered_by
-            relation.relation_data = relation_data or relation.relation_data
+            try:
+                async with self._db.begin_nested():
+                    relation = EntityRelation(
+                        from_entity_id=from_entity_id,
+                        to_entity_id=to_entity_id,
+                        relation_type=relation_type,
+                        match_score=match_score,
+                        status="suggested",
+                        discovered_by=discovered_by,
+                        relation_data=relation_data or {},
+                    )
+                    self._db.add(relation)
+                    await self._db.flush()
+            except IntegrityError:
+                relation = None
+                result = await self._db.execute(query)
+                relation = result.scalar_one_or_none()
+
+            if relation is None:
+                raise UnifiedEntityError(
+                    "Failed to create or load relation after concurrent insert."
+                )
+
+        relation.match_score = match_score
+        relation.discovered_by = discovered_by
+        if relation_data is not None:
+            relation.relation_data = relation_data
+
         await self._db.flush()
         return relation
 
@@ -1164,13 +1226,23 @@ class UnifiedEntityService:
                 await self._db.delete(vote)
         else:
             if vote is None:
-                self._db.add(
-                    RelationVote(
-                        relation_id=relation_id,
-                        user_id=user_id,
-                        vote_type=normalized_vote,
-                    )
-                )
+                try:
+                    async with self._db.begin_nested():
+                        vote = RelationVote(
+                            relation_id=relation_id,
+                            user_id=user_id,
+                            vote_type=normalized_vote,
+                        )
+                        self._db.add(vote)
+                        await self._db.flush()
+                except IntegrityError:
+                    vote_result = await self._db.execute(vote_query)
+                    vote = vote_result.scalar_one_or_none()
+                    if vote is None:
+                        raise UnifiedEntityError(
+                            "Failed to create or load relation vote after concurrent insert."
+                        ) from None
+                    vote.vote_type = normalized_vote
             else:
                 vote.vote_type = normalized_vote
 

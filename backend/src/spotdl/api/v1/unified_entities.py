@@ -8,6 +8,7 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Path
 from pydantic import BaseModel, Field
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.api.v1.auth import get_current_user_id, get_current_user_id_optional
@@ -226,6 +227,11 @@ async def _relation_to_response(
 
 
 def _translate_error(exc: Exception) -> HTTPException:
+    if isinstance(exc, IntegrityError):
+        return HTTPException(
+            status_code=409,
+            detail="Entity state changed concurrently. Please retry.",
+        )
     if isinstance(exc, EntityNotFoundError):
         return HTTPException(status_code=404, detail=str(exc))
     if isinstance(exc, CapabilityUnsupportedError):
