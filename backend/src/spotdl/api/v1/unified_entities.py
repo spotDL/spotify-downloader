@@ -40,6 +40,12 @@ class EntityDiscoverRequest(BaseModel):
     limit: int = Field(default=20, ge=1, le=100)
 
 
+class EntityRefs(BaseModel):
+    """Resolved internal-UUID cross-references for an entity."""
+    album_entity_id: str | None = None
+    artist_entity_id: str | None = None
+
+
 class EntityResponse(BaseModel):
     id: str
     type: str
@@ -49,6 +55,7 @@ class EntityResponse(BaseModel):
     quality_score: float
     last_merged_at: str
     merge_version: int
+    refs: EntityRefs = Field(default_factory=EntityRefs)
 
 
 class RelationResponse(BaseModel):
@@ -159,66 +166,57 @@ class CreateRelationRequest(BaseModel):
     match_score: float | None = None
 
 
-async def _resolve_entity_canonical(
-    entity: Entity,
+async def _batch_resolve_entity_refs(
+    entities: list[Entity],
     db: AsyncSession,
-) -> dict[str, Any]:
-    """Return the canonical dict enriched with internal UUID cross-references.
+) -> dict[str, EntityRefs]:
+    """Resolve cross-entity UUID references for a list of entities in ONE query.
 
-    For track entities, inject:
-      - ``album_entity_id``: internal UUID of the album that contains this track
-        (resolved via an incoming ``contains`` relation)
-      - ``artist_entity_id``: internal UUID of the primary artist that performed
-        this track (resolved via an incoming ``performed`` relation)
-
-    For album entities, inject:
-      - ``artist_entity_id``: internal UUID of the artist that performed the album
-        (resolved via an incoming ``performed`` relation)
-
-    These fields let the frontend navigate directly with internal UUIDs instead
-    of the raw Spotify platform IDs stored in the ``canonical`` blob.
+    Returns a mapping of entity.id (str) -> EntityRefs.  Only tracks and albums
+    are enriched; artists and playlists get empty refs.
     """
-    from sqlalchemy import or_, select
+    from sqlalchemy import or_
 
-    canonical = dict(entity.canonical or {})
+    enrichable_ids = [
+        e.id for e in entities if e.entity_type in {"track", "album"}
+    ]
+    refs: dict[str, EntityRefs] = {str(e.id): EntityRefs() for e in entities}
 
-    # Only enrich tracks and albums — playlists/artists don't need cross-refs.
-    if entity.entity_type not in {"track", "album"}:
-        return canonical
+    if not enrichable_ids:
+        return refs
 
-    # Fetch all incoming relations for this entity in a single query.
     result = await db.execute(
         select(EntityRelation).where(
-            EntityRelation.to_entity_id == entity.id,
+            EntityRelation.to_entity_id.in_(enrichable_ids),
             or_(
                 EntityRelation.relation_type == "contains",
                 EntityRelation.relation_type == "performed",
             ),
         )
     )
-    incoming: list[EntityRelation] = list(result.scalars().all())
+    relations: list[EntityRelation] = list(result.scalars().all())
 
-    if entity.entity_type == "track":
-        # The album entity that *contains* this track.
-        for rel in incoming:
-            if rel.relation_type == "contains" and "album_entity_id" not in canonical:
-                canonical["album_entity_id"] = str(rel.from_entity_id)
-            # The artist entity that *performed* this track.
-            if rel.relation_type == "performed" and "artist_entity_id" not in canonical:
-                canonical["artist_entity_id"] = str(rel.from_entity_id)
-            if "album_entity_id" in canonical and "artist_entity_id" in canonical:
-                break
+    entity_type_map = {str(e.id): e.entity_type for e in entities}
 
-    elif entity.entity_type == "album":
-        for rel in incoming:
-            if rel.relation_type == "performed" and "artist_entity_id" not in canonical:
-                canonical["artist_entity_id"] = str(rel.from_entity_id)
-                break
+    for rel in relations:
+        key = str(rel.to_entity_id)
+        entity_type = entity_type_map.get(key)
+        entry = refs.get(key)
+        if entry is None or entity_type is None:
+            continue
+        if entity_type == "track":
+            if rel.relation_type == "contains" and entry.album_entity_id is None:
+                entry.album_entity_id = str(rel.from_entity_id)
+            elif rel.relation_type == "performed" and entry.artist_entity_id is None:
+                entry.artist_entity_id = str(rel.from_entity_id)
+        elif entity_type == "album":
+            if rel.relation_type == "performed" and entry.artist_entity_id is None:
+                entry.artist_entity_id = str(rel.from_entity_id)
 
-    return canonical
+    return refs
 
 
-def _entity_to_response(entity: Entity) -> EntityResponse:
+def _entity_to_response(entity: Entity, refs: EntityRefs | None = None) -> EntityResponse:
     return EntityResponse(
         id=str(entity.id),
         type=entity.entity_type,
@@ -228,24 +226,17 @@ def _entity_to_response(entity: Entity) -> EntityResponse:
         quality_score=float(entity.quality_score or 0.0),
         last_merged_at=entity.last_merged_at.isoformat(),
         merge_version=int(entity.merge_version or 1),
+        refs=refs or EntityRefs(),
     )
 
 
 async def _entity_to_enriched_response(
     entity: Entity, db: AsyncSession
 ) -> EntityResponse:
-    """Build an EntityResponse with resolved internal UUID cross-references."""
-    canonical = await _resolve_entity_canonical(entity, db)
-    return EntityResponse(
-        id=str(entity.id),
-        type=entity.entity_type,
-        name=entity.name,
-        canonical=canonical,
-        capabilities=entity.capabilities or {},
-        quality_score=float(entity.quality_score or 0.0),
-        last_merged_at=entity.last_merged_at.isoformat(),
-        merge_version=int(entity.merge_version or 1),
-    )
+    """Single-entity convenience wrapper — uses a one-entity batch internally."""
+    refs_map = await _batch_resolve_entity_refs([entity], db)
+    return _entity_to_response(entity, refs_map.get(str(entity.id)))
+
 
 
 def _snapshot_to_response(snapshot: EntitySnapshot) -> SnapshotResponse:
@@ -344,11 +335,14 @@ async def discover_entities(
                 for relation in relations[:5]
             ]
 
+        # Resolve all cross-entity UUIDs in a SINGLE batch query.
+        refs_map = await _batch_resolve_entity_refs(result.entities, db)
+
         return DiscoverResponse(
             query=value,
             query_type="url" if request.url else "text",
             entities=[
-                await _entity_to_enriched_response(entity, db)
+                _entity_to_response(entity, refs_map.get(str(entity.id)))
                 for entity in result.entities
             ],
             total=len(result.entities),
