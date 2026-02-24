@@ -142,6 +142,8 @@ export {
   useUniversalSearch,
   useUniversalSearchMutation,
   useMetadataSources,
+  submitLyrics,
+  useSubmitLyrics,
   entityKeys,
   type MetadataSnapshotResponse,
   type MetadataSourcesResponse,

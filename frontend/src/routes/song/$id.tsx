@@ -8,6 +8,7 @@ import {
   useFullEnrichment,
   useAllLyrics,
   fetchAllLyrics,
+  useSubmitLyrics,
   entityKeys,
 } from "@/api/entities";
 import {
@@ -47,6 +48,7 @@ import { PlatformLinksGrid } from "@/components/ui/platform-link";
 import { ReportModal } from "@/components/ui/report-modal";
 import { MetadataSourceSelector } from "@/components/ui/metadata-source-selector";
 import { MetadataComparisonTable } from "@/components/ui/metadata-comparison";
+import { SubmitLyricsModal } from "@/components/ui/submit-lyrics-modal";
 import { useDevConfig } from "@/contexts/DevConfigContext";
 import type { Match, AudioFeatures, CreateMetadataReportRequest } from "@/types";
 
@@ -253,6 +255,7 @@ function SongPage() {
   // Multi-source lyrics state
   const [activeLyricsSource, setActiveLyricsSource] = useState<string | null>(null);
   const [fetchingAllLyrics, setFetchingAllLyrics] = useState(false);
+  const [showSubmitLyrics, setShowSubmitLyrics] = useState(false);
 
   // Match submission state
   const [showSubmitMatch, setShowSubmitMatch] = useState(false);
@@ -261,6 +264,7 @@ function SongPage() {
   const debouncedSubmitMatchUrl = useDebouncedValue(submitMatchUrl.trim(), 450);
   const submitMatchMutation = useSubmitMatch();
   const updateMatchStatus = useUpdateMatchStatus();
+  const submitLyricsMutation = useSubmitLyrics();
   const {
     data: previewData,
     isLoading: previewLoading,
@@ -901,6 +905,15 @@ function SongPage() {
                 )}
               </CardTitle>
               <div className="flex items-center gap-2">
+                {isAuthenticated && (
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={() => setShowSubmitLyrics(true)}
+                  >
+                    Add Lyrics
+                  </Button>
+                )}
                 {song && (
                   <Button
                     size="sm"
@@ -1180,6 +1193,18 @@ function SongPage() {
         entityId={id}
         entityName={song.name}
         fields={reportableFields}
+      />
+
+      {/* Submit Lyrics Modal */}
+      <SubmitLyricsModal
+        isOpen={showSubmitLyrics}
+        onClose={() => setShowSubmitLyrics(false)}
+        onSubmit={(data) => {
+          submitLyricsMutation.mutate({ songId: id, ...data }, {
+            onSuccess: () => setShowSubmitLyrics(false),
+          });
+        }}
+        isSubmitting={submitLyricsMutation.isPending}
       />
     </div>
   );

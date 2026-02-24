@@ -925,3 +925,48 @@ export function useFullEnrichment() {
     },
   });
 }
+
+export async function submitLyrics(
+  songId: string,
+  params: {
+    source: string;
+    lyricsText: string;
+    lyricsSynced?: null | string;
+  }
+): Promise<LyricsSource> {
+  const resolvedId = await resolveEntityId(songId, "track");
+  const response = await apiClient.post<any>(`/lyrics/song/${resolvedId}`, {
+    source: params.source,
+    lyrics_text: params.lyricsText,
+    lyrics_synced: params.lyricsSynced,
+  });
+  return {
+    source: response.data.source as LyricsSource["source"],
+    lyricsText: response.data.lyrics_text,
+    lyricsSynced: response.data.lyrics_synced,
+    qualityScore: response.data.quality_score,
+    isVerified: response.data.is_verified,
+    language: response.data.language ?? null,
+    hasTranslations: response.data.has_translations ?? null,
+  };
+}
+
+export function useSubmitLyrics() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: {
+      songId: string;
+      source: string;
+      lyricsText: string;
+      lyricsSynced?: null | string;
+    }) => submitLyrics(data.songId, {
+      source: data.source,
+      lyricsText: data.lyricsText,
+      lyricsSynced: data.lyricsSynced,
+    }),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: [...entityKeys.song(variables.songId), "all-lyrics"] });
+    },
+  });
+}

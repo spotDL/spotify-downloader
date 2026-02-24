@@ -140,7 +140,64 @@ async def search_lyrics(
         from_cache=False,
     )
 
+class SubmitLyricsRequest(BaseModel):
+    """Request model for submitting lyrics."""
 
+    lyrics_text: str
+    lyrics_synced: str | None = None
+    source: str = "user"
+
+
+@router.post("/song/{song_id}", response_model=LyricsSourceResponse)
+async def submit_user_lyrics(
+    song_id: str,
+    request: SubmitLyricsRequest,
+    db: AsyncSession = Depends(get_db_session),
+) -> LyricsSourceResponse:
+    """
+    Submit user-provided lyrics for a song.
+    
+    These metrics are saved with the provided source (default "user"). 
+    """
+    from spotdl.db.repositories import LyricsRepository
+
+    # Validate UUID
+    song_uuid = validate_uuid(song_id, "song ID")
+
+    # Get song from database
+    song_repo = SongRepository(db)
+    song = await song_repo.get_by_id(song_uuid)
+
+    if not song:
+        raise HTTPException(status_code=404, detail=f"Song not found: {song_id}")
+
+    lyrics_repo = LyricsRepository(db)
+    
+    # Simple line count
+    lines = [line for line in request.lyrics_text.splitlines() if line.strip()]
+    line_count = len(lines)
+
+    saved_lyrics = await lyrics_repo.upsert(
+        song_id=song_uuid,
+        source=request.source or "user",
+        lyrics_text=request.lyrics_text.strip(),
+        lyrics_synced=request.lyrics_synced.strip() if request.lyrics_synced else None,
+        quality_score=1.0,  # User submitted considered high quality
+        is_verified=True,
+        line_count=line_count,
+    )
+    
+    await db.commit()
+
+    return LyricsSourceResponse(
+        source=saved_lyrics.source,
+        lyrics_text=saved_lyrics.lyrics_text,
+        lyrics_synced=saved_lyrics.lyrics_synced,
+        quality_score=saved_lyrics.quality_score,
+        is_verified=saved_lyrics.is_verified or False,
+        language=saved_lyrics.language,
+        has_translations=saved_lyrics.has_translations,
+    )
 class LyricsSourceResponse(BaseModel):
     """Response model for a single lyrics source."""
 
