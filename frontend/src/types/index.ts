@@ -86,7 +86,7 @@ export interface Match {
   target_platform: string;
   score: number;
   confidence: number;
-  match_type: "system" | "user";
+  match_type: "system" | "user" | "metadata";
   status?: "pending" | "verified" | "rejected";
   result: MatchResult;
   upvotes?: number;
@@ -403,7 +403,7 @@ export interface AdminMatchListRequest {
   page?: number;
   per_page?: number;
   status?: "pending" | "verified" | "rejected";
-  match_type?: "system" | "user";
+  match_type?: "system" | "user" | "metadata";
 }
 
 export interface AdminMatchListResponse {

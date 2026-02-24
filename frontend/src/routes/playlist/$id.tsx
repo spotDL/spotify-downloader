@@ -26,7 +26,7 @@ export const Route = createFileRoute("/playlist/$id")({
   component: PlaylistPage,
 });
 
-const TARGET_PLATFORMS = ["youtube", "youtube_music", "soundcloud", "bandcamp"];
+const TARGET_PLATFORMS = ["youtube", "youtube_music", "soundcloud", "bandcamp", "piped"];
 
 function formatDuration(seconds: number): string {
   const mins = Math.floor(seconds / 60);

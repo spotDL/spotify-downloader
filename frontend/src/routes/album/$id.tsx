@@ -27,7 +27,7 @@ export const Route = createFileRoute("/album/$id")({
   component: AlbumPage,
 });
 
-const TARGET_PLATFORMS = ["youtube", "youtube_music", "soundcloud", "bandcamp"];
+const TARGET_PLATFORMS = ["youtube", "youtube_music", "soundcloud", "bandcamp", "piped"];
 
 function formatDuration(seconds: number): string {
   const mins = Math.floor(seconds / 60);

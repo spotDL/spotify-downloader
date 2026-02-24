@@ -7,6 +7,8 @@ import {
   useMetadataSnapshots,
   useFullEnrichment,
   useAllLyrics,
+  fetchAllLyrics,
+  entityKeys,
 } from "@/api/entities";
 import {
   matchKeys,
@@ -55,7 +57,13 @@ export const Route = createFileRoute("/song/$id")({
   component: SongPage,
 });
 
-const TARGET_PLATFORMS = ["youtube", "youtube_music", "soundcloud", "bandcamp"];
+const TARGET_PLATFORMS = ["youtube", "youtube_music", "soundcloud", "bandcamp", "piped"];
+
+/** Platforms that are metadata sources, not audio targets — we surface them as tied cross-platform matches */
+const METADATA_SOURCE_PLATFORMS = new Set(["spotify", "deezer", "apple_music", "tidal", "musicbrainz", "discogs"]);
+
+/** Platforms that support downloading (via yt-dlp or provider hooks) — shown only in self-hosted mode */
+const DOWNLOADABLE_PLATFORMS = new Set(["youtube", "youtube_music", "soundcloud", "bandcamp", "piped"]);
 
 function mergeMatches(existing: Match[], incoming: Match[]): Match[] {
   const merged = new Map<string, Match>();
@@ -91,6 +99,67 @@ function mergeMatches(existing: Match[], incoming: Match[]): Match[] {
   incoming.forEach(mergeIn);
 
   return Array.from(merged.values()).sort((a, b) => b.score - a.score);
+}
+
+/**
+ * Build synthetic Match objects from metadata source snapshots.
+ * When deezer/spotify/etc. are present as metadata sources, they represent
+ * verified cross-platform links to the same song.
+ */
+function buildMetadataSourceMatches(
+  snapshots: Array<{
+    id: string;
+    source: string;
+    confidence: number;
+    data: Record<string, unknown> | { [key: string]: unknown };
+  }>,
+  songId: string
+): Match[] {
+  return snapshots
+    .filter((s) => {
+      // Only include metadata platforms that have a URL
+      if (!METADATA_SOURCE_PLATFORMS.has(s.source)) return false;
+      const url = s.data?.url;
+      return typeof url === "string" && url.startsWith("http");
+    })
+    .map((s): Match => {
+      const d = s.data as Record<string, unknown>;
+      const url = String(d.url || "");
+      const artists = Array.isArray(d.artists)
+        ? (d.artists as string[])
+        : [];
+      const artist = typeof d.artist === "string" ? d.artist : artists[0] || "Unknown";
+      return {
+        id: `metadata-${s.source}-${s.id}`,
+        source_url: "",
+        source_song_id: songId,
+        source_platform: "spotify",
+        target_url: url,
+        target_song_id: "",
+        target_platform: s.source,
+        score: Math.round(s.confidence * 100),
+        confidence: s.confidence,
+        match_type: "metadata" as const,
+        status: "verified" as const,
+        upvotes: 0,
+        downvotes: 0,
+        net_votes: 0,
+        result: {
+          name: typeof s.data.name === "string" ? s.data.name : "Unknown",
+          artists: artists.length > 0 ? artists : [artist],
+          artist,
+          duration: typeof s.data.duration === "number" ? s.data.duration : 0,
+          platform: s.source,
+          platform_id: typeof s.data.platform_id === "string" ? s.data.platform_id : "",
+          url,
+          album_name: typeof s.data.album_name === "string" ? s.data.album_name : null,
+          cover_url: typeof s.data.cover_url === "string" ? s.data.cover_url : null,
+          views: null,
+          explicit: Boolean(s.data.explicit),
+          verified: true,
+        },
+      } satisfies Match;
+    });
 }
 
 function useDebouncedValue<T>(value: T, delayMs: number): T {
@@ -183,6 +252,7 @@ function SongPage() {
 
   // Multi-source lyrics state
   const [activeLyricsSource, setActiveLyricsSource] = useState<string | null>(null);
+  const [fetchingAllLyrics, setFetchingAllLyrics] = useState(false);
 
   // Match submission state
   const [showSubmitMatch, setShowSubmitMatch] = useState(false);
@@ -225,6 +295,20 @@ function SongPage() {
     }
   }, [snapshotsData, activeMetadataSource]);
 
+  // Build synthetic matches from metadata source snapshots (deezer, spotify, etc.)
+  const metadataSourceMatches = useMemo(() => {
+    if (!snapshotsData?.snapshots) return [];
+    return buildMetadataSourceMatches(
+      snapshotsData.snapshots.map((s) => ({
+        id: s.id,
+        source: s.source,
+        confidence: s.confidence,
+        data: s.data as Record<string, unknown>,
+      })),
+      id
+    );
+  }, [snapshotsData, id]);
+
   // Load existing matches or auto-search if none exist
   useEffect(() => {
     // Wait for existing matches query to complete
@@ -264,6 +348,11 @@ function SongPage() {
     queryClient,
     song,
   ]);
+
+  // Combined matches: audio matches + metadata source matches
+  const allMatches = useMemo(() => {
+    return mergeMatches(matches, metadataSourceMatches);
+  }, [matches, metadataSourceMatches]);
 
   // Handler to find matches (manual refresh)
   const handleFindMatches = () => {
@@ -647,7 +736,7 @@ function SongPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                   </svg>
                   Cross-Platform Matches
-                  {matchesLoaded && <Badge variant="muted" size="sm">{matches.length}</Badge>}
+                  {matchesLoaded && <Badge variant="muted" size="sm">{allMatches.length}</Badge>}
                 </CardTitle>
                 <div className="flex items-center gap-2">
                   {isAuthenticated && matchesLoaded && (
@@ -697,6 +786,10 @@ function SongPage() {
                       <option value="soundcloud">SoundCloud</option>
                       <option value="bandcamp">Bandcamp</option>
                       <option value="piped">Piped</option>
+                      <option value="spotify">Spotify</option>
+                      <option value="deezer">Deezer</option>
+                      <option value="apple_music">Apple Music</option>
+                      <option value="tidal">TIDAL</option>
                     </select>
                     <input
                       type="url"
@@ -762,17 +855,18 @@ function SongPage() {
               {/* Matches loaded */}
               {matchesLoaded && (
                 <>
-                  {matches.length > 0 ? (
+                  {allMatches.length > 0 ? (
                     <div className="divide-y divide-zinc-800/50">
-                      {matches.map((match, index) => (
+                      {allMatches.map((match, index) => (
                         <MatchRow
                           key={match.id || `${match.target_platform}-${match.target_url}`}
                           match={match}
                           index={index}
                           canVerify={!!canVerifyMatches}
-                          canDownload={features.canDownload}
+                          canDownload={features.canDownload && match.match_type !== "metadata"}
+                          isSelfHosted={features.isSelfHosted}
                           onDownload={() => handleDownload(match)}
-                          onVerify={(status) => match.id && handleVerifyMatch(match.id, status)}
+                          onVerify={(status) => match.id && !match.id.startsWith("metadata-") && handleVerifyMatch(match.id, status)}
                         />
                       ))}
                     </div>
@@ -806,6 +900,33 @@ function SongPage() {
                   </Badge>
                 )}
               </CardTitle>
+              <div className="flex items-center gap-2">
+                {song && (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled={fetchingAllLyrics}
+                    onClick={async () => {
+                      setFetchingAllLyrics(true);
+                      try {
+                        await fetchAllLyrics(id);
+                        queryClient.invalidateQueries({ queryKey: [...entityKeys.song(id), "all-lyrics"] });
+                        showSuccess("Fetched lyrics from all sources");
+                      } catch {
+                        showError("Failed to fetch lyrics");
+                      } finally {
+                        setFetchingAllLyrics(false);
+                      }
+                    }}
+                  >
+                    {fetchingAllLyrics ? (
+                      <Spinner size="sm" />
+                    ) : (
+                      "Fetch All Sources"
+                    )}
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent className="p-0">
               {(lyricsLoading || allLyricsLoading) ? (
@@ -1260,6 +1381,7 @@ function MatchRow({
   index,
   canVerify,
   canDownload,
+  isSelfHosted = false,
   onDownload,
   onVerify,
 }: {
@@ -1267,6 +1389,7 @@ function MatchRow({
   index: number;
   canVerify: boolean;
   canDownload: boolean;
+  isSelfHosted?: boolean;
   onDownload: () => void;
   onVerify: (status: "verified" | "rejected") => void;
 }) {
@@ -1298,9 +1421,11 @@ function MatchRow({
   };
 
   const isUserSubmitted = match.match_type === "user";
+  const isMetadataMatch = match.match_type === "metadata";
   const isPending = match.status === "pending";
   const isVerified = match.status === "verified";
   const isRejected = match.status === "rejected";
+  const isDownloadable = isSelfHosted && DOWNLOADABLE_PLATFORMS.has(match.target_platform);
 
   return (
     <div
@@ -1331,6 +1456,17 @@ function MatchRow({
           )}
           {isUserSubmitted && (
             <Badge variant="info" size="sm">User Submitted</Badge>
+          )}
+          {isMetadataMatch && (
+            <Badge variant="default" size="sm">Metadata Source</Badge>
+          )}
+          {isDownloadable && (
+            <Badge variant="success" size="sm">
+              <svg className="w-3 h-3 mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Downloadable
+            </Badge>
           )}
           {isPending && (
             <Badge variant="warning" size="sm">Pending Review</Badge>

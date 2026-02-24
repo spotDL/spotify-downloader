@@ -175,7 +175,7 @@ async def _batch_resolve_entity_refs(
     Returns a mapping of entity.id (str) -> EntityRefs.  Only tracks and albums
     are enriched; artists and playlists get empty refs.
     """
-    from sqlalchemy import or_
+    from sqlalchemy import or_, select
 
     enrichable_ids = [
         e.id for e in entities if e.entity_type in {"track", "album"}

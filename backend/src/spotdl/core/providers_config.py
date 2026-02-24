@@ -75,6 +75,12 @@ METADATA_PROVIDERS: list[ProviderInfo] = [
         "icon": "discogs",
         "default_enabled": True,
     },
+    {
+        "id": "deezer",
+        "name": "Deezer",
+        "icon": "deezer",
+        "default_enabled": True,
+    },
 ]
 
 # Lyrics providers

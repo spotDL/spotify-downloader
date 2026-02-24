@@ -26,7 +26,7 @@ export const Route = createFileRoute("/artist/$id")({
   component: ArtistPage,
 });
 
-const TARGET_PLATFORMS = ["youtube", "youtube_music", "soundcloud", "bandcamp"];
+const TARGET_PLATFORMS = ["youtube", "youtube_music", "soundcloud", "bandcamp", "piped"];
 
 type AlbumTypeFilter = "all" | "album" | "single" | "ep" | "compilation";
 

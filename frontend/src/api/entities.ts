@@ -14,6 +14,7 @@ import type {
 import type {
   AllLyricsResponse,
   FullEnrichmentResult,
+  LyricsSource,
   MetadataSnapshot,
   MetadataSourcesResponse as TypedMetadataSourcesResponse,
 } from "@/types/metadata";
@@ -818,11 +819,41 @@ export function useMetadataSnapshots(
 }
 
 export async function getAllLyrics(songId: string): Promise<AllLyricsResponse> {
-  return {
-    songId,
-    lyrics: [],
-    totalSources: 0,
-  };
+  try {
+    const resolvedId = await resolveEntityId(songId, "track");
+    const response = await apiClient.get<{
+      song_id: string;
+      lyrics: Array<{
+        source: string;
+        lyrics_text: string;
+        lyrics_synced: string | null;
+        quality_score: number | null;
+        is_verified: boolean;
+        language: string | null;
+        has_translations: boolean | null;
+      }>;
+      total_sources: number;
+    }>(`/lyrics/song/${resolvedId}/all`);
+    return {
+      songId,
+      lyrics: response.data.lyrics.map((l) => ({
+        source: l.source as LyricsSource["source"],
+        lyricsText: l.lyrics_text,
+        lyricsSynced: l.lyrics_synced,
+        qualityScore: l.quality_score,
+        isVerified: l.is_verified,
+        language: l.language,
+        hasTranslations: l.has_translations,
+      })),
+      totalSources: response.data.total_sources,
+    };
+  } catch {
+    return {
+      songId,
+      lyrics: [],
+      totalSources: 0,
+    };
+  }
 }
 
 export function useAllLyrics(songId: string, options?: { enabled?: boolean }) {
@@ -835,11 +866,41 @@ export function useAllLyrics(songId: string, options?: { enabled?: boolean }) {
 }
 
 export async function fetchAllLyrics(songId: string): Promise<AllLyricsResponse> {
-  return {
-    songId,
-    lyrics: [],
-    totalSources: 0,
-  };
+  try {
+    const resolvedId = await resolveEntityId(songId, "track");
+    const response = await apiClient.post<{
+      song_id: string;
+      lyrics: Array<{
+        source: string;
+        lyrics_text: string;
+        lyrics_synced: string | null;
+        quality_score: number | null;
+        is_verified: boolean;
+        language?: string | null;
+        has_translations?: boolean | null;
+      }>;
+      total_sources: number;
+    }>(`/lyrics/song/${resolvedId}/fetch-all`);
+    return {
+      songId,
+      lyrics: response.data.lyrics.map((l) => ({
+        source: l.source as LyricsSource["source"],
+        lyricsText: l.lyrics_text,
+        lyricsSynced: l.lyrics_synced,
+        qualityScore: l.quality_score,
+        isVerified: l.is_verified,
+        language: l.language ?? null,
+        hasTranslations: l.has_translations ?? null,
+      })),
+      totalSources: response.data.total_sources,
+    };
+  } catch {
+    return {
+      songId,
+      lyrics: [],
+      totalSources: 0,
+    };
+  }
 }
 
 export async function enrichSongFromAllSources(songId: string): Promise<FullEnrichmentResult> {
