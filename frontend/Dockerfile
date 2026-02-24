@@ -9,6 +9,12 @@ RUN corepack enable && corepack prepare pnpm@9 --activate
 
 WORKDIR /app
 
+# Optional build-time env injection for Vite
+ARG VITE_API_URL
+ARG VITE_DEPLOYMENT_MODE
+ENV VITE_API_URL=${VITE_API_URL}
+ENV VITE_DEPLOYMENT_MODE=${VITE_DEPLOYMENT_MODE}
+
 # Copy package files
 COPY package.json pnpm-lock.yaml* ./
 

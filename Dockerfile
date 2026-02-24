@@ -12,6 +12,12 @@ RUN corepack enable && corepack prepare pnpm@9 --activate
 
 WORKDIR /frontend
 
+# Optional build-time env injection for Vite
+ARG VITE_API_URL
+ARG VITE_DEPLOYMENT_MODE
+ENV VITE_API_URL=${VITE_API_URL}
+ENV VITE_DEPLOYMENT_MODE=${VITE_DEPLOYMENT_MODE}
+
 # Copy package files
 COPY frontend/package.json frontend/pnpm-lock.yaml* ./
 
@@ -65,6 +71,7 @@ COPY --from=backend-builder /app/.venv /app/.venv
 
 # Copy backend application code
 COPY backend/src/ src/
+COPY core/src/spotdl_core/ src/spotdl_core/
 COPY backend/alembic/ alembic/
 COPY backend/alembic.ini .
 
