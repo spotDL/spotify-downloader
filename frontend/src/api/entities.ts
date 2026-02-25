@@ -447,9 +447,15 @@ export async function getAlbumById(id: string): Promise<EnhancedAlbum> {
   ]);
 
   const canonical = entity.canonical || {};
+  const seenAlbum = new Set<string>();
   const songs = containsRelations.relations
     .map((relation) => relation.target)
-    .filter((target): target is EntityApiResponse => !!target)
+    .filter((target): target is EntityApiResponse => {
+      if (!target) return false;
+      if (seenAlbum.has(target.id)) return false;
+      seenAlbum.add(target.id);
+      return true;
+    })
     .map(relationTargetToSong);
 
   return {
@@ -479,9 +485,15 @@ export async function getArtistById(id: string): Promise<EnhancedArtist> {
   ]);
 
   const canonical = entity.canonical || {};
+  const seenArtist = new Set<string>();
   const songs = performedRelations.relations
     .map((relation) => relation.target)
-    .filter((target): target is EntityApiResponse => !!target)
+    .filter((target): target is EntityApiResponse => {
+      if (!target) return false;
+      if (seenArtist.has(target.id)) return false;
+      seenArtist.add(target.id);
+      return true;
+    })
     .map(relationTargetToSong);
 
   const albumMap = new Map<string, { id: string; name: string; cover_url: string | null; year: number | null; total_tracks: number; album_type: "album" | "single" | "ep" | "compilation" | null }>();
@@ -531,9 +543,15 @@ export async function getPlaylistById(id: string): Promise<InternalPlaylist> {
   ]);
 
   const canonical = entity.canonical || {};
+  const seenPlaylist = new Set<string>();
   const songs = containsRelations.relations
     .map((relation) => relation.target)
-    .filter((target): target is EntityApiResponse => !!target)
+    .filter((target): target is EntityApiResponse => {
+      if (!target) return false;
+      if (seenPlaylist.has(target.id)) return false;
+      seenPlaylist.add(target.id);
+      return true;
+    })
     .map(relationTargetToSong);
 
   return {

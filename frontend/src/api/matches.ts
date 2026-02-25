@@ -283,3 +283,28 @@ export function useSubmitMatch() {
     },
   });
 }
+
+export async function discoverMatchesForEntity(
+  entityId: string,
+  targetPlatforms?: string[]
+): Promise<Match[]> {
+  const [sourceEntity, response] = await Promise.all([
+    getEntityById(entityId),
+    apiClient.post<RelationsApiResponse>(`/entities/${entityId}/relations:discover`, {
+      target_providers: targetPlatforms ?? null,
+      limit: 8,
+    }),
+  ]);
+  return response.data.relations.map((relation) => relationToMatch(relation, sourceEntity));
+}
+
+export function useDiscoverMatchesMutation(songId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (targetPlatforms?: string[]) =>
+      discoverMatchesForEntity(songId, targetPlatforms),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: matchKeys.list({ songId }) });
+    },
+  });
+}
