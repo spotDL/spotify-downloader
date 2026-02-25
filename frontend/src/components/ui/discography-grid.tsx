@@ -107,7 +107,7 @@ export function DiscographyGrid({
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
           {filteredAlbums.map((album, index) => (
             <AlbumCard
-              key={album.id}
+              key={album.id ?? album.name}
               album={album}
               index={index}
               onAlbumClick={onAlbumClick}
@@ -129,7 +129,7 @@ interface AlbumCardProps {
 
 function AlbumCard({ album, index, onAlbumClick }: AlbumCardProps) {
   const handleClick = () => {
-    if (onAlbumClick) {
+    if (onAlbumClick && album.id) {
       onAlbumClick(album.id);
     }
   };
@@ -217,11 +217,16 @@ function AlbumCard({ album, index, onAlbumClick }: AlbumCardProps) {
     return (
       <button
         onClick={handleClick}
-        className="text-left w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-safe)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-chassis)] rounded-xl"
+        disabled={!album.id}
+        className="text-left w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-safe)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-chassis)] rounded-xl disabled:opacity-60 disabled:cursor-default"
       >
         {content}
       </button>
     );
+  }
+
+  if (!album.id) {
+    return <div className="opacity-60 cursor-default rounded-xl">{content}</div>;
   }
 
   return (
