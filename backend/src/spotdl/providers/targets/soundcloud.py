@@ -7,8 +7,6 @@ import logging
 import re
 from typing import TYPE_CHECKING, Any
 
-logger = logging.getLogger(__name__)
-
 import httpx
 from bs4 import BeautifulSoup
 
@@ -20,6 +18,8 @@ from spotdl.providers.targets.base import (
 
 if TYPE_CHECKING:
     from spotdl.core.types.song import Song
+
+logger = logging.getLogger(__name__)
 
 # SoundCloud URL pattern
 SOUNDCLOUD_URL_PATTERN = re.compile(

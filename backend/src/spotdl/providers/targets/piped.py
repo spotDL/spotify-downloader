@@ -4,9 +4,7 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import TYPE_CHECKING, Any
-
-logger = logging.getLogger(__name__)
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import httpx
 
@@ -18,6 +16,8 @@ from spotdl.providers.targets.base import (
 
 if TYPE_CHECKING:
     from spotdl.core.types.song import Song
+
+logger = logging.getLogger(__name__)
 
 # Piped video URL pattern (same as YouTube)
 PIPED_URL_PATTERN = re.compile(
@@ -37,7 +37,7 @@ class PipedProvider(TargetProvider):
     display_name = "Piped"
 
     # List of Piped API instances to try
-    PIPED_INSTANCES = [
+    PIPED_INSTANCES: ClassVar[list[str]] = [
         "https://pipedapi.kavin.rocks",
         "https://api.piped.yt",
         "https://pipedapi.adminforge.de",

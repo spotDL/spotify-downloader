@@ -25,6 +25,7 @@ from spotdl.core.matching.scoring import (
     check_common_word,
     check_forbidden_words,
 )
+
 if TYPE_CHECKING:
     from spotdl.core.types.result import Result
     from spotdl.core.types.song import Song

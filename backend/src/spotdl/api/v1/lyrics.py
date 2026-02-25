@@ -13,8 +13,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from spotdl.api.v1.dependencies import UserPreferences, get_user_preferences
 from spotdl.api.v1.validation import validate_uuid
 from spotdl.config import get_settings
-from spotdl.core.services.lyrics import LyricsResult, get_lyrics_service
-from spotdl.core.services.entity_unified import UnifiedEntityService, EntityNotFoundError
+from spotdl.core.services.entity_unified import EntityNotFoundError, UnifiedEntityService
+from spotdl.core.services.lyrics import get_lyrics_service
 from spotdl.db.database import get_db_session
 from spotdl.db.repositories.lyrics import LyricsRepository
 
@@ -67,7 +67,7 @@ async def get_lyrics_for_entity(
     except EntityNotFoundError:
         await entity_service.close()
         raise HTTPException(status_code=404, detail=f"Entity not found: {entity_id}")
-    
+
     await entity_service.close()
 
     # Get lyrics using service
@@ -178,7 +178,7 @@ async def submit_user_lyrics(
         await entity_service.close()
 
     lyrics_repo = LyricsRepository(db)
-    
+
     # Simple line count
     lines = [line for line in request.lyrics_text.splitlines() if line.strip()]
     line_count = len(lines)
@@ -192,7 +192,7 @@ async def submit_user_lyrics(
         is_verified=True,
         line_count=line_count,
     )
-    
+
     await db.commit()
 
     return LyricsSourceResponse(
@@ -311,10 +311,10 @@ async def fetch_all_lyrics_sources(
         artists = entity.canonical.get("artists", [])
         if isinstance(artists, str):
             artists = [artists]
-            
+
         album_name = entity.canonical.get("album_name")
         duration = entity.canonical.get("duration", entity.canonical.get("duration_ms", 0) // 1000)
-        
+
         results = await lyrics_service.fetch_all_lyrics(
             entity_id=entity_uuid,
             name=entity.name,

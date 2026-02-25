@@ -8,13 +8,12 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from spotdl.core.metadata_embed_config import (
     METADATA_FIELD_BY_ID,
     METADATA_FIELD_IDS,
     MetadataEmbedPreferences,
-    get_default_embed_preferences,
     validate_embed_preferences,
 )
 
@@ -75,7 +74,6 @@ class ResolvedMetadata:
 
     def get_embed_dict(self) -> dict[str, Any]:
         """Get dictionary of values for embedding (enabled fields with embed tags only)."""
-        from spotdl.core.metadata_embed_config import METADATA_FIELD_BY_ID
 
         result = {}
         for field_id, resolved in self.fields.items():

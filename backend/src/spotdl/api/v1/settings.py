@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Annotated, Any
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.api.v1.auth import get_current_user
 from spotdl.core.metadata_embed_config import (
@@ -16,11 +17,9 @@ from spotdl.core.metadata_embed_config import (
     get_fields_by_category,
     validate_embed_preferences,
 )
-from spotdl.core.providers_config import validate_preferences
 from spotdl.db.database import get_db_session
 from spotdl.db.models.user import User
 from spotdl.db.repositories.user_settings import UserSettingsRepository
-from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/settings")
 

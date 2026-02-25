@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import DateTime, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
-from spotdl.db.models.base import Base, GUID, TimestampMixin, generate_uuid
+from spotdl.db.models.base import GUID, Base, TimestampMixin, generate_uuid
 
 
 class RefreshCooldown(Base, TimestampMixin):
@@ -37,7 +37,7 @@ class RefreshCooldown(Base, TimestampMixin):
     refreshed_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
     )
 
     __table_args__ = (

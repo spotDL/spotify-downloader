@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
 import re
-from typing import TYPE_CHECKING, Any
-
-logger = logging.getLogger(__name__)
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import httpx
 
@@ -19,6 +16,8 @@ from spotdl.providers.targets.base import (
 
 if TYPE_CHECKING:
     from spotdl.core.types.song import Song
+
+logger = logging.getLogger(__name__)
 
 # YouTube video URL pattern
 YOUTUBE_URL_PATTERN = re.compile(
@@ -38,7 +37,7 @@ class YouTubeProvider(TargetProvider):
     display_name = "YouTube"
 
     # List of Invidious instances to try
-    INVIDIOUS_INSTANCES = [
+    INVIDIOUS_INSTANCES: ClassVar[list[str]] = [
         "https://vid.puffyan.us",
         "https://invidious.snopyta.org",
         "https://yewtu.be",

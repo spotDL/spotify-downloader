@@ -103,7 +103,7 @@ class TargetProvider(ABC):
         """
         pass
 
-    async def __aenter__(self) -> "TargetProvider":
+    async def __aenter__(self) -> TargetProvider:
         """Async context manager entry."""
         return self
 

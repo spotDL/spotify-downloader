@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import logging
-import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -273,7 +272,7 @@ async def update_report(
     # Update status
     report.status = request.status.value
     report.reviewed_by = current_user.id
-    report.reviewed_at = datetime.now(timezone.utc)
+    report.reviewed_at = datetime.now(UTC)
 
     # Award/deduct reputation to the reporter (only if transitioning from pending)
     if previous_status == ReportStatus.PENDING.value:

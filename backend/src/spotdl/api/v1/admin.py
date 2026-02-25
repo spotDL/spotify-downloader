@@ -4,19 +4,19 @@ from __future__ import annotations
 
 import logging
 import time
-from datetime import datetime, timezone
-from pydantic import BaseModel
+from datetime import UTC, datetime
 from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import func, select, or_
+from pydantic import BaseModel
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.api.v1.auth import get_current_user
 from spotdl.db.database import get_db_session
-from spotdl.db.models.user import User
 from spotdl.db.models.entity_unified import Entity, EntityRelation
+from spotdl.db.models.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -306,7 +306,7 @@ async def get_system_stats(
     """
     Get system statistics (admin only).
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     week_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     # Go back to start of week (Monday)

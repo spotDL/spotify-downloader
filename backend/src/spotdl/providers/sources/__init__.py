@@ -10,9 +10,9 @@ from spotdl.providers.sources.base import (
 )
 from spotdl.providers.sources.deezer import DeezerProvider
 from spotdl.providers.sources.resolver import (
+    UnsupportedPlatformError,
     URLResolver,
     URLResolverError,
-    UnsupportedPlatformError,
     detect_platform,
     extract_url_info,
     get_resolver,

@@ -1,5 +1,5 @@
 """Unified entity-first API endpoints."""
-# ruff: noqa: TC001,TC002,TC003
+# ruff: noqa: TC002, TC003
 
 from __future__ import annotations
 

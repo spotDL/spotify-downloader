@@ -8,9 +8,9 @@ from spotdl.providers.sources import (
     SpotifyProvider,
     TidalProvider,
     TrackNotFoundError,
+    UnsupportedPlatformError,
     URLResolver,
     URLResolverError,
-    UnsupportedPlatformError,
     detect_platform,
     extract_url_info,
     get_resolver,
@@ -20,6 +20,7 @@ from spotdl.providers.sources import BandcampProvider as BandcampSourceProvider
 from spotdl.providers.sources import DeezerProvider as DeezerSourceProvider
 from spotdl.providers.sources import SoundCloudProvider as SoundCloudSourceProvider
 from spotdl.providers.sources import YouTubeMusicProvider as YouTubeMusicSourceProvider
+from spotdl.providers.targets import BandcampProvider as BandcampTargetProvider
 from spotdl.providers.targets import (
     NoResultsError,
     PipedProvider,
@@ -28,7 +29,6 @@ from spotdl.providers.targets import (
     TargetProviderError,
     YouTubeProvider,
 )
-from spotdl.providers.targets import BandcampProvider as BandcampTargetProvider
 from spotdl.providers.targets import SoundCloudProvider as SoundCloudTargetProvider
 from spotdl.providers.targets import YouTubeMusicProvider as YouTubeMusicTargetProvider
 

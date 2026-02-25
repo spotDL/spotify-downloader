@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
-from sqlalchemy import select, and_
+from sqlalchemy import and_, select
 
 from spotdl.db.models.refresh_cooldown import RefreshCooldown
 from spotdl.db.repositories.base import BaseRepository
-
 
 # Cooldown period: 4 hours
 COOLDOWN_HOURS = 4
@@ -54,13 +53,13 @@ class RefreshCooldownRepository(BaseRepository[RefreshCooldown]):
         if not cooldown:
             return False, 0
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # Handle both naive and aware datetimes from database
         refreshed_at = cooldown.refreshed_at
         if refreshed_at.tzinfo is None:
             # Assume naive datetime is UTC
-            refreshed_at = refreshed_at.replace(tzinfo=timezone.utc)
+            refreshed_at = refreshed_at.replace(tzinfo=UTC)
 
         cooldown_end = refreshed_at + timedelta(hours=COOLDOWN_HOURS)
 
@@ -81,14 +80,14 @@ class RefreshCooldownRepository(BaseRepository[RefreshCooldown]):
 
         if cooldown:
             # Update existing record
-            cooldown.refreshed_at = datetime.now(timezone.utc)
+            cooldown.refreshed_at = datetime.now(UTC)
         else:
             # Create new record
             cooldown = RefreshCooldown(
                 entity_type=entity_type,
                 entity_id=entity_id,
                 user_id=user_id,
-                refreshed_at=datetime.now(timezone.utc),
+                refreshed_at=datetime.now(UTC),
             )
             self.session.add(cooldown)
 

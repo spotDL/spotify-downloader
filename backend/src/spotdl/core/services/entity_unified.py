@@ -27,7 +27,7 @@ from spotdl.core.capabilities import (
     ProviderEntityBundle,
 )
 from spotdl.core.provider_registry import get_provider_registry
-from spotdl.core.services.download import DownloadRequest, create_download_id, get_download_service
+from spotdl.core.services.download import DownloadRequest, create_download_id
 from spotdl.core.services.match import get_match_service
 from spotdl.core.services.song import SongServiceError, UnsupportedURLError, get_song_service
 from spotdl.core.types.result import Result, TargetPlatform
@@ -946,7 +946,7 @@ class UnifiedEntityService:
                 track_bundle = self._bundle_from_song(song)
                 track_key = self._entity_key(track_bundle.entity_type, track_bundle.normalized_payload)
                 bundles_to_upsert[track_key] = track_bundle
-                
+
                 artist_bundle = self._bundle_from_song_artist(song)
                 if artist_bundle:
                     artist_key = self._entity_key(artist_bundle.entity_type, artist_bundle.normalized_payload)
@@ -954,7 +954,7 @@ class UnifiedEntityService:
                     relations_to_create.append(
                         (artist_key, track_key, "performed", artist_bundle.provider_id, None)
                     )
-                
+
                 album_bundle = self._bundle_from_song_album(song)
                 if album_bundle:
                     album_key = self._entity_key(album_bundle.entity_type, album_bundle.normalized_payload)
@@ -968,13 +968,13 @@ class UnifiedEntityService:
             entity = await self._upsert_entity_snapshot(bundles_to_upsert[key])
             entities_by_key[key] = entity
             entities.append(entity)
-            
+
         # Deduplicate relations to avoid duplicate sorted inserts
         unique_relations = {}
         for r in relations_to_create:
             # key by (from_key, to_key, relation_type)
             unique_relations[(r[0], r[1], r[2])] = r
-            
+
         for r_tuple in sorted(unique_relations.values(), key=lambda x: (x[0], x[1], x[2])):
             from_key, to_key, rel_type, provider_id, rel_data = r_tuple
             await self._create_or_update_relation(

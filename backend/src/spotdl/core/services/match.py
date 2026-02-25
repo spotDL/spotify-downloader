@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
 
 from spotdl.core.matching.engine import get_best_matches, order_results
 from spotdl.core.provider_preferences import (
-    DEFAULT_PLATFORM_ORDER,
     get_enabled_audio_platforms,
 )
 from spotdl.core.providers_config import ProviderPreference
@@ -22,9 +20,6 @@ from spotdl.providers.targets import (
     YouTubeMusicProvider,
     YouTubeProvider,
 )
-
-if TYPE_CHECKING:
-    pass
 
 
 class MatchServiceError(Exception):

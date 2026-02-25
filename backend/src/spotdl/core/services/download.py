@@ -17,12 +17,15 @@ from typing import Any
 from urllib.parse import urlparse
 
 from spotdl_core.download import (
-    DownloadError,
-    DownloadMeta,
-    DownloadProgress as CoreDownloadProgress,
-    DownloadSettings as CoreDownloadSettings,
     Downloader,
+    DownloadMeta,
     generate_lrc,
+)
+from spotdl_core.download import (
+    DownloadProgress as CoreDownloadProgress,
+)
+from spotdl_core.download import (
+    DownloadSettings as CoreDownloadSettings,
 )
 
 logger = logging.getLogger(__name__)
@@ -70,6 +73,10 @@ def is_safe_url(url: str) -> bool:
 
 
 # ── Backend-specific types ────────────────────────────────────────
+
+class DownloadServiceError(Exception):
+    """Base exception for download service."""
+
 
 class DownloadStatus(str, Enum):
     PENDING = "pending"

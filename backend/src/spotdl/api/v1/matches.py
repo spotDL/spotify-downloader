@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from urllib.parse import urljoin, urlparse
 from typing import Annotated
+from urllib.parse import urljoin, urlparse
 from uuid import UUID
 
 import httpx
@@ -25,8 +25,8 @@ from spotdl.core.services.song import (
     UnsupportedURLError,
     get_song_service,
 )
-from spotdl.core.types.song import Platform, Song
 from spotdl.core.types.result import TargetPlatform
+from spotdl.core.types.song import Platform, Song
 from spotdl.db.database import get_db_session
 from spotdl.db.models.match import Match, MatchType
 from spotdl.db.repositories.match import MatchRepository

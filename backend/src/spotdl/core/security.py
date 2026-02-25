@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import logging
 import threading
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
 import bcrypt
@@ -51,7 +51,7 @@ class TokenBlacklistCache:
             token_hash = hashlib.sha256(token.encode()).hexdigest()
             if token_hash in self._blacklist:
                 # Check if still valid (not expired)
-                if self._blacklist[token_hash] > datetime.now(timezone.utc):
+                if self._blacklist[token_hash] > datetime.now(UTC):
                     return True
                 # Token has expired, remove from cache
                 del self._blacklist[token_hash]
@@ -61,14 +61,14 @@ class TokenBlacklistCache:
         """Check if a token hash is in the cache."""
         with self._lock:
             if token_hash in self._blacklist:
-                if self._blacklist[token_hash] > datetime.now(timezone.utc):
+                if self._blacklist[token_hash] > datetime.now(UTC):
                     return True
                 del self._blacklist[token_hash]
             return False
 
     def _cleanup(self) -> None:
         """Remove expired tokens from the cache."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         expired = [h for h, exp in self._blacklist.items() if exp <= now]
         for token_hash in expired:
             del self._blacklist[token_hash]
@@ -127,7 +127,7 @@ def get_password_hash(password: str) -> str:
 def create_access_token(user_id: str) -> str:
     """Create an access token for a user."""
     settings = get_settings()
-    expire = datetime.now(timezone.utc) + timedelta(
+    expire = datetime.now(UTC) + timedelta(
         minutes=settings.access_token_expire_minutes
     )
     to_encode: dict[str, Any] = {
@@ -145,7 +145,7 @@ def create_access_token(user_id: str) -> str:
 def create_refresh_token(user_id: str) -> str:
     """Create a refresh token for a user."""
     settings = get_settings()
-    expire = datetime.now(timezone.utc) + timedelta(
+    expire = datetime.now(UTC) + timedelta(
         days=settings.refresh_token_expire_days
     )
     to_encode: dict[str, Any] = {

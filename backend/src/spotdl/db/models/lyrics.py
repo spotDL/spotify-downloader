@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from spotdl.db.models.base import Base, GUID, TimestampMixin, generate_uuid, utc_now
+from spotdl.db.models.base import GUID, Base, TimestampMixin, generate_uuid, utc_now
 
 if TYPE_CHECKING:
     from spotdl.db.models.entity_unified import Entity

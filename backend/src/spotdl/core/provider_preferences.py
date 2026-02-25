@@ -5,20 +5,14 @@ Converts user preferences to provider instances for audio, metadata, and lyrics 
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypedDict
+from typing import TypedDict
 
 from spotdl.core.providers_config import (
-    AUDIO_SOURCE_PROVIDERS,
-    LYRICS_PROVIDERS,
-    METADATA_PROVIDERS,
     ProviderPreference,
     get_default_preferences,
     validate_preferences,
 )
 from spotdl.core.types.result import TargetPlatform
-
-if TYPE_CHECKING:
-    pass
 
 
 class AudioPreferences(TypedDict):

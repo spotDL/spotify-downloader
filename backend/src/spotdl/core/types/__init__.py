@@ -3,4 +3,4 @@
 from spotdl.core.types.result import Result
 from spotdl.core.types.song import Song
 
-__all__ = ["Song", "Result"]
+__all__ = ["Result", "Song"]

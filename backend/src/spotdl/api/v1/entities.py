@@ -4,33 +4,30 @@ from __future__ import annotations
 
 import logging
 import uuid
-from datetime import datetime, timezone, date as date_type
+from datetime import UTC, datetime
+from datetime import date as date_type
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from spotdl.api.v1.auth import get_current_user_optional
-from spotdl.api.v1.dependencies import UserPreferences, get_user_preferences, get_embed_preferences
+from spotdl.api.v1.dependencies import UserPreferences, get_embed_preferences, get_user_preferences
+from spotdl.api.v1.validation import validate_uuid
 from spotdl.core.metadata_embed_config import MetadataEmbedPreferences
-from spotdl.api.v1.validation import validate_uuid, UUIDPath, SkipQuery, LimitQuery
 from spotdl.core.services.entity import EntityPersistenceService
 from spotdl.core.services.song import SongServiceError, UnsupportedURLError, get_song_service
 from spotdl.db.database import get_db_session
-from spotdl.db.models.album import Album
-from spotdl.db.models.artist import Artist
-from spotdl.db.models.playlist import Playlist
+from spotdl.db.models.metadata_snapshot import MetadataSnapshot
 from spotdl.db.models.song import Song
 from spotdl.db.models.user import User
 from spotdl.db.repositories.album import AlbumRepository
 from spotdl.db.repositories.artist import ArtistRepository
 from spotdl.db.repositories.playlist import PlaylistRepository
-from spotdl.db.repositories.song import SongRepository
 from spotdl.db.repositories.refresh_cooldown import RefreshCooldownRepository
-from spotdl.db.models.metadata_snapshot import MetadataSnapshot
+from spotdl.db.repositories.song import SongRepository
 
 logger = logging.getLogger(__name__)
 
@@ -106,7 +103,7 @@ class ArtistResponse(BaseModel):
     image_url: str | None = None
     genres: list[str] = []
     platforms: list[PlatformInfo] = []
-    albums: list["AlbumSummary"] = []
+    albums: list[AlbumSummary] = []
     songs: list[SongResponse] = []
     total_albums: int = 0
     total_songs: int = 0
@@ -522,8 +519,9 @@ async def get_artist(
     if not artist.image_url or not artist.genres:
         try:
             song_service = get_song_service()
-            from spotdl.core.types.song import Platform
             import asyncio
+
+            from spotdl.core.types.song import Platform
 
             spotify_provider = song_service._providers.get(Platform.SPOTIFY)
             if spotify_provider:
@@ -602,7 +600,7 @@ async def get_artist(
     song_counts = await album_repo.get_song_counts_by_album_ids(album_ids)
 
     # Get songs for this artist (no limit - return all songs)
-    from sqlalchemy import select, func
+    from sqlalchemy import func, select
 
     # First get total count
     count_query = select(func.count(Song.id)).where(Song.artist_id == artist_uuid)
@@ -814,7 +812,7 @@ async def get_song(
                 best_snapshot = max(all_snapshots, key=lambda s: s.confidence)
                 _apply_snapshot_to_song(song, best_snapshot)
 
-            song.enriched_at = datetime.now(timezone.utc)
+            song.enriched_at = datetime.now(UTC)
             await db.commit()
             await db.refresh(song)
 
@@ -1218,6 +1216,7 @@ async def get_song_resolved_metadata(
     This is the metadata that would be embedded when downloading the song.
     """
     from sqlalchemy import select
+
     from spotdl.core.services.metadata_resolver import MetadataResolver
 
     song_uuid = validate_uuid(song_id, "song ID")
@@ -1326,9 +1325,7 @@ def _raise_refresh_error(error: Exception) -> None:
     detail = str(error)
     lowered = detail.lower()
 
-    if isinstance(error, UnsupportedURLError) or "unsupported url" in lowered:
-        status_code = 400
-    elif "invalid" in lowered and "url" in lowered:
+    if isinstance(error, UnsupportedURLError) or "unsupported url" in lowered or ("invalid" in lowered and "url" in lowered):
         status_code = 400
     elif "not found" in lowered:
         status_code = 404
@@ -1615,6 +1612,7 @@ async def refresh_artist(
         if spotify_link is not None:
             try:
                 import asyncio
+
                 from spotdl.core.types.song import Platform
                 spotify_provider = song_service._providers.get(Platform.SPOTIFY)
                 if spotify_provider:
@@ -1827,7 +1825,7 @@ async def enrich_song(
             fields_updated = _apply_snapshot_to_song(song, best_snapshot)
 
         sources_used = sorted({snapshot.source for snapshot in all_snapshots})
-        song.enriched_at = datetime.now(timezone.utc)
+        song.enriched_at = datetime.now(UTC)
 
         await db.commit()
 
@@ -1841,7 +1839,7 @@ async def enrich_song(
 
     except Exception as e:
         logger.error(f"Failed to enrich song: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to enrich: {str(e)}") from e
+        raise HTTPException(status_code=500, detail=f"Failed to enrich: {e!s}") from e
 
 
 @router.get("/metadata-providers")
@@ -1956,8 +1954,8 @@ async def enrich_song_from_all_sources(
     All raw API responses are preserved in MetadataSnapshots for future use.
     Returns summary of what was stored.
     """
-    from spotdl.core.services.metadata import MetadataService
     from spotdl.core.services.lyrics import LyricsService
+    from spotdl.core.services.metadata import MetadataService
 
     song_uuid = validate_uuid(id, "song ID")
 
@@ -2007,4 +2005,4 @@ async def enrich_song_from_all_sources(
 
     except Exception as e:
         logger.error(f"Failed to fully enrich song: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to enrich: {str(e)}") from e
+        raise HTTPException(status_code=500, detail=f"Failed to enrich: {e!s}") from e

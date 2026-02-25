@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
 
-from sqlalchemy import select, and_
+from sqlalchemy import and_, select
 
 from spotdl.db.models.lyrics import Lyrics
 from spotdl.db.repositories.base import BaseRepository
@@ -140,7 +139,7 @@ class LyricsRepository(BaseRepository[Lyrics]):
             existing.upvotes = upvotes
             existing.downvotes = downvotes
             existing.status = status
-            existing.fetched_at = datetime.now(timezone.utc)
+            existing.fetched_at = datetime.now(UTC)
             await self.session.flush()
             return existing
 
@@ -160,7 +159,7 @@ class LyricsRepository(BaseRepository[Lyrics]):
             upvotes=upvotes,
             downvotes=downvotes,
             status=status,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
         )
         self.session.add(lyrics)
         await self.session.flush()

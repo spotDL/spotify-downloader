@@ -6,7 +6,6 @@ import logging
 from typing import Any, ClassVar
 from urllib.parse import quote
 
-import httpx
 from bs4 import BeautifulSoup
 
 from spotdl.providers.lyrics.base import BaseLyricsProvider

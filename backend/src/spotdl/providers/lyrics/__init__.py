@@ -7,10 +7,10 @@ from spotdl.providers.lyrics.musixmatch import MusixMatchProvider
 from spotdl.providers.lyrics.synced import SyncedLyricsProvider
 
 __all__ = [
+    "AZLyricsProvider",
     "BaseLyricsProvider",
     "GeniusProvider",
     "GeniusWebProvider",
     "MusixMatchProvider",
-    "AZLyricsProvider",
     "SyncedLyricsProvider",
 ]

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import hashlib
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -67,7 +67,7 @@ class TokenBlacklistRepository:
             True if blacklisted and not expired, False otherwise
         """
         token_hash = self._hash_token(token)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         result = await self.session.execute(
             select(BlacklistedToken).where(
@@ -84,7 +84,7 @@ class TokenBlacklistRepository:
         Returns:
             Number of tokens removed
         """
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         result = await self.session.execute(
             delete(BlacklistedToken).where(
                 BlacklistedToken.expires_at <= now
@@ -100,7 +100,7 @@ class TokenBlacklistRepository:
         Returns:
             List of tuples (token_hash, expires_at)
         """
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         result = await self.session.execute(
             select(BlacklistedToken.token_hash, BlacklistedToken.expires_at).where(
                 BlacklistedToken.expires_at > now
@@ -117,7 +117,7 @@ class TokenBlacklistRepository:
         """
         from sqlalchemy import func
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         result = await self.session.execute(
             select(func.count()).select_from(BlacklistedToken).where(
                 BlacklistedToken.expires_at > now

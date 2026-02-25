@@ -7,8 +7,6 @@ import logging
 import re
 from typing import TYPE_CHECKING, Any
 
-logger = logging.getLogger(__name__)
-
 from ytmusicapi import YTMusic
 
 from spotdl.core.types.result import Result, TargetPlatform
@@ -19,6 +17,8 @@ from spotdl.providers.targets.base import (
 
 if TYPE_CHECKING:
     from spotdl.core.types.song import Song
+
+logger = logging.getLogger(__name__)
 
 # YouTube Music URL pattern
 YTMUSIC_URL_PATTERN = re.compile(

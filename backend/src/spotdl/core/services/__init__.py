@@ -1,22 +1,21 @@
 """Business logic services."""
 
-from spotdl.core.services.lyrics import (
-    LyricsResult,
-    LyricsService,
-    LyricsServiceError,
-    get_lyrics_service,
-)
-
 from spotdl.core.services.download import (
     DownloadService,
     DownloadServiceError,
     get_download_service,
 )
 from spotdl.core.services.entity_unified import (
-    UnifiedEntityService,
-    UnifiedEntityError,
-    EntityNotFoundError,
     CapabilityUnsupportedError,
+    EntityNotFoundError,
+    UnifiedEntityError,
+    UnifiedEntityService,
+)
+from spotdl.core.services.lyrics import (
+    LyricsResult,
+    LyricsService,
+    LyricsServiceError,
+    get_lyrics_service,
 )
 
 __all__ = [

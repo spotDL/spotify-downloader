@@ -22,7 +22,6 @@ from spotdl.core.provider_preferences import (
 )
 from spotdl.core.providers_config import (
     ProviderPreference,
-    get_default_preferences,
 )
 from spotdl.db.database import get_db_session
 from spotdl.db.models.user import User

@@ -3,17 +3,15 @@
 from __future__ import annotations
 
 import logging
-from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel
 
 from spotdl.config import get_settings
 from spotdl.core.services.download import (
     DownloadProgress,
     DownloadRequest,
-    DownloadService,
     DownloadStatus,
     create_download_id,
     get_download_service,
