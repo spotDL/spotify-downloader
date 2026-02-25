@@ -18,8 +18,35 @@ from spotdl.core.metadata_embed_config import (
 )
 
 if TYPE_CHECKING:
-    from spotdl.db.models.metadata_snapshot import MetadataSnapshot
-    from spotdl.db.models.song import Song
+    from typing import Protocol
+
+    class MetadataSnapshot(Protocol):
+        source: str
+        snapshot_data: dict[str, Any] | None
+
+    class Song(Protocol):
+        id: Any
+        name: str
+        artists: list[str]
+        album_name: str | None
+        isrc: str | None
+        genres: list[str]
+        explicit: bool
+        popularity: int | None
+        label: str | None
+        copyright_text: str | None
+        musicbrainz_id: str | None
+        discogs_id: str | None
+        platform: str
+        release_date: Any
+        metadata_json: dict[str, Any] | None
+        bpm: float | None
+        key: int | None
+        time_signature: int | None
+        energy: float | None
+        danceability: float | None
+        valence: float | None
+        loudness: float | None
 
 logger = logging.getLogger(__name__)
 

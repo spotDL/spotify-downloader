@@ -347,14 +347,14 @@ export interface StatisticsExportResponse {
     artists: number;
     albums: number;
     playlists: number;
-    matches: number;
+    relations: number;
     users: number;
   };
   growth: {
-    songs_today: number;
-    songs_this_week: number;
-    matches_today: number;
-    matches_this_week: number;
+    entities_today: number;
+    entities_this_week: number;
+    relations_today: number;
+    relations_this_week: number;
     new_users_today: number;
     new_users_this_week: number;
   };

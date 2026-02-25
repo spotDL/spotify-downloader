@@ -164,7 +164,7 @@ function AdminDashboard() {
               </svg>
             }
             variant="success"
-            trend={stats?.growth.songs_this_week ? { value: stats.growth.songs_this_week, label: "this week" } : undefined}
+            trend={stats?.growth.entities_this_week ? { value: stats.growth.entities_this_week, label: "this week" } : undefined}
           />
           <StatCard
             label="Artists"
@@ -198,14 +198,14 @@ function AdminDashboard() {
           />
           <StatCard
             label="Matches"
-            value={formatNumber(stats?.entities.matches || 0)}
+            value={formatNumber(stats?.entities.relations || 0)}
             icon={
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
               </svg>
             }
             variant="default"
-            trend={stats?.growth.matches_this_week ? { value: stats.growth.matches_this_week, label: "this week" } : undefined}
+            trend={stats?.growth.relations_this_week ? { value: stats.growth.relations_this_week, label: "this week" } : undefined}
           />
           <StatCard
             label="Users"
@@ -238,13 +238,13 @@ function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <span className="text-zinc-400">New Songs</span>
                 <span className="font-mono text-zinc-200">
-                  +{stats?.growth.songs_today || 0}
+                  +{stats?.growth.entities_today || 0}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-zinc-400">New Matches</span>
                 <span className="font-mono text-zinc-200">
-                  +{stats?.growth.matches_today || 0}
+                  +{stats?.growth.relations_today || 0}
                 </span>
               </div>
               <div className="flex items-center justify-between">

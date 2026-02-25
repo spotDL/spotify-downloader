@@ -352,19 +352,17 @@ export interface EntityCounts {
   artists: number;
   albums: number;
   playlists: number;
-  matches: number;
+  relations: number;
   users: number;
 }
 
 export interface GrowthStats {
-  songs_today: number;
-  songs_this_week: number;
-  downloads_today: number;
-  downloads_this_week: number;
+  entities_today: number;
+  entities_this_week: number;
+  relations_today: number;
+  relations_this_week: number;
   new_users_today: number;
   new_users_this_week: number;
-  matches_today: number;
-  matches_this_week: number;
 }
 
 export interface SystemStats {
@@ -380,6 +378,7 @@ export interface AdminUser extends User {
   votes_cast: number;
   reports_submitted: number;
 }
+
 
 export interface AdminUserListRequest {
   page?: number;
