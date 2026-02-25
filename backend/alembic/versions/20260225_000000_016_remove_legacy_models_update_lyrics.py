@@ -21,86 +21,118 @@ depends_on: str | Sequence[str] | None = None
 def upgrade() -> None:
     bind = op.get_bind()
     dialect = bind.dialect.name
+    inspector = sa.inspect(bind)
+    existing_tables = set(inspector.get_table_names())
+
     uuid_type = postgresql.UUID(as_uuid=True) if dialect == "postgresql" else sa.String(36)
 
-    # 1. Update lyrics table
-    op.execute("DELETE FROM lyrics")
-    
-    with op.batch_alter_table("lyrics") as batch_op:
-        batch_op.add_column(sa.Column('entity_id', uuid_type, nullable=True))
-        batch_op.add_column(sa.Column('upvotes', sa.Integer(), server_default='0', nullable=False))
-        batch_op.add_column(sa.Column('downvotes', sa.Integer(), server_default='0', nullable=False))
-        batch_op.add_column(sa.Column('status', sa.String(length=32), server_default='suggested', nullable=False))
-        
-        # In SQLite, constraint names might be slightly different or need named conventions.
-        # We will wrap dropping constraints in try-except for safety across DBs if needed, 
-        # but typical declarative setup names them.
-        batch_op.drop_constraint('uq_lyrics_song_source', type_='unique')
-        batch_op.drop_constraint('lyrics_song_id_fkey', type_='foreignkey')
-        batch_op.drop_index('ix_lyrics_song_id')
-        batch_op.drop_column('song_id')
+    # 1. Migrate lyrics table from song_id -> entity_id
+    if "lyrics" in existing_tables:
+        existing_cols = {c["name"] for c in inspector.get_columns("lyrics")}
 
-    with op.batch_alter_table("lyrics") as batch_op:
-        batch_op.alter_column('entity_id', nullable=False)
-        batch_op.create_index('ix_lyrics_entity_id', ['entity_id'], unique=False)
-        batch_op.create_foreign_key('lyrics_entity_id_fkey', 'entities', ['entity_id'], ['id'], ondelete='CASCADE')
-        batch_op.create_unique_constraint('uq_lyrics_entity_source', ['entity_id', 'source'])
+        if "song_id" in existing_cols:
+            # Clear existing lyrics — they reference songs which are about to be dropped.
+            op.execute("DELETE FROM lyrics")
 
-    # 2. Drop legacy tables
-    
-    with op.batch_alter_table("matches") as batch_op:
-        batch_op.drop_index('ix_matches_platform_id')
-        batch_op.drop_index('ix_matches_source_song_id')
-    op.drop_table('matches')
+            with op.batch_alter_table("lyrics") as batch_op:
+                if "entity_id" not in existing_cols:
+                    batch_op.add_column(sa.Column("entity_id", uuid_type, nullable=True))
+                if "upvotes" not in existing_cols:
+                    batch_op.add_column(
+                        sa.Column("upvotes", sa.Integer(), server_default="0", nullable=False)
+                    )
+                if "downvotes" not in existing_cols:
+                    batch_op.add_column(
+                        sa.Column("downvotes", sa.Integer(), server_default="0", nullable=False)
+                    )
+                if "status" not in existing_cols:
+                    batch_op.add_column(
+                        sa.Column(
+                            "status",
+                            sa.String(length=32),
+                            server_default="suggested",
+                            nullable=False,
+                        )
+                    )
 
-    with op.batch_alter_table("metadata_snapshots") as batch_op:
-        batch_op.drop_index('ix_metadata_snapshots_song_id')
-        batch_op.drop_index('ix_metadata_snapshots_source')
-    op.drop_table('metadata_snapshots')
+                # Drop the old unique constraint if present.
+                existing_uq = {
+                    c["name"] for c in inspector.get_unique_constraints("lyrics")
+                }
+                if "uq_lyrics_song_source" in existing_uq:
+                    batch_op.drop_constraint("uq_lyrics_song_source", type_="unique")
 
-    with op.batch_alter_table("playlist_tracks") as batch_op:
-        batch_op.drop_index('ix_playlist_tracks_playlist_id')
-        batch_op.drop_index('ix_playlist_tracks_song_id')
-    op.drop_table('playlist_tracks')
-    
-    with op.batch_alter_table("songs") as batch_op:
-        batch_op.drop_index('ix_songs_album_id')
-        batch_op.drop_index('ix_songs_artist_id')
-        batch_op.drop_index('ix_songs_discogs_id')
-        batch_op.drop_index('ix_songs_isrc')
-        batch_op.drop_index('ix_songs_musicbrainz_id')
-        batch_op.drop_index('ix_songs_platform')
-        batch_op.drop_index('ix_songs_platform_id')
-    op.drop_table('songs')
+                # Drop the old FK if present.
+                existing_fks = {fk["name"] for fk in inspector.get_foreign_keys("lyrics")}
+                if "lyrics_song_id_fkey" in existing_fks:
+                    batch_op.drop_constraint("lyrics_song_id_fkey", type_="foreignkey")
 
-    with op.batch_alter_table("album_platform_links") as batch_op:
-        batch_op.drop_index('ix_album_platform_links_album_id')
-        batch_op.drop_index('ix_album_platform_links_platform')
-        batch_op.drop_index('ix_album_platform_links_platform_id')
-    op.drop_table('album_platform_links')
+                # Drop the old index on song_id if present.
+                existing_idx = {idx["name"] for idx in inspector.get_indexes("lyrics")}
+                if "ix_lyrics_song_id" in existing_idx:
+                    batch_op.drop_index("ix_lyrics_song_id")
 
-    with op.batch_alter_table("albums") as batch_op:
-        batch_op.drop_index('ix_albums_artist_id')
-        batch_op.drop_index('ix_albums_name_normalized')
-    op.drop_table('albums')
+                batch_op.drop_column("song_id")
 
-    with op.batch_alter_table("artist_platform_links") as batch_op:
-        batch_op.drop_index('ix_artist_platform_links_artist_id')
-        batch_op.drop_index('ix_artist_platform_links_platform')
-        batch_op.drop_index('ix_artist_platform_links_platform_id')
-    op.drop_table('artist_platform_links')
+        # Re-inspect after the first batch to reflect new column state.
+        existing_cols2 = {c["name"] for c in inspector.get_columns("lyrics")}
 
-    with op.batch_alter_table("artists") as batch_op:
-        batch_op.drop_index('ix_artists_name_normalized')
-    op.drop_table('artists')
+        if "entity_id" in existing_cols2:
+            with op.batch_alter_table("lyrics") as batch_op:
+                batch_op.alter_column("entity_id", nullable=False)
 
-    with op.batch_alter_table("playlist_platform_links") as batch_op:
-        batch_op.drop_index('ix_playlist_platform_links_platform')
-        batch_op.drop_index('ix_playlist_platform_links_platform_id')
-        batch_op.drop_index('ix_playlist_platform_links_playlist_id')
-    op.drop_table('playlist_platform_links')
+                existing_idx2 = {idx["name"] for idx in inspector.get_indexes("lyrics")}
+                if "ix_lyrics_entity_id" not in existing_idx2:
+                    batch_op.create_index("ix_lyrics_entity_id", ["entity_id"], unique=False)
 
-    op.drop_table('playlists')
+                existing_fks2 = {fk["name"] for fk in inspector.get_foreign_keys("lyrics")}
+                if "lyrics_entity_id_fkey" not in existing_fks2:
+                    batch_op.create_foreign_key(
+                        "lyrics_entity_id_fkey",
+                        "entities",
+                        ["entity_id"],
+                        ["id"],
+                        ondelete="CASCADE",
+                    )
+
+                existing_uq2 = {
+                    c["name"] for c in inspector.get_unique_constraints("lyrics")
+                }
+                if "uq_lyrics_entity_source" not in existing_uq2:
+                    batch_op.create_unique_constraint(
+                        "uq_lyrics_entity_source", ["entity_id", "source"]
+                    )
+
+    # 2. Drop legacy tables.
+    # On PostgreSQL, DROP TABLE ... CASCADE removes all dependent indexes, FKs, and
+    # referencing rows automatically so no explicit index/FK cleanup is needed.
+    # We also drop `votes` which has a FK into `matches`.
+    legacy_tables = [
+        "playlist_tracks",
+        "metadata_snapshots",
+        "matches",
+        "votes",
+        "songs",
+        "album_platform_links",
+        "albums",
+        "artist_platform_links",
+        "artists",
+        "playlist_platform_links",
+        "playlists",
+    ]
+
+    if dialect == "postgresql":
+        for table in legacy_tables:
+            op.execute(sa.text(f"DROP TABLE IF EXISTS {table} CASCADE"))
+    else:
+        # SQLite does not support CASCADE on DROP TABLE; drop dependents first.
+        for table in legacy_tables:
+            if table in existing_tables:
+                for idx in inspector.get_indexes(table):
+                    with op.batch_alter_table(table) as batch_op:
+                        batch_op.drop_index(idx["name"])
+                op.drop_table(table)
+
 
 def downgrade() -> None:
     pass
