@@ -9,7 +9,7 @@ from typing import Any
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from spotdl.core.services.download import DownloadProgress, get_download_manager
+from spotdl.core.services.download import DownloadProgress, get_download_service
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +79,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str) -> None:
     - Download completion/failure notifications
     """
     await manager.connect(websocket, client_id)
-    download_manager = get_download_manager()
+    download_manager = get_download_service()
 
     # Track which downloads this client is watching
     watched_downloads: set[str] = set()

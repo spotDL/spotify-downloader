@@ -27,7 +27,7 @@ from spotdl.core.capabilities import (
     ProviderEntityBundle,
 )
 from spotdl.core.provider_registry import get_provider_registry
-from spotdl.core.services.download import DownloadRequest, create_download_id, get_download_manager
+from spotdl.core.services.download import DownloadRequest, create_download_id, get_download_service
 from spotdl.core.services.match import get_match_service
 from spotdl.core.services.song import SongServiceError, UnsupportedURLError, get_song_service
 from spotdl.core.types.result import Result, TargetPlatform

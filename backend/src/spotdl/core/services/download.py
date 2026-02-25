@@ -258,7 +258,7 @@ class DownloadRequest:
 
 # ── Download Manager ──────────────────────────────────────────────
 
-class DownloadManager:
+class DownloadService:
     """Manages download queue and progress tracking."""
 
     def __init__(self, download_dir: Path | None = None) -> None:
@@ -474,14 +474,14 @@ class DownloadManager:
 
 # ── Global instance ───────────────────────────────────────────────
 
-_download_manager: DownloadManager | None = None
+_download_service: DownloadService | None = None
 
 
-def get_download_manager() -> DownloadManager:
-    global _download_manager
-    if _download_manager is None:
-        _download_manager = DownloadManager()
-    return _download_manager
+def get_download_service() -> DownloadService:
+    global _download_service
+    if _download_service is None:
+        _download_service = DownloadService()
+    return _download_service
 
 
 def create_download_id() -> str:

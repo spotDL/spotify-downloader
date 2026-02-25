@@ -11,12 +11,12 @@ from pydantic import BaseModel, HttpUrl
 
 from spotdl.config import get_settings
 from spotdl.core.services.download import (
-    DownloadManager,
     DownloadProgress,
     DownloadRequest,
+    DownloadService,
     DownloadStatus,
     create_download_id,
-    get_download_manager,
+    get_download_service,
 )
 
 logger = logging.getLogger(__name__)
@@ -106,7 +106,7 @@ async def start_download(
     Takes a URL (typically YouTube/YouTube Music) and metadata,
     downloads the audio, embeds metadata, and makes it available for download.
     """
-    manager = get_download_manager()
+    manager = get_download_service()
 
     # Create download request
     download_id = create_download_id()
@@ -143,7 +143,7 @@ async def get_download_status(
     _: None = Depends(require_downloads_enabled),
 ) -> DownloadProgressResponse:
     """Get the status of a download."""
-    manager = get_download_manager()
+    manager = get_download_service()
     progress = manager.get_progress(download_id)
 
     if not progress:
@@ -157,7 +157,7 @@ async def list_downloads(
     _: None = Depends(require_downloads_enabled),
 ) -> DownloadListResponse:
     """List all downloads."""
-    manager = get_download_manager()
+    manager = get_download_service()
     downloads = manager.get_all_downloads()
 
     return DownloadListResponse(
@@ -176,7 +176,7 @@ async def get_download_file(
 
     Returns the audio file for a completed download.
     """
-    manager = get_download_manager()
+    manager = get_download_service()
     progress = manager.get_progress(download_id)
 
     if not progress:
@@ -205,7 +205,7 @@ async def cancel_download(
     _: None = Depends(require_downloads_enabled),
 ) -> dict[str, str]:
     """Cancel a download in progress."""
-    manager = get_download_manager()
+    manager = get_download_service()
 
     if not manager.get_progress(download_id):
         raise HTTPException(status_code=404, detail="Download not found")

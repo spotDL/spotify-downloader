@@ -11,7 +11,7 @@ from spotdl.core.capabilities import (
     DownloadHookResult,
     ProviderPlugin,
 )
-from spotdl.core.services.download import DownloadRequest, create_download_id, get_download_manager
+from spotdl.core.services.download import DownloadRequest, create_download_id, get_download_service
 
 
 @dataclass(slots=True)
@@ -68,7 +68,7 @@ class HookedDownloadPlugin(GenericProviderPlugin, DownloadCapability):
             song_url=url,
         )
 
-        manager = get_download_manager()
+        manager = get_download_service()
         await manager.start_download(request)
         return DownloadHookResult(
             download_id=request.download_id,
