@@ -12,20 +12,20 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from spotdl.db.models.base import Base, GUID, TimestampMixin, generate_uuid, utc_now
 
 if TYPE_CHECKING:
-    from spotdl.db.models.song import Song
+    from spotdl.db.models.entity_unified import Entity
 
 
 class Lyrics(Base, TimestampMixin):
     """
-    Lyrics for songs from various providers.
+    Lyrics for entities from various providers.
 
     Stores both plain text and synchronized (LRC format) lyrics.
-    Multiple sources can exist for the same song.
+    Multiple sources can exist for the same entity.
     """
 
     __tablename__ = "lyrics"
     __table_args__ = (
-        UniqueConstraint("song_id", "source", name="uq_lyrics_song_source"),
+        UniqueConstraint("entity_id", "source", name="uq_lyrics_entity_source"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -33,9 +33,9 @@ class Lyrics(Base, TimestampMixin):
         primary_key=True,
         default=generate_uuid,
     )
-    song_id: Mapped[uuid.UUID] = mapped_column(
+    entity_id: Mapped[uuid.UUID] = mapped_column(
         GUID(),
-        ForeignKey("songs.id", ondelete="CASCADE"),
+        ForeignKey("entities.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
@@ -56,6 +56,23 @@ class Lyrics(Base, TimestampMixin):
         DateTime(timezone=True),
         default=utc_now,
         nullable=False,
+    )
+
+    # Vote tracking
+    upvotes: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+    )
+    downvotes: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+    )
+    status: Mapped[str] = mapped_column(
+        String(32),
+        nullable=False,
+        default="suggested",
     )
 
     # Quality and deduplication tracking
@@ -101,10 +118,10 @@ class Lyrics(Base, TimestampMixin):
     )
 
     # Relationships
-    song: Mapped[Song] = relationship(
-        "Song",
-        back_populates="lyrics",
+    entity: Mapped[Entity] = relationship(
+        "Entity",
     )
 
     def __repr__(self) -> str:
-        return f"<Lyrics(id={self.id}, song_id={self.song_id}, source={self.source})>"
+        return f"<Lyrics(id={self.id}, entity_id={self.entity_id}, source={self.source})>"
+

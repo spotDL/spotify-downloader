@@ -14,9 +14,9 @@ from spotdl.api.v1.dependencies import UserPreferences, get_user_preferences
 from spotdl.api.v1.validation import validate_uuid
 from spotdl.config import get_settings
 from spotdl.core.services.lyrics import LyricsResult, get_lyrics_service
+from spotdl.core.services.entity_unified import UnifiedEntityService, EntityNotFoundError
 from spotdl.db.database import get_db_session
-from spotdl.db.models.song import Song
-from spotdl.db.repositories.song import SongRepository
+from spotdl.db.repositories.lyrics import LyricsRepository
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ router = APIRouter(prefix="/lyrics")
 class LyricsResponse(BaseModel):
     """Response model for lyrics."""
 
-    song_id: str
+    entity_id: str
     lyrics_text: str
     lyrics_synced: str | None = None
     source: str
@@ -36,13 +36,13 @@ class LyricsResponse(BaseModel):
 class LyricsNotFoundResponse(BaseModel):
     """Response when lyrics are not found."""
 
-    song_id: str
+    entity_id: str
     message: str = "No lyrics found"
 
 
-@router.get("/song/{song_id}", response_model=LyricsResponse | LyricsNotFoundResponse)
-async def get_lyrics_for_song(
-    song_id: str,
+@router.get("/entity/{entity_id}", response_model=LyricsResponse | LyricsNotFoundResponse)
+async def get_lyrics_for_entity(
+    entity_id: str,
     preferences: Annotated[UserPreferences, Depends(get_user_preferences)],
     force_refresh: Annotated[
         bool, Query(description="Force refresh lyrics from providers")
@@ -50,7 +50,7 @@ async def get_lyrics_for_song(
     db: AsyncSession = Depends(get_db_session),
 ) -> LyricsResponse | LyricsNotFoundResponse:
     """
-    Get lyrics for a song by its internal ID.
+    Get lyrics for an entity by its internal ID.
 
     Attempts to retrieve from cache first, then fetches from providers
     if not cached or force_refresh is True.
@@ -59,18 +59,24 @@ async def get_lyrics_for_song(
     Unauthenticated users get default provider order.
     """
     # Validate UUID
-    song_uuid = validate_uuid(song_id, "song ID")
+    entity_uuid = validate_uuid(entity_id, "entity ID")
 
-    # Get song from database
-    song_repo = SongRepository(db)
-    song = await song_repo.get_by_id(song_uuid)
-
-    if not song:
-        raise HTTPException(status_code=404, detail=f"Song not found: {song_id}")
+    entity_service = UnifiedEntityService(db)
+    try:
+        entity = await entity_service.get_entity(entity_uuid)
+    except EntityNotFoundError:
+        await entity_service.close()
+        raise HTTPException(status_code=404, detail=f"Entity not found: {entity_id}")
+    
+    await entity_service.close()
 
     # Get lyrics using service
     settings = get_settings()
     genius_token = settings.genius_access_token.get_secret_value() if settings.genius_access_token else None
+
+    artists = entity.canonical.get("artists", [])
+    if isinstance(artists, str):
+        artists = [artists]
 
     async with get_lyrics_service(
         session=db,
@@ -79,17 +85,17 @@ async def get_lyrics_for_song(
         lyrics_preferences=preferences["lyrics"],
     ) as lyrics_service:
         result = await lyrics_service.fetch_lyrics(
-            song_id=song_uuid,
-            name=song.name,
-            artists=song.artists,
+            entity_id=entity_uuid,
+            name=entity.name,
+            artists=artists,
             force_refresh=force_refresh,
         )
 
     if not result:
-        return LyricsNotFoundResponse(song_id=song_id)
+        return LyricsNotFoundResponse(entity_id=entity_id)
 
     return LyricsResponse(
-        song_id=song_id,
+        entity_id=entity_id,
         lyrics_text=result.lyrics_text,
         lyrics_synced=result.lyrics_synced,
         source=result.source,
@@ -99,15 +105,15 @@ async def get_lyrics_for_song(
 
 @router.get("/search", response_model=LyricsResponse | LyricsNotFoundResponse)
 async def search_lyrics(
-    name: Annotated[str, Query(description="Song name")],
+    name: Annotated[str, Query(description="Song/Entity name")],
     artist: Annotated[str, Query(description="Artist name")],
     preferences: Annotated[UserPreferences, Depends(get_user_preferences)],
     db: AsyncSession = Depends(get_db_session),
 ) -> LyricsResponse | LyricsNotFoundResponse:
     """
-    Search for lyrics by song name and artist.
+    Search for lyrics by name and artist.
 
-    Does not cache results (use song ID endpoint for caching).
+    Does not cache results (use entity ID endpoint for caching).
 
     Uses user's lyrics source preferences to determine provider order.
     Unauthenticated users get default provider order.
@@ -123,17 +129,17 @@ async def search_lyrics(
     ) as lyrics_service:
         # Use a dummy UUID since we're not caching
         result = await lyrics_service.fetch_lyrics(
-            song_id=uuid.uuid4(),
+            entity_id=uuid.uuid4(),
             name=name,
             artists=[artist],
             force_refresh=True,
         )
 
     if not result:
-        return LyricsNotFoundResponse(song_id="search", message="No lyrics found")
+        return LyricsNotFoundResponse(entity_id="search", message="No lyrics found")
 
     return LyricsResponse(
-        song_id="search",
+        entity_id="search",
         lyrics_text=result.lyrics_text,
         lyrics_synced=result.lyrics_synced,
         source=result.source,
@@ -148,28 +154,28 @@ class SubmitLyricsRequest(BaseModel):
     source: str = "user"
 
 
-@router.post("/song/{song_id}", response_model=LyricsSourceResponse)
+@router.post("/entity/{entity_id}", response_model=LyricsSourceResponse)
 async def submit_user_lyrics(
-    song_id: str,
+    entity_id: str,
     request: SubmitLyricsRequest,
     db: AsyncSession = Depends(get_db_session),
 ) -> LyricsSourceResponse:
     """
-    Submit user-provided lyrics for a song.
+    Submit user-provided lyrics for an entity.
     
     These metrics are saved with the provided source (default "user"). 
     """
-    from spotdl.db.repositories import LyricsRepository
-
     # Validate UUID
-    song_uuid = validate_uuid(song_id, "song ID")
+    entity_uuid = validate_uuid(entity_id, "entity ID")
 
-    # Get song from database
-    song_repo = SongRepository(db)
-    song = await song_repo.get_by_id(song_uuid)
-
-    if not song:
-        raise HTTPException(status_code=404, detail=f"Song not found: {song_id}")
+    entity_service = UnifiedEntityService(db)
+    try:
+        entity = await entity_service.get_entity(entity_uuid)
+    except EntityNotFoundError:
+        await entity_service.close()
+        raise HTTPException(status_code=404, detail=f"Entity not found: {entity_id}")
+    finally:
+        await entity_service.close()
 
     lyrics_repo = LyricsRepository(db)
     
@@ -178,7 +184,7 @@ async def submit_user_lyrics(
     line_count = len(lines)
 
     saved_lyrics = await lyrics_repo.upsert(
-        song_id=song_uuid,
+        entity_id=entity_uuid,
         source=request.source or "user",
         lyrics_text=request.lyrics_text.strip(),
         lyrics_synced=request.lyrics_synced.strip() if request.lyrics_synced else None,
@@ -198,6 +204,7 @@ async def submit_user_lyrics(
         language=saved_lyrics.language,
         has_translations=saved_lyrics.has_translations,
     )
+
 class LyricsSourceResponse(BaseModel):
     """Response model for a single lyrics source."""
 
@@ -213,40 +220,40 @@ class LyricsSourceResponse(BaseModel):
 class AllLyricsResponse(BaseModel):
     """Response model for all lyrics sources."""
 
-    song_id: str
+    entity_id: str
     lyrics: list[LyricsSourceResponse]
     total_sources: int
 
 
-@router.get("/song/{song_id}/all")
-async def get_all_lyrics_for_song(
-    song_id: str,
+@router.get("/entity/{entity_id}/all")
+async def get_all_lyrics_for_entity(
+    entity_id: str,
     db: AsyncSession = Depends(get_db_session),
 ) -> AllLyricsResponse:
     """
-    Get lyrics from ALL sources for a song.
+    Get lyrics from ALL sources for an entity.
 
     Returns lyrics from all cached sources (Genius, MusixMatch, LRCLIB, AZLyrics),
     allowing users to compare and choose their preferred version.
     """
-    from spotdl.db.repositories import LyricsRepository
-
     # Validate UUID
-    song_uuid = validate_uuid(song_id, "song ID")
+    entity_uuid = validate_uuid(entity_id, "entity ID")
 
-    # Get song from database
-    song_repo = SongRepository(db)
-    song = await song_repo.get_by_id(song_uuid)
-
-    if not song:
-        raise HTTPException(status_code=404, detail=f"Song not found: {song_id}")
+    entity_service = UnifiedEntityService(db)
+    try:
+        entity = await entity_service.get_entity(entity_uuid)
+    except EntityNotFoundError:
+        await entity_service.close()
+        raise HTTPException(status_code=404, detail=f"Entity not found: {entity_id}")
+    finally:
+        await entity_service.close()
 
     # Get all lyrics from repository
     lyrics_repo = LyricsRepository(db)
-    all_lyrics = await lyrics_repo.get_all_for_song(song_uuid)
+    all_lyrics = await lyrics_repo.get_all_for_entity(entity_uuid)
 
     return AllLyricsResponse(
-        song_id=song_id,
+        entity_id=entity_id,
         lyrics=[
             LyricsSourceResponse(
                 source=lyrics.source,
@@ -263,9 +270,9 @@ async def get_all_lyrics_for_song(
     )
 
 
-@router.post("/song/{song_id}/fetch-all")
+@router.post("/entity/{entity_id}/fetch-all")
 async def fetch_all_lyrics_sources(
-    song_id: str,
+    entity_id: str,
     preferences: Annotated[UserPreferences, Depends(get_user_preferences)],
     db: AsyncSession = Depends(get_db_session),
 ) -> AllLyricsResponse:
@@ -280,14 +287,16 @@ async def fetch_all_lyrics_sources(
     and in what order. Unauthenticated users get default provider set.
     """
     # Validate UUID
-    song_uuid = validate_uuid(song_id, "song ID")
+    entity_uuid = validate_uuid(entity_id, "entity ID")
 
-    # Get song from database
-    song_repo = SongRepository(db)
-    song = await song_repo.get_by_id(song_uuid)
-
-    if not song:
-        raise HTTPException(status_code=404, detail=f"Song not found: {song_id}")
+    entity_service = UnifiedEntityService(db)
+    try:
+        entity = await entity_service.get_entity(entity_uuid)
+    except EntityNotFoundError:
+        await entity_service.close()
+        raise HTTPException(status_code=404, detail=f"Entity not found: {entity_id}")
+    finally:
+        await entity_service.close()
 
     # Fetch from all providers
     settings = get_settings()
@@ -299,18 +308,25 @@ async def fetch_all_lyrics_sources(
         enable_cache=True,
         lyrics_preferences=preferences["lyrics"],
     ) as lyrics_service:
+        artists = entity.canonical.get("artists", [])
+        if isinstance(artists, str):
+            artists = [artists]
+            
+        album_name = entity.canonical.get("album_name")
+        duration = entity.canonical.get("duration", entity.canonical.get("duration_ms", 0) // 1000)
+        
         results = await lyrics_service.fetch_all_lyrics(
-            song_id=song_uuid,
-            name=song.name,
-            artists=song.artists or [],
-            album_name=song.album_name,
-            duration=song.duration_seconds,
+            entity_id=entity_uuid,
+            name=entity.name,
+            artists=artists,
+            album_name=album_name,
+            duration=duration,
         )
 
     await db.commit()
 
     return AllLyricsResponse(
-        song_id=song_id,
+        entity_id=entity_id,
         lyrics=[
             LyricsSourceResponse(
                 source=r.source,
@@ -323,3 +339,25 @@ async def fetch_all_lyrics_sources(
         ],
         total_sources=len(results),
     )
+
+@router.post("/{lyrics_id}/vote")
+async def vote_lyrics(
+    lyrics_id: str,
+    vote: Annotated[str, Query(description="Vote: 'up' or 'down'")],
+    db: AsyncSession = Depends(get_db_session),
+):
+    lyrics_uuid = validate_uuid(lyrics_id, "lyrics ID")
+    lyrics_repo = LyricsRepository(db)
+    lyrics = await lyrics_repo.get_by_id(lyrics_uuid)
+    if not lyrics:
+        raise HTTPException(status_code=404, detail="Lyrics not found")
+
+    if vote == "up":
+        lyrics.upvotes += 1
+    elif vote == "down":
+        lyrics.downvotes += 1
+    else:
+         raise HTTPException(status_code=400, detail="Invalid vote")
+
+    await db.commit()
+    return {"status": "ok", "upvotes": lyrics.upvotes, "downvotes": lyrics.downvotes}

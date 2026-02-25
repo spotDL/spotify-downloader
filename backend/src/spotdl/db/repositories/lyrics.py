@@ -17,23 +17,23 @@ class LyricsRepository(BaseRepository[Lyrics]):
 
     model = Lyrics
 
-    async def get_all_for_song(
+    async def get_all_for_entity(
         self,
-        song_id: uuid.UUID,
+        entity_id: uuid.UUID,
         *,
         order_by_quality: bool = True,
     ) -> list[Lyrics]:
         """
-        Get all lyrics entries for a song from all sources.
+        Get all lyrics entries for an entity from all sources.
 
         Args:
-            song_id: The song's UUID
+            entity_id: The entity's UUID
             order_by_quality: If True, order by quality_score descending
 
         Returns:
             List of Lyrics objects from all sources
         """
-        query = select(Lyrics).where(Lyrics.song_id == song_id)
+        query = select(Lyrics).where(Lyrics.entity_id == entity_id)
 
         if order_by_quality:
             # Order by: synced lyrics first, then quality score, then freshness
@@ -51,14 +51,14 @@ class LyricsRepository(BaseRepository[Lyrics]):
 
     async def get_by_source(
         self,
-        song_id: uuid.UUID,
+        entity_id: uuid.UUID,
         source: str,
     ) -> Lyrics | None:
         """
-        Get lyrics from a specific source for a song.
+        Get lyrics from a specific source for an entity.
 
         Args:
-            song_id: The song's UUID
+            entity_id: The entity's UUID
             source: Source identifier (e.g., "genius", "musixmatch", "lrclib")
 
         Returns:
@@ -66,31 +66,31 @@ class LyricsRepository(BaseRepository[Lyrics]):
         """
         query = select(Lyrics).where(
             and_(
-                Lyrics.song_id == song_id,
+                Lyrics.entity_id == entity_id,
                 Lyrics.source == source,
             )
         )
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
 
-    async def get_best_for_song(self, song_id: uuid.UUID) -> Lyrics | None:
+    async def get_best_for_entity(self, entity_id: uuid.UUID) -> Lyrics | None:
         """
-        Get the best quality lyrics for a song.
+        Get the best quality lyrics for an entity.
 
         Prioritizes synced lyrics, then verified, then highest quality score.
 
         Args:
-            song_id: The song's UUID
+            entity_id: The entity's UUID
 
         Returns:
             Best Lyrics if found, None otherwise
         """
-        all_lyrics = await self.get_all_for_song(song_id, order_by_quality=True)
+        all_lyrics = await self.get_all_for_entity(entity_id, order_by_quality=True)
         return all_lyrics[0] if all_lyrics else None
 
     async def upsert(
         self,
-        song_id: uuid.UUID,
+        entity_id: uuid.UUID,
         source: str,
         lyrics_text: str,
         lyrics_synced: str | None = None,
@@ -101,12 +101,15 @@ class LyricsRepository(BaseRepository[Lyrics]):
         provider_track_id: str | None = None,
         has_translations: bool | None = None,
         language: str | None = None,
+        upvotes: int = 0,
+        downvotes: int = 0,
+        status: str = "suggested",
     ) -> Lyrics:
         """
-        Create or update lyrics for a song/source combination.
+        Create or update lyrics for an entity/source combination.
 
         Args:
-            song_id: The song's UUID
+            entity_id: The entity's UUID
             source: Source identifier
             lyrics_text: Plain text lyrics
             lyrics_synced: LRC format synced lyrics (optional)
@@ -121,7 +124,7 @@ class LyricsRepository(BaseRepository[Lyrics]):
         Returns:
             The created or updated Lyrics
         """
-        existing = await self.get_by_source(song_id, source)
+        existing = await self.get_by_source(entity_id, source)
 
         if existing:
             # Update existing lyrics
@@ -134,13 +137,16 @@ class LyricsRepository(BaseRepository[Lyrics]):
             existing.provider_track_id = provider_track_id
             existing.has_translations = has_translations
             existing.language = language
+            existing.upvotes = upvotes
+            existing.downvotes = downvotes
+            existing.status = status
             existing.fetched_at = datetime.now(timezone.utc)
             await self.session.flush()
             return existing
 
         # Create new lyrics entry
         lyrics = Lyrics(
-            song_id=song_id,
+            entity_id=entity_id,
             source=source,
             lyrics_text=lyrics_text,
             lyrics_synced=lyrics_synced,
@@ -151,60 +157,63 @@ class LyricsRepository(BaseRepository[Lyrics]):
             provider_track_id=provider_track_id,
             has_translations=has_translations,
             language=language,
+            upvotes=upvotes,
+            downvotes=downvotes,
+            status=status,
             fetched_at=datetime.now(timezone.utc),
         )
         self.session.add(lyrics)
         await self.session.flush()
         return lyrics
 
-    async def get_sources_for_song(self, song_id: uuid.UUID) -> list[str]:
+    async def get_sources_for_entity(self, entity_id: uuid.UUID) -> list[str]:
         """
-        Get list of available lyrics sources for a song.
+        Get list of available lyrics sources for an entity.
 
         Args:
-            song_id: The song's UUID
+            entity_id: The entity's UUID
 
         Returns:
             List of source identifiers
         """
         query = (
             select(Lyrics.source)
-            .where(Lyrics.song_id == song_id)
+            .where(Lyrics.entity_id == entity_id)
             .distinct()
         )
         result = await self.session.execute(query)
         return [row[0] for row in result.all()]
 
-    async def has_synced_lyrics(self, song_id: uuid.UUID) -> bool:
+    async def has_synced_lyrics(self, entity_id: uuid.UUID) -> bool:
         """
-        Check if a song has synced lyrics from any source.
+        Check if an entity has synced lyrics from any source.
 
         Args:
-            song_id: The song's UUID
+            entity_id: The entity's UUID
 
         Returns:
             True if synced lyrics exist
         """
         query = select(Lyrics.id).where(
             and_(
-                Lyrics.song_id == song_id,
+                Lyrics.entity_id == entity_id,
                 Lyrics.lyrics_synced.isnot(None),
             )
         ).limit(1)
         result = await self.session.execute(query)
         return result.scalar_one_or_none() is not None
 
-    async def delete_for_song(self, song_id: uuid.UUID) -> int:
+    async def delete_for_entity(self, entity_id: uuid.UUID) -> int:
         """
-        Delete all lyrics for a song.
+        Delete all lyrics for an entity.
 
         Args:
-            song_id: The song's UUID
+            entity_id: The entity's UUID
 
         Returns:
             Number of lyrics entries deleted
         """
-        all_lyrics = await self.get_all_for_song(song_id)
+        all_lyrics = await self.get_all_for_entity(entity_id)
         for lyrics in all_lyrics:
             await self.session.delete(lyrics)
         await self.session.flush()

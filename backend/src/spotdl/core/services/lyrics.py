@@ -164,17 +164,17 @@ class LyricsService:
 
     async def fetch_lyrics(
         self,
-        song_id: uuid.UUID,
+        entity_id: uuid.UUID,
         name: str,
         artists: list[str],
         force_refresh: bool = False,
     ) -> LyricsResult | None:
         """
-        Fetch lyrics for a song.
+        Fetch lyrics for an entity.
 
         Args:
-            song_id: Internal song UUID
-            name: Song name
+            entity_id: Internal entity UUID
+            name: Entity name
             artists: Artist names
             force_refresh: Skip cache and fetch fresh lyrics
 
@@ -183,7 +183,7 @@ class LyricsService:
         """
         # Check cache first
         if self.enable_cache and not force_refresh:
-            cached = await self._get_from_cache(song_id)
+            cached = await self._get_from_cache(entity_id)
             if cached:
                 return cached
 
@@ -191,16 +191,16 @@ class LyricsService:
         result = await self._fetch_from_providers(name, artists)
 
         if result and self.enable_cache:
-            await self._save_to_cache(song_id, result)
+            await self._save_to_cache(entity_id, result)
 
         return result
 
-    async def _get_from_cache(self, song_id: uuid.UUID) -> LyricsResult | None:
+    async def _get_from_cache(self, entity_id: uuid.UUID) -> LyricsResult | None:
         """Get lyrics from database cache."""
         # Prefer synced lyrics, fall back to any lyrics
         stmt = (
             select(LyricsModel)
-            .where(LyricsModel.song_id == song_id)
+            .where(LyricsModel.entity_id == entity_id)
             .order_by(
                 # Prefer synced lyrics (lyrics_synced IS NOT NULL first)
                 LyricsModel.lyrics_synced.is_(None),
@@ -307,12 +307,12 @@ class LyricsService:
         lines = [line.strip() for line in plain.split("\n") if line.strip()]
         return "\n".join(lines)
 
-    async def _save_to_cache(self, song_id: uuid.UUID, result: LyricsResult) -> None:
+    async def _save_to_cache(self, entity_id: uuid.UUID, result: LyricsResult) -> None:
         """Save lyrics to database cache."""
         try:
             # Check if already exists for this source
             stmt = select(LyricsModel).where(
-                LyricsModel.song_id == song_id,
+                LyricsModel.entity_id == entity_id,
                 LyricsModel.source == result.source,
             )
             existing = (await self.session.execute(stmt)).scalar_one_or_none()
@@ -324,7 +324,7 @@ class LyricsService:
             else:
                 # Create new
                 lyrics = LyricsModel(
-                    song_id=song_id,
+                    entity_id=entity_id,
                     lyrics_text=result.lyrics_text,
                     lyrics_synced=result.lyrics_synced,
                     source=result.source,
@@ -336,23 +336,23 @@ class LyricsService:
         except Exception as exc:
             logger.warning("Failed to cache lyrics: %s", exc)
 
-    async def get_lyrics_for_song(
-        self, song_id: uuid.UUID
+    async def get_lyrics_for_entity(
+        self, entity_id: uuid.UUID
     ) -> LyricsResult | None:
         """
-        Get cached lyrics for a song (no fetching).
+        Get cached lyrics for an entity (no fetching).
 
         Args:
-            song_id: Internal song UUID
+            entity_id: Internal entity UUID
 
         Returns:
             LyricsResult if found in cache, None otherwise
         """
-        return await self._get_from_cache(song_id)
+        return await self._get_from_cache(entity_id)
 
     async def fetch_all_lyrics(
         self,
-        song_id: uuid.UUID,
+        entity_id: uuid.UUID,
         name: str,
         artists: list[str],
         album_name: str | None = None,
@@ -366,7 +366,7 @@ class LyricsService:
         separately, allowing users to compare lyrics from different sources.
 
         Args:
-            song_id: Internal song UUID
+            entity_id: Internal entity UUID
             name: Song name
             artists: Artist names
             album_name: Album name (optional, helps with matching)
@@ -432,7 +432,7 @@ class LyricsService:
                     # Save to database using repository
                     try:
                         await lyrics_repo.upsert(
-                            song_id=song_id,
+                            entity_id=entity_id,
                             source=provider.name.lower(),
                             lyrics_text=lyrics_text,
                             lyrics_synced=lyrics_synced,
@@ -442,9 +442,9 @@ class LyricsService:
                         )
 
                         logger.debug(
-                            "Saved %s lyrics for song %s (quality=%.2f)",
+                            "Saved %s lyrics for entity %s (quality=%.2f)",
                             provider.name,
-                            song_id,
+                            entity_id,
                             quality_score,
                         )
                     except Exception as e:
@@ -468,20 +468,20 @@ class LyricsService:
             for provider in providers:
                 await provider.__aexit__(None, None, None)
 
-    async def get_all_lyrics_for_song(
-        self, song_id: uuid.UUID
+    async def get_all_lyrics_for_entity(
+        self, entity_id: uuid.UUID
     ) -> list[LyricsResult]:
         """
-        Get ALL cached lyrics for a song from all sources.
+        Get ALL cached lyrics for an entity from all sources.
 
         Args:
-            song_id: Internal song UUID
+            entity_id: Internal entity UUID
 
         Returns:
             List of LyricsResult from all cached sources
         """
         lyrics_repo = LyricsRepository(self.session)
-        all_lyrics = await lyrics_repo.get_all_for_song(song_id)
+        all_lyrics = await lyrics_repo.get_all_for_entity(entity_id)
 
         return [
             LyricsResult(

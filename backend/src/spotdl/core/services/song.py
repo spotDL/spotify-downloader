@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 
-from spotdl.core.services.metadata import MetadataService
 from spotdl.core.types.song import Platform, Song, SongList
 from spotdl.providers.sources import (
     AppleMusicProvider,
@@ -65,27 +64,12 @@ class SongService:
         """
         self._resolver = URLResolver()
         self._providers: dict[Platform, SourceProvider] = {}
-        self._metadata_service: MetadataService | None = None
-        self._enable_enrichment = enable_metadata_enrichment
-
         # Initialize source providers
         self._init_providers(
             spotify_client_id=spotify_client_id,
             spotify_client_secret=spotify_client_secret,
             ytmusic_auth_file=ytmusic_auth_file,
         )
-
-        # Initialize metadata service for enrichment
-        if enable_metadata_enrichment:
-            self._metadata_service = MetadataService(
-                enable_musicbrainz=enable_musicbrainz,
-                enable_discogs=enable_discogs,
-                discogs_user_token=discogs_user_token,
-            )
-            logger.debug(
-                f"Metadata enrichment enabled with providers: "
-                f"{self._metadata_service.provider_names}"
-            )
 
     def _init_providers(
         self,
@@ -340,8 +324,6 @@ class SongService:
     @property
     def metadata_providers(self) -> list[str]:
         """Get list of active metadata providers."""
-        if self._metadata_service:
-            return self._metadata_service.provider_names
         return []
 
     async def enrich_song(self, song: Song) -> Song:
@@ -357,11 +339,6 @@ class SongService:
         Returns:
             Enriched Song object (same instance, modified)
         """
-        if self._metadata_service:
-            return await self._metadata_service.enrich_song(
-                song,
-                use_all_providers=True,
-            )
         return song
 
     async def enrich_songs(self, songs: list[Song]) -> list[Song]:
@@ -374,11 +351,6 @@ class SongService:
         Returns:
             List of enriched Song objects
         """
-        if self._metadata_service:
-            return await self._metadata_service.enrich_songs(
-                songs,
-                use_all_providers=True,
-            )
         return songs
 
     async def lookup_isrc(self, isrc: str) -> dict | None:
@@ -391,8 +363,6 @@ class SongService:
         Returns:
             Metadata dict or None if not found
         """
-        if self._metadata_service:
-            return await self._metadata_service.lookup_by_isrc(isrc)
         return None
 
 
