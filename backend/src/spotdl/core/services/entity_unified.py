@@ -532,10 +532,17 @@ class UnifiedEntityService:
         name = _slug_text(str(payload.get("name") or "unknown"))
         artist = _slug_text(_primary_artist(payload))
         if entity_type == "track":
+            # Use ISRC as the sole identifier when available — it is globally unique
+            # and stable across all providers.  Without it, fall back to a
+            # name/artist/duration bucket so that tracks discovered from different
+            # providers with missing ISRC still converge to the same entity rather
+            # than creating a new one with an empty ISRC suffix.
+            isrc = _slug_text(str(payload.get("isrc") or ""))
+            if isrc:
+                return f"track:{isrc}"
             duration = int(payload.get("duration") or 0)
             bucket = int(round(duration / 5.0) * 5) if duration > 0 else 0
-            isrc = _slug_text(str(payload.get("isrc") or ""))
-            return f"track:{name}:{artist}:{bucket}:{isrc}"
+            return f"track:{name}:{artist}:{bucket}"
         if entity_type == "album":
             return f"album:{name}:{artist}"
         if entity_type == "artist":
@@ -894,7 +901,12 @@ class UnifiedEntityService:
             entities.append(entity)
             created_entities += 1
 
-        for r_tuple in sorted(relations_to_create, key=lambda x: (x[0], x[1], x[2])):
+        # Deduplicate by (from_key, to_key, relation_type) — mirrors discover_from_query.
+        unique_rel_map: dict[tuple[str, str, str], tuple[str, str, str, str, dict[str, Any] | None]] = {}
+        for r in relations_to_create:
+            unique_rel_map[(r[0], r[1], r[2])] = r
+
+        for r_tuple in sorted(unique_rel_map.values(), key=lambda x: (x[0], x[1], x[2])):
             from_key, to_key, rel_type, provider_id, rel_data = r_tuple
             relation = await self._create_or_update_relation(
                 entities_by_key[from_key].id,
