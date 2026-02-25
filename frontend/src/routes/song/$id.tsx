@@ -12,20 +12,11 @@ import {
   entityKeys,
 } from "@/api/entities";
 import {
-  matchKeys,
-  useFindMatchesMutation,
-  useMatchesForSong,
   useLyrics,
   hasLyrics,
   toLyrics,
   useCreateReport,
-  useMatchPreview,
-  useSubmitMatch,
-  useCreateVote,
-  useDeleteVote,
-  useMatchVotes,
 } from "@/api";
-import { useUpdateMatchStatus } from "@/api/admin";
 import { useQueueStore } from "@/stores/queue";
 import { useAuthStore } from "@/stores/auth";
 import {
@@ -41,7 +32,6 @@ import {
 } from "@/components/ui";
 import { CoverArt } from "@/components/ui/cover-art";
 import { Spinner } from "@/components/ui";
-import { MatchScoreGauge } from "@/components/ui/match-gauge";
 import { LyricsDisplay, MultiSourceLyricsDisplay } from "@/components/ui/lyrics-display";
 import { MetadataPanel, MetadataField } from "@/components/ui/metadata-source-badge";
 import { PlatformLinksGrid } from "@/components/ui/platform-link";
@@ -50,132 +40,14 @@ import { MetadataSourceSelector } from "@/components/ui/metadata-source-selector
 import { MetadataComparisonTable } from "@/components/ui/metadata-comparison";
 import { SubmitLyricsModal } from "@/components/ui/submit-lyrics-modal";
 import { useDevConfig } from "@/contexts/DevConfigContext";
-import type { Match, AudioFeatures, CreateMetadataReportRequest } from "@/types";
-
-// Reputation threshold for verification privileges
-const VERIFICATION_REP_THRESHOLD = 100;
+import type { AudioFeatures, CreateMetadataReportRequest } from "@/types";
 
 export const Route = createFileRoute("/song/$id")({
   component: SongPage,
 });
 
-const TARGET_PLATFORMS = ["youtube", "youtube_music", "soundcloud", "bandcamp", "piped"];
-
-/** Platforms that are metadata sources, not audio targets — we surface them as tied cross-platform matches */
-const METADATA_SOURCE_PLATFORMS = new Set(["spotify", "deezer", "apple_music", "tidal", "musicbrainz", "discogs"]);
-
 /** Platforms that support downloading (via yt-dlp or provider hooks) — shown only in self-hosted mode */
 const DOWNLOADABLE_PLATFORMS = new Set(["youtube", "youtube_music", "soundcloud", "bandcamp", "piped"]);
-
-function mergeMatches(existing: Match[], incoming: Match[]): Match[] {
-  const merged = new Map<string, Match>();
-
-  const mergeIn = (match: Match) => {
-    const key = `${match.target_platform}:${match.target_url}`;
-    const current = merged.get(key);
-    if (!current) {
-      merged.set(key, match);
-      return;
-    }
-
-    merged.set(key, {
-      ...current,
-      ...match,
-      id: match.id ?? current.id,
-      source_song_id: match.source_song_id ?? current.source_song_id,
-      target_song_id: match.target_song_id ?? current.target_song_id,
-      status: match.status ?? current.status,
-      upvotes: match.upvotes ?? current.upvotes,
-      downvotes: match.downvotes ?? current.downvotes,
-      net_votes: match.net_votes ?? current.net_votes,
-      submitted_by_username: match.submitted_by_username ?? current.submitted_by_username,
-      verified_by_username: match.verified_by_username ?? current.verified_by_username,
-      result: {
-        ...current.result,
-        ...match.result,
-      },
-    });
-  };
-
-  existing.forEach(mergeIn);
-  incoming.forEach(mergeIn);
-
-  return Array.from(merged.values()).sort((a, b) => b.score - a.score);
-}
-
-/**
- * Build synthetic Match objects from metadata source snapshots.
- * When deezer/spotify/etc. are present as metadata sources, they represent
- * verified cross-platform links to the same song.
- */
-function buildMetadataSourceMatches(
-  snapshots: Array<{
-    id: string;
-    source: string;
-    confidence: number;
-    data: Record<string, unknown> | { [key: string]: unknown };
-  }>,
-  songId: string
-): Match[] {
-  return snapshots
-    .filter((s) => {
-      // Only include metadata platforms that have a URL
-      if (!METADATA_SOURCE_PLATFORMS.has(s.source)) return false;
-      const url = s.data?.url;
-      return typeof url === "string" && url.startsWith("http");
-    })
-    .map((s): Match => {
-      const d = s.data as Record<string, unknown>;
-      const url = String(d.url || "");
-      const artists = Array.isArray(d.artists)
-        ? (d.artists as string[])
-        : [];
-      const artist = typeof d.artist === "string" ? d.artist : artists[0] || "Unknown";
-      return {
-        id: `metadata-${s.source}-${s.id}`,
-        source_url: "",
-        source_song_id: songId,
-        source_platform: "spotify",
-        target_url: url,
-        target_song_id: "",
-        target_platform: s.source,
-        score: Math.round(s.confidence * 100),
-        confidence: s.confidence,
-        match_type: "metadata" as const,
-        status: "verified" as const,
-        upvotes: 0,
-        downvotes: 0,
-        net_votes: 0,
-        result: {
-          name: typeof s.data.name === "string" ? s.data.name : "Unknown",
-          artists: artists.length > 0 ? artists : [artist],
-          artist,
-          duration: typeof s.data.duration === "number" ? s.data.duration : 0,
-          platform: s.source,
-          platform_id: typeof s.data.platform_id === "string" ? s.data.platform_id : "",
-          url,
-          album_name: typeof s.data.album_name === "string" ? s.data.album_name : null,
-          cover_url: typeof s.data.cover_url === "string" ? s.data.cover_url : null,
-          views: null,
-          explicit: Boolean(s.data.explicit),
-          verified: true,
-        },
-      } satisfies Match;
-    });
-}
-
-function useDebouncedValue<T>(value: T, delayMs: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delayMs);
-    return () => clearTimeout(timeoutId);
-  }, [delayMs, value]);
-
-  return debouncedValue;
-}
 
 function formatDuration(seconds: number): string {
   const mins = Math.floor(seconds / 60);
@@ -232,19 +104,18 @@ function SongPage() {
   const { data: song, isLoading, error } = useInternalSong(id);
   const { data: lyricsData, isLoading: lyricsLoading } = useLyrics(id, { enabled: !!song });
   const { data: allLyricsData, isLoading: allLyricsLoading } = useAllLyrics(id, { enabled: !!song });
-  const { data: existingMatches, isLoading: existingMatchesLoading } = useMatchesForSong(id);
-  const findMatchesMutation = useFindMatchesMutation();
+  
   const createReportMutation = useCreateReport();
   const refreshMetadata = useRefreshSongMetadata();
+  const fullEnrichment = useFullEnrichment();
+  const submitLyricsMutation = useSubmitLyrics();
+  
   const addItem = useQueueStore((state) => state.addItem);
   const { isAuthenticated } = useAuthStore();
   const { success: showSuccess, error: showError } = useToast();
   const { features } = useDevConfig();
 
   const [showReportModal, setShowReportModal] = useState(false);
-  const [matches, setMatches] = useState<Match[]>([]);
-  const [matchesLoaded, setMatchesLoaded] = useState(false);
-  const [autoSearchTriggered, setAutoSearchTriggered] = useState(false);
   const [showTechnicalMetadata, setShowTechnicalMetadata] = useState(false);
   const [showAllFeatures, setShowAllFeatures] = useState(false);
 
@@ -257,38 +128,10 @@ function SongPage() {
   const [fetchingAllLyrics, setFetchingAllLyrics] = useState(false);
   const [showSubmitLyrics, setShowSubmitLyrics] = useState(false);
 
-  // Match submission state
-  const [showSubmitMatch, setShowSubmitMatch] = useState(false);
-  const [submitMatchUrl, setSubmitMatchUrl] = useState("");
-  const [submitMatchPlatform, setSubmitMatchPlatform] = useState("youtube");
-  const debouncedSubmitMatchUrl = useDebouncedValue(submitMatchUrl.trim(), 450);
-  const submitMatchMutation = useSubmitMatch();
-  const updateMatchStatus = useUpdateMatchStatus();
-  const submitLyricsMutation = useSubmitLyrics();
-  const {
-    data: previewData,
-    isLoading: previewLoading,
-    error: previewError,
-  } = useMatchPreview(
-    debouncedSubmitMatchUrl,
-    showSubmitMatch && debouncedSubmitMatchUrl.length > 0
-  );
-
-  // Check if user can verify matches (admin or high reputation)
-  const { user } = useAuthStore();
-  const canVerifyMatches = user && (user.is_admin || user.reputation_score >= VERIFICATION_REP_THRESHOLD);
-
-  useEffect(() => {
-    if (previewData?.target_platform && previewData.target_platform !== submitMatchPlatform) {
-      setSubmitMatchPlatform(previewData.target_platform);
-    }
-  }, [previewData?.target_platform, submitMatchPlatform]);
-
   // Fetch metadata snapshots from all sources
   const { data: snapshotsData } = useMetadataSnapshots(id, {
     enabled: !!song,
   });
-  const fullEnrichment = useFullEnrichment();
 
   // Set default source when snapshots load
   useEffect(() => {
@@ -299,161 +142,19 @@ function SongPage() {
     }
   }, [snapshotsData, activeMetadataSource]);
 
-  // Build synthetic matches from metadata source snapshots (deezer, spotify, etc.)
-  const metadataSourceMatches = useMemo(() => {
-    if (!snapshotsData?.snapshots) return [];
-    return buildMetadataSourceMatches(
-      snapshotsData.snapshots.map((s) => ({
-        id: s.id,
-        source: s.source,
-        confidence: s.confidence,
-        data: s.data as Record<string, unknown>,
-      })),
-      id
-    );
-  }, [snapshotsData, id]);
-
-  // Load existing matches or auto-search if none exist
-  useEffect(() => {
-    // Wait for existing matches query to complete
-    if (existingMatchesLoading || !song?.platforms[0]) return;
-
-    // If we have existing matches in the database, use them
-    if (existingMatches && existingMatches.length > 0) {
-      setMatches((prev) => mergeMatches(existingMatches, prev));
-      setMatchesLoaded(true);
-      return;
-    }
-
-    // No existing matches - auto-trigger search (only once)
-    if (!autoSearchTriggered && !matchesLoaded && !findMatchesMutation.isPending) {
-      setAutoSearchTriggered(true);
-      findMatchesMutation.mutate(
-        { sourceUrl: song.platforms[0].url, targetPlatforms: TARGET_PLATFORMS },
-        {
-          onSuccess: (result) => {
-            setMatches((prev) => mergeMatches(prev, result.matches));
-            setMatchesLoaded(true);
-            queryClient.invalidateQueries({ queryKey: matchKeys.list({ songId: id }) });
-          },
-          onError: () => {
-            setMatchesLoaded(true);
-          },
-        }
-      );
-    }
-  }, [
-    autoSearchTriggered,
-    existingMatches,
-    existingMatchesLoading,
-    findMatchesMutation,
-    id,
-    matchesLoaded,
-    queryClient,
-    song,
-  ]);
-
-  // Combined matches: audio matches + metadata source matches
-  const allMatches = useMemo(() => {
-    return mergeMatches(matches, metadataSourceMatches);
-  }, [matches, metadataSourceMatches]);
-
-  // Handler to find matches (manual refresh)
-  const handleFindMatches = () => {
-    if (song && song.platforms[0] && !findMatchesMutation.isPending) {
-      findMatchesMutation.mutate(
-        { sourceUrl: song.platforms[0].url, targetPlatforms: TARGET_PLATFORMS },
-        {
-          onSuccess: (result) => {
-            setMatches((prev) => mergeMatches(prev, result.matches));
-            setMatchesLoaded(true);
-            queryClient.invalidateQueries({ queryKey: matchKeys.list({ songId: id }) });
-            showSuccess(
-              result.matches.length > 0
-                ? `Found ${result.matches.length} cross-platform matches`
-                : "No new matches found"
-            );
-          },
-          onError: (err) => {
-            setMatchesLoaded(true);
-            showError(err instanceof Error ? err.message : "Failed to find matches");
-          },
-        }
-      );
-    }
-  };
-
-  // Handler to submit user match
-  const handleSubmitMatch = async () => {
-    if (!song?.platforms[0] || !submitMatchUrl.trim()) return;
-
-    try {
-      const newMatch = await submitMatchMutation.mutateAsync({
-        source_url: song.platforms[0].url,
-        target_url: submitMatchUrl.trim(),
-        target_platform: submitMatchPlatform,
-      });
-
-      // Add to matches list
-      setMatches((prev) => mergeMatches(prev, [newMatch]));
-      setShowSubmitMatch(false);
-      setSubmitMatchUrl("");
-      queryClient.invalidateQueries({ queryKey: matchKeys.list({ songId: id }) });
-      showSuccess("Match submitted successfully");
-    } catch (err) {
-      showError(err instanceof Error ? err.message : "Failed to submit match");
-    }
-  };
-
-  // Handler to verify/reject a match
-  const handleVerifyMatch = async (matchId: string, status: "verified" | "rejected") => {
-    try {
-      await updateMatchStatus.mutateAsync({
-        matchId,
-        data: { status },
-      });
-
-      // Update local state
-      setMatches((prev) =>
-        prev.map((m) =>
-          m.id === matchId ? { ...m, status, verified_by_username: user?.username } : m
-        )
-      );
-      showSuccess(status === "verified" ? "Match verified" : "Match rejected");
-    } catch (err) {
-      showError(err instanceof Error ? err.message : "Failed to update match status");
-    }
-  };
-
   const extendedSnapshotsInfo = useMemo(() => {
     const backendSnapshots = snapshotsData?.snapshots || [];
-    const syntheticSnapshots = matches.map(match => ({
-      id: `synthetic-${match.id || Math.random()}`,
-      source: match.target_platform,
-      confidence: match.score / 100,
-      data: {
-        name: match.result.name,
-        artist: match.result.artist,
-        duration: match.result.duration,
-        cover_url: match.result.cover_url,
-      },
-      fetchedAt: new Date().toISOString(), // Use current time or matching time
-    }));
-
-    // For the UI we need typed snapshots
-    const combined = [...backendSnapshots, ...syntheticSnapshots] as any[];
-
+    
     // Build sets of sources
     const allSources = Array.from(new Set([
       ...(snapshotsData?.sources || []),
-      ...matches.map(m => m.target_platform)
     ]));
 
     return {
-      snapshots: combined,
+      snapshots: backendSnapshots,
       sources: allSources
     };
-  }, [snapshotsData, matches]);
+  }, [snapshotsData]);
 
   // Get active snapshot data
   const activeSnapshot = useMemo(() => {
@@ -466,21 +167,26 @@ function SongPage() {
     if (!song) return null;
     if (!activeSnapshot?.data) return song;
 
+    const data = activeSnapshot.data as Record<string, any>;
+
     // Merge snapshot data with song, preferring snapshot values when available
     return {
       ...song,
-      genres: activeSnapshot.data.genres || song.genres,
-      label: activeSnapshot.data.label || song.label,
-      release_date: activeSnapshot.data.release_date || song.release_date,
-      year: activeSnapshot.data.year || song.year,
+      name: data.name || song.name,
+      artist: data.artist || song.artist,
+      album_name: data.album_name || song.album_name,
+      genres: data.genres || song.genres,
+      label: data.label || song.label,
+      release_date: data.release_date || song.release_date,
+      year: data.year || song.year,
       // Audio features from snapshot if available
       audio_features: song.audio_features
         ? {
             ...song.audio_features,
-            bpm: activeSnapshot.data.bpm ?? song.audio_features.bpm,
-            energy: activeSnapshot.data.energy ?? song.audio_features.energy,
-            danceability: activeSnapshot.data.danceability ?? song.audio_features.danceability,
-            valence: activeSnapshot.data.valence ?? song.audio_features.valence,
+            bpm: data.bpm ?? song.audio_features.bpm,
+            energy: data.energy ?? song.audio_features.energy,
+            danceability: data.danceability ?? song.audio_features.danceability,
+            valence: data.valence ?? song.audio_features.valence,
           }
         : song.audio_features,
     };
@@ -508,31 +214,29 @@ function SongPage() {
     ];
   }, [song]);
 
-  const handleDownload = async (match?: Match) => {
+  const handleDownload = async () => {
     if (!features.canDownload || !song || !song.platforms[0]) {
       navigate({ to: "/queue" });
       return;
     }
 
-    const matchToUse = match || matches[0];
-    if (matchToUse) {
-      addItem(
-        {
-          platform: song.platforms[0].platform,
-          platform_id: song.platforms[0].platform_id,
-          url: song.platforms[0].url,
-          name: song.name,
-          artists: song.artists,
-          artist: song.artist,
-          album_name: song.album_name,
-          duration: song.duration,
-          isrc: song.isrc,
-          cover_url: song.cover_url,
-        },
-        matchToUse
-      );
-      navigate({ to: "/queue" });
-    }
+    const downloadable = song.platforms.find(p => DOWNLOADABLE_PLATFORMS.has(p.platform)) || song.platforms[0];
+
+    addItem(
+      {
+        platform: downloadable.platform,
+        platform_id: downloadable.platform_id,
+        url: downloadable.url,
+        name: song.name,
+        artists: song.artists || [song.artist],
+        artist: song.artist,
+        album_name: song.album_name || undefined,
+        duration: song.duration,
+        isrc: song.isrc || undefined,
+        cover_url: song.cover_url || undefined,
+      } as any
+    );
+    navigate({ to: "/queue" });
   };
 
   // Convert lyrics response to component format
@@ -602,7 +306,7 @@ function SongPage() {
                 )}
               </div>
               <h1 className="text-4xl lg:text-5xl font-black tracking-tight text-zinc-50">
-                {song.name}
+                {displayMetadata?.name || song.name}
               </h1>
               {song.artist_id ? (
                 <Link
@@ -610,11 +314,11 @@ function SongPage() {
                   params={{ id: song.artist_id }}
                   className="text-xl lg:text-2xl text-zinc-400 hover:text-accent-needle transition-colors"
                 >
-                  {song.artist}
+                  {displayMetadata?.artist || song.artist}
                 </Link>
               ) : (
                 <p className="text-xl lg:text-2xl text-zinc-400">
-                  {song.artist}
+                  {displayMetadata?.artist || song.artist}
                 </p>
               )}
             </div>
@@ -630,16 +334,16 @@ function SongPage() {
                   params={{ id: song.album_id || "" }}
                   className="px-3 py-1.5 rounded-full bg-bg-panel border border-zinc-800 text-zinc-300 hover:border-accent-needle/50 hover:text-accent-needle transition-colors"
                 >
-                  {song.album_name}
+                  {displayMetadata?.album_name || song.album_name}
                 </Link>
               )}
-              {song.release_date ? (
+              {displayMetadata?.release_date ? (
                 <span className="px-3 py-1.5 rounded-full bg-bg-panel border border-zinc-800 text-zinc-400">
-                  {song.release_date}
+                  {displayMetadata.release_date}
                 </span>
-              ) : song.year && (
+              ) : displayMetadata?.year && (
                 <span className="px-3 py-1.5 rounded-full bg-bg-panel border border-zinc-800 text-zinc-400">
-                  {song.year}
+                  {displayMetadata.year}
                 </span>
               )}
               {song.audio_features?.key !== null && song.audio_features?.key !== undefined && (
@@ -651,9 +355,9 @@ function SongPage() {
             </div>
 
             {/* Genres */}
-            {song.genres && song.genres.length > 0 && (
+            {displayMetadata?.genres && displayMetadata.genres.length > 0 && (
               <div className="flex flex-wrap justify-center lg:justify-start gap-2">
-                {song.genres.map((genre) => (
+                {displayMetadata.genres.map((genre: string) => (
                   <Badge key={genre} variant="default">
                     {genre}
                   </Badge>
@@ -663,7 +367,7 @@ function SongPage() {
 
             {/* Actions */}
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
-              {features.canDownload && matches.length > 0 && (
+              {features.canDownload && platformsForGrid.length > 0 && (
                 <Button
                   variant="primary"
                   size="lg"
@@ -759,166 +463,8 @@ function SongPage() {
 
       {/* Content Grid */}
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Left Column - Matches & Lyrics */}
+        {/* Left Column - Lyrics & Content */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Cross-Platform Matches Section */}
-          <Card variant="bordered">
-            <CardHeader className="border-b border-zinc-800/50">
-              <div className="flex items-center justify-between w-full">
-                <CardTitle className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-accent-needle" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                  </svg>
-                  Cross-Platform Matches
-                  {matchesLoaded && <Badge variant="muted" size="sm">{allMatches.length}</Badge>}
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                  {isAuthenticated && matchesLoaded && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowSubmitMatch(!showSubmitMatch)}
-                    >
-                      <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                      Add Match
-                    </Button>
-                  )}
-                  {matchesLoaded && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleFindMatches}
-                      isLoading={findMatchesMutation.isPending}
-                      disabled={findMatchesMutation.isPending}
-                    >
-                      <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                      Refresh
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              {/* Submit Match Form */}
-              {showSubmitMatch && (
-                <div className="p-4 border-b border-zinc-800/50 bg-zinc-900/50">
-                  <p className="text-sm text-zinc-400 mb-3">
-                    Submit a match from another platform. Matches will be reviewed before becoming verified.
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <select
-                      value={submitMatchPlatform}
-                      onChange={(e) => setSubmitMatchPlatform(e.target.value)}
-                      className="px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-sm text-zinc-200 focus:outline-none focus:border-accent-needle"
-                    >
-                      <option value="youtube">YouTube</option>
-                      <option value="youtube_music">YouTube Music</option>
-                      <option value="soundcloud">SoundCloud</option>
-                      <option value="bandcamp">Bandcamp</option>
-                      <option value="piped">Piped</option>
-                      <option value="spotify">Spotify</option>
-                      <option value="deezer">Deezer</option>
-                      <option value="apple_music">Apple Music</option>
-                      <option value="tidal">TIDAL</option>
-                    </select>
-                    <input
-                      type="url"
-                      placeholder="Paste URL from the platform..."
-                      value={submitMatchUrl}
-                      onChange={(e) => setSubmitMatchUrl(e.target.value)}
-                      className="flex-1 px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-accent-needle"
-                    />
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      onClick={handleSubmitMatch}
-                      disabled={!submitMatchUrl.trim() || submitMatchMutation.isPending}
-                      isLoading={submitMatchMutation.isPending}
-                    >
-                      Submit
-                    </Button>
-                  </div>
-                  {previewLoading && (
-                    <p className="text-xs text-zinc-500 mt-2">Fetching link preview...</p>
-                  )}
-                  {!previewLoading && previewData?.result && submitMatchUrl.trim() && (
-                    <div className="mt-3 p-3 rounded-lg border border-zinc-800 bg-zinc-900/70">
-                      <p className="text-xs uppercase tracking-wide text-zinc-500 mb-1">
-                        Link preview ({previewData.target_platform.replace("_", " ")})
-                      </p>
-                      <p className="text-sm text-zinc-200 font-medium truncate">
-                        {previewData.result.name}
-                      </p>
-                      <p className="text-xs text-zinc-400 truncate">
-                        {previewData.result.artist}
-                      </p>
-                      {previewData.result.description && (
-                        <p className="text-xs text-zinc-500 truncate mt-1">
-                          {previewData.result.description}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                  {!previewLoading && previewError && submitMatchUrl.trim() && (
-                    <p className="text-xs text-zinc-500 mt-2">
-                      Could not preview this link yet. You can still submit it.
-                    </p>
-                  )}
-                  {submitMatchMutation.isError && (
-                    <p className="text-sm text-accent-peak mt-2">
-                      Failed to submit match. Please check the URL and try again.
-                    </p>
-                  )}
-                </div>
-              )}
-
-              {/* Loading state - either loading existing or searching */}
-              {(existingMatchesLoading || findMatchesMutation.isPending) && !matchesLoaded && (
-                <div className="flex items-center justify-center py-12">
-                  <Spinner size="md" />
-                  <span className="ml-3 text-zinc-400">
-                    {existingMatchesLoading ? "Loading matches..." : "Searching for matches..."}
-                  </span>
-                </div>
-              )}
-
-              {/* Matches loaded */}
-              {matchesLoaded && (
-                <>
-                  {allMatches.length > 0 ? (
-                    <div className="divide-y divide-zinc-800/50">
-                      {allMatches.map((match, index) => (
-                        <MatchRow
-                          key={match.id || `${match.target_platform}-${match.target_url}`}
-                          match={match}
-                          index={index}
-                          canVerify={!!canVerifyMatches}
-                          canDownload={features.canDownload && match.match_type !== "metadata"}
-                          isSelfHosted={features.isSelfHosted}
-                          onDownload={() => handleDownload(match)}
-                          onVerify={(status) => match.id && !match.id.startsWith("metadata-") && handleVerifyMatch(match.id, status)}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="py-12 text-center">
-                      <p className="text-zinc-500">No matches found</p>
-                      <p className="text-sm text-zinc-600 mt-1">
-                        {isAuthenticated
-                          ? "Know a match? Click \"Add Match\" to contribute!"
-                          : "Log in to submit a match yourself"
-                        }
-                      </p>
-                    </div>
-                  )}
-                </>
-              )}
-            </CardContent>
-          </Card>
 
           {/* Lyrics Section */}
           <Card variant="bordered" className="overflow-hidden">
@@ -1005,7 +551,7 @@ function SongPage() {
         {/* Right Column - Metadata & Links */}
         <div className="space-y-6">
           {/* Platform Links */}
-          {(!matchesLoaded || allMatches.length === 0) && (
+          {platformsForGrid.length > 0 && (
             <Card variant="bordered">
               <CardHeader className="border-b border-zinc-800/50">
                 <CardTitle className="text-base">Listen On</CardTitle>
@@ -1127,29 +673,23 @@ function SongPage() {
                     </code>
                   </div>
                 )}
-                {song.platforms[0]?.platform_id && (
-                  <div className="flex items-center justify-between">
+                {platformsForGrid.map((p) => (
+                  <div key={p.platform} className="flex items-center justify-between mt-1">
                     <span className="text-sm text-zinc-500">
-                      {song.platforms[0]?.platform} ID
+                      {p.platform} ID
                     </span>
                     <code className="text-sm font-mono text-zinc-400 bg-bg-panel px-2 py-1 rounded truncate max-w-[180px]">
-                      {song.platforms[0]?.platform_id}
+                      {p.platform_id}
                     </code>
                   </div>
-                )}
-                <div className="flex items-center justify-between">
+                ))}
+                <div className="flex items-center justify-between mt-2">
                   <span className="text-sm text-zinc-500">Internal ID</span>
                   <code className="text-sm font-mono text-zinc-500 bg-bg-panel px-2 py-1 rounded truncate max-w-[180px]">
                     {id}
                   </code>
                 </div>
-                {song.matches_count !== undefined && song.matches_count > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-zinc-500">Matches Found</span>
-                    <Badge variant="info" size="sm">{song.matches_count}</Badge>
-                  </div>
-                )}
-
+                
                 {/* External IDs */}
                 {(song.musicbrainz_id || song.discogs_id) && (
                   <div className="pt-3 mt-3 border-t border-zinc-800/50">
@@ -1194,7 +734,7 @@ function SongPage() {
                           className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-400"
                           title={`${field} from ${source}`}
                         >
-                          {field}: <span className="text-accent-cool">{source}</span>
+                          {field}: <span className="text-accent-cool">{source as string}</span>
                         </span>
                       ))}
                     </div>
@@ -1427,228 +967,6 @@ function AudioFeatureBar({
           className={`h-full rounded-full transition-all duration-500 ${colorClass}`}
           style={{ width: `${percentage}%` }}
         />
-      </div>
-    </div>
-  );
-}
-
-// Match Row Component with voting and verification
-function MatchRow({
-  match,
-  index,
-  canVerify,
-  canDownload,
-  isSelfHosted = false,
-  onDownload,
-  onVerify,
-}: {
-  match: Match;
-  index: number;
-  canVerify: boolean;
-  canDownload: boolean;
-  isSelfHosted?: boolean;
-  onDownload: () => void;
-  onVerify: (status: "verified" | "rejected") => void;
-}) {
-  const { isAuthenticated } = useAuthStore();
-  const createVoteMutation = useCreateVote();
-  const deleteVoteMutation = useDeleteVote();
-  const { data: voteSummary } = useMatchVotes(match.id || "");
-  const { success: showSuccess, error: showError } = useToast();
-  const isVotePending = createVoteMutation.isPending || deleteVoteMutation.isPending;
-
-  const handleVote = async (type: "up" | "down") => {
-    if (!match.id || !isAuthenticated) return;
-
-    try {
-      if (voteSummary?.user_vote === type) {
-        await deleteVoteMutation.mutateAsync(match.id);
-        showSuccess("Vote removed");
-        return;
-      }
-
-      await createVoteMutation.mutateAsync({
-        match_id: match.id,
-        vote_type: type,
-      });
-      showSuccess(type === "up" ? "Upvoted match" : "Downvoted match");
-    } catch (err) {
-      showError(err instanceof Error ? err.message : "Failed to update vote");
-    }
-  };
-
-  const isUserSubmitted = match.match_type === "user";
-  const isMetadataMatch = match.match_type === "metadata";
-  const isPending = match.status === "pending";
-  const isVerified = match.status === "verified";
-  const isRejected = match.status === "rejected";
-  const isDownloadable = isSelfHosted && DOWNLOADABLE_PLATFORMS.has(match.target_platform);
-
-  return (
-    <div
-      className={`flex items-center gap-4 px-4 py-3 hover:bg-zinc-800/30 transition-colors ${
-        index === 0 && isVerified ? "bg-accent-safe/5" : ""
-      } ${isRejected ? "opacity-50" : ""}`}
-    >
-      {/* Rank */}
-      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold ${
-        index === 0 && isVerified
-          ? "bg-accent-safe/20 text-accent-safe"
-          : "bg-zinc-800 text-zinc-500"
-      }`}>
-        #{index + 1}
-      </div>
-
-      {/* Match Info */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <Badge
-            variant={match.target_platform === "youtube_music" ? "error" : "muted"}
-            size="sm"
-          >
-            {match.target_platform.replace("_", " ")}
-          </Badge>
-          {index === 0 && isVerified && (
-            <Badge variant="success" size="sm">Best Match</Badge>
-          )}
-          {isUserSubmitted && (
-            <Badge variant="info" size="sm">User Submitted</Badge>
-          )}
-          {isMetadataMatch && (
-            <Badge variant="default" size="sm">Metadata Source</Badge>
-          )}
-          {isDownloadable && (
-            <Badge variant="success" size="sm">
-              <svg className="w-3 h-3 mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              Downloadable
-            </Badge>
-          )}
-          {isPending && (
-            <Badge variant="warning" size="sm">Pending Review</Badge>
-          )}
-          {isVerified && (
-            <Badge variant="success" size="sm">
-              <svg className="w-3 h-3 mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              Verified
-            </Badge>
-          )}
-          {isRejected && (
-            <Badge variant="error" size="sm">Rejected</Badge>
-          )}
-        </div>
-        <p className="font-medium text-zinc-200 truncate mt-1">
-          {match.result.name}
-        </p>
-        <p className="text-sm text-zinc-500 truncate">
-          {match.result.artist}
-          {match.submitted_by_username && (
-            <span className="text-zinc-600"> • by {match.submitted_by_username}</span>
-          )}
-        </p>
-        {match.result.description && (
-          <p className="text-xs text-zinc-600 truncate mt-0.5">
-            {match.result.description}
-          </p>
-        )}
-      </div>
-
-      {/* Score */}
-      <div className="shrink-0">
-        <MatchScoreGauge score={match.score} size="sm" />
-      </div>
-
-      {/* Voting */}
-      {isAuthenticated && match.id && (
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => handleVote("up")}
-            disabled={isVotePending}
-            className={`p-1.5 rounded transition-colors ${
-              voteSummary?.user_vote === "up"
-                ? "bg-accent-safe/20 text-accent-safe"
-                : "text-zinc-500 hover:text-accent-safe hover:bg-zinc-800"
-            }`}
-            title="Upvote"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-            </svg>
-          </button>
-          <span className={`text-xs font-mono min-w-[24px] text-center ${
-            (voteSummary?.upvotes ?? match.upvotes ?? 0) - (voteSummary?.downvotes ?? match.downvotes ?? 0) > 0
-              ? "text-accent-safe"
-              : (voteSummary?.upvotes ?? match.upvotes ?? 0) - (voteSummary?.downvotes ?? match.downvotes ?? 0) < 0
-                ? "text-accent-peak"
-                : "text-zinc-500"
-          }`}>
-            {(voteSummary?.upvotes ?? match.upvotes ?? 0) - (voteSummary?.downvotes ?? match.downvotes ?? 0)}
-          </span>
-          <button
-            onClick={() => handleVote("down")}
-            disabled={isVotePending}
-            className={`p-1.5 rounded transition-colors ${
-              voteSummary?.user_vote === "down"
-                ? "bg-accent-peak/20 text-accent-peak"
-                : "text-zinc-500 hover:text-accent-peak hover:bg-zinc-800"
-            }`}
-            title="Downvote"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-        </div>
-      )}
-
-      {/* Verification Actions (for admins/mods/high rep users) */}
-      {canVerify && isPending && match.id && (
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => onVerify("verified")}
-            className="p-1.5 rounded text-zinc-500 hover:text-accent-safe hover:bg-accent-safe/10 transition-colors"
-            title="Verify this match"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </button>
-          <button
-            onClick={() => onVerify("rejected")}
-            className="p-1.5 rounded text-zinc-500 hover:text-accent-peak hover:bg-accent-peak/10 transition-colors"
-            title="Reject this match"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-      )}
-
-      {/* Link & Download Actions */}
-      <div className="flex items-center gap-2">
-        <a
-          href={match.target_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="p-2 rounded-lg hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 transition-colors"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-          </svg>
-        </a>
-        {canDownload && !isRejected && (
-          <Button
-            size="sm"
-            variant={index === 0 && isVerified ? "primary" : "secondary"}
-            onClick={onDownload}
-          >
-            Download
-          </Button>
-        )}
       </div>
     </div>
   );

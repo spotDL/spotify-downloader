@@ -1,14 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { useInternalArtist, useRefreshArtistMetadata } from "@/api/entities";
-import { useFindMatchesMutation, useCreateReport } from "@/api";
+import { useCreateReport } from "@/api";
 import { useQueueStore } from "@/stores/queue";
 import { useAuthStore } from "@/stores/auth";
 import {
   Badge,
   Button,
   RefreshMetadataButton,
-  useToast,
   EntityErrorCard,
 } from "@/components/ui";
 import { CoverArt } from "@/components/ui/cover-art";
@@ -322,12 +321,10 @@ function ArtistPage() {
   const navigate = useNavigate();
   const { id } = Route.useParams();
   const { data: artist, isLoading, error } = useInternalArtist(id);
-  const findMatchesMutation = useFindMatchesMutation();
   const refreshMetadata = useRefreshArtistMetadata();
   const { addItem, addBulkItems } = useQueueStore();
   const { isAuthenticated } = useAuthStore();
   const { features } = useDevConfig();
-  const { error: showError } = useToast();
 
   const [showReportModal, setShowReportModal] = useState(false);
   const [albumTypeFilter, setAlbumTypeFilter] = useState<AlbumTypeFilter>("all");
@@ -361,32 +358,23 @@ function ArtistPage() {
       navigate({ to: "/queue" });
       return;
     }
-    try {
-      const matchResult = await findMatchesMutation.mutateAsync({
-        sourceUrl: track.platforms[0].url,
-        targetPlatforms: TARGET_PLATFORMS,
-      });
-      if (matchResult.matches.length > 0) {
-        addItem(
-          {
-            platform: track.platforms[0].platform,
-            platform_id: track.platforms[0].platform_id,
-            url: track.platforms[0].url,
-            name: track.name,
-            artists: track.artists,
-            artist: track.artist,
-            album_name: track.album_name,
-            duration: track.duration,
-            isrc: track.isrc,
-            cover_url: track.cover_url,
-          },
-          matchResult.matches[0]
-        );
-        navigate({ to: "/queue" });
-      }
-    } catch (err) {
-      showError(err instanceof Error ? err.message : "Failed to find matches for this track");
-    }
+    const downloadable = track.platforms.find(p => TARGET_PLATFORMS.includes(p.platform)) || track.platforms[0];
+
+    addItem(
+      {
+        platform: downloadable.platform,
+        platform_id: downloadable.platform_id,
+        url: downloadable.url,
+        name: track.name,
+        artists: track.artists || [track.artist],
+        artist: track.artist,
+        album_name: track.album_name,
+        duration: track.duration,
+        isrc: track.isrc,
+        cover_url: track.cover_url,
+      } as any
+    );
+    navigate({ to: "/queue" });
   };
 
   const handleDownloadAll = async () => {
@@ -600,12 +588,12 @@ function ArtistPage() {
               <h2 className="text-lg font-semibold text-zinc-100">All Tracks</h2>
               <span className="text-xs text-zinc-500">{artist.songs.length} songs</span>
             </div>
-            <PaginatedTrackList
-              songs={artist.songs}
-              onDownload={handleDownloadTrack}
-              canDownload={features.canDownload}
-              isDownloading={findMatchesMutation.isPending}
-            />
+              <PaginatedTrackList
+                songs={artist.songs}
+                onDownload={handleDownloadTrack}
+                canDownload={features.canDownload}
+                isDownloading={false}
+              />
           </section>
         )}
       </div>

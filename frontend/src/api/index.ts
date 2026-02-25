@@ -24,60 +24,11 @@ export {
   type ChangePasswordRequest,
 } from "./auth";
 
-// Songs
-export {
-  resolveSongUrl,
-  searchSongs,
-  searchAllPlatforms,
-  getSong,
-  isValidUrl,
-  useResolveSong,
-  useSearchSongs,
-  useSearchAllPlatforms,
-  useSong,
-  useResolveSongMutation,
-  useSearchSongsMutation,
-  useSearchAllPlatformsMutation,
-  songKeys,
-  type SearchResponse,
-  type ResolveResponse,
-  type PlatformSearchResult,
-  type MultiPlatformSearchResponse,
-} from "./songs";
+ // Legacy songs export removed
 
-// Matches
-export {
-  findMatches,
-  getMatch,
-  submitMatch,
-  previewMatchUrl,
-  getMatchesForSong,
-  useFindMatches,
-  useMatch,
-  useMatchPreview,
-  useMatchesForSong,
-  useFindMatchesMutation,
-  useSubmitMatch,
-  matchKeys,
-  type MatchPreviewResponse,
-  type SubmitMatchRequest,
-} from "./matches";
+// Legacy matches export removed
 
-// Votes
-export {
-  createVote,
-  deleteVote,
-  getMatchVotes,
-  getUserVotes,
-  useMatchVotes,
-  useUserVotes,
-  useCreateVote,
-  useDeleteVote,
-  useVote,
-  voteKeys,
-  type CreateVoteRequest,
-  type VoteSummary,
-} from "./votes";
+// Legacy votes export removed
 
 // Health
 export {

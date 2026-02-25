@@ -6,7 +6,6 @@ import {
   getDownloadStatus,
   cancelDownload,
   getDownloadFileUrl,
-  findMatches,
   type DownloadProgress,
 } from "@/api";
 import { useSettingsStore } from "./settings";
@@ -207,32 +206,16 @@ export const useQueueStore = create<QueueState>()(
         const item = get().items.find((i) => i.id === queueId);
         if (!item) return;
 
-        let targetUrl = item.match?.target_url;
+        let targetUrl = item.match?.target_url || item.song.url;
 
-        // If no match, find one first
+        // If no url is found, fail fast
         if (!targetUrl) {
-          try {
-            get().updateItem(queueId, { status: "searching", progress: 0 });
-
-            // Find a YouTube match for the song
-            const matchResponse = await findMatches(item.song.url, ["youtube", "youtube_music"]);
-
-            if (matchResponse.matches.length > 0) {
-              const bestMatch = matchResponse.matches[0];
-              targetUrl = bestMatch.target_url;
-              // Store the match on the item
-              get().updateItem(queueId, { match: bestMatch });
-            } else {
-              throw new Error("No download source found for this song");
-            }
-          } catch (error) {
-            get().updateItem(queueId, {
-              status: "failed",
-              error: error instanceof Error ? error.message : "Failed to find download source",
-            });
-            get().processQueue();
-            return;
-          }
+          get().updateItem(queueId, {
+            status: "failed",
+            error: "No download source URL found for this song",
+          });
+          get().processQueue();
+          return;
         }
 
         try {
