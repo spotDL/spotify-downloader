@@ -12,10 +12,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from spotdl.db.models.base import GUID, Base, TimestampMixin, generate_uuid
 
 if TYPE_CHECKING:
-    from spotdl.db.models.match import Match
     from spotdl.db.models.metadata_report import MetadataReport
     from spotdl.db.models.user_settings import UserSettings
-    from spotdl.db.models.vote import Vote
 
 
 class User(Base, TimestampMixin):
@@ -69,20 +67,6 @@ class User(Base, TimestampMixin):
     )
 
     # Relationships
-    submitted_matches: Mapped[list[Match]] = relationship(
-        "Match",
-        back_populates="submitted_by_user",
-        foreign_keys="Match.submitted_by",
-    )
-    verified_matches: Mapped[list[Match]] = relationship(
-        "Match",
-        back_populates="verified_by_user",
-        foreign_keys="Match.verified_by",
-    )
-    votes: Mapped[list[Vote]] = relationship(
-        "Vote",
-        back_populates="user",
-    )
     settings: Mapped[UserSettings | None] = relationship(
         "UserSettings",
         back_populates="user",

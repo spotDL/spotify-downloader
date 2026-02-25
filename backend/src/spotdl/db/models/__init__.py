@@ -18,7 +18,6 @@ from spotdl.db.models.refresh_cooldown import RefreshCooldown
 from spotdl.db.models.token_blacklist import BlacklistedToken
 from spotdl.db.models.user import User
 from spotdl.db.models.user_settings import UserSettings
-from spotdl.db.models.vote import Vote
 
 __all__ = [
     "Base",
@@ -35,5 +34,4 @@ __all__ = [
     "ReportStatus",
     "User",
     "UserSettings",
-    "Vote",
 ]

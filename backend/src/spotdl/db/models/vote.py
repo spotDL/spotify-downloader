@@ -12,7 +12,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from spotdl.db.models.base import GUID, Base, TimestampMixin, generate_uuid
 
 if TYPE_CHECKING:
-    from spotdl.db.models.match import Match
     from spotdl.db.models.user import User
 
 
@@ -58,13 +57,8 @@ class Vote(Base, TimestampMixin):
     )
 
     # Relationships
-    match: Mapped[Match] = relationship(
-        "Match",
-        back_populates="votes",
-    )
     user: Mapped[User] = relationship(
         "User",
-        back_populates="votes",
     )
 
     def __repr__(self) -> str:
