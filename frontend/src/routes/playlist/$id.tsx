@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { useInternalPlaylist, useRefreshPlaylistMetadata } from "@/api/entities";
-import { useFindMatchesMutation, useCreateReport } from "@/api";
+import { useCreateReport } from "@/api";
 import { useQueueStore } from "@/stores/queue";
 import { useAuthStore } from "@/stores/auth";
 import {
@@ -12,7 +12,6 @@ import {
   Badge,
   Button,
   RefreshMetadataButton,
-  useToast,
   EntityErrorCard,
 } from "@/components/ui";
 import { CoverArt } from "@/components/ui/cover-art";
@@ -112,13 +111,11 @@ function PlaylistPage() {
   const navigate = useNavigate();
   const { id } = Route.useParams();
   const { data: playlist, isLoading, error } = useInternalPlaylist(id);
-  const findMatchesMutation = useFindMatchesMutation();
   const refreshMetadata = useRefreshPlaylistMetadata();
   const { addItem, addBulkItems } = useQueueStore();
   const { isAuthenticated } = useAuthStore();
   const createReportMutation = useCreateReport();
   const { features } = useDevConfig();
-  const { error: showError } = useToast();
 
   const [showReportModal, setShowReportModal] = useState(false);
 
@@ -128,33 +125,23 @@ function PlaylistPage() {
       return;
     }
 
-    try {
-      const matchResult = await findMatchesMutation.mutateAsync({
-        sourceUrl: track.platforms[0].url,
-        targetPlatforms: TARGET_PLATFORMS,
-      });
+    const downloadable = track.platforms.find(p => TARGET_PLATFORMS.includes(p.platform)) || track.platforms[0];
 
-      if (matchResult.matches.length > 0) {
-        addItem(
-          {
-            platform: track.platforms[0].platform,
-            platform_id: track.platforms[0].platform_id,
-            url: track.platforms[0].url,
-            name: track.name,
-            artists: track.artists,
-            artist: track.artist,
-            album_name: track.album_name,
-            duration: track.duration,
-            isrc: track.isrc,
-            cover_url: track.cover_url,
-          },
-          matchResult.matches[0]
-        );
-        navigate({ to: "/queue" });
-      }
-    } catch (err) {
-      showError(err instanceof Error ? err.message : "Failed to find matches for this track");
-    }
+    addItem(
+      {
+        platform: downloadable.platform,
+        platform_id: downloadable.platform_id,
+        url: downloadable.url,
+        name: track.name,
+        artists: track.artists || [track.artist],
+        artist: track.artist,
+        album_name: track.album_name,
+        duration: track.duration,
+        isrc: track.isrc,
+        cover_url: track.cover_url,
+      } as any
+    );
+    navigate({ to: "/queue" });
   };
 
   const handleDownloadAll = async () => {
@@ -396,7 +383,6 @@ function PlaylistPage() {
                           e.preventDefault();
                           handleDownloadTrack(song);
                         }}
-                        isLoading={findMatchesMutation.isPending}
                         className="opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
