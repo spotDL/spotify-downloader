@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import json
 import uuid
 from datetime import UTC, datetime
 from typing import Any
 
-from sqlalchemy import DateTime, String, TypeDecorator
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy import DateTime, String, Text, TypeDecorator
+from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -50,6 +51,39 @@ class GUID(TypeDecorator[uuid.UUID]):
         if isinstance(value, uuid.UUID):
             return value
         return uuid.UUID(value)
+
+
+class JSONType(TypeDecorator[Any]):
+    """
+    Platform-independent JSON type.
+
+    Uses PostgreSQL's JSONB when available, otherwise uses
+    Text with JSON serialization for SQLite.
+    """
+
+    impl = Text
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect: Any) -> Any:
+        if dialect.name == "postgresql":
+            return dialect.type_descriptor(JSONB())
+        return dialect.type_descriptor(Text())
+
+    def process_bind_param(self, value: Any, dialect: Any) -> Any:
+        if value is None:
+            return None
+        if dialect.name == "postgresql":
+            return value
+        return json.dumps(value)
+
+    def process_result_value(self, value: Any, dialect: Any) -> Any:
+        if value is None:
+            return None
+        if dialect.name == "postgresql":
+            return value
+        if isinstance(value, str):
+            return json.loads(value)
+        return value
 
 
 class Base(DeclarativeBase):

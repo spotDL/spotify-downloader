@@ -9,8 +9,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import Date, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from spotdl.db.models.base import GUID, Base, TimestampMixin, generate_uuid
-from spotdl.db.models.song import JSONType
+from spotdl.db.models.base import GUID, Base, JSONType, TimestampMixin, generate_uuid
 
 if TYPE_CHECKING:
     from spotdl.db.models.artist import Artist

@@ -11,7 +11,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "016_remove_legacy_models_update_lyrics"
+revision: str = "016_drop_legacy_models"
 down_revision: str | None = "015_unified_entity_architecture"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
