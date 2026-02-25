@@ -91,7 +91,7 @@ class TokenBlacklistRepository:
             )
         )
         await self.session.flush()
-        return result.rowcount or 0
+        return result.rowcount or 0  # type: ignore[attr-defined]
 
     async def get_all_active(self) -> list[tuple[str, datetime]]:
         """

@@ -181,7 +181,7 @@ class DiscogsProvider(MetadataProvider):
 
             # Find best match
             best_match = None
-            best_score = 0
+            best_score: float = 0.0
 
             for release in releases:
                 score = self._calculate_match_score(

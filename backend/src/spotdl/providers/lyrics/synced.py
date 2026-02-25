@@ -57,7 +57,7 @@ class SyncedLyricsProvider(BaseLyricsProvider):
 
         try:
             # Import here to avoid blocking module load
-            import syncedlyrics
+            import syncedlyrics  # type: ignore[import-untyped]
 
             # Run blocking syncedlyrics.search in thread pool
             loop = asyncio.get_running_loop()
@@ -68,7 +68,7 @@ class SyncedLyricsProvider(BaseLyricsProvider):
                     synced_only=not self.allow_plain,
                 ),
             )
-            return lyrics
+            return str(lyrics) if lyrics else None
 
         except ImportError:
             logger.warning(

@@ -102,7 +102,7 @@ class AZLyricsProvider(BaseLyricsProvider):
                     if not a_tags:
                         continue
 
-                    url = a_tags[0].get("href", "").strip()
+                    url = str(a_tags[0].get("href", "")).strip()
                     if not url:
                         continue
 

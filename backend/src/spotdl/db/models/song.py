@@ -49,7 +49,7 @@ class JSONType(TypeDecorator[Any]):
             return dialect.type_descriptor(JSONB())
         return dialect.type_descriptor(Text())
 
-    def process_bind_param(self, value: Any, dialect: Any) -> str | None:
+    def process_bind_param(self, value: Any, dialect: Any) -> Any:
         if value is None:
             return None
         if dialect.name == "postgresql":

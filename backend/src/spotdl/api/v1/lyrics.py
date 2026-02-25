@@ -142,9 +142,20 @@ async def search_lyrics(
         entity_id="search",
         lyrics_text=result.lyrics_text,
         lyrics_synced=result.lyrics_synced,
-        source=result.source,
         from_cache=False,
     )
+
+
+class LyricsSourceResponse(BaseModel):
+    """Response model for a single lyrics source."""
+
+    source: str
+    lyrics_text: str
+    lyrics_synced: str | None = None
+    quality_score: float | None = None
+    is_verified: bool = False
+    language: str | None = None
+    has_translations: bool | None = None
 
 class SubmitLyricsRequest(BaseModel):
     """Request model for submitting lyrics."""
@@ -203,19 +214,8 @@ async def submit_user_lyrics(
         is_verified=saved_lyrics.is_verified or False,
         language=saved_lyrics.language,
         has_translations=saved_lyrics.has_translations,
+        has_translations=saved_lyrics.has_translations,
     )
-
-class LyricsSourceResponse(BaseModel):
-    """Response model for a single lyrics source."""
-
-    source: str
-    lyrics_text: str
-    lyrics_synced: str | None = None
-    quality_score: float | None = None
-    is_verified: bool = False
-    language: str | None = None
-    has_translations: bool | None = None
-
 
 class AllLyricsResponse(BaseModel):
     """Response model for all lyrics sources."""

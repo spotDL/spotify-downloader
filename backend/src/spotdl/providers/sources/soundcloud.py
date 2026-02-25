@@ -155,7 +155,9 @@ class SoundCloudProvider(SourceProvider):
                 match = re.search(r"__sc_hydration\s*=\s*(\[.*?\]);", text, re.DOTALL)
                 if match:
                     try:
-                        return json.loads(match.group(1))
+                        data = json.loads(match.group(1))
+                        if isinstance(data, list):
+                            return data
                     except json.JSONDecodeError as e:
                         logger.debug("Failed to parse hydration data: %s", e)
         return []
@@ -175,7 +177,9 @@ class SoundCloudProvider(SourceProvider):
         """
         for item in hydration_data:
             if item.get("hydratable") == hydratable:
-                return item.get("data", {})
+                data = item.get("data", {})
+                if isinstance(data, dict):
+                    return data
         return None
 
     def _track_to_song(

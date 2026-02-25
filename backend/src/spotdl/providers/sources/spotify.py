@@ -9,8 +9,8 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
+import spotipy  # type: ignore[import-untyped]
+from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth  # type: ignore[import-untyped]
 
 from spotdl.core.types.song import Platform, Song, SongList
 from spotdl.providers.sources.base import (

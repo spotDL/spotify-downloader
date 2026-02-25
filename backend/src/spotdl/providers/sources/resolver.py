@@ -100,11 +100,11 @@ def extract_url_info(url: str) -> dict[str, str | None]:
             browse_id = match.group(1)
             # Channel-like browse IDs are artist pages; everything else is
             # treated as album-style browse content.
-            url_type = "artist" if browse_id.startswith("UC") else "album"
-            return {"platform": platform.value, "type": url_type, "id": browse_id}
+            youtube_url_type = "artist" if browse_id.startswith("UC") else "album"
+            return {"platform": platform.value, "type": youtube_url_type, "id": browse_id}
 
-    url_type = None
-    resource_id = None
+    url_type: str | None = None
+    resource_id: str | None = None
 
     for pattern in URL_PATTERNS[platform]:
         match = pattern.search(url)

@@ -149,7 +149,9 @@ class BandcampProvider(SourceProvider):
                         # Remove JavaScript comments
                         json_str = re.sub(r"//.*?\n", "\n", json_str)
                         json_str = re.sub(r"/\*.*?\*/", "", json_str, flags=re.DOTALL)
-                        return json.loads(json_str)
+                        data = json.loads(json_str)
+                        if isinstance(data, dict):
+                            return data
                     except json.JSONDecodeError as e:
                         logger.debug("Failed to parse TralbumData JSON: %s", e)
 
@@ -157,7 +159,10 @@ class BandcampProvider(SourceProvider):
         tralbum_elem = soup.find(attrs={"data-tralbum": True})
         if tralbum_elem:
             try:
-                return json.loads(tralbum_elem["data-tralbum"])
+                data_tralbum = str(tralbum_elem.get("data-tralbum", ""))
+                data = json.loads(data_tralbum)
+                if isinstance(data, dict):
+                    return data
             except (json.JSONDecodeError, KeyError, TypeError) as e:
                 logger.debug("Failed to parse data-tralbum attribute: %s", e)
 
@@ -182,7 +187,9 @@ class BandcampProvider(SourceProvider):
                         json_str = match.group(1)
                         json_str = re.sub(r"//.*?\n", "\n", json_str)
                         json_str = re.sub(r"/\*.*?\*/", "", json_str, flags=re.DOTALL)
-                        return json.loads(json_str)
+                        data = json.loads(json_str)
+                        if isinstance(data, dict):
+                            return data
                     except json.JSONDecodeError as e:
                         logger.debug("Failed to parse BandData JSON: %s", e)
         return {}
@@ -203,7 +210,7 @@ class BandcampProvider(SourceProvider):
                 data = json.loads(script.string or "")
                 if isinstance(data, dict):
                     return data
-                if isinstance(data, list) and data:
+                if isinstance(data, list) and data and isinstance(data[0], dict):
                     return data[0]
             except json.JSONDecodeError:
                 continue
@@ -506,7 +513,7 @@ class BandcampProvider(SourceProvider):
             # Find album links from the page
             album_links: list[str] = []
             for link in soup.find_all("a", href=True):
-                href = link["href"]
+                href = str(link.get("href", ""))
                 if "/album/" in href:
                     # Normalize URL
                     if href.startswith("/"):
@@ -519,7 +526,7 @@ class BandcampProvider(SourceProvider):
             # Also find track links
             track_links: list[str] = []
             for link in soup.find_all("a", href=True):
-                href = link["href"]
+                href = str(link.get("href", ""))
                 if "/track/" in href:
                     if href.startswith("/"):
                         href = f"https://{url_info['subdomain']}.bandcamp.com{href}"
@@ -568,7 +575,7 @@ class BandcampProvider(SourceProvider):
                 song.list_length = len(songs)
 
             return SongList(
-                name=artist_name,
+                name=str(artist_name),
                 url=url,
                 platform=Platform.BANDCAMP,
                 urls=tuple(song.url for song in songs),
@@ -609,7 +616,7 @@ class BandcampProvider(SourceProvider):
                     link = result.find("a", class_="artcont")
                     if not link:
                         continue
-                    track_url = link.get("href", "")
+                    track_url = str(link.get("href", ""))
                     if not track_url or "/track/" not in track_url:
                         continue
 
@@ -633,7 +640,7 @@ class BandcampProvider(SourceProvider):
 
                     # Get cover
                     img = result.find("img")
-                    cover_url = img.get("src") if img else None
+                    cover_url = str(img.get("src", "")) if img and img.get("src") else None
 
                     # Build a stable platform ID from Bandcamp URL parts
                     url_info = self._extract_url_info(track_url)

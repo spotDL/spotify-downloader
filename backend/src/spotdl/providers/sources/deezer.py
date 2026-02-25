@@ -215,7 +215,9 @@ class DeezerProvider(SourceProvider):
                     f"Deezer API error: {error.get('message', 'Unknown error')}"
                 )
 
-            return data
+            if isinstance(data, dict):
+                return data
+            return {}
 
         except httpx.HTTPStatusError as e:
             raise SourceProviderError(f"Deezer API request failed: {e}") from e

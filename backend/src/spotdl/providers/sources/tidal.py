@@ -130,7 +130,7 @@ class TidalProvider(SourceProvider):
                 data = json.loads(script.string or "")
                 if isinstance(data, dict):
                     return data
-                if isinstance(data, list) and data:
+                if isinstance(data, list) and data and isinstance(data[0], dict):
                     return data[0]
             except json.JSONDecodeError as e:
                 logger.debug("Failed to parse JSON-LD data: %s", e)
@@ -151,16 +151,16 @@ class TidalProvider(SourceProvider):
 
         # Open Graph tags
         for meta in soup.find_all("meta", property=True):
-            prop = meta.get("property", "")
-            content = meta.get("content", "")
+            prop = str(meta.get("property", ""))
+            content = str(meta.get("content", ""))
             if prop.startswith("og:") or prop.startswith("music:"):
                 key = prop.replace("og:", "").replace("music:", "")
                 meta_data[key] = content
 
         # Standard meta tags
         for meta in soup.find_all("meta", attrs={"name": True}):
-            name = meta.get("name", "")
-            content = meta.get("content", "")
+            name = str(meta.get("name", ""))
+            content = str(meta.get("content", ""))
             if name:
                 meta_data[name] = content
 
@@ -498,7 +498,7 @@ class TidalProvider(SourceProvider):
             # Find album links from the page
             album_links: list[str] = []
             for link in soup.find_all("a", href=True):
-                href = link["href"]
+                href = str(link.get("href", ""))
                 if "/album/" in href:
                     # Normalize URL
                     if href.startswith("/"):
@@ -627,7 +627,7 @@ class TidalProvider(SourceProvider):
             # Fallback: Try to extract track links from search results page
             track_links: list[str] = []
             for link in soup.find_all("a", href=True):
-                href = link.get("href", "")
+                href = str(link.get("href", ""))
                 if "/track/" in href and href not in track_links:
                     # Normalize URL
                     if href.startswith("/"):

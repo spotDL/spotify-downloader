@@ -334,11 +334,11 @@ class MusicBrainzProvider(MetadataProvider):
 
             # Prefer front cover
             for image in images:
-                if image.get("front"):
-                    return image.get("image")
+                if image.get("front") and image.get("image"):
+                    return str(image.get("image"))
 
             # Fall back to first image
-            return images[0].get("image") if images else None
+            return str(images[0].get("image")) if images and images[0].get("image") else None
 
         except Exception as e:
             logger.debug(f"Failed to get cover art for {release_id}: {e}")

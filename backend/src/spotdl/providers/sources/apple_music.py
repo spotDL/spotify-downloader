@@ -154,7 +154,7 @@ class AppleMusicProvider(SourceProvider):
                 data = json.loads(script.string or "")
                 if isinstance(data, dict):
                     return data
-                if isinstance(data, list) and data:
+                if isinstance(data, list) and data and isinstance(data[0], dict):
                     return data[0]
             except json.JSONDecodeError as e:
                 logger.debug("Failed to parse JSON-LD data: %s", e)
@@ -241,9 +241,9 @@ class AppleMusicProvider(SourceProvider):
         platform_id = ""
         url_info = self._extract_url_info(url)
         if url_info.get("track_id"):
-            platform_id = url_info["track_id"]
+            platform_id = str(url_info["track_id"])
         elif url_info.get("id"):
-            platform_id = url_info["id"]
+            platform_id = str(url_info["id"])
 
         song = Song(
             name=track_data.get("name", "Unknown"),
@@ -479,7 +479,7 @@ class AppleMusicProvider(SourceProvider):
             # We need to find album links from the page
             album_links: list[str] = []
             for link in soup.find_all("a", href=True):
-                href = link["href"]
+                href = str(link.get("href", ""))
                 if "/album/" in href and "music.apple.com" in href:
                     if href not in album_links:
                         album_links.append(href)
@@ -604,7 +604,7 @@ class AppleMusicProvider(SourceProvider):
                         album_name=album_name,
                         album_artist=album_artist,
                         year=year,
-                        date=release_date[:10] if release_date else None,
+                        date=str(release_date)[:10] if release_date else "",
                         cover_url=cover_url,
                         explicit=track.get("trackExplicitness") == "explicit",
                         genres=[track.get("primaryGenreName")] if track.get("primaryGenreName") else [],

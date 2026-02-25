@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import Boolean, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -267,15 +267,15 @@ class UserSettings(Base, TimestampMixin):
 
     # Provider preferences (ordered lists with enabled status)
     # Format: [{"id": "youtube_music", "enabled": true}, ...]
-    audio_source_preferences: Mapped[list | None] = mapped_column(
+    audio_source_preferences: Mapped[list[dict[str, Any]] | None] = mapped_column(
         JSONType(),
         nullable=True,
     )
-    metadata_source_preferences: Mapped[list | None] = mapped_column(
+    metadata_source_preferences: Mapped[list[dict[str, Any]] | None] = mapped_column(
         JSONType(),
         nullable=True,
     )
-    lyrics_source_preferences: Mapped[list | None] = mapped_column(
+    lyrics_source_preferences: Mapped[list[dict[str, Any]] | None] = mapped_column(
         JSONType(),
         nullable=True,
     )
@@ -289,7 +289,7 @@ class UserSettings(Base, TimestampMixin):
     #     ...
     #   }
     # }
-    metadata_embed_preferences: Mapped[dict | None] = mapped_column(
+    metadata_embed_preferences: Mapped[dict[str, Any] | None] = mapped_column(
         JSONType(),
         nullable=True,
     )

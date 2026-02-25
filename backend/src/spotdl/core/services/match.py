@@ -253,7 +253,7 @@ class MatchService:
             return None
 
         try:
-            result = await provider.search_by_isrc(song.isrc)
+            result = await provider.search_by_isrc(song.isrc)  # type: ignore[attr-defined]
             if result is None:
                 return None
 

@@ -9,9 +9,11 @@ from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 
+from typing import Any, AsyncGenerator, Callable, Awaitable
+
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -63,7 +65,7 @@ def setup_logging() -> None:
 
 
 @asynccontextmanager
-async def lifespan(_app: FastAPI):
+async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan handler for startup/shutdown events."""
     # Configure logging first
     setup_logging()
@@ -106,7 +108,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
     Logs request method, path, status code, and response time.
     """
 
-    async def dispatch(self, request: Request, call_next):
+    async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
         """Process the request and log details."""
         logger = logging.getLogger("spotdl.api")
 
@@ -200,7 +202,7 @@ def create_app() -> FastAPI:
     )
 
     @app.get("/health")
-    async def root_health_check():
+    async def root_health_check() -> dict[str, Any]:
         """Infrastructure-friendly liveness endpoint."""
         return {
             "status": "healthy",

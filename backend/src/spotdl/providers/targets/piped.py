@@ -261,7 +261,9 @@ class PipedProvider(TargetProvider):
             )
 
             # Return highest quality audio stream
-            return sorted_streams[0].get("url")
+            
+            stream_url = sorted_streams[0].get("url")
+            return str(stream_url) if stream_url else None
 
         except Exception as e:
             logger.debug("Failed to get audio stream for %s: %s", video_id, e)

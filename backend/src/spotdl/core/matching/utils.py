@@ -18,7 +18,7 @@ JAP_REGEX = re.compile(
 DISALLOWED_REGEX = re.compile(r"[^-a-zA-Z0-9!@$]+")
 
 # Kakasi instance for Japanese romanization
-_KKS = pykakasi.kakasi()
+_KKS = pykakasi.kakasi()  # type: ignore[no-untyped-call]
 
 
 @lru_cache(maxsize=4096)

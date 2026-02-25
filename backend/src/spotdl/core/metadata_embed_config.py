@@ -6,7 +6,7 @@ per-field source selection when viewing or embedding metadata.
 
 from __future__ import annotations
 
-from typing import TypedDict
+from typing import Any, TypedDict
 
 
 class MetadataSourceInfo(TypedDict):
@@ -348,7 +348,7 @@ def get_default_embed_preferences() -> MetadataEmbedPreferences:
 
 
 def validate_embed_preferences(
-    preferences: dict | None,
+    preferences: dict[str, Any] | None,
 ) -> MetadataEmbedPreferences:
     """
     Validate and normalize metadata embed preferences.
