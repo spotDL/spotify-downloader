@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Annotated, TypedDict
+from typing import Annotated, TypedDict, cast
 
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -75,9 +75,9 @@ async def get_user_preferences(
         )
 
     return UserPreferences(
-        audio=settings.audio_source_preferences,
-        metadata=settings.metadata_source_preferences,
-        lyrics=settings.lyrics_source_preferences,
+        audio=cast(list[ProviderPreference] | None, settings.audio_source_preferences),
+        metadata=cast(list[ProviderPreference] | None, settings.metadata_source_preferences),
+        lyrics=cast(list[ProviderPreference] | None, settings.lyrics_source_preferences),
     )
 
 

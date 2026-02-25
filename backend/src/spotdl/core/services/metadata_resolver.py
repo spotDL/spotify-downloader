@@ -97,7 +97,7 @@ class MetadataResolver:
 
     def __init__(
         self,
-        preferences: MetadataEmbedPreferences | dict | None = None,
+        preferences: MetadataEmbedPreferences | dict[str, Any] | None = None,
     ) -> None:
         """
         Initialize the resolver.
@@ -106,7 +106,7 @@ class MetadataResolver:
             preferences: User's metadata embed preferences (validated or raw)
         """
         if preferences is None or isinstance(preferences, dict):
-            self._preferences = validate_embed_preferences(preferences)
+            self._preferences = validate_embed_preferences(preferences)  # type: ignore[arg-type]
         else:
             self._preferences = preferences
 
@@ -147,9 +147,9 @@ class MetadataResolver:
             # or merge with existing
             if source in snapshots_by_source:
                 # Merge: song model data fills in gaps
-                for key, value in primary_data.items():
+                for key, v in primary_data.items():
                     if key not in snapshots_by_source[source] or not snapshots_by_source[source][key]:
-                        snapshots_by_source[source][key] = value
+                        snapshots_by_source[source][key] = v
             else:
                 snapshots_by_source[source] = primary_data
 
@@ -168,8 +168,8 @@ class MetadataResolver:
                 enabled = field_pref["enabled"]
 
             # Find first source with a value for this field
-            value = None
-            source = None
+            value: str | None = None
+            resolved_source: str | None = None
 
             for source_id in order:
                 if source_id in snapshots_by_source:
@@ -178,7 +178,7 @@ class MetadataResolver:
 
                     if field_value is not None and field_value != "" and field_value != []:
                         value = field_value
-                        source = source_id
+                        resolved_source = source_id
                         break
 
             # If still no value, try any remaining source
@@ -188,13 +188,13 @@ class MetadataResolver:
                         field_value = self._get_field_value(snapshot_data, field_id)
                         if field_value is not None and field_value != "" and field_value != []:
                             value = field_value
-                            source = source_id
+                            resolved_source = source_id
                             break
 
             result.fields[field_id] = ResolvedField(
                 field_id=field_id,
                 value=value,
-                source=source,
+                source=resolved_source,
                 enabled=enabled,
             )
 
@@ -298,7 +298,7 @@ class MetadataResolver:
 
 
 def get_metadata_resolver(
-    preferences: MetadataEmbedPreferences | dict | None = None,
+    preferences: MetadataEmbedPreferences | dict[str, Any] | None = None,
 ) -> MetadataResolver:
     """
     Factory function to create a MetadataResolver.

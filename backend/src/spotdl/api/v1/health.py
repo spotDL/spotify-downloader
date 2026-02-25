@@ -142,7 +142,7 @@ async def health_check(settings: Settings = Depends(get_settings)) -> HealthResp
 @router.get("/health/detailed", response_model=DetailedHealthResponse)
 async def detailed_health_check(
     settings: Settings = Depends(get_settings),
-    db: Annotated[AsyncSession, Depends(get_db_session)] = None,
+    db: Annotated[AsyncSession | None, Depends(get_db_session)] = None,
 ) -> DetailedHealthResponse:
     """Component-level health including unified pipeline and provider capabilities."""
     database_status = "not configured"
@@ -204,7 +204,7 @@ async def detailed_health_check(
 @router.get("/health/services", response_model=ServiceStatusResponse)
 async def service_status(
     settings: Settings = Depends(get_settings),
-    db: Annotated[AsyncSession, Depends(get_db_session)] = None,
+    db: Annotated[AsyncSession | None, Depends(get_db_session)] = None,
 ) -> ServiceStatusResponse:
     """Provider service connectivity grouped by capabilities."""
     del settings, db

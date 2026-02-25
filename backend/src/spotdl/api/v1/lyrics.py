@@ -140,6 +140,7 @@ async def search_lyrics(
 
     return LyricsResponse(
         entity_id="search",
+        source=result.source,
         lyrics_text=result.lyrics_text,
         lyrics_synced=result.lyrics_synced,
         from_cache=False,
@@ -213,7 +214,6 @@ async def submit_user_lyrics(
         quality_score=saved_lyrics.quality_score,
         is_verified=saved_lyrics.is_verified or False,
         language=saved_lyrics.language,
-        has_translations=saved_lyrics.has_translations,
         has_translations=saved_lyrics.has_translations,
     )
 
@@ -345,7 +345,7 @@ async def vote_lyrics(
     lyrics_id: str,
     vote: Annotated[str, Query(description="Vote: 'up' or 'down'")],
     db: AsyncSession = Depends(get_db_session),
-):
+) -> dict[str, str]:
     lyrics_uuid = validate_uuid(lyrics_id, "lyrics ID")
     lyrics_repo = LyricsRepository(db)
     lyrics = await lyrics_repo.get_by_id(lyrics_uuid)
@@ -360,4 +360,4 @@ async def vote_lyrics(
          raise HTTPException(status_code=400, detail="Invalid vote")
 
     await db.commit()
-    return {"status": "ok", "upvotes": lyrics.upvotes, "downvotes": lyrics.downvotes}
+    return {"status": "ok", "upvotes": str(lyrics.upvotes), "downvotes": str(lyrics.downvotes)}

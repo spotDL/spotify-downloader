@@ -118,9 +118,6 @@ async def start_download(
         duration=request.duration,
         output_format=request.output_format,
         quality=request.quality,
-        embed_metadata=request.embed_metadata,
-        embed_lyrics=request.embed_lyrics,
-        embed_cover=request.embed_cover,
     )
 
     # Start the download

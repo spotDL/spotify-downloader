@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Annotated
+from typing import Annotated, Any, cast
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
@@ -471,8 +471,11 @@ async def update_field_preference(
     repo = UserSettingsRepository(session)
     settings, _ = await repo.get_or_create(current_user.id)
 
+    # Convert settings embed prefs to dict if needed
+    current_prefs = dict(settings.metadata_embed_preferences) if settings.metadata_embed_preferences else None
+
     # Get current preferences
-    current = validate_embed_preferences(settings.metadata_embed_preferences)
+    current = validate_embed_preferences(current_prefs)
 
     # Update the specific field
     if data.order is not None:
@@ -485,7 +488,7 @@ async def update_field_preference(
         current["fields"][field_id]["enabled"] = data.enabled
 
     # Re-validate to filter invalid sources
-    validated = validate_embed_preferences(current)
+    validated = validate_embed_preferences(cast(dict[str, Any], current))
 
     # Save
     settings = await repo.update(settings, metadata_embed_preferences=validated)

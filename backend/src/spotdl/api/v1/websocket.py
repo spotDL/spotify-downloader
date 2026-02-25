@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Any
+from typing import Any, Callable
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
@@ -83,7 +83,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str) -> None:
     # Track which downloads this client is watching
     watched_downloads: set[str] = set()
 
-    def create_progress_callback(download_id: str):
+    def create_progress_callback(download_id: str) -> Callable[[Any], None]:
         """Create a callback for download progress updates."""
 
         async def send_update(progress: DownloadProgress) -> None:

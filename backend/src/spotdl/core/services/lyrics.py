@@ -248,7 +248,7 @@ class LyricsService:
 
             # Process results in order (synced first)
             for provider, result in zip(providers, results):
-                if isinstance(result, Exception):
+                if isinstance(result, BaseException):
                     logger.debug(
                         "%s provider failed: %s",
                         provider.name,
@@ -394,7 +394,7 @@ class LyricsService:
             fetched = await asyncio.gather(*tasks, return_exceptions=True)
 
             for provider, result in zip(providers, fetched):
-                if isinstance(result, Exception):
+                if isinstance(result, BaseException):
                     logger.debug(
                         "%s provider failed: %s",
                         provider.name,
@@ -414,19 +414,19 @@ class LyricsService:
 
                     # Calculate quality score
                     quality_score = self._calculate_quality_score(
-                        lyrics_text=lyrics_text,
-                        lyrics_synced=lyrics_synced,
+                        lyrics_text=str(lyrics_text),
+                        lyrics_synced=str(lyrics_synced) if lyrics_synced else None,
                         source=provider.name.lower(),
                     )
 
                     # Calculate content hash for deduplication
                     content_hash = hashlib.sha256(
-                        lyrics_text.encode("utf-8")
+                        str(lyrics_text).encode("utf-8")
                     ).hexdigest()
 
                     # Count lines
                     line_count = len(
-                        [line for line in lyrics_text.split("\n") if line.strip()]
+                        [line for line in str(lyrics_text).split("\n") if line.strip()]
                     )
 
                     # Save to database using repository

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from spotdl.core.types.song import Platform, Song, SongList
 from spotdl.providers.sources import (
@@ -64,6 +65,15 @@ class SongService:
         """
         self._resolver = URLResolver()
         self._providers: dict[Platform, SourceProvider] = {}
+        self._enable_enrichment = enable_metadata_enrichment
+        
+        from spotdl.core.services.metadata import MetadataService
+        self._metadata_service = MetadataService(
+            enable_musicbrainz=enable_musicbrainz,
+            enable_discogs=enable_discogs,
+            discogs_user_token=discogs_user_token,
+        ) if enable_metadata_enrichment else None
+
         # Initialize source providers
         self._init_providers(
             spotify_client_id=spotify_client_id,
@@ -353,7 +363,7 @@ class SongService:
         """
         return songs
 
-    async def lookup_isrc(self, isrc: str) -> dict | None:
+    async def lookup_isrc(self, isrc: str) -> dict[str, Any] | None:
         """
         Look up metadata by ISRC code.
 

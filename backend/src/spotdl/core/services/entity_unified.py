@@ -441,7 +441,7 @@ class UnifiedEntityService:
         return ProviderEntityBundle(
             provider_id=provider_id,
             provider_entity_id=str(payload["platform_id"]),
-            provider_url=payload["url"],
+            provider_url=payload["url"],  # type: ignore[arg-type]
             entity_type="album",
             normalized_payload=payload,
             raw_payload=payload,
@@ -520,7 +520,7 @@ class UnifiedEntityService:
         }
         return ProviderEntityBundle(
             provider_id="open_graph",
-            provider_entity_id=payload["platform_id"],
+            provider_entity_id=str(payload["platform_id"]),
             provider_url=url,
             entity_type="track",
             normalized_payload=payload,
@@ -764,7 +764,7 @@ class UnifiedEntityService:
                 video_id = YouTubeMusicProvider.extract_video_id(url)
                 if not video_id:
                     return None
-                info = await provider.get_song_info(video_id)
+                info = await provider.get_song_info(video_id)  # type: ignore[attr-defined]
                 if not info:
                     return None
                 return self._bundle_from_result(info)
@@ -773,7 +773,7 @@ class UnifiedEntityService:
                 video_id = YouTubeProvider.extract_video_id(url)
                 if not video_id:
                     return None
-                info = await provider.get_video_info(video_id)
+                info = await provider.get_video_info(video_id)  # type: ignore[attr-defined]
                 if not info:
                     return None
                 return self._bundle_from_result(info)
@@ -963,6 +963,7 @@ class UnifiedEntityService:
                         (album_key, track_key, "contains", album_bundle.provider_id, {"track_number": song.track_number})
                     )
 
+        entities: list[Entity] = []
         entities_by_key: dict[str, Entity] = {}
         for key in sorted(bundles_to_upsert.keys()):
             entity = await self._upsert_entity_snapshot(bundles_to_upsert[key])
@@ -1438,7 +1439,8 @@ class UnifiedEntityService:
             explicit=bool(target.get("explicit") or canonical.get("explicit") or False),
             song_url=url,
         )
-        manager = get_download_manager()
+        from spotdl.core.services.download import get_download_service
+        manager = get_download_service()
         await manager.start_download(request)
         return {
             "download_id": download_id,

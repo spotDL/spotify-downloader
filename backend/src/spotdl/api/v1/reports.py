@@ -308,7 +308,7 @@ async def delete_report(
     report_id: str,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db_session),
-) -> dict:
+) -> dict[str, str]:
     """
     Delete a report (admin only).
     """

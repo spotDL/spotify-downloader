@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from spotdl_core.download import (
+from spotdl_core.download import (  # type: ignore[import-untyped]
     Downloader,
     DownloadMeta,
     generate_lrc,
@@ -440,7 +440,7 @@ class DownloadService:
 
             await downloader.close()
             logger.info("Download completed: %s", output_path)
-            return output_path
+            return output_path  # type: ignore[no-any-return]
 
         except asyncio.CancelledError:
             self._downloads[download_id].status = DownloadStatus.CANCELLED

@@ -5,13 +5,13 @@ from __future__ import annotations
 import asyncio
 import logging
 import uuid
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.core.provider_preferences import get_enabled_metadata_provider_ids
 from spotdl.core.providers_config import ProviderPreference
-from spotdl.db.repositories import MetadataSnapshotRepository
+from spotdl.db.repositories.metadata_snapshot import MetadataSnapshotRepository
 from spotdl.providers.metadata import (
     DiscogsProvider,
     MetadataProvider,
@@ -327,7 +327,7 @@ class MetadataService:
         # Filter out exceptions and return successfully enriched songs
         result = []
         for i, item in enumerate(enriched):
-            if isinstance(item, Exception):
+            if isinstance(item, BaseException):
                 logger.debug(f"Failed to enrich song {songs[i].name}: {item}")
                 result.append(songs[i])  # Return original song on failure
             else:
@@ -335,7 +335,7 @@ class MetadataService:
 
         return result
 
-    async def lookup_by_isrc(self, isrc: str) -> dict | None:
+    async def lookup_by_isrc(self, isrc: str) -> dict[str, Any] | None:
         """
         Look up metadata by ISRC code.
 
@@ -371,7 +371,7 @@ class MetadataService:
         self,
         query: str,
         limit: int = 10,
-    ) -> list[dict]:
+    ) -> list[dict[str, Any]]:
         """
         Search for tracks across all providers.
 
