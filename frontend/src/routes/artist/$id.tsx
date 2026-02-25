@@ -159,37 +159,39 @@ function DiscographyTabs({
 
 // Album card
 function AlbumCard({ album }: { album: AlbumSummary & { album_type?: string } }) {
-  return (
-    <Link to="/album/$id" params={{ id: album.id }} className="group block">
-      <div className="relative rounded-lg overflow-hidden bg-zinc-900/50 border border-zinc-800/50 hover:border-zinc-700/50 transition-all">
-        <div className="relative aspect-square">
-          <CoverArt
-            src={album.cover_url}
-            alt={album.name}
-            size="2xl"
-            fallbackIcon="album"
-            className="!rounded-none w-full h-full group-hover:scale-105 transition-transform duration-300"
-          />
-          {album.year && (
-            <div className="absolute top-2 right-2 px-2 py-0.5 rounded bg-black/70 backdrop-blur-sm text-[10px] font-mono text-zinc-300">
-              {album.year}
-            </div>
-          )}
-          {album.album_type && album.album_type !== "album" && (
-            <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-emerald-500/90 text-[10px] font-semibold text-black capitalize">
-              {album.album_type}
-            </div>
-          )}
-        </div>
-        <div className="p-3">
-          <p className="font-medium text-zinc-200 truncate text-sm group-hover:text-emerald-400 transition-colors">
-            {album.name}
-          </p>
-          <p className="text-xs text-zinc-500 mt-0.5">{album.total_tracks || "?"} tracks</p>
-        </div>
+  const inner = (
+    <div className="relative rounded-lg overflow-hidden bg-zinc-900/50 border border-zinc-800/50 hover:border-zinc-700/50 transition-all">
+      <div className="relative aspect-square">
+        <CoverArt
+          src={album.cover_url}
+          alt={album.name}
+          size="2xl"
+          fallbackIcon="album"
+          className="!rounded-none w-full h-full group-hover:scale-105 transition-transform duration-300"
+        />
+        {album.year && (
+          <div className="absolute top-2 right-2 px-2 py-0.5 rounded bg-black/70 backdrop-blur-sm text-[10px] font-mono text-zinc-300">
+            {album.year}
+          </div>
+        )}
+        {album.album_type && album.album_type !== "album" && (
+          <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-emerald-500/90 text-[10px] font-semibold text-black capitalize">
+            {album.album_type}
+          </div>
+        )}
       </div>
-    </Link>
+      <div className="p-3">
+        <p className="font-medium text-zinc-200 truncate text-sm group-hover:text-emerald-400 transition-colors">
+          {album.name}
+        </p>
+        <p className="text-xs text-zinc-500 mt-0.5">{album.total_tracks || "?"} tracks</p>
+      </div>
+    </div>
   );
+  if (!album.id) {
+    return <div className="group block opacity-60 cursor-default">{inner}</div>;
+  }
+  return <Link to="/album/$id" params={{ id: album.id }} className="group block">{inner}</Link>;
 }
 
 // Paginated track list

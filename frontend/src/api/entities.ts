@@ -284,10 +284,10 @@ function relationTargetToSong(target: EntityApiResponse): InternalSong {
     name: target.name,
     artists: asStringArray(canonical.artists).length > 0 ? asStringArray(canonical.artists) : [asString(canonical.artist, "Unknown")],
     artist: asString(canonical.artist, "Unknown"),
-    artist_id: refs.artist_entity_id || asString(canonical.artist_id) || null,
+    artist_id: refs.artist_entity_id ?? null,
     duration: asNumber(canonical.duration, 0),
     album_name: asString(canonical.album_name) || null,
-    album_id: refs.album_entity_id || asString(canonical.album_id) || null,
+    album_id: refs.album_entity_id ?? null,
     cover_url: asString(canonical.cover_url) || null,
     isrc: asString(canonical.isrc) || null,
     year: asNullableNumber(canonical.year),
@@ -397,10 +397,10 @@ async function mapSongFromEntity(entityId: string): Promise<EnhancedSong> {
     name: entity.name,
     artists: artists.length > 0 ? artists : [primaryArtist],
     artist: primaryArtist,
-    artist_id: entity.refs?.artist_entity_id || asString(canonical.artist_id) || null,
+    artist_id: entity.refs?.artist_entity_id ?? null,
     duration: asNumber(canonical.duration, 0),
     album_name: asString(canonical.album_name) || null,
-    album_id: entity.refs?.album_entity_id || asString(canonical.album_id) || null,
+    album_id: entity.refs?.album_entity_id ?? null,
     cover_url: asString(canonical.cover_url) || null,
     isrc: asString(canonical.isrc) || null,
     year: asNullableNumber(canonical.year),
@@ -462,7 +462,7 @@ export async function getAlbumById(id: string): Promise<EnhancedAlbum> {
     id: entity.id,
     name: entity.name,
     artist_name: asString(canonical.artist, "Unknown Artist"),
-    artist_id: entity.refs?.artist_entity_id || asString(canonical.artist_id) || null,
+    artist_id: entity.refs?.artist_entity_id ?? null,
     cover_url: asString(canonical.cover_url) || null,
     year: asNullableNumber(canonical.year),
     total_tracks: songs.length > 0 ? songs.length : asNumber(canonical.track_count, 0),
@@ -496,13 +496,13 @@ export async function getArtistById(id: string): Promise<EnhancedArtist> {
     })
     .map(relationTargetToSong);
 
-  const albumMap = new Map<string, { id: string; name: string; cover_url: string | null; year: number | null; total_tracks: number; album_type: "album" | "single" | "ep" | "compilation" | null }>();
+  const albumMap = new Map<string, { id: string | null; name: string; cover_url: string | null; year: number | null; total_tracks: number; album_type: "album" | "single" | "ep" | "compilation" | null }>();
   for (const song of songs) {
-    const key = song.album_id || song.album_name || `${song.artist}-${song.name}`;
+    const key = song.album_id ?? song.album_name ?? `${song.artist}-${song.name}`;
     const existing = albumMap.get(key);
     if (!existing) {
       albumMap.set(key, {
-        id: song.album_id || key,
+        id: song.album_id ?? null,
         name: song.album_name || "Unknown Album",
         cover_url: song.cover_url || null,
         year: song.year ?? null,

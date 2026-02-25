@@ -334,15 +334,19 @@ function SongPage() {
               <span className="px-3 py-1.5 rounded-full bg-bg-panel border border-zinc-800 text-zinc-300 font-mono">
                 {formatDuration(song.duration)}
               </span>
-              {song.album_name && (
+              {song.album_name && song.album_id ? (
                 <Link
                   to="/album/$id"
-                  params={{ id: song.album_id || "" }}
+                  params={{ id: song.album_id }}
                   className="px-3 py-1.5 rounded-full bg-bg-panel border border-zinc-800 text-zinc-300 hover:border-accent-needle/50 hover:text-accent-needle transition-colors"
                 >
                   {displayMetadata?.album_name || song.album_name}
                 </Link>
-              )}
+              ) : song.album_name ? (
+                <span className="px-3 py-1.5 rounded-full bg-bg-panel border border-zinc-800 text-zinc-400">
+                  {displayMetadata?.album_name || song.album_name}
+                </span>
+              ) : null}
               {displayMetadata?.release_date ? (
                 <span className="px-3 py-1.5 rounded-full bg-bg-panel border border-zinc-800 text-zinc-400">
                   {displayMetadata.release_date}

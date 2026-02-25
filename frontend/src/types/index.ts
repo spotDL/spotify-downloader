@@ -185,7 +185,7 @@ export interface EnhancedSong extends InternalSong {
 }
 
 export interface AlbumSummary {
-  id: string;
+  id: string | null;
   name: string;
   cover_url: string | null;
   year: number | null;
