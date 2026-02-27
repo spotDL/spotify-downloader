@@ -34,8 +34,7 @@ _LEGACY_TABLES = [
 def _col_exists(bind: sa.engine.Connection, table: str, column: str) -> bool:
     row = bind.execute(
         sa.text(
-            "SELECT 1 FROM information_schema.columns"
-            " WHERE table_name = :t AND column_name = :c"
+            "SELECT 1 FROM information_schema.columns WHERE table_name = :t AND column_name = :c"
         ).bindparams(t=table, c=column)
     ).fetchone()
     return row is not None
@@ -46,7 +45,6 @@ def _pg_constraint_exists(bind: sa.engine.Connection, name: str) -> bool:
         sa.text("SELECT 1 FROM pg_constraint WHERE conname = :n").bindparams(n=name)
     ).fetchone()
     return row is not None
-
 
 
 def _upgrade_postgresql(bind: sa.engine.Connection) -> None:

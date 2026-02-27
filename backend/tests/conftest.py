@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import os
-from pathlib import Path
 import uuid
-from typing import Any, AsyncGenerator
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 import pytest
 import pytest_asyncio
@@ -13,6 +13,9 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from spotdl.core.security import create_access_token
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
 from spotdl.core.types.result import Result, TargetPlatform
 from spotdl.core.types.song import Platform, Song
 from spotdl.db.database import get_db_session
@@ -36,9 +39,7 @@ def _scrub_response_headers(response: dict) -> dict:
     headers_to_remove = ["set-cookie", "x-request-id"]
     if "headers" in response:
         response["headers"] = {
-            k: v
-            for k, v in response["headers"].items()
-            if k.lower() not in headers_to_remove
+            k: v for k, v in response["headers"].items() if k.lower() not in headers_to_remove
         }
     return response
 
@@ -75,6 +76,7 @@ def vcr_config():
 def event_loop_policy():
     """Use the default event loop policy."""
     import asyncio
+
     return asyncio.DefaultEventLoopPolicy()
 
 
@@ -99,7 +101,7 @@ async def test_engine():
 
 
 @pytest_asyncio.fixture(scope="function")
-async def db_session(test_engine) -> AsyncGenerator[AsyncSession, None]:
+async def db_session(test_engine) -> AsyncGenerator[AsyncSession]:
     """Create a test database session."""
     session_factory = async_sessionmaker(
         test_engine,
@@ -115,7 +117,7 @@ async def db_session(test_engine) -> AsyncGenerator[AsyncSession, None]:
 
 
 @pytest_asyncio.fixture(scope="function")
-async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
+async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient]:
     """Create an async test client with database session override."""
 
     async def override_get_db_session():
@@ -156,7 +158,7 @@ async def auth_token(test_user: User) -> str:
 @pytest_asyncio.fixture
 async def authenticated_client(
     db_session: AsyncSession, auth_token: str
-) -> AsyncGenerator[AsyncClient, None]:
+) -> AsyncGenerator[AsyncClient]:
     """Create an authenticated async test client."""
 
     async def override_get_db_session():
@@ -220,7 +222,9 @@ async def test_target_entity(db_session: AsyncSession) -> Entity:
 
 @pytest_asyncio.fixture
 async def test_match(
-    db_session: AsyncSession, test_source_entity: Entity, test_target_entity: Entity,
+    db_session: AsyncSession,
+    test_source_entity: Entity,
+    test_target_entity: Entity,
 ) -> EntityRelation:
     """Create a test match (entity relation)."""
     relation = EntityRelation(

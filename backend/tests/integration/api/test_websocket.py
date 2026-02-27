@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-import asyncio
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from starlette.testclient import TestClient
-from starlette.websockets import WebSocketDisconnect
 
 from spotdl.api.v1.websocket import ConnectionManager, manager
 from spotdl.core.services.download import (
@@ -212,129 +210,131 @@ class TestConnectionManager:
 class TestWebSocketEndpoint:
     """Test WebSocket endpoint."""
 
-    def test_websocket_connection_establishment(
-        self, mock_download_manager: MagicMock
-    ):
+    def test_websocket_connection_establishment(self, mock_download_manager: MagicMock):
         """Test basic WebSocket connection establishment."""
-        with patch(
-            "spotdl.api.v1.websocket.get_download_service",
-            return_value=mock_download_manager,
+        with (
+            patch(
+                "spotdl.api.v1.websocket.get_download_service",
+                return_value=mock_download_manager,
+            ),
+            TestClient(app) as client,
+            client.websocket_connect("/api/v1/ws/test-client-1") as ws,
         ):
-            with TestClient(app) as client:
-                with client.websocket_connect("/api/v1/ws/test-client-1") as ws:
-                    # Connection should be established
-                    assert ws is not None
+            # Connection should be established
+            assert ws is not None
 
-                    # Send ping and expect pong
-                    ws.send_json({"type": "ping"})
-                    response = ws.receive_json()
-                    assert response["type"] == "pong"
+            # Send ping and expect pong
+            ws.send_json({"type": "ping"})
+            response = ws.receive_json()
+            assert response["type"] == "pong"
 
     def test_websocket_with_unique_client_id(self, mock_download_manager: MagicMock):
         """Test WebSocket connection with unique client ID."""
-        with patch(
-            "spotdl.api.v1.websocket.get_download_service",
-            return_value=mock_download_manager,
+        with (
+            patch(
+                "spotdl.api.v1.websocket.get_download_service",
+                return_value=mock_download_manager,
+            ),
+            TestClient(app) as client,
+            client.websocket_connect("/api/v1/ws/unique-client-123") as ws,
         ):
-            with TestClient(app) as client:
-                with client.websocket_connect("/api/v1/ws/unique-client-123") as ws:
-                    ws.send_json({"type": "ping"})
-                    response = ws.receive_json()
-                    assert response["type"] == "pong"
+            ws.send_json({"type": "ping"})
+            response = ws.receive_json()
+            assert response["type"] == "pong"
 
     def test_watch_download(self, mock_download_manager: MagicMock, sample_progress):
         """Test watching a download."""
         mock_download_manager.get_progress.return_value = sample_progress
 
-        with patch(
-            "spotdl.api.v1.websocket.get_download_service",
-            return_value=mock_download_manager,
+        with (
+            patch(
+                "spotdl.api.v1.websocket.get_download_service",
+                return_value=mock_download_manager,
+            ),
+            TestClient(app) as client,
+            client.websocket_connect("/api/v1/ws/test-client") as ws,
         ):
-            with TestClient(app) as client:
-                with client.websocket_connect("/api/v1/ws/test-client") as ws:
-                    # Watch a download
-                    ws.send_json(
-                        {"type": "watch_download", "download_id": "test-download-123"}
-                    )
+            # Watch a download
+            ws.send_json({"type": "watch_download", "download_id": "test-download-123"})
 
-                    # Should receive current progress
-                    response = ws.receive_json()
-                    assert response["type"] == "download_progress"
-                    assert response["data"]["download_id"] == "test-download-123"
-                    assert response["data"]["status"] == "downloading"
-                    assert response["data"]["progress"] == 50.0
+            # Should receive current progress
+            response = ws.receive_json()
+            assert response["type"] == "download_progress"
+            assert response["data"]["download_id"] == "test-download-123"
+            assert response["data"]["status"] == "downloading"
+            assert response["data"]["progress"] == 50.0
 
-                    # Verify callback was registered
-                    mock_download_manager.register_callback.assert_called_once()
+            # Verify callback was registered
+            mock_download_manager.register_callback.assert_called_once()
 
     def test_watch_download_nonexistent(self, mock_download_manager: MagicMock):
         """Test watching a download that doesn't exist."""
         mock_download_manager.get_progress.return_value = None
 
-        with patch(
-            "spotdl.api.v1.websocket.get_download_service",
-            return_value=mock_download_manager,
+        with (
+            patch(
+                "spotdl.api.v1.websocket.get_download_service",
+                return_value=mock_download_manager,
+            ),
+            TestClient(app) as client,
+            client.websocket_connect("/api/v1/ws/test-client") as ws,
         ):
-            with TestClient(app) as client:
-                with client.websocket_connect("/api/v1/ws/test-client") as ws:
-                    # Watch a non-existent download
-                    ws.send_json(
-                        {"type": "watch_download", "download_id": "nonexistent"}
-                    )
+            # Watch a non-existent download
+            ws.send_json({"type": "watch_download", "download_id": "nonexistent"})
 
-                    # Send ping to ensure connection is still alive
-                    ws.send_json({"type": "ping"})
-                    response = ws.receive_json()
-                    assert response["type"] == "pong"
+            # Send ping to ensure connection is still alive
+            ws.send_json({"type": "ping"})
+            response = ws.receive_json()
+            assert response["type"] == "pong"
 
-                    # Callback should still be registered even if progress doesn't exist
-                    # The TestClient runs the async code synchronously, so we need to verify
-                    # Note: In sync test client, async tasks may not complete immediately
-                    # So we just verify the connection works and no error occurs
+            # Callback should still be registered even if progress doesn't exist
+            # The TestClient runs the async code synchronously, so we need to verify
+            # Note: In sync test client, async tasks may not complete immediately
+            # So we just verify the connection works and no error occurs
 
     def test_watch_download_without_id(self, mock_download_manager: MagicMock):
         """Test watch_download message without download_id."""
-        with patch(
-            "spotdl.api.v1.websocket.get_download_service",
-            return_value=mock_download_manager,
+        with (
+            patch(
+                "spotdl.api.v1.websocket.get_download_service",
+                return_value=mock_download_manager,
+            ),
+            TestClient(app) as client,
+            client.websocket_connect("/api/v1/ws/test-client") as ws,
         ):
-            with TestClient(app) as client:
-                with client.websocket_connect("/api/v1/ws/test-client") as ws:
-                    # Send watch_download without download_id
-                    ws.send_json({"type": "watch_download"})
+            # Send watch_download without download_id
+            ws.send_json({"type": "watch_download"})
 
-                    # Send ping to keep connection alive
-                    ws.send_json({"type": "ping"})
-                    response = ws.receive_json()
-                    assert response["type"] == "pong"
+            # Send ping to keep connection alive
+            ws.send_json({"type": "ping"})
+            response = ws.receive_json()
+            assert response["type"] == "pong"
 
-                    # Should not register callback
-                    mock_download_manager.register_callback.assert_not_called()
+            # Should not register callback
+            mock_download_manager.register_callback.assert_not_called()
 
     def test_unwatch_download(self, mock_download_manager: MagicMock, sample_progress):
         """Test unwatching a download."""
         mock_download_manager.get_progress.return_value = sample_progress
 
-        with patch(
-            "spotdl.api.v1.websocket.get_download_service",
-            return_value=mock_download_manager,
+        with (
+            patch(
+                "spotdl.api.v1.websocket.get_download_service",
+                return_value=mock_download_manager,
+            ),
+            TestClient(app) as client,
+            client.websocket_connect("/api/v1/ws/test-client") as ws,
         ):
-            with TestClient(app) as client:
-                with client.websocket_connect("/api/v1/ws/test-client") as ws:
-                    # First watch a download
-                    ws.send_json(
-                        {"type": "watch_download", "download_id": "test-download-123"}
-                    )
-                    ws.receive_json()  # Consume the progress message
+            # First watch a download
+            ws.send_json({"type": "watch_download", "download_id": "test-download-123"})
+            ws.receive_json()  # Consume the progress message
 
-                    # Now unwatch it
-                    ws.send_json(
-                        {"type": "unwatch_download", "download_id": "test-download-123"}
-                    )
+            # Now unwatch it
+            ws.send_json({"type": "unwatch_download", "download_id": "test-download-123"})
 
-                    # No response expected for unwatch
-                    # Verify the download is no longer watched
-                    mock_download_manager.register_callback.assert_called_once()
+            # No response expected for unwatch
+            # Verify the download is no longer watched
+            mock_download_manager.register_callback.assert_called_once()
 
     def test_list_downloads(
         self, mock_download_manager: MagicMock, sample_progress, sample_progress_failed
@@ -345,99 +345,111 @@ class TestWebSocketEndpoint:
             sample_progress_failed,
         ]
 
-        with patch(
-            "spotdl.api.v1.websocket.get_download_service",
-            return_value=mock_download_manager,
+        with (
+            patch(
+                "spotdl.api.v1.websocket.get_download_service",
+                return_value=mock_download_manager,
+            ),
+            TestClient(app) as client,
+            client.websocket_connect("/api/v1/ws/test-client") as ws,
         ):
-            with TestClient(app) as client:
-                with client.websocket_connect("/api/v1/ws/test-client") as ws:
-                    # Request download list
-                    ws.send_json({"type": "list_downloads"})
+            # Request download list
+            ws.send_json({"type": "list_downloads"})
 
-                    # Should receive list of downloads
-                    response = ws.receive_json()
-                    assert response["type"] == "download_list"
-                    assert len(response["data"]) == 2
-                    assert response["data"][0]["download_id"] == "test-download-123"
-                    assert response["data"][1]["download_id"] == "test-download-456"
+            # Should receive list of downloads
+            response = ws.receive_json()
+            assert response["type"] == "download_list"
+            assert len(response["data"]) == 2
+            assert response["data"][0]["download_id"] == "test-download-123"
+            assert response["data"][1]["download_id"] == "test-download-456"
 
     def test_list_downloads_empty(self, mock_download_manager: MagicMock):
         """Test listing downloads when there are none."""
         mock_download_manager.get_all_downloads.return_value = []
 
-        with patch(
-            "spotdl.api.v1.websocket.get_download_service",
-            return_value=mock_download_manager,
+        with (
+            patch(
+                "spotdl.api.v1.websocket.get_download_service",
+                return_value=mock_download_manager,
+            ),
+            TestClient(app) as client,
+            client.websocket_connect("/api/v1/ws/test-client") as ws,
         ):
-            with TestClient(app) as client:
-                with client.websocket_connect("/api/v1/ws/test-client") as ws:
-                    ws.send_json({"type": "list_downloads"})
-                    response = ws.receive_json()
-                    assert response["type"] == "download_list"
-                    assert response["data"] == []
+            ws.send_json({"type": "list_downloads"})
+            response = ws.receive_json()
+            assert response["type"] == "download_list"
+            assert response["data"] == []
 
     def test_ping_pong(self, mock_download_manager: MagicMock):
         """Test ping-pong keep-alive mechanism."""
-        with patch(
-            "spotdl.api.v1.websocket.get_download_service",
-            return_value=mock_download_manager,
+        with (
+            patch(
+                "spotdl.api.v1.websocket.get_download_service",
+                return_value=mock_download_manager,
+            ),
+            TestClient(app) as client,
+            client.websocket_connect("/api/v1/ws/test-client") as ws,
         ):
-            with TestClient(app) as client:
-                with client.websocket_connect("/api/v1/ws/test-client") as ws:
-                    # Send multiple pings
-                    for _ in range(3):
-                        ws.send_json({"type": "ping"})
-                        response = ws.receive_json()
-                        assert response["type"] == "pong"
+            # Send multiple pings
+            for _ in range(3):
+                ws.send_json({"type": "ping"})
+                response = ws.receive_json()
+                assert response["type"] == "pong"
 
     def test_unknown_message_type(self, mock_download_manager: MagicMock):
         """Test handling unknown message type."""
-        with patch(
-            "spotdl.api.v1.websocket.get_download_service",
-            return_value=mock_download_manager,
+        with (
+            patch(
+                "spotdl.api.v1.websocket.get_download_service",
+                return_value=mock_download_manager,
+            ),
+            TestClient(app) as client,
+            client.websocket_connect("/api/v1/ws/test-client") as ws,
         ):
-            with TestClient(app) as client:
-                with client.websocket_connect("/api/v1/ws/test-client") as ws:
-                    # Send unknown message type
-                    ws.send_json({"type": "unknown_type"})
+            # Send unknown message type
+            ws.send_json({"type": "unknown_type"})
 
-                    # Should not crash, but no response expected
-                    # Send a ping to verify connection is still alive
-                    ws.send_json({"type": "ping"})
-                    response = ws.receive_json()
-                    assert response["type"] == "pong"
+            # Should not crash, but no response expected
+            # Send a ping to verify connection is still alive
+            ws.send_json({"type": "ping"})
+            response = ws.receive_json()
+            assert response["type"] == "pong"
 
     def test_connection_closure(self, mock_download_manager: MagicMock):
         """Test WebSocket connection closure."""
-        with patch(
-            "spotdl.api.v1.websocket.get_download_service",
-            return_value=mock_download_manager,
+        with (
+            patch(
+                "spotdl.api.v1.websocket.get_download_service",
+                return_value=mock_download_manager,
+            ),
+            TestClient(app) as client,
         ):
-            with TestClient(app) as client:
-                with client.websocket_connect("/api/v1/ws/test-client") as ws:
-                    ws.send_json({"type": "ping"})
-                    ws.receive_json()
+            with client.websocket_connect("/api/v1/ws/test-client") as ws:
+                ws.send_json({"type": "ping"})
+                ws.receive_json()
 
-                # Connection closed automatically by context manager
-                # Verify client is removed from manager
-                assert "test-client" not in manager.active_connections
+            # Connection closed automatically by context manager
+            # Verify client is removed from manager
+            assert "test-client" not in manager.active_connections
 
     def test_message_without_type_field(self, mock_download_manager: MagicMock):
         """Test handling of messages without type field."""
-        with patch(
-            "spotdl.api.v1.websocket.get_download_service",
-            return_value=mock_download_manager,
+        with (
+            patch(
+                "spotdl.api.v1.websocket.get_download_service",
+                return_value=mock_download_manager,
+            ),
+            TestClient(app) as client,
+            client.websocket_connect("/api/v1/ws/test-client") as ws,
         ):
-            with TestClient(app) as client:
-                with client.websocket_connect("/api/v1/ws/test-client") as ws:
-                    # Send message without type field
-                    ws.send_json({"data": "some data"})
+            # Send message without type field
+            ws.send_json({"data": "some data"})
 
-                    # Should not crash
-                    # Verify connection is still alive with ping
-                    ws.send_json({"type": "ping"})
-                    response = ws.receive_json()
-                    assert response["type"] == "pong"
+            # Should not crash
+            # Verify connection is still alive with ping
+            ws.send_json({"type": "ping"})
+            response = ws.receive_json()
+            assert response["type"] == "pong"
 
     def test_completed_download_notification(
         self, mock_download_manager: MagicMock, sample_progress_completed
@@ -445,21 +457,21 @@ class TestWebSocketEndpoint:
         """Test receiving notification for completed download."""
         mock_download_manager.get_progress.return_value = sample_progress_completed
 
-        with patch(
-            "spotdl.api.v1.websocket.get_download_service",
-            return_value=mock_download_manager,
+        with (
+            patch(
+                "spotdl.api.v1.websocket.get_download_service",
+                return_value=mock_download_manager,
+            ),
+            TestClient(app) as client,
+            client.websocket_connect("/api/v1/ws/test-client") as ws,
         ):
-            with TestClient(app) as client:
-                with client.websocket_connect("/api/v1/ws/test-client") as ws:
-                    ws.send_json(
-                        {"type": "watch_download", "download_id": "test-download-123"}
-                    )
+            ws.send_json({"type": "watch_download", "download_id": "test-download-123"})
 
-                    response = ws.receive_json()
-                    assert response["type"] == "download_progress"
-                    assert response["data"]["status"] == "completed"
-                    assert response["data"]["progress"] == 100.0
-                    assert response["data"]["completed_at"] is not None
+            response = ws.receive_json()
+            assert response["type"] == "download_progress"
+            assert response["data"]["status"] == "completed"
+            assert response["data"]["progress"] == 100.0
+            assert response["data"]["completed_at"] is not None
 
     def test_failed_download_notification(
         self, mock_download_manager: MagicMock, sample_progress_failed
@@ -467,46 +479,42 @@ class TestWebSocketEndpoint:
         """Test receiving notification for failed download."""
         mock_download_manager.get_progress.return_value = sample_progress_failed
 
-        with patch(
-            "spotdl.api.v1.websocket.get_download_service",
-            return_value=mock_download_manager,
+        with (
+            patch(
+                "spotdl.api.v1.websocket.get_download_service",
+                return_value=mock_download_manager,
+            ),
+            TestClient(app) as client,
+            client.websocket_connect("/api/v1/ws/test-client") as ws,
         ):
-            with TestClient(app) as client:
-                with client.websocket_connect("/api/v1/ws/test-client") as ws:
-                    ws.send_json(
-                        {"type": "watch_download", "download_id": "test-download-456"}
-                    )
+            ws.send_json({"type": "watch_download", "download_id": "test-download-456"})
 
-                    response = ws.receive_json()
-                    assert response["type"] == "download_progress"
-                    assert response["data"]["status"] == "failed"
-                    assert response["data"]["error"] == "Failed to download audio"
-                    assert response["data"]["progress"] == 25.0
+            response = ws.receive_json()
+            assert response["type"] == "download_progress"
+            assert response["data"]["status"] == "failed"
+            assert response["data"]["error"] == "Failed to download audio"
+            assert response["data"]["progress"] == 25.0
 
-    def test_watch_same_download_twice(
-        self, mock_download_manager: MagicMock, sample_progress
-    ):
+    def test_watch_same_download_twice(self, mock_download_manager: MagicMock, sample_progress):
         """Test watching the same download twice doesn't register callback twice."""
         mock_download_manager.get_progress.return_value = sample_progress
 
-        with patch(
-            "spotdl.api.v1.websocket.get_download_service",
-            return_value=mock_download_manager,
+        with (
+            patch(
+                "spotdl.api.v1.websocket.get_download_service",
+                return_value=mock_download_manager,
+            ),
+            TestClient(app) as client,
+            client.websocket_connect("/api/v1/ws/test-client") as ws,
         ):
-            with TestClient(app) as client:
-                with client.websocket_connect("/api/v1/ws/test-client") as ws:
-                    # Watch the same download twice
-                    ws.send_json(
-                        {"type": "watch_download", "download_id": "test-download-123"}
-                    )
-                    ws.receive_json()
+            # Watch the same download twice
+            ws.send_json({"type": "watch_download", "download_id": "test-download-123"})
+            ws.receive_json()
 
-                    ws.send_json(
-                        {"type": "watch_download", "download_id": "test-download-123"}
-                    )
+            ws.send_json({"type": "watch_download", "download_id": "test-download-123"})
 
-                    # Callback should only be registered once
-                    assert mock_download_manager.register_callback.call_count == 1
+            # Callback should only be registered once
+            assert mock_download_manager.register_callback.call_count == 1
 
     def test_download_progress_serialization(
         self, mock_download_manager: MagicMock, sample_progress
@@ -514,29 +522,29 @@ class TestWebSocketEndpoint:
         """Test that download progress is properly serialized."""
         mock_download_manager.get_progress.return_value = sample_progress
 
-        with patch(
-            "spotdl.api.v1.websocket.get_download_service",
-            return_value=mock_download_manager,
+        with (
+            patch(
+                "spotdl.api.v1.websocket.get_download_service",
+                return_value=mock_download_manager,
+            ),
+            TestClient(app) as client,
+            client.websocket_connect("/api/v1/ws/test-client") as ws,
         ):
-            with TestClient(app) as client:
-                with client.websocket_connect("/api/v1/ws/test-client") as ws:
-                    ws.send_json(
-                        {"type": "watch_download", "download_id": "test-download-123"}
-                    )
+            ws.send_json({"type": "watch_download", "download_id": "test-download-123"})
 
-                    response = ws.receive_json()
+            response = ws.receive_json()
 
-                    # Verify all expected fields are present
-                    data = response["data"]
-                    assert "download_id" in data
-                    assert "status" in data
-                    assert "progress" in data
-                    assert "speed" in data
-                    assert "eta" in data
-                    assert "filename" in data
-                    assert "created_at" in data
-                    assert "completed_at" in data
+            # Verify all expected fields are present
+            data = response["data"]
+            assert "download_id" in data
+            assert "status" in data
+            assert "progress" in data
+            assert "speed" in data
+            assert "eta" in data
+            assert "filename" in data
+            assert "created_at" in data
+            assert "completed_at" in data
 
-                    # Verify types
-                    assert isinstance(data["progress"], (int, float))
-                    assert isinstance(data["status"], str)
+            # Verify types
+            assert isinstance(data["progress"], (int, float))
+            assert isinstance(data["status"], str)

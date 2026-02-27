@@ -3,17 +3,19 @@
 from __future__ import annotations
 
 import uuid
-from unittest.mock import AsyncMock, MagicMock, patch
+from typing import TYPE_CHECKING
+from unittest.mock import AsyncMock, patch
 
 import httpx
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.core.providers_config import ProviderPreference
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
 from spotdl.core.services.lyrics import (
     LyricsResult,
     LyricsService,
-    LyricsServiceError,
     get_lyrics_service,
 )
 from spotdl.db.models.lyrics import Lyrics as LyricsModel
@@ -168,9 +170,7 @@ class TestGetProviders:
             assert isinstance(providers[2], MusixMatchProvider)
 
     @pytest.mark.asyncio
-    async def test_providers_empty_preferences_fallback(
-        self, db_session: AsyncSession
-    ) -> None:
+    async def test_providers_empty_preferences_fallback(self, db_session: AsyncSession) -> None:
         """Test fallback to defaults when all providers disabled."""
         empty_prefs = [
             ProviderPreference(id="synced", name="Synced", enabled=False),
@@ -367,9 +367,7 @@ class TestFetchLyrics:
             mock_provider.__aenter__ = AsyncMock(return_value=mock_provider)
             mock_provider.__aexit__ = AsyncMock()
 
-            with patch.object(
-                service, "_get_providers", return_value=[mock_provider]
-            ):
+            with patch.object(service, "_get_providers", return_value=[mock_provider]):
                 result = await service.fetch_lyrics(
                     entity_id=song_id,
                     name="Test Song",
@@ -380,9 +378,7 @@ class TestFetchLyrics:
                 assert result.lyrics_text == sample_lyrics
                 assert result.source == "testprovider"
                 assert result.from_cache is False
-                mock_provider.get_lyrics.assert_called_once_with(
-                    "Test Song", ["Test Artist"]
-                )
+                mock_provider.get_lyrics.assert_called_once_with("Test Song", ["Test Artist"])
 
     @pytest.mark.asyncio
     async def test_fetch_lyrics_no_results(
@@ -399,9 +395,7 @@ class TestFetchLyrics:
             mock_provider.__aenter__ = AsyncMock(return_value=mock_provider)
             mock_provider.__aexit__ = AsyncMock()
 
-            with patch.object(
-                service, "_get_providers", return_value=[mock_provider]
-            ):
+            with patch.object(service, "_get_providers", return_value=[mock_provider]):
                 result = await service.fetch_lyrics(
                     entity_id=song_id,
                     name="Test Song",
@@ -425,9 +419,7 @@ class TestFetchLyrics:
             mock_provider.__aenter__ = AsyncMock(return_value=mock_provider)
             mock_provider.__aexit__ = AsyncMock()
 
-            with patch.object(
-                service, "_get_providers", return_value=[mock_provider]
-            ):
+            with patch.object(service, "_get_providers", return_value=[mock_provider]):
                 result = await service.fetch_lyrics(
                     entity_id=song_id,
                     name="Test Song",
@@ -452,9 +444,7 @@ class TestFetchLyrics:
             mock_provider.__aenter__ = AsyncMock(return_value=mock_provider)
             mock_provider.__aexit__ = AsyncMock()
 
-            with patch.object(
-                service, "_get_providers", return_value=[mock_provider]
-            ):
+            with patch.object(service, "_get_providers", return_value=[mock_provider]):
                 result = await service.fetch_lyrics(
                     entity_id=song_id,
                     name="Test Song",
@@ -537,9 +527,7 @@ class TestProviderFallback:
             mock_plain.__aenter__ = AsyncMock(return_value=mock_plain)
             mock_plain.__aexit__ = AsyncMock()
 
-            with patch.object(
-                service, "_get_providers", return_value=[mock_synced, mock_plain]
-            ):
+            with patch.object(service, "_get_providers", return_value=[mock_synced, mock_plain]):
                 result = await service.fetch_lyrics(
                     entity_id=song_id,
                     name="Test Song",
@@ -570,9 +558,7 @@ class TestLRCFormatHandling:
         assert service._is_lrc_format(plain_text) is False
 
     @pytest.mark.asyncio
-    async def test_lrc_to_plain(
-        self, db_session: AsyncSession, sample_synced_lyrics: str
-    ) -> None:
+    async def test_lrc_to_plain(self, db_session: AsyncSession, sample_synced_lyrics: str) -> None:
         """Test converting LRC to plain text."""
         service = LyricsService(session=db_session)
         plain = service._lrc_to_plain(sample_synced_lyrics)
@@ -775,9 +761,7 @@ class TestFetchAllLyrics:
             mock_provider.__aenter__ = AsyncMock(return_value=mock_provider)
             mock_provider.__aexit__ = AsyncMock()
 
-            with patch.object(
-                service, "_get_providers", return_value=[mock_provider]
-            ):
+            with patch.object(service, "_get_providers", return_value=[mock_provider]):
                 results = await service.fetch_all_lyrics(
                     entity_id=song_id,
                     name="Test Song",
@@ -819,9 +803,7 @@ class TestFetchAllLyrics:
             mock_success.__aenter__ = AsyncMock(return_value=mock_success)
             mock_success.__aexit__ = AsyncMock()
 
-            with patch.object(
-                service, "_get_providers", return_value=[mock_fail, mock_success]
-            ):
+            with patch.object(service, "_get_providers", return_value=[mock_fail, mock_success]):
                 results = await service.fetch_all_lyrics(
                     entity_id=song_id,
                     name="Test Song",
@@ -916,9 +898,7 @@ class TestQualityScore:
         assert score == 0.6  # 0.5 base + 0.1 length
 
     @pytest.mark.asyncio
-    async def test_quality_score_reliable_source_bonus(
-        self, db_session: AsyncSession
-    ) -> None:
+    async def test_quality_score_reliable_source_bonus(self, db_session: AsyncSession) -> None:
         """Test reliable source bonus."""
         service = LyricsService(session=db_session)
         score = service._calculate_quality_score(
@@ -973,9 +953,7 @@ class TestEdgeCases:
     """Tests for edge cases and error conditions."""
 
     @pytest.mark.asyncio
-    async def test_empty_lyrics_text(
-        self, db_session: AsyncSession, song_id: uuid.UUID
-    ) -> None:
+    async def test_empty_lyrics_text(self, db_session: AsyncSession, song_id: uuid.UUID) -> None:
         """Test handling empty lyrics text."""
         service = LyricsService(session=db_session)
 
@@ -986,9 +964,7 @@ class TestEdgeCases:
             mock_provider.__aenter__ = AsyncMock(return_value=mock_provider)
             mock_provider.__aexit__ = AsyncMock()
 
-            with patch.object(
-                service, "_get_providers", return_value=[mock_provider]
-            ):
+            with patch.object(service, "_get_providers", return_value=[mock_provider]):
                 result = await service.fetch_lyrics(
                     entity_id=song_id,
                     name="Test Song",
@@ -1029,9 +1005,7 @@ class TestEdgeCases:
             mock_provider.__aenter__ = AsyncMock(return_value=mock_provider)
             mock_provider.__aexit__ = AsyncMock()
 
-            with patch.object(
-                service, "_get_providers", return_value=[mock_provider]
-            ):
+            with patch.object(service, "_get_providers", return_value=[mock_provider]):
                 result = await service.fetch_lyrics(
                     entity_id=song_id,
                     name="Test Song",
@@ -1042,9 +1016,7 @@ class TestEdgeCases:
                 mock_provider.get_lyrics.assert_called_once_with("Test Song", [])
 
     @pytest.mark.asyncio
-    async def test_unicode_lyrics(
-        self, db_session: AsyncSession, song_id: uuid.UUID
-    ) -> None:
+    async def test_unicode_lyrics(self, db_session: AsyncSession, song_id: uuid.UUID) -> None:
         """Test handling lyrics with unicode characters."""
         unicode_lyrics = "Test lyrics with émojis 🎵 and spëcial çhars"
         service = LyricsService(session=db_session)
@@ -1056,9 +1028,7 @@ class TestEdgeCases:
             mock_provider.__aenter__ = AsyncMock(return_value=mock_provider)
             mock_provider.__aexit__ = AsyncMock()
 
-            with patch.object(
-                service, "_get_providers", return_value=[mock_provider]
-            ):
+            with patch.object(service, "_get_providers", return_value=[mock_provider]):
                 result = await service.fetch_lyrics(
                     entity_id=song_id,
                     name="Test Song",

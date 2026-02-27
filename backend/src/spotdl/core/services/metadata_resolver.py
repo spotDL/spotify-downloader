@@ -48,6 +48,7 @@ if TYPE_CHECKING:
         valence: float | None
         loudness: float | None
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -175,7 +176,10 @@ class MetadataResolver:
             if source in snapshots_by_source:
                 # Merge: song model data fills in gaps
                 for key, v in primary_data.items():
-                    if key not in snapshots_by_source[source] or not snapshots_by_source[source][key]:
+                    if (
+                        key not in snapshots_by_source[source]
+                        or not snapshots_by_source[source][key]
+                    ):
                         snapshots_by_source[source][key] = v
             else:
                 snapshots_by_source[source] = primary_data
@@ -278,7 +282,9 @@ class MetadataResolver:
 
         # Add from metadata_json if available
         metadata = song.metadata_json or {}
-        data["year"] = metadata.get("year") or (song.release_date.year if song.release_date else None)
+        data["year"] = metadata.get("year") or (
+            song.release_date.year if song.release_date else None
+        )
         data["release_date"] = str(song.release_date) if song.release_date else None
         data["cover_url"] = metadata.get("cover_url")
         data["track_number"] = metadata.get("track_number")

@@ -85,8 +85,10 @@ async def test_relations_discover_and_vote_lifecycle(
 ) -> None:
     relation_id: str
 
-    with patch("spotdl.core.services.entity_unified.get_song_service") as get_song_service_mock, \
-         patch("spotdl.core.services.entity_unified.get_match_service") as get_match_service_mock:
+    with (
+        patch("spotdl.core.services.entity_unified.get_song_service") as get_song_service_mock,
+        patch("spotdl.core.services.entity_unified.get_match_service") as get_match_service_mock,
+    ):
         get_song_service_mock.return_value = _mock_song_service(source_song)
 
         match_service = MagicMock()
@@ -108,7 +110,9 @@ async def test_relations_discover_and_vote_lifecycle(
         )
         assert discover_response.status_code == 200
         discovered = discover_response.json()
-        source_entity = next(entity for entity in discovered["entities"] if entity["type"] == "track")
+        source_entity = next(
+            entity for entity in discovered["entities"] if entity["type"] == "track"
+        )
 
         relations_response = await authenticated_client.post(
             f"/api/v1/entities/{source_entity['id']}/relations:discover",
@@ -141,8 +145,12 @@ async def test_relations_discover_and_vote_lifecycle(
 async def test_discover_open_graph_fallback(
     client: AsyncClient,
 ) -> None:
-    with patch("spotdl.core.services.entity_unified.get_song_service") as get_song_service_mock, \
-         patch("spotdl.core.services.entity_unified._fetch_open_graph", new_callable=AsyncMock) as fetch_og_mock:
+    with (
+        patch("spotdl.core.services.entity_unified.get_song_service") as get_song_service_mock,
+        patch(
+            "spotdl.core.services.entity_unified._fetch_open_graph", new_callable=AsyncMock
+        ) as fetch_og_mock,
+    ):
         song_service = MagicMock()
         song_service.supported_platforms = []
         song_service.search = AsyncMock(return_value=[])

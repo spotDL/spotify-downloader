@@ -6,23 +6,21 @@ import asyncio
 import tempfile
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
+from spotdl_core.download import DownloadError, DownloadMeta
 
 from spotdl.core.services.download import (
-    ALLOWED_SCHEMES,
-    COVER_URL_ALLOWLIST,
-    DownloadService,
     DownloadProgress,
     DownloadRequest,
+    DownloadService,
     DownloadSettings,
     DownloadStatus,
     create_download_id,
     get_download_service,
     is_safe_url,
 )
-from spotdl_core.download import DownloadError, DownloadMeta
 
 
 class TestIsSafeUrl:
@@ -43,20 +41,20 @@ class TestIsSafeUrl:
     def test_unsafe_url_http(self) -> None:
         """Test that HTTP URLs are allowed (they get upgraded to HTTPS)."""
         # HTTP is in ALLOWED_SCHEMES, so it returns True
-        with patch("socket.getaddrinfo") as mock_getaddrinfo:
-            mock_getaddrinfo.return_value = [
-                (None, None, None, None, ("1.2.3.4", 80))
-            ]
-            with patch("ipaddress.ip_address") as mock_ip:
-                mock_ip_instance = Mock()
-                mock_ip_instance.is_private = False
-                mock_ip_instance.is_loopback = False
-                mock_ip_instance.is_link_local = False
-                mock_ip_instance.is_reserved = False
-                mock_ip_instance.is_multicast = False
-                mock_ip_instance.__str__ = Mock(return_value="1.2.3.4")
-                mock_ip.return_value = mock_ip_instance
-                assert is_safe_url("http://i.scdn.co/image/abc123") is True
+        with (
+            patch("socket.getaddrinfo") as mock_getaddrinfo,
+            patch("ipaddress.ip_address") as mock_ip,
+        ):
+            mock_getaddrinfo.return_value = [(None, None, None, None, ("1.2.3.4", 80))]
+            mock_ip_instance = Mock()
+            mock_ip_instance.is_private = False
+            mock_ip_instance.is_loopback = False
+            mock_ip_instance.is_link_local = False
+            mock_ip_instance.is_reserved = False
+            mock_ip_instance.is_multicast = False
+            mock_ip_instance.__str__ = Mock(return_value="1.2.3.4")
+            mock_ip.return_value = mock_ip_instance
+            assert is_safe_url("http://i.scdn.co/image/abc123") is True
 
     def test_unsafe_url_ftp(self) -> None:
         """Test that FTP URLs are rejected."""
@@ -73,25 +71,19 @@ class TestIsSafeUrl:
     def test_unsafe_url_private_ip(self) -> None:
         """Test that private IP addresses are rejected."""
         with patch("socket.getaddrinfo") as mock_getaddrinfo:
-            mock_getaddrinfo.return_value = [
-                (None, None, None, None, ("192.168.1.1", 80))
-            ]
+            mock_getaddrinfo.return_value = [(None, None, None, None, ("192.168.1.1", 80))]
             assert is_safe_url("https://i.scdn.co/image/test") is False
 
     def test_unsafe_url_loopback(self) -> None:
         """Test that loopback addresses are rejected."""
         with patch("socket.getaddrinfo") as mock_getaddrinfo:
-            mock_getaddrinfo.return_value = [
-                (None, None, None, None, ("127.0.0.1", 80))
-            ]
+            mock_getaddrinfo.return_value = [(None, None, None, None, ("127.0.0.1", 80))]
             assert is_safe_url("https://i.scdn.co/image/test") is False
 
     def test_unsafe_url_metadata_service(self) -> None:
         """Test that AWS metadata service IP is rejected."""
         with patch("socket.getaddrinfo") as mock_getaddrinfo:
-            mock_getaddrinfo.return_value = [
-                (None, None, None, None, ("169.254.169.254", 80))
-            ]
+            mock_getaddrinfo.return_value = [(None, None, None, None, ("169.254.169.254", 80))]
             assert is_safe_url("https://i.scdn.co/image/test") is False
 
     def test_unsafe_url_dns_error(self) -> None:
@@ -108,20 +100,20 @@ class TestIsSafeUrl:
 
     def test_safe_url_subdomain(self) -> None:
         """Test that subdomains of whitelisted domains are accepted."""
-        with patch("socket.getaddrinfo") as mock_getaddrinfo:
-            mock_getaddrinfo.return_value = [
-                (None, None, None, None, ("1.2.3.4", 80))
-            ]
-            with patch("ipaddress.ip_address") as mock_ip:
-                mock_ip_instance = Mock()
-                mock_ip_instance.is_private = False
-                mock_ip_instance.is_loopback = False
-                mock_ip_instance.is_link_local = False
-                mock_ip_instance.is_reserved = False
-                mock_ip_instance.is_multicast = False
-                mock_ip_instance.__str__ = Mock(return_value="1.2.3.4")
-                mock_ip.return_value = mock_ip_instance
-                assert is_safe_url("https://cdn.i.scdn.co/image/test") is True
+        with (
+            patch("socket.getaddrinfo") as mock_getaddrinfo,
+            patch("ipaddress.ip_address") as mock_ip,
+        ):
+            mock_getaddrinfo.return_value = [(None, None, None, None, ("1.2.3.4", 80))]
+            mock_ip_instance = Mock()
+            mock_ip_instance.is_private = False
+            mock_ip_instance.is_loopback = False
+            mock_ip_instance.is_link_local = False
+            mock_ip_instance.is_reserved = False
+            mock_ip_instance.is_multicast = False
+            mock_ip_instance.__str__ = Mock(return_value="1.2.3.4")
+            mock_ip.return_value = mock_ip_instance
+            assert is_safe_url("https://cdn.i.scdn.co/image/test") is True
 
 
 class TestDownloadStatus:
@@ -432,9 +424,7 @@ class TestDownloadService:
         sample_request: DownloadRequest,
     ) -> None:
         """Test starting a download."""
-        with patch.object(
-            download_manager, "_download_task", new_callable=AsyncMock
-        ) as mock_task:
+        with patch.object(download_manager, "_download_task", new_callable=AsyncMock) as mock_task:
             mock_task.return_value = None
 
             download_id = await download_manager.start_download(sample_request)
@@ -454,14 +444,10 @@ class TestDownloadService:
         """Test starting download with custom settings."""
         settings = DownloadSettings(audio_format="flac", audio_quality="best")
 
-        with patch.object(
-            download_manager, "_download_task", new_callable=AsyncMock
-        ) as mock_task:
+        with patch.object(download_manager, "_download_task", new_callable=AsyncMock) as mock_task:
             mock_task.return_value = None
 
-            download_id = await download_manager.start_download(
-                sample_request, settings
-            )
+            download_id = await download_manager.start_download(sample_request, settings)
             assert download_id == "test-download-123"
 
     @pytest.mark.asyncio
@@ -471,9 +457,7 @@ class TestDownloadService:
         sample_request: DownloadRequest,
     ) -> None:
         """Test cancelling a download."""
-        with patch.object(
-            download_manager, "_download_task", new_callable=AsyncMock
-        ) as mock_task:
+        with patch.object(download_manager, "_download_task", new_callable=AsyncMock) as mock_task:
             mock_task.return_value = None
 
             download_id = await download_manager.start_download(sample_request)
@@ -491,9 +475,7 @@ class TestDownloadService:
             assert progress.status == DownloadStatus.CANCELLED
 
     @pytest.mark.asyncio
-    async def test_cancel_nonexistent_download(
-        self, download_manager: DownloadService
-    ) -> None:
+    async def test_cancel_nonexistent_download(self, download_manager: DownloadService) -> None:
         """Test cancelling nonexistent download."""
         result = await download_manager.cancel_download("nonexistent")
         assert result is False
@@ -512,9 +494,7 @@ class TestDownloadService:
         download_manager.unregister_callback("test-id", callback)
         assert callback not in download_manager._progress_callbacks["test-id"]
 
-    def test_unregister_nonexistent_callback(
-        self, download_manager: DownloadService
-    ) -> None:
+    def test_unregister_nonexistent_callback(self, download_manager: DownloadService) -> None:
         """Test unregistering nonexistent callback doesn't raise."""
         callback = Mock()
         download_manager.unregister_callback("test-id", callback)
@@ -538,9 +518,7 @@ class TestDownloadService:
         callback1.assert_called_once()
         callback2.assert_called_once()
 
-    def test_notify_progress_with_error(
-        self, download_manager: DownloadService
-    ) -> None:
+    def test_notify_progress_with_error(self, download_manager: DownloadService) -> None:
         """Test that callback errors are handled gracefully."""
         callback = Mock(side_effect=Exception("Callback error"))
 
@@ -552,9 +530,7 @@ class TestDownloadService:
         download_manager.register_callback("test-id", callback)
         download_manager._notify_progress("test-id")
 
-    def test_get_file_path_completed(
-        self, download_manager: DownloadService, tmp_path: Path
-    ) -> None:
+    def test_get_file_path_completed(self, download_manager: DownloadService) -> None:
         """Test getting file path for completed download."""
         download_id = "test-id"
         filename = "Test Artist - Test Song.mp3"
@@ -573,9 +549,7 @@ class TestDownloadService:
         result = download_manager.get_file_path(download_id)
         assert result == file_path
 
-    def test_get_file_path_not_completed(
-        self, download_manager: DownloadService
-    ) -> None:
+    def test_get_file_path_not_completed(self, download_manager: DownloadService) -> None:
         """Test getting file path for incomplete download."""
         download_id = "test-id"
 
@@ -587,9 +561,7 @@ class TestDownloadService:
         result = download_manager.get_file_path(download_id)
         assert result is None
 
-    def test_get_file_path_file_not_found(
-        self, download_manager: DownloadService
-    ) -> None:
+    def test_get_file_path_file_not_found(self, download_manager: DownloadService) -> None:
         """Test getting file path when file doesn't exist."""
         download_id = "test-id"
 
@@ -602,9 +574,7 @@ class TestDownloadService:
         result = download_manager.get_file_path(download_id)
         assert result is None
 
-    def test_get_file_path_fallback_search(
-        self, download_manager: DownloadService, tmp_path: Path
-    ) -> None:
+    def test_get_file_path_fallback_search(self, download_manager: DownloadService) -> None:
         """Test fallback file search when exact filename doesn't exist."""
         download_id = "test-id"
 
@@ -645,9 +615,11 @@ class TestDownloadService:
         mock_downloader.embed_lyrics.return_value = None
         mock_downloader.close.return_value = None
 
-        with patch("spotdl.core.services.download.Downloader", return_value=mock_downloader):
-            with patch.object(download_manager, "_fetch_lyrics", return_value=None):
-                result = await download_manager._download_task(sample_request)
+        with (
+            patch("spotdl.core.services.download.Downloader", return_value=mock_downloader),
+            patch.object(download_manager, "_fetch_lyrics", return_value=None),
+        ):
+            result = await download_manager._download_task(sample_request)
 
         assert result == output_file
         mock_downloader.download.assert_called_once()
@@ -710,10 +682,12 @@ class TestDownloadService:
         mock_downloader.embed_lyrics.return_value = None
         mock_downloader.close.return_value = None
 
-        with patch("spotdl.core.services.download.Downloader", return_value=mock_downloader):
-            with patch("spotdl.core.services.download.generate_lrc") as mock_lrc:
-                with patch.object(download_manager, "_fetch_lyrics", return_value=None):
-                    result = await download_manager._download_task(sample_request, settings)
+        with (
+            patch("spotdl.core.services.download.Downloader", return_value=mock_downloader),
+            patch("spotdl.core.services.download.generate_lrc") as mock_lrc,
+            patch.object(download_manager, "_fetch_lyrics", return_value=None),
+        ):
+            result = await download_manager._download_task(sample_request, settings)
 
         assert result == output_file
         mock_lrc.assert_called_once()
@@ -744,9 +718,11 @@ class TestDownloadService:
         mock_downloader.embed_lyrics.return_value = None
         mock_downloader.close.return_value = None
 
-        with patch("spotdl.core.services.download.Downloader", return_value=mock_downloader):
-            with patch.object(download_manager, "_fetch_lyrics", return_value=None):
-                result = await download_manager._download_task(sample_request)
+        with (
+            patch("spotdl.core.services.download.Downloader", return_value=mock_downloader),
+            patch.object(download_manager, "_fetch_lyrics", return_value=None),
+        ):
+            result = await download_manager._download_task(sample_request)
 
         assert result == output_file
 
@@ -767,9 +743,11 @@ class TestDownloadService:
         mock_downloader.download.side_effect = asyncio.CancelledError()
         mock_downloader.close.return_value = None
 
-        with patch("spotdl.core.services.download.Downloader", return_value=mock_downloader):
-            with pytest.raises(asyncio.CancelledError):
-                await download_manager._download_task(sample_request)
+        with (
+            patch("spotdl.core.services.download.Downloader", return_value=mock_downloader),
+            pytest.raises(asyncio.CancelledError),
+        ):
+            await download_manager._download_task(sample_request)
 
         mock_downloader.close.assert_called_once()
 
@@ -825,9 +803,11 @@ class TestDownloadService:
         mock_downloader.embed_lyrics.return_value = None
         mock_downloader.close.return_value = None
 
-        with patch("spotdl.core.services.download.Downloader", return_value=mock_downloader):
-            with patch.object(download_manager, "_fetch_lyrics", return_value=None):
-                result = await download_manager._download_task(sample_request)
+        with (
+            patch("spotdl.core.services.download.Downloader", return_value=mock_downloader),
+            patch.object(download_manager, "_fetch_lyrics", return_value=None),
+        ):
+            await download_manager._download_task(sample_request)
 
         progress = download_manager.get_progress(sample_request.download_id)
         assert progress.status == DownloadStatus.COMPLETED
@@ -835,30 +815,30 @@ class TestDownloadService:
         assert progress.completed_at is not None
 
     @pytest.mark.asyncio
-    async def test_fetch_lyrics_success(
-        self, download_manager: DownloadService
-    ) -> None:
+    async def test_fetch_lyrics_success(self, download_manager: DownloadService) -> None:
         """Test fetching lyrics successfully."""
         mock_provider = AsyncMock()
         mock_provider.get_lyrics.return_value = "Test lyrics content"
 
-        with patch("spotdl.providers.lyrics.genius.GeniusWebProvider", return_value=mock_provider):
-            with patch("httpx.AsyncClient"):
-                lyrics = await download_manager._fetch_lyrics("Test Song", "Test Artist")
+        with (
+            patch("spotdl.providers.lyrics.genius.GeniusWebProvider", return_value=mock_provider),
+            patch("httpx.AsyncClient"),
+        ):
+            lyrics = await download_manager._fetch_lyrics("Test Song", "Test Artist")
 
         assert lyrics == "Test lyrics content"
 
     @pytest.mark.asyncio
-    async def test_fetch_lyrics_provider_error(
-        self, download_manager: DownloadService
-    ) -> None:
+    async def test_fetch_lyrics_provider_error(self, download_manager: DownloadService) -> None:
         """Test fetching lyrics with provider error."""
         mock_provider = AsyncMock()
         mock_provider.get_lyrics.side_effect = Exception("Provider error")
 
-        with patch("spotdl.providers.lyrics.genius.GeniusWebProvider", return_value=mock_provider):
-            with patch("httpx.AsyncClient"):
-                lyrics = await download_manager._fetch_lyrics("Test Song", "Test Artist")
+        with (
+            patch("spotdl.providers.lyrics.genius.GeniusWebProvider", return_value=mock_provider),
+            patch("httpx.AsyncClient"),
+        ):
+            lyrics = await download_manager._fetch_lyrics("Test Song", "Test Artist")
 
         assert lyrics is None
 

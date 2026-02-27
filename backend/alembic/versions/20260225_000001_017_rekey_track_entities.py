@@ -69,13 +69,16 @@ def upgrade() -> None:
 
     def _slug(s: str) -> str:
         import re
+
         if not s:
             return ""
         s = s.lower().strip()
         s = re.sub(r"[^a-z0-9]+", "-", s)
         return s.strip("-")
 
-    def new_key(isrc: str | None, name: str | None, artist: str | None, duration: float | None) -> str:
+    def new_key(
+        isrc: str | None, name: str | None, artist: str | None, duration: float | None
+    ) -> str:
         isrc_slug = _slug(isrc or "")
         if isrc_slug:
             return f"track:{isrc_slug}"
@@ -99,7 +102,7 @@ def upgrade() -> None:
 
     # Pre-populate with rows whose new_key didn't change (they already own it)
     unchanged = {uid for uid, old_k, new_k in updates if old_k == new_k}
-    for uid, old_k, new_k in updates:
+    for uid, _old_k, new_k in updates:
         if uid in unchanged:
             occupied[new_k] = uid
 
@@ -120,16 +123,12 @@ def upgrade() -> None:
 
             # Re-target snapshots
             conn.execute(
-                sa.text(
-                    "UPDATE entity_snapshots SET entity_id = :s WHERE entity_id = :d"
-                ),
+                sa.text("UPDATE entity_snapshots SET entity_id = :s WHERE entity_id = :d"),
                 {"s": survivor_id, "d": uid},
             )
             # Re-target provenance
             conn.execute(
-                sa.text(
-                    "UPDATE entity_field_provenance SET entity_id = :s WHERE entity_id = :d"
-                ),
+                sa.text("UPDATE entity_field_provenance SET entity_id = :s WHERE entity_id = :d"),
                 {"s": survivor_id, "d": uid},
             )
             # Re-target outgoing relations (avoid creating duplicates)
@@ -149,9 +148,7 @@ def upgrade() -> None:
                 {"s": survivor_id, "d": uid},
             )
             conn.execute(
-                sa.text(
-                    "DELETE FROM entity_relations WHERE from_entity_id = :d"
-                ),
+                sa.text("DELETE FROM entity_relations WHERE from_entity_id = :d"),
                 {"d": uid},
             )
             # Re-target incoming relations
@@ -171,9 +168,7 @@ def upgrade() -> None:
                 {"s": survivor_id, "d": uid},
             )
             conn.execute(
-                sa.text(
-                    "DELETE FROM entity_relations WHERE to_entity_id = :d"
-                ),
+                sa.text("DELETE FROM entity_relations WHERE to_entity_id = :d"),
                 {"d": uid},
             )
             # Delete the duplicate entity (cascade handles leftover snapshots/provenance)

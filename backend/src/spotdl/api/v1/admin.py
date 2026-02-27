@@ -5,13 +5,12 @@ from __future__ import annotations
 import logging
 import time
 from datetime import UTC, datetime, timedelta
-from typing import Annotated, Any
+from typing import TYPE_CHECKING, Annotated, Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
 from sqlalchemy import delete, func, or_, select
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from spotdl.api.v1.auth import get_current_user
@@ -26,6 +25,9 @@ from spotdl.db.models.entity_unified import (
 from spotdl.db.models.lyrics import Lyrics
 from spotdl.db.models.metadata_report import MetadataReport
 from spotdl.db.models.user import User
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
 
@@ -227,32 +229,31 @@ async def require_admin(
 
 
 async def _get_user_contribution_counts(
-    db: AsyncSession, user_id: UUID,
+    db: AsyncSession,
+    user_id: UUID,
 ) -> tuple[int, int, int]:
     """Get matches_submitted, votes_cast, reports_submitted for a user."""
     # Relations where discovered_by matches the user's username
     # We use the user_id in relation_votes for votes_cast
     matches_submitted = (
         await db.execute(
-            select(func.count()).select_from(EntityRelation).where(
-                EntityRelation.discovered_by == str(user_id)
-            )
+            select(func.count())
+            .select_from(EntityRelation)
+            .where(EntityRelation.discovered_by == str(user_id))
         )
     ).scalar() or 0
 
     votes_cast = (
         await db.execute(
-            select(func.count()).select_from(RelationVote).where(
-                RelationVote.user_id == user_id
-            )
+            select(func.count()).select_from(RelationVote).where(RelationVote.user_id == user_id)
         )
     ).scalar() or 0
 
     reports_submitted = (
         await db.execute(
-            select(func.count()).select_from(MetadataReport).where(
-                MetadataReport.reporter_id == user_id
-            )
+            select(func.count())
+            .select_from(MetadataReport)
+            .where(MetadataReport.reporter_id == user_id)
         )
     ).scalar() or 0
 
@@ -260,11 +261,12 @@ async def _get_user_contribution_counts(
 
 
 async def _build_admin_user_response(
-    db: AsyncSession, user: User,
+    db: AsyncSession,
+    user: User,
 ) -> AdminUserResponse:
     """Build AdminUserResponse with contribution counts."""
-    matches_submitted, votes_cast, reports_submitted = (
-        await _get_user_contribution_counts(db, user.id)
+    matches_submitted, votes_cast, reports_submitted = await _get_user_contribution_counts(
+        db, user.id
     )
     return AdminUserResponse(
         id=str(user.id),
@@ -469,11 +471,21 @@ async def get_system_stats(
     week_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     week_start = week_start - timedelta(days=week_start.weekday())
 
-    songs_count = (await db.execute(select(func.count()).where(Entity.entity_type == 'track'))).scalar() or 0
-    artists_count = (await db.execute(select(func.count()).where(Entity.entity_type == 'artist'))).scalar() or 0
-    albums_count = (await db.execute(select(func.count()).where(Entity.entity_type == 'album'))).scalar() or 0
-    playlists_count = (await db.execute(select(func.count()).where(Entity.entity_type == 'playlist'))).scalar() or 0
-    relations_count = (await db.execute(select(func.count()).select_from(EntityRelation))).scalar() or 0
+    songs_count = (
+        await db.execute(select(func.count()).where(Entity.entity_type == "track"))
+    ).scalar() or 0
+    artists_count = (
+        await db.execute(select(func.count()).where(Entity.entity_type == "artist"))
+    ).scalar() or 0
+    albums_count = (
+        await db.execute(select(func.count()).where(Entity.entity_type == "album"))
+    ).scalar() or 0
+    playlists_count = (
+        await db.execute(select(func.count()).where(Entity.entity_type == "playlist"))
+    ).scalar() or 0
+    relations_count = (
+        await db.execute(select(func.count()).select_from(EntityRelation))
+    ).scalar() or 0
     users_count = (await db.execute(select(func.count()).select_from(User))).scalar() or 0
 
     entities_today = (
@@ -572,10 +584,7 @@ async def list_matches(
     result = await db.execute(query)
     relations = result.scalars().all()
 
-    matches = [
-        _relation_to_admin_match(r, r.from_entity, r.to_entity)
-        for r in relations
-    ]
+    matches = [_relation_to_admin_match(r, r.from_entity, r.to_entity) for r in relations]
 
     return AdminMatchListResponse(
         matches=matches,
@@ -639,15 +648,11 @@ async def purge_unverified_matches(
 ) -> dict[str, Any]:
     """Purge unverified (suggested/rejected) entity relations."""
     pending_count = (
-        await db.execute(
-            select(func.count()).where(EntityRelation.status == "suggested")
-        )
+        await db.execute(select(func.count()).where(EntityRelation.status == "suggested"))
     ).scalar() or 0
 
     rejected_count = (
-        await db.execute(
-            select(func.count()).where(EntityRelation.status == "rejected")
-        )
+        await db.execute(select(func.count()).where(EntityRelation.status == "rejected"))
     ).scalar() or 0
 
     total = pending_count + rejected_count
@@ -661,9 +666,7 @@ async def purge_unverified_matches(
         }
 
     await db.execute(
-        delete(EntityRelation).where(
-            EntityRelation.status.in_(["suggested", "rejected"])
-        )
+        delete(EntityRelation).where(EntityRelation.status.in_(["suggested", "rejected"]))
     )
     await db.commit()
 
@@ -683,7 +686,9 @@ async def reset_database(
 ) -> dict[str, Any]:
     """Reset all entity data. Users are preserved. Pass confirm=RESET to execute."""
     entities_count = (await db.execute(select(func.count()).select_from(Entity))).scalar() or 0
-    relations_count = (await db.execute(select(func.count()).select_from(EntityRelation))).scalar() or 0
+    relations_count = (
+        await db.execute(select(func.count()).select_from(EntityRelation))
+    ).scalar() or 0
     users_count = (await db.execute(select(func.count()).select_from(User))).scalar() or 0
 
     if confirm != "RESET":
@@ -857,10 +862,7 @@ async def export_matches(
     result = await db.execute(query)
     relations = result.scalars().all()
 
-    matches = [
-        _relation_to_admin_match(r, r.from_entity, r.to_entity)
-        for r in relations
-    ]
+    matches = [_relation_to_admin_match(r, r.from_entity, r.to_entity) for r in relations]
 
     return MatchExportResponse(
         exported_at=datetime.now(UTC).isoformat(),
@@ -881,8 +883,8 @@ async def export_users(
 
     user_items = []
     for user in users:
-        matches_submitted, votes_cast, reports_submitted = (
-            await _get_user_contribution_counts(db, user.id)
+        matches_submitted, votes_cast, reports_submitted = await _get_user_contribution_counts(
+            db, user.id
         )
         user_items.append(
             UserExportItem(
@@ -917,9 +919,7 @@ async def export_statistics(
     status_counts: dict[str, int] = {}
     for status_val in ["suggested", "verified", "rejected"]:
         count = (
-            await db.execute(
-                select(func.count()).where(EntityRelation.status == status_val)
-            )
+            await db.execute(select(func.count()).where(EntityRelation.status == status_val))
         ).scalar() or 0
         # Map to frontend terminology
         display_status = "pending" if status_val == "suggested" else status_val
