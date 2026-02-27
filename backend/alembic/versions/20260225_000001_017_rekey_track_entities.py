@@ -39,8 +39,21 @@ def upgrade() -> None:
     # ------------------------------------------------------------------
     # 1. Fetch all track entities with their current key + canonical JSON
     # ------------------------------------------------------------------
-    rows = conn.execute(
-        sa.text(
+    if conn.dialect.name == "sqlite":
+        query = sa.text(
+            """
+            SELECT id, entity_key,
+                   json_extract(canonical, '$.isrc')   AS isrc,
+                   json_extract(canonical, '$.name')   AS name,
+                   json_extract(canonical, '$.artist') AS artist,
+                   CAST(json_extract(canonical, '$.duration') AS REAL) AS duration
+            FROM entities
+            WHERE entity_type = 'track'
+            ORDER BY id
+            """
+        )
+    else:
+        query = sa.text(
             """
             SELECT id, entity_key,
                    canonical->>'isrc'     AS isrc,
@@ -52,7 +65,7 @@ def upgrade() -> None:
             ORDER BY id
             """
         )
-    ).fetchall()
+    rows = conn.execute(query).fetchall()
 
     def _slug(s: str) -> str:
         import re

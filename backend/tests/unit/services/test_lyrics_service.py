@@ -210,7 +210,7 @@ class TestFetchLyrics:
         """Test fetching lyrics from cache."""
         # Add lyrics to cache
         cached_lyrics = LyricsModel(
-            song_id=song_id,
+            entity_id=song_id,
             lyrics_text=sample_lyrics,
             lyrics_synced=None,
             source="genius",
@@ -221,7 +221,7 @@ class TestFetchLyrics:
         service = LyricsService(session=db_session, enable_cache=True)
 
         result = await service.fetch_lyrics(
-            song_id=song_id,
+            entity_id=song_id,
             name="Test Song",
             artists=["Test Artist"],
         )
@@ -243,7 +243,7 @@ class TestFetchLyrics:
         """Test fetching synced lyrics from cache is prioritized."""
         # Add plain lyrics
         plain_lyrics = LyricsModel(
-            song_id=song_id,
+            entity_id=song_id,
             lyrics_text=sample_lyrics,
             lyrics_synced=None,
             source="genius",
@@ -252,7 +252,7 @@ class TestFetchLyrics:
 
         # Add synced lyrics
         synced_lyrics = LyricsModel(
-            song_id=song_id,
+            entity_id=song_id,
             lyrics_text=sample_lyrics,
             lyrics_synced=sample_synced_lyrics,
             source="synced",
@@ -263,7 +263,7 @@ class TestFetchLyrics:
         service = LyricsService(session=db_session, enable_cache=True)
 
         result = await service.fetch_lyrics(
-            song_id=song_id,
+            entity_id=song_id,
             name="Test Song",
             artists=["Test Artist"],
         )
@@ -280,7 +280,7 @@ class TestFetchLyrics:
         """Test fetching with cache disabled ignores cached lyrics."""
         # Add lyrics to cache
         cached_lyrics = LyricsModel(
-            song_id=song_id,
+            entity_id=song_id,
             lyrics_text=sample_lyrics,
             lyrics_synced=None,
             source="genius",
@@ -303,7 +303,7 @@ class TestFetchLyrics:
                 )
 
                 result = await service.fetch_lyrics(
-                    song_id=song_id,
+                    entity_id=song_id,
                     name="Test Song",
                     artists=["Test Artist"],
                 )
@@ -320,7 +320,7 @@ class TestFetchLyrics:
         """Test force refresh bypasses cache."""
         # Add lyrics to cache
         cached_lyrics = LyricsModel(
-            song_id=song_id,
+            entity_id=song_id,
             lyrics_text=sample_lyrics,
             lyrics_synced=None,
             source="genius",
@@ -342,7 +342,7 @@ class TestFetchLyrics:
                 )
 
                 result = await service.fetch_lyrics(
-                    song_id=song_id,
+                    entity_id=song_id,
                     name="Test Song",
                     artists=["Test Artist"],
                     force_refresh=True,
@@ -371,7 +371,7 @@ class TestFetchLyrics:
                 service, "_get_providers", return_value=[mock_provider]
             ):
                 result = await service.fetch_lyrics(
-                    song_id=song_id,
+                    entity_id=song_id,
                     name="Test Song",
                     artists=["Test Artist"],
                 )
@@ -403,7 +403,7 @@ class TestFetchLyrics:
                 service, "_get_providers", return_value=[mock_provider]
             ):
                 result = await service.fetch_lyrics(
-                    song_id=song_id,
+                    entity_id=song_id,
                     name="Test Song",
                     artists=["Test Artist"],
                 )
@@ -429,7 +429,7 @@ class TestFetchLyrics:
                 service, "_get_providers", return_value=[mock_provider]
             ):
                 result = await service.fetch_lyrics(
-                    song_id=song_id,
+                    entity_id=song_id,
                     name="Test Song",
                     artists=["Test Artist"],
                 )
@@ -456,7 +456,7 @@ class TestFetchLyrics:
                 service, "_get_providers", return_value=[mock_provider]
             ):
                 result = await service.fetch_lyrics(
-                    song_id=song_id,
+                    entity_id=song_id,
                     name="Test Song",
                     artists=["Test Artist"],
                 )
@@ -467,7 +467,7 @@ class TestFetchLyrics:
                 # Verify lyrics were saved
                 from sqlalchemy import select
 
-                stmt = select(LyricsModel).where(LyricsModel.song_id == song_id)
+                stmt = select(LyricsModel).where(LyricsModel.entity_id == song_id)
                 cached = (await db_session.execute(stmt)).scalar_one_or_none()
 
                 assert cached is not None
@@ -504,7 +504,7 @@ class TestProviderFallback:
                 service, "_get_providers", return_value=[mock_provider1, mock_provider2]
             ):
                 result = await service.fetch_lyrics(
-                    song_id=song_id,
+                    entity_id=song_id,
                     name="Test Song",
                     artists=["Test Artist"],
                 )
@@ -541,7 +541,7 @@ class TestProviderFallback:
                 service, "_get_providers", return_value=[mock_synced, mock_plain]
             ):
                 result = await service.fetch_lyrics(
-                    song_id=song_id,
+                    entity_id=song_id,
                     name="Test Song",
                     artists=["Test Artist"],
                 )
@@ -619,7 +619,7 @@ class TestCacheOperations:
         # Verify saved
         from sqlalchemy import select
 
-        stmt = select(LyricsModel).where(LyricsModel.song_id == song_id)
+        stmt = select(LyricsModel).where(LyricsModel.entity_id == song_id)
         cached = (await db_session.execute(stmt)).scalar_one_or_none()
 
         assert cached is not None
@@ -633,7 +633,7 @@ class TestCacheOperations:
         """Test updating existing cache entry."""
         # Create existing entry
         existing = LyricsModel(
-            song_id=song_id,
+            entity_id=song_id,
             lyrics_text="Old lyrics",
             lyrics_synced=None,
             source="genius",
@@ -657,7 +657,7 @@ class TestCacheOperations:
         from sqlalchemy import select
 
         stmt = select(LyricsModel).where(
-            LyricsModel.song_id == song_id, LyricsModel.source == "genius"
+            LyricsModel.entity_id == song_id, LyricsModel.source == "genius"
         )
         cached = (await db_session.execute(stmt)).scalar_one_or_none()
 
@@ -688,13 +688,13 @@ class TestGetLyricsForSong:
     """Tests for getting cached lyrics."""
 
     @pytest.mark.asyncio
-    async def test_get_lyrics_for_song_found(
+    async def test_get_lyrics_for_entity_found(
         self, db_session: AsyncSession, song_id: uuid.UUID, sample_lyrics: str
     ) -> None:
         """Test getting cached lyrics."""
         # Add lyrics to cache
         cached = LyricsModel(
-            song_id=song_id,
+            entity_id=song_id,
             lyrics_text=sample_lyrics,
             lyrics_synced=None,
             source="genius",
@@ -703,7 +703,7 @@ class TestGetLyricsForSong:
         await db_session.commit()
 
         service = LyricsService(session=db_session)
-        result = await service.get_lyrics_for_song(song_id)
+        result = await service.get_lyrics_for_entity(song_id)
 
         assert result is not None
         assert result.lyrics_text == sample_lyrics
@@ -711,12 +711,12 @@ class TestGetLyricsForSong:
         assert result.from_cache is True
 
     @pytest.mark.asyncio
-    async def test_get_lyrics_for_song_not_found(
+    async def test_get_lyrics_for_entity_not_found(
         self, db_session: AsyncSession, song_id: uuid.UUID
     ) -> None:
         """Test getting lyrics when not cached."""
         service = LyricsService(session=db_session)
-        result = await service.get_lyrics_for_song(song_id)
+        result = await service.get_lyrics_for_entity(song_id)
 
         assert result is None
 
@@ -749,7 +749,7 @@ class TestFetchAllLyrics:
                 service, "_get_providers", return_value=[mock_provider1, mock_provider2]
             ):
                 results = await service.fetch_all_lyrics(
-                    song_id=song_id,
+                    entity_id=song_id,
                     name="Test Song",
                     artists=["Test Artist"],
                 )
@@ -779,7 +779,7 @@ class TestFetchAllLyrics:
                 service, "_get_providers", return_value=[mock_provider]
             ):
                 results = await service.fetch_all_lyrics(
-                    song_id=song_id,
+                    entity_id=song_id,
                     name="Test Song",
                     artists=["Test Artist"],
                 )
@@ -790,7 +790,7 @@ class TestFetchAllLyrics:
                 # Verify saved to DB
                 from sqlalchemy import select
 
-                stmt = select(LyricsModel).where(LyricsModel.song_id == song_id)
+                stmt = select(LyricsModel).where(LyricsModel.entity_id == song_id)
                 cached = (await db_session.execute(stmt)).scalar_one_or_none()
 
                 assert cached is not None
@@ -823,7 +823,7 @@ class TestFetchAllLyrics:
                 service, "_get_providers", return_value=[mock_fail, mock_success]
             ):
                 results = await service.fetch_all_lyrics(
-                    song_id=song_id,
+                    entity_id=song_id,
                     name="Test Song",
                     artists=["Test Artist"],
                 )
@@ -837,19 +837,19 @@ class TestGetAllLyricsForSong:
     """Tests for getting all cached lyrics for a song."""
 
     @pytest.mark.asyncio
-    async def test_get_all_lyrics_for_song(
+    async def test_get_all_lyrics_for_entity(
         self, db_session: AsyncSession, song_id: uuid.UUID
     ) -> None:
         """Test getting all cached lyrics from multiple sources."""
         # Add multiple lyrics entries
         lyrics1 = LyricsModel(
-            song_id=song_id,
+            entity_id=song_id,
             lyrics_text="Lyrics from source 1",
             lyrics_synced=None,
             source="genius",
         )
         lyrics2 = LyricsModel(
-            song_id=song_id,
+            entity_id=song_id,
             lyrics_text="Lyrics from source 2",
             lyrics_synced=None,
             source="musixmatch",
@@ -859,7 +859,7 @@ class TestGetAllLyricsForSong:
         await db_session.commit()
 
         service = LyricsService(session=db_session)
-        results = await service.get_all_lyrics_for_song(song_id)
+        results = await service.get_all_lyrics_for_entity(song_id)
 
         assert len(results) == 2
         sources = [r.source for r in results]
@@ -868,12 +868,12 @@ class TestGetAllLyricsForSong:
         assert all(r.from_cache for r in results)
 
     @pytest.mark.asyncio
-    async def test_get_all_lyrics_for_song_empty(
+    async def test_get_all_lyrics_for_entity_empty(
         self, db_session: AsyncSession, song_id: uuid.UUID
     ) -> None:
         """Test getting lyrics when none cached."""
         service = LyricsService(session=db_session)
-        results = await service.get_all_lyrics_for_song(song_id)
+        results = await service.get_all_lyrics_for_entity(song_id)
 
         assert len(results) == 0
 
@@ -990,7 +990,7 @@ class TestEdgeCases:
                 service, "_get_providers", return_value=[mock_provider]
             ):
                 result = await service.fetch_lyrics(
-                    song_id=song_id,
+                    entity_id=song_id,
                     name="Test Song",
                     artists=["Test Artist"],
                 )
@@ -1008,7 +1008,7 @@ class TestEdgeCases:
         async with service:
             with patch.object(service, "_get_providers", return_value=[]):
                 result = await service.fetch_lyrics(
-                    song_id=song_id,
+                    entity_id=song_id,
                     name="Test Song",
                     artists=["Test Artist"],
                 )
@@ -1033,7 +1033,7 @@ class TestEdgeCases:
                 service, "_get_providers", return_value=[mock_provider]
             ):
                 result = await service.fetch_lyrics(
-                    song_id=song_id,
+                    entity_id=song_id,
                     name="Test Song",
                     artists=[],
                 )
@@ -1060,7 +1060,7 @@ class TestEdgeCases:
                 service, "_get_providers", return_value=[mock_provider]
             ):
                 result = await service.fetch_lyrics(
-                    song_id=song_id,
+                    entity_id=song_id,
                     name="Test Song",
                     artists=["Test Artist"],
                 )

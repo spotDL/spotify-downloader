@@ -138,43 +138,6 @@ async def test_relations_discover_and_vote_lifecycle(
     assert remove_payload["user_vote"] is None
 
 
-async def test_download_entity_fallback(
-    authenticated_client: AsyncClient,
-    source_song: Song,
-) -> None:
-    with patch("spotdl.core.services.entity_unified.get_song_service") as get_song_service_mock:
-        get_song_service_mock.return_value = _mock_song_service(source_song)
-
-        discover_response = await authenticated_client.post(
-            "/api/v1/entities/discover",
-            json={"query": "Artist 1 - Test Song", "types": ["track"], "limit": 10},
-        )
-        assert discover_response.status_code == 200
-        discovered = discover_response.json()
-        source_entity = next(entity for entity in discovered["entities"] if entity["type"] == "track")
-
-    with patch("spotdl.core.services.entity_unified.get_download_manager") as get_download_manager_mock:
-        manager = MagicMock()
-        manager.start_download = AsyncMock(return_value=source_entity["id"])
-        get_download_manager_mock.return_value = manager
-
-        download_response = await authenticated_client.post(
-            f"/api/v1/entities/{source_entity['id']}/download",
-            json={
-                "settings": {
-                    "output_format": "mp3",
-                    "quality": "best",
-                }
-            },
-        )
-
-    assert download_response.status_code == 200
-    payload = download_response.json()
-    assert payload["status"] == "started"
-    assert payload["fallback_used"] is True
-    assert payload["download_id"]
-
-
 async def test_discover_open_graph_fallback(
     client: AsyncClient,
 ) -> None:

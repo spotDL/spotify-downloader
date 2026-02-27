@@ -79,6 +79,8 @@ def _upgrade_postgresql(bind: sa.engine.Connection) -> None:
         exe("ALTER TABLE lyrics DROP CONSTRAINT IF EXISTS uq_lyrics_song_source")
         exe("ALTER TABLE lyrics DROP CONSTRAINT IF EXISTS lyrics_song_id_fkey")
         exe("DROP INDEX IF EXISTS ix_lyrics_song_id")
+        exe("DROP INDEX IF EXISTS ix_lyrics_song_hash")
+        exe("DROP INDEX IF EXISTS ix_lyrics_song_quality")
         exe("ALTER TABLE lyrics DROP COLUMN IF EXISTS song_id")
 
     # -------------------------------------------------------------------------
@@ -150,6 +152,10 @@ def _upgrade_sqlite(bind: sa.engine.Connection) -> None:
                     batch_op.drop_constraint("lyrics_song_id_fkey", type_="foreignkey")
                 if "ix_lyrics_song_id" in existing_idx:
                     batch_op.drop_index("ix_lyrics_song_id")
+                if "ix_lyrics_song_hash" in existing_idx:
+                    batch_op.drop_index("ix_lyrics_song_hash")
+                if "ix_lyrics_song_quality" in existing_idx:
+                    batch_op.drop_index("ix_lyrics_song_quality")
                 batch_op.drop_column("song_id")
 
         # Re-inspect after the first batch (fresh inspector — no cache).

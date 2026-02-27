@@ -12,8 +12,8 @@ from starlette.websockets import WebSocketDisconnect
 
 from spotdl.api.v1.websocket import ConnectionManager, manager
 from spotdl.core.services.download import (
-    DownloadManager,
     DownloadProgress,
+    DownloadService,
     DownloadStatus,
 )
 from spotdl.main import app
@@ -22,7 +22,7 @@ from spotdl.main import app
 @pytest.fixture
 def mock_download_manager():
     """Create a mock download manager."""
-    manager = MagicMock(spec=DownloadManager)
+    manager = MagicMock(spec=DownloadService)
     manager.get_progress = MagicMock(return_value=None)
     manager.get_all_downloads = MagicMock(return_value=[])
     manager.register_callback = MagicMock()
@@ -217,7 +217,7 @@ class TestWebSocketEndpoint:
     ):
         """Test basic WebSocket connection establishment."""
         with patch(
-            "spotdl.api.v1.websocket.get_download_manager",
+            "spotdl.api.v1.websocket.get_download_service",
             return_value=mock_download_manager,
         ):
             with TestClient(app) as client:
@@ -233,7 +233,7 @@ class TestWebSocketEndpoint:
     def test_websocket_with_unique_client_id(self, mock_download_manager: MagicMock):
         """Test WebSocket connection with unique client ID."""
         with patch(
-            "spotdl.api.v1.websocket.get_download_manager",
+            "spotdl.api.v1.websocket.get_download_service",
             return_value=mock_download_manager,
         ):
             with TestClient(app) as client:
@@ -247,7 +247,7 @@ class TestWebSocketEndpoint:
         mock_download_manager.get_progress.return_value = sample_progress
 
         with patch(
-            "spotdl.api.v1.websocket.get_download_manager",
+            "spotdl.api.v1.websocket.get_download_service",
             return_value=mock_download_manager,
         ):
             with TestClient(app) as client:
@@ -272,7 +272,7 @@ class TestWebSocketEndpoint:
         mock_download_manager.get_progress.return_value = None
 
         with patch(
-            "spotdl.api.v1.websocket.get_download_manager",
+            "spotdl.api.v1.websocket.get_download_service",
             return_value=mock_download_manager,
         ):
             with TestClient(app) as client:
@@ -295,7 +295,7 @@ class TestWebSocketEndpoint:
     def test_watch_download_without_id(self, mock_download_manager: MagicMock):
         """Test watch_download message without download_id."""
         with patch(
-            "spotdl.api.v1.websocket.get_download_manager",
+            "spotdl.api.v1.websocket.get_download_service",
             return_value=mock_download_manager,
         ):
             with TestClient(app) as client:
@@ -316,7 +316,7 @@ class TestWebSocketEndpoint:
         mock_download_manager.get_progress.return_value = sample_progress
 
         with patch(
-            "spotdl.api.v1.websocket.get_download_manager",
+            "spotdl.api.v1.websocket.get_download_service",
             return_value=mock_download_manager,
         ):
             with TestClient(app) as client:
@@ -346,7 +346,7 @@ class TestWebSocketEndpoint:
         ]
 
         with patch(
-            "spotdl.api.v1.websocket.get_download_manager",
+            "spotdl.api.v1.websocket.get_download_service",
             return_value=mock_download_manager,
         ):
             with TestClient(app) as client:
@@ -366,7 +366,7 @@ class TestWebSocketEndpoint:
         mock_download_manager.get_all_downloads.return_value = []
 
         with patch(
-            "spotdl.api.v1.websocket.get_download_manager",
+            "spotdl.api.v1.websocket.get_download_service",
             return_value=mock_download_manager,
         ):
             with TestClient(app) as client:
@@ -379,7 +379,7 @@ class TestWebSocketEndpoint:
     def test_ping_pong(self, mock_download_manager: MagicMock):
         """Test ping-pong keep-alive mechanism."""
         with patch(
-            "spotdl.api.v1.websocket.get_download_manager",
+            "spotdl.api.v1.websocket.get_download_service",
             return_value=mock_download_manager,
         ):
             with TestClient(app) as client:
@@ -393,7 +393,7 @@ class TestWebSocketEndpoint:
     def test_unknown_message_type(self, mock_download_manager: MagicMock):
         """Test handling unknown message type."""
         with patch(
-            "spotdl.api.v1.websocket.get_download_manager",
+            "spotdl.api.v1.websocket.get_download_service",
             return_value=mock_download_manager,
         ):
             with TestClient(app) as client:
@@ -410,7 +410,7 @@ class TestWebSocketEndpoint:
     def test_connection_closure(self, mock_download_manager: MagicMock):
         """Test WebSocket connection closure."""
         with patch(
-            "spotdl.api.v1.websocket.get_download_manager",
+            "spotdl.api.v1.websocket.get_download_service",
             return_value=mock_download_manager,
         ):
             with TestClient(app) as client:
@@ -425,7 +425,7 @@ class TestWebSocketEndpoint:
     def test_message_without_type_field(self, mock_download_manager: MagicMock):
         """Test handling of messages without type field."""
         with patch(
-            "spotdl.api.v1.websocket.get_download_manager",
+            "spotdl.api.v1.websocket.get_download_service",
             return_value=mock_download_manager,
         ):
             with TestClient(app) as client:
@@ -446,7 +446,7 @@ class TestWebSocketEndpoint:
         mock_download_manager.get_progress.return_value = sample_progress_completed
 
         with patch(
-            "spotdl.api.v1.websocket.get_download_manager",
+            "spotdl.api.v1.websocket.get_download_service",
             return_value=mock_download_manager,
         ):
             with TestClient(app) as client:
@@ -468,7 +468,7 @@ class TestWebSocketEndpoint:
         mock_download_manager.get_progress.return_value = sample_progress_failed
 
         with patch(
-            "spotdl.api.v1.websocket.get_download_manager",
+            "spotdl.api.v1.websocket.get_download_service",
             return_value=mock_download_manager,
         ):
             with TestClient(app) as client:
@@ -490,7 +490,7 @@ class TestWebSocketEndpoint:
         mock_download_manager.get_progress.return_value = sample_progress
 
         with patch(
-            "spotdl.api.v1.websocket.get_download_manager",
+            "spotdl.api.v1.websocket.get_download_service",
             return_value=mock_download_manager,
         ):
             with TestClient(app) as client:
@@ -515,7 +515,7 @@ class TestWebSocketEndpoint:
         mock_download_manager.get_progress.return_value = sample_progress
 
         with patch(
-            "spotdl.api.v1.websocket.get_download_manager",
+            "spotdl.api.v1.websocket.get_download_service",
             return_value=mock_download_manager,
         ):
             with TestClient(app) as client:

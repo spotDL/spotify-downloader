@@ -17,9 +17,8 @@ from spotdl.core.types.result import Result, TargetPlatform
 from spotdl.core.types.song import Platform, Song
 from spotdl.db.database import get_db_session
 from spotdl.db.models.base import Base
-from spotdl.db.models.match import Match as MatchModel, MatchType
+from spotdl.db.models.entity_unified import Entity, EntityRelation
 from spotdl.db.models.user import User
-from spotdl.db.models.vote import Vote, VoteType
 from spotdl.main import app
 
 # Use SQLite for tests by default, PostgreSQL for CI
@@ -176,20 +175,66 @@ async def authenticated_client(
 
 
 @pytest_asyncio.fixture
-async def test_match(db_session: AsyncSession, test_user: User) -> MatchModel:
-    """Create a test match."""
-    match = MatchModel(
-        source_platform="spotify",
-        source_url="https://open.spotify.com/track/test123",
-        target_platform="youtube",
-        target_url="https://www.youtube.com/watch?v=xyz789",
-        match_type=MatchType.SYSTEM,
-        match_score=85.0,
+async def test_source_entity(db_session: AsyncSession) -> Entity:
+    """Create a test source entity."""
+    entity = Entity(
+        entity_type="track",
+        entity_key="spotify:track:test123",
+        name="Test Song",
+        canonical={
+            "platform": "spotify",
+            "platform_id": "test123",
+            "url": "https://open.spotify.com/track/test123",
+            "artists": ["Artist One"],
+            "artist": "Artist One",
+            "duration": 180,
+        },
     )
-    db_session.add(match)
+    db_session.add(entity)
     await db_session.commit()
-    await db_session.refresh(match)
-    return match
+    await db_session.refresh(entity)
+    return entity
+
+
+@pytest_asyncio.fixture
+async def test_target_entity(db_session: AsyncSession) -> Entity:
+    """Create a test target entity."""
+    entity = Entity(
+        entity_type="track",
+        entity_key="youtube:track:xyz789",
+        name="Test Song",
+        canonical={
+            "platform": "youtube",
+            "platform_id": "xyz789",
+            "url": "https://www.youtube.com/watch?v=xyz789",
+            "artists": ["Artist One"],
+            "artist": "Artist One",
+            "duration": 181,
+        },
+    )
+    db_session.add(entity)
+    await db_session.commit()
+    await db_session.refresh(entity)
+    return entity
+
+
+@pytest_asyncio.fixture
+async def test_match(
+    db_session: AsyncSession, test_source_entity: Entity, test_target_entity: Entity,
+) -> EntityRelation:
+    """Create a test match (entity relation)."""
+    relation = EntityRelation(
+        from_entity_id=test_source_entity.id,
+        to_entity_id=test_target_entity.id,
+        relation_type="audio_match",
+        match_score=85.0,
+        status="suggested",
+        discovered_by="system",
+    )
+    db_session.add(relation)
+    await db_session.commit()
+    await db_session.refresh(relation)
+    return relation
 
 
 @pytest.fixture

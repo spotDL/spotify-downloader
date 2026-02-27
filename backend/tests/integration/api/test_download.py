@@ -67,7 +67,7 @@ async def test_start_download_requires_title(authenticated_client: AsyncClient):
 async def test_get_download_status_not_found(authenticated_client: AsyncClient):
     """Test getting status of non-existent download."""
     with patch("spotdl.api.v1.download.get_settings") as mock_settings:
-        with patch("spotdl.api.v1.download.get_download_manager") as mock_manager:
+        with patch("spotdl.api.v1.download.get_download_service") as mock_manager:
             mock_settings.return_value.downloads_enabled = True
 
             mock_mgr = MagicMock()
@@ -85,7 +85,7 @@ async def test_get_download_status_not_found(authenticated_client: AsyncClient):
 async def test_get_download_status_success(authenticated_client: AsyncClient):
     """Test getting status of an existing download."""
     with patch("spotdl.api.v1.download.get_settings") as mock_settings:
-        with patch("spotdl.api.v1.download.get_download_manager") as mock_manager:
+        with patch("spotdl.api.v1.download.get_download_service") as mock_manager:
             mock_settings.return_value.downloads_enabled = True
 
             mock_progress = DownloadProgress(
@@ -118,7 +118,7 @@ async def test_get_download_status_success(authenticated_client: AsyncClient):
 async def test_get_download_status_completed(authenticated_client: AsyncClient):
     """Test getting status of a completed download."""
     with patch("spotdl.api.v1.download.get_settings") as mock_settings:
-        with patch("spotdl.api.v1.download.get_download_manager") as mock_manager:
+        with patch("spotdl.api.v1.download.get_download_service") as mock_manager:
             mock_settings.return_value.downloads_enabled = True
 
             mock_progress = DownloadProgress(
@@ -150,7 +150,7 @@ async def test_get_download_status_completed(authenticated_client: AsyncClient):
 async def test_list_downloads(authenticated_client: AsyncClient):
     """Test listing all downloads."""
     with patch("spotdl.api.v1.download.get_settings") as mock_settings:
-        with patch("spotdl.api.v1.download.get_download_manager") as mock_manager:
+        with patch("spotdl.api.v1.download.get_download_service") as mock_manager:
             mock_settings.return_value.downloads_enabled = True
 
             mock_downloads = [
@@ -184,7 +184,7 @@ async def test_list_downloads(authenticated_client: AsyncClient):
 async def test_list_downloads_empty(authenticated_client: AsyncClient):
     """Test listing downloads when there are none."""
     with patch("spotdl.api.v1.download.get_settings") as mock_settings:
-        with patch("spotdl.api.v1.download.get_download_manager") as mock_manager:
+        with patch("spotdl.api.v1.download.get_download_service") as mock_manager:
             mock_settings.return_value.downloads_enabled = True
 
             mock_mgr = MagicMock()
@@ -203,7 +203,7 @@ async def test_list_downloads_empty(authenticated_client: AsyncClient):
 async def test_get_download_file_not_found(authenticated_client: AsyncClient):
     """Test getting file for non-existent download."""
     with patch("spotdl.api.v1.download.get_settings") as mock_settings:
-        with patch("spotdl.api.v1.download.get_download_manager") as mock_manager:
+        with patch("spotdl.api.v1.download.get_download_service") as mock_manager:
             mock_settings.return_value.downloads_enabled = True
 
             mock_mgr = MagicMock()
@@ -219,7 +219,7 @@ async def test_get_download_file_not_found(authenticated_client: AsyncClient):
 async def test_get_download_file_not_completed(authenticated_client: AsyncClient):
     """Test getting file for download that's not completed."""
     with patch("spotdl.api.v1.download.get_settings") as mock_settings:
-        with patch("spotdl.api.v1.download.get_download_manager") as mock_manager:
+        with patch("spotdl.api.v1.download.get_download_service") as mock_manager:
             mock_settings.return_value.downloads_enabled = True
 
             mock_progress = DownloadProgress(
@@ -248,7 +248,7 @@ async def test_get_download_file_not_completed(authenticated_client: AsyncClient
 async def test_get_download_file_no_file_path(authenticated_client: AsyncClient):
     """Test getting file when file path doesn't exist."""
     with patch("spotdl.api.v1.download.get_settings") as mock_settings:
-        with patch("spotdl.api.v1.download.get_download_manager") as mock_manager:
+        with patch("spotdl.api.v1.download.get_download_service") as mock_manager:
             mock_settings.return_value.downloads_enabled = True
 
             mock_progress = DownloadProgress(
@@ -277,7 +277,7 @@ async def test_get_download_file_no_file_path(authenticated_client: AsyncClient)
 async def test_cancel_download_not_found(authenticated_client: AsyncClient):
     """Test cancelling non-existent download."""
     with patch("spotdl.api.v1.download.get_settings") as mock_settings:
-        with patch("spotdl.api.v1.download.get_download_manager") as mock_manager:
+        with patch("spotdl.api.v1.download.get_download_service") as mock_manager:
             mock_settings.return_value.downloads_enabled = True
 
             mock_mgr = MagicMock()
@@ -295,7 +295,7 @@ async def test_cancel_download_not_found(authenticated_client: AsyncClient):
 async def test_cancel_download_success(authenticated_client: AsyncClient):
     """Test successfully cancelling a download."""
     with patch("spotdl.api.v1.download.get_settings") as mock_settings:
-        with patch("spotdl.api.v1.download.get_download_manager") as mock_manager:
+        with patch("spotdl.api.v1.download.get_download_service") as mock_manager:
             mock_settings.return_value.downloads_enabled = True
 
             mock_progress = DownloadProgress(
@@ -329,7 +329,7 @@ async def test_cancel_download_success(authenticated_client: AsyncClient):
 async def test_cancel_download_failed(authenticated_client: AsyncClient):
     """Test cancelling a download that can't be cancelled."""
     with patch("spotdl.api.v1.download.get_settings") as mock_settings:
-        with patch("spotdl.api.v1.download.get_download_manager") as mock_manager:
+        with patch("spotdl.api.v1.download.get_download_service") as mock_manager:
             mock_settings.return_value.downloads_enabled = True
 
             mock_progress = DownloadProgress(

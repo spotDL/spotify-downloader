@@ -13,13 +13,13 @@ import pytest
 from spotdl.core.services.download import (
     ALLOWED_SCHEMES,
     COVER_URL_ALLOWLIST,
-    DownloadManager,
+    DownloadService,
     DownloadProgress,
     DownloadRequest,
     DownloadSettings,
     DownloadStatus,
     create_download_id,
-    get_download_manager,
+    get_download_service,
     is_safe_url,
 )
 from spotdl_core.download import DownloadError, DownloadMeta
@@ -385,13 +385,13 @@ class TestDownloadRequest:
         assert meta.artists == ["Test Artist"]
 
 
-class TestDownloadManager:
-    """Tests for DownloadManager."""
+class TestDownloadService:
+    """Tests for DownloadService."""
 
     @pytest.fixture
-    def download_manager(self, tmp_path: Path) -> DownloadManager:
+    def download_manager(self, tmp_path: Path) -> DownloadService:
         """Create a download manager with temporary directory."""
-        return DownloadManager(download_dir=tmp_path)
+        return DownloadService(download_dir=tmp_path)
 
     @pytest.fixture
     def sample_request(self) -> DownloadRequest:
@@ -406,21 +406,21 @@ class TestDownloadManager:
 
     def test_init_default_dir(self) -> None:
         """Test initialization with default directory."""
-        manager = DownloadManager()
+        manager = DownloadService()
         assert manager.download_dir.exists()
 
     def test_init_custom_dir(self, tmp_path: Path) -> None:
         """Test initialization with custom directory."""
-        manager = DownloadManager(download_dir=tmp_path)
+        manager = DownloadService(download_dir=tmp_path)
         assert manager.download_dir == tmp_path
         assert manager.download_dir.exists()
 
-    def test_get_progress_nonexistent(self, download_manager: DownloadManager) -> None:
+    def test_get_progress_nonexistent(self, download_manager: DownloadService) -> None:
         """Test getting progress for nonexistent download."""
         progress = download_manager.get_progress("nonexistent")
         assert progress is None
 
-    def test_get_all_downloads_empty(self, download_manager: DownloadManager) -> None:
+    def test_get_all_downloads_empty(self, download_manager: DownloadService) -> None:
         """Test getting all downloads when empty."""
         downloads = download_manager.get_all_downloads()
         assert downloads == []
@@ -428,7 +428,7 @@ class TestDownloadManager:
     @pytest.mark.asyncio
     async def test_start_download(
         self,
-        download_manager: DownloadManager,
+        download_manager: DownloadService,
         sample_request: DownloadRequest,
     ) -> None:
         """Test starting a download."""
@@ -448,7 +448,7 @@ class TestDownloadManager:
     @pytest.mark.asyncio
     async def test_start_download_with_settings(
         self,
-        download_manager: DownloadManager,
+        download_manager: DownloadService,
         sample_request: DownloadRequest,
     ) -> None:
         """Test starting download with custom settings."""
@@ -467,7 +467,7 @@ class TestDownloadManager:
     @pytest.mark.asyncio
     async def test_cancel_download(
         self,
-        download_manager: DownloadManager,
+        download_manager: DownloadService,
         sample_request: DownloadRequest,
     ) -> None:
         """Test cancelling a download."""
@@ -492,20 +492,20 @@ class TestDownloadManager:
 
     @pytest.mark.asyncio
     async def test_cancel_nonexistent_download(
-        self, download_manager: DownloadManager
+        self, download_manager: DownloadService
     ) -> None:
         """Test cancelling nonexistent download."""
         result = await download_manager.cancel_download("nonexistent")
         assert result is False
 
-    def test_register_callback(self, download_manager: DownloadManager) -> None:
+    def test_register_callback(self, download_manager: DownloadService) -> None:
         """Test registering progress callback."""
         callback = Mock()
         download_manager.register_callback("test-id", callback)
         assert "test-id" in download_manager._progress_callbacks
         assert callback in download_manager._progress_callbacks["test-id"]
 
-    def test_unregister_callback(self, download_manager: DownloadManager) -> None:
+    def test_unregister_callback(self, download_manager: DownloadService) -> None:
         """Test unregistering progress callback."""
         callback = Mock()
         download_manager.register_callback("test-id", callback)
@@ -513,13 +513,13 @@ class TestDownloadManager:
         assert callback not in download_manager._progress_callbacks["test-id"]
 
     def test_unregister_nonexistent_callback(
-        self, download_manager: DownloadManager
+        self, download_manager: DownloadService
     ) -> None:
         """Test unregistering nonexistent callback doesn't raise."""
         callback = Mock()
         download_manager.unregister_callback("test-id", callback)
 
-    def test_notify_progress(self, download_manager: DownloadManager) -> None:
+    def test_notify_progress(self, download_manager: DownloadService) -> None:
         """Test notifying progress callbacks."""
         callback1 = Mock()
         callback2 = Mock()
@@ -539,7 +539,7 @@ class TestDownloadManager:
         callback2.assert_called_once()
 
     def test_notify_progress_with_error(
-        self, download_manager: DownloadManager
+        self, download_manager: DownloadService
     ) -> None:
         """Test that callback errors are handled gracefully."""
         callback = Mock(side_effect=Exception("Callback error"))
@@ -553,7 +553,7 @@ class TestDownloadManager:
         download_manager._notify_progress("test-id")
 
     def test_get_file_path_completed(
-        self, download_manager: DownloadManager, tmp_path: Path
+        self, download_manager: DownloadService, tmp_path: Path
     ) -> None:
         """Test getting file path for completed download."""
         download_id = "test-id"
@@ -574,7 +574,7 @@ class TestDownloadManager:
         assert result == file_path
 
     def test_get_file_path_not_completed(
-        self, download_manager: DownloadManager
+        self, download_manager: DownloadService
     ) -> None:
         """Test getting file path for incomplete download."""
         download_id = "test-id"
@@ -588,7 +588,7 @@ class TestDownloadManager:
         assert result is None
 
     def test_get_file_path_file_not_found(
-        self, download_manager: DownloadManager
+        self, download_manager: DownloadService
     ) -> None:
         """Test getting file path when file doesn't exist."""
         download_id = "test-id"
@@ -603,7 +603,7 @@ class TestDownloadManager:
         assert result is None
 
     def test_get_file_path_fallback_search(
-        self, download_manager: DownloadManager, tmp_path: Path
+        self, download_manager: DownloadService, tmp_path: Path
     ) -> None:
         """Test fallback file search when exact filename doesn't exist."""
         download_id = "test-id"
@@ -625,7 +625,7 @@ class TestDownloadManager:
     @pytest.mark.asyncio
     async def test_download_task_success(
         self,
-        download_manager: DownloadManager,
+        download_manager: DownloadService,
         sample_request: DownloadRequest,
         tmp_path: Path,
     ) -> None:
@@ -657,7 +657,7 @@ class TestDownloadManager:
     @pytest.mark.asyncio
     async def test_download_task_with_lyrics(
         self,
-        download_manager: DownloadManager,
+        download_manager: DownloadService,
         sample_request: DownloadRequest,
         tmp_path: Path,
     ) -> None:
@@ -688,7 +688,7 @@ class TestDownloadManager:
     @pytest.mark.asyncio
     async def test_download_task_with_lrc_generation(
         self,
-        download_manager: DownloadManager,
+        download_manager: DownloadService,
         sample_request: DownloadRequest,
         tmp_path: Path,
     ) -> None:
@@ -721,7 +721,7 @@ class TestDownloadManager:
     @pytest.mark.asyncio
     async def test_download_task_with_format_override(
         self,
-        download_manager: DownloadManager,
+        download_manager: DownloadService,
         sample_request: DownloadRequest,
         tmp_path: Path,
     ) -> None:
@@ -753,7 +753,7 @@ class TestDownloadManager:
     @pytest.mark.asyncio
     async def test_download_task_cancelled(
         self,
-        download_manager: DownloadManager,
+        download_manager: DownloadService,
         sample_request: DownloadRequest,
     ) -> None:
         """Test download task cancellation."""
@@ -776,7 +776,7 @@ class TestDownloadManager:
     @pytest.mark.asyncio
     async def test_download_task_error(
         self,
-        download_manager: DownloadManager,
+        download_manager: DownloadService,
         sample_request: DownloadRequest,
     ) -> None:
         """Test download task error handling."""
@@ -805,7 +805,7 @@ class TestDownloadManager:
     @pytest.mark.asyncio
     async def test_download_task_progress_updates(
         self,
-        download_manager: DownloadManager,
+        download_manager: DownloadService,
         sample_request: DownloadRequest,
         tmp_path: Path,
     ) -> None:
@@ -836,7 +836,7 @@ class TestDownloadManager:
 
     @pytest.mark.asyncio
     async def test_fetch_lyrics_success(
-        self, download_manager: DownloadManager
+        self, download_manager: DownloadService
     ) -> None:
         """Test fetching lyrics successfully."""
         mock_provider = AsyncMock()
@@ -850,7 +850,7 @@ class TestDownloadManager:
 
     @pytest.mark.asyncio
     async def test_fetch_lyrics_provider_error(
-        self, download_manager: DownloadManager
+        self, download_manager: DownloadService
     ) -> None:
         """Test fetching lyrics with provider error."""
         mock_provider = AsyncMock()
@@ -863,26 +863,26 @@ class TestDownloadManager:
         assert lyrics is None
 
 
-class TestGetDownloadManager:
-    """Tests for get_download_manager function."""
+class TestGetDownloadService:
+    """Tests for get_download_service function."""
 
-    def test_get_download_manager_returns_instance(self) -> None:
-        """Test get_download_manager returns a DownloadManager."""
+    def test_get_download_service_returns_instance(self) -> None:
+        """Test get_download_service returns a DownloadService."""
         import spotdl.core.services.download as download_module
 
         download_module._download_manager = None
 
-        manager = get_download_manager()
-        assert isinstance(manager, DownloadManager)
+        manager = get_download_service()
+        assert isinstance(manager, DownloadService)
 
-    def test_get_download_manager_singleton(self) -> None:
-        """Test get_download_manager returns same instance."""
+    def test_get_download_service_singleton(self) -> None:
+        """Test get_download_service returns same instance."""
         import spotdl.core.services.download as download_module
 
         download_module._download_manager = None
 
-        manager1 = get_download_manager()
-        manager2 = get_download_manager()
+        manager1 = get_download_service()
+        manager2 = get_download_service()
         assert manager1 is manager2
 
 
