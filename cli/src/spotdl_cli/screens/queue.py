@@ -425,64 +425,75 @@ class QueueScreen(Screen[None]):
         self.notify("Downloads paused")
 
     async def _download_loop(self) -> None:
-        """Main download loop."""
+        """Main download loop — dispatches concurrent download tasks."""
+        settings = get_settings()
+        semaphore = asyncio.Semaphore(settings.threads)
         queue = self.spotdl_app.download_queue
-        manager = self.spotdl_app.download_manager
-        use_remote = await self._use_remote_downloads()
 
         while self._downloading:
-            # Get next pending item
             next_item = await queue.get_next_pending()
             if not next_item:
-                # No more items or at max concurrent
+                if queue.pending_count == 0 and queue.active_count == 0:
+                    break
                 await self._sleep(0.5)
                 continue
 
             item_id, item = next_item
 
-            # Update status to searching
-            await queue.update_status(item_id, DownloadStatus.SEARCHING)
-
-            result = await self._resolve_download_result(item_id, item)
-            if not result:
-                await queue.update_status(
-                    item_id,
-                    DownloadStatus.FAILED,
-                    error="No download source found",
-                )
-                continue
-
-            if use_remote:
-                success = await self._start_remote_download(item_id, item, result)
-                if not success:
-                    use_remote = False
-                await self._sleep(0.1)
-                continue
-
-            # Create status callback
-            def status_callback(
-                id_: str,
-                status: DownloadStatus,
-                progress: float,
-                speed: str,
-                eta: str,
-                error: str | None,
-            ) -> None:
-                # Use call_soon_threadsafe for thread safety
-                self.call_later(
-                    self._update_download_status,
-                    id_,
-                    status,
-                    progress,
-                    speed,
-                    eta,
-                    error,
-                )
-
-            # Start download
-            await manager.download_item(item_id, item, status_callback)
+            # Spawn a concurrent task under the semaphore
+            asyncio.create_task(  # noqa: RUF006
+                self._download_single(item_id, item, semaphore)
+            )
 
         self.notify("Download loop stopped")
+
+    async def _download_single(
+        self,
+        item_id: str,
+        item: object,
+        semaphore: asyncio.Semaphore,
+    ) -> None:
+        """Download a single item under concurrency control."""
+        queue = self.spotdl_app.download_queue
+        manager = self.spotdl_app.download_manager
+        use_remote = await self._use_remote_downloads()
+
+        result = await self._resolve_download_result(item_id, item)
+        if not result:
+            await queue.update_status(
+                item_id,
+                DownloadStatus.FAILED,
+                error="No download source found",
+            )
+            return
+
+        if use_remote:
+            success = await self._start_remote_download(item_id, item, result)
+            if success:
+                return
+            # Fall through to local download
+
+        # Create status callback
+        def status_callback(
+            id_: str,
+            status: DownloadStatus,
+            progress: float,
+            speed: str,
+            eta: str,
+            error: str | None,
+        ) -> None:
+            self.call_later(
+                self._update_download_status,
+                id_,
+                status,
+                progress,
+                speed,
+                eta,
+                error,
+            )
+
+        async with semaphore:
+            await manager.download_item(item_id, item, status_callback)
 
     async def _use_remote_downloads(self) -> bool:
         """Check if remote downloads are available."""

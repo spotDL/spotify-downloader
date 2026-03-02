@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     # Backend API
     api_url: str = "http://localhost:8000"
     api_timeout: float = 30.0
+    backend_mode: Literal["local", "remote"] = "local"
     offline_mode: bool = False
     auth_token: str | None = None
 
@@ -197,6 +198,7 @@ class Settings(BaseSettings):
         persist_fields = {
             "api_url",
             "api_timeout",
+            "backend_mode",
             "offline_mode",
             "auth_token",
             "audio_format",

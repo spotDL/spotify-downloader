@@ -176,60 +176,116 @@ class APIClient:
 
         return platforms
 
-    def _match_entry_from_api(self, match: dict[str, Any], fallback_song: Song) -> MatchEntry:
-        """Convert API match response to MatchEntry."""
-        result_data = match.get("result", {})
+    def _song_from_entity(self, entity: dict[str, Any]) -> Song:
+        """Convert backend EntityResponse to a CLI Song."""
+        canonical = entity.get("canonical", {})
+        etype = entity.get("type", "track")
+
+        # Extract platform info from canonical
+        platform_str = canonical.get("platform", "spotify")
+        try:
+            platform = Platform(platform_str)
+        except ValueError:
+            platform = Platform.SPOTIFY
+
+        artists = canonical.get("artists") or []
+        artist = canonical.get("artist") or (artists[0] if artists else "Unknown")
+
+        return Song(
+            name=canonical.get("name") or entity.get("name", ""),
+            artists=artists,
+            artist=artist,
+            duration=canonical.get("duration") or 0,
+            platform=platform,
+            platform_id=canonical.get("platform_id", ""),
+            url=canonical.get("url", ""),
+            album_name=canonical.get("album_name", ""),
+            album_artist=canonical.get("album_artist", ""),
+            album_id=canonical.get("album_id"),
+            cover_url=canonical.get("cover_url"),
+            isrc=canonical.get("isrc"),
+            explicit=canonical.get("explicit", False),
+            year=canonical.get("year", 0) or 0,
+            genres=canonical.get("genres", []),
+            track_number=canonical.get("track_number", 1) or 1,
+            disc_number=canonical.get("disc_number", 1) or 1,
+            song_id=entity.get("id", ""),
+            lyrics=canonical.get("lyrics"),
+        )
+
+    def _match_entry_from_relation(
+        self, relation: dict[str, Any], fallback_song: Song
+    ) -> MatchEntry:
+        """Convert backend RelationResponse to a MatchEntry."""
+        target = relation.get("target", {})
+        target_canonical = target.get("canonical", {}) if target else {}
+
+        # Build DownloadResult from the target entity's canonical data
+        platform_str = target_canonical.get("platform", "youtube")
+        try:
+            target_platform = TargetPlatform(platform_str)
+        except ValueError:
+            target_platform = TargetPlatform.YOUTUBE
+
+        target_artists = target_canonical.get("artists", fallback_song.artists)
+        target_artist = target_canonical.get("artist") or (
+            target_artists[0] if target_artists else fallback_song.artist
+        )
+
         result = DownloadResult(
-            name=result_data.get("name", fallback_song.name),
-            artists=result_data.get("artists", fallback_song.artists),
-            artist=result_data.get("artist", fallback_song.artist),
-            duration=result_data.get("duration", fallback_song.duration),
-            platform=TargetPlatform(result_data.get("platform", "youtube")),
-            platform_id=result_data.get("platform_id", ""),
-            url=result_data.get("url", ""),
-            verified=result_data.get("verified", False),
-            score=match.get("score", 0.0),
-            cover_url=result_data.get("cover_url"),
-            views=result_data.get("views"),
+            name=target_canonical.get("name", fallback_song.name),
+            artists=target_artists,
+            artist=target_artist,
+            duration=target_canonical.get("duration", fallback_song.duration),
+            platform=target_platform,
+            platform_id=target_canonical.get("platform_id", ""),
+            url=target_canonical.get("url", ""),
+            verified=relation.get("status") == "confirmed",
+            score=relation.get("match_score") or relation.get("confidence", 0.0),
+            cover_url=target_canonical.get("cover_url"),
+            views=target_canonical.get("views"),
         )
 
         return MatchEntry(
-            id=match.get("id"),
-            source_url=match.get("source_url", fallback_song.url),
-            target_url=match.get("target_url", result.url),
-            target_platform=match.get("target_platform", result.platform.value),
-            score=match.get("score", 0.0),
-            confidence=match.get("confidence", 0.0),
-            match_type=match.get("match_type", "system"),
-            status=match.get("status"),
+            id=relation.get("id"),
+            source_url=fallback_song.url,
+            target_url=result.url,
+            target_platform=target_platform.value,
+            score=relation.get("match_score") or 0.0,
+            confidence=relation.get("confidence", 0.0),
+            match_type=relation.get("relation_type", "audio_match"),
+            status=relation.get("status"),
             result=result,
-            upvotes=match.get("upvotes", 0) or 0,
-            downvotes=match.get("downvotes", 0) or 0,
+            upvotes=relation.get("upvotes", 0) or 0,
+            downvotes=relation.get("downvotes", 0) or 0,
         )
 
+    @staticmethod
+    def _build_platform_url(platform: str, entity_type: str, entity_id: str) -> str:
+        """Build a platform URL from platform name, entity type and ID."""
+        platform = platform.lower()
+        if platform == "spotify":
+            return f"https://open.spotify.com/{entity_type}/{entity_id}"
+        elif platform == "deezer":
+            return f"https://www.deezer.com/{entity_type}/{entity_id}"
+        elif platform in ("youtube", "youtube_music"):
+            return f"https://www.youtube.com/watch?v={entity_id}"
+        elif platform == "soundcloud":
+            return f"https://soundcloud.com/{entity_id}"
+        # Generic fallback
+        return f"https://{platform}.com/{entity_type}/{entity_id}"
+
     async def _get_client(self) -> httpx.AsyncClient:
-        """Get or create the HTTP client with connection pooling."""
+        """Get or create the HTTP client.
+
+        Uses BackendManager to create the client — this automatically
+        picks ASGI transport for local mode or HTTP for remote mode.
+        """
         if self._client is None or self._client.is_closed:
-            headers = {
-                "User-Agent": "SpotDL-CLI/5.0.0",
-                "Accept": "application/json",
-            }
-            if self._settings.auth_token:
-                headers["Authorization"] = f"Bearer {self._settings.auth_token}"
-            self._client = httpx.AsyncClient(
-                base_url=self._settings.api_url,
-                timeout=self._settings.api_timeout,
-                headers=headers,
-                # Connection pooling
-                limits=httpx.Limits(
-                    max_connections=20,
-                    max_keepalive_connections=10,
-                    keepalive_expiry=30.0,
-                ),
-                # Enable HTTP/2
-                http2=True,
-                follow_redirects=True,
-            )
+            from spotdl_cli.core.backend import get_backend_manager
+
+            manager = get_backend_manager()
+            self._client = manager.create_client()
         return self._client
 
     async def close(self) -> None:
@@ -269,7 +325,7 @@ class APIClient:
 
     async def resolve_url(self, url: str) -> list[Song]:
         """
-        Resolve a URL to songs.
+        Resolve a URL to songs via POST /api/v1/entities/discover.
 
         Args:
             url: URL to resolve (Spotify, Deezer, etc.)
@@ -281,16 +337,15 @@ class APIClient:
             APIError: If request fails
             NotFoundError: If URL not supported
         """
-        # Check cache
         cached = await self._cache.get("resolve", url)
         if cached is not None:
             return cached
 
         try:
             client = await self._get_client()
-            response = await client.get(
-                "/api/v1/songs/resolve",
-                params={"url": url},
+            response = await client.post(
+                "/api/v1/entities/discover",
+                json={"url": url},
             )
 
             if response.status_code == 404:
@@ -299,9 +354,12 @@ class APIClient:
             response.raise_for_status()
             data = response.json()
 
-            result = [Song.from_dict(s) for s in data.get("songs", [])]
+            result = [
+                self._song_from_entity(e)
+                for e in data.get("entities", [])
+                if e.get("type") == "track"
+            ]
 
-            # Cache result
             await self._cache.set(result, "resolve", url, ttl=self.CACHE_TTL_DETAIL)
             return result
 
@@ -320,43 +378,46 @@ class APIClient:
         offset: int = 0,
     ) -> list[Song]:
         """
-        Search for songs with pagination support.
+        Search for songs via POST /api/v1/entities/discover.
 
         Args:
             query: Search query
-            platform: Platform to search on
-            limit: Maximum results per page
-            offset: Offset for pagination
+            platform: Platform to search on (used as provider hint)
+            limit: Maximum results
+            offset: Ignored (discover doesn't support offset)
 
         Returns:
             List of matching Song objects
         """
-        # Check cache
-        cached = await self._cache.get("search", query, platform.value, limit, offset)
+        cached = await self._cache.get("search", query, platform.value, limit)
         if cached is not None:
             return cached
 
         try:
             client = await self._get_client()
-            response = await client.get(
-                "/api/v1/songs/search",
-                params={
-                    "query": query,
-                    "platform": platform.value,
-                    "limit": limit,
-                    "offset": offset,
-                },
+
+            body: dict[str, Any] = {"query": query, "limit": limit}
+            # Map platform to provider hint
+            if platform != Platform.SPOTIFY:
+                body["providers"] = [platform.value]
+
+            response = await client.post(
+                "/api/v1/entities/discover",
+                json=body,
             )
 
             response.raise_for_status()
             data = response.json()
 
-            result = [Song.from_dict(s) for s in data.get("songs", [])]
+            result = [
+                self._song_from_entity(e)
+                for e in data.get("entities", [])
+                if e.get("type") == "track"
+            ]
 
-            # Cache result
             await self._cache.set(
-                result, "search", query, platform.value, limit, offset,
-                ttl=self.CACHE_TTL_SEARCH
+                result, "search", query, platform.value, limit,
+                ttl=self.CACHE_TTL_SEARCH,
             )
             return result
 
@@ -375,18 +436,17 @@ class APIClient:
         offset: int = 0,
     ) -> UniversalSearchResponse:
         """
-        Universal search returning all entity types with pagination.
+        Universal search returning all entity types via POST /api/v1/entities/discover.
 
         Args:
             query: Search query or URL
             entity_types: Optional filter for entity types
             limit: Maximum results per page
-            offset: Offset for pagination
+            offset: Ignored (discover doesn't support offset)
 
         Returns:
             UniversalSearchResponse with artists, albums, tracks, playlists
         """
-        # Build cache key
         et_key = ",".join(sorted(et.value for et in entity_types)) if entity_types else ""
         cached = await self._cache.get("universal", query, et_key, limit, offset)
         if cached is not None:
@@ -395,16 +455,17 @@ class APIClient:
         try:
             client = await self._get_client()
 
-            body: dict[str, Any] = {
-                "query": query,
-                "limit": limit,
-                "offset": offset,
-            }
+            body: dict[str, Any] = {"limit": limit}
+            # Detect if query looks like a URL
+            if query.startswith(("http://", "https://")):
+                body["url"] = query
+            else:
+                body["query"] = query
             if entity_types:
-                body["entity_types"] = [et.value for et in entity_types]
+                body["types"] = [et.value for et in entity_types]
 
             response = await client.post(
-                "/api/v1/search",
+                "/api/v1/entities/discover",
                 json=body,
             )
 
@@ -413,7 +474,6 @@ class APIClient:
 
             result = UniversalSearchResponse.from_dict(data)
 
-            # Cache result
             await self._cache.set(
                 result, "universal", query, et_key, limit, offset,
                 ttl=self.CACHE_TTL_SEARCH
@@ -436,6 +496,9 @@ class APIClient:
         """
         Find download matches for a song.
 
+        First discovers the entity, then discovers relations via
+        POST /api/v1/entities/{entity_id}/relations:discover.
+
         Args:
             song: Song to find matches for
             target_platforms: Platforms to search (defaults to all)
@@ -444,7 +507,6 @@ class APIClient:
         Returns:
             List of DownloadResult objects
         """
-        # Check cache
         platforms = self._get_target_platforms(target_platforms)
         platforms_key = ",".join(p.value for p in platforms)
         cached = await self._cache.get("matches", song.url, platforms_key, limit)
@@ -454,11 +516,45 @@ class APIClient:
         try:
             client = await self._get_client()
 
+            # Step 1: Discover the entity to get its ID
+            entity_id = song.song_id
+            if not entity_id:
+                discover_resp = await client.post(
+                    "/api/v1/entities/discover",
+                    json={"url": song.url},
+                )
+                if discover_resp.status_code == 404:
+                    return []
+                discover_resp.raise_for_status()
+                discover_data = discover_resp.json()
+                entities = discover_data.get("entities", [])
+
+                # Check top_relations first — discover may have already found matches
+                top_relations = discover_data.get("top_relations", {})
+
+                if entities:
+                    entity_id = entities[0].get("id", "")
+                    # If discover already returned relations for this entity, use them
+                    entity_relations = top_relations.get(entity_id, [])
+                    if entity_relations:
+                        results = [
+                            self._match_entry_from_relation(r, song).result
+                            for r in entity_relations
+                        ]
+                        await self._cache.set(
+                            results, "matches", song.url, platforms_key, limit,
+                            ttl=self.CACHE_TTL_SEARCH,
+                        )
+                        return results
+
+                if not entity_id:
+                    return []
+
+            # Step 2: Discover relations for the entity
             response = await client.post(
-                "/api/v1/matches/find",
+                f"/api/v1/entities/{entity_id}/relations:discover",
                 json={
-                    "source_url": song.url,
-                    "target_platforms": [p.value for p in platforms],
+                    "target_providers": [p.value for p in platforms],
                     "limit": limit,
                 },
             )
@@ -469,28 +565,14 @@ class APIClient:
             response.raise_for_status()
             data = response.json()
 
-            results = []
-            for match in data.get("matches", []):
-                result_data = match.get("result", {})
-                result = DownloadResult(
-                    name=result_data.get("name", song.name),
-                    artists=result_data.get("artists", song.artists),
-                    artist=result_data.get("artist", song.artist),
-                    duration=result_data.get("duration", song.duration),
-                    platform=TargetPlatform(result_data.get("platform", "youtube")),
-                    platform_id=result_data.get("platform_id", ""),
-                    url=result_data.get("url", ""),
-                    verified=result_data.get("verified", False),
-                    score=match.get("score", 0.0),
-                    cover_url=result_data.get("cover_url"),
-                    views=result_data.get("views"),
-                )
-                results.append(result)
+            results = [
+                self._match_entry_from_relation(r, song).result
+                for r in data.get("relations", [])
+            ]
 
-            # Cache result
             await self._cache.set(
                 results, "matches", song.url, platforms_key, limit,
-                ttl=self.CACHE_TTL_SEARCH
+                ttl=self.CACHE_TTL_SEARCH,
             )
             return results
 
@@ -501,39 +583,25 @@ class APIClient:
         except httpx.HTTPError as e:
             raise APIError(f"Request failed: {e}") from e
 
-    def _primary_platform(self, platforms: list[dict[str, Any]]) -> dict[str, Any]:
-        """Return the first platform entry when available."""
-        return platforms[0] if platforms else {}
+    @staticmethod
+    def _flatten_entity(data: dict[str, Any]) -> dict[str, Any]:
+        """Flatten EntityResponse: merge canonical fields into top-level dict.
 
-    def _normalize_entity_song(self, data: dict[str, Any]) -> dict[str, Any]:
-        """Normalize internal song response into CLI-friendly fields."""
-        platforms = data.get("platforms", [])
-        primary = self._primary_platform(platforms)
-        artist = data.get("artist")
-        artists = data.get("artists") or ([artist] if artist else [])
-        return {
-            "name": data.get("name", ""),
-            "artists": artists,
-            "artist": artist or (artists[0] if artists else "Unknown"),
-            "duration": data.get("duration", 0) or 0,
-            "platform": primary.get("platform") or data.get("platform") or "spotify",
-            "platform_id": primary.get("platform_id") or data.get("platform_id") or "",
-            "url": primary.get("url") or data.get("url") or "",
-            "album": data.get("album_name"),
-            "album_name": data.get("album_name"),
-            "cover_url": data.get("cover_url"),
-            "track_number": data.get("track_number"),
-            "disc_number": data.get("disc_number"),
-            "isrc": data.get("isrc"),
-            "explicit": data.get("explicit", False),
-            "year": data.get("year"),
-            "genres": data.get("genres", []),
-        }
+        The backend returns ``{id, type, name, canonical: {…}, …}``.
+        Callers (screens) expect key fields at the top level, so we lift
+        everything from ``canonical`` while preserving the original top-level
+        keys (``id``, ``type``, ``name``, etc.).
+        """
+        canonical = data.get("canonical", {})
+        result = dict(canonical)  # start with canonical fields
+        # Overlay top-level entity fields (id, type, name, quality_score, …)
+        result.update({k: v for k, v in data.items() if k != "canonical"})
+        return result
 
     async def get_entity_song(
         self, song_id: str, use_cache: bool = True
     ) -> dict[str, Any]:
-        """Get song details by internal UUID."""
+        """Get song/track entity details by internal UUID via GET /api/v1/entities/{id}."""
         if use_cache:
             cached = await self._cache.get("entity_song", song_id)
             if cached is not None:
@@ -541,7 +609,7 @@ class APIClient:
 
         try:
             client = await self._get_client()
-            response = await client.get(f"/api/v1/entities/songs/{song_id}")
+            response = await client.get(f"/api/v1/entities/{song_id}")
             if response.status_code == 404:
                 raise NotFoundError(f"Song not found: {song_id}")
             response.raise_for_status()
@@ -558,7 +626,7 @@ class APIClient:
     async def get_entity_album(
         self, album_id: str, use_cache: bool = True
     ) -> dict[str, Any]:
-        """Get album details by internal UUID (normalized for CLI screens)."""
+        """Get album entity by internal UUID via GET /api/v1/entities/{id}."""
         if use_cache:
             cached = await self._cache.get("entity_album", album_id)
             if cached is not None:
@@ -566,36 +634,11 @@ class APIClient:
 
         try:
             client = await self._get_client()
-            response = await client.get(f"/api/v1/entities/albums/{album_id}")
+            response = await client.get(f"/api/v1/entities/{album_id}")
             if response.status_code == 404:
                 raise NotFoundError(f"Album not found: {album_id}")
             response.raise_for_status()
-            data = response.json()
-
-            tracks = [self._normalize_entity_song(s) for s in data.get("songs", [])]
-            platforms = data.get("platforms", [])
-            primary = self._primary_platform(platforms)
-
-            result = {
-                "id": data.get("id"),
-                "name": data.get("name"),
-                "artist": data.get("artist_name") or data.get("artist"),
-                "artists": [data.get("artist_name")] if data.get("artist_name") else [],
-                "tracks": tracks,
-                "total_tracks": data.get("total_tracks"),
-                "release_date": data.get("release_date"),
-                "year": data.get("year"),
-                "cover_url": data.get("cover_url"),
-                "album_type": data.get("album_type"),
-                "label": data.get("label"),
-                "popularity": data.get("popularity"),
-                "genres": data.get("genres", []),
-                "platforms": platforms,
-                "platform": primary.get("platform"),
-                "platform_id": primary.get("platform_id"),
-                "url": primary.get("url"),
-            }
-
+            result = self._flatten_entity(response.json())
             await self._cache.set(result, "entity_album", album_id, ttl=self.CACHE_TTL_DETAIL)
             return result
         except httpx.ConnectError as e:
@@ -608,7 +651,7 @@ class APIClient:
     async def get_entity_artist(
         self, artist_id: str, use_cache: bool = True
     ) -> dict[str, Any]:
-        """Get artist details by internal UUID (normalized for CLI screens)."""
+        """Get artist entity by internal UUID via GET /api/v1/entities/{id}."""
         if use_cache:
             cached = await self._cache.get("entity_artist", artist_id)
             if cached is not None:
@@ -616,39 +659,11 @@ class APIClient:
 
         try:
             client = await self._get_client()
-            response = await client.get(f"/api/v1/entities/artists/{artist_id}")
+            response = await client.get(f"/api/v1/entities/{artist_id}")
             if response.status_code == 404:
                 raise NotFoundError(f"Artist not found: {artist_id}")
             response.raise_for_status()
-            data = response.json()
-
-            top_tracks = [self._normalize_entity_song(s) for s in data.get("songs", [])]
-            albums = [
-                {
-                    "id": album.get("id"),
-                    "name": album.get("name"),
-                    "year": album.get("year"),
-                    "total_tracks": album.get("total_tracks"),
-                    "album_type": album.get("album_type"),
-                    "type": album.get("album_type"),
-                    "cover_url": album.get("cover_url"),
-                }
-                for album in data.get("albums", [])
-            ]
-
-            result = {
-                "id": data.get("id"),
-                "name": data.get("name"),
-                "image_url": data.get("image_url"),
-                "genres": data.get("genres", []),
-                "bio": data.get("bio"),
-                "popularity": data.get("popularity"),
-                "followers": data.get("monthly_listeners") or 0,
-                "albums": albums,
-                "top_tracks": top_tracks,
-                "platforms": data.get("platforms", []),
-            }
-
+            result = self._flatten_entity(response.json())
             await self._cache.set(result, "entity_artist", artist_id, ttl=self.CACHE_TTL_DETAIL)
             return result
         except httpx.ConnectError as e:
@@ -661,7 +676,7 @@ class APIClient:
     async def get_entity_playlist(
         self, playlist_id: str, use_cache: bool = True
     ) -> dict[str, Any]:
-        """Get playlist details by internal UUID (normalized for CLI screens)."""
+        """Get playlist entity by internal UUID via GET /api/v1/entities/{id}."""
         if use_cache:
             cached = await self._cache.get("entity_playlist", playlist_id)
             if cached is not None:
@@ -669,32 +684,11 @@ class APIClient:
 
         try:
             client = await self._get_client()
-            response = await client.get(f"/api/v1/entities/playlists/{playlist_id}")
+            response = await client.get(f"/api/v1/entities/{playlist_id}")
             if response.status_code == 404:
                 raise NotFoundError(f"Playlist not found: {playlist_id}")
             response.raise_for_status()
-            data = response.json()
-
-            tracks = [self._normalize_entity_song(s) for s in data.get("songs", [])]
-            platforms = data.get("platforms", [])
-            primary = self._primary_platform(platforms)
-
-            result = {
-                "id": data.get("id"),
-                "name": data.get("name"),
-                "description": data.get("description"),
-                "cover_url": data.get("cover_url"),
-                "owner": {"display_name": data.get("owner_name") or "Unknown"},
-                "tracks": tracks,
-                "total_tracks": data.get("total_tracks"),
-                "followers": data.get("followers") or 0,
-                "public": data.get("is_public", True),
-                "platforms": platforms,
-                "platform": primary.get("platform"),
-                "platform_id": primary.get("platform_id"),
-                "url": primary.get("url"),
-            }
-
+            result = self._flatten_entity(response.json())
             await self._cache.set(result, "entity_playlist", playlist_id, ttl=self.CACHE_TTL_DETAIL)
             return result
         except httpx.ConnectError as e:
@@ -711,7 +705,9 @@ class APIClient:
         fallback_song: Song | None = None,
     ) -> MatchEntry:
         """
-        Submit a user-discovered match.
+        Submit a user-discovered match via POST /api/v1/entities/{entity_id}/relations.
+
+        First discovers the source entity, then creates a relation to the target URL.
 
         Args:
             source_url: Source song URL
@@ -722,11 +718,25 @@ class APIClient:
         """
         try:
             client = await self._get_client()
+
+            # Discover source entity to get its ID
+            discover_resp = await client.post(
+                "/api/v1/entities/discover",
+                json={"url": source_url},
+            )
+            discover_resp.raise_for_status()
+            discover_data = discover_resp.json()
+            entities = discover_data.get("entities", [])
+            if not entities:
+                raise APIError(f"Could not resolve source URL: {source_url}")
+            entity_id = entities[0]["id"]
+
+            # Create relation
             response = await client.post(
-                "/api/v1/matches/submit",
+                f"/api/v1/entities/{entity_id}/relations",
                 json={
-                    "source_url": source_url,
-                    "target_url": target_url,
+                    "to_url": target_url,
+                    "relation_type": "audio_match",
                 },
             )
 
@@ -741,7 +751,7 @@ class APIClient:
                 platform_id="",
                 url=source_url,
             )
-            return self._match_entry_from_api(data, song)
+            return self._match_entry_from_relation(data, song)
 
         except httpx.ConnectError as e:
             raise ConnectionError(f"Cannot connect to API: {e}") from e
@@ -753,15 +763,21 @@ class APIClient:
     async def get_song_matches(
         self, song_id: str, fallback_song: Song
     ) -> list[MatchEntry]:
-        """Get saved matches for a song."""
+        """Get saved matches for a song via GET /api/v1/entities/{entity_id}/relations."""
         try:
             client = await self._get_client()
-            response = await client.get(f"/api/v1/songs/{song_id}/matches")
+            response = await client.get(
+                f"/api/v1/entities/{song_id}/relations",
+                params={"relation_type": "audio_match"},
+            )
             if response.status_code == 404:
                 return []
             response.raise_for_status()
             data = response.json()
-            return [self._match_entry_from_api(m, fallback_song) for m in data]
+            return [
+                self._match_entry_from_relation(r, fallback_song)
+                for r in data.get("relations", [])
+            ]
         except httpx.ConnectError as e:
             raise ConnectionError(f"Cannot connect to API: {e}") from e
         except httpx.HTTPStatusError as e:
@@ -770,15 +786,15 @@ class APIClient:
             raise APIError(f"Request failed: {e}") from e
 
     async def get_match(self, match_id: str, fallback_song: Song) -> MatchEntry:
-        """Get a match by ID."""
+        """Get a match (relation) by ID via GET /api/v1/relations/{id}."""
         try:
             client = await self._get_client()
-            response = await client.get(f"/api/v1/matches/{match_id}")
+            response = await client.get(f"/api/v1/relations/{match_id}")
             if response.status_code == 404:
                 raise NotFoundError(f"Match not found: {match_id}")
             response.raise_for_status()
             data = response.json()
-            return self._match_entry_from_api(data, fallback_song)
+            return self._match_entry_from_relation(data, fallback_song)
         except httpx.ConnectError as e:
             raise ConnectionError(f"Cannot connect to API: {e}") from e
         except httpx.HTTPStatusError as e:
@@ -787,10 +803,10 @@ class APIClient:
             raise APIError(f"Request failed: {e}") from e
 
     async def get_match_votes(self, match_id: str) -> dict[str, Any]:
-        """Get vote summary for a match."""
+        """Get vote summary for a relation via GET /api/v1/relations/{id}/vote."""
         try:
             client = await self._get_client()
-            response = await client.get(f"/api/v1/votes/{match_id}")
+            response = await client.get(f"/api/v1/relations/{match_id}/vote")
             if response.status_code == 404:
                 raise NotFoundError(f"Match not found: {match_id}")
             response.raise_for_status()
@@ -803,12 +819,12 @@ class APIClient:
             raise APIError(f"Request failed: {e}") from e
 
     async def cast_vote(self, match_id: str, vote_type: str) -> dict[str, Any]:
-        """Cast a vote on a match."""
+        """Cast a vote on a relation via POST /api/v1/relations/{id}/vote."""
         try:
             client = await self._get_client()
             response = await client.post(
-                "/api/v1/votes",
-                json={"match_id": match_id, "vote_type": vote_type},
+                f"/api/v1/relations/{match_id}/vote",
+                json={"vote": vote_type},
             )
             response.raise_for_status()
             return response.json()
@@ -820,10 +836,13 @@ class APIClient:
             raise APIError(f"Request failed: {e}") from e
 
     async def remove_vote(self, match_id: str) -> dict[str, Any]:
-        """Remove a vote from a match."""
+        """Remove a vote from a relation via POST /api/v1/relations/{id}/vote with 'remove'."""
         try:
             client = await self._get_client()
-            response = await client.delete(f"/api/v1/votes/{match_id}")
+            response = await client.post(
+                f"/api/v1/relations/{match_id}/vote",
+                json={"vote": "remove"},
+            )
             response.raise_for_status()
             return response.json()
         except httpx.ConnectError as e:
@@ -1145,7 +1164,7 @@ class APIClient:
         self, track_id: str, platform: str = "spotify", use_cache: bool = True
     ) -> dict[str, Any]:
         """
-        Get detailed information about a track.
+        Get detailed information about a track by discovering it via platform URL.
 
         Args:
             track_id: Track ID on the platform
@@ -1153,7 +1172,7 @@ class APIClient:
             use_cache: Whether to use cached response
 
         Returns:
-            Track details including metadata, matches, lyrics, audio features
+            Track details (EntityResponse)
         """
         if use_cache:
             cached = await self._cache.get("track", platform, track_id)
@@ -1162,15 +1181,21 @@ class APIClient:
 
         try:
             client = await self._get_client()
-            response = await client.get(
-                f"/api/v1/entities/songs/platform/{platform}/{track_id}",
+            url = self._build_platform_url(platform, "track", track_id)
+            response = await client.post(
+                "/api/v1/entities/discover",
+                json={"url": url, "types": ["track"]},
             )
 
             if response.status_code == 404:
                 raise NotFoundError(f"Track not found: {track_id}")
 
             response.raise_for_status()
-            result = response.json()
+            data = response.json()
+            entities = data.get("entities", [])
+            if not entities:
+                raise NotFoundError(f"Track not found: {track_id}")
+            result = entities[0]
 
             await self._cache.set(
                 result, "track", platform, track_id, ttl=self.CACHE_TTL_DETAIL
@@ -1188,7 +1213,7 @@ class APIClient:
         self, album_id: str, platform: str = "spotify", use_cache: bool = True
     ) -> dict[str, Any]:
         """
-        Get detailed information about an album.
+        Get detailed information about an album by discovering via platform URL.
 
         Args:
             album_id: Album ID on the platform
@@ -1196,7 +1221,7 @@ class APIClient:
             use_cache: Whether to use cached response
 
         Returns:
-            Album details including tracks, metadata
+            Album EntityResponse from discover
         """
         if use_cache:
             cached = await self._cache.get("album", platform, album_id)
@@ -1205,8 +1230,10 @@ class APIClient:
 
         try:
             client = await self._get_client()
-            response = await client.get(
-                f"/api/v1/entities/albums/platform/{platform}/{album_id}",
+            url = self._build_platform_url(platform, "album", album_id)
+            response = await client.post(
+                "/api/v1/entities/discover",
+                json={"url": url, "types": ["album"]},
             )
 
             if response.status_code == 404:
@@ -1214,29 +1241,10 @@ class APIClient:
 
             response.raise_for_status()
             data = response.json()
-
-            tracks = [self._normalize_entity_song(s) for s in data.get("songs", [])]
-            platforms = data.get("platforms", [])
-            primary = self._primary_platform(platforms)
-            result = {
-                "id": data.get("id"),
-                "name": data.get("name"),
-                "artist": data.get("artist_name") or data.get("artist"),
-                "artists": [data.get("artist_name")] if data.get("artist_name") else [],
-                "tracks": tracks,
-                "total_tracks": data.get("total_tracks"),
-                "release_date": data.get("release_date"),
-                "year": data.get("year"),
-                "cover_url": data.get("cover_url"),
-                "album_type": data.get("album_type"),
-                "label": data.get("label"),
-                "popularity": data.get("popularity"),
-                "genres": data.get("genres", []),
-                "platforms": platforms,
-                "platform": primary.get("platform"),
-                "platform_id": primary.get("platform_id"),
-                "url": primary.get("url"),
-            }
+            entities = data.get("entities", [])
+            if not entities:
+                raise NotFoundError(f"Album not found: {album_id}")
+            result = entities[0]
 
             await self._cache.set(
                 result, "album", platform, album_id, ttl=self.CACHE_TTL_DETAIL
@@ -1254,7 +1262,7 @@ class APIClient:
         self, artist_id: str, platform: str = "spotify", use_cache: bool = True
     ) -> dict[str, Any]:
         """
-        Get detailed information about an artist.
+        Get detailed information about an artist by discovering via platform URL.
 
         Args:
             artist_id: Artist ID on the platform
@@ -1262,7 +1270,7 @@ class APIClient:
             use_cache: Whether to use cached response
 
         Returns:
-            Artist details including albums, top tracks
+            Artist EntityResponse from discover
         """
         if use_cache:
             cached = await self._cache.get("artist", platform, artist_id)
@@ -1271,8 +1279,10 @@ class APIClient:
 
         try:
             client = await self._get_client()
-            response = await client.get(
-                f"/api/v1/entities/artists/platform/{platform}/{artist_id}",
+            url = self._build_platform_url(platform, "artist", artist_id)
+            response = await client.post(
+                "/api/v1/entities/discover",
+                json={"url": url, "types": ["artist"]},
             )
 
             if response.status_code == 404:
@@ -1280,33 +1290,10 @@ class APIClient:
 
             response.raise_for_status()
             data = response.json()
-
-            top_tracks = [self._normalize_entity_song(s) for s in data.get("songs", [])]
-            albums = [
-                {
-                    "id": album.get("id"),
-                    "name": album.get("name"),
-                    "year": album.get("year"),
-                    "total_tracks": album.get("total_tracks"),
-                    "album_type": album.get("album_type"),
-                    "type": album.get("album_type"),
-                    "cover_url": album.get("cover_url"),
-                }
-                for album in data.get("albums", [])
-            ]
-
-            result = {
-                "id": data.get("id"),
-                "name": data.get("name"),
-                "image_url": data.get("image_url"),
-                "genres": data.get("genres", []),
-                "bio": data.get("bio"),
-                "popularity": data.get("popularity"),
-                "followers": data.get("monthly_listeners") or 0,
-                "albums": albums,
-                "top_tracks": top_tracks,
-                "platforms": data.get("platforms", []),
-            }
+            entities = data.get("entities", [])
+            if not entities:
+                raise NotFoundError(f"Artist not found: {artist_id}")
+            result = entities[0]
 
             await self._cache.set(
                 result, "artist", platform, artist_id, ttl=self.CACHE_TTL_DETAIL
@@ -1324,7 +1311,7 @@ class APIClient:
         self, playlist_id: str, platform: str = "spotify", use_cache: bool = True
     ) -> dict[str, Any]:
         """
-        Get detailed information about a playlist.
+        Get detailed information about a playlist by discovering via platform URL.
 
         Args:
             playlist_id: Playlist ID on the platform
@@ -1332,7 +1319,7 @@ class APIClient:
             use_cache: Whether to use cached response
 
         Returns:
-            Playlist details including tracks
+            Playlist EntityResponse from discover
         """
         if use_cache:
             cached = await self._cache.get("playlist", platform, playlist_id)
@@ -1341,8 +1328,10 @@ class APIClient:
 
         try:
             client = await self._get_client()
-            response = await client.get(
-                f"/api/v1/entities/playlists/platform/{platform}/{playlist_id}",
+            url = self._build_platform_url(platform, "playlist", playlist_id)
+            response = await client.post(
+                "/api/v1/entities/discover",
+                json={"url": url, "types": ["playlist"]},
             )
 
             if response.status_code == 404:
@@ -1350,25 +1339,10 @@ class APIClient:
 
             response.raise_for_status()
             data = response.json()
-
-            tracks = [self._normalize_entity_song(s) for s in data.get("songs", [])]
-            platforms = data.get("platforms", [])
-            primary = self._primary_platform(platforms)
-            result = {
-                "id": data.get("id"),
-                "name": data.get("name"),
-                "description": data.get("description"),
-                "cover_url": data.get("cover_url"),
-                "owner": {"display_name": data.get("owner_name") or "Unknown"},
-                "tracks": tracks,
-                "total_tracks": data.get("total_tracks"),
-                "followers": data.get("followers") or 0,
-                "public": data.get("is_public", True),
-                "platforms": platforms,
-                "platform": primary.get("platform"),
-                "platform_id": primary.get("platform_id"),
-                "url": primary.get("url"),
-            }
+            entities = data.get("entities", [])
+            if not entities:
+                raise NotFoundError(f"Playlist not found: {playlist_id}")
+            result = entities[0]
 
             await self._cache.set(
                 result, "playlist", platform, playlist_id, ttl=self.CACHE_TTL_DETAIL
@@ -1404,7 +1378,7 @@ class APIClient:
         try:
             client = await self._get_client()
             response = await client.get(
-                f"/api/v1/lyrics/song/{song_id}",
+                f"/api/v1/lyrics/entity/{song_id}",
                 params={"force_refresh": force_refresh},
             )
 
@@ -1434,7 +1408,7 @@ class APIClient:
 
         try:
             client = await self._get_client()
-            response = await client.get(f"/api/v1/lyrics/song/{song_id}/all")
+            response = await client.get(f"/api/v1/lyrics/entity/{song_id}/all")
             response.raise_for_status()
             result = response.json()
             await self._cache.set(result, "lyrics_all", song_id, ttl=self.CACHE_TTL_LYRICS)
@@ -1450,7 +1424,7 @@ class APIClient:
         """Fetch lyrics from all sources and store them."""
         try:
             client = await self._get_client()
-            response = await client.post(f"/api/v1/lyrics/song/{song_id}/fetch-all")
+            response = await client.post(f"/api/v1/lyrics/entity/{song_id}/fetch-all")
             response.raise_for_status()
             result = response.json()
             await self._cache.set(result, "lyrics_all", song_id, ttl=self.CACHE_TTL_LYRICS)
@@ -1484,7 +1458,7 @@ class APIClient:
     async def get_metadata_sources(
         self, song_id: str, include_raw: bool = False, use_cache: bool = True
     ) -> dict[str, Any]:
-        """Get metadata sources for a song by internal ID."""
+        """Get metadata snapshots for an entity via GET /api/v1/entities/{id}/snapshots."""
         if use_cache:
             cached = await self._cache.get("metadata_sources", song_id, include_raw)
             if cached is not None:
@@ -1492,10 +1466,7 @@ class APIClient:
 
         try:
             client = await self._get_client()
-            response = await client.get(
-                f"/api/v1/entities/songs/{song_id}/metadata-sources",
-                params={"include_raw": include_raw},
-            )
+            response = await client.get(f"/api/v1/entities/{song_id}/snapshots")
             response.raise_for_status()
             result = response.json()
             await self._cache.set(
@@ -1510,10 +1481,10 @@ class APIClient:
             raise APIError(f"Request failed: {e}") from e
 
     async def refresh_entity(self, entity_type: str, entity_id: str) -> dict[str, Any]:
-        """Refresh entity metadata by internal ID."""
+        """Refresh entity metadata via POST /api/v1/entities/{id}/refresh."""
         try:
             client = await self._get_client()
-            response = await client.post(f"/api/v1/entities/{entity_type}/{entity_id}/refresh")
+            response = await client.post(f"/api/v1/entities/{entity_id}/refresh", json={})
             response.raise_for_status()
             cache_keys = {
                 "songs": "entity_song",
@@ -1533,32 +1504,12 @@ class APIClient:
             raise APIError(f"Request failed: {e}") from e
 
     async def enrich_song(self, song_id: str) -> dict[str, Any]:
-        """Enrich song metadata from external sources."""
-        try:
-            client = await self._get_client()
-            response = await client.post(f"/api/v1/entities/songs/{song_id}/enrich")
-            response.raise_for_status()
-            return response.json()
-        except httpx.ConnectError as e:
-            raise ConnectionError(f"Cannot connect to API: {e}") from e
-        except httpx.HTTPStatusError as e:
-            raise APIError(f"API error: {e.response.text}") from e
-        except httpx.HTTPError as e:
-            raise APIError(f"Request failed: {e}") from e
+        """Enrich song metadata via POST /api/v1/entities/{id}/refresh."""
+        return await self.refresh_entity("songs", song_id)
 
     async def enrich_song_all_sources(self, song_id: str) -> dict[str, Any]:
-        """Fetch metadata and lyrics from all sources for a song."""
-        try:
-            client = await self._get_client()
-            response = await client.post(f"/api/v1/entities/songs/{song_id}/enrich-all")
-            response.raise_for_status()
-            return response.json()
-        except httpx.ConnectError as e:
-            raise ConnectionError(f"Cannot connect to API: {e}") from e
-        except httpx.HTTPStatusError as e:
-            raise APIError(f"API error: {e.response.text}") from e
-        except httpx.HTTPError as e:
-            raise APIError(f"Request failed: {e}") from e
+        """Fetch metadata from all sources via POST /api/v1/entities/{id}/refresh."""
+        return await self.refresh_entity("songs", song_id)
 
     async def get_admin_stats(self) -> dict[str, Any]:
         """Get admin dashboard statistics."""
@@ -1577,10 +1528,11 @@ class APIClient:
     async def get_admin_matches(
         self, status: str | None = None, limit: int = 50, offset: int = 0
     ) -> dict[str, Any]:
-        """Get matches for admin review."""
+        """Get matches for admin review via GET /api/v1/admin/matches."""
         try:
             client = await self._get_client()
-            params = {"limit": limit, "offset": offset}
+            page = (offset // limit) + 1 if limit else 1
+            params: dict[str, Any] = {"page": page, "per_page": limit}
             if status:
                 params["status"] = status
             response = await client.get("/api/v1/admin/matches", params=params)
@@ -1594,10 +1546,13 @@ class APIClient:
             raise APIError(f"Request failed: {e}") from e
 
     async def approve_match(self, match_id: str) -> dict[str, Any]:
-        """Approve a match submission."""
+        """Approve a match via PATCH /api/v1/admin/matches/{id} with status=confirmed."""
         try:
             client = await self._get_client()
-            response = await client.post(f"/api/v1/admin/matches/{match_id}/approve")
+            response = await client.patch(
+                f"/api/v1/admin/matches/{match_id}",
+                json={"status": "confirmed"},
+            )
             response.raise_for_status()
             return response.json()
         except httpx.ConnectError as e:
@@ -1608,10 +1563,13 @@ class APIClient:
             raise APIError(f"Request failed: {e}") from e
 
     async def reject_match(self, match_id: str) -> dict[str, Any]:
-        """Reject a match submission."""
+        """Reject a match via PATCH /api/v1/admin/matches/{id} with status=rejected."""
         try:
             client = await self._get_client()
-            response = await client.post(f"/api/v1/admin/matches/{match_id}/reject")
+            response = await client.patch(
+                f"/api/v1/admin/matches/{match_id}",
+                json={"status": "rejected"},
+            )
             response.raise_for_status()
             return response.json()
         except httpx.ConnectError as e:
@@ -1624,13 +1582,14 @@ class APIClient:
     async def get_admin_reports(
         self, status: str | None = None, limit: int = 50, offset: int = 0
     ) -> dict[str, Any]:
-        """Get reports for admin review."""
+        """Get reports for admin review via GET /api/v1/reports."""
         try:
             client = await self._get_client()
-            params = {"limit": limit, "offset": offset}
+            page = (offset // limit) + 1 if limit else 1
+            params: dict[str, Any] = {"page": page, "page_size": limit}
             if status:
                 params["status"] = status
-            response = await client.get("/api/v1/admin/reports", params=params)
+            response = await client.get("/api/v1/reports", params=params)
             response.raise_for_status()
             return response.json()
         except httpx.ConnectError as e:

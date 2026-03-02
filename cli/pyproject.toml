@@ -20,6 +20,8 @@ classifiers = [
 dependencies = [
     # Core shared library (providers, matching, types)
     "spotdl-core",
+    # Backend (in-process ASGI for local mode)
+    "spotdl-backend",
     # TUI framework
     "textual>=0.89.0",
     "rich>=13.9.0",
@@ -70,6 +72,7 @@ build-backend = "hatchling.build"
 
 [tool.uv.sources]
 spotdl-core = { path = "../core", editable = true }
+spotdl-backend = { path = "../backend", editable = true }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/spotdl_cli"]

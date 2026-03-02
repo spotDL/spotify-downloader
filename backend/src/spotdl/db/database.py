@@ -62,11 +62,23 @@ def run_migrations() -> None:
     settings = get_settings()
 
     # Find alembic.ini - check multiple possible locations
+    # When installed as a package, alembic.ini is bundled next to the spotdl package
+    import importlib.resources
+
     possible_paths = [
         Path("alembic.ini"),  # Current directory (Docker)
         Path(__file__).parent.parent.parent.parent / "alembic.ini",  # From source
         Path("/app/alembic.ini"),  # Docker absolute path
     ]
+
+    # Also check inside the installed package data
+    try:
+        pkg_root = importlib.resources.files("spotdl")
+        pkg_alembic = Path(str(pkg_root)).parent / "alembic.ini"
+        if pkg_alembic not in possible_paths:
+            possible_paths.append(pkg_alembic)
+    except Exception:
+        pass
 
     alembic_ini = None
     for path in possible_paths:

@@ -93,6 +93,10 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/spotdl"]
 
+[tool.hatch.build.targets.wheel.force-include]
+"alembic.ini" = "alembic.ini"
+"alembic" = "alembic"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"

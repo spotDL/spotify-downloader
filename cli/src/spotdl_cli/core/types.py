@@ -221,18 +221,23 @@ class EntityResult:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> EntityResult:
-        """Create from dictionary."""
+        """Create from dictionary (supports both legacy and EntityResponse format)."""
+        # Backend returns "type" not "entity_type" in EntityResponse
+        raw_type = data.get("type") or data.get("entity_type", "track")
+        # Canonical contains most metadata in the new entity model
+        canonical = data.get("canonical", {})
+
         platforms = [
             PlatformInfo.from_dict(p) for p in data.get("platforms", [])
         ]
         return cls(
             id=data.get("id", ""),
-            entity_type=EntityType(data.get("entity_type", "track")),
-            name=data.get("name", ""),
-            subtitle=data.get("subtitle"),
-            image_url=data.get("image_url"),
+            entity_type=EntityType(raw_type),
+            name=data.get("name") or canonical.get("name", ""),
+            subtitle=data.get("subtitle") or canonical.get("artist"),
+            image_url=data.get("image_url") or canonical.get("cover_url"),
             platforms=platforms,
-            duration=data.get("duration"),
+            duration=data.get("duration") or canonical.get("duration"),
         )
 
     @property
@@ -260,8 +265,10 @@ class UniversalSearchResponse:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> UniversalSearchResponse:
-        """Create from dictionary."""
-        results = [EntityResult.from_dict(r) for r in data.get("results", [])]
+        """Create from dictionary (supports both legacy and DiscoverResponse format)."""
+        # Backend returns "entities" not "results" in DiscoverResponse
+        raw_results = data.get("entities") or data.get("results", [])
+        results = [EntityResult.from_dict(r) for r in raw_results]
         return cls(
             query=data.get("query", ""),
             query_type=data.get("query_type", "text"),

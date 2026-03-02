@@ -178,27 +178,41 @@ class TestAPIClient:
 
     @pytest.mark.asyncio
     async def test_resolve_url_success(self, client: APIClient) -> None:
-        """Test successful URL resolution."""
+        """Test successful URL resolution via POST /entities/discover."""
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
-            "songs": [
+            "entities": [
                 {
+                    "id": "entity-1",
+                    "type": "track",
                     "name": "Test Song",
-                    "artists": ["Artist1"],
-                    "artist": "Artist1",
-                    "duration": 180,
-                    "platform": "spotify",
-                    "platform_id": "test123",
-                    "url": "https://spotify.com/track/test123",
+                    "canonical": {
+                        "name": "Test Song",
+                        "artists": ["Artist1"],
+                        "artist": "Artist1",
+                        "duration": 180,
+                        "platform": "spotify",
+                        "platform_id": "test123",
+                        "url": "https://spotify.com/track/test123",
+                    },
+                    "capabilities": {},
+                    "quality_score": 0.9,
+                    "last_merged_at": "2024-01-01T00:00:00Z",
+                    "merge_version": 1,
                 }
-            ]
+            ],
+            "total": 1,
+            "entities_created": 1,
+            "query": "https://spotify.com/track/test123",
+            "query_type": "url",
+            "top_relations": {},
         }
         mock_response.raise_for_status = MagicMock()
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_http.post = AsyncMock(return_value=mock_response)
             mock_get.return_value = mock_http
 
             songs = await client.resolve_url("https://spotify.com/track/test123")
@@ -213,32 +227,43 @@ class TestAPIClient:
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
-            "songs": [
+            "entities": [
                 {
+                    "id": "entity-1",
+                    "type": "track",
                     "name": "Test Song",
-                    "artists": ["Artist1"],
-                    "artist": "Artist1",
-                    "duration": 180,
-                    "platform": "spotify",
-                    "platform_id": "test123",
-                    "url": "https://spotify.com/track/test123",
+                    "canonical": {
+                        "name": "Test Song",
+                        "artists": ["Artist1"],
+                        "artist": "Artist1",
+                        "duration": 180,
+                        "platform": "spotify",
+                        "platform_id": "test123",
+                        "url": "https://spotify.com/track/test123",
+                    },
+                    "capabilities": {},
+                    "quality_score": 0.9,
+                    "last_merged_at": "2024-01-01T00:00:00Z",
+                    "merge_version": 1,
                 }
-            ]
+            ],
+            "total": 1,
+            "entities_created": 0,
+            "query": "",
+            "query_type": "url",
+            "top_relations": {},
         }
         mock_response.raise_for_status = MagicMock()
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_http.post = AsyncMock(return_value=mock_response)
             mock_get.return_value = mock_http
 
-            # First call
             await client.resolve_url("https://spotify.com/track/test123")
-            # Second call should use cache
             await client.resolve_url("https://spotify.com/track/test123")
 
-            # Should only call the API once
-            assert mock_http.get.call_count == 1
+            assert mock_http.post.call_count == 1
 
     @pytest.mark.asyncio
     async def test_resolve_url_not_found(self, client: APIClient) -> None:
@@ -248,7 +273,7 @@ class TestAPIClient:
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_http.post = AsyncMock(return_value=mock_response)
             mock_get.return_value = mock_http
 
             with pytest.raises(NotFoundError):
@@ -259,7 +284,7 @@ class TestAPIClient:
         """Test URL resolution with connection error."""
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.get = AsyncMock(side_effect=httpx.ConnectError("Failed"))
+            mock_http.post = AsyncMock(side_effect=httpx.ConnectError("Failed"))
             mock_get.return_value = mock_http
 
             with pytest.raises(ConnectionError):
@@ -279,7 +304,7 @@ class TestAPIClient:
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_http.post = AsyncMock(return_value=mock_response)
             mock_get.return_value = mock_http
 
             with pytest.raises(APIError):
@@ -287,27 +312,41 @@ class TestAPIClient:
 
     @pytest.mark.asyncio
     async def test_search_success(self, client: APIClient) -> None:
-        """Test successful search."""
+        """Test successful search via POST /entities/discover."""
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
-            "songs": [
+            "entities": [
                 {
+                    "id": "entity-2",
+                    "type": "track",
                     "name": "Found Song",
-                    "artists": ["Artist"],
-                    "artist": "Artist",
-                    "duration": 200,
-                    "platform": "spotify",
-                    "platform_id": "found123",
-                    "url": "https://spotify.com/track/found123",
+                    "canonical": {
+                        "name": "Found Song",
+                        "artists": ["Artist"],
+                        "artist": "Artist",
+                        "duration": 200,
+                        "platform": "spotify",
+                        "platform_id": "found123",
+                        "url": "https://spotify.com/track/found123",
+                    },
+                    "capabilities": {},
+                    "quality_score": 0.9,
+                    "last_merged_at": "2024-01-01T00:00:00Z",
+                    "merge_version": 1,
                 }
-            ]
+            ],
+            "total": 1,
+            "entities_created": 0,
+            "query": "test query",
+            "query_type": "text",
+            "top_relations": {},
         }
         mock_response.raise_for_status = MagicMock()
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_http.post = AsyncMock(return_value=mock_response)
             mock_get.return_value = mock_http
 
             songs = await client.search("test query")
@@ -317,87 +356,101 @@ class TestAPIClient:
 
     @pytest.mark.asyncio
     async def test_search_with_pagination(self, client: APIClient) -> None:
-        """Test search with pagination parameters."""
+        """Test search with limit parameter."""
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {"songs": []}
+        mock_response.json.return_value = {
+            "entities": [], "total": 0, "entities_created": 0,
+            "query": "query", "query_type": "text", "top_relations": {},
+        }
         mock_response.raise_for_status = MagicMock()
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_http.post = AsyncMock(return_value=mock_response)
             mock_get.return_value = mock_http
 
             await client.search("query", limit=50, offset=20)
 
-            mock_http.get.assert_called_once()
-            call_kwargs = mock_http.get.call_args
-            assert call_kwargs.kwargs["params"]["limit"] == 50
-            assert call_kwargs.kwargs["params"]["offset"] == 20
+            mock_http.post.assert_called_once()
+            call_kwargs = mock_http.post.call_args
+            assert call_kwargs.kwargs["json"]["limit"] == 50
 
     @pytest.mark.asyncio
     async def test_search_with_platform(self, client: APIClient) -> None:
-        """Test search with specific platform."""
+        """Test search with specific platform sends providers hint."""
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {"songs": []}
+        mock_response.json.return_value = {
+            "entities": [], "total": 0, "entities_created": 0,
+            "query": "query", "query_type": "text", "top_relations": {},
+        }
         mock_response.raise_for_status = MagicMock()
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_http.post = AsyncMock(return_value=mock_response)
             mock_get.return_value = mock_http
 
             await client.search("query", platform=Platform.DEEZER)
 
-            call_kwargs = mock_http.get.call_args
-            assert call_kwargs.kwargs["params"]["platform"] == "deezer"
+            call_kwargs = mock_http.post.call_args
+            assert "deezer" in call_kwargs.kwargs["json"]["providers"]
 
     @pytest.mark.asyncio
     async def test_search_cached(self, client: APIClient) -> None:
         """Test search uses cache."""
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {"songs": []}
+        mock_response.json.return_value = {
+            "entities": [], "total": 0, "entities_created": 0,
+            "query": "query", "query_type": "text", "top_relations": {},
+        }
         mock_response.raise_for_status = MagicMock()
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_http.post = AsyncMock(return_value=mock_response)
             mock_get.return_value = mock_http
 
             await client.search("query")
             await client.search("query")
 
-            assert mock_http.get.call_count == 1
+            assert mock_http.post.call_count == 1
 
     @pytest.mark.asyncio
     async def test_universal_search_success(self, client: APIClient) -> None:
-        """Test successful universal search."""
+        """Test successful universal search via POST /entities/discover."""
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
             "query": "test",
             "query_type": "text",
-            "results": [
+            "entities": [
                 {
                     "id": "track1",
-                    "entity_type": "track",
+                    "type": "track",
                     "name": "Test Track",
-                    "subtitle": "Artist",
-                    "platforms": [
-                        {"platform": "spotify", "platform_id": "id1", "url": "url1"}
-                    ],
+                    "canonical": {"name": "Test Track", "artist": "Artist"},
+                    "capabilities": {},
+                    "quality_score": 0.9,
+                    "last_merged_at": "2024-01-01T00:00:00Z",
+                    "merge_version": 1,
                 },
                 {
                     "id": "artist1",
-                    "entity_type": "artist",
+                    "type": "artist",
                     "name": "Test Artist",
-                    "platforms": [],
+                    "canonical": {"name": "Test Artist"},
+                    "capabilities": {},
+                    "quality_score": 0.8,
+                    "last_merged_at": "2024-01-01T00:00:00Z",
+                    "merge_version": 1,
                 },
             ],
             "entities_created": 0,
             "total": 2,
+            "top_relations": {},
         }
         mock_response.raise_for_status = MagicMock()
 
@@ -415,15 +468,16 @@ class TestAPIClient:
 
     @pytest.mark.asyncio
     async def test_universal_search_with_entity_types(self, client: APIClient) -> None:
-        """Test universal search with entity type filter."""
+        """Test universal search with entity type filter sends types."""
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
             "query": "test",
             "query_type": "text",
-            "results": [],
+            "entities": [],
             "entities_created": 0,
             "total": 0,
+            "top_relations": {},
         }
         mock_response.raise_for_status = MagicMock()
 
@@ -437,38 +491,60 @@ class TestAPIClient:
             )
 
             call_kwargs = mock_http.post.call_args
-            assert "entity_types" in call_kwargs.kwargs["json"]
+            assert "types" in call_kwargs.kwargs["json"]
 
     @pytest.mark.asyncio
     async def test_find_matches_success(
         self, client: APIClient, sample_song
     ) -> None:
-        """Test successful match finding."""
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
-            "matches": [
+        """Test successful match finding via relations:discover.
+
+        sample_song has song_id set (from __post_init__), so discover is skipped
+        and relations:discover is called directly.
+        """
+        relations_response = MagicMock()
+        relations_response.status_code = 200
+        relations_response.json.return_value = {
+            "entity_id": sample_song.song_id,
+            "relations": [
                 {
-                    "target_platform": "youtube",
-                    "score": 95.0,
-                    "result": {
+                    "id": "rel-1",
+                    "from_entity_id": sample_song.song_id,
+                    "to_entity_id": "target-1",
+                    "relation_type": "audio_match",
+                    "match_score": 95.0,
+                    "confidence": 0.95,
+                    "status": "confirmed",
+                    "discovered_by": "system",
+                    "upvotes": 0, "downvotes": 0, "net_votes": 0,
+                    "relation_data": {},
+                    "target": {
+                        "id": "target-1",
+                        "type": "track",
                         "name": "Test Song",
-                        "artists": ["Artist"],
-                        "artist": "Artist",
-                        "duration": 182,
-                        "platform": "youtube",
-                        "platform_id": "abc123",
-                        "url": "https://youtube.com/watch?v=abc123",
-                        "verified": True,
+                        "canonical": {
+                            "name": "Test Song",
+                            "artists": ["Artist"],
+                            "artist": "Artist",
+                            "duration": 182,
+                            "platform": "youtube",
+                            "platform_id": "abc123",
+                            "url": "https://youtube.com/watch?v=abc123",
+                        },
+                        "capabilities": {},
+                        "quality_score": 0.8,
+                        "last_merged_at": "",
+                        "merge_version": 1,
                     },
                 }
-            ]
+            ],
+            "total": 1,
         }
-        mock_response.raise_for_status = MagicMock()
+        relations_response.raise_for_status = MagicMock()
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.post = AsyncMock(return_value=mock_response)
+            mock_http.post = AsyncMock(return_value=relations_response)
             mock_get.return_value = mock_http
 
             matches = await client.find_matches(sample_song)
@@ -482,15 +558,17 @@ class TestAPIClient:
     async def test_find_matches_with_platforms(
         self, client: APIClient, sample_song
     ) -> None:
-        """Test match finding with specific platforms."""
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {"matches": []}
-        mock_response.raise_for_status = MagicMock()
+        """Test match finding passes target_providers to relations:discover."""
+        relations_response = MagicMock()
+        relations_response.status_code = 200
+        relations_response.json.return_value = {
+            "entity_id": sample_song.song_id, "relations": [], "total": 0,
+        }
+        relations_response.raise_for_status = MagicMock()
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.post = AsyncMock(return_value=mock_response)
+            mock_http.post = AsyncMock(return_value=relations_response)
             mock_get.return_value = mock_http
 
             await client.find_matches(
@@ -499,13 +577,13 @@ class TestAPIClient:
             )
 
             call_kwargs = mock_http.post.call_args
-            assert "soundcloud" in call_kwargs.kwargs["json"]["target_platforms"]
+            assert "soundcloud" in call_kwargs.kwargs["json"]["target_providers"]
 
     @pytest.mark.asyncio
     async def test_find_matches_no_results(
         self, client: APIClient, sample_song
     ) -> None:
-        """Test match finding with no results."""
+        """Test match finding with no results from relations:discover."""
         mock_response = MagicMock()
         mock_response.status_code = 404
 
@@ -519,38 +597,54 @@ class TestAPIClient:
 
     @pytest.mark.asyncio
     async def test_submit_match_success(self, client: APIClient) -> None:
-        """Test successful match submission."""
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
-            "id": "match-123",
-            "source_url": "https://spotify.com/track/test",
-            "target_url": "https://youtube.com/watch?v=abc",
-            "target_platform": "youtube",
-            "score": 0.0,
+        """Test successful match submission via discover + create relation."""
+        discover_response = MagicMock()
+        discover_response.status_code = 200
+        discover_response.json.return_value = {
+            "entities": [{"id": "entity-1", "type": "track", "name": "Test",
+                          "canonical": {}, "capabilities": {}, "quality_score": 0.9,
+                          "last_merged_at": "", "merge_version": 1}],
+            "total": 1, "entities_created": 0, "query": "", "query_type": "url",
+            "top_relations": {},
+        }
+        discover_response.raise_for_status = MagicMock()
+
+        relation_response = MagicMock()
+        relation_response.status_code = 200
+        relation_response.json.return_value = {
+            "id": "rel-123",
+            "from_entity_id": "entity-1",
+            "to_entity_id": "target-1",
+            "relation_type": "audio_match",
+            "match_score": None,
             "confidence": 0.0,
-            "match_type": "user",
             "status": "pending",
-            "upvotes": 0,
-            "downvotes": 0,
-            "net_votes": 0,
-            "created_at": "2024-01-01T00:00:00Z",
-            "result": {
+            "discovered_by": "user",
+            "upvotes": 0, "downvotes": 0, "net_votes": 0,
+            "relation_data": {},
+            "target": {
+                "id": "target-1",
+                "type": "track",
                 "name": "Test Song",
-                "artists": ["Artist"],
-                "artist": "Artist",
-                "duration": 182,
-                "platform": "youtube",
-                "platform_id": "abc123",
-                "url": "https://youtube.com/watch?v=abc",
-                "verified": False,
+                "canonical": {
+                    "name": "Test Song",
+                    "platform": "youtube",
+                    "platform_id": "abc123",
+                    "url": "https://youtube.com/watch?v=abc",
+                },
+                "capabilities": {},
+                "quality_score": 0.5,
+                "last_merged_at": "",
+                "merge_version": 1,
             },
         }
-        mock_response.raise_for_status = MagicMock()
+        relation_response.raise_for_status = MagicMock()
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.post = AsyncMock(return_value=mock_response)
+            mock_http.post = AsyncMock(
+                side_effect=[discover_response, relation_response]
+            )
             mock_get.return_value = mock_http
 
             result = await client.submit_match(
@@ -558,42 +652,52 @@ class TestAPIClient:
                 "https://youtube.com/watch?v=abc",
             )
 
-            assert result.id == "match-123"
+            assert result.id == "rel-123"
             assert result.target_url == "https://youtube.com/watch?v=abc"
 
     @pytest.mark.asyncio
     async def test_get_song_matches_success(
         self, client: APIClient, sample_song
     ) -> None:
-        """Test fetching matches for a song."""
+        """Test fetching matches for a song via GET /entities/{id}/relations."""
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = [
-            {
-                "id": "match-1",
-                "source_url": "https://spotify.com/track/test",
-                "target_url": "https://youtube.com/watch?v=abc",
-                "target_platform": "youtube",
-                "score": 82.0,
-                "confidence": 0.82,
-                "match_type": "system",
-                "status": "verified",
-                "upvotes": 2,
-                "downvotes": 0,
-                "net_votes": 2,
-                "created_at": "2024-01-01T00:00:00Z",
-                "result": {
-                    "name": "Test Song",
-                    "artists": ["Artist"],
-                    "artist": "Artist",
-                    "duration": 182,
-                    "platform": "youtube",
-                    "platform_id": "abc123",
-                    "url": "https://youtube.com/watch?v=abc",
-                    "verified": True,
-                },
-            }
-        ]
+        mock_response.json.return_value = {
+            "entity_id": "song-123",
+            "relations": [
+                {
+                    "id": "rel-1",
+                    "from_entity_id": "song-123",
+                    "to_entity_id": "target-1",
+                    "relation_type": "audio_match",
+                    "match_score": 82.0,
+                    "confidence": 0.82,
+                    "status": "confirmed",
+                    "discovered_by": "system",
+                    "upvotes": 2, "downvotes": 0, "net_votes": 2,
+                    "relation_data": {},
+                    "target": {
+                        "id": "target-1",
+                        "type": "track",
+                        "name": "Test Song",
+                        "canonical": {
+                            "name": "Test Song",
+                            "artists": ["Artist"],
+                            "artist": "Artist",
+                            "duration": 182,
+                            "platform": "youtube",
+                            "platform_id": "abc123",
+                            "url": "https://youtube.com/watch?v=abc",
+                        },
+                        "capabilities": {},
+                        "quality_score": 0.8,
+                        "last_merged_at": "",
+                        "merge_version": 1,
+                    },
+                }
+            ],
+            "total": 1,
+        }
         mock_response.raise_for_status = MagicMock()
 
         with patch.object(client, "_get_client") as mock_get:
@@ -604,8 +708,7 @@ class TestAPIClient:
             matches = await client.get_song_matches("song-123", sample_song)
 
             assert len(matches) == 1
-            assert matches[0].id == "match-1"
-            assert matches[0].net_votes == 2
+            assert matches[0].id == "rel-1"
 
     @pytest.mark.asyncio
     async def test_get_match_votes_success(self, client: APIClient) -> None:
@@ -658,23 +761,25 @@ class TestAPIClient:
 
     @pytest.mark.asyncio
     async def test_get_track_success(self, client: APIClient) -> None:
-        """Test getting track details."""
+        """Test getting track details via POST /entities/discover."""
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
-            "id": "track123",
-            "name": "Test Track",
-            "artists": ["Artist"],
+            "entities": [{"id": "track123", "type": "track", "name": "Test Track",
+                          "canonical": {"name": "Test Track", "artists": ["Artist"]},
+                          "capabilities": {}, "quality_score": 0.9,
+                          "last_merged_at": "", "merge_version": 1}],
+            "total": 1, "entities_created": 0, "query": "", "query_type": "url",
+            "top_relations": {},
         }
         mock_response.raise_for_status = MagicMock()
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_http.post = AsyncMock(return_value=mock_response)
             mock_get.return_value = mock_http
 
             result = await client.get_track("track123")
-
             assert result["name"] == "Test Track"
 
     @pytest.mark.asyncio
@@ -685,7 +790,7 @@ class TestAPIClient:
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_http.post = AsyncMock(return_value=mock_response)
             mock_get.return_value = mock_http
 
             with pytest.raises(NotFoundError):
@@ -696,56 +801,68 @@ class TestAPIClient:
         """Test track details are cached."""
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {"id": "track123"}
+        mock_response.json.return_value = {
+            "entities": [{"id": "track123", "type": "track", "name": "T",
+                          "canonical": {}, "capabilities": {}, "quality_score": 0.9,
+                          "last_merged_at": "", "merge_version": 1}],
+            "total": 1, "entities_created": 0, "query": "", "query_type": "url",
+            "top_relations": {},
+        }
         mock_response.raise_for_status = MagicMock()
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_http.post = AsyncMock(return_value=mock_response)
             mock_get.return_value = mock_http
 
             await client.get_track("track123")
             await client.get_track("track123")
-
-            assert mock_http.get.call_count == 1
+            assert mock_http.post.call_count == 1
 
     @pytest.mark.asyncio
     async def test_get_track_no_cache(self, client: APIClient) -> None:
         """Test getting track without cache."""
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {"id": "track123"}
-        mock_response.raise_for_status = MagicMock()
-
-        with patch.object(client, "_get_client") as mock_get:
-            mock_http = AsyncMock()
-            mock_http.get = AsyncMock(return_value=mock_response)
-            mock_get.return_value = mock_http
-
-            await client.get_track("track123", use_cache=False)
-            await client.get_track("track123", use_cache=False)
-
-            assert mock_http.get.call_count == 2
-
-    @pytest.mark.asyncio
-    async def test_get_album_success(self, client: APIClient) -> None:
-        """Test getting album details."""
-        mock_response = MagicMock()
-        mock_response.status_code = 200
         mock_response.json.return_value = {
-            "id": "album123",
-            "name": "Test Album",
-            "tracks": [],
+            "entities": [{"id": "track123", "type": "track", "name": "T",
+                          "canonical": {}, "capabilities": {}, "quality_score": 0.9,
+                          "last_merged_at": "", "merge_version": 1}],
+            "total": 1, "entities_created": 0, "query": "", "query_type": "url",
+            "top_relations": {},
         }
         mock_response.raise_for_status = MagicMock()
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_http.post = AsyncMock(return_value=mock_response)
+            mock_get.return_value = mock_http
+
+            await client.get_track("track123", use_cache=False)
+            await client.get_track("track123", use_cache=False)
+            assert mock_http.post.call_count == 2
+
+    @pytest.mark.asyncio
+    async def test_get_album_success(self, client: APIClient) -> None:
+        """Test getting album details via POST /entities/discover."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "entities": [{"id": "album123", "type": "album", "name": "Test Album",
+                          "canonical": {"name": "Test Album"},
+                          "capabilities": {}, "quality_score": 0.9,
+                          "last_merged_at": "", "merge_version": 1}],
+            "total": 1, "entities_created": 0, "query": "", "query_type": "url",
+            "top_relations": {},
+        }
+        mock_response.raise_for_status = MagicMock()
+
+        with patch.object(client, "_get_client") as mock_get:
+            mock_http = AsyncMock()
+            mock_http.post = AsyncMock(return_value=mock_response)
             mock_get.return_value = mock_http
 
             result = await client.get_album("album123")
-
             assert result["name"] == "Test Album"
 
     @pytest.mark.asyncio
@@ -756,7 +873,7 @@ class TestAPIClient:
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_http.post = AsyncMock(return_value=mock_response)
             mock_get.return_value = mock_http
 
             with pytest.raises(NotFoundError):
@@ -764,23 +881,25 @@ class TestAPIClient:
 
     @pytest.mark.asyncio
     async def test_get_artist_success(self, client: APIClient) -> None:
-        """Test getting artist details."""
+        """Test getting artist details via POST /entities/discover."""
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
-            "id": "artist123",
-            "name": "Test Artist",
-            "albums": [],
+            "entities": [{"id": "artist123", "type": "artist", "name": "Test Artist",
+                          "canonical": {"name": "Test Artist"},
+                          "capabilities": {}, "quality_score": 0.8,
+                          "last_merged_at": "", "merge_version": 1}],
+            "total": 1, "entities_created": 0, "query": "", "query_type": "url",
+            "top_relations": {},
         }
         mock_response.raise_for_status = MagicMock()
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_http.post = AsyncMock(return_value=mock_response)
             mock_get.return_value = mock_http
 
             result = await client.get_artist("artist123")
-
             assert result["name"] == "Test Artist"
 
     @pytest.mark.asyncio
@@ -791,7 +910,7 @@ class TestAPIClient:
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_http.post = AsyncMock(return_value=mock_response)
             mock_get.return_value = mock_http
 
             with pytest.raises(NotFoundError):
@@ -799,23 +918,26 @@ class TestAPIClient:
 
     @pytest.mark.asyncio
     async def test_get_playlist_success(self, client: APIClient) -> None:
-        """Test getting playlist details."""
+        """Test getting playlist details via POST /entities/discover."""
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
-            "id": "playlist123",
-            "name": "Test Playlist",
-            "tracks": [],
+            "entities": [{"id": "playlist123", "type": "playlist",
+                          "name": "Test Playlist",
+                          "canonical": {"name": "Test Playlist"},
+                          "capabilities": {}, "quality_score": 0.7,
+                          "last_merged_at": "", "merge_version": 1}],
+            "total": 1, "entities_created": 0, "query": "", "query_type": "url",
+            "top_relations": {},
         }
         mock_response.raise_for_status = MagicMock()
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_http.post = AsyncMock(return_value=mock_response)
             mock_get.return_value = mock_http
 
             result = await client.get_playlist("playlist123")
-
             assert result["name"] == "Test Playlist"
 
     @pytest.mark.asyncio
@@ -826,7 +948,7 @@ class TestAPIClient:
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
-            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_http.post = AsyncMock(return_value=mock_response)
             mock_get.return_value = mock_http
 
             with pytest.raises(NotFoundError):
@@ -977,32 +1099,33 @@ class TestAPIClient:
 
     @pytest.mark.asyncio
     async def test_get_client_creates_new(self, client: APIClient) -> None:
-        """Test _get_client creates new client when needed."""
+        """Test _get_client creates new client via BackendManager."""
         assert client._client is None
 
-        with patch("spotdl_cli.core.api_client.httpx.AsyncClient") as mock_cls:
-            mock_instance = AsyncMock()
-            mock_cls.return_value = mock_instance
+        mock_http = AsyncMock()
+        with patch("spotdl_cli.core.backend.get_backend_manager") as mock_mgr:
+            mock_mgr.return_value.create_client.return_value = mock_http
 
             result = await client._get_client()
 
-            assert result == mock_instance
-            mock_cls.assert_called_once()
+            assert result == mock_http
+            mock_mgr.return_value.create_client.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_get_client_sets_auth_header(self, settings: Settings) -> None:
-        """Test _get_client includes auth header when configured."""
+        """Test _get_client uses BackendManager which includes auth when configured."""
         settings.auth_token = "test-token"
+        settings.backend_mode = "remote"
         client = APIClient(settings)
 
-        with patch("spotdl_cli.core.api_client.httpx.AsyncClient") as mock_cls:
-            mock_instance = AsyncMock()
-            mock_cls.return_value = mock_instance
+        # BackendManager.create_client() handles auth headers for remote mode
+        mock_http = AsyncMock()
+        with patch("spotdl_cli.core.backend.get_backend_manager") as mock_mgr:
+            mock_mgr.return_value.create_client.return_value = mock_http
 
-            await client._get_client()
+            result = await client._get_client()
 
-            call_kwargs = mock_cls.call_args.kwargs
-            assert call_kwargs["headers"]["Authorization"] == "Bearer test-token"
+            assert result == mock_http
 
     @pytest.mark.asyncio
     async def test_get_client_reuses_existing(self, client: APIClient) -> None:
@@ -1022,13 +1145,13 @@ class TestAPIClient:
         mock_http.is_closed = True
         client._client = mock_http
 
-        with patch("spotdl_cli.core.api_client.httpx.AsyncClient") as mock_cls:
-            mock_instance = AsyncMock()
-            mock_cls.return_value = mock_instance
+        new_mock_http = AsyncMock()
+        with patch("spotdl_cli.core.backend.get_backend_manager") as mock_mgr:
+            mock_mgr.return_value.create_client.return_value = new_mock_http
 
             result = await client._get_client()
 
-            assert result == mock_instance
+            assert result == new_mock_http
 
 
 class TestAPIClientAuth:

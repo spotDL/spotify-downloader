@@ -28,13 +28,13 @@ from spotdl_cli.config import Settings, get_settings
 from spotdl_cli.core import (
     APIError,
     DownloadManager,
-    DownloadQueue,
     DownloadResult,
     Song,
     TargetPlatform,
     get_api_client,
     get_offline_matcher,
 )
+from spotdl_cli.core.backend import get_backend_manager
 from spotdl_cli.core.query import QueryType, parse_query
 
 app = typer.Typer(
@@ -83,6 +83,46 @@ def setup_logging(verbose: bool) -> None:
         level=level,
         format="%(levelname)s: %(message)s",
     )
+
+
+def _run(coro: object) -> object:
+    """Run an async coroutine with backend lifecycle management.
+
+    Starts the local backend before running the coroutine and
+    stops it afterward. Uses a single event loop for the entire
+    command to avoid recreation issues.
+    """
+    async def _wrapper() -> object:
+        manager = get_backend_manager()
+        settings = get_settings()
+        if not settings.offline_mode:
+            await manager.start()
+        try:
+            return await coro  # type: ignore[misc]
+        finally:
+            await manager.stop()
+
+    return asyncio.run(_wrapper())
+
+
+@app.callback()
+def app_callback(
+    backend: Annotated[
+        str | None,
+        typer.Option("--backend", help="Backend mode: local, remote, or offline"),
+    ] = None,
+) -> None:
+    """Global options applied before any command."""
+    if backend is not None:
+        settings = get_settings()
+        if backend == "offline":
+            settings.offline_mode = True
+        elif backend in ("local", "remote"):
+            settings.offline_mode = False
+            settings.backend_mode = backend  # type: ignore[assignment]
+        else:
+            console.print(f"[red]Invalid backend mode: {backend}. Use local, remote, or offline.[/]")
+            raise typer.Exit(1)
 
 
 async def resolve_queries(
@@ -201,7 +241,7 @@ async def download_songs(
     settings: Settings,
     output: Path | None = None,
 ) -> tuple[int, int]:
-    """Download songs and return (success_count, fail_count)."""
+    """Download songs concurrently and return (success_count, fail_count)."""
     if not songs:
         return 0, 0
 
@@ -217,38 +257,21 @@ async def download_songs(
         max_concurrent=settings.threads,
     )
 
-    queue = DownloadQueue(max_concurrent=settings.threads)
+    api_client = get_api_client()
     offline_matcher = get_offline_matcher()
 
-    # Add songs to queue with matched results
-    for song in songs:
-        # Try to find a match if not already from a URL
-        result = None
-        if song.url and ("youtube.com" in song.url or "youtu.be" in song.url):
-            # Create result from existing URL
-            result = DownloadResult(
-                name=song.name,
-                artists=song.artists,
-                artist=song.artist,
-                duration=song.duration,
-                platform=TargetPlatform.YOUTUBE,
-                platform_id=song.platform_id,
-                url=song.url,
-                verified=False,
-                score=100.0,
-                cover_url=song.cover_url,
-            )
-        else:
-            # Try to find a match
-            try:
-                result = await offline_matcher.get_best_match(song, min_score=60.0)
-            except Exception as e:
-                logger.warning(f"Failed to find match for {song.display_name}: {e}")
+    # Check connectivity once for match finding
+    is_online = False
+    if not settings.offline_mode:
+        try:
+            is_online = await api_client.is_online()
+        except Exception:
+            pass
 
-        await queue.add(song, result=result)
-
+    semaphore = asyncio.Semaphore(settings.threads)
     success_count = 0
     fail_count = 0
+    counter_lock = asyncio.Lock()
 
     with Progress(
         SpinnerColumn(),
@@ -264,29 +287,71 @@ async def download_songs(
             total=len(songs),
         )
 
-        # Process queue
-        while queue.pending_count > 0 or queue.active_count > 0:
-            # Get next pending item
-            next_item = await queue.get_next_pending()
-            if next_item is None:
-                await asyncio.sleep(0.1)
-                continue
+        async def _download_one(song: Song) -> None:
+            nonlocal success_count, fail_count
 
-            item_id, item = next_item
-
-            # Download using the manager (no status callback for CLI mode)
-            result_path = await download_manager.download_item(
-                item_id,
-                item,
-            )
-
-            if result_path:
-                success_count += 1
+            # Find a match for this song
+            result: DownloadResult | None = None
+            if song.url and ("youtube.com" in song.url or "youtu.be" in song.url):
+                result = DownloadResult(
+                    name=song.name,
+                    artists=song.artists,
+                    artist=song.artist,
+                    duration=song.duration,
+                    platform=TargetPlatform.YOUTUBE,
+                    platform_id=song.platform_id,
+                    url=song.url,
+                    verified=False,
+                    score=100.0,
+                    cover_url=song.cover_url,
+                )
             else:
-                fail_count += 1
+                # Try online matching first
+                if is_online:
+                    try:
+                        matches = await api_client.find_matches(song)
+                        if matches:
+                            result = matches[0].result
+                    except Exception:
+                        pass
+                # Fallback to offline
+                if result is None:
+                    try:
+                        result = await offline_matcher.get_best_match(song, min_score=60.0)
+                    except Exception as e:
+                        logger.warning("Failed to find match for %s: %s", song.display_name, e)
 
-            progress.update(task, advance=1)
+            if result is None:
+                async with counter_lock:
+                    fail_count += 1
+                    progress.update(task, advance=1)
+                return
 
+            from spotdl_cli.core.types import DownloadItem, DownloadStatus
+            from datetime import datetime
+
+            item = DownloadItem(
+                song=song,
+                result=result,
+                status=DownloadStatus.PENDING,
+                created_at=datetime.now(),
+            )
+            item_id = f"cli-{id(song)}"
+
+            async with semaphore:
+                result_path = await download_manager.download_item(item_id, item)
+
+            async with counter_lock:
+                if result_path:
+                    success_count += 1
+                else:
+                    fail_count += 1
+                progress.update(task, advance=1)
+
+        tasks = [asyncio.create_task(_download_one(song)) for song in songs]
+        await asyncio.gather(*tasks)
+
+    await api_client.close()
     await download_manager.close()
     return success_count, fail_count
 
@@ -359,29 +424,28 @@ def download(
     settings.threads = threads
     settings.overwrite = overwrite  # type: ignore
 
-    console.print(f"[cyan]Resolving {len(queries)} query(ies)...[/]")
+    async def _do_download() -> None:
+        console.print(f"[cyan]Resolving {len(queries)} query(ies)...[/]")
+        songs = await resolve_queries(queries, settings)
 
-    # Resolve queries to songs
-    songs = asyncio.run(resolve_queries(queries, settings))
+        if not songs:
+            console.print("[yellow]No songs found for the given queries.[/]")
+            raise typer.Exit(0)
 
-    if not songs:
-        console.print("[yellow]No songs found for the given queries.[/]")
-        raise typer.Exit(0)
+        console.print(f"[green]Found {len(songs)} song(s)[/]")
 
-    console.print(f"[green]Found {len(songs)} song(s)[/]")
+        success, failed = await download_songs(songs, settings, output)
 
-    # Download
-    success, failed = asyncio.run(download_songs(songs, settings, output))
+        console.print()
+        if success > 0:
+            console.print(f"[green]Successfully downloaded {success} song(s)[/]")
+        if failed > 0:
+            console.print(f"[red]Failed to download {failed} song(s)[/]")
 
-    # Summary
-    console.print()
-    if success > 0:
-        console.print(f"[green]Successfully downloaded {success} song(s)[/]")
-    if failed > 0:
-        console.print(f"[red]Failed to download {failed} song(s)[/]")
+        if failed > 0:
+            raise typer.Exit(1)
 
-    if failed > 0:
-        raise typer.Exit(1)
+    _run(_do_download())
 
 
 @app.command()
@@ -436,7 +500,7 @@ def search(
         await api_client.close()
         return results
 
-    songs = asyncio.run(do_search())
+    songs = _run(do_search())
 
     if not songs:
         console.print("[yellow]No results found.[/]")
@@ -525,7 +589,7 @@ def info(
         await api_client.close()
         return songs
 
-    songs = asyncio.run(get_info())
+    songs = _run(get_info())
 
     if not songs:
         console.print("[yellow]Could not resolve URL.[/]")
@@ -635,18 +699,18 @@ def save(
     if format:
         settings.audio_format = format  # type: ignore
 
-    console.print(f"[cyan]Resolving {len(queries)} query(ies)...[/]")
-    songs = asyncio.run(resolve_queries(queries, settings))
+    async def _do_save() -> list[dict]:
+        console.print(f"[cyan]Resolving {len(queries)} query(ies)...[/]")
+        songs = await resolve_queries(queries, settings)
 
-    if not songs:
-        console.print("[yellow]No songs found for the given queries.[/]")
-        raise typer.Exit(0)
+        if not songs:
+            console.print("[yellow]No songs found for the given queries.[/]")
+            raise typer.Exit(0)
 
-    console.print(f"[green]Found {len(songs)} song(s)[/]")
+        console.print(f"[green]Found {len(songs)} song(s)[/]")
 
-    async def _process_songs() -> list[dict]:
         offline_matcher = get_offline_matcher()
-        processed = []
+        processed: list[dict] = []
         for song in songs:
             entry: dict = song.json if hasattr(song, "json") else song.to_dict()
 
@@ -659,7 +723,6 @@ def save(
                     pass
 
             if with_lyrics and not entry.get("lyrics"):
-                # Try to fetch lyrics via API
                 try:
                     api_client = get_api_client()
                     is_online = await api_client.is_online()
@@ -679,7 +742,7 @@ def save(
             processed.append(entry)
         return processed
 
-    song_data = asyncio.run(_process_songs())
+    song_data = _run(_do_save())
 
     # Write output
     if output == "-":
@@ -695,7 +758,7 @@ def save(
     if settings.m3u:
         from spotdl_cli.core.m3u import gen_m3u_files
         gen_m3u_files(
-            songs, settings.m3u, settings.output_template, settings.audio_format
+            song_data, settings.m3u, settings.output_template, settings.audio_format
         )
 
 
@@ -719,16 +782,16 @@ def url(
     setup_logging(verbose)
     settings = get_settings()
 
-    console.print("[cyan]Resolving queries...[/]", stderr=True)
-    songs = asyncio.run(resolve_queries(queries, settings))
+    async def _do_url() -> list[str]:
+        console.print("[cyan]Resolving queries...[/]", stderr=True)
+        songs = await resolve_queries(queries, settings)
 
-    if not songs:
-        console.print("[yellow]No songs found.[/]", stderr=True)
-        raise typer.Exit(0)
+        if not songs:
+            console.print("[yellow]No songs found.[/]", stderr=True)
+            raise typer.Exit(0)
 
-    async def _find_urls() -> list[str]:
         offline_matcher = get_offline_matcher()
-        urls = []
+        urls: list[str] = []
         for song in songs:
             try:
                 result = await offline_matcher.get_best_match(song, min_score=60.0)
@@ -740,7 +803,7 @@ def url(
                 logger.warning("Failed to find URL for %s: %s", song.display_name, e)
         return urls
 
-    found_urls = asyncio.run(_find_urls())
+    found_urls = _run(_do_url())
 
     for u in found_urls:
         print(u)
@@ -796,99 +859,103 @@ def sync(
     sync_file_path = Path(queries[0]) if len(queries) == 1 else None
     is_update = sync_file_path and sync_file_path.exists() and sync_file_path.suffix == ".spotdl"
 
-    if is_update and sync_file_path:
-        # Update mode: load existing sync file and compare
-        console.print(f"[cyan]Loading sync file: {sync_file_path}[/]")
-        try:
-            sync_data = SyncFile.load(sync_file_path)
-        except (ValueError, json.JSONDecodeError) as e:
-            console.print(f"[red]Invalid sync file: {e}[/]")
-            raise typer.Exit(1)
+    async def _do_sync() -> None:
+        nonlocal no_delete, remove_lrc
 
-        old_songs = sync_data.songs
+        if is_update and sync_file_path:
+            # Update mode: load existing sync file and compare
+            console.print(f"[cyan]Loading sync file: {sync_file_path}[/]")
+            try:
+                sync_data = SyncFile.load(sync_file_path)
+            except (ValueError, json.JSONDecodeError) as e:
+                console.print(f"[red]Invalid sync file: {e}[/]")
+                raise typer.Exit(1)
 
-        # Re-resolve original queries to get current state
-        console.print("[cyan]Fetching current playlist state...[/]")
-        new_songs = asyncio.run(resolve_queries(sync_data.query, settings))
+            old_songs = sync_data.songs
 
-        if not new_songs:
-            console.print("[yellow]No songs found in current playlist state.[/]")
-            raise typer.Exit(0)
+            # Re-resolve original queries to get current state
+            console.print("[cyan]Fetching current playlist state...[/]")
+            new_songs = await resolve_queries(sync_data.query, settings)
 
-        # Compute sync actions
-        sync_manager = PlaylistSyncManager(settings)
-        actions = sync_manager.compute_sync_actions(
-            old_songs, new_songs, no_delete=no_delete, remove_lrc=remove_lrc
-        )
+            if not new_songs:
+                console.print("[yellow]No songs found in current playlist state.[/]")
+                raise typer.Exit(0)
 
-        if not actions.has_changes:
-            console.print("[green]Already in sync. No changes needed.[/]")
-            # Update sync file with new state anyway
+            # Compute sync actions
+            sync_manager = PlaylistSyncManager(settings)
+            actions = sync_manager.compute_sync_actions(
+                old_songs, new_songs, no_delete=no_delete, remove_lrc=remove_lrc
+            )
+
+            if not actions.has_changes:
+                console.print("[green]Already in sync. No changes needed.[/]")
+                sync_data.songs = new_songs
+                sync_data.save(sync_file_path)
+                raise typer.Exit(0)
+
+            console.print(f"[cyan]Sync actions: {actions.summary()}[/]")
+
+            if actions.renames:
+                renamed = sync_manager.execute_renames(actions.renames)
+                console.print(f"[green]Renamed {renamed} file(s)[/]")
+
+            if actions.deletions:
+                deleted = sync_manager.execute_deletions(actions.deletions)
+                console.print(f"[yellow]Deleted {deleted} file(s)[/]")
+
+            if actions.downloads:
+                console.print(f"[cyan]Downloading {len(actions.downloads)} new song(s)...[/]")
+                success, failed = await download_songs(actions.downloads, settings)
+                if success > 0:
+                    console.print(f"[green]Downloaded {success} song(s)[/]")
+                if failed > 0:
+                    console.print(f"[red]Failed to download {failed} song(s)[/]")
+
             sync_data.songs = new_songs
             sync_data.save(sync_file_path)
-            raise typer.Exit(0)
+            console.print(f"[green]Sync file updated: {sync_file_path}[/]")
 
-        console.print(f"[cyan]Sync actions: {actions.summary()}[/]")
+            # Generate M3U if configured
+            if settings.m3u:
+                from spotdl_cli.core.m3u import gen_m3u_files
+                gen_m3u_files(
+                    new_songs, settings.m3u, settings.output_template, settings.audio_format,
+                )
 
-        # Execute renames
-        if actions.renames:
-            renamed = sync_manager.execute_renames(actions.renames)
-            console.print(f"[green]Renamed {renamed} file(s)[/]")
+        else:
+            # Create mode: resolve queries, save sync file, download
+            console.print(f"[cyan]Resolving {len(queries)} query(ies)...[/]")
+            songs = await resolve_queries(queries, settings)
 
-        # Execute deletions
-        if actions.deletions:
-            deleted = sync_manager.execute_deletions(actions.deletions)
-            console.print(f"[yellow]Deleted {deleted} file(s)[/]")
+            if not songs:
+                console.print("[yellow]No songs found for the given queries.[/]")
+                raise typer.Exit(0)
 
-        # Download new songs
-        if actions.downloads:
-            console.print(f"[cyan]Downloading {len(actions.downloads)} new song(s)...[/]")
-            success, failed = asyncio.run(download_songs(actions.downloads, settings))
+            console.print(f"[green]Found {len(songs)} song(s)[/]")
+
+            # Save sync file
+            sync_file_name = settings.save_file or "sync.spotdl"
+            sync_path = Path(sync_file_name)
+            sync_data = SyncFile(query=queries, songs=songs)
+            sync_data.save(sync_path)
+            console.print(f"[green]Created sync file: {sync_path}[/]")
+
+            # Download all songs
+            success, failed = await download_songs(songs, settings)
+
             if success > 0:
                 console.print(f"[green]Downloaded {success} song(s)[/]")
             if failed > 0:
                 console.print(f"[red]Failed to download {failed} song(s)[/]")
 
-        # Update sync file with new state
-        sync_data.songs = new_songs
-        sync_data.save(sync_file_path)
-        console.print(f"[green]Sync file updated: {sync_file_path}[/]")
+            # Generate M3U if configured
+            if settings.m3u:
+                from spotdl_cli.core.m3u import gen_m3u_files
+                gen_m3u_files(
+                    songs, settings.m3u, settings.output_template, settings.audio_format,
+                )
 
-    else:
-        # Create mode: resolve queries, save sync file, download
-        console.print(f"[cyan]Resolving {len(queries)} query(ies)...[/]")
-        songs = asyncio.run(resolve_queries(queries, settings))
-
-        if not songs:
-            console.print("[yellow]No songs found for the given queries.[/]")
-            raise typer.Exit(0)
-
-        console.print(f"[green]Found {len(songs)} song(s)[/]")
-
-        # Save sync file
-        sync_file_name = settings.save_file or "sync.spotdl"
-        sync_path = Path(sync_file_name)
-        sync_data = SyncFile(query=queries, songs=songs)
-        sync_data.save(sync_path)
-        console.print(f"[green]Created sync file: {sync_path}[/]")
-
-        # Download all songs
-        success, failed = asyncio.run(download_songs(songs, settings))
-
-        if success > 0:
-            console.print(f"[green]Downloaded {success} song(s)[/]")
-        if failed > 0:
-            console.print(f"[red]Failed to download {failed} song(s)[/]")
-
-    # Generate M3U if configured
-    if settings.m3u:
-        from spotdl_cli.core.m3u import gen_m3u_files
-        gen_m3u_files(
-            new_songs if is_update else songs,
-            settings.m3u,
-            settings.output_template,
-            settings.audio_format,
-        )
+    _run(_do_sync())
 
 
 @app.command()
@@ -1044,7 +1111,7 @@ def meta(
         await api_client.close()
         return updated, skipped
 
-    updated, skipped = asyncio.run(_process_files())
+    updated, skipped = _run(_process_files())
 
     console.print()
     if updated > 0:

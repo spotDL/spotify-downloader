@@ -20,6 +20,7 @@ from spotdl_cli.core import (
     get_api_client,
     get_image_service,
 )
+from spotdl_cli.core.backend import get_backend_manager
 from spotdl_cli.screens.account import AccountScreen
 from spotdl_cli.screens.main import MainScreen
 from spotdl_cli.screens.onboarding import OnboardingScreen, should_show_onboarding
@@ -106,6 +107,14 @@ class SpotDLApp(App[None]):
 
     async def on_mount(self) -> None:
         """Handle application mount."""
+        # Start local backend if configured
+        manager = get_backend_manager()
+        if not self._settings.offline_mode:
+            try:
+                await manager.start()
+            except Exception as e:
+                logger.warning(f"Failed to start local backend: {e}")
+
         # Check backend connectivity
         await self._check_connectivity()
 
@@ -153,6 +162,10 @@ class SpotDLApp(App[None]):
         # Close image service HTTP client
         image_service = get_image_service()
         await image_service.close()
+
+        # Stop local backend
+        manager = get_backend_manager()
+        await manager.stop()
 
         self.exit()
 

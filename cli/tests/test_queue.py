@@ -141,18 +141,20 @@ class TestDownloadQueue:
 
     @pytest.mark.asyncio
     async def test_get_next_pending(self, queue: DownloadQueue, sample_song: Song) -> None:
-        """Test getting next pending item."""
+        """Test getting next pending item (marks it as SEARCHING)."""
         item_id = await queue.add(sample_song)
 
         result = await queue.get_next_pending()
         assert result is not None
         assert result[0] == item_id
+        # get_next_pending now marks the item as SEARCHING
+        assert result[1].status == DownloadStatus.SEARCHING
 
     @pytest.mark.asyncio
-    async def test_get_next_pending_respects_max_concurrent(
+    async def test_get_next_pending_marks_as_searching(
         self, queue: DownloadQueue, sample_song: Song
     ) -> None:
-        """Test that get_next_pending respects max concurrent limit."""
+        """Test that get_next_pending marks item as SEARCHING to prevent double-dispatch."""
         # Add 3 songs
         ids = []
         for i in range(3):
@@ -167,13 +169,16 @@ class TestDownloadQueue:
             )
             ids.append(await queue.add(song))
 
-        # Mark 2 as downloading (max_concurrent=2)
-        await queue.update_status(ids[0], DownloadStatus.DOWNLOADING)
-        await queue.update_status(ids[1], DownloadStatus.DOWNLOADING)
-
-        # Should return None since at max concurrent
+        # Get first pending — should be marked as SEARCHING
         result = await queue.get_next_pending()
-        assert result is None
+        assert result is not None
+        item_id, item = result
+        assert item.status == DownloadStatus.SEARCHING
+
+        # Get second — should be a different item
+        result2 = await queue.get_next_pending()
+        assert result2 is not None
+        assert result2[0] != item_id
 
     @pytest.mark.asyncio
     async def test_clear_completed(self, queue: DownloadQueue, sample_song: Song) -> None:

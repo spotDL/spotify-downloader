@@ -1,6 +1,10 @@
 """Core functionality for SpotDL CLI."""
 
 from spotdl_cli.core.archive import Archive
+from spotdl_cli.core.backend import (
+    BackendManager,
+    get_backend_manager,
+)
 from spotdl_cli.core.image_service import (
     ImageService,
     get_image_service,
@@ -61,6 +65,7 @@ __all__ = [
     "APIClient",
     "APIError",
     "Archive",
+    "BackendManager",
     "ConnectionError",
     "DownloadError",
     "DownloadItem",
@@ -93,6 +98,7 @@ __all__ = [
     "gen_m3u_files",
     "generate_lrc",
     "get_api_client",
+    "get_backend_manager",
     "get_image_service",
     "get_offline_matcher",
     "parse_query",

@@ -340,16 +340,19 @@ class DownloadQueue:
         """
         Get the next pending item to download.
 
+        Marks the item as SEARCHING immediately to prevent double-dispatch.
+        Concurrency is controlled by the caller via semaphore.
+
         Returns:
             Tuple of (item_id, item) or None if no pending items
         """
-        if self.active_count >= self._max_concurrent:
-            return None
-
-        for item_id in self._order:
-            item = self._items.get(item_id)
-            if item and item.status == DownloadStatus.PENDING:
-                return (item_id, item)
+        async with self._lock:
+            for item_id in self._order:
+                item = self._items.get(item_id)
+                if item and item.status == DownloadStatus.PENDING:
+                    item.status = DownloadStatus.SEARCHING
+                    self._active_downloads.add(item_id)
+                    return (item_id, item)
 
         return None
 
