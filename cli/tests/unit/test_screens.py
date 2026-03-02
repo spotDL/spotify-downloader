@@ -25,6 +25,17 @@ from spotdl_cli.core import (
 from spotdl_cli.config import Settings
 
 
+@pytest.fixture(autouse=True)
+def _mock_api_client_in_screens():
+    """Mock get_api_client in screen modules to avoid real HTTP calls."""
+    mock_client = AsyncMock()
+    mock_client.get_service_status = AsyncMock(return_value={})
+    mock_client.is_online = AsyncMock(return_value=False)
+    with patch("spotdl_cli.screens.main.get_api_client", return_value=mock_client), \
+         patch("spotdl_cli.screens.settings.get_api_client", return_value=mock_client):
+        yield mock_client
+
+
 @pytest.fixture
 def sample_search_response():
     """Create a sample search response."""

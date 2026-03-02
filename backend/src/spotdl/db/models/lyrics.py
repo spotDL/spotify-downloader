@@ -24,9 +24,7 @@ class Lyrics(Base, TimestampMixin):
     """
 
     __tablename__ = "lyrics"
-    __table_args__ = (
-        UniqueConstraint("entity_id", "source", name="uq_lyrics_entity_source"),
-    )
+    __table_args__ = (UniqueConstraint("entity_id", "source", name="uq_lyrics_entity_source"),)
 
     id: Mapped[uuid.UUID] = mapped_column(
         GUID(),
@@ -124,4 +122,3 @@ class Lyrics(Base, TimestampMixin):
 
     def __repr__(self) -> str:
         return f"<Lyrics(id={self.id}, entity_id={self.entity_id}, source={self.source})>"
-

@@ -21,9 +21,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # YouTube Music URL pattern
-YTMUSIC_URL_PATTERN = re.compile(
-    r"(?:https?://)?music\.youtube\.com/watch\?v=([a-zA-Z0-9_-]+)"
-)
+YTMUSIC_URL_PATTERN = re.compile(r"(?:https?://)?music\.youtube\.com/watch\?v=([a-zA-Z0-9_-]+)")
 
 
 class YouTubeMusicProvider(TargetProvider):
@@ -205,9 +203,7 @@ class YouTubeMusicProvider(TargetProvider):
             client = self._get_client()
             loop = asyncio.get_event_loop()
 
-            song_data = await loop.run_in_executor(
-                None, client.get_song, video_id
-            )
+            song_data = await loop.run_in_executor(None, client.get_song, video_id)
 
             if song_data is None:
                 return None

@@ -1,8 +1,5 @@
 """Tests for configuration."""
 
-import pytest
-import os
-
 from spotdl.config import Settings, get_settings
 
 

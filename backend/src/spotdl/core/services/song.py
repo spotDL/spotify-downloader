@@ -66,13 +66,18 @@ class SongService:
         self._resolver = URLResolver()
         self._providers: dict[Platform, SourceProvider] = {}
         self._enable_enrichment = enable_metadata_enrichment
-        
+
         from spotdl.core.services.metadata import MetadataService
-        self._metadata_service = MetadataService(
-            enable_musicbrainz=enable_musicbrainz,
-            enable_discogs=enable_discogs,
-            discogs_user_token=discogs_user_token,
-        ) if enable_metadata_enrichment else None
+
+        self._metadata_service = (
+            MetadataService(
+                enable_musicbrainz=enable_musicbrainz,
+                enable_discogs=enable_discogs,
+                discogs_user_token=discogs_user_token,
+            )
+            if enable_metadata_enrichment
+            else None
+        )
 
         # Initialize source providers
         self._init_providers(

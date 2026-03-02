@@ -1,8 +1,5 @@
 """Tests for security module."""
 
-import pytest
-from datetime import timedelta
-
 from spotdl.core.security import (
     create_access_token,
     decode_token,

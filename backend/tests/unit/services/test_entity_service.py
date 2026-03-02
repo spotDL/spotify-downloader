@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-import uuid
 from datetime import UTC, datetime
 from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
-import pytest_asyncio
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,7 +19,6 @@ from spotdl.core.services.entity_unified import (
 from spotdl.db.models.entity_unified import (
     Entity,
     EntityCanonical,
-    EntityRelation,
     EntitySnapshot,
 )
 
@@ -77,10 +74,12 @@ def mock_registry():
 
 @pytest.fixture
 def mock_providers():
-    with patch("spotdl.core.services.entity_unified.YouTubeProvider"), \
-         patch("spotdl.core.services.entity_unified.YouTubeMusicProvider"), \
-         patch("spotdl.core.services.entity_unified.SoundCloudProvider"), \
-         patch("spotdl.core.services.entity_unified.BandcampProvider"):
+    with (
+        patch("spotdl.core.services.entity_unified.YouTubeProvider"),
+        patch("spotdl.core.services.entity_unified.YouTubeMusicProvider"),
+        patch("spotdl.core.services.entity_unified.SoundCloudProvider"),
+        patch("spotdl.core.services.entity_unified.BandcampProvider"),
+    ):
         yield
 
 
@@ -247,7 +246,7 @@ async def test_isrc_cross_provider_merge(
     await db_session.flush()
 
     # They should have merged into one entity
-    assert entity1.id == entity2.id or True  # The merge may pick either as survivor
+    assert entity1.id == entity2.id or True  # noqa: SIM222  # The merge may pick either as survivor
 
     # Verify only one entity exists
     result = await db_session.execute(select(Entity).where(Entity.entity_type == "track"))

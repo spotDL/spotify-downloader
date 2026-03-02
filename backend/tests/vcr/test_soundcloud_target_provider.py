@@ -6,7 +6,6 @@ from spotdl.core.types.result import TargetPlatform
 from spotdl.core.types.song import Platform, Song
 from spotdl.providers.targets.soundcloud import SoundCloudProvider
 
-
 pytestmark = pytest.mark.asyncio
 
 
@@ -33,9 +32,7 @@ class TestSoundCloudTargetProviderVCR:
         )
 
     @pytest.mark.vcr
-    async def test_search(
-        self, provider: SoundCloudProvider, sample_song: Song
-    ) -> None:
+    async def test_search(self, provider: SoundCloudProvider, sample_song: Song) -> None:
         """Test searching for a song on SoundCloud."""
         from spotdl.providers.targets.base import SearchError
 
@@ -76,9 +73,7 @@ class TestSoundCloudTargetProviderVCR:
     @staticmethod
     def test_extract_track_info() -> None:
         """Test extracting track info from URL."""
-        result = SoundCloudProvider.extract_track_info(
-            "https://soundcloud.com/artist/track-name"
-        )
+        result = SoundCloudProvider.extract_track_info("https://soundcloud.com/artist/track-name")
         assert result == ("artist", "track-name")
 
     @staticmethod

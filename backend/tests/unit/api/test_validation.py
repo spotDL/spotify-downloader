@@ -4,10 +4,10 @@ import pytest
 from fastapi import HTTPException
 
 from spotdl.api.v1.validation import (
-    validate_uuid,
-    validate_url,
-    validate_pagination,
     validate_isrc,
+    validate_pagination,
+    validate_url,
+    validate_uuid,
 )
 
 
@@ -114,8 +114,7 @@ class TestValidateURL:
         """Test validation with allowed domains - domain not allowed."""
         with pytest.raises(HTTPException) as exc_info:
             validate_url(
-                "https://notallowed.com/path",
-                allowed_domains=["spotify.com", "youtube.com"]
+                "https://notallowed.com/path", allowed_domains=["spotify.com", "youtube.com"]
             )
         assert exc_info.value.status_code == 400
         assert "URL domain not allowed" in exc_info.value.detail

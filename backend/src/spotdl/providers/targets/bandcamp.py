@@ -22,9 +22,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # Bandcamp URL pattern
-BANDCAMP_URL_PATTERN = re.compile(
-    r"(?:https?://)?([^.]+)\.bandcamp\.com/(track|album)/([^/?]+)"
-)
+BANDCAMP_URL_PATTERN = re.compile(r"(?:https?://)?([^.]+)\.bandcamp\.com/(track|album)/([^/?]+)")
 
 
 class BandcampProvider(TargetProvider):
@@ -207,7 +205,11 @@ class BandcampProvider(TargetProvider):
 
                                 # Get cover URL
                                 art_id = data.get("art_id")
-                                cover_url = f"https://f4.bcbits.com/img/a{art_id}_10.jpg" if art_id else None
+                                cover_url = (
+                                    f"https://f4.bcbits.com/img/a{art_id}_10.jpg"
+                                    if art_id
+                                    else None
+                                )
 
                                 return Result(
                                     name=track.get("title", "Unknown"),

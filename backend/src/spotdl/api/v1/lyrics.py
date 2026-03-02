@@ -8,13 +8,12 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.api.v1.dependencies import UserPreferences, get_user_preferences
 from spotdl.api.v1.validation import validate_uuid
 from spotdl.config import get_settings
-from sqlalchemy import select
-
 from spotdl.core.services.entity_unified import EntityNotFoundError, UnifiedEntityService
 from spotdl.core.services.lyrics import get_lyrics_service
 from spotdl.db.database import get_db_session
@@ -75,7 +74,9 @@ async def get_lyrics_for_entity(
 
     # Get lyrics using service
     settings = get_settings()
-    genius_token = settings.genius_access_token.get_secret_value() if settings.genius_access_token else None
+    genius_token = (
+        settings.genius_access_token.get_secret_value() if settings.genius_access_token else None
+    )
 
     ec_result = await db.execute(
         select(EntityCanonical).where(EntityCanonical.entity_id == entity_uuid)
@@ -128,7 +129,9 @@ async def search_lyrics(
     Unauthenticated users get default provider order.
     """
     settings = get_settings()
-    genius_token = settings.genius_access_token.get_secret_value() if settings.genius_access_token else None
+    genius_token = (
+        settings.genius_access_token.get_secret_value() if settings.genius_access_token else None
+    )
 
     async with get_lyrics_service(
         session=db,
@@ -167,6 +170,7 @@ class LyricsSourceResponse(BaseModel):
     language: str | None = None
     has_translations: bool | None = None
 
+
 class SubmitLyricsRequest(BaseModel):
     """Request model for submitting lyrics."""
 
@@ -183,8 +187,8 @@ async def submit_user_lyrics(
 ) -> LyricsSourceResponse:
     """
     Submit user-provided lyrics for an entity.
-    
-    These metrics are saved with the provided source (default "user"). 
+
+    These metrics are saved with the provided source (default "user").
     """
     # Validate UUID
     entity_uuid = validate_uuid(entity_id, "entity ID")
@@ -225,6 +229,7 @@ async def submit_user_lyrics(
         language=saved_lyrics.language,
         has_translations=saved_lyrics.has_translations,
     )
+
 
 class AllLyricsResponse(BaseModel):
     """Response model for all lyrics sources."""
@@ -309,7 +314,9 @@ async def fetch_all_lyrics_sources(
 
     # Fetch from all providers
     settings = get_settings()
-    genius_token = settings.genius_access_token.get_secret_value() if settings.genius_access_token else None
+    genius_token = (
+        settings.genius_access_token.get_secret_value() if settings.genius_access_token else None
+    )
 
     ec_result2 = await db.execute(
         select(EntityCanonical).where(EntityCanonical.entity_id == entity_uuid)
@@ -355,6 +362,7 @@ async def fetch_all_lyrics_sources(
         total_sources=len(results),
     )
 
+
 @router.post("/{lyrics_id}/vote")
 async def vote_lyrics(
     lyrics_id: str,
@@ -372,7 +380,7 @@ async def vote_lyrics(
     elif vote == "down":
         lyrics.downvotes += 1
     else:
-         raise HTTPException(status_code=400, detail="Invalid vote")
+        raise HTTPException(status_code=400, detail="Invalid vote")
 
     await db.commit()
     return {"status": "ok", "upvotes": str(lyrics.upvotes), "downvotes": str(lyrics.downvotes)}

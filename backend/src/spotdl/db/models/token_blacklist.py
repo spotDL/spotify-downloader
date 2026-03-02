@@ -52,6 +52,4 @@ class BlacklistedToken(Base):
     )
 
     # Index for efficient expiry cleanup
-    __table_args__ = (
-        Index("ix_blacklisted_tokens_expires_at", expires_at),
-    )
+    __table_args__ = (Index("ix_blacklisted_tokens_expires_at", expires_at),)

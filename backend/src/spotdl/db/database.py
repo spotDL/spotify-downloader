@@ -115,6 +115,7 @@ async def init_db() -> None:
     engine = get_engine()
     async with engine.connect() as conn:
         from sqlalchemy import text
+
         await conn.execute(text("SELECT 1"))
 
     logger.info("Database initialized successfully")

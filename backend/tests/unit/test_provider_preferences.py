@@ -1,7 +1,5 @@
 """Tests for provider preferences module."""
 
-import pytest
-
 from spotdl.core.provider_preferences import (
     AUDIO_PLATFORM_MAP,
     DEFAULT_PLATFORM_ORDER,
@@ -46,7 +44,9 @@ class TestAudioPlatformConstants:
 
     def test_match_service_supports_all_mapped_platforms(self) -> None:
         """Test MatchService wiring matches mapped audio target platforms."""
-        audio_prefs = [{"id": provider["id"], "enabled": True} for provider in AUDIO_SOURCE_PROVIDERS]
+        audio_prefs = [
+            {"id": provider["id"], "enabled": True} for provider in AUDIO_SOURCE_PROVIDERS
+        ]
         service = MatchService(audio_preferences=audio_prefs)
         assert set(service.supported_platforms) == set(AUDIO_PLATFORM_MAP.values())
 

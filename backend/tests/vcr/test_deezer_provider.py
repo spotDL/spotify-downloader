@@ -5,7 +5,6 @@ import pytest
 from spotdl.core.types.song import Platform
 from spotdl.providers.sources.deezer import DeezerProvider
 
-
 pytestmark = pytest.mark.asyncio
 
 

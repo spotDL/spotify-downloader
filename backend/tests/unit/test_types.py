@@ -1,10 +1,9 @@
 """Tests for core types."""
 
 import json
-import pytest
 
-from spotdl.core.types.song import Platform, Song, SongList
 from spotdl.core.types.result import Result, TargetPlatform
+from spotdl.core.types.song import Platform, Song, SongList
 
 
 class TestPlatformEnum:

@@ -36,12 +36,21 @@ logger = logging.getLogger(__name__)
 ALLOWED_SCHEMES = {"http", "https"}
 
 COVER_URL_ALLOWLIST = {
-    "i.scdn.co", "mosaic.scdn.co",
-    "i.ytimg.com", "yt3.ggpht.com", "lh3.googleusercontent.com",
-    "is1-ssl.mzstatic.com", "is2-ssl.mzstatic.com", "is3-ssl.mzstatic.com",
-    "is4-ssl.mzstatic.com", "is5-ssl.mzstatic.com",
-    "cdns-images.dzcdn.net", "e-cdns-images.dzcdn.net",
-    "i1.sndcdn.com", "f4.bcbits.com", "resources.tidal.com",
+    "i.scdn.co",
+    "mosaic.scdn.co",
+    "i.ytimg.com",
+    "yt3.ggpht.com",
+    "lh3.googleusercontent.com",
+    "is1-ssl.mzstatic.com",
+    "is2-ssl.mzstatic.com",
+    "is3-ssl.mzstatic.com",
+    "is4-ssl.mzstatic.com",
+    "is5-ssl.mzstatic.com",
+    "cdns-images.dzcdn.net",
+    "e-cdns-images.dzcdn.net",
+    "i1.sndcdn.com",
+    "f4.bcbits.com",
+    "resources.tidal.com",
 }
 
 
@@ -61,7 +70,13 @@ def is_safe_url(url: str) -> bool:
         try:
             for _, _, _, _, sockaddr in socket.getaddrinfo(hostname, None, socket.AF_UNSPEC):
                 ip = ipaddress.ip_address(sockaddr[0])
-                if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved or ip.is_multicast:
+                if (
+                    ip.is_private
+                    or ip.is_loopback
+                    or ip.is_link_local
+                    or ip.is_reserved
+                    or ip.is_multicast
+                ):
                     return False
                 if str(ip) == "169.254.169.254":
                     return False
@@ -73,6 +88,7 @@ def is_safe_url(url: str) -> bool:
 
 
 # ── Backend-specific types ────────────────────────────────────────
+
 
 class DownloadServiceError(Exception):
     """Base exception for download service."""
@@ -265,6 +281,7 @@ class DownloadRequest:
 
 # ── Download Manager ──────────────────────────────────────────────
 
+
 class DownloadService:
     """Manages download queue and progress tracking."""
 
@@ -348,7 +365,12 @@ class DownloadService:
             if download_dir.exists():
                 for f in download_dir.iterdir():
                     if f.is_file() and f.suffix.lower() in {
-                        ".mp3", ".m4a", ".flac", ".opus", ".ogg", ".wav",
+                        ".mp3",
+                        ".m4a",
+                        ".flac",
+                        ".opus",
+                        ".ogg",
+                        ".wav",
                     }:
                         return f
         return None
@@ -406,7 +428,10 @@ class DownloadService:
 
         try:
             output_path = await downloader.download(
-                request.url, meta, output_dir, core_progress_callback,
+                request.url,
+                meta,
+                output_dir,
+                core_progress_callback,
             )
 
             # Embed metadata

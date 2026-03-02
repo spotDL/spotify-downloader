@@ -1,7 +1,5 @@
 """Tests for provider configuration module."""
 
-import pytest
-
 from spotdl.core.providers_config import (
     AUDIO_SOURCE_PROVIDERS,
     LYRICS_PROVIDERS,

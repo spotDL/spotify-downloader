@@ -1,5 +1,4 @@
 """Integration tests for unified entity-first API endpoints."""
-# ruff: noqa: TC002
 
 from __future__ import annotations
 

@@ -127,9 +127,7 @@ def get_password_hash(password: str) -> str:
 def create_access_token(user_id: str) -> str:
     """Create an access token for a user."""
     settings = get_settings()
-    expire = datetime.now(UTC) + timedelta(
-        minutes=settings.access_token_expire_minutes
-    )
+    expire = datetime.now(UTC) + timedelta(minutes=settings.access_token_expire_minutes)
     to_encode: dict[str, Any] = {
         "sub": user_id,
         "exp": expire,
@@ -145,9 +143,7 @@ def create_access_token(user_id: str) -> str:
 def create_refresh_token(user_id: str) -> str:
     """Create a refresh token for a user."""
     settings = get_settings()
-    expire = datetime.now(UTC) + timedelta(
-        days=settings.refresh_token_expire_days
-    )
+    expire = datetime.now(UTC) + timedelta(days=settings.refresh_token_expire_days)
     to_encode: dict[str, Any] = {
         "sub": user_id,
         "exp": expire,

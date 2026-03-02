@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
 
 import pytest
 from httpx import AsyncClient
@@ -51,9 +50,10 @@ async def admin_token(admin_user: User) -> str:
 @pytest.fixture
 async def admin_client(db_session: AsyncSession, admin_token: str) -> AsyncClient:
     """Create an authenticated admin client."""
+    from httpx import ASGITransport
+
     from spotdl.db.database import get_db_session
     from spotdl.main import app
-    from httpx import ASGITransport
 
     async def override_get_db_session():
         yield db_session
@@ -452,9 +452,7 @@ class TestListReports:
             db_session.add(report)
         await db_session.commit()
 
-        response = await admin_client.get(
-            "/api/v1/reports", params={"page": 1, "page_size": 3}
-        )
+        response = await admin_client.get("/api/v1/reports", params={"page": 1, "page_size": 3})
 
         assert response.status_code == 200
         data = response.json()
@@ -483,9 +481,7 @@ class TestListReports:
             db_session.add(report)
         await db_session.commit()
 
-        response = await admin_client.get(
-            "/api/v1/reports", params={"status": "fixed"}
-        )
+        response = await admin_client.get("/api/v1/reports", params={"status": "fixed"})
 
         assert response.status_code == 200
         data = response.json()
@@ -516,9 +512,7 @@ class TestListReports:
             db_session.add(report)
         await db_session.commit()
 
-        response = await admin_client.get(
-            "/api/v1/reports", params={"entity_type": "artist"}
-        )
+        response = await admin_client.get("/api/v1/reports", params={"entity_type": "artist"})
 
         assert response.status_code == 200
         data = response.json()
@@ -551,10 +545,7 @@ class TestListReports:
 
         assert response.status_code == 200
         data = response.json()
-        assert all(
-            r["status"] == "pending" and r["entity_type"] == "song"
-            for r in data["reports"]
-        )
+        assert all(r["status"] == "pending" and r["entity_type"] == "song" for r in data["reports"])
 
     async def test_list_reports_includes_usernames(
         self,
@@ -1015,17 +1006,13 @@ class TestReportsEdgeCases:
         await db_session.commit()
 
         # Test first page
-        response = await admin_client.get(
-            "/api/v1/reports", params={"page": 1, "page_size": 20}
-        )
+        response = await admin_client.get("/api/v1/reports", params={"page": 1, "page_size": 20})
         assert response.status_code == 200
         data = response.json()
         assert len(data["reports"]) <= 20
 
         # Test page beyond available data
-        response = await admin_client.get(
-            "/api/v1/reports", params={"page": 100, "page_size": 20}
-        )
+        response = await admin_client.get("/api/v1/reports", params={"page": 100, "page_size": 20})
         assert response.status_code == 200
         data = response.json()
         assert len(data["reports"]) == 0
@@ -1086,19 +1073,13 @@ class TestReportsEdgeCases:
     ) -> None:
         """Test pagination with invalid parameters."""
         # Page less than 1
-        response = await admin_client.get(
-            "/api/v1/reports", params={"page": 0}
-        )
+        response = await admin_client.get("/api/v1/reports", params={"page": 0})
         assert response.status_code == 422
 
         # Page size greater than max
-        response = await admin_client.get(
-            "/api/v1/reports", params={"page_size": 101}
-        )
+        response = await admin_client.get("/api/v1/reports", params={"page_size": 101})
         assert response.status_code == 422
 
         # Negative page size
-        response = await admin_client.get(
-            "/api/v1/reports", params={"page_size": -1}
-        )
+        response = await admin_client.get("/api/v1/reports", params={"page_size": -1})
         assert response.status_code == 422

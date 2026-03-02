@@ -7,7 +7,6 @@ from spotdl.core.types.song import Platform, Song
 from spotdl.providers.targets.base import SearchError
 from spotdl.providers.targets.piped import PipedProvider
 
-
 pytestmark = pytest.mark.asyncio
 
 
@@ -34,9 +33,7 @@ class TestPipedTargetProviderVCR:
         )
 
     @pytest.mark.vcr
-    async def test_search(
-        self, provider: PipedProvider, sample_song: Song
-    ) -> None:
+    async def test_search(self, provider: PipedProvider, sample_song: Song) -> None:
         """Test searching for a song on Piped."""
         try:
             results = await provider.search(sample_song, limit=5)
@@ -77,9 +74,7 @@ class TestPipedTargetProviderVCR:
     @staticmethod
     def test_extract_video_id_youtube() -> None:
         """Test extracting video ID from YouTube URL."""
-        result = PipedProvider.extract_video_id(
-            "https://www.youtube.com/watch?v=abc123xyz12"
-        )
+        result = PipedProvider.extract_video_id("https://www.youtube.com/watch?v=abc123xyz12")
         assert result == "abc123xyz12"
 
     @staticmethod

@@ -43,9 +43,7 @@ class MetadataReport(Base, TimestampMixin):
     """
 
     __tablename__ = "metadata_reports"
-    __table_args__ = (
-        Index("ix_metadata_reports_entity", "entity_type", "entity_id"),
-    )
+    __table_args__ = (Index("ix_metadata_reports_entity", "entity_type", "entity_id"),)
 
     id: Mapped[uuid.UUID] = mapped_column(
         GUID(),

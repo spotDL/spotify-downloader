@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import sys
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -115,9 +115,7 @@ class TestMusicBrainzProviderLookup:
         self, provider: MusicBrainzProvider, mock_musicbrainzngs: MagicMock
     ) -> None:
         """Test ISRC lookup when no recording found."""
-        mock_musicbrainzngs.get_recordings_by_isrc.return_value = {
-            "isrc": {"recording-list": []}
-        }
+        mock_musicbrainzngs.get_recordings_by_isrc.return_value = {"isrc": {"recording-list": []}}
 
         result = await provider.lookup_by_isrc("UNKNOWN123456")
         assert result is None
@@ -138,9 +136,7 @@ class TestMusicBrainzProviderLookup:
     ) -> None:
         """Test name lookup when recording is found."""
         mock_recording["ext:score"] = "95"
-        mock_musicbrainzngs.search_recordings.return_value = {
-            "recording-list": [mock_recording]
-        }
+        mock_musicbrainzngs.search_recordings.return_value = {"recording-list": [mock_recording]}
 
         result = await provider.lookup_by_name(
             track_name="Test Track",
@@ -157,9 +153,7 @@ class TestMusicBrainzProviderLookup:
     ) -> None:
         """Test name lookup rejects low-scoring results."""
         mock_recording["ext:score"] = "50"
-        mock_musicbrainzngs.search_recordings.return_value = {
-            "recording-list": [mock_recording]
-        }
+        mock_musicbrainzngs.search_recordings.return_value = {"recording-list": [mock_recording]}
 
         result = await provider.lookup_by_name(
             track_name="Test Track",
@@ -270,9 +264,7 @@ class TestMusicBrainzProviderParsing:
         result = provider._parse_recording(recording)
         assert result is None
 
-    def test_parse_recording_with_provided_isrc(
-        self, provider: MusicBrainzProvider
-    ) -> None:
+    def test_parse_recording_with_provided_isrc(self, provider: MusicBrainzProvider) -> None:
         """Test parsing uses provided ISRC over embedded one."""
         recording = {
             "id": "mb-id-123",

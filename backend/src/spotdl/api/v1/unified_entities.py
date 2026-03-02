@@ -1,5 +1,4 @@
 """Unified entity-first API endpoints."""
-# ruff: noqa: TC002, TC003
 
 from __future__ import annotations
 
@@ -44,6 +43,7 @@ class EntityDiscoverRequest(BaseModel):
 
 class EntityRefs(BaseModel):
     """Resolved internal-UUID cross-references for an entity."""
+
     album_entity_id: str | None = None
     artist_entity_id: str | None = None
 
@@ -179,9 +179,7 @@ async def _batch_resolve_entity_refs(
     """
     from sqlalchemy import or_, select
 
-    enrichable_ids = [
-        e.id for e in entities if e.entity_type in {"track", "album"}
-    ]
+    enrichable_ids = [e.id for e in entities if e.entity_type in {"track", "album"}]
     refs: dict[str, EntityRefs] = {str(e.id): EntityRefs() for e in entities}
 
     if not enrichable_ids:
@@ -239,17 +237,12 @@ def _entity_to_response(
     )
 
 
-async def _entity_to_enriched_response(
-    entity: Entity, db: AsyncSession
-) -> EntityResponse:
+async def _entity_to_enriched_response(entity: Entity, db: AsyncSession) -> EntityResponse:
     """Single-entity convenience wrapper — uses a one-entity batch internally."""
     refs_map = await _batch_resolve_entity_refs([entity], db)
-    ec = await db.execute(
-        select(EntityCanonical).where(EntityCanonical.entity_id == entity.id)
-    )
+    ec = await db.execute(select(EntityCanonical).where(EntityCanonical.entity_id == entity.id))
     ec_row = ec.scalar_one_or_none()
     return _entity_to_response(entity, refs_map.get(str(entity.id)), ec=ec_row)
-
 
 
 def _snapshot_to_response(snapshot: EntitySnapshot) -> SnapshotResponse:
@@ -344,8 +337,7 @@ async def discover_entities(
         for entity in result.entities:
             relations = await service.list_relations(entity.id)
             top_relations[str(entity.id)] = [
-                await _relation_to_response(relation, service)
-                for relation in relations[:5]
+                await _relation_to_response(relation, service) for relation in relations[:5]
             ]
 
         # Resolve all cross-entity UUIDs in a SINGLE batch query.
@@ -561,7 +553,9 @@ async def create_relation(
     db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> RelationResponse:
     source_entity_uuid = validate_uuid(entity_id, "entity ID")
-    to_entity_uuid = validate_uuid(request.to_entity_id, "target entity ID") if request.to_entity_id else None
+    to_entity_uuid = (
+        validate_uuid(request.to_entity_id, "target entity ID") if request.to_entity_id else None
+    )
     if not to_entity_uuid and not request.to_url:
         raise HTTPException(status_code=400, detail="Provide either to_entity_id or to_url.")
 
@@ -590,7 +584,9 @@ async def download_entity(
     _: None = Depends(require_downloads_enabled),
 ) -> DownloadEntityResponse:
     entity_uuid = validate_uuid(entity_id, "entity ID")
-    relation_uuid = validate_uuid(request.relation_id, "relation ID") if request.relation_id else None
+    relation_uuid = (
+        validate_uuid(request.relation_id, "relation ID") if request.relation_id else None
+    )
     service = UnifiedEntityService(db)
     try:
         result = await service.download_entity(

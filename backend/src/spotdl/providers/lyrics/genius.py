@@ -25,9 +25,7 @@ class GeniusProvider(BaseLyricsProvider):
     name: ClassVar[str] = "Genius"
     max_concurrent_requests: ClassVar[int] = 3
 
-    def __init__(
-        self, access_token: str, client: httpx.AsyncClient | None = None
-    ) -> None:
+    def __init__(self, access_token: str, client: httpx.AsyncClient | None = None) -> None:
         """
         Initialize Genius provider.
 
@@ -43,9 +41,7 @@ class GeniusProvider(BaseLyricsProvider):
             }
         )
 
-    async def get_results(
-        self, name: str, artists: list[str], **kwargs: Any
-    ) -> dict[str, str]:
+    async def get_results(self, name: str, artists: list[str], **kwargs: Any) -> dict[str, str]:
         """Search Genius API for songs."""
         query = f"{name} {' '.join(artists)}"
 
@@ -86,9 +82,7 @@ class GeniusProvider(BaseLyricsProvider):
                 if not response.is_success:
                     continue
 
-                soup = BeautifulSoup(
-                    response.text.replace("<br/>", "\n"), "html.parser"
-                )
+                soup = BeautifulSoup(response.text.replace("<br/>", "\n"), "html.parser")
 
                 # Remove lyrics header if present
                 lyrics_header = soup.select_one("div[class^=LyricsHeader__Container]")
@@ -123,9 +117,7 @@ class GeniusWebProvider(BaseLyricsProvider):
     name: ClassVar[str] = "GeniusWeb"
     max_concurrent_requests: ClassVar[int] = 2
 
-    async def get_results(
-        self, name: str, artists: list[str], **kwargs: Any
-    ) -> dict[str, str]:
+    async def get_results(self, name: str, artists: list[str], **kwargs: Any) -> dict[str, str]:
         """Search Genius via web scraping."""
         query = quote(f"{name} {artists[0]}")
         search_url = f"https://genius.com/api/search/multi?q={query}"
@@ -163,9 +155,7 @@ class GeniusWebProvider(BaseLyricsProvider):
                 if not response.is_success:
                     continue
 
-                soup = BeautifulSoup(
-                    response.text.replace("<br/>", "\n"), "html.parser"
-                )
+                soup = BeautifulSoup(response.text.replace("<br/>", "\n"), "html.parser")
 
                 lyrics_header = soup.select_one("div[class^=LyricsHeader__Container]")
                 if lyrics_header:

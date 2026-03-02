@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import uuid
+
 from sqlalchemy import select
 
 from spotdl.db.models.user import User
@@ -36,9 +37,7 @@ class UserRepository(BaseRepository[User]):
         user = await self.get_by_email(email)
         return user is not None
 
-    async def update_reputation(
-        self, user_id: uuid.UUID, delta: int
-    ) -> User | None:
+    async def update_reputation(self, user_id: uuid.UUID, delta: int) -> User | None:
         """Update user reputation score."""
         user = await self.get_by_id(user_id)
         if user is None:

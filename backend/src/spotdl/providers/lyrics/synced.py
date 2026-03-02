@@ -24,9 +24,7 @@ class SyncedLyricsProvider(BaseLyricsProvider):
     name: ClassVar[str] = "Synced"
     max_concurrent_requests: ClassVar[int] = 2
 
-    def __init__(
-        self, client: httpx.AsyncClient | None = None, allow_plain: bool = False
-    ) -> None:
+    def __init__(self, client: httpx.AsyncClient | None = None, allow_plain: bool = False) -> None:
         """
         Initialize synced lyrics provider.
 
@@ -37,9 +35,7 @@ class SyncedLyricsProvider(BaseLyricsProvider):
         super().__init__(client)
         self.allow_plain = allow_plain
 
-    async def get_results(
-        self, name: str, artists: list[str], **kwargs: Any
-    ) -> dict[str, str]:
+    async def get_results(self, name: str, artists: list[str], **kwargs: Any) -> dict[str, str]:
         """Not implemented - synced provider doesn't search."""
         raise NotImplementedError("SyncedLyricsProvider doesn't use get_results")
 

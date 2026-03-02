@@ -1,6 +1,6 @@
 """Tests for SongService."""
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -126,9 +126,7 @@ class TestSongServiceWithMocks:
     """Tests for SongService with mocked providers."""
 
     @pytest.mark.asyncio
-    async def test_resolve_url_success(
-        self, song_service: SongService, mock_song: Song
-    ) -> None:
+    async def test_resolve_url_success(self, song_service: SongService, mock_song: Song) -> None:
         """Test resolve_url returns songs on success."""
         with patch.object(
             song_service._resolver, "resolve", new_callable=AsyncMock
@@ -212,9 +210,7 @@ class TestSongServiceWithMocks:
                 await song_service.search("test query", platform=Platform.DEEZER)
 
     @pytest.mark.asyncio
-    async def test_search_success(
-        self, song_service: SongService, mock_song: Song
-    ) -> None:
+    async def test_search_success(self, song_service: SongService, mock_song: Song) -> None:
         """Test search returns songs on success."""
         from spotdl.core.types.song import Platform
 
@@ -227,9 +223,7 @@ class TestSongServiceWithMocks:
             assert results[0].name == "Test Song"
 
     @pytest.mark.asyncio
-    async def test_get_track_success(
-        self, song_service: SongService, mock_song: Song
-    ) -> None:
+    async def test_get_track_success(self, song_service: SongService, mock_song: Song) -> None:
         """Test get_track returns song on success."""
         from spotdl.core.types.song import Platform
 
@@ -241,11 +235,9 @@ class TestSongServiceWithMocks:
             assert result.name == "Test Song"
 
     @pytest.mark.asyncio
-    async def test_get_album_success(
-        self, song_service: SongService, mock_song: Song
-    ) -> None:
+    async def test_get_album_success(self, song_service: SongService, mock_song: Song) -> None:
         """Test get_album returns song list on success."""
-        from spotdl.core.types.song import Platform, SongList
+        from spotdl.core.types.song import Platform
 
         mock_song_list = SongList(
             name="Test Album",
@@ -263,11 +255,9 @@ class TestSongServiceWithMocks:
             assert result.name == "Test Album"
 
     @pytest.mark.asyncio
-    async def test_get_playlist_success(
-        self, song_service: SongService, mock_song: Song
-    ) -> None:
+    async def test_get_playlist_success(self, song_service: SongService, mock_song: Song) -> None:
         """Test get_playlist returns song list on success."""
-        from spotdl.core.types.song import Platform, SongList
+        from spotdl.core.types.song import Platform
 
         mock_song_list = SongList(
             name="Test Playlist",
@@ -285,11 +275,9 @@ class TestSongServiceWithMocks:
             assert result.name == "Test Playlist"
 
     @pytest.mark.asyncio
-    async def test_get_artist_success(
-        self, song_service: SongService, mock_song: Song
-    ) -> None:
+    async def test_get_artist_success(self, song_service: SongService, mock_song: Song) -> None:
         """Test get_artist returns song list on success."""
-        from spotdl.core.types.song import Platform, SongList
+        from spotdl.core.types.song import Platform
 
         mock_song_list = SongList(
             name="Artist Name",
@@ -347,6 +335,7 @@ class TestGetSongService:
         """Test get_song_service returns a SongService."""
         # Reset global instance
         import spotdl.core.services.song as song_module
+
         song_module._song_service = None
 
         service = get_song_service()
@@ -355,6 +344,7 @@ class TestGetSongService:
     def test_get_song_service_singleton(self) -> None:
         """Test get_song_service returns same instance."""
         import spotdl.core.services.song as song_module
+
         song_module._song_service = None
 
         service1 = get_song_service()

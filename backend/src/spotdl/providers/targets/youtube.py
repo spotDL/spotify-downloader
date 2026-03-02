@@ -69,9 +69,7 @@ class YouTubeProvider(TargetProvider):
             self._client = httpx.AsyncClient(
                 timeout=self._timeout,
                 follow_redirects=True,
-                headers={
-                    "User-Agent": "Mozilla/5.0 (compatible; SpotDL/5.0)"
-                },
+                headers={"User-Agent": "Mozilla/5.0 (compatible; SpotDL/5.0)"},
             )
         return self._client
 
@@ -171,6 +169,7 @@ class YouTubeProvider(TargetProvider):
 
             # URL encode the query
             import urllib.parse
+
             encoded_query = urllib.parse.quote(query)
 
             # Search using Invidious API

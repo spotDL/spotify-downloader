@@ -65,11 +65,29 @@ class MetadataResult:
         """
         result: dict[str, Any] = {}
         for field_name in [
-            "name", "artists", "album_name", "album_artist",
-            "isrc", "upc", "musicbrainz_id", "discogs_id",
-            "genres", "year", "date", "track_number", "disc_number",
-            "total_tracks", "total_discs", "album_art_url", "label",
-            "country", "duration_ms", "bpm", "key", "source", "confidence",
+            "name",
+            "artists",
+            "album_name",
+            "album_artist",
+            "isrc",
+            "upc",
+            "musicbrainz_id",
+            "discogs_id",
+            "genres",
+            "year",
+            "date",
+            "track_number",
+            "disc_number",
+            "total_tracks",
+            "total_discs",
+            "album_art_url",
+            "label",
+            "country",
+            "duration_ms",
+            "bpm",
+            "key",
+            "source",
+            "confidence",
         ]:
             value = getattr(self, field_name, None)
             if value is not None:

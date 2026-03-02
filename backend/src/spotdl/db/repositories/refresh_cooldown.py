@@ -30,7 +30,9 @@ class RefreshCooldownRepository(BaseRepository[RefreshCooldown]):
             and_(
                 RefreshCooldown.entity_type == entity_type,
                 RefreshCooldown.entity_id == entity_id,
-                RefreshCooldown.user_id == user_id if user_id else RefreshCooldown.user_id.is_(None),
+                RefreshCooldown.user_id == user_id
+                if user_id
+                else RefreshCooldown.user_id.is_(None),
             )
         )
         result = await self.session.execute(query)

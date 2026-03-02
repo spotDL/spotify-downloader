@@ -19,7 +19,6 @@ from spotdl.core.services.lyrics import (
 )
 
 __all__ = [
-
     # Lyrics Service
     "LyricsService",
     "LyricsServiceError",

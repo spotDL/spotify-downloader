@@ -127,7 +127,7 @@ class TestSpotDLAppInitialization:
 
         # Check class attributes
         assert app.TITLE == "SpotDL"
-        assert app.SUB_TITLE == "Music Downloader"
+        assert app.SUB_TITLE == "v5.0.0"
         assert app.CSS_PATH == "app.tcss"
 
         # Check instance attributes are initialized but lazy-loaded
@@ -158,7 +158,7 @@ class TestSpotDLAppInitialization:
         app = SpotDLApp()
 
         # Check bindings exist
-        assert len(app.BINDINGS) == 5
+        assert len(app.BINDINGS) == 7
 
         # Check specific bindings
         binding_keys = [b.key for b in app.BINDINGS]
@@ -166,6 +166,8 @@ class TestSpotDLAppInitialization:
         assert "s" in binding_keys
         assert "d" in binding_keys
         assert "comma" in binding_keys
+        assert "a" in binding_keys
+        assert "ctrl+k" in binding_keys
         assert "?" in binding_keys
 
     @patch("spotdl_cli.app.get_settings")
@@ -288,10 +290,12 @@ class TestAppLifecycle:
         """Test that app checks backend connectivity on mount."""
         mock_settings.offline_mode = False
         mock_api_client.is_online = AsyncMock(return_value=True)
+        mock_api_client.get_service_status = AsyncMock(return_value={})
 
         with patch("spotdl_cli.app.get_settings", return_value=mock_settings), \
              patch("spotdl_cli.app.get_api_client", return_value=mock_api_client), \
-             patch("spotdl_cli.app.should_show_onboarding", return_value=False):
+             patch("spotdl_cli.app.should_show_onboarding", return_value=False), \
+             patch("spotdl_cli.screens.main.get_api_client", return_value=mock_api_client):
 
             app = SpotDLApp()
             async with app.run_test() as pilot:
@@ -300,7 +304,7 @@ class TestAppLifecycle:
                 # Should have checked connectivity
                 mock_api_client.is_online.assert_called_once()
                 assert app._is_online is True
-                assert app.sub_title == "Connected"
+                assert app.sub_title == "v5.0.0 - Connected"
 
     @pytest.mark.asyncio
     async def test_app_handles_offline_mode_on_mount(self, mock_settings):
@@ -316,7 +320,7 @@ class TestAppLifecycle:
 
                 # Should be offline
                 assert app._is_online is False
-                assert app.sub_title == "Offline Mode"
+                assert app.sub_title == "v5.0.0 - Offline Mode"
 
     @pytest.mark.asyncio
     async def test_app_handles_connectivity_failure_on_mount(self, mock_api_client, mock_settings):
@@ -334,7 +338,7 @@ class TestAppLifecycle:
 
                 # Should fallback to offline mode
                 assert app._is_online is False
-                assert app.sub_title == "Offline Mode"
+                assert app.sub_title == "v5.0.0 - Offline Mode"
 
     @pytest.mark.asyncio
     async def test_app_shows_onboarding_for_first_time_users(self, mock_settings):
@@ -564,16 +568,18 @@ class TestKeybindings:
 
                 # Should show help notification
                 assert len(notifications) == 1
-                assert "Help:" in notifications[0]
+                assert "Search" in notifications[0]
 
     @pytest.mark.asyncio
     async def test_quit_action_closes_resources(self, mock_api_client, mock_download_manager,
                                                  mock_image_service, mock_settings):
         """Test that quit action properly closes all resources."""
+        mock_api_client.get_service_status = AsyncMock(return_value={})
         with patch("spotdl_cli.app.get_settings", return_value=mock_settings), \
              patch("spotdl_cli.app.get_api_client", return_value=mock_api_client), \
              patch("spotdl_cli.app.get_image_service", return_value=mock_image_service), \
-             patch("spotdl_cli.app.should_show_onboarding", return_value=False):
+             patch("spotdl_cli.app.should_show_onboarding", return_value=False), \
+             patch("spotdl_cli.screens.main.get_api_client", return_value=mock_api_client):
 
             app = SpotDLApp()
             async with app.run_test(headless=True) as pilot:
@@ -630,7 +636,7 @@ class TestErrorHandling:
 
                 # Should fallback to offline mode without crashing
                 assert app._is_online is False
-                assert app.sub_title == "Offline Mode"
+                assert app.sub_title == "v5.0.0 - Offline Mode"
 
     @pytest.mark.asyncio
     async def test_quit_handles_missing_resources(self, mock_settings):
@@ -666,13 +672,15 @@ class TestErrorHandling:
                                                           mock_settings):
         """Test that quit handles resource cleanup failure."""
         mock_api_client.close = AsyncMock(side_effect=Exception("Close failed"))
+        mock_api_client.get_service_status = AsyncMock(return_value={})
         mock_image_service = AsyncMock()
         mock_image_service.close = AsyncMock()
 
         with patch("spotdl_cli.app.get_settings", return_value=mock_settings), \
              patch("spotdl_cli.app.get_api_client", return_value=mock_api_client), \
              patch("spotdl_cli.app.get_image_service", return_value=mock_image_service), \
-             patch("spotdl_cli.app.should_show_onboarding", return_value=False):
+             patch("spotdl_cli.app.should_show_onboarding", return_value=False), \
+             patch("spotdl_cli.screens.main.get_api_client", return_value=mock_api_client):
 
             app = SpotDLApp()
             async with app.run_test(headless=True) as pilot:
@@ -767,24 +775,26 @@ class TestThemeConfiguration:
     def test_app_has_subtitle_configured(self):
         """Test that app has subtitle configured."""
         app = SpotDLApp()
-        assert app.SUB_TITLE == "Music Downloader"
+        assert app.SUB_TITLE == "v5.0.0"
 
     @pytest.mark.asyncio
     async def test_subtitle_updates_based_on_connectivity(self, mock_api_client, mock_settings):
         """Test that subtitle updates based on connectivity state."""
         mock_settings.offline_mode = False
         mock_api_client.is_online = AsyncMock(return_value=True)
+        mock_api_client.get_service_status = AsyncMock(return_value={})
 
         with patch("spotdl_cli.app.get_settings", return_value=mock_settings), \
              patch("spotdl_cli.app.get_api_client", return_value=mock_api_client), \
-             patch("spotdl_cli.app.should_show_onboarding", return_value=False):
+             patch("spotdl_cli.app.should_show_onboarding", return_value=False), \
+             patch("spotdl_cli.screens.main.get_api_client", return_value=mock_api_client):
 
             app = SpotDLApp()
             async with app.run_test() as pilot:
                 await pilot.pause()
 
                 # Subtitle should update to "Connected"
-                assert app.sub_title == "Connected"
+                assert app.sub_title == "v5.0.0 - Connected"
 
     @pytest.mark.asyncio
     async def test_subtitle_shows_offline_mode_when_offline(self, mock_settings):
@@ -799,7 +809,7 @@ class TestThemeConfiguration:
                 await pilot.pause()
 
                 # Subtitle should show "Offline Mode"
-                assert app.sub_title == "Offline Mode"
+                assert app.sub_title == "v5.0.0 - Offline Mode"
 
 
 # ============================================================================
@@ -815,13 +825,16 @@ class TestIntegrationScenarios:
         """Test full app lifecycle in online mode."""
         mock_settings.offline_mode = False
         mock_api_client.is_online = AsyncMock(return_value=True)
+        mock_api_client.get_service_status = AsyncMock(return_value={})
         mock_image_service = AsyncMock()
         mock_image_service.close = AsyncMock()
 
         with patch("spotdl_cli.app.get_settings", return_value=mock_settings), \
              patch("spotdl_cli.app.get_api_client", return_value=mock_api_client), \
              patch("spotdl_cli.app.get_image_service", return_value=mock_image_service), \
-             patch("spotdl_cli.app.should_show_onboarding", return_value=False):
+             patch("spotdl_cli.app.should_show_onboarding", return_value=False), \
+             patch("spotdl_cli.screens.main.get_api_client", return_value=mock_api_client), \
+             patch("spotdl_cli.screens.settings.get_api_client", return_value=mock_api_client):
 
             app = SpotDLApp()
             async with app.run_test(headless=True) as pilot:
@@ -863,7 +876,7 @@ class TestIntegrationScenarios:
                 await pilot.pause()
                 assert app.is_running
                 assert app._is_online is False
-                assert app.sub_title == "Offline Mode"
+                assert app.sub_title == "v5.0.0 - Offline Mode"
 
                 # Can still navigate
                 await app.push_screen("queue")

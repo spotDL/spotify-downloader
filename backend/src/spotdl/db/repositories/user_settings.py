@@ -32,9 +32,7 @@ class UserSettingsRepository:
         await self.session.refresh(settings)
         return settings
 
-    async def update(
-        self, settings: UserSettings, **kwargs: Any
-    ) -> UserSettings:
+    async def update(self, settings: UserSettings, **kwargs: Any) -> UserSettings:
         """Update existing settings."""
         for key, value in kwargs.items():
             if hasattr(settings, key):
@@ -43,9 +41,7 @@ class UserSettingsRepository:
         await self.session.refresh(settings)
         return settings
 
-    async def get_or_create(
-        self, user_id: uuid.UUID, **defaults: Any
-    ) -> tuple[UserSettings, bool]:
+    async def get_or_create(self, user_id: uuid.UUID, **defaults: Any) -> tuple[UserSettings, bool]:
         """Get existing settings or create new ones with defaults."""
         settings = await self.get_by_user_id(user_id)
         if settings:

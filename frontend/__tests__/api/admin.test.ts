@@ -9,26 +9,23 @@ import {
   listAdminMatches,
   updateMatchStatus,
   getSystemStats,
-  clearCache,
   useAdminUsers,
   useAdminUser,
   useUpdateAdminUser,
   useAdminMatches,
   useUpdateMatchStatus,
   useSystemStats,
-  useClearCache,
   adminKeys,
   type UpdateUserRequest,
   type UpdateMatchStatusRequest,
-  type ClearCacheRequest,
 } from "../../src/api/admin";
 import { apiClient } from "../../src/api/client";
 import type {
   AdminUser,
   AdminUserListResponse,
+  AdminMatch,
   AdminMatchListResponse,
   SystemStats,
-  Match,
 } from "../../src/types";
 
 // Mock the API client
@@ -79,30 +76,21 @@ describe("Admin API", () => {
     total_pages: 1,
   };
 
-  const mockMatch: Match = {
+  const mockMatch: AdminMatch = {
     id: "match-123",
     source_url: "https://open.spotify.com/track/abc",
+    source_platform: "spotify",
     target_url: "https://youtube.com/watch?v=xyz",
     target_platform: "youtube",
     score: 95,
     confidence: 0.95,
     match_type: "user",
-    result: {
-      name: "Test Song",
-      artists: ["Test Artist"],
-      artist: "Test Artist",
-      duration: 180,
-      platform: "youtube",
-      platform_id: "xyz",
-      url: "https://youtube.com/watch?v=xyz",
-      album_name: null,
-      cover_url: null,
-      views: 1000000,
-      explicit: false,
-      verified: false,
-    },
+    status: "pending",
     upvotes: 10,
     downvotes: 2,
+    net_votes: 8,
+    created_at: "2024-12-01T00:00:00Z",
+    discovered_by: null,
   };
 
   const mockMatchListResponse: AdminMatchListResponse = {
@@ -110,6 +98,7 @@ describe("Admin API", () => {
     total: 1,
     page: 1,
     per_page: 20,
+    total_pages: 1,
   };
 
   const mockSystemStats: SystemStats = {
@@ -118,21 +107,16 @@ describe("Admin API", () => {
       artists: 25000,
       albums: 35000,
       playlists: 5000,
-      matches: 200000,
+      relations: 200000,
       users: 1500,
     },
     growth: {
-      songs_today: 150,
-      songs_this_week: 1200,
-      downloads_today: 250,
-      downloads_this_week: 2000,
+      entities_today: 150,
+      entities_this_week: 1200,
+      relations_today: 250,
+      relations_this_week: 2000,
       new_users_today: 25,
       new_users_this_week: 180,
-    },
-    cache: {
-      hit_rate: 0.92,
-      size_mb: 256.5,
-      entries: 50000,
     },
     uptime_seconds: 86400,
   };
@@ -345,7 +329,7 @@ describe("Admin API", () => {
 
   describe("updateMatchStatus", () => {
     it("should update match status", async () => {
-      const updatedMatch = { ...mockMatch, status: "verified" };
+      const updatedMatch = { ...mockMatch, status: "verified" as const };
       mockApiClient.patch.mockResolvedValueOnce({ data: updatedMatch });
 
       const updateData: UpdateMatchStatusRequest = { status: "verified" };
@@ -381,37 +365,6 @@ describe("Admin API", () => {
       mockApiClient.get.mockRejectedValueOnce(new Error("Fetch failed"));
 
       await expect(getSystemStats()).rejects.toThrow("Fetch failed");
-    });
-  });
-
-  describe("clearCache", () => {
-    it("should clear all cache", async () => {
-      const response = { message: "Cache cleared", cache_type: "all" };
-      mockApiClient.post.mockResolvedValueOnce({ data: response });
-
-      const data: ClearCacheRequest = { cache_type: "all" };
-      const result = await clearCache(data);
-
-      expect(mockApiClient.post).toHaveBeenCalledWith("/admin/cache/clear", data);
-      expect(result).toEqual(response);
-    });
-
-    it("should clear specific cache type", async () => {
-      const response = { message: "Cache cleared", cache_type: "search" };
-      mockApiClient.post.mockResolvedValueOnce({ data: response });
-
-      const data: ClearCacheRequest = { cache_type: "search" };
-      await clearCache(data);
-
-      expect(mockApiClient.post).toHaveBeenCalledWith("/admin/cache/clear", data);
-    });
-
-    it("should throw error on API failure", async () => {
-      mockApiClient.post.mockRejectedValueOnce(new Error("Clear failed"));
-
-      await expect(clearCache({ cache_type: "all" })).rejects.toThrow(
-        "Clear failed"
-      );
     });
   });
 
@@ -542,7 +495,7 @@ describe("Admin API", () => {
 
   describe("useUpdateMatchStatus hook", () => {
     it("should update match status", async () => {
-      const updatedMatch = { ...mockMatch };
+      const updatedMatch = { ...mockMatch, status: "verified" as const };
       mockApiClient.patch.mockResolvedValueOnce({ data: updatedMatch });
 
       const { result } = renderHook(() => useUpdateMatchStatus(), {
@@ -597,54 +550,6 @@ describe("Admin API", () => {
       const { result } = renderHook(() => useSystemStats(), {
         wrapper: createWrapper(),
       });
-
-      await waitFor(() => expect(result.current.isError).toBe(true));
-    });
-  });
-
-  describe("useClearCache hook", () => {
-    it("should clear all cache", async () => {
-      const response = { message: "Cache cleared", cache_type: "all" };
-      mockApiClient.post.mockResolvedValueOnce({ data: response });
-
-      const { result } = renderHook(() => useClearCache(), {
-        wrapper: createWrapper(),
-      });
-
-      result.current.mutate({ cache_type: "all" });
-
-      await waitFor(() => expect(result.current.isSuccess).toBe(true));
-
-      expect(mockApiClient.post).toHaveBeenCalledWith("/admin/cache/clear", {
-        cache_type: "all",
-      });
-    });
-
-    it("should clear specific cache type", async () => {
-      const response = { message: "Cache cleared", cache_type: "entities" };
-      mockApiClient.post.mockResolvedValueOnce({ data: response });
-
-      const { result } = renderHook(() => useClearCache(), {
-        wrapper: createWrapper(),
-      });
-
-      result.current.mutate({ cache_type: "entities" });
-
-      await waitFor(() => expect(result.current.isSuccess).toBe(true));
-
-      expect(mockApiClient.post).toHaveBeenCalledWith("/admin/cache/clear", {
-        cache_type: "entities",
-      });
-    });
-
-    it("should handle clear error", async () => {
-      mockApiClient.post.mockRejectedValueOnce(new Error("Clear failed"));
-
-      const { result } = renderHook(() => useClearCache(), {
-        wrapper: createWrapper(),
-      });
-
-      result.current.mutate({ cache_type: "all" });
 
       await waitFor(() => expect(result.current.isError).toBe(true));
     });

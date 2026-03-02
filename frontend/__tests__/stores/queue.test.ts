@@ -6,11 +6,12 @@ const mockSong: Song = {
   id: "test-song-1",
   platform: "spotify",
   platform_id: "abc123",
-  platform_url: "https://open.spotify.com/track/abc123",
+  url: "https://open.spotify.com/track/abc123",
   name: "Test Song",
   artists: ["Test Artist"],
+  artist: "Test Artist",
   album_name: "Test Album",
-  duration_seconds: 180,
+  duration: 180,
   isrc: "USRC12345678",
 };
 
@@ -18,11 +19,12 @@ const mockSong2: Song = {
   id: "test-song-2",
   platform: "deezer",
   platform_id: "def456",
-  platform_url: "https://www.deezer.com/track/def456",
+  url: "https://www.deezer.com/track/def456",
   name: "Another Song",
   artists: ["Another Artist", "Featured Artist"],
+  artist: "Another Artist",
   album_name: "Another Album",
-  duration_seconds: 240,
+  duration: 240,
   isrc: null,
 };
 
@@ -147,11 +149,6 @@ describe("useQueueStore", () => {
     expect(item.status).toBe("pending");
     expect(item.error).toBeNull();
     expect(item.progress).toBe(0);
-  });
-
-  it("should set max concurrent downloads", () => {
-    useQueueStore.getState().setMaxConcurrent(5);
-    expect(useQueueStore.getState().maxConcurrent).toBe(5);
   });
 
   it("should clear all items", () => {

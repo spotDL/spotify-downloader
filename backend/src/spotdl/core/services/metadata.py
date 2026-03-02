@@ -257,15 +257,17 @@ class MetadataService:
             try:
                 provider_results = await provider.search(query, limit=limit)
                 for result in provider_results:
-                    results.append({
-                        "source": provider.name,
-                        "name": result.name,
-                        "artists": result.artists,
-                        "album_name": result.album_name,
-                        "genres": result.genres,
-                        "year": result.year,
-                        "confidence": result.confidence,
-                    })
+                    results.append(
+                        {
+                            "source": provider.name,
+                            "name": result.name,
+                            "artists": result.artists,
+                            "album_name": result.album_name,
+                            "genres": result.genres,
+                            "year": result.year,
+                            "confidence": result.confidence,
+                        }
+                    )
             except Exception as e:
                 logger.debug(f"Search failed on {provider.name}: {e}")
                 continue

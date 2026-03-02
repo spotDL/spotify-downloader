@@ -1,11 +1,9 @@
 """Tests for source providers."""
 
-from unittest.mock import AsyncMock, MagicMock, patch
-
 import pytest
 
-from spotdl.core.types.song import Platform, Song
-from spotdl.providers.sources.base import InvalidURLError, TrackNotFoundError
+from spotdl.core.types.song import Platform
+from spotdl.providers.sources.base import InvalidURLError
 from spotdl.providers.sources.deezer import DeezerProvider
 from spotdl.providers.sources.spotify import SpotifyProvider
 from spotdl.providers.sources.ytmusic import YouTubeMusicProvider
@@ -116,7 +114,9 @@ class TestYouTubeMusicProvider:
 
     def test_extract_video_id_no_match(self) -> None:
         """Test extracting video ID from URL without v= param returns None."""
-        result = YouTubeMusicProvider._extract_video_id("https://music.youtube.com/playlist?list=abc")
+        result = YouTubeMusicProvider._extract_video_id(
+            "https://music.youtube.com/playlist?list=abc"
+        )
         assert result is None
 
     def test_extract_playlist_id(self) -> None:
@@ -136,18 +136,14 @@ class TestYouTubeMusicProvider:
     def test_get_url_type_browse_album(self) -> None:
         """Test YT Music browse album URL type detection."""
         assert (
-            YouTubeMusicProvider.get_url_type(
-                "https://music.youtube.com/browse/album_wuO4_P_8p-Q"
-            )
+            YouTubeMusicProvider.get_url_type("https://music.youtube.com/browse/album_wuO4_P_8p-Q")
             == "album"
         )
 
     def test_get_url_type_browse_artist(self) -> None:
         """Test YT Music browse artist URL type detection."""
         assert (
-            YouTubeMusicProvider.get_url_type(
-                "https://music.youtube.com/browse/UCabc123"
-            )
+            YouTubeMusicProvider.get_url_type("https://music.youtube.com/browse/UCabc123")
             == "artist"
         )
 
@@ -161,9 +157,7 @@ class TestYouTubeMusicProvider:
             "artists": [{"name": "Artist 1"}, {"name": "Artist 2"}],
             "album": {"name": "Test Album"},
             "duration": "3:45",
-            "thumbnails": [
-                {"url": "https://example.com/thumb.jpg", "width": 226, "height": 226}
-            ],
+            "thumbnails": [{"url": "https://example.com/thumb.jpg", "width": 226, "height": 226}],
             "isExplicit": True,
             "year": "2024",
         }
@@ -408,8 +402,8 @@ class TestAppleMusicProvider:
 
     def test_track_to_song(self) -> None:
         """Test converting Apple Music track data to Song."""
-        from spotdl.providers.sources.apple_music import AppleMusicProvider
         from spotdl.core.types.song import Platform
+        from spotdl.providers.sources.apple_music import AppleMusicProvider
 
         provider = AppleMusicProvider()
 
@@ -528,9 +522,7 @@ class TestBandcampProvider:
         """Test extracting track info from URL."""
         from spotdl.providers.sources.bandcamp import BandcampProvider
 
-        result = BandcampProvider._extract_url_info(
-            "https://artist.bandcamp.com/track/test-song"
-        )
+        result = BandcampProvider._extract_url_info("https://artist.bandcamp.com/track/test-song")
         assert result["subdomain"] == "artist"
         assert result["type"] == "track"
         assert result["slug"] == "test-song"
@@ -572,8 +564,8 @@ class TestBandcampProvider:
 
     def test_track_to_song(self) -> None:
         """Test converting Bandcamp track data to Song."""
-        from spotdl.providers.sources.bandcamp import BandcampProvider
         from spotdl.core.types.song import Platform
+        from spotdl.providers.sources.bandcamp import BandcampProvider
 
         provider = BandcampProvider()
 
@@ -722,9 +714,7 @@ class TestSoundCloudProvider:
         """Test extracting track info from URL."""
         from spotdl.providers.sources.soundcloud import SoundCloudProvider
 
-        result = SoundCloudProvider._extract_url_info(
-            "https://soundcloud.com/artist/track-name"
-        )
+        result = SoundCloudProvider._extract_url_info("https://soundcloud.com/artist/track-name")
         assert result["user"] == "artist"
         assert result["slug"] == "track-name"
         assert result["type"] == "track"
@@ -744,9 +734,7 @@ class TestSoundCloudProvider:
         """Test extracting artist info from URL."""
         from spotdl.providers.sources.soundcloud import SoundCloudProvider
 
-        result = SoundCloudProvider._extract_url_info(
-            "https://soundcloud.com/artist"
-        )
+        result = SoundCloudProvider._extract_url_info("https://soundcloud.com/artist")
         assert result["user"] == "artist"
         assert result["type"] == "artist"
 
@@ -754,9 +742,7 @@ class TestSoundCloudProvider:
         """Test extracting artist tracks page info."""
         from spotdl.providers.sources.soundcloud import SoundCloudProvider
 
-        result = SoundCloudProvider._extract_url_info(
-            "https://soundcloud.com/artist/tracks"
-        )
+        result = SoundCloudProvider._extract_url_info("https://soundcloud.com/artist/tracks")
         assert result["user"] == "artist"
         assert result["type"] == "artist"
 
@@ -764,9 +750,7 @@ class TestSoundCloudProvider:
         """Test extracting info from URL with www prefix."""
         from spotdl.providers.sources.soundcloud import SoundCloudProvider
 
-        result = SoundCloudProvider._extract_url_info(
-            "https://www.soundcloud.com/artist/track"
-        )
+        result = SoundCloudProvider._extract_url_info("https://www.soundcloud.com/artist/track")
         assert result["user"] == "artist"
         assert result["slug"] == "track"
         assert result["type"] == "track"
@@ -780,8 +764,8 @@ class TestSoundCloudProvider:
 
     def test_track_to_song(self) -> None:
         """Test converting SoundCloud track data to Song."""
-        from spotdl.providers.sources.soundcloud import SoundCloudProvider
         from spotdl.core.types.song import Platform
+        from spotdl.providers.sources.soundcloud import SoundCloudProvider
 
         provider = SoundCloudProvider()
 
@@ -858,8 +842,8 @@ class TestSoundCloudProvider:
     @pytest.mark.asyncio
     async def test_get_track_invalid_url(self) -> None:
         """Test get_track raises error for invalid URL."""
-        from spotdl.providers.sources.soundcloud import SoundCloudProvider
         from spotdl.providers.sources.base import InvalidURLError
+        from spotdl.providers.sources.soundcloud import SoundCloudProvider
 
         provider = SoundCloudProvider()
 
@@ -869,8 +853,8 @@ class TestSoundCloudProvider:
     @pytest.mark.asyncio
     async def test_get_track_non_track_url(self) -> None:
         """Test get_track raises error for non-track URL."""
-        from spotdl.providers.sources.soundcloud import SoundCloudProvider
         from spotdl.providers.sources.base import InvalidURLError
+        from spotdl.providers.sources.soundcloud import SoundCloudProvider
 
         provider = SoundCloudProvider()
 
@@ -977,8 +961,8 @@ class TestTidalProvider:
 
     def test_track_to_song(self) -> None:
         """Test converting Tidal track data to Song."""
-        from spotdl.providers.sources.tidal import TidalProvider
         from spotdl.core.types.song import Platform
+        from spotdl.providers.sources.tidal import TidalProvider
 
         provider = TidalProvider()
 
@@ -1070,8 +1054,8 @@ class TestTidalProvider:
     @pytest.mark.asyncio
     async def test_get_track_invalid_url(self) -> None:
         """Test get_track raises error for invalid URL."""
-        from spotdl.providers.sources.tidal import TidalProvider
         from spotdl.providers.sources.base import InvalidURLError
+        from spotdl.providers.sources.tidal import TidalProvider
 
         provider = TidalProvider()
 
@@ -1081,8 +1065,8 @@ class TestTidalProvider:
     @pytest.mark.asyncio
     async def test_get_track_non_track_url(self) -> None:
         """Test get_track raises error for non-track URL."""
-        from spotdl.providers.sources.tidal import TidalProvider
         from spotdl.providers.sources.base import InvalidURLError
+        from spotdl.providers.sources.tidal import TidalProvider
 
         provider = TidalProvider()
 

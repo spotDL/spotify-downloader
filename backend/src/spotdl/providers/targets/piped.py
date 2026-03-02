@@ -69,9 +69,7 @@ class PipedProvider(TargetProvider):
             self._client = httpx.AsyncClient(
                 timeout=self._timeout,
                 follow_redirects=True,
-                headers={
-                    "User-Agent": "Mozilla/5.0 (compatible; SpotDL/5.0)"
-                },
+                headers={"User-Agent": "Mozilla/5.0 (compatible; SpotDL/5.0)"},
             )
         return self._client
 
@@ -261,7 +259,7 @@ class PipedProvider(TargetProvider):
             )
 
             # Return highest quality audio stream
-            
+
             stream_url = sorted_streams[0].get("url")
             return str(stream_url) if stream_url else None
 

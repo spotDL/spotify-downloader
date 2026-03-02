@@ -1,7 +1,5 @@
 """Tests for Result type."""
 
-import pytest
-
 from spotdl.core.types.result import Result, TargetPlatform
 
 

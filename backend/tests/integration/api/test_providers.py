@@ -3,7 +3,6 @@
 import pytest
 from httpx import AsyncClient
 
-
 pytestmark = pytest.mark.asyncio
 
 
@@ -37,9 +36,7 @@ class TestProvidersEndpoints:
             assert isinstance(provider["name"], str)
             assert isinstance(provider["default_enabled"], bool)
 
-    async def test_providers_metadata_sources_structure(
-        self, client: AsyncClient
-    ) -> None:
+    async def test_providers_metadata_sources_structure(self, client: AsyncClient) -> None:
         """Test metadata sources have correct structure."""
         response = await client.get("/api/v1/providers")
         data = response.json()
@@ -50,9 +47,7 @@ class TestProvidersEndpoints:
             assert "icon" in provider
             assert "default_enabled" in provider
 
-    async def test_providers_lyrics_sources_structure(
-        self, client: AsyncClient
-    ) -> None:
+    async def test_providers_lyrics_sources_structure(self, client: AsyncClient) -> None:
         """Test lyrics sources have correct structure."""
         response = await client.get("/api/v1/providers")
         data = response.json()
@@ -63,9 +58,7 @@ class TestProvidersEndpoints:
             assert "icon" in provider
             assert "default_enabled" in provider
 
-    async def test_providers_contains_expected_audio_sources(
-        self, client: AsyncClient
-    ) -> None:
+    async def test_providers_contains_expected_audio_sources(self, client: AsyncClient) -> None:
         """Test providers contains expected audio sources."""
         response = await client.get("/api/v1/providers")
         data = response.json()
@@ -75,9 +68,7 @@ class TestProvidersEndpoints:
         assert "youtube" in audio_ids
         assert "soundcloud" in audio_ids
 
-    async def test_providers_contains_expected_metadata_sources(
-        self, client: AsyncClient
-    ) -> None:
+    async def test_providers_contains_expected_metadata_sources(self, client: AsyncClient) -> None:
         """Test providers contains expected metadata sources."""
         response = await client.get("/api/v1/providers")
         data = response.json()
@@ -87,9 +78,7 @@ class TestProvidersEndpoints:
         assert "musicbrainz" in metadata_ids
         assert "discogs" in metadata_ids
 
-    async def test_providers_contains_expected_lyrics_sources(
-        self, client: AsyncClient
-    ) -> None:
+    async def test_providers_contains_expected_lyrics_sources(self, client: AsyncClient) -> None:
         """Test providers contains expected lyrics sources."""
         response = await client.get("/api/v1/providers")
         data = response.json()

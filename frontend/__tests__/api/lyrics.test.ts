@@ -75,7 +75,7 @@ describe("Lyrics API", () => {
 
   describe("getLyricsForSong", () => {
     const mockLyricsResponse: LyricsResponse = {
-      song_id: "song-123",
+      entity_id: "song-123",
       lyrics_text: "These are the lyrics",
       lyrics_synced: null,
       source: "genius",
@@ -88,8 +88,8 @@ describe("Lyrics API", () => {
       const result = await getLyricsForSong("song-123");
 
       expect(mockApiClient.get).toHaveBeenCalledWith(
-        "/api/v1/lyrics/song/song-123",
-        { params: {} }
+        "/lyrics/entity/song-123",
+        { params: undefined }
       );
       expect(result).toEqual(mockLyricsResponse);
     });
@@ -100,14 +100,14 @@ describe("Lyrics API", () => {
       await getLyricsForSong("song-123", true);
 
       expect(mockApiClient.get).toHaveBeenCalledWith(
-        "/api/v1/lyrics/song/song-123",
-        { params: { force_refresh: "true" } }
+        "/lyrics/entity/song-123",
+        { params: { force_refresh: true } }
       );
     });
 
     it("should return not found response when lyrics not available", async () => {
       const notFoundResponse: LyricsNotFoundResponse = {
-        song_id: "song-123",
+        entity_id: "song-123",
         message: "Lyrics not found",
       };
       mockApiClient.get.mockResolvedValueOnce({ data: notFoundResponse });
@@ -117,18 +117,21 @@ describe("Lyrics API", () => {
       expect(result).toEqual(notFoundResponse);
     });
 
-    it("should throw error on API failure", async () => {
+    it("should return fallback on API failure instead of throwing", async () => {
       mockApiClient.get.mockRejectedValueOnce(new Error("Network error"));
 
-      await expect(getLyricsForSong("song-123")).rejects.toThrow(
-        "Network error"
-      );
+      const result = await getLyricsForSong("song-123");
+
+      expect(result).toEqual({
+        entity_id: "song-123",
+        message: "Failed to fetch lyrics",
+      });
     });
   });
 
   describe("searchLyrics", () => {
     const mockLyricsResponse: LyricsResponse = {
-      song_id: "song-123",
+      entity_id: "song-123",
       lyrics_text: "Found lyrics",
       lyrics_synced: null,
       source: "musixmatch",
@@ -140,24 +143,27 @@ describe("Lyrics API", () => {
 
       const result = await searchLyrics("Test Song", "Test Artist");
 
-      expect(mockApiClient.get).toHaveBeenCalledWith("/api/v1/lyrics/search", {
+      expect(mockApiClient.get).toHaveBeenCalledWith("/lyrics/search", {
         params: { name: "Test Song", artist: "Test Artist" },
       });
       expect(result).toEqual(mockLyricsResponse);
     });
 
-    it("should throw error on API failure", async () => {
+    it("should return fallback on API failure instead of throwing", async () => {
       mockApiClient.get.mockRejectedValueOnce(new Error("Search failed"));
 
-      await expect(searchLyrics("Song", "Artist")).rejects.toThrow(
-        "Search failed"
-      );
+      const result = await searchLyrics("Song", "Artist");
+
+      expect(result).toEqual({
+        entity_id: "Artist:Song",
+        message: "Lyrics search failed",
+      });
     });
   });
 
   describe("useLyrics hook", () => {
     const mockLyricsResponse: LyricsResponse = {
-      song_id: "song-123",
+      entity_id: "song-123",
       lyrics_text: "Hook lyrics",
       lyrics_synced: null,
       source: "genius",
@@ -197,22 +203,26 @@ describe("Lyrics API", () => {
       expect(mockApiClient.get).not.toHaveBeenCalled();
     });
 
-    it("should handle error state", async () => {
+    it("should succeed with fallback on API error (catch returns value)", async () => {
       mockApiClient.get.mockRejectedValueOnce(new Error("Fetch failed"));
 
       const { result } = renderHook(() => useLyrics("song-123"), {
         wrapper: createWrapper(),
       });
 
-      await waitFor(() => expect(result.current.isError).toBe(true));
+      // getLyricsForSong catches errors and returns a fallback, so the query succeeds
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-      expect(result.current.error).toBeDefined();
+      expect(result.current.data).toEqual({
+        entity_id: "song-123",
+        message: "Failed to fetch lyrics",
+      });
     });
   });
 
   describe("useRefreshLyrics hook", () => {
     const mockLyricsResponse: LyricsResponse = {
-      song_id: "song-123",
+      entity_id: "song-123",
       lyrics_text: "Refreshed lyrics",
       lyrics_synced: "[00:00.00] Synced",
       source: "genius",
@@ -231,12 +241,12 @@ describe("Lyrics API", () => {
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
       expect(mockApiClient.get).toHaveBeenCalledWith(
-        "/api/v1/lyrics/song/song-123",
-        { params: { force_refresh: "true" } }
+        "/lyrics/entity/song-123",
+        { params: { force_refresh: true } }
       );
     });
 
-    it("should handle mutation error", async () => {
+    it("should succeed with fallback on error (catch returns value)", async () => {
       mockApiClient.get.mockRejectedValueOnce(new Error("Refresh failed"));
 
       const { result } = renderHook(() => useRefreshLyrics(), {
@@ -245,13 +255,14 @@ describe("Lyrics API", () => {
 
       result.current.mutate("song-123");
 
-      await waitFor(() => expect(result.current.isError).toBe(true));
+      // getLyricsForSong catches and returns fallback, so mutation succeeds
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
     });
   });
 
   describe("useSearchLyrics hook", () => {
     const mockLyricsResponse: LyricsResponse = {
-      song_id: "search-result",
+      entity_id: "search-result",
       lyrics_text: "Search result lyrics",
       lyrics_synced: null,
       source: "azlyrics",
@@ -269,13 +280,13 @@ describe("Lyrics API", () => {
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-      expect(mockApiClient.get).toHaveBeenCalledWith("/api/v1/lyrics/search", {
+      expect(mockApiClient.get).toHaveBeenCalledWith("/lyrics/search", {
         params: { name: "Test Song", artist: "Test Artist" },
       });
       expect(result.current.data).toEqual(mockLyricsResponse);
     });
 
-    it("should handle search error", async () => {
+    it("should succeed with fallback on error (catch returns value)", async () => {
       mockApiClient.get.mockRejectedValueOnce(new Error("Search failed"));
 
       const { result } = renderHook(() => useSearchLyrics(), {
@@ -284,14 +295,15 @@ describe("Lyrics API", () => {
 
       result.current.mutate({ name: "Unknown", artist: "Unknown" });
 
-      await waitFor(() => expect(result.current.isError).toBe(true));
+      // searchLyrics catches and returns fallback, so mutation succeeds
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
     });
   });
 
   describe("hasLyrics helper", () => {
     it("should return true for response with lyrics", () => {
       const response: LyricsResponse = {
-        song_id: "song-123",
+        entity_id: "song-123",
         lyrics_text: "Some lyrics",
         lyrics_synced: null,
         source: "genius",
@@ -303,7 +315,7 @@ describe("Lyrics API", () => {
 
     it("should return false for not found response", () => {
       const response: LyricsNotFoundResponse = {
-        song_id: "song-123",
+        entity_id: "song-123",
         message: "Not found",
       };
 
@@ -312,7 +324,7 @@ describe("Lyrics API", () => {
 
     it("should return false for response with empty lyrics", () => {
       const response = {
-        song_id: "song-123",
+        entity_id: "song-123",
         lyrics_text: "",
         lyrics_synced: null,
         source: "genius",
@@ -326,7 +338,7 @@ describe("Lyrics API", () => {
   describe("toLyrics helper", () => {
     it("should convert API response to Lyrics type", () => {
       const response: LyricsResponse = {
-        song_id: "song-123",
+        entity_id: "song-123",
         lyrics_text: "Test lyrics",
         lyrics_synced: "[00:00.00] Synced",
         source: "genius",
@@ -335,16 +347,16 @@ describe("Lyrics API", () => {
 
       const result = toLyrics(response);
 
-      expect(result).toEqual({
-        lyrics_text: "Test lyrics",
-        lyrics_synced: "[00:00.00] Synced",
-        source: "genius",
-      });
+      expect(result.entity_id).toBe("song-123");
+      expect(result.lyrics_text).toBe("Test lyrics");
+      expect(result.lyrics_synced).toBe("[00:00.00] Synced");
+      expect(result.source).toBe("genius");
+      expect(result.fetched_at).toBeDefined();
     });
 
     it("should handle null synced lyrics", () => {
       const response: LyricsResponse = {
-        song_id: "song-123",
+        entity_id: "song-123",
         lyrics_text: "Test lyrics",
         lyrics_synced: null,
         source: "musixmatch",
@@ -353,7 +365,7 @@ describe("Lyrics API", () => {
 
       const result = toLyrics(response);
 
-      expect(result.lyrics_synced).toBeUndefined();
+      expect(result.lyrics_synced).toBeNull();
     });
   });
 });

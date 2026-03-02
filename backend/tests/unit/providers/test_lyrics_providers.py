@@ -4,7 +4,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
 import pytest
-from bs4 import BeautifulSoup
 
 from spotdl.providers.lyrics.azlyrics import AZLyricsProvider
 from spotdl.providers.lyrics.base import BaseLyricsProvider
@@ -31,16 +30,12 @@ class TestBaseLyricsProvider:
         assert score == 100.0  # Exact match gives 100
 
         # Match with artist name adds bonus (20 points max)
-        score_with_artist = provider._calculate_score(
-            "Artist - Test Song", "Test Song", ["Artist"]
-        )
+        score_with_artist = provider._calculate_score("Artist - Test Song", "Test Song", ["Artist"])
         # Fuzzy match is less than 100 due to "Artist - " prefix, but adds 20 point bonus
         assert 80 < score_with_artist < 100  # High but not perfect due to extra text
 
         # No match should score low
-        score_no_match = provider._calculate_score(
-            "Completely Different", "Test Song", ["Artist"]
-        )
+        score_no_match = provider._calculate_score("Completely Different", "Test Song", ["Artist"])
         assert score_no_match < 50
 
     def test_find_best_match(self) -> None:
@@ -874,11 +869,11 @@ class TestAZLyricsProvider:
         provider = AZLyricsProvider()
 
         mock_response = MagicMock()
-        mock_response.raise_for_status = MagicMock(side_effect=httpx.HTTPStatusError(
-            "404 Not Found",
-            request=MagicMock(),
-            response=MagicMock()
-        ))
+        mock_response.raise_for_status = MagicMock(
+            side_effect=httpx.HTTPStatusError(
+                "404 Not Found", request=MagicMock(), response=MagicMock()
+            )
+        )
 
         mock_client = MagicMock(spec=httpx.AsyncClient)
         mock_client.get = AsyncMock(return_value=mock_response)
@@ -961,7 +956,7 @@ class TestLyricsProvidersHTMLParsing:
         """
 
         mock_response = MagicMock()
-        mock_response.content = lyrics_html.encode('utf-8')
+        mock_response.content = lyrics_html.encode("utf-8")
         mock_response.raise_for_status = MagicMock()
 
         mock_client = MagicMock(spec=httpx.AsyncClient)
@@ -1251,9 +1246,7 @@ class TestMusixMatchProvider:
         mock_response = MagicMock()
         mock_response.raise_for_status = MagicMock(
             side_effect=httpx.HTTPStatusError(
-                "404 Not Found",
-                request=MagicMock(),
-                response=MagicMock()
+                "404 Not Found", request=MagicMock(), response=MagicMock()
             )
         )
 
@@ -1331,7 +1324,9 @@ class TestSyncedLyricsProvider:
         provider._client = MagicMock(spec=httpx.AsyncClient)
 
         # Mock the import to raise ImportError
-        with patch("builtins.__import__", side_effect=ImportError("No module named 'syncedlyrics'")):
+        with patch(
+            "builtins.__import__", side_effect=ImportError("No module named 'syncedlyrics'")
+        ):
             lyrics = await provider.get_lyrics("Test Song", ["Artist"])
             assert lyrics is None
 
@@ -1407,9 +1402,7 @@ class TestLyricsProvidersNetworkErrors:
         mock_response.status_code = 429
         mock_response.raise_for_status = MagicMock(
             side_effect=httpx.HTTPStatusError(
-                "429 Too Many Requests",
-                request=MagicMock(),
-                response=mock_response
+                "429 Too Many Requests", request=MagicMock(), response=mock_response
             )
         )
 

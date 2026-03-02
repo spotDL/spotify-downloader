@@ -49,24 +49,6 @@ export function DevModePanel() {
     positionRef.current = position;
   }, [position]);
 
-  // Don't render in production
-  if (!baseConfig.isDev) {
-    return null;
-  }
-
-  const currentMode: DeploymentMode = modeOverride ?? baseConfig.mode;
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest("button")) return;
-    setIsDragging(true);
-    dragStartRef.current = {
-      x: e.clientX,
-      y: e.clientY,
-      posX: position.x,
-      posY: position.y,
-    };
-  };
-
   useEffect(() => {
     if (!isDragging) return;
 
@@ -93,6 +75,24 @@ export function DevModePanel() {
       document.removeEventListener("mouseup", handleMouseUp);
     };
   }, [isDragging]);
+
+  // Don't render in production
+  if (!baseConfig.isDev) {
+    return null;
+  }
+
+  const currentMode: DeploymentMode = modeOverride ?? baseConfig.mode;
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest("button")) return;
+    setIsDragging(true);
+    dragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      posX: position.x,
+      posY: position.y,
+    };
+  };
 
   const modeOptions: { value: DeploymentMode | null; label: string; description: string }[] = [
     { value: null, label: "Env", description: `Use ${baseConfig.mode} from .env` },

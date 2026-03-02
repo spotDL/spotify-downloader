@@ -22,9 +22,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # SoundCloud URL pattern
-SOUNDCLOUD_URL_PATTERN = re.compile(
-    r"(?:https?://)?(?:www\.)?soundcloud\.com/([^/]+)/([^/?]+)"
-)
+SOUNDCLOUD_URL_PATTERN = re.compile(r"(?:https?://)?(?:www\.)?soundcloud\.com/([^/]+)/([^/?]+)")
 
 
 class SoundCloudProvider(TargetProvider):

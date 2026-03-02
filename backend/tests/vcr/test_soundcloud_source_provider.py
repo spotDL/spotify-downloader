@@ -5,7 +5,6 @@ import pytest
 from spotdl.core.types.song import Platform
 from spotdl.providers.sources.soundcloud import SoundCloudProvider
 
-
 pytestmark = pytest.mark.asyncio
 
 
@@ -23,9 +22,7 @@ class TestSoundCloudSourceProviderVCR:
         from spotdl.providers.sources.base import TrackNotFoundError
 
         try:
-            song = await provider.get_track(
-                "https://soundcloud.com/flaborblanding/flume-holdin-on"
-            )
+            song = await provider.get_track("https://soundcloud.com/flaborblanding/flume-holdin-on")
 
             assert song.name is not None
             assert len(song.name) > 0
@@ -57,9 +54,7 @@ class TestSoundCloudSourceProviderVCR:
     @staticmethod
     def test_extract_url_info_track() -> None:
         """Test extracting track URL info."""
-        result = SoundCloudProvider._extract_url_info(
-            "https://soundcloud.com/artist/track-name"
-        )
+        result = SoundCloudProvider._extract_url_info("https://soundcloud.com/artist/track-name")
         assert result["user"] == "artist"
         assert result["slug"] == "track-name"
         assert result["type"] == "track"
@@ -77,9 +72,7 @@ class TestSoundCloudSourceProviderVCR:
     @staticmethod
     def test_extract_url_info_artist() -> None:
         """Test extracting artist URL info."""
-        result = SoundCloudProvider._extract_url_info(
-            "https://soundcloud.com/artist/tracks"
-        )
+        result = SoundCloudProvider._extract_url_info("https://soundcloud.com/artist/tracks")
         assert result["user"] == "artist"
         assert result["type"] == "artist"
 

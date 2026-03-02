@@ -707,7 +707,7 @@ export async function refreshPlaylistMetadata(playlistId: string): Promise<Refre
   return refreshSongMetadata(playlistId);
 }
 
-function createRefreshMutation(keyBuilder: (id: string) => readonly unknown[]) {
+function useRefreshMutation(keyBuilder: (id: string) => readonly unknown[]) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => refreshSongMetadata(id),
@@ -718,19 +718,19 @@ function createRefreshMutation(keyBuilder: (id: string) => readonly unknown[]) {
 }
 
 export function useRefreshSongMetadata() {
-  return createRefreshMutation(entityKeys.song);
+  return useRefreshMutation(entityKeys.song);
 }
 
 export function useRefreshAlbumMetadata() {
-  return createRefreshMutation(entityKeys.album);
+  return useRefreshMutation(entityKeys.album);
 }
 
 export function useRefreshArtistMetadata() {
-  return createRefreshMutation(entityKeys.artist);
+  return useRefreshMutation(entityKeys.artist);
 }
 
 export function useRefreshPlaylistMetadata() {
-  return createRefreshMutation(entityKeys.playlist);
+  return useRefreshMutation(entityKeys.playlist);
 }
 
 export interface EnrichResponse {

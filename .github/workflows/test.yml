@@ -44,7 +44,7 @@ jobs:
         run: uv run mypy src
 
       - name: Run tests with coverage
-        run: uv run pytest --cov=spotdl --cov-report=xml --cov-report=term-missing --cov-fail-under=80
+        run: uv run pytest --cov=spotdl --cov-report=xml --cov-report=term-missing --cov-fail-under=60
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v4

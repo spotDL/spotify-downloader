@@ -1,7 +1,5 @@
 """Tests for matching scoring functions."""
 
-import pytest
-
 from spotdl.core.matching.scoring import (
     artists_match_fixup1,
     artists_match_fixup2,
@@ -15,8 +13,6 @@ from spotdl.core.matching.scoring import (
     check_forbidden_words,
     create_match_strings,
 )
-from spotdl.core.types.result import Result, TargetPlatform
-from spotdl.core.types.song import Platform, Song
 from tests.conftest import create_result, create_song
 
 

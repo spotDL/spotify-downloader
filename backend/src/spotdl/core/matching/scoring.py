@@ -41,11 +41,7 @@ def check_common_word(song: Song, result: Result) -> bool:
     sentence_words = slugify(song.name).split("-")
     to_check = slugify(result.name).replace("-", "")
 
-    for word in sentence_words:
-        if word and word in to_check:
-            return True
-
-    return False
+    return any(word and word in to_check for word in sentence_words)
 
 
 def check_forbidden_words(song: Song, result: Result) -> tuple[bool, list[str]]:
@@ -151,9 +147,7 @@ def calc_main_artist_match(song: Song, result: Result) -> float:
     # If match is low and song has multiple artists,
     # try matching other artist combinations
     if main_artist_match < 50 and len(song_artists) > 1:
-        for song_artist, result_artist in product(
-            song_artists[:2], sorted_result_artists[:2]
-        ):
+        for song_artist, result_artist in product(song_artists[:2], sorted_result_artists[:2]):
             new_artist_match = ratio(song_artist, result_artist)
             main_artist_match = max(main_artist_match, new_artist_match)
 
@@ -316,12 +310,7 @@ def artists_match_fixup3(song: Song, result: Result, score: float) -> float:
     Returns:
         Adjusted score
     """
-    if (
-        score > 70
-        or not result.artists
-        or len(result.artists) > 1
-        or len(song.artists) == 1
-    ):
+    if score > 70 or not result.artists or len(result.artists) > 1 or len(song.artists) == 1:
         return score
 
     # Compare result name to song title with single artist
@@ -336,9 +325,7 @@ def artists_match_fixup3(song: Song, result: Result, score: float) -> float:
     return min(score, 100)
 
 
-def calc_name_match(
-    song: Song, result: Result, search_query: str | None = None
-) -> float:
+def calc_name_match(song: Song, result: Result, search_query: str | None = None) -> float:
     """
     Calculate match score for song name vs result name.
 

@@ -52,8 +52,7 @@ class BaseLyricsProvider(ABC):
         """Get the HTTP client."""
         if self._client is None:
             raise RuntimeError(
-                "Provider not initialized. Use 'async with provider:' "
-                "or call __aenter__ first."
+                "Provider not initialized. Use 'async with provider:' or call __aenter__ first."
             )
         return self._client
 
@@ -74,9 +73,7 @@ class BaseLyricsProvider(ABC):
             self._client = None
 
     @abstractmethod
-    async def get_results(
-        self, name: str, artists: list[str], **kwargs: Any
-    ) -> dict[str, str]:
+    async def get_results(self, name: str, artists: list[str], **kwargs: Any) -> dict[str, str]:
         """
         Search for songs matching name and artists.
 
@@ -102,9 +99,7 @@ class BaseLyricsProvider(ABC):
         """
         ...
 
-    def _calculate_score(
-        self, result_title: str, name: str, artists: list[str]
-    ) -> float:
+    def _calculate_score(self, result_title: str, name: str, artists: list[str]) -> float:
         """
         Calculate match score for a search result.
 
@@ -120,9 +115,7 @@ class BaseLyricsProvider(ABC):
         name_lower = name.lower()
 
         # Check if all artists are in the title
-        artists_in_title = sum(
-            1 for artist in artists if artist.lower() in result_lower
-        )
+        artists_in_title = sum(1 for artist in artists if artist.lower() in result_lower)
         artist_bonus = (artists_in_title / max(len(artists), 1)) * 20
 
         # Fuzzy match on song name

@@ -23,11 +23,15 @@ class UnsupportedPlatformError(URLResolverError):
 # URL patterns for platform detection
 URL_PATTERNS: dict[Platform, list[re.Pattern[str]]] = {
     Platform.SPOTIFY: [
-        re.compile(r"https?://open\.spotify\.com/(?:intl-\w+/)?(track|album|playlist|artist)/([a-zA-Z0-9]+)"),
+        re.compile(
+            r"https?://open\.spotify\.com/(?:intl-\w+/)?(track|album|playlist|artist)/([a-zA-Z0-9]+)"
+        ),
         re.compile(r"spotify:(track|album|playlist|artist):([a-zA-Z0-9]+)"),
     ],
     Platform.APPLE_MUSIC: [
-        re.compile(r"https?://music\.apple\.com/\w+/(album|playlist|artist)/[^/]+/([a-zA-Z0-9._-]+)"),
+        re.compile(
+            r"https?://music\.apple\.com/\w+/(album|playlist|artist)/[^/]+/([a-zA-Z0-9._-]+)"
+        ),
         re.compile(r"https?://music\.apple\.com/\w+/album/[^/]+/(\d+)\?i=(\d+)"),  # Track in album
     ],
     Platform.DEEZER: [
@@ -35,7 +39,9 @@ URL_PATTERNS: dict[Platform, list[re.Pattern[str]]] = {
         re.compile(r"deezer\.(page\.link|app\.link)/\w+"),  # Short links
     ],
     Platform.TIDAL: [
-        re.compile(r"https?://(?:www\.)?tidal\.com/(?:browse/)?(track|album|playlist|artist)/(\d+)"),
+        re.compile(
+            r"https?://(?:www\.)?tidal\.com/(?:browse/)?(track|album|playlist|artist)/(\d+)"
+        ),
         re.compile(r"https?://listen\.tidal\.com/(track|album|playlist|artist)/(\d+)"),
     ],
     Platform.YOUTUBE_MUSIC: [
@@ -214,9 +220,7 @@ class URLResolver:
         provider = self._providers.get(platform)
 
         if provider is None:
-            raise UnsupportedPlatformError(
-                f"No provider registered for platform: {platform.value}"
-            )
+            raise UnsupportedPlatformError(f"No provider registered for platform: {platform.value}")
 
         return await provider.get_songs_from_url(url)
 

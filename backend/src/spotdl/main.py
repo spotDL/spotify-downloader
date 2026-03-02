@@ -5,11 +5,11 @@ from __future__ import annotations
 import logging
 import sys
 import time
+from collections.abc import AsyncGenerator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from pathlib import Path
-
-from typing import Any, AsyncGenerator, Callable, Awaitable
+from typing import Any
 
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -53,7 +53,9 @@ def setup_logging() -> None:
     logging.getLogger("uvicorn").setLevel(log_level)
     logging.getLogger("uvicorn.error").setLevel(log_level)
     # Always show access logs in development
-    logging.getLogger("uvicorn.access").setLevel(logging.INFO if settings.is_development else logging.WARNING)
+    logging.getLogger("uvicorn.access").setLevel(
+        logging.INFO if settings.is_development else logging.WARNING
+    )
 
     # Reduce noise from third-party libraries in debug mode
     logging.getLogger("httpx").setLevel(logging.WARNING)
@@ -61,11 +63,13 @@ def setup_logging() -> None:
     logging.getLogger("aiosqlite").setLevel(logging.WARNING)
 
     logger = logging.getLogger(__name__)
-    logger.info(f"Logging configured: level={logging.getLevelName(log_level)}, env={settings.environment}, debug={settings.debug}")
+    logger.info(
+        f"Logging configured: level={logging.getLevelName(log_level)}, env={settings.environment}, debug={settings.debug}"
+    )
 
 
 @asynccontextmanager
-async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
     """Application lifespan handler for startup/shutdown events."""
     # Configure logging first
     setup_logging()
@@ -108,7 +112,9 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
     Logs request method, path, status code, and response time.
     """
 
-    async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         """Process the request and log details."""
         logger = logging.getLogger("spotdl.api")
 

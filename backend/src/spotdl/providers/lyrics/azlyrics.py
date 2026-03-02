@@ -63,9 +63,7 @@ class AZLyricsProvider(BaseLyricsProvider):
             logger.debug("Failed to get AZLyrics x_code: %s", exc)
             return False
 
-    async def get_results(
-        self, name: str, artists: list[str], **kwargs: Any
-    ) -> dict[str, str]:
+    async def get_results(self, name: str, artists: list[str], **kwargs: Any) -> dict[str, str]:
         """Search AZLyrics."""
         if not await self._ensure_x_code():
             return {}

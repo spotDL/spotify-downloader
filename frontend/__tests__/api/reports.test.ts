@@ -130,7 +130,7 @@ describe("Reports API", () => {
       const result = await createReport(createRequest);
 
       expect(mockApiClient.post).toHaveBeenCalledWith(
-        "/api/v1/reports",
+        "/reports",
         createRequest
       );
       expect(result).toEqual(mockReportResponse);
@@ -151,7 +151,7 @@ describe("Reports API", () => {
 
       const result = await getMyReports();
 
-      expect(mockApiClient.get).toHaveBeenCalledWith("/api/v1/reports/me", {
+      expect(mockApiClient.get).toHaveBeenCalledWith("/reports/me", {
         params: { page: 1, page_size: 20 },
       });
       expect(result).toEqual(mockReportListResponse);
@@ -162,7 +162,7 @@ describe("Reports API", () => {
 
       await getMyReports(2, 10, "reviewed");
 
-      expect(mockApiClient.get).toHaveBeenCalledWith("/api/v1/reports/me", {
+      expect(mockApiClient.get).toHaveBeenCalledWith("/reports/me", {
         params: { page: 2, page_size: 10, status: "reviewed" },
       });
     });
@@ -180,7 +180,7 @@ describe("Reports API", () => {
 
       const result = await listReports();
 
-      expect(mockApiClient.get).toHaveBeenCalledWith("/api/v1/reports", {
+      expect(mockApiClient.get).toHaveBeenCalledWith("/reports", {
         params: { page: 1, page_size: 20 },
       });
       expect(result).toEqual(mockReportListResponse);
@@ -191,7 +191,7 @@ describe("Reports API", () => {
 
       await listReports(1, 20, "pending", "song");
 
-      expect(mockApiClient.get).toHaveBeenCalledWith("/api/v1/reports", {
+      expect(mockApiClient.get).toHaveBeenCalledWith("/reports", {
         params: { page: 1, page_size: 20, status: "pending", entity_type: "song" },
       });
     });
@@ -204,7 +204,7 @@ describe("Reports API", () => {
       const result = await getReport("report-123");
 
       expect(mockApiClient.get).toHaveBeenCalledWith(
-        "/api/v1/reports/report-123"
+        "/reports/report-123"
       );
       expect(result).toEqual(mockReportResponse);
     });
@@ -229,7 +229,7 @@ describe("Reports API", () => {
       const result = await updateReport("report-123", { status: "reviewed" as ReportStatus });
 
       expect(mockApiClient.patch).toHaveBeenCalledWith(
-        "/api/v1/reports/report-123",
+        "/reports/report-123",
         { status: "reviewed" }
       );
       expect(result.status).toBe("reviewed");
@@ -252,7 +252,7 @@ describe("Reports API", () => {
       const result = await deleteReport("report-123");
 
       expect(mockApiClient.delete).toHaveBeenCalledWith(
-        "/api/v1/reports/report-123"
+        "/reports/report-123"
       );
       expect(result).toEqual(deleteResponse);
     });
@@ -285,7 +285,7 @@ describe("Reports API", () => {
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
       expect(mockApiClient.post).toHaveBeenCalledWith(
-        "/api/v1/reports",
+        "/reports",
         createRequest
       );
     });
@@ -325,7 +325,7 @@ describe("Reports API", () => {
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-      expect(mockApiClient.get).toHaveBeenCalledWith("/api/v1/reports/me", {
+      expect(mockApiClient.get).toHaveBeenCalledWith("/reports/me", {
         params: { page: 2, page_size: 10, status: "reviewed" },
       });
     });
@@ -366,7 +366,7 @@ describe("Reports API", () => {
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-      expect(mockApiClient.get).toHaveBeenCalledWith("/api/v1/reports", {
+      expect(mockApiClient.get).toHaveBeenCalledWith("/reports", {
         params: { page: 1, page_size: 20, status: "pending", entity_type: "album" },
       });
     });
@@ -412,7 +412,7 @@ describe("Reports API", () => {
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
       expect(mockApiClient.patch).toHaveBeenCalledWith(
-        "/api/v1/reports/report-123",
+        "/reports/report-123",
         { status: "fixed" }
       );
     });
@@ -447,7 +447,7 @@ describe("Reports API", () => {
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
       expect(mockApiClient.delete).toHaveBeenCalledWith(
-        "/api/v1/reports/report-123"
+        "/reports/report-123"
       );
     });
 
@@ -478,10 +478,9 @@ describe("Reports API", () => {
         suggested_value: "Correct Name",
         description: "The song name is incorrect",
         status: "pending",
-        reviewed_by: undefined,
-        reviewed_at: undefined,
+        reviewed_by: null,
+        reviewed_at: null,
         created_at: "2024-12-01T00:00:00Z",
-        updated_at: "2024-12-01T00:00:00Z",
       });
     });
 
@@ -508,7 +507,7 @@ describe("Reports API", () => {
 
       const result = toMetadataReport(reportWithNullDesc);
 
-      expect(result.description).toBeUndefined();
+      expect(result.description).toBeNull();
     });
   });
 });

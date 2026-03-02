@@ -84,9 +84,7 @@ class DeezerProvider(SourceProvider):
             return ("short", short_link_match.group(2))
 
         # Standard URL pattern
-        match = re.search(
-            r"deezer\.com/(?:\w+/)?(track|album|playlist|artist)/(\d+)", url
-        )
+        match = re.search(r"deezer\.com/(?:\w+/)?(track|album|playlist|artist)/(\d+)", url)
         if match:
             return (match.group(1), match.group(2))
 
@@ -165,7 +163,9 @@ class DeezerProvider(SourceProvider):
             platform_id=str(track.get("id", "")),
             url=track.get("link", f"https://www.deezer.com/track/{track.get('id', '')}"),
             album_name=album_name,
-            album_artist=album.get("artist", {}).get("name", "") if isinstance(album.get("artist"), dict) else artist_name,
+            album_artist=album.get("artist", {}).get("name", "")
+            if isinstance(album.get("artist"), dict)
+            else artist_name,
             album_id=str(album.get("id", "")) if album.get("id") else None,
             album_type=album.get("record_type"),
             disc_number=track.get("disk_number", 1),
@@ -459,14 +459,16 @@ class DeezerProvider(SourceProvider):
                     album_songs = await self.get_album(album_url)
                     # Add album songs (will dedupe later)
                     for song in album_songs.songs:
-                        tracks.append({
-                            "id": song.platform_id,
-                            "title": song.name,
-                            "duration": song.duration,
-                            "artist": {"id": artist_id, "name": artist_name},
-                            "album": {"id": song.album_id, "title": song.album_name},
-                            "link": song.url,
-                        })
+                        tracks.append(
+                            {
+                                "id": song.platform_id,
+                                "title": song.name,
+                                "duration": song.duration,
+                                "artist": {"id": artist_id, "name": artist_name},
+                                "album": {"id": song.album_id, "title": song.album_name},
+                                "link": song.url,
+                            }
+                        )
                 except SourceProviderError:
                     continue
 
@@ -520,6 +522,7 @@ class DeezerProvider(SourceProvider):
         try:
             # URL encode the query
             import urllib.parse
+
             encoded_query = urllib.parse.quote(query)
 
             results = await self._api_request(f"/search/track?q={encoded_query}&limit={limit}")

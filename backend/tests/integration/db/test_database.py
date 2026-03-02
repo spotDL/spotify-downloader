@@ -3,18 +3,15 @@
 from __future__ import annotations
 
 import pytest
-import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
 from spotdl.db.database import (
     close_db,
     get_db,
-    get_db_session,
     get_engine,
     get_session_factory,
     init_db,
 )
-
 
 pytestmark = pytest.mark.asyncio
 
@@ -199,9 +196,10 @@ class TestGetDbContextManager:
         """Test get_db commits on successful exit."""
         from unittest.mock import patch
 
+        from sqlalchemy import text
+
         import spotdl.db.database as db_module
         from spotdl.config import Settings
-        from sqlalchemy import text
 
         db_module._engine = None
         db_module._session_factory = None
@@ -252,9 +250,7 @@ class TestGetDb:
         assert db_session is not None
         assert isinstance(db_session, AsyncSession)
 
-    async def test_get_db_commits_on_success(
-        self, db_session: AsyncSession
-    ) -> None:
+    async def test_get_db_commits_on_success(self, db_session: AsyncSession) -> None:
         """Test that successful operations are committed."""
         from spotdl.db.models.user import User
 
@@ -269,9 +265,7 @@ class TestGetDb:
         # Verify user was created
         assert user.id is not None
 
-    async def test_session_rollback_on_error(
-        self, db_session: AsyncSession
-    ) -> None:
+    async def test_session_rollback_on_error(self, db_session: AsyncSession) -> None:
         """Test that errors trigger rollback."""
         from sqlalchemy import select
 
@@ -293,9 +287,7 @@ class TestGetDb:
         await db_session.rollback()
 
         # User should not be found after rollback
-        result = await db_session.execute(
-            select(User).where(User.id == user_id)
-        )
+        result = await db_session.execute(select(User).where(User.id == user_id))
         found = result.scalar_one_or_none()
         assert found is None
 
@@ -303,9 +295,7 @@ class TestGetDb:
 class TestGetDbSession:
     """Tests for get_db_session dependency."""
 
-    async def test_get_db_session_yields_session(
-        self, db_session: AsyncSession
-    ) -> None:
+    async def test_get_db_session_yields_session(self, db_session: AsyncSession) -> None:
         """Test that get_db_session yields a session."""
         assert db_session is not None
         # Verify basic query works

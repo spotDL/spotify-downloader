@@ -13,7 +13,7 @@ from spotdl.db.models.base import Base
 ModelT = TypeVar("ModelT", bound=Base)
 
 
-class BaseRepository(Generic[ModelT]):
+class BaseRepository(Generic[ModelT]):  # noqa: UP046
     """Base repository with common CRUD operations."""
 
     model: type[ModelT]
@@ -25,9 +25,7 @@ class BaseRepository(Generic[ModelT]):
         """Get a record by ID."""
         return await self.session.get(self.model, id)
 
-    async def get_all(
-        self, *, skip: int = 0, limit: int = 100
-    ) -> list[ModelT]:
+    async def get_all(self, *, skip: int = 0, limit: int = 100) -> list[ModelT]:
         """Get all records with pagination."""
         query = select(self.model).offset(skip).limit(limit)
         result = await self.session.execute(query)
@@ -46,9 +44,7 @@ class BaseRepository(Generic[ModelT]):
         await self.session.flush()
         return instance
 
-    async def update(
-        self, id: uuid.UUID, **kwargs: Any
-    ) -> ModelT | None:
+    async def update(self, id: uuid.UUID, **kwargs: Any) -> ModelT | None:
         """Update a record by ID."""
         instance = await self.get_by_id(id)
         if instance is None:

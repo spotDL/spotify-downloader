@@ -222,9 +222,7 @@ class LyricsService:
             from_cache=True,
         )
 
-    async def _fetch_from_providers(
-        self, name: str, artists: list[str]
-    ) -> LyricsResult | None:
+    async def _fetch_from_providers(self, name: str, artists: list[str]) -> LyricsResult | None:
         """
         Fetch lyrics from all providers in parallel.
 
@@ -336,9 +334,7 @@ class LyricsService:
         except Exception as exc:
             logger.warning("Failed to cache lyrics: %s", exc)
 
-    async def get_lyrics_for_entity(
-        self, entity_id: uuid.UUID
-    ) -> LyricsResult | None:
+    async def get_lyrics_for_entity(self, entity_id: uuid.UUID) -> LyricsResult | None:
         """
         Get cached lyrics for an entity (no fetching).
 
@@ -420,9 +416,7 @@ class LyricsService:
                     )
 
                     # Calculate content hash for deduplication
-                    content_hash = hashlib.sha256(
-                        str(lyrics_text).encode("utf-8")
-                    ).hexdigest()
+                    content_hash = hashlib.sha256(str(lyrics_text).encode("utf-8")).hexdigest()
 
                     # Count lines
                     line_count = len(
@@ -448,9 +442,7 @@ class LyricsService:
                             quality_score,
                         )
                     except Exception as e:
-                        logger.warning(
-                            "Failed to save %s lyrics: %s", provider.name, e
-                        )
+                        logger.warning("Failed to save %s lyrics: %s", provider.name, e)
 
                     results.append(
                         LyricsResult(
@@ -468,9 +460,7 @@ class LyricsService:
             for provider in providers:
                 await provider.__aexit__(None, None, None)
 
-    async def get_all_lyrics_for_entity(
-        self, entity_id: uuid.UUID
-    ) -> list[LyricsResult]:
+    async def get_all_lyrics_for_entity(self, entity_id: uuid.UUID) -> list[LyricsResult]:
         """
         Get ALL cached lyrics for an entity from all sources.
 

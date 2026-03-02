@@ -182,9 +182,11 @@ def validate_preferences(
     # Then, add any missing providers at the end with defaults
     for provider in valid_providers:
         if provider["id"] not in seen_ids:
-            result.append({
-                "id": provider["id"],
-                "enabled": provider["default_enabled"],
-            })
+            result.append(
+                {
+                    "id": provider["id"],
+                    "enabled": provider["default_enabled"],
+                }
+            )
 
     return result

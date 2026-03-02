@@ -1,12 +1,12 @@
 """Extended tests for Spotify provider to improve coverage."""
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from spotipy.exceptions import SpotifyException
 
-from spotdl.core.types.song import Platform, Song
-from spotdl.providers.sources.base import InvalidURLError, TrackNotFoundError
+from spotdl.core.types.song import Platform
+from spotdl.providers.sources.base import TrackNotFoundError
 from spotdl.providers.sources.spotify import SpotifyClientError, SpotifyProvider
 
 
@@ -234,9 +234,7 @@ class TestSpotifyProviderExtended:
         provider = SpotifyProvider(auth_token="test_token")
 
         mock_client = MagicMock()
-        mock_client.track.side_effect = SpotifyException(
-            404, "Not Found", "Track not found"
-        )
+        mock_client.track.side_effect = SpotifyException(404, "Not Found", "Track not found")
 
         provider._client = mock_client
 
@@ -250,13 +248,13 @@ class TestSpotifyProviderExtended:
 
         mock_client = MagicMock()
         # Make the mock callable raise the exception
-        mock_client.track = MagicMock(side_effect=SpotifyException(
-            500, "Internal Error", "Server error"
-        ))
+        mock_client.track = MagicMock(
+            side_effect=SpotifyException(500, "Internal Error", "Server error")
+        )
 
         provider._client = mock_client
 
-        with pytest.raises(Exception):  # Could be SpotifyException or wrapped
+        with pytest.raises(Exception):  # noqa: B017  # Could be SpotifyException or wrapped
             await provider.get_track("https://open.spotify.com/track/error123")
 
     @pytest.mark.asyncio
@@ -302,18 +300,14 @@ class TestSpotifyProviderExtended:
                         "id": "t1",
                         "duration_ms": 180000,
                         "artists": [{"name": "Artist", "id": "art1"}],
-                        "external_urls": {
-                            "spotify": "https://open.spotify.com/track/t1"
-                        },
+                        "external_urls": {"spotify": "https://open.spotify.com/track/t1"},
                     },
                     {
                         "name": "Track 2",
                         "id": "t2",
                         "duration_ms": 200000,
                         "artists": [{"name": "Artist", "id": "art1"}],
-                        "external_urls": {
-                            "spotify": "https://open.spotify.com/track/t2"
-                        },
+                        "external_urls": {"spotify": "https://open.spotify.com/track/t2"},
                     },
                 ]
             },
@@ -348,9 +342,7 @@ class TestSpotifyProviderExtended:
                             "duration_ms": 180000,
                             "artists": [{"name": "Artist", "id": "art1"}],
                             "album": {"name": "Album"},
-                            "external_urls": {
-                                "spotify": "https://open.spotify.com/track/t1"
-                            },
+                            "external_urls": {"spotify": "https://open.spotify.com/track/t1"},
                         }
                     }
                 ],
@@ -360,9 +352,7 @@ class TestSpotifyProviderExtended:
 
         provider._client = mock_client
 
-        song_list = await provider.get_playlist(
-            "https://open.spotify.com/playlist/pl123"
-        )
+        song_list = await provider.get_playlist("https://open.spotify.com/playlist/pl123")
 
         mock_client.playlist.assert_called_once_with("pl123")
         assert song_list.name == "Test Playlist"
@@ -398,9 +388,7 @@ class TestSpotifyProviderExtended:
                         "id": "t1",
                         "duration_ms": 200000,
                         "artists": [{"name": "Test Artist", "id": "art123"}],
-                        "external_urls": {
-                            "spotify": "https://open.spotify.com/track/t1"
-                        },
+                        "external_urls": {"spotify": "https://open.spotify.com/track/t1"},
                     }
                 ]
             },
@@ -408,9 +396,7 @@ class TestSpotifyProviderExtended:
 
         provider._client = mock_client
 
-        song_list = await provider.get_artist(
-            "https://open.spotify.com/artist/art123"
-        )
+        song_list = await provider.get_artist("https://open.spotify.com/artist/art123")
 
         mock_client.artist.assert_called_once_with("art123")
         # Name could be just "Test Artist" or "Test Artist - Songs"
@@ -430,9 +416,7 @@ class TestSpotifyProviderExtended:
                         "id": "res1",
                         "duration_ms": 180000,
                         "artists": [{"name": "Artist", "id": "art1"}],
-                        "external_urls": {
-                            "spotify": "https://open.spotify.com/track/res1"
-                        },
+                        "external_urls": {"spotify": "https://open.spotify.com/track/res1"},
                     }
                 ]
             }
@@ -454,21 +438,13 @@ class TestSpotifyProviderExtended:
 
     def test_matches_url_standard(self) -> None:
         """Test URL matching for standard Spotify URLs."""
-        assert SpotifyProvider.matches_url(
-            "https://open.spotify.com/track/abc123"
-        )
-        assert SpotifyProvider.matches_url(
-            "https://open.spotify.com/album/xyz789"
-        )
+        assert SpotifyProvider.matches_url("https://open.spotify.com/track/abc123")
+        assert SpotifyProvider.matches_url("https://open.spotify.com/album/xyz789")
 
     def test_matches_url_intl(self) -> None:
         """Test URL matching for international URLs."""
-        assert SpotifyProvider.matches_url(
-            "https://open.spotify.com/intl-us/track/abc123"
-        )
-        assert SpotifyProvider.matches_url(
-            "https://open.spotify.com/intl-fr/album/xyz789"
-        )
+        assert SpotifyProvider.matches_url("https://open.spotify.com/intl-us/track/abc123")
+        assert SpotifyProvider.matches_url("https://open.spotify.com/intl-fr/album/xyz789")
 
     def test_matches_url_uri(self) -> None:
         """Test URL matching for Spotify URIs."""

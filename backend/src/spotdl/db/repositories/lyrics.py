@@ -175,11 +175,7 @@ class LyricsRepository(BaseRepository[Lyrics]):
         Returns:
             List of source identifiers
         """
-        query = (
-            select(Lyrics.source)
-            .where(Lyrics.entity_id == entity_id)
-            .distinct()
-        )
+        query = select(Lyrics.source).where(Lyrics.entity_id == entity_id).distinct()
         result = await self.session.execute(query)
         return [row[0] for row in result.all()]
 
@@ -193,12 +189,16 @@ class LyricsRepository(BaseRepository[Lyrics]):
         Returns:
             True if synced lyrics exist
         """
-        query = select(Lyrics.id).where(
-            and_(
-                Lyrics.entity_id == entity_id,
-                Lyrics.lyrics_synced.isnot(None),
+        query = (
+            select(Lyrics.id)
+            .where(
+                and_(
+                    Lyrics.entity_id == entity_id,
+                    Lyrics.lyrics_synced.isnot(None),
+                )
             )
-        ).limit(1)
+            .limit(1)
+        )
         result = await self.session.execute(query)
         return result.scalar_one_or_none() is not None
 

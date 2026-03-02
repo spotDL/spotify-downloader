@@ -84,15 +84,9 @@ async def get_default_provider_preferences() -> DefaultPreferencesResponse:
     in each category.
     """
     return DefaultPreferencesResponse(
-        audio=[
-            ProviderPreferenceResponse(**p) for p in get_default_preferences("audio")
-        ],
-        metadata=[
-            ProviderPreferenceResponse(**p) for p in get_default_preferences("metadata")
-        ],
-        lyrics=[
-            ProviderPreferenceResponse(**p) for p in get_default_preferences("lyrics")
-        ],
+        audio=[ProviderPreferenceResponse(**p) for p in get_default_preferences("audio")],
+        metadata=[ProviderPreferenceResponse(**p) for p in get_default_preferences("metadata")],
+        lyrics=[ProviderPreferenceResponse(**p) for p in get_default_preferences("lyrics")],
     )
 
 

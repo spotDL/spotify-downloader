@@ -82,9 +82,7 @@ class AppleMusicProvider(SourceProvider):
             Dictionary with country, type, name, id, and track_id
         """
         # Track in album pattern: /album/name/id?i=track_id
-        track_match = re.search(
-            r"music\.apple\.com/(\w+)/album/([^/]+)/(\d+)\?i=(\d+)", url
-        )
+        track_match = re.search(r"music\.apple\.com/(\w+)/album/([^/]+)/(\d+)\?i=(\d+)", url)
         if track_match:
             return {
                 "country": track_match.group(1),
@@ -204,7 +202,11 @@ class AppleMusicProvider(SourceProvider):
         if isinstance(artist_name, dict):
             artist_name = artist_name.get("name", "Unknown")
         elif isinstance(artist_name, list) and artist_name:
-            artist_name = artist_name[0].get("name", "Unknown") if isinstance(artist_name[0], dict) else "Unknown"
+            artist_name = (
+                artist_name[0].get("name", "Unknown")
+                if isinstance(artist_name[0], dict)
+                else "Unknown"
+            )
         else:
             artist_name = str(artist_name) if artist_name else "Unknown"
 
@@ -607,7 +609,9 @@ class AppleMusicProvider(SourceProvider):
                         date=str(release_date)[:10] if release_date else "",
                         cover_url=cover_url,
                         explicit=track.get("trackExplicitness") == "explicit",
-                        genres=[track.get("primaryGenreName")] if track.get("primaryGenreName") else [],
+                        genres=[track.get("primaryGenreName")]
+                        if track.get("primaryGenreName")
+                        else [],
                     )
                     songs.append(song)
 

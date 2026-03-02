@@ -6,7 +6,6 @@ from spotdl.core.types.result import TargetPlatform
 from spotdl.core.types.song import Platform, Song
 from spotdl.providers.targets.bandcamp import BandcampProvider
 
-
 pytestmark = pytest.mark.asyncio
 
 
@@ -32,9 +31,7 @@ class TestBandcampTargetProviderVCR:
         )
 
     @pytest.mark.vcr
-    async def test_search(
-        self, provider: BandcampProvider, sample_song: Song
-    ) -> None:
+    async def test_search(self, provider: BandcampProvider, sample_song: Song) -> None:
         """Test searching for a song on Bandcamp."""
         results = await provider.search(sample_song, limit=5)
 
@@ -68,9 +65,7 @@ class TestBandcampTargetProviderVCR:
     @staticmethod
     def test_extract_url_info() -> None:
         """Test extracting URL info from Bandcamp URL."""
-        result = BandcampProvider.extract_url_info(
-            "https://artist.bandcamp.com/track/song-name"
-        )
+        result = BandcampProvider.extract_url_info("https://artist.bandcamp.com/track/song-name")
         assert result == {"subdomain": "artist", "type": "track", "slug": "song-name"}
 
     @staticmethod

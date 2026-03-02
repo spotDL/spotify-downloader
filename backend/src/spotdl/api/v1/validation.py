@@ -75,8 +75,7 @@ def validate_url(url: str, allowed_domains: list[str] | None = None) -> str:
             domain = domain.split(":")[0]
 
         if not any(
-            domain == allowed or domain.endswith(f".{allowed}")
-            for allowed in allowed_domains
+            domain == allowed or domain.endswith(f".{allowed}") for allowed in allowed_domains
         ):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

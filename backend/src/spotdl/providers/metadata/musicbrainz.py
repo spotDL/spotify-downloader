@@ -85,8 +85,7 @@ class MusicBrainzProvider(MetadataProvider):
 
             except ImportError as e:
                 raise MetadataProviderError(
-                    "musicbrainzngs library not installed. "
-                    "Install with: pip install musicbrainzngs"
+                    "musicbrainzngs library not installed. Install with: pip install musicbrainzngs"
                 ) from e
 
     async def lookup_by_isrc(self, isrc: str) -> MetadataResult | None:
@@ -223,9 +222,7 @@ class MusicBrainzProvider(MetadataProvider):
             return recording, self._parse_recording(recording)
 
         except Exception as e:
-            logger.warning(
-                f"MusicBrainz name lookup failed for {artist_name} - {track_name}: {e}"
-            )
+            logger.warning(f"MusicBrainz name lookup failed for {artist_name} - {track_name}: {e}")
             return None, None
 
     async def lookup_with_raw(

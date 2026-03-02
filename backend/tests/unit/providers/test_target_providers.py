@@ -1,7 +1,5 @@
 """Tests for target providers."""
 
-from unittest.mock import AsyncMock, MagicMock, patch
-
 import pytest
 
 from spotdl.core.types.result import Result, TargetPlatform
@@ -225,9 +223,7 @@ class TestSoundCloudTargetProvider:
 
     def test_extract_track_info_www(self) -> None:
         """Test extracting track info from www URL."""
-        result = SoundCloudProvider.extract_track_info(
-            "https://www.soundcloud.com/artist/song"
-        )
+        result = SoundCloudProvider.extract_track_info("https://www.soundcloud.com/artist/song")
         assert result == ("artist", "song")
 
     def test_extract_track_info_invalid(self) -> None:
@@ -264,16 +260,12 @@ class TestBandcampTargetProvider:
 
     def test_extract_url_info(self) -> None:
         """Test extracting URL info from Bandcamp URL."""
-        result = BandcampProvider.extract_url_info(
-            "https://artist.bandcamp.com/track/song-name"
-        )
+        result = BandcampProvider.extract_url_info("https://artist.bandcamp.com/track/song-name")
         assert result == {"subdomain": "artist", "type": "track", "slug": "song-name"}
 
     def test_extract_url_info_album(self) -> None:
         """Test extracting URL info from album URL."""
-        result = BandcampProvider.extract_url_info(
-            "https://myband.bandcamp.com/album/album-title"
-        )
+        result = BandcampProvider.extract_url_info("https://myband.bandcamp.com/album/album-title")
         assert result == {"subdomain": "myband", "type": "album", "slug": "album-title"}
 
     def test_extract_url_info_invalid(self) -> None:
@@ -576,12 +568,12 @@ class TestBandcampTargetProviderAdditional:
         provider = BandcampProvider()
         from bs4 import BeautifulSoup
 
-        html = '''
+        html = """
         <li class="searchresult">
             <a class="artcont" href="https://artist.bandcamp.com/album/album-name"></a>
             <div class="heading">Title</div>
         </li>
-        '''
+        """
         soup = BeautifulSoup(html, "lxml")
         result_elem = soup.find("li", class_="searchresult")
 
@@ -594,7 +586,7 @@ class TestBandcampTargetProviderAdditional:
         from bs4 import BeautifulSoup
 
         # Bandcamp subhead format is "track by Artist from Album"
-        html = '''
+        html = """
         <li class="searchresult">
             <a class="artcont" href="https://artist.bandcamp.com/track/song-name">
                 <img src="https://example.com/thumb_5.jpg" />
@@ -602,7 +594,7 @@ class TestBandcampTargetProviderAdditional:
             <div class="heading">Song Title</div>
             <div class="subhead">track by Artist Name from Album Name</div>
         </li>
-        '''
+        """
         soup = BeautifulSoup(html, "lxml")
         result_elem = soup.find("li", class_="searchresult")
 
@@ -619,14 +611,14 @@ class TestBandcampTargetProviderAdditional:
         from bs4 import BeautifulSoup
 
         # Subhead without "from Album" part
-        html = '''
+        html = """
         <li class="searchresult">
             <a class="artcont" href="https://artist.bandcamp.com/track/song">
             </a>
             <div class="heading">Song</div>
             <div class="subhead">track by Artist Only</div>
         </li>
-        '''
+        """
         soup = BeautifulSoup(html, "lxml")
         result_elem = soup.find("li", class_="searchresult")
 

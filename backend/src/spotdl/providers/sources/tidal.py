@@ -213,7 +213,11 @@ class TidalProvider(SourceProvider):
         if isinstance(artist_data, dict):
             artist_name = artist_data.get("name", "Unknown")
         elif isinstance(artist_data, list) and artist_data:
-            artist_name = artist_data[0].get("name", "Unknown") if isinstance(artist_data[0], dict) else "Unknown"
+            artist_name = (
+                artist_data[0].get("name", "Unknown")
+                if isinstance(artist_data[0], dict)
+                else "Unknown"
+            )
         else:
             artist_name = meta_data.get("musician", "Unknown")
 
@@ -221,7 +225,11 @@ class TidalProvider(SourceProvider):
 
         # Get album info
         album_data = track_data.get("inAlbum", {})
-        album_name = album_data.get("name", "") if isinstance(album_data, dict) else meta_data.get("album", "")
+        album_name = (
+            album_data.get("name", "")
+            if isinstance(album_data, dict)
+            else meta_data.get("album", "")
+        )
 
         # Get cover URL
         cover_url = None
@@ -583,7 +591,9 @@ class TidalProvider(SourceProvider):
                         try:
                             # Extract artist info
                             artists_data = track.get("artists", [])
-                            artist_names = [a.get("name", "") for a in artists_data if a.get("name")]
+                            artist_names = [
+                                a.get("name", "") for a in artists_data if a.get("name")
+                            ]
                             artist = artist_names[0] if artist_names else "Unknown"
 
                             # Extract album info

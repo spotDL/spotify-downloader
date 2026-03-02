@@ -5,7 +5,6 @@ import pytest
 from spotdl.core.types.song import Platform
 from spotdl.providers.sources.tidal import TidalProvider
 
-
 pytestmark = pytest.mark.asyncio
 
 
@@ -23,9 +22,7 @@ class TestTidalSourceProviderVCR:
         from spotdl.providers.sources.base import SourceProviderError, TrackNotFoundError
 
         try:
-            song = await provider.get_track(
-                "https://tidal.com/browse/track/108043436"
-            )
+            song = await provider.get_track("https://tidal.com/browse/track/108043436")
 
             assert song.name is not None
             assert len(song.name) > 0
@@ -44,9 +41,7 @@ class TestTidalSourceProviderVCR:
         from spotdl.providers.sources.base import SourceProviderError
 
         try:
-            song_list = await provider.get_album(
-                "https://tidal.com/browse/album/108043433"
-            )
+            song_list = await provider.get_album("https://tidal.com/browse/album/108043433")
 
             assert song_list.name is not None
             assert len(song_list.songs) > 0
@@ -96,9 +91,7 @@ class TestTidalSourceProviderVCR:
         playlist IDs will only capture the first numeric portion.
         """
         # The regex only captures digits, so UUID playlists only get first part
-        result = TidalProvider._extract_id(
-            "https://tidal.com/browse/playlist/12345678"
-        )
+        result = TidalProvider._extract_id("https://tidal.com/browse/playlist/12345678")
         assert result == ("playlist", "12345678")
 
     @staticmethod

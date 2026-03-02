@@ -268,9 +268,7 @@ class SpotifyProvider(SourceProvider):
             album_data = None
 
             if primary_artist_id:
-                artist_data = await loop.run_in_executor(
-                    None, client.artist, primary_artist_id
-                )
+                artist_data = await loop.run_in_executor(None, client.artist, primary_artist_id)
 
             if album_id:
                 album_data = await loop.run_in_executor(None, client.album, album_id)
@@ -315,9 +313,7 @@ class SpotifyProvider(SourceProvider):
 
             # Paginate through remaining tracks
             while tracks_data.get("next"):
-                tracks_data = await loop.run_in_executor(
-                    None, client.next, tracks_data
-                )
+                tracks_data = await loop.run_in_executor(None, client.next, tracks_data)
                 if tracks_data:
                     all_tracks.extend(tracks_data.get("items", []))
 
@@ -383,9 +379,7 @@ class SpotifyProvider(SourceProvider):
             all_items = tracks_data.get("items", [])
 
             while tracks_data.get("next"):
-                tracks_data = await loop.run_in_executor(
-                    None, client.next, tracks_data
-                )
+                tracks_data = await loop.run_in_executor(None, client.next, tracks_data)
                 if tracks_data:
                     all_items.extend(tracks_data.get("items", []))
 
@@ -460,9 +454,7 @@ class SpotifyProvider(SourceProvider):
             all_albums = albums_data.get("items", [])
 
             while albums_data.get("next"):
-                albums_data = await loop.run_in_executor(
-                    None, client.next, albums_data
-                )
+                albums_data = await loop.run_in_executor(None, client.next, albums_data)
                 if albums_data:
                     all_albums.extend(albums_data.get("items", []))
 

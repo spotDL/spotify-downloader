@@ -139,7 +139,9 @@ class MatchService:
         """
         if target_platforms is None:
             # Use user's preferred platform order
-            target_platforms = self._platform_order if self._platform_order else list(self._providers.keys())
+            target_platforms = (
+                self._platform_order if self._platform_order else list(self._providers.keys())
+            )
 
         all_matches: list[Match] = []
 

@@ -8,7 +8,8 @@ from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy import DateTime, String, Text, TypeDecorator
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 

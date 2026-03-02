@@ -23,7 +23,9 @@ class RefreshCooldown(Base, TimestampMixin):
     id: Mapped[UUID] = mapped_column(GUID(), primary_key=True, default=generate_uuid)
 
     # The entity being refreshed
-    entity_type: Mapped[str] = mapped_column(String(50), nullable=False)  # song, album, artist, playlist
+    entity_type: Mapped[str] = mapped_column(
+        String(50), nullable=False
+    )  # song, album, artist, playlist
     entity_id: Mapped[UUID] = mapped_column(GUID(), nullable=False)
 
     # The user who refreshed (nullable for anonymous refreshes)
@@ -41,5 +43,7 @@ class RefreshCooldown(Base, TimestampMixin):
     )
 
     __table_args__ = (
-        UniqueConstraint("entity_type", "entity_id", "user_id", name="uq_refresh_cooldown_entity_user"),
+        UniqueConstraint(
+            "entity_type", "entity_id", "user_id", name="uq_refresh_cooldown_entity_user"
+        ),
     )

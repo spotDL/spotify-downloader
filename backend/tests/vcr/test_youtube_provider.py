@@ -7,7 +7,6 @@ from spotdl.core.types.song import Platform, Song
 from spotdl.providers.targets.base import SearchError
 from spotdl.providers.targets.youtube import YouTubeProvider
 
-
 pytestmark = pytest.mark.asyncio
 
 
@@ -58,9 +57,7 @@ class TestYouTubeProviderVCR:
     @staticmethod
     def test_extract_video_id_standard() -> None:
         """Test extracting video ID from standard YouTube URL."""
-        result = YouTubeProvider.extract_video_id(
-            "https://www.youtube.com/watch?v=gAjR4_CbPpQ"
-        )
+        result = YouTubeProvider.extract_video_id("https://www.youtube.com/watch?v=gAjR4_CbPpQ")
         assert result == "gAjR4_CbPpQ"
 
     @staticmethod

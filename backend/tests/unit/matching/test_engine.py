@@ -1,10 +1,6 @@
 """Tests for the matching engine."""
 
-import pytest
-
 from spotdl.core.matching.engine import get_best_matches, get_best_result, order_results
-from spotdl.core.types.result import Result, TargetPlatform
-from spotdl.core.types.song import Platform, Song
 from tests.conftest import create_result, create_song
 
 

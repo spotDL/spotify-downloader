@@ -144,9 +144,7 @@ class TestDiscogsProviderLookup:
         return release
 
     @pytest.mark.asyncio
-    async def test_lookup_by_isrc_not_supported(
-        self, provider: DiscogsProvider
-    ) -> None:
+    async def test_lookup_by_isrc_not_supported(self, provider: DiscogsProvider) -> None:
         """Test ISRC lookup returns None (not supported by Discogs)."""
         result = await provider.lookup_by_isrc("USRC17607839")
         assert result is None
@@ -173,9 +171,7 @@ class TestDiscogsProviderLookup:
             assert result.source == "discogs"
 
     @pytest.mark.asyncio
-    async def test_lookup_by_name_not_found(
-        self, provider: DiscogsProvider
-    ) -> None:
+    async def test_lookup_by_name_not_found(self, provider: DiscogsProvider) -> None:
         """Test name lookup when no release found."""
         with patch.object(provider, "_ensure_client") as mock_ensure:
             mock_client = MagicMock()
@@ -192,9 +188,7 @@ class TestDiscogsProviderLookup:
             assert result is None
 
     @pytest.mark.asyncio
-    async def test_lookup_by_name_error(
-        self, provider: DiscogsProvider
-    ) -> None:
+    async def test_lookup_by_name_error(self, provider: DiscogsProvider) -> None:
         """Test name lookup handles errors gracefully."""
         with patch.object(provider, "_ensure_client") as mock_ensure:
             mock_client = MagicMock()
@@ -209,9 +203,7 @@ class TestDiscogsProviderLookup:
             assert result is None
 
     @pytest.mark.asyncio
-    async def test_search(
-        self, provider: DiscogsProvider, mock_release: MagicMock
-    ) -> None:
+    async def test_search(self, provider: DiscogsProvider, mock_release: MagicMock) -> None:
         """Test search returns results."""
         with patch.object(provider, "_ensure_client") as mock_ensure:
             mock_client = MagicMock()
@@ -226,9 +218,7 @@ class TestDiscogsProviderLookup:
             assert all(r.source == "discogs" for r in results)
 
     @pytest.mark.asyncio
-    async def test_search_error(
-        self, provider: DiscogsProvider
-    ) -> None:
+    async def test_search_error(self, provider: DiscogsProvider) -> None:
         """Test search handles errors gracefully."""
         with patch.object(provider, "_ensure_client") as mock_ensure:
             mock_client = MagicMock()
@@ -248,9 +238,7 @@ class TestDiscogsProviderParsing:
         return DiscogsProvider()
 
     @pytest.mark.asyncio
-    async def test_parse_release_full(
-        self, provider: DiscogsProvider
-    ) -> None:
+    async def test_parse_release_full(self, provider: DiscogsProvider) -> None:
         """Test parsing a complete release."""
         release = MagicMock()
         release.id = 99999
@@ -304,9 +292,7 @@ class TestDiscogsProviderParsing:
         assert result.track_number == 1
 
     @pytest.mark.asyncio
-    async def test_parse_release_no_track_name(
-        self, provider: DiscogsProvider
-    ) -> None:
+    async def test_parse_release_no_track_name(self, provider: DiscogsProvider) -> None:
         """Test parsing release without track name uses album title."""
         release = MagicMock()
         release.id = 12345
@@ -327,9 +313,7 @@ class TestDiscogsProviderParsing:
         assert result.album_name == "Album Title"
 
     @pytest.mark.asyncio
-    async def test_parse_release_no_title(
-        self, provider: DiscogsProvider
-    ) -> None:
+    async def test_parse_release_no_title(self, provider: DiscogsProvider) -> None:
         """Test parsing release without title returns None."""
         release = MagicMock()
         release.title = None
@@ -338,9 +322,7 @@ class TestDiscogsProviderParsing:
         result = await provider._parse_release(release)
         assert result is None
 
-    def test_calculate_match_score_perfect(
-        self, provider: DiscogsProvider
-    ) -> None:
+    def test_calculate_match_score_perfect(self, provider: DiscogsProvider) -> None:
         """Test match score calculation for perfect match."""
         release = MagicMock()
         release.title = "Test Album"
@@ -362,9 +344,7 @@ class TestDiscogsProviderParsing:
 
         assert score == 100  # 40 (artist) + 30 (album) + 30 (track)
 
-    def test_calculate_match_score_partial(
-        self, provider: DiscogsProvider
-    ) -> None:
+    def test_calculate_match_score_partial(self, provider: DiscogsProvider) -> None:
         """Test match score calculation for partial match."""
         release = MagicMock()
         release.title = "Different Album"
@@ -386,9 +366,7 @@ class TestDiscogsProviderParsing:
 
         assert score == 40  # Only artist match
 
-    def test_calculate_match_score_no_match(
-        self, provider: DiscogsProvider
-    ) -> None:
+    def test_calculate_match_score_no_match(self, provider: DiscogsProvider) -> None:
         """Test match score calculation for no match."""
         release = MagicMock()
         release.title = "Different Album"

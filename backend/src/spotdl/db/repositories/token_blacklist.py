@@ -86,9 +86,7 @@ class TokenBlacklistRepository:
         """
         now = datetime.now(UTC)
         result = await self.session.execute(
-            delete(BlacklistedToken).where(
-                BlacklistedToken.expires_at <= now
-            )
+            delete(BlacklistedToken).where(BlacklistedToken.expires_at <= now)
         )
         await self.session.flush()
         return result.rowcount or 0  # type: ignore[attr-defined]
@@ -119,8 +117,8 @@ class TokenBlacklistRepository:
 
         now = datetime.now(UTC)
         result = await self.session.execute(
-            select(func.count()).select_from(BlacklistedToken).where(
-                BlacklistedToken.expires_at > now
-            )
+            select(func.count())
+            .select_from(BlacklistedToken)
+            .where(BlacklistedToken.expires_at > now)
         )
         return result.scalar() or 0

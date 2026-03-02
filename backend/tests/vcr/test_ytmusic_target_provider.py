@@ -6,7 +6,6 @@ from spotdl.core.types.result import TargetPlatform
 from spotdl.core.types.song import Platform, Song
 from spotdl.providers.targets.ytmusic import YouTubeMusicProvider
 
-
 pytestmark = pytest.mark.asyncio
 
 
@@ -48,9 +47,7 @@ class TestYouTubeMusicTargetProviderVCR:
         )
 
     @pytest.mark.vcr
-    async def test_search(
-        self, provider: YouTubeMusicProvider, sample_song: Song
-    ) -> None:
+    async def test_search(self, provider: YouTubeMusicProvider, sample_song: Song) -> None:
         """Test searching for a song on YouTube Music."""
         results = await provider.search(sample_song, limit=5)
 

@@ -1,7 +1,5 @@
 """Tests for matching utility functions."""
 
-import pytest
-
 from spotdl.core.matching.utils import (
     based_sort,
     create_clean_string,
@@ -185,15 +183,11 @@ class TestCreateSearchQuery:
 
     def test_short_query(self):
         """Test short query (first artist only)."""
-        result = create_search_query(
-            "Song Name", ["Artist One", "Artist Two"], short=True
-        )
+        result = create_search_query("Song Name", ["Artist One", "Artist Two"], short=True)
         assert result == "Artist One - Song Name"
 
     def test_artist_in_song_name(self):
         """Test query when artist is in song name."""
-        result = create_search_query(
-            "Song by Artist One", ["Artist One", "Artist Two"], short=True
-        )
+        result = create_search_query("Song by Artist One", ["Artist One", "Artist Two"], short=True)
         # Should still include the first artist
         assert "Artist One" in result

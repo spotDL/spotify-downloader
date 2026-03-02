@@ -578,7 +578,7 @@ async def list_matches(
             query = query.where(
                 or_(
                     EntityRelation.relation_data["manual"].as_boolean() == False,  # noqa: E712
-                    ~EntityRelation.relation_data.has_key("manual"),  # type: ignore[union-attr]
+                    ~EntityRelation.relation_data.has_key("manual"),
                 )
             )
 

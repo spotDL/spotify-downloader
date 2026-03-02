@@ -7,7 +7,6 @@ import pytest
 from spotdl.core.types.song import Platform
 from spotdl.providers.sources.spotify import SpotifyProvider
 
-
 pytestmark = pytest.mark.asyncio
 
 
@@ -29,13 +28,12 @@ class TestSpotifySourceProviderVCR:
     @pytest.mark.vcr
     async def test_get_track(self, provider: SpotifyProvider) -> None:
         """Test getting a track from Spotify."""
-        from spotdl.providers.sources.base import SourceProviderError
         from spotipy.oauth2 import SpotifyOauthError
 
+        from spotdl.providers.sources.base import SourceProviderError
+
         try:
-            song = await provider.get_track(
-                "https://open.spotify.com/track/0DiWol3AO6WpXZgp0goxAV"
-            )
+            song = await provider.get_track("https://open.spotify.com/track/0DiWol3AO6WpXZgp0goxAV")
 
             assert song.name == "Harder, Better, Faster, Stronger"
             assert song.artist == "Daft Punk"
@@ -50,8 +48,9 @@ class TestSpotifySourceProviderVCR:
     @pytest.mark.vcr
     async def test_get_album(self, provider: SpotifyProvider) -> None:
         """Test getting an album from Spotify."""
-        from spotdl.providers.sources.base import SourceProviderError
         from spotipy.oauth2 import SpotifyOauthError
+
+        from spotdl.providers.sources.base import SourceProviderError
 
         try:
             song_list = await provider.get_album(
@@ -68,8 +67,9 @@ class TestSpotifySourceProviderVCR:
     @pytest.mark.vcr
     async def test_search(self, provider: SpotifyProvider) -> None:
         """Test searching for tracks on Spotify."""
-        from spotdl.providers.sources.base import SourceProviderError
         from spotipy.oauth2 import SpotifyOauthError
+
+        from spotdl.providers.sources.base import SourceProviderError
 
         try:
             songs = await provider.search("Daft Punk Harder Better Faster Stronger", limit=5)
@@ -139,9 +139,7 @@ class TestSpotifySourceProviderVCR:
     @staticmethod
     def test_matches_url() -> None:
         """Test URL matching."""
-        assert SpotifyProvider.matches_url(
-            "https://open.spotify.com/track/0DiWol3AO6WpXZgp0goxAV"
-        )
+        assert SpotifyProvider.matches_url("https://open.spotify.com/track/0DiWol3AO6WpXZgp0goxAV")
         assert SpotifyProvider.matches_url(
             "https://open.spotify.com/intl-de/album/2noRn2Aes5aoNVsU6iWThc"
         )

@@ -186,12 +186,7 @@ def order_results(
 
         # For verified results with album data but low album match,
         # factor in the album match
-        if (
-            result.verified
-            and not result.isrc_search
-            and result.album_name
-            and album_match <= 80
-        ):
+        if result.verified and not result.isrc_search and result.album_name and album_match <= 80:
             average_match = (average_match + album_match) / 2
             logger.debug(
                 "[%s|%s] Average with album: %.2f",
@@ -223,10 +218,7 @@ def order_results(
             continue
 
         # Factor in time match for lower-quality matches
-        if (
-            (not result.isrc_search and average_match <= HIGH_MATCH_THRESHOLD)
-            or time_match < 0
-        ):
+        if (not result.isrc_search and average_match <= HIGH_MATCH_THRESHOLD) or time_match < 0:
             average_match = (average_match + time_match) / 2
             logger.debug(
                 "[%s|%s] Average with time: %.2f",

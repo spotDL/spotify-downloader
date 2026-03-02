@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
@@ -98,7 +99,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str) -> None:
 
         def callback(progress: DownloadProgress) -> None:
             """Sync callback that schedules async send."""
-            asyncio.create_task(send_update(progress))
+            asyncio.create_task(send_update(progress))  # noqa: RUF006
 
         return callback
 

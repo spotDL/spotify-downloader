@@ -4,8 +4,8 @@ import pytest
 
 from spotdl.core.types.song import Platform
 from spotdl.providers.sources.resolver import (
-    URLResolver,
     UnsupportedPlatformError,
+    URLResolver,
     detect_platform,
     extract_url_info,
     is_valid_url,
@@ -204,6 +204,7 @@ class TestURLResolver:
     async def test_resolve_with_provider(self) -> None:
         """Test resolving URL with registered provider."""
         from unittest.mock import AsyncMock, MagicMock
+
         from spotdl.core.types.song import Song
 
         mock_song = MagicMock(spec=Song)
@@ -270,9 +271,7 @@ class TestExtractUrlInfoEdgeCases:
 
     def test_extract_apple_music_album_track(self) -> None:
         """Test extracting info from Apple Music album track URL."""
-        info = extract_url_info(
-            "https://music.apple.com/us/album/album-name/123456?i=789012"
-        )
+        info = extract_url_info("https://music.apple.com/us/album/album-name/123456?i=789012")
         assert info["platform"] == "apple_music"
 
 
@@ -281,8 +280,8 @@ class TestGetResolver:
 
     def test_get_resolver_returns_instance(self) -> None:
         """Test get_resolver returns a URLResolver."""
-        from spotdl.providers.sources.resolver import get_resolver, URLResolver
         import spotdl.providers.sources.resolver as resolver_module
+        from spotdl.providers.sources.resolver import URLResolver, get_resolver
 
         resolver_module._resolver = None
         resolver = get_resolver()
@@ -290,8 +289,8 @@ class TestGetResolver:
 
     def test_get_resolver_singleton(self) -> None:
         """Test get_resolver returns same instance."""
-        from spotdl.providers.sources.resolver import get_resolver
         import spotdl.providers.sources.resolver as resolver_module
+        from spotdl.providers.sources.resolver import get_resolver
 
         resolver_module._resolver = None
         resolver1 = get_resolver()
@@ -312,8 +311,8 @@ class TestURLResolverError:
     def test_unsupported_platform_error_inheritance(self) -> None:
         """Test UnsupportedPlatformError inherits from URLResolverError."""
         from spotdl.providers.sources.resolver import (
-            URLResolverError,
             UnsupportedPlatformError,
+            URLResolverError,
         )
 
         error = UnsupportedPlatformError("Unsupported")

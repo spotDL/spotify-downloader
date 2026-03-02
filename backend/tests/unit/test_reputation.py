@@ -1,7 +1,5 @@
 """Tests for reputation module."""
 
-import pytest
-
 from spotdl.core.reputation import ReputationReward
 
 

@@ -472,7 +472,9 @@ async def update_field_preference(
     settings, _ = await repo.get_or_create(current_user.id)
 
     # Convert settings embed prefs to dict if needed
-    current_prefs = dict(settings.metadata_embed_preferences) if settings.metadata_embed_preferences else None
+    current_prefs = (
+        dict(settings.metadata_embed_preferences) if settings.metadata_embed_preferences else None
+    )
 
     # Get current preferences
     current = validate_embed_preferences(current_prefs)
@@ -482,13 +484,15 @@ async def update_field_preference(
         current["fields"][field_id]["order"] = data.order
     else:
         # Reset to default order
-        current["fields"][field_id]["order"] = METADATA_FIELD_BY_ID[field_id]["default_order"].copy()
+        current["fields"][field_id]["order"] = METADATA_FIELD_BY_ID[field_id][
+            "default_order"
+        ].copy()
 
     if data.enabled is not None:
         current["fields"][field_id]["enabled"] = data.enabled
 
     # Re-validate to filter invalid sources
-    validated = validate_embed_preferences(cast(dict[str, Any], current))
+    validated = validate_embed_preferences(cast("dict[str, Any]", current))
 
     # Save
     settings = await repo.update(settings, metadata_embed_preferences=validated)

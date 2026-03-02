@@ -237,10 +237,7 @@ class BandcampProvider(SourceProvider):
 
         # Get artist name
         artist_name = (
-            track.get("artist")
-            or album_data.get("artist")
-            or track.get("band_name")
-            or "Unknown"
+            track.get("artist") or album_data.get("artist") or track.get("band_name") or "Unknown"
         )
 
         # Get album name
@@ -296,10 +293,7 @@ class BandcampProvider(SourceProvider):
         tags = album_data.get("tags", []) or track.get("tags", [])
         if isinstance(tags, list):
             for tag in tags:
-                if isinstance(tag, dict):
-                    tag_name = tag.get("name", "")
-                else:
-                    tag_name = str(tag)
+                tag_name = tag.get("name", "") if isinstance(tag, dict) else str(tag)
                 if tag_name and tag_name not in genres:
                     genres.append(tag_name)
 

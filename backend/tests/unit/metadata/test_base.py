@@ -132,9 +132,7 @@ class TestMetadataProvider:
         assert provider.lookup_isrc_called
 
     @pytest.mark.asyncio
-    async def test_lookup_by_isrc_not_found(
-        self, provider: MockMetadataProvider
-    ) -> None:
+    async def test_lookup_by_isrc_not_found(self, provider: MockMetadataProvider) -> None:
         """Test ISRC lookup returns None when not found."""
         result = await provider.lookup_by_isrc("UNKNOWN123")
         assert result is None
@@ -148,9 +146,7 @@ class TestMetadataProvider:
         assert provider.lookup_name_called
 
     @pytest.mark.asyncio
-    async def test_lookup_by_name_not_found(
-        self, provider: MockMetadataProvider
-    ) -> None:
+    async def test_lookup_by_name_not_found(self, provider: MockMetadataProvider) -> None:
         """Test name lookup returns None when not found."""
         result = await provider.lookup_by_name("Unknown Track", "Unknown Artist")
         assert result is None
@@ -177,9 +173,7 @@ class TestMetadataProvider:
         assert sample_song.year == 2020
 
     @pytest.mark.asyncio
-    async def test_enrich_song_without_isrc(
-        self, provider: MockMetadataProvider
-    ) -> None:
+    async def test_enrich_song_without_isrc(self, provider: MockMetadataProvider) -> None:
         """Test enriching song falls back to name lookup."""
         song = Song(
             name="Known Track",
@@ -210,9 +204,7 @@ class TestMetadataProvider:
         assert sample_song.album_name == ""
 
     @pytest.mark.asyncio
-    async def test_merge_metadata_preserves_existing(
-        self, provider: MockMetadataProvider
-    ) -> None:
+    async def test_merge_metadata_preserves_existing(self, provider: MockMetadataProvider) -> None:
         """Test that merge doesn't overwrite existing data."""
         song = Song(
             name="Track",
@@ -241,9 +233,7 @@ class TestMetadataProvider:
         assert "Jazz" in song.genres
 
     @pytest.mark.asyncio
-    async def test_merge_metadata_fills_missing(
-        self, provider: MockMetadataProvider
-    ) -> None:
+    async def test_merge_metadata_fills_missing(self, provider: MockMetadataProvider) -> None:
         """Test that merge fills in missing data."""
         song = Song(
             name="Track",

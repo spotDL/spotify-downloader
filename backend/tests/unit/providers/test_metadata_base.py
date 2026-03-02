@@ -242,9 +242,7 @@ class TestMetadataProviderBase:
     async def test_lookup_by_name_with_album(self) -> None:
         """Test name lookup with album."""
         provider = ConcreteMetadataProvider()
-        result = await provider.lookup_by_name(
-            "Test Song", "Test Artist", "Test Album"
-        )
+        result = await provider.lookup_by_name("Test Song", "Test Artist", "Test Album")
 
         assert result is not None
         assert result.album_name == "Test Album"

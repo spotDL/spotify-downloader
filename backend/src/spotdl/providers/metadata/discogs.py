@@ -88,8 +88,7 @@ class DiscogsProvider(MetadataProvider):
                     user_token=self._user_token,
                 )
                 logger.debug(
-                    f"Discogs provider initialized "
-                    f"(authenticated: {self._user_token is not None})"
+                    f"Discogs provider initialized (authenticated: {self._user_token is not None})"
                 )
                 return self._client
 
@@ -184,9 +183,7 @@ class DiscogsProvider(MetadataProvider):
             best_score: float = 0.0
 
             for release in releases:
-                score = self._calculate_match_score(
-                    release, track_name, artist_name, album_name
-                )
+                score = self._calculate_match_score(release, track_name, artist_name, album_name)
                 if score > best_score:
                     best_score = score
                     best_match = release
@@ -200,9 +197,7 @@ class DiscogsProvider(MetadataProvider):
             return None, None
 
         except Exception as e:
-            logger.warning(
-                f"Discogs lookup failed for {artist_name} - {track_name}: {e}"
-            )
+            logger.warning(f"Discogs lookup failed for {artist_name} - {track_name}: {e}")
             return None, None
 
     async def lookup_with_raw(
@@ -273,7 +268,7 @@ class DiscogsProvider(MetadataProvider):
                     "name": getattr(l, "name", None),
                     "catno": getattr(l, "catno", None),
                 }
-                for l in labels_attr
+                for l in labels_attr  # noqa: E741
             ]
 
         # Tracklist

@@ -242,9 +242,7 @@ class YouTubeMusicProvider(SourceProvider):
             }
 
             # Try to get more metadata from music info
-            music_info = song_data.get("microformat", {}).get(
-                "microformatDataRenderer", {}
-            )
+            music_info = song_data.get("microformat", {}).get("microformatDataRenderer", {})
             if music_info:
                 unified_data["artists"] = [{"name": music_info.get("artistNames", "")}]
 
@@ -278,9 +276,7 @@ class YouTubeMusicProvider(SourceProvider):
 
         try:
             # Get album info
-            album_data = await loop.run_in_executor(
-                None, client.get_album, browse_id
-            )
+            album_data = await loop.run_in_executor(None, client.get_album, browse_id)
 
             if album_data is None:
                 raise SourceProviderError(f"Album not found: {url}")
@@ -398,9 +394,7 @@ class YouTubeMusicProvider(SourceProvider):
 
         try:
             # Get artist info
-            artist_data = await loop.run_in_executor(
-                None, client.get_artist, channel_id
-            )
+            artist_data = await loop.run_in_executor(None, client.get_artist, channel_id)
 
             if artist_data is None:
                 raise SourceProviderError(f"Artist not found: {url}")

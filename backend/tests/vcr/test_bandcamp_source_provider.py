@@ -5,7 +5,6 @@ import pytest
 from spotdl.core.types.song import Platform
 from spotdl.providers.sources.bandcamp import BandcampProvider
 
-
 pytestmark = pytest.mark.asyncio
 
 
@@ -24,9 +23,7 @@ class TestBandcampSourceProviderVCR:
 
         try:
             # Using a well-known Bandcamp track
-            song = await provider.get_track(
-                "https://ghostly.bandcamp.com/track/dripping-sun"
-            )
+            song = await provider.get_track("https://ghostly.bandcamp.com/track/dripping-sun")
 
             assert song.name is not None
             assert len(song.name) > 0
@@ -74,9 +71,7 @@ class TestBandcampSourceProviderVCR:
     @staticmethod
     def test_extract_url_info_track() -> None:
         """Test extracting track URL info."""
-        result = BandcampProvider._extract_url_info(
-            "https://artist.bandcamp.com/track/song-name"
-        )
+        result = BandcampProvider._extract_url_info("https://artist.bandcamp.com/track/song-name")
         assert result["subdomain"] == "artist"
         assert result["type"] == "track"
         assert result["slug"] == "song-name"
@@ -84,9 +79,7 @@ class TestBandcampSourceProviderVCR:
     @staticmethod
     def test_extract_url_info_album() -> None:
         """Test extracting album URL info."""
-        result = BandcampProvider._extract_url_info(
-            "https://myband.bandcamp.com/album/album-name"
-        )
+        result = BandcampProvider._extract_url_info("https://myband.bandcamp.com/album/album-name")
         assert result["subdomain"] == "myband"
         assert result["type"] == "album"
         assert result["slug"] == "album-name"

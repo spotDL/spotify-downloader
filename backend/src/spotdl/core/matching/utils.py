@@ -48,10 +48,7 @@ def slugify(string: str) -> str:
         # Add hyphen between Japanese-to-romaji conversions
         if not (
             item["kana"] == item["hepburn"]
-            or (
-                item == results[-1]
-                or results[index + 1]["kana"] == results[index + 1]["hepburn"]
-            )
+            or (item == results[-1] or results[index + 1]["kana"] == results[index + 1]["hepburn"])
         ):
             result += "-"
 
@@ -191,9 +188,7 @@ def create_song_title(song_name: str, song_artists: list[str]) -> str:
     return song_name
 
 
-def create_search_query(
-    song_name: str, song_artists: list[str], short: bool = False
-) -> str:
+def create_search_query(song_name: str, song_artists: list[str], short: bool = False) -> str:
     """
     Create a search query from song metadata.
 
@@ -207,11 +202,7 @@ def create_search_query(
     """
     if short:
         # Filter artists already in song name
-        artists = [
-            artist
-            for artist in song_artists
-            if slugify(artist) not in slugify(song_name)
-        ]
+        artists = [artist for artist in song_artists if slugify(artist) not in slugify(song_name)]
         # Ensure at least the main artist is included
         if not artists or artists[0] != song_artists[0]:
             artists.insert(0, song_artists[0])

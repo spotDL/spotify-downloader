@@ -226,9 +226,7 @@ async def get_report(
     """
     report_uuid = validate_uuid(report_id, "report ID")
 
-    result = await db.execute(
-        select(MetadataReport).where(MetadataReport.id == report_uuid)
-    )
+    result = await db.execute(select(MetadataReport).where(MetadataReport.id == report_uuid))
     report = result.scalar_one_or_none()
 
     if not report:
@@ -258,9 +256,7 @@ async def update_report(
 
     report_uuid = validate_uuid(report_id, "report ID")
 
-    result = await db.execute(
-        select(MetadataReport).where(MetadataReport.id == report_uuid)
-    )
+    result = await db.execute(select(MetadataReport).where(MetadataReport.id == report_uuid))
     report = result.scalar_one_or_none()
 
     if not report:
@@ -278,17 +274,11 @@ async def update_report(
     if previous_status == ReportStatus.PENDING.value:
         user_repo = UserRepository(db)
         if request.status == ReportStatus.FIXED:
-            await user_repo.update_reputation(
-                report.reporter_id, ReputationReward.REPORT_FIXED
-            )
+            await user_repo.update_reputation(report.reporter_id, ReputationReward.REPORT_FIXED)
         elif request.status == ReportStatus.REVIEWED:
-            await user_repo.update_reputation(
-                report.reporter_id, ReputationReward.REPORT_REVIEWED
-            )
+            await user_repo.update_reputation(report.reporter_id, ReputationReward.REPORT_REVIEWED)
         elif request.status == ReportStatus.DISMISSED:
-            await user_repo.update_reputation(
-                report.reporter_id, ReputationReward.REPORT_DISMISSED
-            )
+            await user_repo.update_reputation(report.reporter_id, ReputationReward.REPORT_DISMISSED)
 
     await db.commit()
     await db.refresh(report)
@@ -317,9 +307,7 @@ async def delete_report(
 
     report_uuid = validate_uuid(report_id, "report ID")
 
-    result = await db.execute(
-        select(MetadataReport).where(MetadataReport.id == report_uuid)
-    )
+    result = await db.execute(select(MetadataReport).where(MetadataReport.id == report_uuid))
     report = result.scalar_one_or_none()
 
     if not report:

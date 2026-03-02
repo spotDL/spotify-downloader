@@ -24,4 +24,3 @@ router.include_router(download.router, tags=["download"])
 router.include_router(reports.router, tags=["reports"])
 router.include_router(admin.router, tags=["admin"])
 router.include_router(lyrics.router, tags=["lyrics"])
-

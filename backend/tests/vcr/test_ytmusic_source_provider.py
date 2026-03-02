@@ -5,7 +5,6 @@ import pytest
 from spotdl.core.types.song import Platform
 from spotdl.providers.sources.ytmusic import YouTubeMusicProvider
 
-
 pytestmark = pytest.mark.asyncio
 
 
@@ -21,9 +20,7 @@ class TestYouTubeMusicSourceProviderVCR:
     async def test_get_track(self, provider: YouTubeMusicProvider) -> None:
         """Test getting a track from YouTube Music."""
         # Using a well-known track
-        song = await provider.get_track(
-            "https://music.youtube.com/watch?v=gAjR4_CbPpQ"
-        )
+        song = await provider.get_track("https://music.youtube.com/watch?v=gAjR4_CbPpQ")
 
         assert song.name is not None
         assert len(song.name) > 0
@@ -76,15 +73,9 @@ class TestYouTubeMusicSourceProviderVCR:
     @staticmethod
     def test_matches_url() -> None:
         """Test URL matching."""
-        assert YouTubeMusicProvider.matches_url(
-            "https://music.youtube.com/watch?v=gAjR4_CbPpQ"
-        )
-        assert YouTubeMusicProvider.matches_url(
-            "https://music.youtube.com/playlist?list=RDAMVM"
-        )
-        assert not YouTubeMusicProvider.matches_url(
-            "https://www.youtube.com/watch?v=gAjR4_CbPpQ"
-        )
+        assert YouTubeMusicProvider.matches_url("https://music.youtube.com/watch?v=gAjR4_CbPpQ")
+        assert YouTubeMusicProvider.matches_url("https://music.youtube.com/playlist?list=RDAMVM")
+        assert not YouTubeMusicProvider.matches_url("https://www.youtube.com/watch?v=gAjR4_CbPpQ")
 
     async def test_provider_attributes(self) -> None:
         """Test provider has correct attributes."""

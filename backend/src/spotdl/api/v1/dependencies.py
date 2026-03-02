@@ -75,9 +75,9 @@ async def get_user_preferences(
         )
 
     return UserPreferences(
-        audio=cast(list[ProviderPreference] | None, settings.audio_source_preferences),
-        metadata=cast(list[ProviderPreference] | None, settings.metadata_source_preferences),
-        lyrics=cast(list[ProviderPreference] | None, settings.lyrics_source_preferences),
+        audio=cast("list[ProviderPreference] | None", settings.audio_source_preferences),
+        metadata=cast("list[ProviderPreference] | None", settings.metadata_source_preferences),
+        lyrics=cast("list[ProviderPreference] | None", settings.lyrics_source_preferences),
     )
 
 

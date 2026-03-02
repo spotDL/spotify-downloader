@@ -24,9 +24,7 @@ class MusixMatchProvider(BaseLyricsProvider):
     ) -> dict[str, str]:
         """Search MusixMatch for lyrics."""
         # Filter artists not in song name
-        artists_filtered = [
-            artist for artist in artists if artist.lower() not in name.lower()
-        ]
+        artists_filtered = [artist for artist in artists if artist.lower() not in name.lower()]
         artists_str = ", ".join(artists_filtered) if artists_filtered else artists[0]
 
         # URL-encode query
