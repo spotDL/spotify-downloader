@@ -587,6 +587,36 @@ class UnifiedEntityService:
         result = await self._db.execute(query)
         return list(result.scalars().all())
 
+    async def _refresh_entity_map(
+        self,
+        entities_by_key: dict[tuple[str, str], Entity],
+        bundles: dict[tuple[str, str], ProviderEntityBundle],
+    ) -> None:
+        """Re-resolve entity references after ISRC merges may have deleted entities.
+
+        During upsert, ISRC merge can delete duplicate entities and move their
+        snapshots to a survivor. This re-queries each snapshot to get the
+        current owning entity, ensuring relations point to live entities.
+        """
+        for key in list(entities_by_key.keys()):
+            bundle = bundles.get(key)
+            if bundle is None:
+                continue
+            snap_result = await self._db.execute(
+                select(EntitySnapshot).where(
+                    EntitySnapshot.provider_id == bundle.provider_id,
+                    EntitySnapshot.provider_entity_id == bundle.provider_entity_id,
+                )
+            )
+            snap = snap_result.scalar_one_or_none()
+            if snap is None:
+                entities_by_key.pop(key, None)
+                continue
+            current_entity_id = snap.entity_id
+            old_entity = entities_by_key[key]
+            if old_entity.id != current_entity_id:
+                entities_by_key[key] = await self._get_entity(current_entity_id)
+
     async def _find_or_create_entity(self, bundle: ProviderEntityBundle) -> tuple[Entity, bool]:
         """Find existing entity by (provider_id, provider_entity_id) or create new one.
 
@@ -819,7 +849,11 @@ class UnifiedEntityService:
         match_score: float | None,
         discovered_by: str,
         relation_data: dict[str, Any] | None = None,
-    ) -> EntityRelation:
+    ) -> EntityRelation | None:
+        # Skip self-referencing relations (can happen after ISRC merge)
+        if from_entity_id == to_entity_id:
+            return None
+
         query = select(EntityRelation).where(
             and_(
                 EntityRelation.from_entity_id == from_entity_id,
@@ -849,9 +883,12 @@ class UnifiedEntityService:
                 relation = result.scalar_one_or_none()
 
             if relation is None:
-                raise UnifiedEntityError(
-                    "Failed to create or load relation after concurrent insert."
+                # FK violation (entity deleted by concurrent merge) — skip gracefully
+                logger.warning(
+                    "Skipping relation %s -> %s (%s): entity no longer exists.",
+                    from_entity_id, to_entity_id, relation_type,
                 )
+                return None
 
         relation.match_score = match_score
         relation.discovered_by = discovered_by
@@ -1033,6 +1070,9 @@ class UnifiedEntityService:
             entities.append(entity)
             created_entities += 1
 
+        # Refresh entity references: ISRC merge may have replaced entities
+        await self._refresh_entity_map(entities_by_key, bundles_to_upsert)
+
         # Deduplicate by (from_key, to_key, relation_type)
         unique_rel_map: dict[tuple[tuple[str, str], tuple[str, str], str], tuple[tuple[str, str], tuple[str, str], str, str, dict[str, Any] | None]] = {}
         for r in relations_to_create:
@@ -1052,7 +1092,8 @@ class UnifiedEntityService:
                 provider_id,
                 relation_data=rel_data,
             )
-            relations.setdefault(str(from_entity.id), []).append(relation)
+            if relation is not None:
+                relations.setdefault(str(from_entity.id), []).append(relation)
 
         deduped: dict[str, Entity] = {}
         for entity in entities:
@@ -1120,6 +1161,9 @@ class UnifiedEntityService:
             entity = await self._upsert_entity_snapshot(bundles_to_upsert[key])
             entities_by_key[key] = entity
             entities.append(entity)
+
+        # Refresh entity references: ISRC merge may have replaced entities
+        await self._refresh_entity_map(entities_by_key, bundles_to_upsert)
 
         # Deduplicate relations
         unique_relations: dict[tuple[tuple[str, str], tuple[str, str], str], tuple[tuple[str, str], tuple[str, str], str, str, dict[str, Any] | None]] = {}
@@ -1285,7 +1329,8 @@ class UnifiedEntityService:
                     "target_url": bundle.provider_url,
                 },
             )
-            relations.append(relation)
+            if relation is not None:
+                relations.append(relation)
 
         await self._db.flush()
         return relations
@@ -1363,7 +1408,7 @@ class UnifiedEntityService:
             raise UnifiedEntityError("Provide either to_entity_id or to_url.")
 
         _ = await self._get_entity(resolved_target_id)
-        return await self._create_or_update_relation(
+        relation = await self._create_or_update_relation(
             from_entity_id=from_entity_id,
             to_entity_id=resolved_target_id,
             relation_type=relation_type,
@@ -1371,6 +1416,9 @@ class UnifiedEntityService:
             discovered_by=discovered_by,
             relation_data={"manual": True},
         )
+        if relation is None:
+            raise UnifiedEntityError("Cannot create a relation between the same entity.")
+        return relation
 
     async def vote_relation(
         self,
