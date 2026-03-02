@@ -24,6 +24,7 @@ export interface AuthResponse {
 
 export interface RefreshResponse {
   access_token: string;
+  refresh_token: string;
   token_type: string;
 }
 
@@ -44,7 +45,10 @@ export async function register(data: RegisterRequest): Promise<AuthResponse> {
 }
 
 export async function refreshToken(): Promise<RefreshResponse> {
-  const response = await apiClient.post<RefreshResponse>("/auth/refresh");
+  const refresh_token = localStorage.getItem("refresh_token");
+  const response = await apiClient.post<RefreshResponse>("/auth/refresh", {
+    refresh_token,
+  });
   return response.data;
 }
 
@@ -132,6 +136,7 @@ export function useLogout() {
     mutationFn: logout,
     onSettled: () => {
       localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
       clearAuth();
       queryClient.clear();
     },
@@ -143,6 +148,9 @@ export function useRefreshToken() {
     mutationFn: refreshToken,
     onSuccess: (data) => {
       localStorage.setItem("access_token", data.access_token);
+      if (data.refresh_token) {
+        localStorage.setItem("refresh_token", data.refresh_token);
+      }
     },
   });
 }

@@ -135,7 +135,7 @@ export interface PlatformInfo {
 // Platform URL patterns for verification
 export const PLATFORM_URL_PATTERNS: Record<string, string> = {
   spotify: "https://open.spotify.com/track/{id}",
-  apple_music: "https://music.apple.com/...",
+  apple_music: "https://music.apple.com/us/song/{id}",
   deezer: "https://www.deezer.com/track/{id}",
   youtube_music: "https://music.youtube.com/watch?v={id}",
   youtube: "https://www.youtube.com/watch?v={id}",
@@ -284,7 +284,7 @@ export interface UniversalSearchRequest {
 export type LyricsSource = "genius" | "musixmatch" | "azlyrics" | "synced";
 
 export interface Lyrics {
-  song_id: string;
+  entity_id: string;
   lyrics_text: string;
   lyrics_synced: string | null; // LRC format
   source: LyricsSource;
@@ -405,8 +405,25 @@ export interface AdminMatchListRequest {
   match_type?: "system" | "user" | "metadata";
 }
 
+export interface AdminMatch {
+  id: string;
+  source_url: string;
+  source_platform: string;
+  target_url: string;
+  target_platform: string;
+  score: number | null;
+  confidence: number;
+  match_type: "system" | "user";
+  status: "pending" | "verified" | "rejected";
+  upvotes: number;
+  downvotes: number;
+  net_votes: number;
+  created_at: string;
+  discovered_by: string | null;
+}
+
 export interface AdminMatchListResponse {
-  matches: Match[];
+  matches: AdminMatch[];
   total: number;
   page: number;
   per_page: number;

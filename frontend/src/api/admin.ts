@@ -13,10 +13,10 @@ import type {
   AdminUser,
   AdminUserListRequest,
   AdminUserListResponse,
+  AdminMatch,
   AdminMatchListRequest,
   AdminMatchListResponse,
   SystemStats,
-  Match,
 } from "@/types";
 
 // ====== API Functions ======
@@ -106,8 +106,8 @@ export async function listAdminMatches(
 export async function updateMatchStatus(
   matchId: string,
   data: UpdateMatchStatusRequest
-): Promise<Match> {
-  const response = await apiClient.patch<Match>(
+): Promise<AdminMatch> {
+  const response = await apiClient.patch<AdminMatch>(
     `/admin/matches/${matchId}`,
     data
   );
@@ -156,8 +156,8 @@ export async function purgeUnverifiedMatches(
 
 export async function resetDatabase(
   confirm: string = ""
-): Promise<{ message: string; songs_to_delete?: number; matches_to_delete?: number; users_preserved?: boolean }> {
-  const response = await apiClient.delete<{ message: string; songs_to_delete?: number; matches_to_delete?: number; users_preserved?: boolean }>(
+): Promise<{ message: string; entities_to_delete?: number; relations_to_delete?: number; users_preserved?: boolean }> {
+  const response = await apiClient.delete<{ message: string; entities_to_delete?: number; relations_to_delete?: number; users_preserved?: boolean }>(
     `/admin/reset-database?confirm=${confirm}`
   );
   return response.data;

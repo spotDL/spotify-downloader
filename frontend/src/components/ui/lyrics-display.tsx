@@ -489,7 +489,7 @@ export function MultiSourceLyricsDisplay({
   // Convert multi-source lyrics to old-style Lyrics for the main display
   const lyricsForDisplay: Lyrics | null = activeLyrics
     ? {
-        song_id: "",
+        entity_id: "",
         lyrics_text: activeLyrics.lyricsText,
         lyrics_synced: activeLyrics.lyricsSynced ?? null,
         source: activeLyrics.source as LyricsSourceType,

@@ -200,14 +200,9 @@ function AdminMatchesPage() {
                         <span className="text-zinc-500">/</span>
                         <span className="text-accent-peak">-{match.downvotes}</span>
                       </div>
-                      {match.submitted_by_username && (
+                      {match.discovered_by && (
                         <span className="text-zinc-500">
-                          by <span className="text-zinc-400">{match.submitted_by_username}</span>
-                        </span>
-                      )}
-                      {match.verified_by_username && (
-                        <span className="text-zinc-500">
-                          verified by <span className="text-zinc-400">{match.verified_by_username}</span>
+                          by <span className="text-zinc-400">{match.discovered_by}</span>
                         </span>
                       )}
                     </div>

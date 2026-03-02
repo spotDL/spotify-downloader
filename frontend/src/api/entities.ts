@@ -840,7 +840,7 @@ export async function getAllLyrics(songId: string): Promise<AllLyricsResponse> {
   try {
     const resolvedId = await resolveEntityId(songId, "track");
     const response = await apiClient.get<{
-      song_id: string;
+      entity_id: string;
       lyrics: Array<{
         source: string;
         lyrics_text: string;
@@ -851,7 +851,7 @@ export async function getAllLyrics(songId: string): Promise<AllLyricsResponse> {
         has_translations: boolean | null;
       }>;
       total_sources: number;
-    }>(`/lyrics/song/${resolvedId}/all`);
+    }>(`/lyrics/entity/${resolvedId}/all`);
     return {
       songId,
       lyrics: response.data.lyrics.map((l) => ({
@@ -887,7 +887,7 @@ export async function fetchAllLyrics(songId: string): Promise<AllLyricsResponse>
   try {
     const resolvedId = await resolveEntityId(songId, "track");
     const response = await apiClient.post<{
-      song_id: string;
+      entity_id: string;
       lyrics: Array<{
         source: string;
         lyrics_text: string;
@@ -898,7 +898,7 @@ export async function fetchAllLyrics(songId: string): Promise<AllLyricsResponse>
         has_translations?: boolean | null;
       }>;
       total_sources: number;
-    }>(`/lyrics/song/${resolvedId}/fetch-all`);
+    }>(`/lyrics/entity/${resolvedId}/fetch-all`);
     return {
       songId,
       lyrics: response.data.lyrics.map((l) => ({
@@ -953,7 +953,7 @@ export async function submitLyrics(
   }
 ): Promise<LyricsSource> {
   const resolvedId = await resolveEntityId(songId, "track");
-  const response = await apiClient.post<any>(`/lyrics/song/${resolvedId}`, {
+  const response = await apiClient.post<any>(`/lyrics/entity/${resolvedId}`, {
     source: params.source,
     lyrics_text: params.lyricsText,
     lyrics_synced: params.lyricsSynced,

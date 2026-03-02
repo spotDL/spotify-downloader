@@ -55,8 +55,8 @@ function AdminImportPage() {
     rejected: number;
   } | null>(null);
   const [resetPreview, setResetPreview] = useState<{
-    songs: number;
-    matches: number;
+    entities: number;
+    relations: number;
   } | null>(null);
   const [confirmReset, setConfirmReset] = useState("");
 
@@ -196,8 +196,8 @@ function AdminImportPage() {
     try {
       const result = await resetMutation.mutateAsync("");
       setResetPreview({
-        songs: result.songs_to_delete || 0,
-        matches: result.matches_to_delete || 0,
+        entities: result.entities_to_delete || 0,
+        relations: result.relations_to_delete || 0,
       });
     } catch (err) {
       addToast("Failed to get reset preview", "error");
@@ -567,12 +567,12 @@ function AdminImportPage() {
                         </div>
                         <div className="grid grid-cols-2 gap-3 text-sm">
                           <div className="text-center p-2 rounded bg-zinc-900/50">
-                            <div className="text-lg font-bold text-red-400">{resetPreview.songs.toLocaleString()}</div>
-                            <div className="text-xs text-zinc-500">Songs</div>
+                            <div className="text-lg font-bold text-red-400">{resetPreview.entities.toLocaleString()}</div>
+                            <div className="text-xs text-zinc-500">Entities</div>
                           </div>
                           <div className="text-center p-2 rounded bg-zinc-900/50">
-                            <div className="text-lg font-bold text-red-400">{resetPreview.matches.toLocaleString()}</div>
-                            <div className="text-xs text-zinc-500">Matches</div>
+                            <div className="text-lg font-bold text-red-400">{resetPreview.relations.toLocaleString()}</div>
+                            <div className="text-xs text-zinc-500">Relations</div>
                           </div>
                         </div>
                         <p className="text-xs text-zinc-500 mt-2 text-center">

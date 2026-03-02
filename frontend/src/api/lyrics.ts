@@ -8,7 +8,7 @@ import type { Lyrics } from "@/types";
 
 // Response types
 export interface LyricsResponse {
-  song_id: string;
+  entity_id: string;
   lyrics_text: string;
   lyrics_synced: string | null;
   source: string;
@@ -16,7 +16,7 @@ export interface LyricsResponse {
 }
 
 export interface LyricsNotFoundResponse {
-  song_id: string;
+  entity_id: string;
   message: string;
 }
 
@@ -37,13 +37,13 @@ export async function getLyricsForSong(
 ): Promise<LyricsResponse | LyricsNotFoundResponse> {
   try {
     const response = await apiClient.get<LyricsResponse | LyricsNotFoundResponse>(
-      `/lyrics/song/${songId}`,
+      `/lyrics/entity/${songId}`,
       { params: forceRefresh ? { force_refresh: true } : undefined }
     );
     return response.data;
   } catch {
     return {
-      song_id: songId,
+      entity_id: songId,
       message: "Failed to fetch lyrics",
     };
   }
@@ -64,7 +64,7 @@ export async function searchLyrics(
     return response.data;
   } catch {
     return {
-      song_id: `${artist}:${name}`,
+      entity_id: `${artist}:${name}`,
       message: "Lyrics search failed",
     };
   }
@@ -120,7 +120,7 @@ export function hasLyrics(
  */
 export function toLyrics(response: LyricsResponse): Lyrics {
   return {
-    song_id: response.song_id,
+    entity_id: response.entity_id,
     lyrics_text: response.lyrics_text,
     lyrics_synced: response.lyrics_synced,
     source: response.source as Lyrics["source"],
