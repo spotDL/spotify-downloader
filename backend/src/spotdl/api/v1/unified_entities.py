@@ -8,6 +8,7 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Path
 from pydantic import BaseModel, Field
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -24,6 +25,7 @@ from spotdl.core.services.entity_unified import (
 from spotdl.db.database import get_db_session
 from spotdl.db.models.entity_unified import (
     Entity,
+    EntityCanonical,
     EntityFieldProvenance,
     EntityRelation,
     EntitySnapshot,
@@ -216,16 +218,23 @@ async def _batch_resolve_entity_refs(
     return refs
 
 
-def _entity_to_response(entity: Entity, refs: EntityRefs | None = None) -> EntityResponse:
+def _entity_to_response(
+    entity: Entity,
+    refs: EntityRefs | None = None,
+    ec: EntityCanonical | None = None,
+) -> EntityResponse:
+    # ec may be passed explicitly, or loaded from entity.canonical_data relationship
+    if ec is None:
+        ec = entity.canonical_data
     return EntityResponse(
         id=str(entity.id),
         type=entity.entity_type,
-        name=entity.name,
-        canonical=entity.canonical or {},
-        capabilities=entity.capabilities or {},
-        quality_score=float(entity.quality_score or 0.0),
-        last_merged_at=entity.last_merged_at.isoformat(),
-        merge_version=int(entity.merge_version or 1),
+        name=ec.name if ec else "Unknown",
+        canonical=ec.canonical if ec else {},
+        capabilities=ec.capabilities if ec else {},
+        quality_score=float(ec.quality_score) if ec else 0.0,
+        last_merged_at=entity.updated_at.isoformat(),
+        merge_version=int(ec.merge_version) if ec else 1,
         refs=refs or EntityRefs(),
     )
 
@@ -235,7 +244,11 @@ async def _entity_to_enriched_response(
 ) -> EntityResponse:
     """Single-entity convenience wrapper — uses a one-entity batch internally."""
     refs_map = await _batch_resolve_entity_refs([entity], db)
-    return _entity_to_response(entity, refs_map.get(str(entity.id)))
+    ec = await db.execute(
+        select(EntityCanonical).where(EntityCanonical.entity_id == entity.id)
+    )
+    ec_row = ec.scalar_one_or_none()
+    return _entity_to_response(entity, refs_map.get(str(entity.id)), ec=ec_row)
 
 
 
@@ -338,11 +351,25 @@ async def discover_entities(
         # Resolve all cross-entity UUIDs in a SINGLE batch query.
         refs_map = await _batch_resolve_entity_refs(result.entities, db)
 
+        # Batch-load EntityCanonical for all entities
+        entity_ids = [e.id for e in result.entities]
+        ec_map: dict[str, EntityCanonical] = {}
+        if entity_ids:
+            ec_result = await db.execute(
+                select(EntityCanonical).where(EntityCanonical.entity_id.in_(entity_ids))
+            )
+            for ec_row in ec_result.scalars().all():
+                ec_map[str(ec_row.entity_id)] = ec_row
+
         return DiscoverResponse(
             query=value,
             query_type="url" if request.url else "text",
             entities=[
-                _entity_to_response(entity, refs_map.get(str(entity.id)))
+                _entity_to_response(
+                    entity,
+                    refs_map.get(str(entity.id)),
+                    ec=ec_map.get(str(entity.id)),
+                )
                 for entity in result.entities
             ],
             total=len(result.entities),

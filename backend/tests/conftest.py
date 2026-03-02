@@ -20,7 +20,7 @@ from spotdl.core.types.result import Result, TargetPlatform
 from spotdl.core.types.song import Platform, Song
 from spotdl.db.database import get_db_session
 from spotdl.db.models.base import Base
-from spotdl.db.models.entity_unified import Entity, EntityRelation
+from spotdl.db.models.entity_unified import Entity, EntityCanonical, EntityRelation
 from spotdl.db.models.user import User
 from spotdl.main import app
 
@@ -179,9 +179,11 @@ async def authenticated_client(
 @pytest_asyncio.fixture
 async def test_source_entity(db_session: AsyncSession) -> Entity:
     """Create a test source entity."""
-    entity = Entity(
-        entity_type="track",
-        entity_key="spotify:track:test123",
+    entity = Entity(entity_type="track")
+    db_session.add(entity)
+    await db_session.flush()
+    ec = EntityCanonical(
+        entity_id=entity.id,
         name="Test Song",
         canonical={
             "platform": "spotify",
@@ -192,7 +194,7 @@ async def test_source_entity(db_session: AsyncSession) -> Entity:
             "duration": 180,
         },
     )
-    db_session.add(entity)
+    db_session.add(ec)
     await db_session.commit()
     await db_session.refresh(entity)
     return entity
@@ -201,9 +203,11 @@ async def test_source_entity(db_session: AsyncSession) -> Entity:
 @pytest_asyncio.fixture
 async def test_target_entity(db_session: AsyncSession) -> Entity:
     """Create a test target entity."""
-    entity = Entity(
-        entity_type="track",
-        entity_key="youtube:track:xyz789",
+    entity = Entity(entity_type="track")
+    db_session.add(entity)
+    await db_session.flush()
+    ec = EntityCanonical(
+        entity_id=entity.id,
         name="Test Song",
         canonical={
             "platform": "youtube",
@@ -214,7 +218,7 @@ async def test_target_entity(db_session: AsyncSession) -> Entity:
             "duration": 181,
         },
     )
-    db_session.add(entity)
+    db_session.add(ec)
     await db_session.commit()
     await db_session.refresh(entity)
     return entity

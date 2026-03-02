@@ -3,6 +3,7 @@
 from spotdl.db.models.base import Base
 from spotdl.db.models.entity_unified import (
     Entity,
+    EntityCanonical,
     EntityFieldProvenance,
     EntityRelation,
     EntitySnapshot,
@@ -23,6 +24,7 @@ __all__ = [
     "Base",
     "BlacklistedToken",
     "Entity",
+    "EntityCanonical",
     "EntityFieldProvenance",
     "EntityRelation",
     "EntitySnapshot",

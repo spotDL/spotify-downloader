@@ -23,7 +23,7 @@ class ProviderEntityBundle:
     """Normalized provider output for one or more entities."""
 
     provider_id: str
-    provider_entity_id: str | None
+    provider_entity_id: str
     provider_url: str | None
     entity_type: str
     normalized_payload: dict[str, Any]

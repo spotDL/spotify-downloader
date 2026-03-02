@@ -17,6 +17,7 @@ from spotdl.api.v1.auth import get_current_user
 from spotdl.db.database import get_db_session
 from spotdl.db.models.entity_unified import (
     Entity,
+    EntityCanonical,
     EntityFieldProvenance,
     EntityRelation,
     EntitySnapshot,
@@ -287,10 +288,17 @@ def _relation_to_admin_match(
     relation: EntityRelation,
     from_entity: Entity | None = None,
     to_entity: Entity | None = None,
+    from_ec: EntityCanonical | None = None,
+    to_ec: EntityCanonical | None = None,
 ) -> AdminMatchResponse:
     """Convert an EntityRelation to AdminMatchResponse."""
-    from_canonical = (from_entity.canonical if from_entity else {}) or {}
-    to_canonical = (to_entity.canonical if to_entity else {}) or {}
+    # Try relationship-loaded canonical_data, then explicit ec, then empty
+    if from_ec is None and from_entity is not None:
+        from_ec = getattr(from_entity, "canonical_data", None)
+    if to_ec is None and to_entity is not None:
+        to_ec = getattr(to_entity, "canonical_data", None)
+    from_canonical = (from_ec.canonical if from_ec else {}) or {}
+    to_canonical = (to_ec.canonical if to_ec else {}) or {}
 
     # Map internal status to frontend-expected status
     status_map = {"suggested": "pending", "verified": "verified", "rejected": "rejected"}
@@ -552,8 +560,8 @@ async def list_matches(
         select(EntityRelation)
         .where(EntityRelation.relation_type == "audio_match")
         .options(
-            selectinload(EntityRelation.from_entity),
-            selectinload(EntityRelation.to_entity),
+            selectinload(EntityRelation.from_entity).selectinload(Entity.canonical_data),
+            selectinload(EntityRelation.to_entity).selectinload(Entity.canonical_data),
         )
     )
 
@@ -615,8 +623,8 @@ async def update_match_status(
         select(EntityRelation)
         .where(EntityRelation.id == relation_uuid)
         .options(
-            selectinload(EntityRelation.from_entity),
-            selectinload(EntityRelation.to_entity),
+            selectinload(EntityRelation.from_entity).selectinload(Entity.canonical_data),
+            selectinload(EntityRelation.to_entity).selectinload(Entity.canonical_data),
         )
     )
     relation = result.scalar_one_or_none()
@@ -705,6 +713,7 @@ async def reset_database(
     await db.execute(delete(EntityRelation))
     await db.execute(delete(EntityFieldProvenance))
     await db.execute(delete(EntitySnapshot))
+    await db.execute(delete(EntityCanonical))
     await db.execute(delete(Lyrics))
     await db.execute(delete(MetadataReport))
     await db.execute(delete(Entity))
@@ -848,8 +857,8 @@ async def export_matches(
         select(EntityRelation)
         .where(EntityRelation.relation_type == "audio_match")
         .options(
-            selectinload(EntityRelation.from_entity),
-            selectinload(EntityRelation.to_entity),
+            selectinload(EntityRelation.from_entity).selectinload(Entity.canonical_data),
+            selectinload(EntityRelation.to_entity).selectinload(Entity.canonical_data),
         )
         .order_by(EntityRelation.created_at.desc())
     )

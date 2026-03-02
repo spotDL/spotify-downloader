@@ -4,9 +4,9 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import logging
 import math
-import re
 import uuid
 from collections.abc import Iterable
 from dataclasses import dataclass
@@ -16,7 +16,7 @@ from urllib.parse import urljoin, urlparse
 
 import httpx
 from bs4 import BeautifulSoup
-from sqlalchemy import and_, delete, desc, func, select
+from sqlalchemy import and_, delete, desc, func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -34,6 +34,7 @@ from spotdl.core.types.result import Result, TargetPlatform
 from spotdl.core.types.song import Platform, Song, SongList
 from spotdl.db.models.entity_unified import (
     Entity,
+    EntityCanonical,
     EntityFieldProvenance,
     EntityRelation,
     EntitySnapshot,
@@ -120,12 +121,6 @@ def _safe_lower(text: str | None) -> str:
     return (text or "").strip().lower()
 
 
-def _slug_text(text: str | None) -> str:
-    value = _safe_lower(text)
-    value = re.sub(r"[^a-z0-9]+", "-", value)
-    return value.strip("-") or "unknown"
-
-
 def _primary_artist(payload: dict[str, Any]) -> str:
     artists = payload.get("artists")
     if isinstance(artists, list) and artists and isinstance(artists[0], str):
@@ -147,6 +142,11 @@ def _detect_target_platform(url: str) -> str | None:
     if "bandcamp.com" in host:
         return "bandcamp"
     return None
+
+
+def _url_hash(url: str) -> str:
+    """Stable short hash of a URL for use as provider_entity_id."""
+    return hashlib.sha256(url.encode()).hexdigest()[:32]
 
 
 def _extract_meta_tag(soup: BeautifulSoup, *keys: str) -> str | None:
@@ -261,7 +261,8 @@ class MergeEngine:
             * self._field_validator_score(field_name, value)
         )
 
-    async def merge(self, session: AsyncSession, entity: Entity) -> Entity:
+    async def merge(self, session: AsyncSession, entity: Entity) -> EntityCanonical:
+        """Merge snapshots into EntityCanonical (create or update)."""
         snapshots_query = (
             select(EntitySnapshot)
             .where(EntitySnapshot.entity_id == entity.id)
@@ -270,13 +271,20 @@ class MergeEngine:
         snapshots_result = await session.execute(snapshots_query)
         snapshots = list(snapshots_result.scalars().all())
 
+        # Get or create EntityCanonical
+        canonical_query = select(EntityCanonical).where(EntityCanonical.entity_id == entity.id)
+        canonical_result = await session.execute(canonical_query)
+        ec = canonical_result.scalar_one_or_none()
+        if ec is None:
+            ec = EntityCanonical(entity_id=entity.id)
+            session.add(ec)
+
         if not snapshots:
-            entity.canonical = entity.canonical or {}
-            entity.name = str(entity.canonical.get("name") or entity.name or "Unknown")
-            entity.last_merged_at = _now_utc()
-            entity.merge_version = (entity.merge_version or 0) + 1
-            entity.quality_score = 0.0
-            return entity
+            ec.canonical = ec.canonical or {}
+            ec.name = str(ec.canonical.get("name") or ec.name or "Unknown")
+            ec.merge_version = (ec.merge_version or 0) + 1
+            ec.quality_score = 0.0
+            return ec
 
         all_fields: set[str] = set()
         for snapshot in snapshots:
@@ -327,14 +335,13 @@ class MergeEngine:
         if provenance_rows:
             session.add_all(provenance_rows)
 
-        entity.canonical = canonical
-        entity.name = str(canonical.get("name") or entity.name or "Unknown")
-        entity.quality_score = (
+        ec.canonical = canonical
+        ec.name = str(canonical.get("name") or ec.name or "Unknown")
+        ec.quality_score = (
             float(sum(selected_scores) / len(selected_scores)) if selected_scores else 0.0
         )
-        entity.last_merged_at = _now_utc()
-        entity.merge_version = (entity.merge_version or 0) + 1
-        return entity
+        ec.merge_version = (ec.merge_version or 0) + 1
+        return ec
 
 
 class UnifiedEntityService:
@@ -396,8 +403,11 @@ class UnifiedEntityService:
         )
 
     def _bundle_from_song_artist(self, song: Song) -> ProviderEntityBundle | None:
+        """Build artist bundle. Returns None if no real artist_id from the provider."""
         artist_name = (song.artist or "").strip()
         if not artist_name:
+            return None
+        if not song.artist_id:
             return None
         provider_id = SOURCE_PLATFORM_TO_ID.get(song.platform, "unknown")
         payload = {
@@ -405,7 +415,7 @@ class UnifiedEntityService:
             "artists": [artist_name],
             "artist": artist_name,
             "platform": provider_id,
-            "platform_id": song.artist_id or _slug_text(artist_name),
+            "platform_id": song.artist_id,
             "url": None,
             "cover_url": song.cover_url,
             "genres": list(song.genres) if song.genres else [],
@@ -413,7 +423,7 @@ class UnifiedEntityService:
         }
         return ProviderEntityBundle(
             provider_id=provider_id,
-            provider_entity_id=str(payload["platform_id"]),
+            provider_entity_id=song.artist_id,
             provider_url=None,
             entity_type="artist",
             normalized_payload=payload,
@@ -422,8 +432,11 @@ class UnifiedEntityService:
         )
 
     def _bundle_from_song_album(self, song: Song) -> ProviderEntityBundle | None:
+        """Build album bundle. Returns None if no real album_id from the provider."""
         album_name = (song.album_name or "").strip()
         if not album_name:
+            return None
+        if not song.album_id:
             return None
         provider_id = SOURCE_PLATFORM_TO_ID.get(song.platform, "unknown")
         payload = {
@@ -431,7 +444,7 @@ class UnifiedEntityService:
             "artists": list(song.artists),
             "artist": song.artist,
             "platform": provider_id,
-            "platform_id": song.album_id or _slug_text(f"{song.artist}-{album_name}"),
+            "platform_id": song.album_id,
             "url": song.list_url if song.list_url and "/album/" in song.list_url else None,
             "cover_url": song.cover_url,
             "year": song.year or None,
@@ -440,7 +453,7 @@ class UnifiedEntityService:
         }
         return ProviderEntityBundle(
             provider_id=provider_id,
-            provider_entity_id=str(payload["platform_id"]),
+            provider_entity_id=song.album_id,
             provider_url=payload["url"],  # type: ignore[arg-type]
             entity_type="album",
             normalized_payload=payload,
@@ -516,7 +529,7 @@ class UnifiedEntityService:
             "site_name": og_payload.get("site_name"),
             "entity_type": "track",
             "platform": "open_graph",
-            "platform_id": _slug_text(og_payload.get("url") or url),
+            "platform_id": _url_hash(og_payload.get("url") or url),
         }
         return ProviderEntityBundle(
             provider_id="open_graph",
@@ -527,30 +540,6 @@ class UnifiedEntityService:
             raw_payload=og_payload,
             confidence=0.42,
         )
-
-    def _entity_key(self, entity_type: str, payload: dict[str, Any]) -> str:
-        name = _slug_text(str(payload.get("name") or "unknown"))
-        artist = _slug_text(_primary_artist(payload))
-        if entity_type == "track":
-            # Use ISRC as the sole identifier when available — it is globally unique
-            # and stable across all providers.  Without it, fall back to a
-            # name/artist/duration bucket so that tracks discovered from different
-            # providers with missing ISRC still converge to the same entity rather
-            # than creating a new one with an empty ISRC suffix.
-            isrc = _slug_text(str(payload.get("isrc") or ""))
-            if isrc:
-                return f"track:{isrc}"
-            duration = int(payload.get("duration") or 0)
-            bucket = int(round(duration / 5.0) * 5) if duration > 0 else 0
-            return f"track:{name}:{artist}:{bucket}"
-        if entity_type == "album":
-            return f"album:{name}:{artist}"
-        if entity_type == "artist":
-            return f"artist:{name}"
-        if entity_type == "playlist":
-            owner = _slug_text(str(payload.get("owner") or payload.get("artist") or "unknown"))
-            return f"playlist:{name}:{owner}"
-        return f"{entity_type}:{name}:{artist}"
 
     def _capability_map_for_entity(self, entity_type: str, provider_ids: Iterable[str]) -> dict[str, Any]:
         map_keys = {
@@ -584,6 +573,11 @@ class UnifiedEntityService:
             raise EntityNotFoundError(f"Entity not found: {entity_id}")
         return entity
 
+    async def _get_entity_canonical(self, entity_id: uuid.UUID) -> EntityCanonical | None:
+        query = select(EntityCanonical).where(EntityCanonical.entity_id == entity_id)
+        result = await self._db.execute(query)
+        return result.scalar_one_or_none()
+
     async def _get_snapshots(self, entity_id: uuid.UUID) -> list[EntitySnapshot]:
         query = (
             select(EntitySnapshot)
@@ -593,125 +587,228 @@ class UnifiedEntityService:
         result = await self._db.execute(query)
         return list(result.scalars().all())
 
-    async def _upsert_entity_snapshot(self, bundle: ProviderEntityBundle) -> Entity:
-        entity_type = bundle.entity_type
-        entity_key = self._entity_key(entity_type, bundle.normalized_payload)
+    async def _find_or_create_entity(self, bundle: ProviderEntityBundle) -> tuple[Entity, bool]:
+        """Find existing entity by (provider_id, provider_entity_id) or create new one.
 
-        entity_query = select(Entity).where(Entity.entity_key == entity_key)
-        entity_result = await self._db.execute(entity_query)
-        entity = entity_result.scalar_one_or_none()
-        created = False
-
-        if entity is None:
-            try:
-                async with self._db.begin_nested():
-                    entity = Entity(
-                        entity_type=entity_type,
-                        entity_key=entity_key,
-                        name=str(bundle.normalized_payload.get("name") or "Unknown"),
-                        canonical={},
-                        capabilities={},
-                    )
-                    self._db.add(entity)
-                    await self._db.flush()
-                    created = True
-            except IntegrityError:
-                entity = None
-
-            if entity is None:
-                entity_result = await self._db.execute(entity_query)
-                entity = entity_result.scalar_one_or_none()
-            if entity is None:
-                raise UnifiedEntityError(
-                    f"Failed to create or load canonical entity for key '{entity_key}'."
-                )
-
+        Returns (entity, created) tuple.
+        """
+        # 1. Look up existing snapshot by global dedup key
         snapshot_query = select(EntitySnapshot).where(
             and_(
-                EntitySnapshot.entity_id == entity.id,
                 EntitySnapshot.provider_id == bundle.provider_id,
                 EntitySnapshot.provider_entity_id == bundle.provider_entity_id,
             )
         )
         snapshot_result = await self._db.execute(snapshot_query)
-        snapshot = snapshot_result.scalar_one_or_none()
+        existing_snapshot = snapshot_result.scalar_one_or_none()
 
-        if snapshot is None and bundle.provider_url:
-            fallback_query = select(EntitySnapshot).where(
-                and_(
-                    EntitySnapshot.entity_id == entity.id,
-                    EntitySnapshot.provider_id == bundle.provider_id,
-                    EntitySnapshot.provider_url == bundle.provider_url,
-                )
-            )
-            fallback_result = await self._db.execute(fallback_query)
-            snapshot = fallback_result.scalar_one_or_none()
+        if existing_snapshot is not None:
+            # Entity exists — update snapshot if data changed
+            entity = await self._get_entity(existing_snapshot.entity_id)
+            self._update_snapshot_if_changed(existing_snapshot, bundle)
+            return entity, False
 
-        capability_ids: list[str] = []
-        plugin = self._registry.get(bundle.provider_id)
-        if plugin is not None:
-            capability_ids = plugin.capability_ids()
-        normalized_confidence = float(max(bundle.confidence, 0.01))
-        snapshot_capabilities = {"provider_capabilities": capability_ids}
-        snapshot_changed = False
+        # 2. No existing snapshot — create new Entity + Snapshot
+        try:
+            async with self._db.begin_nested():
+                entity = Entity(entity_type=bundle.entity_type)
+                self._db.add(entity)
+                await self._db.flush()
 
-        if snapshot is None:
-            try:
-                async with self._db.begin_nested():
-                    snapshot = EntitySnapshot(
-                        entity_id=entity.id,
-                        provider_id=bundle.provider_id,
-                        provider_entity_id=bundle.provider_entity_id,
-                        provider_url=bundle.provider_url,
-                        normalized_payload=bundle.normalized_payload,
-                        raw_payload=bundle.raw_payload,
-                        confidence=normalized_confidence,
-                        fetched_at=_now_utc(),
-                        capabilities=snapshot_capabilities,
-                    )
-                    self._db.add(snapshot)
-                    await self._db.flush()
-                    snapshot_changed = True
-            except IntegrityError:
-                snapshot = None
-                snapshot_result = await self._db.execute(snapshot_query)
-                snapshot = snapshot_result.scalar_one_or_none()
-                if snapshot is None and bundle.provider_url:
-                    fallback_result = await self._db.execute(fallback_query)
-                    snapshot = fallback_result.scalar_one_or_none()
-
-            if snapshot is None:
+                snapshot = self._create_snapshot(entity.id, bundle)
+                self._db.add(snapshot)
+                await self._db.flush()
+        except IntegrityError:
+            # Concurrent insert — re-query
+            snapshot_result = await self._db.execute(snapshot_query)
+            existing_snapshot = snapshot_result.scalar_one_or_none()
+            if existing_snapshot is None:
                 raise UnifiedEntityError(
-                    f"Failed to create or load snapshot for provider '{bundle.provider_id}'."
+                    f"Failed to create or load entity for ({bundle.provider_id}, {bundle.provider_entity_id})."
                 )
+            entity = await self._get_entity(existing_snapshot.entity_id)
+            return entity, False
 
-            if (
-                snapshot.provider_url != bundle.provider_url
-                or snapshot.normalized_payload != bundle.normalized_payload
-                or snapshot.raw_payload != bundle.raw_payload
-                or not math.isclose(float(snapshot.confidence), normalized_confidence, rel_tol=1e-9)
-                or snapshot.capabilities != snapshot_capabilities
-            ):
-                snapshot.provider_url = bundle.provider_url
-                snapshot.normalized_payload = bundle.normalized_payload
-                snapshot.raw_payload = bundle.raw_payload
-                snapshot.confidence = normalized_confidence
-                snapshot.fetched_at = _now_utc()
-                snapshot.capabilities = snapshot_capabilities
-                snapshot_changed = True
+        # 3. For tracks, try ISRC cross-provider merge
+        if bundle.entity_type == "track":
+            entity = await self._try_isrc_merge(entity, bundle)
 
-        if not created and not snapshot_changed and entity.canonical:
-            return entity
-
-        await self._db.flush()
-        entity.capabilities = self._capability_map_for_entity(
+        # 4. Recompute EntityCanonical
+        ec = await self._merge.merge(self._db, entity)
+        ec.capabilities = self._capability_map_for_entity(
             entity.entity_type,
             [s.provider_id for s in await self._get_snapshots(entity.id)],
         )
-        await self._merge.merge(self._db, entity)
         await self._db.flush()
-        if created:
-            logger.info("Created canonical entity %s (%s)", entity.id, entity.entity_type)
+        return entity, True
+
+    def _create_snapshot(self, entity_id: uuid.UUID, bundle: ProviderEntityBundle) -> EntitySnapshot:
+        plugin = self._registry.get(bundle.provider_id)
+        capability_ids = plugin.capability_ids() if plugin else []
+        return EntitySnapshot(
+            entity_id=entity_id,
+            provider_id=bundle.provider_id,
+            provider_entity_id=bundle.provider_entity_id,
+            provider_url=bundle.provider_url,
+            normalized_payload=bundle.normalized_payload,
+            raw_payload=bundle.raw_payload,
+            confidence=float(max(bundle.confidence, 0.01)),
+            fetched_at=_now_utc(),
+            capabilities={"provider_capabilities": capability_ids},
+        )
+
+    def _update_snapshot_if_changed(self, snapshot: EntitySnapshot, bundle: ProviderEntityBundle) -> bool:
+        plugin = self._registry.get(bundle.provider_id)
+        capability_ids = plugin.capability_ids() if plugin else []
+        normalized_confidence = float(max(bundle.confidence, 0.01))
+        snapshot_capabilities = {"provider_capabilities": capability_ids}
+
+        if (
+            snapshot.provider_url != bundle.provider_url
+            or snapshot.normalized_payload != bundle.normalized_payload
+            or snapshot.raw_payload != bundle.raw_payload
+            or not math.isclose(float(snapshot.confidence), normalized_confidence, rel_tol=1e-9)
+            or snapshot.capabilities != snapshot_capabilities
+        ):
+            snapshot.provider_url = bundle.provider_url
+            snapshot.normalized_payload = bundle.normalized_payload
+            snapshot.raw_payload = bundle.raw_payload
+            snapshot.confidence = normalized_confidence
+            snapshot.fetched_at = _now_utc()
+            snapshot.capabilities = snapshot_capabilities
+            return True
+        return False
+
+    async def _try_isrc_merge(self, entity: Entity, bundle: ProviderEntityBundle) -> Entity:
+        """Check for cross-provider merge via ISRC. Returns survivor entity."""
+        isrc = bundle.normalized_payload.get("isrc")
+        if not isrc or not isinstance(isrc, str) or not isrc.strip():
+            return entity
+
+        # Find other snapshots with same ISRC from different entities
+        other_query = (
+            select(EntitySnapshot)
+            .where(
+                EntitySnapshot.entity_id != entity.id,
+                EntitySnapshot.normalized_payload["isrc"].as_string() == isrc,
+            )
+        )
+        other_result = await self._db.execute(other_query)
+        other_snapshots = list(other_result.scalars().all())
+
+        if not other_snapshots:
+            return entity
+
+        # Merge all duplicate entities into the oldest one (survivor)
+        all_entity_ids = {entity.id} | {s.entity_id for s in other_snapshots}
+        sorted_ids = sorted(all_entity_ids)
+        survivor_id = sorted_ids[0]
+
+        if survivor_id != entity.id:
+            survivor = await self._get_entity(survivor_id)
+        else:
+            survivor = entity
+
+        for eid in sorted_ids[1:]:
+            if eid == survivor.id:
+                continue
+            duplicate = await self._get_entity(eid)
+            await self._merge_entities(survivor, duplicate)
+
+        return survivor
+
+    async def _merge_entities(self, survivor: Entity, duplicate: Entity) -> None:
+        """Move all data from duplicate to survivor and delete duplicate."""
+        # Move snapshots
+        await self._db.execute(
+            update(EntitySnapshot)
+            .where(EntitySnapshot.entity_id == duplicate.id)
+            .values(entity_id=survivor.id)
+        )
+
+        # Move outgoing relations (handle unique constraint conflicts by skipping duplicates)
+        outgoing_query = select(EntityRelation).where(EntityRelation.from_entity_id == duplicate.id)
+        outgoing_result = await self._db.execute(outgoing_query)
+        for rel in outgoing_result.scalars().all():
+            existing = await self._db.execute(
+                select(EntityRelation).where(
+                    EntityRelation.from_entity_id == survivor.id,
+                    EntityRelation.to_entity_id == rel.to_entity_id,
+                    EntityRelation.relation_type == rel.relation_type,
+                )
+            )
+            if existing.scalar_one_or_none() is None:
+                rel.from_entity_id = survivor.id
+            else:
+                await self._db.delete(rel)
+
+        # Move incoming relations
+        incoming_query = select(EntityRelation).where(EntityRelation.to_entity_id == duplicate.id)
+        incoming_result = await self._db.execute(incoming_query)
+        for rel in incoming_result.scalars().all():
+            existing = await self._db.execute(
+                select(EntityRelation).where(
+                    EntityRelation.from_entity_id == rel.from_entity_id,
+                    EntityRelation.to_entity_id == survivor.id,
+                    EntityRelation.relation_type == rel.relation_type,
+                )
+            )
+            if existing.scalar_one_or_none() is None:
+                rel.to_entity_id = survivor.id
+            else:
+                await self._db.delete(rel)
+
+        # Move provenance
+        await self._db.execute(
+            update(EntityFieldProvenance)
+            .where(EntityFieldProvenance.entity_id == duplicate.id)
+            .values(entity_id=survivor.id)
+        )
+
+        # Delete duplicate's EntityCanonical (will be recomputed)
+        await self._db.execute(
+            delete(EntityCanonical).where(EntityCanonical.entity_id == duplicate.id)
+        )
+
+        # Delete duplicate entity
+        await self._db.delete(duplicate)
+        await self._db.flush()
+
+    async def _upsert_entity_snapshot(self, bundle: ProviderEntityBundle) -> Entity:
+        """Upsert via snapshot-based lookup. Wrapper around _find_or_create_entity
+        that also handles re-merging for existing entities when data changes."""
+        # Look up existing snapshot
+        snapshot_query = select(EntitySnapshot).where(
+            and_(
+                EntitySnapshot.provider_id == bundle.provider_id,
+                EntitySnapshot.provider_entity_id == bundle.provider_entity_id,
+            )
+        )
+        snapshot_result = await self._db.execute(snapshot_query)
+        existing_snapshot = snapshot_result.scalar_one_or_none()
+
+        if existing_snapshot is not None:
+            entity = await self._get_entity(existing_snapshot.entity_id)
+            changed = self._update_snapshot_if_changed(existing_snapshot, bundle)
+
+            # Get current canonical
+            ec = await self._get_entity_canonical(entity.id)
+
+            if not changed and ec is not None and ec.canonical:
+                return entity
+
+            # Recompute canonical
+            await self._db.flush()
+            ec = await self._merge.merge(self._db, entity)
+            ec.capabilities = self._capability_map_for_entity(
+                entity.entity_type,
+                [s.provider_id for s in await self._get_snapshots(entity.id)],
+            )
+            await self._db.flush()
+            return entity
+
+        # Create new
+        entity, _created = await self._find_or_create_entity(bundle)
         return entity
 
     async def _create_or_update_relation(
@@ -826,8 +923,10 @@ class UnifiedEntityService:
         entities: list[Entity] = []
         relations: dict[str, list[EntityRelation]] = {}
 
-        bundles_to_upsert: dict[str, ProviderEntityBundle] = {}
-        relations_to_create: list[tuple[str, str, str, str, dict[str, Any] | None]] = []
+        # Key: (provider_id, provider_entity_id) — the global dedup key
+        bundles_to_upsert: dict[tuple[str, str], ProviderEntityBundle] = {}
+        # Relations: (from_bundle_key, to_bundle_key, relation_type, discovered_by, relation_data)
+        relations_to_create: list[tuple[tuple[str, str], tuple[str, str], str, str, dict[str, Any] | None]] = []
 
         source_platform = detect_platform(url)
         if source_platform is not None:
@@ -838,74 +937,74 @@ class UnifiedEntityService:
                 if url_type == "album":
                     album = await self._song_service.get_album(url)
                     root_bundle = self._bundle_from_songlist(album, "album")
-                    root_key = self._entity_key("album", root_bundle.normalized_payload)
+                    root_key = (root_bundle.provider_id, root_bundle.provider_entity_id)
                     bundles_to_upsert[root_key] = root_bundle
                     for track in album.songs:
                         track_bundle = self._bundle_from_song(track)
-                        track_key = self._entity_key("track", track_bundle.normalized_payload)
+                        track_key = (track_bundle.provider_id, track_bundle.provider_entity_id)
                         bundles_to_upsert[track_key] = track_bundle
                         relations_to_create.append(
                             (root_key, track_key, "contains", discovered_by, {"position": track.track_number})
                         )
                         artist_bundle = self._bundle_from_song_artist(track)
                         if artist_bundle:
-                            artist_key = self._entity_key("artist", artist_bundle.normalized_payload)
+                            artist_key = (artist_bundle.provider_id, artist_bundle.provider_entity_id)
                             bundles_to_upsert[artist_key] = artist_bundle
                             relations_to_create.append((artist_key, root_key, "performed", discovered_by, None))
                             relations_to_create.append((artist_key, track_key, "performed", discovered_by, None))
                 elif url_type == "artist":
                     artist = await self._song_service.get_artist(url)
                     root_bundle = self._bundle_from_songlist(artist, "artist")
-                    root_key = self._entity_key("artist", root_bundle.normalized_payload)
+                    root_key = (root_bundle.provider_id, root_bundle.provider_entity_id)
                     bundles_to_upsert[root_key] = root_bundle
                     for track in artist.songs:
                         track_bundle = self._bundle_from_song(track)
-                        track_key = self._entity_key("track", track_bundle.normalized_payload)
+                        track_key = (track_bundle.provider_id, track_bundle.provider_entity_id)
                         bundles_to_upsert[track_key] = track_bundle
                         relations_to_create.append(
                             (root_key, track_key, "performed", discovered_by, None)
                         )
                         album_bundle = self._bundle_from_song_album(track)
                         if album_bundle:
-                            album_key = self._entity_key("album", album_bundle.normalized_payload)
+                            album_key = (album_bundle.provider_id, album_bundle.provider_entity_id)
                             bundles_to_upsert[album_key] = album_bundle
                             relations_to_create.append((album_key, track_key, "contains", discovered_by, {"track_number": track.track_number}))
                             relations_to_create.append((root_key, album_key, "performed", discovered_by, None))
                 elif url_type == "playlist":
                     playlist = await self._song_service.get_playlist(url)
                     root_bundle = self._bundle_from_songlist(playlist, "playlist")
-                    root_key = self._entity_key("playlist", root_bundle.normalized_payload)
+                    root_key = (root_bundle.provider_id, root_bundle.provider_entity_id)
                     bundles_to_upsert[root_key] = root_bundle
                     for idx, track in enumerate(playlist.songs):
                         track_bundle = self._bundle_from_song(track)
-                        track_key = self._entity_key("track", track_bundle.normalized_payload)
+                        track_key = (track_bundle.provider_id, track_bundle.provider_entity_id)
                         bundles_to_upsert[track_key] = track_bundle
                         relations_to_create.append(
                             (root_key, track_key, "contains", discovered_by, {"position": idx + 1})
                         )
                         artist_bundle = self._bundle_from_song_artist(track)
                         if artist_bundle:
-                            artist_key = self._entity_key("artist", artist_bundle.normalized_payload)
+                            artist_key = (artist_bundle.provider_id, artist_bundle.provider_entity_id)
                             bundles_to_upsert[artist_key] = artist_bundle
                             relations_to_create.append((artist_key, track_key, "performed", discovered_by, None))
                         album_bundle = self._bundle_from_song_album(track)
                         if album_bundle:
-                            album_key = self._entity_key("album", album_bundle.normalized_payload)
+                            album_key = (album_bundle.provider_id, album_bundle.provider_entity_id)
                             bundles_to_upsert[album_key] = album_bundle
                             relations_to_create.append((album_key, track_key, "contains", discovered_by, {"track_number": track.track_number}))
                 else:
                     track = await self._song_service.get_track(url, enrich=True)
                     track_bundle = self._bundle_from_song(track)
-                    track_key = self._entity_key("track", track_bundle.normalized_payload)
+                    track_key = (track_bundle.provider_id, track_bundle.provider_entity_id)
                     bundles_to_upsert[track_key] = track_bundle
                     artist_bundle = self._bundle_from_song_artist(track)
                     if artist_bundle:
-                        artist_key = self._entity_key("artist", artist_bundle.normalized_payload)
+                        artist_key = (artist_bundle.provider_id, artist_bundle.provider_entity_id)
                         bundles_to_upsert[artist_key] = artist_bundle
                         relations_to_create.append((artist_key, track_key, "performed", discovered_by, None))
                     album_bundle = self._bundle_from_song_album(track)
                     if album_bundle:
-                        album_key = self._entity_key("album", album_bundle.normalized_payload)
+                        album_key = (album_bundle.provider_id, album_bundle.provider_entity_id)
                         bundles_to_upsert[album_key] = album_bundle
                         relations_to_create.append((album_key, track_key, "contains", discovered_by, {"track_number": track.track_number}))
             except (SongServiceError, UnsupportedURLError) as exc:
@@ -916,40 +1015,44 @@ class UnifiedEntityService:
             if target_platform:
                 bundle = await self._resolve_target_url(url, target_platform)
                 if bundle:
-                    bundle_key = self._entity_key(bundle.entity_type, bundle.normalized_payload)
+                    bundle_key = (bundle.provider_id, bundle.provider_entity_id)
                     bundles_to_upsert[bundle_key] = bundle
             if not bundles_to_upsert:
                 og_payload = await _fetch_open_graph(url)
                 if og_payload:
                     bundle = self._bundle_from_open_graph(url, og_payload)
-                    bundle_key = self._entity_key(bundle.entity_type, bundle.normalized_payload)
+                    bundle_key = (bundle.provider_id, bundle.provider_entity_id)
                     bundles_to_upsert[bundle_key] = bundle
                 else:
                     raise UnifiedEntityError(f"Unsupported URL and no metadata available: {url}")
 
-        entities_by_key: dict[str, Entity] = {}
+        entities_by_key: dict[tuple[str, str], Entity] = {}
         for key in sorted(bundles_to_upsert.keys()):
             entity = await self._upsert_entity_snapshot(bundles_to_upsert[key])
             entities_by_key[key] = entity
             entities.append(entity)
             created_entities += 1
 
-        # Deduplicate by (from_key, to_key, relation_type) — mirrors discover_from_query.
-        unique_rel_map: dict[tuple[str, str, str], tuple[str, str, str, str, dict[str, Any] | None]] = {}
+        # Deduplicate by (from_key, to_key, relation_type)
+        unique_rel_map: dict[tuple[tuple[str, str], tuple[str, str], str], tuple[tuple[str, str], tuple[str, str], str, str, dict[str, Any] | None]] = {}
         for r in relations_to_create:
             unique_rel_map[(r[0], r[1], r[2])] = r
 
         for r_tuple in sorted(unique_rel_map.values(), key=lambda x: (x[0], x[1], x[2])):
             from_key, to_key, rel_type, provider_id, rel_data = r_tuple
+            from_entity = entities_by_key.get(from_key)
+            to_entity = entities_by_key.get(to_key)
+            if from_entity is None or to_entity is None:
+                continue
             relation = await self._create_or_update_relation(
-                entities_by_key[from_key].id,
-                entities_by_key[to_key].id,
+                from_entity.id,
+                to_entity.id,
                 rel_type,
                 None,
                 provider_id,
                 relation_data=rel_data,
             )
-            relations.setdefault(str(entities_by_key[from_key].id), []).append(relation)
+            relations.setdefault(str(from_entity.id), []).append(relation)
 
         deduped: dict[str, Entity] = {}
         for entity in entities:
@@ -981,20 +1084,19 @@ class UnifiedEntityService:
         source_tasks = [search_source(platform) for platform in source_platforms]
         source_results = await asyncio.gather(*source_tasks, return_exceptions=False)
 
-        # Collect all bundles and relations to upsert in sorted order to prevent deadlocks
-        bundles_to_upsert: dict[str, ProviderEntityBundle] = {}
-        # relations: list of (from_key, to_key, relation_type, provider_id, relation_data)
-        relations_to_create: list[tuple[str, str, str, str, dict[str, Any] | None]] = []
+        # Key: (provider_id, provider_entity_id)
+        bundles_to_upsert: dict[tuple[str, str], ProviderEntityBundle] = {}
+        relations_to_create: list[tuple[tuple[str, str], tuple[str, str], str, str, dict[str, Any] | None]] = []
 
         for songs in source_results:
             for song in songs:
                 track_bundle = self._bundle_from_song(song)
-                track_key = self._entity_key(track_bundle.entity_type, track_bundle.normalized_payload)
+                track_key = (track_bundle.provider_id, track_bundle.provider_entity_id)
                 bundles_to_upsert[track_key] = track_bundle
 
                 artist_bundle = self._bundle_from_song_artist(song)
                 if artist_bundle:
-                    artist_key = self._entity_key(artist_bundle.entity_type, artist_bundle.normalized_payload)
+                    artist_key = (artist_bundle.provider_id, artist_bundle.provider_entity_id)
                     bundles_to_upsert[artist_key] = artist_bundle
                     relations_to_create.append(
                         (artist_key, track_key, "performed", artist_bundle.provider_id, None)
@@ -1002,7 +1104,7 @@ class UnifiedEntityService:
 
                 album_bundle = self._bundle_from_song_album(song)
                 if album_bundle:
-                    album_key = self._entity_key(album_bundle.entity_type, album_bundle.normalized_payload)
+                    album_key = (album_bundle.provider_id, album_bundle.provider_entity_id)
                     bundles_to_upsert[album_key] = album_bundle
                     relations_to_create.append(
                         (album_key, track_key, "contains", album_bundle.provider_id, {"track_number": song.track_number})
@@ -1013,37 +1115,40 @@ class UnifiedEntityService:
                         )
 
         entities: list[Entity] = []
-        entities_by_key: dict[str, Entity] = {}
+        entities_by_key: dict[tuple[str, str], Entity] = {}
         for key in sorted(bundles_to_upsert.keys()):
             entity = await self._upsert_entity_snapshot(bundles_to_upsert[key])
             entities_by_key[key] = entity
             entities.append(entity)
 
-        # Deduplicate relations to avoid duplicate sorted inserts
-        unique_relations = {}
+        # Deduplicate relations
+        unique_relations: dict[tuple[tuple[str, str], tuple[str, str], str], tuple[tuple[str, str], tuple[str, str], str, str, dict[str, Any] | None]] = {}
         for r in relations_to_create:
-            # key by (from_key, to_key, relation_type)
             unique_relations[(r[0], r[1], r[2])] = r
 
         for r_tuple in sorted(unique_relations.values(), key=lambda x: (x[0], x[1], x[2])):
             from_key, to_key, rel_type, provider_id, rel_data = r_tuple
+            from_entity = entities_by_key.get(from_key)
+            to_entity = entities_by_key.get(to_key)
+            if from_entity is None or to_entity is None:
+                continue
             await self._create_or_update_relation(
-                entities_by_key[from_key].id,
-                entities_by_key[to_key].id,
+                from_entity.id,
+                to_entity.id,
                 rel_type,
                 None,
                 provider_id,
                 relation_data=rel_data,
             )
 
-        # Query target providers by using a pseudo song to preserve target capability coverage.
+        # Query target providers
         pseudo_song = Song(
             name=query,
             artists=[query],
             artist=query,
             duration=180,
             platform=Platform.SPOTIFY,
-            platform_id=_slug_text(query),
+            platform_id=_safe_lower(query) or "query",
             url=f"query:{query}",
         )
 
@@ -1105,17 +1210,17 @@ class UnifiedEntityService:
         provenance = list(prov_result.scalars().all())
         return snapshots, provenance
 
-    def _song_from_entity(self, entity: Entity, snapshots: list[EntitySnapshot]) -> Song:
-        canonical = entity.canonical or {}
+    def _song_from_entity(self, entity: Entity, snapshots: list[EntitySnapshot], ec: EntityCanonical | None = None) -> Song:
+        canonical = (ec.canonical if ec else None) or {}
         preferred_provider = snapshots[0].provider_id if snapshots else "spotify"
         source_platform = SOURCE_ID_TO_PLATFORM.get(preferred_provider, Platform.SPOTIFY)
-        platform_id = str(canonical.get("platform_id") or snapshots[0].provider_entity_id if snapshots else entity.id)
-        url = str(canonical.get("url") or snapshots[0].provider_url if snapshots else "")
+        platform_id = str(canonical.get("platform_id") or (snapshots[0].provider_entity_id if snapshots else str(entity.id)))
+        url = str(canonical.get("url") or (snapshots[0].provider_url if snapshots else ""))
         artists = canonical.get("artists")
         if not isinstance(artists, list) or not artists:
             artists = [str(canonical.get("artist") or "Unknown")]
         return Song(
-            name=str(canonical.get("name") or entity.name),
+            name=str(canonical.get("name") or (ec.name if ec else "Unknown")),
             artists=[str(artist) for artist in artists],
             artist=str(canonical.get("artist") or artists[0]),
             duration=int(canonical.get("duration") or 180),
@@ -1147,7 +1252,8 @@ class UnifiedEntityService:
             return []
 
         snapshots = await self._get_snapshots(entity.id)
-        song = self._song_from_entity(entity, snapshots)
+        ec = await self._get_entity_canonical(entity.id)
+        song = self._song_from_entity(entity, snapshots, ec)
 
         target_provider_ids = target_provider_ids or ["youtube_music", "youtube", "soundcloud", "bandcamp"]
         target_platforms = [
@@ -1390,11 +1496,11 @@ class UnifiedEntityService:
                     }
                 )
 
-        entity.capabilities = self._capability_map_for_entity(
+        ec = await self._merge.merge(self._db, entity)
+        ec.capabilities = self._capability_map_for_entity(
             entity.entity_type,
             [snapshot.provider_id for snapshot in await self._get_snapshots(entity.id)],
         )
-        await self._merge.merge(self._db, entity)
         await self._db.flush()
         return RefreshResult(entity=entity, refreshed_snapshots=refreshed, failed_providers=failed)
 
@@ -1409,11 +1515,13 @@ class UnifiedEntityService:
         settings = settings or {}
         entity = await self._get_entity(entity_id)
         snapshots = await self._get_snapshots(entity_id)
+        ec = await self._get_entity_canonical(entity_id)
         if entity.entity_type != "track":
             raise CapabilityUnsupportedError("Download is only supported for track entities.")
 
         relation: EntityRelation | None = None
         relation_entity: Entity | None = None
+        relation_ec: EntityCanonical | None = None
         if relation_id:
             relation_query = select(EntityRelation).where(EntityRelation.id == relation_id)
             relation_result = await self._db.execute(relation_query)
@@ -1421,14 +1529,16 @@ class UnifiedEntityService:
             if relation is None:
                 raise EntityNotFoundError(f"Relation not found: {relation_id}")
             relation_entity = await self._get_entity(relation.to_entity_id)
+            relation_ec = await self._get_entity_canonical(relation.to_entity_id)
         else:
             relations = await self.list_relations(entity_id)
             relation = relations[0] if relations else None
             if relation:
                 relation_entity = await self._get_entity(relation.to_entity_id)
+                relation_ec = await self._get_entity_canonical(relation.to_entity_id)
 
-        canonical = dict(entity.canonical or {})
-        relation_payload = dict(relation_entity.canonical) if relation_entity else None
+        canonical = (ec.canonical if ec else None) or {}
+        relation_payload = (relation_ec.canonical if relation_ec else None) or (None if relation_entity is None else {})
 
         candidate_provider = provider_id
         if not candidate_provider and relation and relation.relation_data:
@@ -1467,9 +1577,10 @@ class UnifiedEntityService:
         if not url:
             raise CapabilityUnsupportedError("No downloadable URL available for entity.")
 
+        entity_name = ec.name if ec else "Unknown"
         artist = str(target.get("artist") or canonical.get("artist") or "Unknown")
         artists = list(target.get("artists") or canonical.get("artists") or [artist])
-        title = str(target.get("name") or canonical.get("name") or entity.name)
+        title = str(target.get("name") or canonical.get("name") or entity_name)
 
         download_id = create_download_id()
         request = DownloadRequest(

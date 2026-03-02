@@ -30,11 +30,7 @@ class Entity(Base, TimestampMixin):
     """Canonical merged entity across providers."""
 
     __tablename__ = "entities"
-    __table_args__ = (
-        UniqueConstraint("entity_key", name="uq_entities_entity_key"),
-        Index("ix_entities_type", "entity_type"),
-        Index("ix_entities_name", "name"),
-    )
+    __table_args__ = (Index("ix_entities_type", "entity_type"),)
 
     id: Mapped[uuid.UUID] = mapped_column(
         GUID(),
@@ -45,42 +41,13 @@ class Entity(Base, TimestampMixin):
         String(20),
         nullable=False,
     )
-    entity_key: Mapped[str] = mapped_column(
-        String(255),
-        nullable=False,
-        unique=True,
-    )
-    name: Mapped[str] = mapped_column(
-        String(512),
-        nullable=False,
-        default="Unknown",
-    )
-    canonical: Mapped[dict[str, Any]] = mapped_column(
-        JSON,
-        nullable=False,
-        default=dict,
-    )
-    capabilities: Mapped[dict[str, Any]] = mapped_column(
-        JSON,
-        nullable=False,
-        default=dict,
-    )
-    quality_score: Mapped[float] = mapped_column(
-        Float,
-        nullable=False,
-        default=0.0,
-    )
-    last_merged_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        nullable=False,
-        default=utc_now,
-    )
-    merge_version: Mapped[int] = mapped_column(
-        Integer,
-        nullable=False,
-        default=1,
-    )
 
+    canonical_data: Mapped[EntityCanonical | None] = relationship(
+        "EntityCanonical",
+        back_populates="entity",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
     snapshots: Mapped[list[EntitySnapshot]] = relationship(
         "EntitySnapshot",
         back_populates="entity",
@@ -105,11 +72,58 @@ class Entity(Base, TimestampMixin):
     )
 
 
+class EntityCanonical(Base, TimestampMixin):
+    """Merged canonical data for an entity (one-to-one with Entity)."""
+
+    __tablename__ = "entity_canonicals"
+
+    entity_id: Mapped[uuid.UUID] = mapped_column(
+        GUID(),
+        ForeignKey("entities.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    name: Mapped[str] = mapped_column(
+        String(512),
+        nullable=False,
+        default="Unknown",
+    )
+    canonical: Mapped[dict[str, Any]] = mapped_column(
+        JSON,
+        nullable=False,
+        default=dict,
+    )
+    capabilities: Mapped[dict[str, Any]] = mapped_column(
+        JSON,
+        nullable=False,
+        default=dict,
+    )
+    quality_score: Mapped[float] = mapped_column(
+        Float,
+        nullable=False,
+        default=0.0,
+    )
+    merge_version: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=1,
+    )
+
+    entity: Mapped[Entity] = relationship(
+        "Entity",
+        back_populates="canonical_data",
+    )
+
+
 class EntitySnapshot(Base, TimestampMixin):
     """Provider-specific snapshot for an entity."""
 
     __tablename__ = "entity_snapshots"
     __table_args__ = (
+        UniqueConstraint(
+            "provider_id",
+            "provider_entity_id",
+            name="uq_snapshots_provider_entity",
+        ),
         UniqueConstraint(
             "entity_id",
             "provider_id",
@@ -134,9 +148,9 @@ class EntitySnapshot(Base, TimestampMixin):
         String(64),
         nullable=False,
     )
-    provider_entity_id: Mapped[str | None] = mapped_column(
+    provider_entity_id: Mapped[str] = mapped_column(
         String(255),
-        nullable=True,
+        nullable=False,
     )
     provider_url: Mapped[str | None] = mapped_column(
         Text,

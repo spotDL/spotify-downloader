@@ -2,13 +2,7 @@
 
 from sqlalchemy import DateTime
 
-from spotdl.db.models.entity_unified import Entity, EntitySnapshot
-
-
-def test_entity_last_merged_at_is_timezone_aware():
-    column_type = Entity.__table__.c.last_merged_at.type
-    assert isinstance(column_type, DateTime)
-    assert column_type.timezone is True
+from spotdl.db.models.entity_unified import EntitySnapshot
 
 
 def test_entity_snapshot_datetime_columns_are_timezone_aware():

@@ -13,9 +13,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from spotdl.api.v1.dependencies import UserPreferences, get_user_preferences
 from spotdl.api.v1.validation import validate_uuid
 from spotdl.config import get_settings
+from sqlalchemy import select
+
 from spotdl.core.services.entity_unified import EntityNotFoundError, UnifiedEntityService
 from spotdl.core.services.lyrics import get_lyrics_service
 from spotdl.db.database import get_db_session
+from spotdl.db.models.entity_unified import EntityCanonical
 from spotdl.db.repositories.lyrics import LyricsRepository
 
 logger = logging.getLogger(__name__)
@@ -74,7 +77,13 @@ async def get_lyrics_for_entity(
     settings = get_settings()
     genius_token = settings.genius_access_token.get_secret_value() if settings.genius_access_token else None
 
-    artists = entity.canonical.get("artists", [])
+    ec_result = await db.execute(
+        select(EntityCanonical).where(EntityCanonical.entity_id == entity_uuid)
+    )
+    ec = ec_result.scalar_one_or_none()
+    canonical = ec.canonical if ec else {}
+
+    artists = canonical.get("artists", [])
     if isinstance(artists, str):
         artists = [artists]
 
@@ -86,7 +95,7 @@ async def get_lyrics_for_entity(
     ) as lyrics_service:
         result = await lyrics_service.fetch_lyrics(
             entity_id=entity_uuid,
-            name=entity.name,
+            name=ec.name if ec else "Unknown",
             artists=artists,
             force_refresh=force_refresh,
         )
@@ -302,22 +311,28 @@ async def fetch_all_lyrics_sources(
     settings = get_settings()
     genius_token = settings.genius_access_token.get_secret_value() if settings.genius_access_token else None
 
+    ec_result2 = await db.execute(
+        select(EntityCanonical).where(EntityCanonical.entity_id == entity_uuid)
+    )
+    ec2 = ec_result2.scalar_one_or_none()
+    canonical2 = ec2.canonical if ec2 else {}
+
     async with get_lyrics_service(
         session=db,
         genius_token=genius_token,
         enable_cache=True,
         lyrics_preferences=preferences["lyrics"],
     ) as lyrics_service:
-        artists = entity.canonical.get("artists", [])
+        artists = canonical2.get("artists", [])
         if isinstance(artists, str):
             artists = [artists]
 
-        album_name = entity.canonical.get("album_name")
-        duration = entity.canonical.get("duration", entity.canonical.get("duration_ms", 0) // 1000)
+        album_name = canonical2.get("album_name")
+        duration = canonical2.get("duration", canonical2.get("duration_ms", 0) // 1000)
 
         results = await lyrics_service.fetch_all_lyrics(
             entity_id=entity_uuid,
-            name=entity.name,
+            name=ec2.name if ec2 else "Unknown",
             artists=artists,
             album_name=album_name,
             duration=duration,
