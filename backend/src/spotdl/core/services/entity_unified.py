@@ -116,10 +116,6 @@ def _now_utc() -> datetime:
     return datetime.now(UTC)
 
 
-def _safe_lower(text: str | None) -> str:
-    return (text or "").strip().lower()
-
-
 def _primary_artist(payload: dict[str, Any]) -> str:
     artists = payload.get("artists")
     if isinstance(artists, list) and artists and isinstance(artists[0], str):
@@ -281,7 +277,7 @@ class MergeEngine:
         if not snapshots:
             ec.canonical = ec.canonical or {}
             ec.name = str(ec.canonical.get("name") or ec.name or "Unknown")
-            ec.merge_version = (ec.merge_version or 0) + 1
+            ec.merge_version = func.coalesce(EntityCanonical.merge_version, 0) + 1
             ec.quality_score = 0.0
             return ec
 
@@ -339,7 +335,7 @@ class MergeEngine:
         ec.quality_score = (
             float(sum(selected_scores) / len(selected_scores)) if selected_scores else 0.0
         )
-        ec.merge_version = (ec.merge_version or 0) + 1
+        ec.merge_version = func.coalesce(EntityCanonical.merge_version, 0) + 1
         return ec
 
 
@@ -383,7 +379,7 @@ class UnifiedEntityService:
             "year": song.year or None,
             "date": song.date or None,
             "genres": list(song.genres) if song.genres else [],
-            "isrc": song.isrc,
+            "isrc": self._normalize_isrc(song.isrc),
             "explicit": bool(song.explicit),
             "cover_url": song.cover_url,
             "entity_type": "track",
@@ -599,24 +595,38 @@ class UnifiedEntityService:
         snapshots to a survivor. This re-queries each snapshot to get the
         current owning entity, ensuring relations point to live entities.
         """
+        # Collect all provider_entity_ids for a single batch query
+        pe_ids = []
+        key_to_peid: dict[str, tuple[str, str]] = {}
         for key in list(entities_by_key.keys()):
             bundle = bundles.get(key)
             if bundle is None:
                 continue
-            snap_result = await self._db.execute(
-                select(EntitySnapshot).where(
-                    EntitySnapshot.provider_id == bundle.provider_id,
-                    EntitySnapshot.provider_entity_id == bundle.provider_entity_id,
-                )
+            pe_ids.append(bundle.provider_entity_id)
+            key_to_peid[bundle.provider_entity_id] = key
+
+        if not pe_ids:
+            return
+
+        # Batch fetch all snapshots in one query
+        snap_result = await self._db.execute(
+            select(EntitySnapshot).where(
+                EntitySnapshot.provider_entity_id.in_(pe_ids),
             )
-            snap = snap_result.scalar_one_or_none()
+        )
+        snap_map: dict[str, EntitySnapshot] = {}
+        for snap in snap_result.scalars().all():
+            snap_map[snap.provider_entity_id] = snap
+
+        # Re-resolve entity references
+        for peid, key in key_to_peid.items():
+            snap = snap_map.get(peid)
             if snap is None:
                 entities_by_key.pop(key, None)
                 continue
-            current_entity_id = snap.entity_id
             old_entity = entities_by_key[key]
-            if old_entity.id != current_entity_id:
-                entities_by_key[key] = await self._get_entity(current_entity_id)
+            if old_entity.id != snap.entity_id:
+                entities_by_key[key] = await self._get_entity(snap.entity_id)
 
     async def _find_or_create_entity(self, bundle: ProviderEntityBundle) -> tuple[Entity, bool]:
         """Find existing entity by (provider_id, provider_entity_id) or create new one.
@@ -714,16 +724,24 @@ class UnifiedEntityService:
             return True
         return False
 
+    @staticmethod
+    def _normalize_isrc(isrc: str | None) -> str | None:
+        """Normalize ISRC to uppercase with hyphens stripped."""
+        if not isrc or not isinstance(isrc, str):
+            return None
+        normalized = isrc.strip().upper().replace("-", "")
+        return normalized if normalized else None
+
     async def _try_isrc_merge(self, entity: Entity, bundle: ProviderEntityBundle) -> Entity:
         """Check for cross-provider merge via ISRC. Returns survivor entity."""
-        isrc = bundle.normalized_payload.get("isrc")
-        if not isrc or not isinstance(isrc, str) or not isrc.strip():
+        isrc = self._normalize_isrc(bundle.normalized_payload.get("isrc"))
+        if not isrc:
             return entity
 
         # Find other snapshots with same ISRC from different entities
         other_query = select(EntitySnapshot).where(
             EntitySnapshot.entity_id != entity.id,
-            EntitySnapshot.normalized_payload["isrc"].as_string() == isrc,
+            func.upper(func.replace(EntitySnapshot.normalized_payload["isrc"].as_string(), "-", "")) == isrc,
         )
         other_result = await self._db.execute(other_query)
         other_snapshots = list(other_result.scalars().all())
@@ -758,19 +776,29 @@ class UnifiedEntityService:
             .values(entity_id=survivor.id)
         )
 
+        # Pre-load survivor's existing relations for conflict check (batch)
+        survivor_rels_result = await self._db.execute(
+            select(
+                EntityRelation.from_entity_id,
+                EntityRelation.to_entity_id,
+                EntityRelation.relation_type,
+            ).where(
+                (EntityRelation.from_entity_id == survivor.id)
+                | (EntityRelation.to_entity_id == survivor.id)
+            )
+        )
+        survivor_rel_keys = {
+            (row.from_entity_id, row.to_entity_id, row.relation_type)
+            for row in survivor_rels_result.all()
+        }
+
         # Move outgoing relations (handle unique constraint conflicts by skipping duplicates)
         outgoing_query = select(EntityRelation).where(EntityRelation.from_entity_id == duplicate.id)
         outgoing_result = await self._db.execute(outgoing_query)
         for rel in outgoing_result.scalars().all():
-            existing = await self._db.execute(
-                select(EntityRelation).where(
-                    EntityRelation.from_entity_id == survivor.id,
-                    EntityRelation.to_entity_id == rel.to_entity_id,
-                    EntityRelation.relation_type == rel.relation_type,
-                )
-            )
-            if existing.scalar_one_or_none() is None:
+            if (survivor.id, rel.to_entity_id, rel.relation_type) not in survivor_rel_keys:
                 rel.from_entity_id = survivor.id
+                survivor_rel_keys.add((survivor.id, rel.to_entity_id, rel.relation_type))
             else:
                 await self._db.delete(rel)
 
@@ -778,15 +806,9 @@ class UnifiedEntityService:
         incoming_query = select(EntityRelation).where(EntityRelation.to_entity_id == duplicate.id)
         incoming_result = await self._db.execute(incoming_query)
         for rel in incoming_result.scalars().all():
-            existing = await self._db.execute(
-                select(EntityRelation).where(
-                    EntityRelation.from_entity_id == rel.from_entity_id,
-                    EntityRelation.to_entity_id == survivor.id,
-                    EntityRelation.relation_type == rel.relation_type,
-                )
-            )
-            if existing.scalar_one_or_none() is None:
+            if (rel.from_entity_id, survivor.id, rel.relation_type) not in survivor_rel_keys:
                 rel.to_entity_id = survivor.id
+                survivor_rel_keys.add((rel.from_entity_id, survivor.id, rel.relation_type))
             else:
                 await self._db.delete(rel)
 
@@ -806,9 +828,12 @@ class UnifiedEntityService:
         await self._db.delete(duplicate)
         await self._db.flush()
 
-    async def _upsert_entity_snapshot(self, bundle: ProviderEntityBundle) -> Entity:
+    async def _upsert_entity_snapshot(self, bundle: ProviderEntityBundle) -> tuple[Entity, bool]:
         """Upsert via snapshot-based lookup. Wrapper around _find_or_create_entity
-        that also handles re-merging for existing entities when data changes."""
+        that also handles re-merging for existing entities when data changes.
+
+        Returns (entity, created) tuple.
+        """
         # Look up existing snapshot
         snapshot_query = select(EntitySnapshot).where(
             and_(
@@ -821,27 +846,40 @@ class UnifiedEntityService:
 
         if existing_snapshot is not None:
             entity = await self._get_entity(existing_snapshot.entity_id)
+            old_isrc = self._normalize_isrc(
+                (existing_snapshot.normalized_payload or {}).get("isrc")
+            )
             changed = self._update_snapshot_if_changed(existing_snapshot, bundle)
 
             # Get current canonical
             ec = await self._get_entity_canonical(entity.id)
 
             if not changed and ec is not None and ec.canonical:
-                return entity
+                return entity, False
 
             # Recompute canonical
             await self._db.flush()
+
+            # If ISRC was added or changed, try cross-provider merge
+            new_isrc = self._normalize_isrc(bundle.normalized_payload.get("isrc"))
+            if (
+                bundle.entity_type == "track"
+                and new_isrc
+                and new_isrc != old_isrc
+            ):
+                entity = await self._try_isrc_merge(entity, bundle)
+
             ec = await self._merge.merge(self._db, entity)
             ec.capabilities = self._capability_map_for_entity(
                 entity.entity_type,
                 [s.provider_id for s in await self._get_snapshots(entity.id)],
             )
             await self._db.flush()
-            return entity
+            return entity, False
 
         # Create new
-        entity, _created = await self._find_or_create_entity(bundle)
-        return entity
+        entity, created = await self._find_or_create_entity(bundle)
+        return entity, created
 
     async def _create_or_update_relation(
         self,
@@ -959,7 +997,7 @@ class UnifiedEntityService:
         provider_ids: list[str] | None = None,
         limit: int = 20,
     ) -> DiscoverResult:
-        del entity_types, provider_ids, limit
+        requested_types = set(entity_types) if entity_types else None
         created_entities = 0
         entities: list[Entity] = []
         relations: dict[str, list[EntityRelation]] = {}
@@ -1117,10 +1155,11 @@ class UnifiedEntityService:
 
         entities_by_key: dict[tuple[str, str], Entity] = {}
         for key in sorted(bundles_to_upsert.keys()):
-            entity = await self._upsert_entity_snapshot(bundles_to_upsert[key])
+            entity, was_created = await self._upsert_entity_snapshot(bundles_to_upsert[key])
             entities_by_key[key] = entity
             entities.append(entity)
-            created_entities += 1
+            if was_created:
+                created_entities += 1
 
         # Refresh entity references: ISRC merge may have replaced entities
         await self._refresh_entity_map(entities_by_key, bundles_to_upsert)
@@ -1153,8 +1192,14 @@ class UnifiedEntityService:
         deduped: dict[str, Entity] = {}
         for entity in entities:
             deduped[str(entity.id)] = entity
+
+        # Filter by entity_types if specified
+        filtered = list(deduped.values())
+        if requested_types:
+            filtered = [e for e in filtered if e.entity_type in requested_types]
+
         return DiscoverResult(
-            entities=list(deduped.values()), relations=relations, created_entities=created_entities
+            entities=filtered[:limit], relations=relations, created_entities=created_entities
         )
 
     async def discover_from_query(
@@ -1168,11 +1213,14 @@ class UnifiedEntityService:
         requested_types = set(entity_types or ["track", "album", "artist", "playlist"])
 
         provider_filter = set(provider_ids or [])
-        source_platforms = [
-            platform
-            for platform in self._song_service.supported_platforms
-            if not provider_filter or SOURCE_PLATFORM_TO_ID.get(platform, "") in provider_filter
-        ]
+        if provider_filter:
+            source_platforms = [
+                platform
+                for platform in self._song_service.supported_platforms
+                if SOURCE_PLATFORM_TO_ID.get(platform, "") in provider_filter
+            ]
+        else:
+            source_platforms = [Platform.SPOTIFY]
 
         async def search_source(platform: Platform) -> list[Song]:
             try:
@@ -1222,11 +1270,14 @@ class UnifiedEntityService:
                         )
 
         entities: list[Entity] = []
+        created_entities = 0
         entities_by_key: dict[tuple[str, str], Entity] = {}
         for key in sorted(bundles_to_upsert.keys()):
-            entity = await self._upsert_entity_snapshot(bundles_to_upsert[key])
+            entity, was_created = await self._upsert_entity_snapshot(bundles_to_upsert[key])
             entities_by_key[key] = entity
             entities.append(entity)
+            if was_created:
+                created_entities += 1
 
         # Refresh entity references: ISRC merge may have replaced entities
         await self._refresh_entity_map(entities_by_key, bundles_to_upsert)
@@ -1254,43 +1305,6 @@ class UnifiedEntityService:
                 relation_data=rel_data,
             )
 
-        # Query target providers
-        pseudo_song = Song(
-            name=query,
-            artists=[query],
-            artist=query,
-            duration=180,
-            platform=Platform.SPOTIFY,
-            platform_id=_safe_lower(query) or "query",
-            url=f"query:{query}",
-        )
-
-        target_ids = [
-            provider_id
-            for provider_id in self._target_providers
-            if (not provider_filter or provider_id in provider_filter)
-        ]
-        if target_ids:
-            match_service = get_match_service()
-            target_platforms = [
-                TARGET_ID_TO_PLATFORM[provider_id]
-                for provider_id in target_ids
-                if provider_id in TARGET_ID_TO_PLATFORM
-            ]
-            try:
-                matches = await match_service.find_matches(
-                    pseudo_song,
-                    target_platforms=target_platforms or None,
-                    limit=max(1, min(limit, 10)),
-                )
-            except Exception:
-                matches = []
-            for match in matches:
-                entity = await self._upsert_entity_snapshot(
-                    self._bundle_from_result(match.target_result)
-                )
-                entities.append(entity)
-
         filtered_entities = [entity for entity in entities if entity.entity_type in requested_types]
 
         deduped: dict[str, Entity] = {}
@@ -1300,7 +1314,7 @@ class UnifiedEntityService:
         return DiscoverResult(
             entities=list(deduped.values())[:limit],
             relations={},
-            created_entities=len(deduped),
+            created_entities=created_entities,
         )
 
     async def get_entity(self, entity_id: uuid.UUID) -> Entity:
@@ -1395,7 +1409,7 @@ class UnifiedEntityService:
         relations: list[EntityRelation] = []
         for match in matches:
             bundle = self._bundle_from_result(match.target_result)
-            target_entity = await self._upsert_entity_snapshot(bundle)
+            target_entity, _ = await self._upsert_entity_snapshot(bundle)
             relation = await self._create_or_update_relation(
                 entity.id,
                 target_entity.id,
@@ -1418,6 +1432,7 @@ class UnifiedEntityService:
         self,
         entity_id: uuid.UUID,
         relation_type: str = "audio_match",
+        limit: int = 50,
     ) -> list[EntityRelation]:
         query = (
             select(EntityRelation)
@@ -1432,6 +1447,7 @@ class UnifiedEntityService:
                 desc(EntityRelation.upvotes - EntityRelation.downvotes),
                 desc(EntityRelation.updated_at),
             )
+            .limit(limit)
         )
         result = await self._db.execute(query)
         return list(result.scalars().all())
@@ -1555,15 +1571,28 @@ class UnifiedEntityService:
 
         await self._db.flush()
 
-        summary_query = select(
-            func.count().filter(RelationVote.vote_type == "up"),
-            func.count().filter(RelationVote.vote_type == "down"),
-        ).where(RelationVote.relation_id == relation_id)
-        summary = await self._db.execute(summary_query)
-        upvotes, downvotes = summary.one()
-        relation.upvotes = int(upvotes or 0)
-        relation.downvotes = int(downvotes or 0)
+        # Atomic vote count update using correlated subqueries
+        up_subq = (
+            select(func.count())
+            .where(RelationVote.relation_id == relation_id, RelationVote.vote_type == "up")
+            .correlate_except(RelationVote)
+            .scalar_subquery()
+        )
+        down_subq = (
+            select(func.count())
+            .where(RelationVote.relation_id == relation_id, RelationVote.vote_type == "down")
+            .correlate_except(RelationVote)
+            .scalar_subquery()
+        )
+        await self._db.execute(
+            update(EntityRelation)
+            .where(EntityRelation.id == relation_id)
+            .values(upvotes=up_subq, downvotes=down_subq)
+        )
         await self._db.flush()
+
+        # Refresh the relation object to get the updated counts
+        await self._db.refresh(relation)
         return relation
 
     async def refresh_entity(
@@ -1617,7 +1646,7 @@ class UnifiedEntityService:
                     continue
 
                 bundle.provider_entity_id = snapshot.provider_entity_id or bundle.provider_entity_id
-                await self._upsert_entity_snapshot(bundle)
+                await self._upsert_entity_snapshot(bundle)  # ignore created flag
                 refreshed += 1
             except Exception as exc:
                 failed.append(

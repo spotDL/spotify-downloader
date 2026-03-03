@@ -31,10 +31,17 @@ def get_engine() -> AsyncEngine:
 
     if _engine is None:
         settings = get_settings()
+        pool_kwargs: dict = {"pool_pre_ping": True}
+        if not settings.database_is_sqlite:
+            pool_kwargs.update(
+                pool_size=5,
+                max_overflow=10,
+                pool_recycle=3600,
+            )
         _engine = create_async_engine(
             settings.database_url,
             echo=settings.database_echo,
-            pool_pre_ping=True,
+            **pool_kwargs,
         )
 
     return _engine

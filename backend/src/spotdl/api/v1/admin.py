@@ -361,7 +361,13 @@ async def list_users(
     total = (await db.execute(count_query)).scalar() or 0
     total_pages = (total + per_page - 1) // per_page
 
-    sort_column = getattr(User, sort_by, User.created_at)
+    allowed_sort_columns = {"created_at", "username", "email", "reputation_score", "last_login"}
+    if sort_by not in allowed_sort_columns:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid sort_by: {sort_by}. Allowed: {', '.join(sorted(allowed_sort_columns))}",
+        )
+    sort_column = getattr(User, sort_by)
     if sort_order == "desc":
         query = query.order_by(sort_column.desc())
     else:
@@ -370,11 +376,61 @@ async def list_users(
     query = query.offset((page - 1) * per_page).limit(per_page)
 
     result = await db.execute(query)
-    users = result.scalars().all()
+    users = list(result.scalars().all())
 
-    user_responses = []
-    for user in users:
-        user_responses.append(await _build_admin_user_response(db, user))
+    # Batch-load contribution counts to avoid N+1 queries
+    user_ids = [u.id for u in users]
+    matches_map: dict[UUID, int] = {}
+    votes_map: dict[UUID, int] = {}
+    reports_map: dict[UUID, int] = {}
+
+    if user_ids:
+        # Matches submitted (grouped by user)
+        matches_result = await db.execute(
+            select(EntityRelation.discovered_by, func.count())
+            .where(EntityRelation.discovered_by.in_([str(uid) for uid in user_ids]))
+            .group_by(EntityRelation.discovered_by)
+        )
+        for discovered_by, count in matches_result.all():
+            try:
+                matches_map[UUID(discovered_by)] = count
+            except ValueError:
+                pass
+
+        # Votes cast (grouped by user)
+        votes_result = await db.execute(
+            select(RelationVote.user_id, func.count())
+            .where(RelationVote.user_id.in_(user_ids))
+            .group_by(RelationVote.user_id)
+        )
+        for uid, count in votes_result.all():
+            votes_map[uid] = count
+
+        # Reports submitted (grouped by user)
+        reports_result = await db.execute(
+            select(MetadataReport.reporter_id, func.count())
+            .where(MetadataReport.reporter_id.in_(user_ids))
+            .group_by(MetadataReport.reporter_id)
+        )
+        for uid, count in reports_result.all():
+            reports_map[uid] = count
+
+    user_responses = [
+        AdminUserResponse(
+            id=str(user.id),
+            username=user.username,
+            email=user.email,
+            is_active=user.is_active,
+            is_admin=user.is_admin,
+            reputation_score=user.reputation_score,
+            last_login=getattr(user, "last_login", None),
+            created_at=user.created_at,
+            matches_submitted=matches_map.get(user.id, 0),
+            votes_cast=votes_map.get(user.id, 0),
+            reports_submitted=reports_map.get(user.id, 0),
+        )
+        for user in users
+    ]
 
     return AdminUserListResponse(
         users=user_responses,
@@ -450,8 +506,7 @@ async def update_user(
     if request.reputation_score is not None:
         user.reputation_score = request.reputation_score
 
-    await db.commit()
-    await db.refresh(user)
+    await db.flush()
 
     logger.info(
         "Admin %s updated user %s: is_active=%s, is_admin=%s, reputation=%s",
@@ -639,8 +694,7 @@ async def update_match_status(
     status_map = {"pending": "suggested", "verified": "verified", "rejected": "rejected"}
     relation.status = status_map.get(request.status, request.status)
 
-    await db.commit()
-    await db.refresh(relation)
+    await db.flush()
 
     return _relation_to_admin_match(relation, relation.from_entity, relation.to_entity)
 
@@ -676,7 +730,7 @@ async def purge_unverified_matches(
     await db.execute(
         delete(EntityRelation).where(EntityRelation.status.in_(["suggested", "rejected"]))
     )
-    await db.commit()
+    await db.flush()
 
     logger.info("Admin purged %d unverified matches", total)
 
@@ -717,7 +771,7 @@ async def reset_database(
     await db.execute(delete(Lyrics))
     await db.execute(delete(MetadataReport))
     await db.execute(delete(Entity))
-    await db.commit()
+    await db.flush()
 
     logger.warning(
         "Admin reset database: deleted %d entities, %d relations",
@@ -799,7 +853,7 @@ async def import_matches(
             skipped += 1
 
     if imported > 0:
-        await db.commit()
+        await db.flush()
 
     return {
         "message": f"Imported {imported} matches, skipped {skipped}.",

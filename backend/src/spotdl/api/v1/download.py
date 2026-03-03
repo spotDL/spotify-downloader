@@ -187,10 +187,22 @@ async def get_download_file(
     if not file_path or not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found")
 
+    suffix = file_path.suffix.lower()
+    media_types = {
+        ".mp3": "audio/mpeg",
+        ".m4a": "audio/mp4",
+        ".flac": "audio/flac",
+        ".opus": "audio/opus",
+        ".ogg": "audio/ogg",
+        ".wav": "audio/wav",
+        ".webm": "audio/webm",
+    }
+    media_type = media_types.get(suffix, "application/octet-stream")
+
     return FileResponse(
         path=file_path,
         filename=progress.filename or file_path.name,
-        media_type="audio/mpeg",
+        media_type=media_type,
     )
 
 

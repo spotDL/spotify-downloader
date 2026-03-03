@@ -8,9 +8,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from spotdl.api.v1.auth import get_current_user_id
 from spotdl.api.v1.dependencies import UserPreferences, get_user_preferences
 from spotdl.api.v1.validation import validate_uuid
 from spotdl.config import get_settings
@@ -183,6 +184,7 @@ class SubmitLyricsRequest(BaseModel):
 async def submit_user_lyrics(
     entity_id: str,
     request: SubmitLyricsRequest,
+    _user_id: Annotated[uuid.UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db_session),
 ) -> LyricsSourceResponse:
     """
@@ -217,8 +219,6 @@ async def submit_user_lyrics(
         is_verified=True,
         line_count=line_count,
     )
-
-    await db.commit()
 
     return LyricsSourceResponse(
         source=saved_lyrics.source,
@@ -345,8 +345,6 @@ async def fetch_all_lyrics_sources(
             duration=duration,
         )
 
-    await db.commit()
-
     return AllLyricsResponse(
         entity_id=entity_id,
         lyrics=[
@@ -367,20 +365,25 @@ async def fetch_all_lyrics_sources(
 async def vote_lyrics(
     lyrics_id: str,
     vote: Annotated[str, Query(description="Vote: 'up' or 'down'")],
+    _user_id: Annotated[uuid.UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db_session),
 ) -> dict[str, str]:
     lyrics_uuid = validate_uuid(lyrics_id, "lyrics ID")
-    lyrics_repo = LyricsRepository(db)
-    lyrics = await lyrics_repo.get_by_id(lyrics_uuid)
-    if not lyrics:
-        raise HTTPException(status_code=404, detail="Lyrics not found")
-
-    if vote == "up":
-        lyrics.upvotes += 1
-    elif vote == "down":
-        lyrics.downvotes += 1
-    else:
+    if vote not in ("up", "down"):
         raise HTTPException(status_code=400, detail="Invalid vote")
 
-    await db.commit()
-    return {"status": "ok", "upvotes": str(lyrics.upvotes), "downvotes": str(lyrics.downvotes)}
+    from spotdl.db.models.lyrics import Lyrics
+
+    values = (
+        {Lyrics.upvotes: Lyrics.upvotes + 1}
+        if vote == "up"
+        else {Lyrics.downvotes: Lyrics.downvotes + 1}
+    )
+    result = await db.execute(
+        update(Lyrics).where(Lyrics.id == lyrics_uuid).values(**values).returning(Lyrics.upvotes, Lyrics.downvotes)
+    )
+    row = result.one_or_none()
+    if not row:
+        raise HTTPException(status_code=404, detail="Lyrics not found")
+
+    return {"status": "ok", "upvotes": str(row.upvotes), "downvotes": str(row.downvotes)}

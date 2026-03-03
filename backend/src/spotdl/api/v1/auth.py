@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Annotated
 from uuid import UUID
 
@@ -15,7 +15,6 @@ from spotdl.core.security import (
     blacklist_token,
     create_access_token,
     create_refresh_token,
-    decode_token,
     decode_token_payload,
     get_password_hash,
     is_token_blacklisted,
@@ -226,9 +225,8 @@ async def register(
         hashed_password=get_password_hash(request.password),
         is_admin=is_first_user,  # First user becomes admin
     )
-    await db.commit()
 
-    # Generate tokens
+    # Generate tokens before committing so a token failure doesn't orphan the user
     access_token = create_access_token(str(created_user.id))
     refresh_token = create_refresh_token(str(created_user.id))
 
@@ -289,6 +287,9 @@ async def login(
             detail="User account is disabled",
         )
 
+    # Update last_login
+    user.last_login = datetime.now(UTC)
+
     # Generate tokens
     access_token = create_access_token(str(user.id))
     refresh_token = create_refresh_token(str(user.id))
@@ -326,7 +327,8 @@ async def refresh_token(
     Raises:
         HTTPException: If refresh token is invalid
     """
-    token_data = decode_token(request.refresh_token)
+    # Decode and validate the refresh token
+    token_data = decode_token_payload(request.refresh_token)
     if token_data is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -337,6 +339,13 @@ async def refresh_token(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token type",
+        )
+
+    # Check blacklist (cache + DB) for the refresh token
+    if await is_token_blacklisted(request.refresh_token, db):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token has been revoked",
         )
 
     user_repo = UserRepository(db)
@@ -354,6 +363,9 @@ async def refresh_token(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found or disabled",
         )
+
+    # Blacklist old refresh token before issuing new ones
+    await blacklist_token(request.refresh_token, db, reason="token_rotation")
 
     # Generate new tokens
     access_token = create_access_token(str(user.id))
@@ -445,7 +457,6 @@ async def change_password(
 
     # Update password
     user.hashed_password = get_password_hash(request.new_password)
-    await db.commit()
 
     return MessageResponse(message="Password changed successfully")
 
@@ -469,6 +480,5 @@ async def delete_account(
     """
     user_repo = UserRepository(db)
     await user_repo.delete(user.id)
-    await db.commit()
 
     return MessageResponse(message="Account deleted successfully")

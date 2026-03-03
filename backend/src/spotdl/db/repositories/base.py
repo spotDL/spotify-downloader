@@ -27,7 +27,7 @@ class BaseRepository(Generic[ModelT]):  # noqa: UP046
 
     async def get_all(self, *, skip: int = 0, limit: int = 100) -> list[ModelT]:
         """Get all records with pagination."""
-        query = select(self.model).offset(skip).limit(limit)
+        query = select(self.model).order_by(self.model.id).offset(skip).limit(limit)
         result = await self.session.execute(query)
         return list(result.scalars().all())
 

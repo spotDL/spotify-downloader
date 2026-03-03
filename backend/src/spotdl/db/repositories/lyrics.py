@@ -5,7 +5,8 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import and_, select
+from sqlalchemy import and_, delete as sa_delete, select
+from sqlalchemy.exc import IntegrityError
 
 from spotdl.db.models.lyrics import Lyrics
 from spotdl.db.repositories.base import BaseRepository
@@ -84,8 +85,18 @@ class LyricsRepository(BaseRepository[Lyrics]):
         Returns:
             Best Lyrics if found, None otherwise
         """
-        all_lyrics = await self.get_all_for_entity(entity_id, order_by_quality=True)
-        return all_lyrics[0] if all_lyrics else None
+        query = (
+            select(Lyrics)
+            .where(Lyrics.entity_id == entity_id)
+            .order_by(
+                Lyrics.lyrics_synced.isnot(None).desc(),
+                Lyrics.quality_score.desc().nullslast(),
+                Lyrics.fetched_at.desc(),
+            )
+            .limit(1)
+        )
+        result = await self.session.execute(query)
+        return result.scalar_one_or_none()
 
     async def upsert(
         self,
@@ -123,47 +134,46 @@ class LyricsRepository(BaseRepository[Lyrics]):
         Returns:
             The created or updated Lyrics
         """
+        def _apply_fields(target: Lyrics) -> Lyrics:
+            target.lyrics_text = lyrics_text
+            target.lyrics_synced = lyrics_synced
+            target.quality_score = quality_score
+            target.is_verified = is_verified
+            target.line_count = line_count
+            target.content_hash = content_hash
+            target.provider_track_id = provider_track_id
+            target.has_translations = has_translations
+            target.language = language
+            target.upvotes = upvotes
+            target.downvotes = downvotes
+            target.status = status
+            target.fetched_at = datetime.now(UTC)
+            return target
+
         existing = await self.get_by_source(entity_id, source)
 
         if existing:
-            # Update existing lyrics
-            existing.lyrics_text = lyrics_text
-            existing.lyrics_synced = lyrics_synced
-            existing.quality_score = quality_score
-            existing.is_verified = is_verified
-            existing.line_count = line_count
-            existing.content_hash = content_hash
-            existing.provider_track_id = provider_track_id
-            existing.has_translations = has_translations
-            existing.language = language
-            existing.upvotes = upvotes
-            existing.downvotes = downvotes
-            existing.status = status
-            existing.fetched_at = datetime.now(UTC)
+            _apply_fields(existing)
             await self.session.flush()
             return existing
 
-        # Create new lyrics entry
-        lyrics = Lyrics(
-            entity_id=entity_id,
-            source=source,
-            lyrics_text=lyrics_text,
-            lyrics_synced=lyrics_synced,
-            quality_score=quality_score,
-            is_verified=is_verified,
-            line_count=line_count,
-            content_hash=content_hash,
-            provider_track_id=provider_track_id,
-            has_translations=has_translations,
-            language=language,
-            upvotes=upvotes,
-            downvotes=downvotes,
-            status=status,
-            fetched_at=datetime.now(UTC),
-        )
-        self.session.add(lyrics)
-        await self.session.flush()
-        return lyrics
+        # Create new lyrics entry with savepoint for concurrent insert safety
+        try:
+            async with self.session.begin_nested():
+                lyrics = _apply_fields(
+                    Lyrics(entity_id=entity_id, source=source, lyrics_text=lyrics_text)
+                )
+                self.session.add(lyrics)
+                await self.session.flush()
+                return lyrics
+        except IntegrityError:
+            # Concurrent insert — re-query and update
+            existing = await self.get_by_source(entity_id, source)
+            if existing is not None:
+                _apply_fields(existing)
+                await self.session.flush()
+                return existing
+            raise
 
     async def get_sources_for_entity(self, entity_id: uuid.UUID) -> list[str]:
         """
@@ -212,8 +222,8 @@ class LyricsRepository(BaseRepository[Lyrics]):
         Returns:
             Number of lyrics entries deleted
         """
-        all_lyrics = await self.get_all_for_entity(entity_id)
-        for lyrics in all_lyrics:
-            await self.session.delete(lyrics)
+        result = await self.session.execute(
+            sa_delete(Lyrics).where(Lyrics.entity_id == entity_id)
+        )
         await self.session.flush()
-        return len(all_lyrics)
+        return result.rowcount

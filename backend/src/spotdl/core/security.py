@@ -261,7 +261,6 @@ async def blacklist_token(
 
     repo = TokenBlacklistRepository(db)
     await repo.add(token, payload.exp, reason)
-    await db.commit()
 
     logger.info("Token blacklisted (reason: %s), expires at %s", reason, payload.exp)
     return True
@@ -283,7 +282,6 @@ async def cleanup_expired_tokens(db: AsyncSession) -> int:
 
     repo = TokenBlacklistRepository(db)
     count = await repo.cleanup_expired()
-    await db.commit()
 
     if count > 0:
         logger.info("Cleaned up %d expired tokens from database", count)

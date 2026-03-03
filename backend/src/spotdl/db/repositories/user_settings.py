@@ -28,8 +28,7 @@ class UserSettingsRepository:
         """Create new settings for a user."""
         settings = UserSettings(user_id=user_id, **kwargs)
         self.session.add(settings)
-        await self.session.commit()
-        await self.session.refresh(settings)
+        await self.session.flush()
         return settings
 
     async def update(self, settings: UserSettings, **kwargs: Any) -> UserSettings:
@@ -37,8 +36,7 @@ class UserSettingsRepository:
         for key, value in kwargs.items():
             if hasattr(settings, key):
                 setattr(settings, key, value)
-        await self.session.commit()
-        await self.session.refresh(settings)
+        await self.session.flush()
         return settings
 
     async def get_or_create(self, user_id: uuid.UUID, **defaults: Any) -> tuple[UserSettings, bool]:
@@ -52,11 +50,12 @@ class UserSettingsRepository:
     async def delete(self, settings: UserSettings) -> None:
         """Delete user settings (reset to defaults)."""
         await self.session.delete(settings)
-        await self.session.commit()
+        await self.session.flush()
 
     async def reset_to_defaults(self, user_id: uuid.UUID) -> UserSettings:
-        """Reset settings to defaults by deleting and recreating."""
+        """Reset settings to defaults by deleting and recreating atomically."""
         settings = await self.get_by_user_id(user_id)
         if settings:
-            await self.delete(settings)
+            await self.session.delete(settings)
+            await self.session.flush()
         return await self.create(user_id)

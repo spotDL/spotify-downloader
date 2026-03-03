@@ -248,7 +248,8 @@ Checkbox:focus {
 
 DataTable {
     background: $bg-surface;
-    height: 100%;
+    height: auto;
+    max-height: 100%;
 }
 
 DataTable > .datatable--header {
@@ -1328,9 +1329,10 @@ Rule {
 
 #queue-header {
     height: auto;
+    min-height: 5;
     margin-bottom: 1;
     align: left middle;
-    padding: 0 1;
+    padding: 1 1;
     background: $bg-panel;
     border-bottom: wide $border-color;
 }
@@ -1377,6 +1379,7 @@ Rule {
 
 #queue-table-container {
     height: 1fr;
+    min-height: 10;
     background: $bg-surface;
     border: wide $border-color;
 }
@@ -1384,6 +1387,7 @@ Rule {
 #queue-table {
     width: 100%;
     height: 1fr;
+    min-height: 10;
 }
 
 #queue-now-card #current-download {
@@ -1437,7 +1441,8 @@ Rule {
 }
 
 #settings-header {
-    height: 5;
+    height: auto;
+    min-height: 5;
     margin-bottom: 1;
     border-bottom: wide $border-color;
     padding-bottom: 1;
@@ -1882,7 +1887,8 @@ CoverArt #cover-image {
 #artist-content,
 #playlist-content {
     width: 100%;
-    height: 1fr;
+    height: auto;
+    min-height: 20;
     padding: 1 2;
 }
 
@@ -1966,8 +1972,9 @@ CoverArt #cover-image {
 }
 
 #matches-table {
-    height: 100%;
+    height: auto;
     min-height: 8;
+    max-height: 30;
 }
 
 /* Tracks container */
@@ -1977,8 +1984,9 @@ CoverArt #cover-image {
 }
 
 #tracks-table {
-    height: 100%;
+    height: auto;
     min-height: 8;
+    max-height: 40;
 }
 
 /* Top tracks container */
@@ -1988,8 +1996,9 @@ CoverArt #cover-image {
 }
 
 #top-tracks-table {
-    height: 100%;
+    height: auto;
     min-height: 6;
+    max-height: 20;
 }
 
 /* Album tables */
@@ -1997,8 +2006,9 @@ CoverArt #cover-image {
 #albums-table-albums,
 #albums-table-singles,
 #albums-table-eps {
-    height: 100%;
+    height: auto;
     min-height: 6;
+    max-height: 20;
 }
 
 /* Tabbed content */
@@ -2246,8 +2256,9 @@ Collapsible {
 
 /* Compilations table */
 #albums-table-compilations {
-    height: 100%;
+    height: auto;
     min-height: 6;
+    max-height: 20;
 }
 
 /* ==================== SETTINGS ENHANCEMENTS ==================== */

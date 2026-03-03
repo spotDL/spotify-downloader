@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import exists, select, update
 
 from spotdl.db.models.user import User
 from spotdl.db.repositories.base import BaseRepository
@@ -29,20 +29,24 @@ class UserRepository(BaseRepository[User]):
 
     async def username_exists(self, username: str) -> bool:
         """Check if username already exists."""
-        user = await self.get_by_username(username)
-        return user is not None
+        result = await self.session.execute(
+            select(exists().where(User.username == username))
+        )
+        return result.scalar() or False
 
     async def email_exists(self, email: str) -> bool:
         """Check if email already exists."""
-        user = await self.get_by_email(email)
-        return user is not None
+        result = await self.session.execute(
+            select(exists().where(User.email == email))
+        )
+        return result.scalar() or False
 
     async def update_reputation(self, user_id: uuid.UUID, delta: int) -> User | None:
-        """Update user reputation score."""
-        user = await self.get_by_id(user_id)
-        if user is None:
-            return None
-
-        user.reputation_score += delta
+        """Update user reputation score atomically."""
+        await self.session.execute(
+            update(User)
+            .where(User.id == user_id)
+            .values(reputation_score=User.reputation_score + delta)
+        )
         await self.session.flush()
-        return user
+        return await self.get_by_id(user_id)

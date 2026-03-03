@@ -111,8 +111,7 @@ async def create_report(
     user_repo = UserRepository(db)
     await user_repo.update_reputation(current_user.id, ReputationReward.REPORT_SUBMITTED)
 
-    await db.commit()
-    await db.refresh(report)
+    await db.flush()
 
     logger.info(
         "User %s submitted report for %s:%s field %s",
@@ -280,8 +279,7 @@ async def update_report(
         elif request.status == ReportStatus.DISMISSED:
             await user_repo.update_reputation(report.reporter_id, ReputationReward.REPORT_DISMISSED)
 
-    await db.commit()
-    await db.refresh(report)
+    await db.flush()
 
     logger.info(
         "Admin %s updated report %s to status %s",
@@ -314,7 +312,7 @@ async def delete_report(
         raise HTTPException(status_code=404, detail="Report not found")
 
     await db.delete(report)
-    await db.commit()
+    await db.flush()
 
     logger.info("Admin %s deleted report %s", current_user.username, report_id)
 

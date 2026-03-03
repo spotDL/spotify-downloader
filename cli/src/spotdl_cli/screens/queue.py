@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, ClassVar
 
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Container, Horizontal, Vertical
+from textual.containers import Horizontal, Vertical
 from textual.screen import Screen
 from textual.widgets import (
     Button,
@@ -17,8 +17,6 @@ from textual.widgets import (
     ProgressBar,
     Static,
 )
-
-from spotdl_cli.widgets import CoverArt
 
 from spotdl_cli.config import get_settings
 from spotdl_cli.core import (
@@ -29,6 +27,7 @@ from spotdl_cli.core import (
     get_offline_matcher,
 )
 from spotdl_cli.core.types import TargetPlatform
+from spotdl_cli.widgets import CoverArt
 
 if TYPE_CHECKING:
     from spotdl_cli.app import SpotDLApp
@@ -411,6 +410,12 @@ class QueueScreen(Screen[None]):
     async def _start_downloads(self) -> None:
         """Start downloading."""
         if self._downloading:
+            self.notify("Downloads already in progress", severity="warning")
+            return
+
+        queue = self.spotdl_app.download_queue
+        if queue.pending_count == 0:
+            self.notify("No pending downloads to start", severity="warning")
             return
 
         self._downloading = True
@@ -707,14 +712,18 @@ class QueueScreen(Screen[None]):
         """Remove the selected item."""
         table = self.query_one("#queue-table", DataTable)
 
-        if table.cursor_row is None:
+        if table.cursor_row is None or table.row_count == 0:
             self.notify("No item selected", severity="warning")
             return
 
-        # Get the row key (item_id)
+        # Get the row key (item_id) from the cursor position
         try:
-            row_key = table.get_row_at(table.cursor_row)
-            item_id = str(row_key.key)
+            from textual.coordinate import Coordinate
+
+            cell_key = table.coordinate_to_cell_key(
+                Coordinate(table.cursor_row, 0)
+            )
+            item_id = str(cell_key.row_key.value)
 
             queue = self.spotdl_app.download_queue
             item = queue.get_item(item_id)
@@ -745,6 +754,7 @@ class QueueScreen(Screen[None]):
                 self.notify("Cannot remove active download", severity="warning")
         except Exception as e:
             logger.warning(f"Failed to remove item: {e}")
+            self.notify(f"Failed to remove item: {e}", severity="error")
 
     async def _clear_completed(self) -> None:
         """Clear completed downloads."""
@@ -754,7 +764,10 @@ class QueueScreen(Screen[None]):
             if queue.get_item(item_id) is None:
                 self._poll_tasks[item_id].cancel()
                 self._poll_tasks.pop(item_id, None)
-        self.notify(f"Cleared {count} completed items")
+        if count == 0:
+            self.notify("No completed items to clear", severity="warning")
+        else:
+            self.notify(f"Cleared {count} completed items")
 
     async def _retry_failed(self) -> None:
         """Retry failed downloads."""
@@ -771,7 +784,10 @@ class QueueScreen(Screen[None]):
                 await queue.update_status(item_id, DownloadStatus.PENDING)
                 count += 1
 
-        self.notify(f"Retrying {count} failed items")
+        if count == 0:
+            self.notify("No failed items to retry", severity="warning")
+        else:
+            self.notify(f"Retrying {count} failed items")
 
     def action_toggle_download(self) -> None:
         """Toggle download state."""

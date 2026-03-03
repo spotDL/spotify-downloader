@@ -273,12 +273,25 @@ def _provenance_to_response(row: EntityFieldProvenance) -> ProvenanceResponse:
 
 async def _relation_to_response(
     relation: EntityRelation,
-    service: UnifiedEntityService,
+    db: AsyncSession,
+    *,
+    ec_cache: dict[str, EntityCanonical] | None = None,
 ) -> RelationResponse:
     target = None
     try:
-        target_entity = await service.get_entity(relation.to_entity_id)
-        target = _entity_to_response(target_entity)
+        target_id = relation.to_entity_id
+        entity_result = await db.execute(select(Entity).where(Entity.id == target_id))
+        target_entity = entity_result.scalar_one_or_none()
+        if target_entity is not None:
+            ec = None
+            if ec_cache is not None:
+                ec = ec_cache.get(str(target_id))
+            if ec is None:
+                ec_result = await db.execute(
+                    select(EntityCanonical).where(EntityCanonical.entity_id == target_id)
+                )
+                ec = ec_result.scalar_one_or_none()
+            target = _entity_to_response(target_entity, ec=ec)
     except Exception:
         target = None
 
@@ -333,16 +346,6 @@ async def discover_entities(
             provider_ids=request.providers,
             limit=request.limit,
         )
-        top_relations: dict[str, list[RelationResponse]] = {}
-        for entity in result.entities:
-            relations = await service.list_relations(entity.id)
-            top_relations[str(entity.id)] = [
-                await _relation_to_response(relation, service) for relation in relations[:5]
-            ]
-
-        # Resolve all cross-entity UUIDs in a SINGLE batch query.
-        refs_map = await _batch_resolve_entity_refs(result.entities, db)
-
         # Batch-load EntityCanonical for all entities
         entity_ids = [e.id for e in result.entities]
         ec_map: dict[str, EntityCanonical] = {}
@@ -352,6 +355,53 @@ async def discover_entities(
             )
             for ec_row in ec_result.scalars().all():
                 ec_map[str(ec_row.entity_id)] = ec_row
+
+        # Batch-load relations for all entities
+        top_relations: dict[str, list[RelationResponse]] = {}
+        if entity_ids:
+            from sqlalchemy import desc
+            rel_result = await db.execute(
+                select(EntityRelation)
+                .where(
+                    EntityRelation.from_entity_id.in_(entity_ids),
+                    EntityRelation.relation_type == "audio_match",
+                )
+                .order_by(
+                    EntityRelation.from_entity_id,
+                    desc(EntityRelation.match_score),
+                )
+            )
+            all_relations = list(rel_result.scalars().all())
+
+            # Group by from_entity_id and take top 5
+            from collections import defaultdict
+            relations_by_entity: dict[str, list[EntityRelation]] = defaultdict(list)
+            for rel in all_relations:
+                key = str(rel.from_entity_id)
+                if len(relations_by_entity[key]) < 5:
+                    relations_by_entity[key].append(rel)
+
+            # Batch-load canonical data for all relation targets
+            target_ids = {rel.to_entity_id for rels in relations_by_entity.values() for rel in rels}
+            if target_ids:
+                target_ec_result = await db.execute(
+                    select(EntityCanonical).where(EntityCanonical.entity_id.in_(target_ids))
+                )
+                for ec_row in target_ec_result.scalars().all():
+                    ec_map[str(ec_row.entity_id)] = ec_row
+
+            for eid_str, rels in relations_by_entity.items():
+                top_relations[eid_str] = [
+                    await _relation_to_response(rel, db, ec_cache=ec_map) for rel in rels
+                ]
+
+        # Ensure all entities have an entry
+        for entity in result.entities:
+            if str(entity.id) not in top_relations:
+                top_relations[str(entity.id)] = []
+
+        # Resolve all cross-entity UUIDs in a SINGLE batch query.
+        refs_map = await _batch_resolve_entity_refs(result.entities, db)
 
         return DiscoverResponse(
             query=value,
@@ -415,11 +465,37 @@ async def refresh_entity(
     entity_id: Annotated[str, Path(description="Canonical entity UUID")],
     request: RefreshRequest,
     db: Annotated[AsyncSession, Depends(get_db_session)],
+    user_id: Annotated[uuid.UUID | None, Depends(get_current_user_id_optional)],
 ) -> RefreshResponse:
+    from spotdl.db.repositories.refresh_cooldown import RefreshCooldownRepository
+
     entity_uuid = validate_uuid(entity_id, "entity ID")
+
+    # Check cooldown
+    cooldown_repo = RefreshCooldownRepository(db)
+    entity_obj = await db.execute(
+        select(Entity).where(Entity.id == entity_uuid)
+    )
+    entity_row = entity_obj.scalar_one_or_none()
+    if entity_row is None:
+        raise HTTPException(status_code=404, detail=f"Entity not found: {entity_id}")
+
+    on_cooldown, remaining = await cooldown_repo.is_on_cooldown(
+        entity_row.entity_type, entity_uuid, user_id
+    )
+    if on_cooldown:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Refresh on cooldown. Try again in {remaining} seconds.",
+        )
+
     service = UnifiedEntityService(db)
     try:
         result = await service.refresh_entity(entity_uuid, request.providers)
+
+        # Record the refresh for cooldown tracking
+        await cooldown_repo.record_refresh(entity_row.entity_type, entity_uuid, user_id)
+
         return RefreshResponse(
             entity=_entity_to_response(result.entity),
             refreshed_snapshots=result.refreshed_snapshots,
@@ -447,7 +523,7 @@ async def discover_entity_relations(
         )
         return RelationsResponse(
             entity_id=entity_id,
-            relations=[await _relation_to_response(relation, service) for relation in relations],
+            relations=[await _relation_to_response(relation, db) for relation in relations],
             total=len(relations),
         )
     except Exception as exc:
@@ -468,7 +544,7 @@ async def list_entity_relations(
         relations = await service.list_relations(entity_uuid, relation_type=relation_type)
         return RelationsResponse(
             entity_id=entity_id,
-            relations=[await _relation_to_response(relation, service) for relation in relations],
+            relations=[await _relation_to_response(relation, db) for relation in relations],
             total=len(relations),
         )
     except Exception as exc:
@@ -513,7 +589,7 @@ async def get_relation(
     service = UnifiedEntityService(db)
     try:
         relation = await service.get_relation(relation_uuid)
-        return await _relation_to_response(relation, service)
+        return await _relation_to_response(relation, db)
     except Exception as exc:
         raise _translate_error(exc) from exc
     finally:
@@ -569,7 +645,7 @@ async def create_relation(
             match_score=request.match_score,
             discovered_by=str(user_id),
         )
-        return await _relation_to_response(relation, service)
+        return await _relation_to_response(relation, db)
     except Exception as exc:
         raise _translate_error(exc) from exc
     finally:
