@@ -26,7 +26,7 @@ from textual.widgets import (
     TabPane,
 )
 
-from spotdl_cli.widgets import CoverArt
+from spotdl_cli.widgets import CoverArt, StatChip
 
 from spotdl_cli.config import get_settings
 from spotdl_cli.core import (
@@ -35,7 +35,7 @@ from spotdl_cli.core import (
     get_api_client,
     get_offline_matcher,
 )
-from spotdl_cli.theme import format_number, get_platform_icon
+from spotdl_cli.theme import Theme, format_number, get_platform_icon
 
 if TYPE_CHECKING:
     from spotdl_cli.app import SpotDLApp
@@ -99,23 +99,30 @@ class ArtistScreen(Screen[None]):
             # Hero section
             with Vertical(id="artist-hero", classes="hero-section"):
                 with Horizontal(id="artist-hero-content"):
-                    # Left: Avatar placeholder (circle)
-                    yield CoverArt(id="artist-avatar", classes="avatar-placeholder")
+                    # Left: Avatar (larger 16-col cover)
+                    yield CoverArt(
+                        entity_type="artist",
+                        id="artist-avatar",
+                        classes="avatar-placeholder avatar-lg",
+                    )
 
                     # Right: Artist info
                     with Vertical(id="artist-info"):
                         # Badge
-                        yield Static("ARTIST", classes="badge badge-info")
+                        yield Static(
+                            f"{Theme.ICON_ARTIST} ARTIST",
+                            classes="badge badge-info",
+                        )
 
                         # Name
                         yield Static("Loading...", id="artist-name", classes="title-xl")
 
-                        # Quick stats
+                        # Quick stats as StatChip widgets
                         with Horizontal(id="artist-stats", classes="stats-row"):
-                            yield Static("", id="artist-followers", classes="stat-item")
-                            yield Static("", id="artist-monthly-listeners", classes="stat-item")
-                            yield Static("", id="artist-albums-count", classes="stat-item")
-                            yield Static("", id="artist-tracks-count", classes="stat-item")
+                            yield StatChip("Followers", id="artist-followers")
+                            yield StatChip("Monthly Listeners", id="artist-monthly-listeners")
+                            yield StatChip("Albums", id="artist-albums-count")
+                            yield StatChip("Tracks", id="artist-tracks-count")
 
                         # Genres
                         with Horizontal(id="artist-genres", classes="genre-row"):
@@ -141,7 +148,9 @@ class ArtistScreen(Screen[None]):
                 with Vertical(id="artist-main", classes="main-column"):
                     # Top tracks section
                     with Vertical(classes="card"):
-                        yield Static("Top Tracks", classes="card-title")
+                        yield Static(
+                            f"{Theme.ICON_MUSIC} Top Tracks", classes="card-title"
+                        )
 
                         with Vertical(id="top-tracks-container"):
                             yield DataTable(id="top-tracks-table")
@@ -152,7 +161,9 @@ class ArtistScreen(Screen[None]):
 
                     # Discography section with tabs
                     with Vertical(classes="card"):
-                        yield Static("Discography", classes="card-title")
+                        yield Static(
+                            f"{Theme.ICON_ALBUM} Discography", classes="card-title"
+                        )
 
                         with TabbedContent(id="discography-tabs"):
                             with TabPane("All", id="tab-all"):
@@ -191,21 +202,18 @@ class ArtistScreen(Screen[None]):
                     with Vertical(classes="card", id="related-artists-card"):
                         yield Static("Related Artists", classes="card-title")
                         with Vertical(id="related-artists-list"):
-                            yield Static("[dim]No related artists[/dim]", id="related-artists-content")
+                            yield Static(
+                                "[dim]No related artists[/dim]",
+                                id="related-artists-content",
+                            )
 
                     # Quick stats
                     with Vertical(classes="card"):
                         yield Static("Stats", classes="card-title")
                         with Horizontal(id="quick-stats", classes="stats-grid"):
-                            with Vertical(classes="stat-box"):
-                                yield Static("", id="stat-albums", classes="stat-value")
-                                yield Static("Albums", classes="stat-label")
-                            with Vertical(classes="stat-box"):
-                                yield Static("", id="stat-singles", classes="stat-value")
-                                yield Static("Singles", classes="stat-label")
-                            with Vertical(classes="stat-box"):
-                                yield Static("", id="stat-followers", classes="stat-value")
-                                yield Static("Followers", classes="stat-label")
+                            yield StatChip("Albums", id="stat-albums")
+                            yield StatChip("Singles", id="stat-singles")
+                            yield StatChip("Followers", id="stat-followers")
 
     async def on_mount(self) -> None:
         """Handle screen mount."""
@@ -384,10 +392,8 @@ class ArtistScreen(Screen[None]):
             followers = followers.get("total", 0)
         if followers:
             followers_str = format_number(followers)
-            self.query_one("#artist-followers", Static).update(
-                f"[dim]Followers:[/] {followers_str}"
-            )
-            self.query_one("#stat-followers", Static).update(followers_str)
+            self.query_one("#artist-followers", StatChip).update_value(followers_str)
+            self.query_one("#stat-followers", StatChip).update_value(followers_str)
 
         # Albums count
         albums = data.get("albums", []) or []
@@ -399,11 +405,9 @@ class ArtistScreen(Screen[None]):
         album_count = len([a for a in albums if a.get("type", "").lower() == "album"])
         single_count = len([a for a in albums if a.get("type", "").lower() == "single"])
 
-        self.query_one("#artist-albums-count", Static).update(
-            f"[dim]Albums:[/] {album_count}"
-        )
-        self.query_one("#stat-albums", Static).update(str(album_count))
-        self.query_one("#stat-singles", Static).update(str(single_count))
+        self.query_one("#artist-albums-count", StatChip).update_value(str(album_count))
+        self.query_one("#stat-albums", StatChip).update_value(str(album_count))
+        self.query_one("#stat-singles", StatChip).update_value(str(single_count))
 
         # Genres (clear old badges first)
         genres = data.get("genres", [])
@@ -416,8 +420,13 @@ class ArtistScreen(Screen[None]):
         monthly = data.get("monthly_listeners")
         if monthly:
             ml_str = format_number(monthly)
-            self.query_one("#artist-monthly-listeners", Static).update(
-                f"[dim]Monthly Listeners:[/] {ml_str}"
+            self.query_one("#artist-monthly-listeners", StatChip).update_value(ml_str)
+
+        # Track count from top_tracks
+        top_tracks = data.get("top_tracks", [])
+        if top_tracks:
+            self.query_one("#artist-tracks-count", StatChip).update_value(
+                str(len(top_tracks))
             )
 
         # Bio with expandable behavior
@@ -438,7 +447,9 @@ class ArtistScreen(Screen[None]):
             names = [r.get("name", "") for r in related[:8] if r.get("name")]
             if names:
                 self.query_one("#related-artists-content", Static).update(
-                    "\n".join(f"\u2022 {name}" for name in names)
+                    "\n".join(
+                        f"{Theme.ICON_DOT} {name}" for name in names
+                    )
                 )
 
         # Platform link

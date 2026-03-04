@@ -23,7 +23,7 @@ from textual.widgets import (
     Static,
 )
 
-from spotdl_cli.widgets import CoverArt
+from spotdl_cli.widgets import CoverArt, StatChip
 
 from spotdl_cli.config import get_settings
 from spotdl_cli.core import (
@@ -32,7 +32,7 @@ from spotdl_cli.core import (
     get_api_client,
     get_offline_matcher,
 )
-from spotdl_cli.theme import format_duration, get_platform_icon
+from spotdl_cli.theme import Theme, format_duration, get_platform_icon
 
 if TYPE_CHECKING:
     from spotdl_cli.app import SpotDLApp
@@ -90,16 +90,26 @@ class AlbumScreen(Screen[None]):
             # Hero section
             with Vertical(id="album-hero", classes="hero-section"):
                 with Horizontal(id="album-hero-content"):
-                    # Left: Cover art placeholder
-                    yield CoverArt(id="album-cover", classes="cover-placeholder-large")
+                    # Left: Cover art
+                    yield CoverArt(
+                        entity_type="album",
+                        id="album-cover",
+                        classes="cover-placeholder-large",
+                    )
 
                     # Right: Album info
                     with Vertical(id="album-info"):
                         # Badges row
                         with Horizontal(id="album-badges"):
-                            yield Static("ALBUM", id="album-type-badge", classes="badge badge-info")
                             yield Static(
-                                "", id="album-popularity-badge", classes="badge badge-muted hidden"
+                                f"{Theme.ICON_ALBUM} ALBUM",
+                                id="album-type-badge",
+                                classes="badge badge-info",
+                            )
+                            yield Static(
+                                "",
+                                id="album-popularity-badge",
+                                classes="badge badge-muted hidden",
                             )
 
                         # Title
@@ -108,12 +118,12 @@ class AlbumScreen(Screen[None]):
                         # Artist (clickable)
                         yield Static("", id="album-artist", classes="subtitle link")
 
-                        # Quick stats
+                        # Quick stats as StatChip widgets
                         with Horizontal(id="album-stats", classes="stats-row"):
-                            yield Static("", id="album-year", classes="stat-item")
-                            yield Static("", id="album-tracks-count", classes="stat-item")
-                            yield Static("", id="album-duration", classes="stat-item")
-                            yield Static("", id="album-discs", classes="stat-item")
+                            yield StatChip("Year", id="album-year")
+                            yield StatChip("Tracks", id="album-tracks-count")
+                            yield StatChip("Duration", id="album-duration")
+                            yield StatChip("Discs", id="album-discs")
 
                         # Genres
                         with Horizontal(id="album-genres", classes="genre-row"):
@@ -129,23 +139,31 @@ class AlbumScreen(Screen[None]):
                                 id="download-all-btn",
                                 variant="primary",
                             )
-                            yield Button("Add to Queue", id="add-queue-btn", variant="success")
-                            yield Button("Refresh", id="refresh-btn", variant="default")
-                            yield Button("Report Data", id="report-btn", variant="default")
+                            yield Button(
+                                "Add to Queue", id="add-queue-btn", variant="success"
+                            )
+                            yield Button(
+                                "Refresh", id="refresh-btn", variant="default"
+                            )
+                            yield Button(
+                                "Report Data", id="report-btn", variant="default"
+                            )
 
             # Main content grid
             with Horizontal(id="album-content"):
                 # Left column (2/3) - Track list
                 with Vertical(id="album-main", classes="main-column"):
                     with Vertical(classes="card"):
-                        yield Static("Track List", classes="card-title")
+                        yield Static(
+                            f"{Theme.ICON_MUSIC} Track List", classes="card-title"
+                        )
 
                         with Vertical(id="tracks-container"):
                             yield DataTable(id="tracks-table")
 
                         yield Static("", id="tracks-status", classes="status-muted")
 
-                # Right column (1/3)
+                # Right column (1/3) - combined details panel
                 with Vertical(id="album-sidebar", classes="sidebar-column"):
                     # Platform links
                     with Vertical(classes="card"):
@@ -153,8 +171,8 @@ class AlbumScreen(Screen[None]):
                         with Vertical(id="platform-links"):
                             yield Static("", id="platform-links-content")
 
-                    # Album details
-                    with Vertical(classes="card"):
+                    # Combined album details, copyright, and stats
+                    with Vertical(classes="card", id="album-details-card"):
                         yield Static("Album Details", classes="card-title")
                         with Vertical(id="album-details"):
                             yield Static("", id="detail-type")
@@ -164,24 +182,14 @@ class AlbumScreen(Screen[None]):
                             yield Static("", id="detail-total-tracks")
                             yield Static("", id="detail-total-duration")
 
-                    # Copyright info card
-                    with Vertical(classes="card", id="copyright-card"):
-                        yield Static("Copyright", classes="card-title")
+                        # Copyright (inline within same card)
                         yield Static("", id="copyright-text", classes="detail-row")
 
-                    # Quick stats card
-                    with Vertical(classes="card"):
-                        yield Static("Quick Stats", classes="card-title")
+                        # Quick stats (inline within same card)
                         with Horizontal(id="quick-stats", classes="stats-grid"):
-                            with Vertical(classes="stat-box"):
-                                yield Static("", id="stat-tracks", classes="stat-value")
-                                yield Static("Tracks", classes="stat-label")
-                            with Vertical(classes="stat-box"):
-                                yield Static("", id="stat-duration", classes="stat-value")
-                                yield Static("Duration", classes="stat-label")
-                            with Vertical(classes="stat-box"):
-                                yield Static("", id="stat-discs", classes="stat-value")
-                                yield Static("Discs", classes="stat-label")
+                            yield StatChip("Tracks", id="stat-tracks")
+                            yield StatChip("Duration", id="stat-duration")
+                            yield StatChip("Discs", id="stat-discs")
 
     async def on_mount(self) -> None:
         """Handle screen mount."""
@@ -331,10 +339,10 @@ class AlbumScreen(Screen[None]):
         artist = data.get("artist") or ", ".join(data.get("artists", ["Unknown"]))
         self.query_one("#album-artist", Static).update(f"by {artist}")
 
-        # Type badge with colors
+        # Type badge with colors and icon
         album_type = data.get("album_type", data.get("type", "album")).upper()
         type_badge = self.query_one("#album-type-badge", Static)
-        type_badge.update(album_type)
+        type_badge.update(f"{Theme.ICON_ALBUM} {album_type}")
         # Apply type-specific CSS class
         type_lower = album_type.lower()
         for cls in ("badge-album-single", "badge-album-ep", "badge-album-compilation"):
@@ -357,15 +365,16 @@ class AlbumScreen(Screen[None]):
         release = data.get("release_date", "")
         year = data.get("year") or (release[:4] if release else "")
         if year:
-            self.query_one("#album-year", Static).update(f"[dim]Year:[/] {year}")
+            self.query_one("#album-year", StatChip).update_value(str(year))
 
         # Track count
         track_count = data.get("total_tracks", len(data.get("tracks", [])))
-        self.query_one("#album-tracks-count", Static).update(f"[dim]Tracks:[/] {track_count}")
+        self.query_one("#album-tracks-count", StatChip).update_value(str(track_count))
 
         # Total duration
         tracks = data.get("tracks", [])
         total_duration = sum(t.get("duration", 0) for t in tracks)
+        duration_str = "--"
         if total_duration:
             hours, remainder = divmod(total_duration, 3600)
             minutes, seconds = divmod(remainder, 60)
@@ -373,12 +382,14 @@ class AlbumScreen(Screen[None]):
                 duration_str = f"{hours}h {minutes}m"
             else:
                 duration_str = f"{minutes}m {seconds}s"
-            self.query_one("#album-duration", Static).update(f"[dim]Duration:[/] {duration_str}")
+            self.query_one("#album-duration", StatChip).update_value(duration_str)
 
         # Disc count
         disc_numbers = {t.get("disc_number", 1) for t in tracks}
         if len(disc_numbers) > 1:
-            self.query_one("#album-discs", Static).update(f"[dim]Discs:[/] {len(disc_numbers)}")
+            self.query_one("#album-discs", StatChip).update_value(
+                str(len(disc_numbers))
+            )
 
         # Genres (clear old badges first)
         genres = data.get("genres", [])
@@ -401,7 +412,9 @@ class AlbumScreen(Screen[None]):
         )
 
         # Details panel
-        self.query_one("#detail-type", Static).update(f"[dim]Type:[/] {album_type.title()}")
+        self.query_one("#detail-type", Static).update(
+            f"[dim]Type:[/] {album_type.title()}"
+        )
         release_date = data.get("release_date", "")
         if release_date:
             detail_release = self.query_one("#detail-release-date", Static)
@@ -412,23 +425,31 @@ class AlbumScreen(Screen[None]):
         copyright_text = data.get("copyright") or data.get("copyrights")
         if copyright_text:
             if isinstance(copyright_text, list):
-                copyright_text = copyright_text[0].get("text", "") if copyright_text else ""
+                copyright_text = (
+                    copyright_text[0].get("text", "") if copyright_text else ""
+                )
             self.query_one("#detail-copyright", Static).update(
                 f"[dim]Copyright:[/] {copyright_text[:50]}..."
                 if len(str(copyright_text)) > 50
                 else f"[dim]Copyright:[/] {copyright_text}"
             )
-            # Also update the dedicated copyright card
+            # Update the inline copyright text in the merged card
             self.query_one("#copyright-text", Static).update(str(copyright_text))
 
-        self.query_one("#detail-total-tracks", Static).update(f"[dim]Tracks:[/] {track_count}")
+        self.query_one("#detail-total-tracks", Static).update(
+            f"[dim]Tracks:[/] {track_count}"
+        )
         dur_display = duration_str if total_duration else "--"
-        self.query_one("#detail-total-duration", Static).update(f"[dim]Duration:[/] {dur_display}")
+        self.query_one("#detail-total-duration", Static).update(
+            f"[dim]Duration:[/] {dur_display}"
+        )
 
-        # Quick stats
-        self.query_one("#stat-tracks", Static).update(str(track_count))
-        self.query_one("#stat-duration", Static).update(duration_str if total_duration else "--")
-        self.query_one("#stat-discs", Static).update(str(len(disc_numbers)))
+        # Quick stats (now StatChip widgets)
+        self.query_one("#stat-tracks", StatChip).update_value(str(track_count))
+        self.query_one("#stat-duration", StatChip).update_value(
+            duration_str if total_duration else "--"
+        )
+        self.query_one("#stat-discs", StatChip).update_value(str(len(disc_numbers)))
 
         # Update tracks table
         self._update_tracks_table(tracks)

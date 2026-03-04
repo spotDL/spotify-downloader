@@ -7,8 +7,8 @@ from typing import Callable, ClassVar
 
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Horizontal, Vertical
-from textual.screen import Screen
+from textual.containers import Center, Horizontal, Vertical
+from textual.screen import ModalScreen
 from textual.widgets import Button, Input, Static
 
 from spotdl_cli.core import APIError, MatchEntry, Song, get_api_client
@@ -16,8 +16,8 @@ from spotdl_cli.core import APIError, MatchEntry, Song, get_api_client
 logger = logging.getLogger(__name__)
 
 
-class SubmitMatchScreen(Screen[None]):
-    """Screen to submit a user-discovered match."""
+class SubmitMatchScreen(ModalScreen[None]):
+    """Modal screen to submit a user-discovered match."""
 
     BINDINGS: ClassVar[list[Binding]] = [
         Binding("escape", "app.pop_screen", "Back"),
@@ -38,19 +38,20 @@ class SubmitMatchScreen(Screen[None]):
 
     def compose(self) -> ComposeResult:
         """Compose the screen."""
-        with Vertical(id="submit-match-container"):
-            yield Static("Submit Match", classes="title")
-            yield Static(
-                "Provide a URL to a downloadable source (YouTube, SoundCloud, etc.)",
-                classes="status-muted",
-            )
-            yield Input(
-                placeholder="Target URL",
-                id="submit-match-url",
-            )
-            with Horizontal(id="submit-match-actions"):
-                yield Button("Submit", id="submit-match-submit", variant="primary")
-                yield Button("Cancel", id="submit-match-cancel", variant="default")
+        with Center(id="submit-match-overlay"):
+            with Vertical(id="submit-match-container", classes="card"):
+                yield Static("Submit Match", classes="title")
+                yield Static(
+                    "Provide a URL to a downloadable source (YouTube, SoundCloud, etc.)",
+                    classes="status-muted",
+                )
+                yield Input(
+                    placeholder="Target URL",
+                    id="submit-match-url",
+                )
+                with Horizontal(id="submit-match-actions"):
+                    yield Button("Submit", id="submit-match-submit", variant="primary")
+                    yield Button("Cancel", id="submit-match-cancel", variant="default")
 
     def action_submit(self) -> None:
         """Submit action."""

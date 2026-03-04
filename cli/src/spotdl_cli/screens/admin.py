@@ -19,6 +19,7 @@ from textual.widgets import (
 )
 
 from spotdl_cli.core import APIError, get_api_client
+from spotdl_cli.widgets import StatChip
 
 if TYPE_CHECKING:
     from spotdl_cli.app import SpotDLApp
@@ -70,26 +71,10 @@ class AdminScreen(Screen[None]):
     def _compose_dashboard(self) -> Vertical:
         return Vertical(
             Horizontal(
-                Vertical(
-                    Static("Users", classes="stat-label"),
-                    Static("0", id="stat-users-total", classes="stat-value"),
-                    classes="stat-box card",
-                ),
-                Vertical(
-                    Static("Admins", classes="stat-label"),
-                    Static("0", id="stat-admins-total", classes="stat-value"),
-                    classes="stat-box card",
-                ),
-                Vertical(
-                    Static("Reports", classes="stat-label"),
-                    Static("0", id="stat-reports-total", classes="stat-value"),
-                    classes="stat-box card",
-                ),
-                Vertical(
-                    Static("Pending Matches", classes="stat-label"),
-                    Static("0", id="stat-matches-pending", classes="stat-value"),
-                    classes="stat-box card",
-                ),
+                StatChip("Users", "0", id="stat-users-total"),
+                StatChip("Admins", "0", id="stat-admins-total"),
+                StatChip("Reports", "0", id="stat-reports-total"),
+                StatChip("Pending Matches", "0", id="stat-matches-pending"),
                 id="admin-stats-grid",
                 classes="stats-grid mb-2",
             ),
@@ -189,10 +174,10 @@ class AdminScreen(Screen[None]):
         reports_stat = self._stats.get("reports", {})
         matches_stat = self._stats.get("matches", {})
 
-        self.query_one("#stat-users-total", Static).update(str(users_stat.get("total", 0)))
-        self.query_one("#stat-admins-total", Static).update(str(users_stat.get("admins", 0)))
-        self.query_one("#stat-reports-total", Static).update(str(reports_stat.get("open", 0)))
-        self.query_one("#stat-matches-pending", Static).update(str(matches_stat.get("pending", 0)))
+        self.query_one("#stat-users-total", StatChip).update_value(str(users_stat.get("total", 0)))
+        self.query_one("#stat-admins-total", StatChip).update_value(str(users_stat.get("admins", 0)))
+        self.query_one("#stat-reports-total", StatChip).update_value(str(reports_stat.get("open", 0)))
+        self.query_one("#stat-matches-pending", StatChip).update_value(str(matches_stat.get("pending", 0)))
 
     def _update_matches_table(self) -> None:
         table = self.query_one("#table-matches", DataTable)

@@ -3,6 +3,7 @@
 from spotdl_cli.core.archive import Archive
 from spotdl_cli.core.backend import (
     BackendManager,
+    BackendState,
     get_backend_manager,
 )
 from spotdl_cli.core.image_service import (
@@ -66,6 +67,7 @@ __all__ = [
     "APIError",
     "Archive",
     "BackendManager",
+    "BackendState",
     "ConnectionError",
     "DownloadError",
     "DownloadItem",

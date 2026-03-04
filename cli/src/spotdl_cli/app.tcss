@@ -1,30 +1,57 @@
-/* SpotDL CLI - Theme aligned with frontend design system
- * Colors from frontend/src/index.css
+/* SpotDL CLI — "Midnight Vinyl" design system
+ *
+ * Premium audio feel, clean matte surfaces with warm accent pops,
+ * depth through layering (bg-color differences, not borders everywhere),
+ * accent restraint, spacing-driven hierarchy.
+ *
+ * Sections:
+ *  1. Variables
+ *  2. Global
+ *  3. Navigation
+ *  4. Components
+ *  5. Typography
+ *  6. Search screen
+ *  7. Detail screens
+ *  8. Track-specific
+ *  9. Queue screen
+ * 10. Settings screen
+ * 11. Modals
+ * 12. Admin
+ * 13. Onboarding
+ * 14. Account screen
+ * 15. Responsive / text utilities
  */
 
-/* ==================== CUSTOM COLORS ====================
- * Textual uses $primary, $secondary, etc. as built-in variables
- * We override them to match our frontend theme
- */
 
-$accent-primary: #ff6b35;
+/* ==========================================================================
+   1. VARIABLES — Design tokens
+   ========================================================================== */
+
+/* Accent palette */
+$accent-primary: #e8764b;
 $accent-secondary: #4ecdc4;
 $accent-success: #00d084;
 $accent-error: #ff3333;
 $accent-warning: #ffd93d;
+$accent-focus: #c4a35a;
 
+/* Backgrounds (darkest -> lightest) */
 $bg-void: #08080a;
+$bg-inset: #0c0c0e;
 $bg-chassis: #0f1012;
 $bg-panel: #161819;
 $bg-elevated: #1c1e20;
 $bg-surface: #242628;
 $bg-hover: #2c2e32;
 
+/* Text */
 $text-primary: #fafafa;
+$text-accent: #e8e0d0;
 $text-secondary: #a8a8b3;
 $text-muted: #6b6b76;
 $text-dim: #454550;
 
+/* Borders */
 $border-color: #2f2f33;
 $border-subtle: #232326;
 
@@ -37,15 +64,18 @@ $platform-bandcamp: #1da0c3;
 $platform-apple: #fc3c44;
 $platform-tidal: #000000;
 
-/* ==================== GLOBAL ==================== */
+
+/* ==========================================================================
+   2. GLOBAL — Screen, scrollbar, hidden class
+   ========================================================================== */
 
 Screen {
     background: $bg-chassis;
 }
 
 Header {
-    background: $accent-primary;
-    color: $text-primary;
+    background: $bg-panel;
+    color: $text-accent;
     text-style: bold;
 }
 
@@ -58,64 +88,51 @@ Footer {
     display: none;
 }
 
-/* Modern scrollbar */
+/* Scrollbar — subtle, warms on hover */
 VerticalScroll {
     scrollbar-color: $bg-hover;
     scrollbar-color-hover: $accent-primary;
     scrollbar-color-active: $accent-primary;
-    scrollbar-background: $bg-panel;
-    scrollbar-background-hover: $bg-elevated;
+    scrollbar-background: $bg-chassis;
+    scrollbar-background-hover: $bg-panel;
 }
 
-/* ==================== TYPOGRAPHY ==================== */
 
-.title-xl {
-    text-style: bold;
-    color: $text-primary;
-    padding: 1 2;
+/* ==========================================================================
+   3. NAVIGATION — NavRail, StatusBar (supplemental integration styles)
+   ========================================================================== */
+
+/* NavRail — widget provides its own DEFAULT_CSS; add integration tweaks */
+NavRail {
+    transition: width 150ms;
 }
 
-.title-lg {
-    text-style: bold;
-    color: $accent-primary;
+/* StatusBar — widget provides its own DEFAULT_CSS */
+StatusBar {
+    border-top: solid $border-subtle;
 }
 
-.title-md {
-    text-style: bold;
-    color: $text-primary;
-}
 
-.subtitle {
-    color: $text-secondary;
-    text-style: italic;
-}
+/* ==========================================================================
+   4. COMPONENTS — Cards, buttons, inputs, badges, DataTable, progress, status
+   ========================================================================== */
 
-.label {
-    color: $text-primary;
-}
-
-.hint {
-    color: $text-muted;
-    text-style: italic;
-}
-
-.link {
-    color: $accent-secondary;
-    text-style: underline;
-}
-
-/* ==================== MODERN CARDS ==================== */
+/* ---- Cards ---- */
 
 .card {
     background: $bg-surface;
-    border: wide $border-color;
+    border: none;
     padding: 1 2;
     margin: 1 0;
 }
 
+.card:focus-within {
+    border-left: thick $accent-primary;
+}
+
 .card-elevated {
     background: $bg-elevated;
-    border: wide $border-color;
+    border: none;
     padding: 1 2;
     margin: 1 0;
 }
@@ -127,7 +144,7 @@ VerticalScroll {
 
 .card-title {
     text-style: bold;
-    color: $text-primary;
+    color: $text-accent;
 }
 
 .card-subtitle {
@@ -141,45 +158,47 @@ VerticalScroll {
 .card-footer {
     margin-top: 1;
     padding-top: 1;
-    border-top: solid $border-color;
+    border-top: solid $border-subtle;
 }
 
-/* ==================== MODERN BUTTONS ==================== */
+/* ---- Buttons ---- */
 
 Button {
     background: $bg-surface;
     color: $text-primary;
-    border: tall $border-color;
+    border: solid $border-color;
     padding: 0 2;
     margin: 0 1;
     min-width: 10;
+    transition: background 200ms;
 }
 
 Button:hover {
     background: $bg-hover;
-    border: tall $accent-primary;
+    border: solid $accent-primary;
 }
 
 Button:focus {
     background: $bg-hover;
-    border: tall $accent-primary;
+    border: solid $accent-focus;
+    transition: border 150ms;
 }
 
 Button.-primary {
     background: $accent-primary;
     color: $text-primary;
-    border: tall $accent-primary;
+    border: solid $accent-primary;
 }
 
 Button.-primary:hover {
-    background: #ff8555;
-    border: tall #ff8555;
+    background: #d0684a;
+    border: solid #d0684a;
 }
 
 Button.-success {
     background: $accent-success;
     color: $bg-void;
-    border: tall $accent-success;
+    border: solid $accent-success;
 }
 
 Button.-success:hover {
@@ -189,13 +208,13 @@ Button.-success:hover {
 Button.-warning {
     background: $accent-warning;
     color: $bg-void;
-    border: tall $accent-warning;
+    border: solid $accent-warning;
 }
 
 Button.-error {
     background: $accent-error;
     color: $text-primary;
-    border: tall $accent-error;
+    border: solid $accent-error;
 }
 
 Button.-small {
@@ -204,34 +223,35 @@ Button.-small {
     height: 1;
 }
 
-/* ==================== MODERN INPUTS ==================== */
+/* ---- Inputs ---- */
 
 Input {
     background: $bg-surface;
-    border: tall $border-color;
+    border: solid $border-color;
     padding: 0 1;
 }
 
 Input:focus {
-    border: tall $accent-primary;
+    border: solid $accent-focus;
     background: $bg-elevated;
+    transition: border 150ms;
 }
 
 Input.-valid {
-    border: tall $accent-success;
+    border: solid $accent-success;
 }
 
 Input.-invalid {
-    border: tall $accent-error;
+    border: solid $accent-error;
 }
 
 Select {
     background: $bg-surface;
-    border: tall $border-color;
+    border: solid $border-color;
 }
 
 Select:focus {
-    border: tall $accent-primary;
+    border: solid $accent-focus;
     background: $bg-elevated;
 }
 
@@ -244,74 +264,7 @@ Checkbox:focus {
     background: $bg-elevated;
 }
 
-/* ==================== MODERN DATA TABLE ==================== */
-
-DataTable {
-    background: $bg-surface;
-    height: auto;
-    max-height: 100%;
-}
-
-DataTable > .datatable--header {
-    background: $bg-panel;
-    color: $text-primary;
-    text-style: bold;
-}
-
-DataTable > .datatable--cursor {
-    background: $accent-primary;
-    color: $text-primary;
-}
-
-DataTable > .datatable--hover {
-    background: $bg-hover;
-}
-
-DataTable:focus > .datatable--cursor {
-    background: $accent-primary;
-}
-
-/* ==================== PROGRESS & STATUS ==================== */
-
-ProgressBar {
-    padding: 0;
-    height: 1;
-}
-
-ProgressBar > .bar--bar {
-    color: $accent-primary;
-}
-
-ProgressBar > .bar--complete {
-    color: $accent-success;
-}
-
-.status-indicator {
-    padding: 0 1;
-    text-align: center;
-}
-
-.status-success {
-    color: $accent-success;
-}
-
-.status-warning {
-    color: $accent-warning;
-}
-
-.status-error {
-    color: $accent-error;
-}
-
-.status-info {
-    color: $accent-secondary;
-}
-
-.status-muted {
-    color: $text-muted;
-}
-
-/* ==================== BADGES ==================== */
+/* ---- Badges ---- */
 
 .badge {
     width: auto;
@@ -370,7 +323,157 @@ ProgressBar > .bar--complete {
     color: $platform-apple;
 }
 
-/* ==================== PLATFORM COLORS ==================== */
+/* Entity type badges */
+.badge-artist {
+    background: #332200;
+    color: $accent-warning;
+}
+
+.badge-track {
+    background: #003322;
+    color: $accent-success;
+}
+
+.badge-album {
+    background: #002233;
+    color: $accent-secondary;
+}
+
+.badge-playlist {
+    background: #331100;
+    color: $accent-primary;
+}
+
+/* Album type badges */
+.badge-album-single {
+    background: #1a0033;
+    color: $platform-deezer;
+}
+
+.badge-album-ep {
+    background: #002233;
+    color: $accent-secondary;
+}
+
+.badge-album-compilation {
+    background: #332200;
+    color: $accent-warning;
+}
+
+/* Match badges */
+.match-badge {
+    padding: 0 1;
+    text-style: bold;
+}
+
+.match-badge-best {
+    background: #003322;
+    color: $accent-success;
+}
+
+.match-badge-user {
+    background: #002233;
+    color: $accent-secondary;
+}
+
+.match-badge-pending {
+    background: #332200;
+    color: $accent-warning;
+}
+
+.match-badge-verified {
+    background: #003322;
+    color: $accent-success;
+}
+
+/* ---- DataTable ---- */
+
+DataTable {
+    background: $bg-surface;
+    border: none;
+    height: auto;
+    max-height: 100%;
+}
+
+DataTable > .datatable--header {
+    background: $bg-elevated;
+    color: $text-accent;
+    text-style: bold;
+}
+
+DataTable > .datatable--cursor {
+    background: $accent-primary;
+    color: $text-primary;
+}
+
+DataTable > .datatable--hover {
+    background: $bg-hover;
+}
+
+DataTable:focus > .datatable--cursor {
+    background: $accent-primary;
+}
+
+DataTable > .datatable--even-row {
+    background: $bg-inset;
+}
+
+/* ---- Progress & Status ---- */
+
+ProgressBar {
+    padding: 0;
+    height: 1;
+}
+
+ProgressBar > .bar--bar {
+    color: $accent-primary;
+}
+
+ProgressBar > .bar--complete {
+    color: $accent-success;
+}
+
+.status-indicator {
+    padding: 0 1;
+    text-align: center;
+}
+
+.status-success {
+    color: $accent-success;
+}
+
+.status-warning {
+    color: $accent-warning;
+}
+
+.status-error {
+    color: $accent-error;
+}
+
+.status-info {
+    color: $accent-secondary;
+}
+
+.status-muted {
+    color: $text-muted;
+}
+
+/* ---- Dividers ---- */
+
+Rule {
+    color: $border-subtle;
+    margin: 1 0;
+}
+
+.divider-light {
+    color: $border-subtle;
+}
+
+.divider-accent {
+    color: $accent-primary;
+}
+
+/* ---- Platform colors ---- */
 
 .platform-spotify {
     color: $platform-spotify;
@@ -400,24 +503,136 @@ ProgressBar > .bar--complete {
     color: $text-primary;
 }
 
-/* ==================== DIVIDERS ==================== */
+/* ---- Platform badge container ---- */
+.platform-badges {
+    width: auto;
+    height: auto;
+    margin-left: 1;
+}
 
-Rule {
-    color: $border-color;
+.platform-badge {
+    width: auto;
+    padding: 0 1;
+    margin-right: 1;
+    text-style: bold;
+}
+
+/* ---- Collapsible ---- */
+
+Collapsible {
+    background: $bg-surface;
+    border: solid $border-subtle;
+    padding: 0;
     margin: 1 0;
 }
 
-.divider-light {
-    color: $border-subtle;
+/* ---- Markdown ---- */
+
+Markdown {
+    padding: 1;
+    background: transparent;
 }
 
-.divider-accent {
+MarkdownH1 {
+    color: $accent-primary;
+    text-style: bold;
+    padding: 1 0;
+}
+
+MarkdownH2 {
+    color: $text-accent;
+    text-style: bold;
+    padding: 1 0;
+}
+
+MarkdownH3 {
+    color: $text-accent;
+    text-style: bold;
+    padding: 1 0;
+}
+
+MarkdownBulletList {
+    padding-left: 2;
+}
+
+MarkdownOrderedList {
+    padding-left: 2;
+}
+
+/* ---- Tabbed content ---- */
+
+TabbedContent {
+    height: auto;
+}
+
+TabPane {
+    height: auto;
+    padding: 1;
+}
+
+ContentSwitcher {
+    height: auto;
+}
+
+/* ---- Error message ---- */
+
+.error-message {
+    color: $accent-error;
+    padding: 0 1;
+    margin: 1 0;
+}
+
+
+/* ==========================================================================
+   5. TYPOGRAPHY — Title classes, links, hints
+   ========================================================================== */
+
+.title-xl {
+    text-style: bold;
+    color: $text-accent;
+    padding: 1 2;
+}
+
+.title-lg {
+    text-style: bold;
     color: $accent-primary;
 }
 
-/* ==================== MAIN SCREEN ==================== */
+.title-md {
+    text-style: bold;
+    color: $text-accent;
+}
 
-/* Main container — full bleed, tight padding */
+.title {
+    text-style: bold;
+    color: $text-accent;
+}
+
+.subtitle {
+    color: $text-secondary;
+    text-style: italic;
+}
+
+.label {
+    color: $text-primary;
+}
+
+.hint {
+    color: $text-muted;
+    text-style: italic;
+}
+
+.link {
+    color: $accent-secondary;
+    text-style: underline;
+}
+
+
+/* ==========================================================================
+   6. SEARCH SCREEN — Filters, entity sections, entity cards
+   ========================================================================== */
+
+/* Main container */
 #main-container {
     width: 100%;
     height: 100%;
@@ -425,7 +640,7 @@ Rule {
     background: $bg-chassis;
 }
 
-/* ---- Search bar: single compact row ---- */
+/* ---- Search bar ---- */
 #search-bar {
     height: 5;
     width: 100%;
@@ -433,7 +648,7 @@ Rule {
     margin-bottom: 1;
     padding: 1 2;
     background: $bg-panel;
-    border-bottom: wide $border-subtle;
+    border-bottom: solid $border-subtle;
 }
 
 #search-icon {
@@ -448,18 +663,32 @@ Rule {
     height: 3;
     margin: 0 1;
     padding: 0 1;
-    border: wide $border-color;
+    border: solid $border-color;
     background: $bg-surface;
 }
 
 #search-input:focus {
-    border: wide $accent-primary;
+    border: solid $accent-focus;
     background: $bg-surface;
 }
 
 #search-btn {
     width: auto;
     min-width: 12;
+    margin: 0 1;
+    height: 3;
+}
+
+#search-bar #refresh-btn {
+    width: auto;
+    min-width: 10;
+    margin: 0 1;
+    height: 3;
+}
+
+#search-bar #login-btn {
+    width: auto;
+    min-width: 10;
     margin: 0 1;
     height: 3;
 }
@@ -473,7 +702,7 @@ Rule {
     content-align: right middle;
 }
 
-/* ---- Filter pills: compact row ---- */
+/* ---- Filter pills ---- */
 #filter-tabs {
     height: auto;
     max-height: 3;
@@ -496,23 +725,49 @@ Rule {
     padding: 0 2;
     margin-right: 1;
     background: $bg-surface;
-    border: tall $border-color;
+    border: solid $border-color;
 }
 
 .filter-btn:hover {
     background: $bg-hover;
-    border: tall $accent-primary;
+    border: solid $accent-primary;
 }
 
 .filter-btn:focus {
     background: $bg-hover;
-    border: tall $accent-primary;
+    border: solid $accent-focus;
 }
 
 .filter-btn.active {
     background: $accent-primary;
     color: $text-primary;
-    border: tall $accent-primary;
+    border: solid $accent-primary;
+}
+
+/* ---- Filter tabs (Static-based, used in MainScreen) ---- */
+.filter-tab {
+    width: auto;
+    padding: 0 2;
+    margin-right: 1;
+    height: 3;
+    content-align: center middle;
+    color: $text-muted;
+    background: $bg-surface;
+}
+.filter-tab:hover {
+    color: $text-primary;
+    background: $bg-hover;
+}
+.filter-tab-active {
+    color: $accent-primary;
+    text-style: bold;
+    border-bottom: solid $accent-primary;
+}
+
+/* ---- Entity list container ---- */
+.entity-list {
+    height: auto;
+    width: 100%;
 }
 
 /* ---- Results container ---- */
@@ -560,7 +815,7 @@ Rule {
     color: $accent-primary;
 }
 
-/* ---- Artist grid: compact tiles in a wrapping horizontal row ---- */
+/* ---- Artist grid ---- */
 .artist-grid {
     height: auto;
     width: 100%;
@@ -575,25 +830,26 @@ Rule {
     padding: 1;
     margin: 0 1 1 0;
     background: $bg-elevated;
-    border: wide $border-color;
+    border: none;
     text-align: center;
     content-align: center top;
 }
 
 .artist-tile:hover {
     background: $bg-hover;
-    border: wide $accent-warning;
+    border-left: thick $accent-warning;
 }
 
 .artist-tile:focus {
     background: $bg-hover;
-    border: wide $accent-warning;
+    border-left: thick $accent-warning;
+    transition: border 150ms;
 }
 
 .artist-tile-cover {
     width: 24;
     height: 12;
-    background: $bg-surface;
+    background: $bg-inset;
     border: solid $border-subtle;
     overflow: hidden;
     content-align: center middle;
@@ -601,7 +857,7 @@ Rule {
 }
 
 .tile-name {
-    color: $text-primary;
+    color: $text-accent;
     text-style: bold;
     height: auto;
     max-height: 2;
@@ -621,12 +877,12 @@ Rule {
     padding: 0 1;
     margin: 0;
     background: $bg-surface;
-    border: tall $border-color;
+    border: solid $border-color;
 }
 
 .tile-action:hover {
     background: $accent-primary;
-    border: tall $accent-primary;
+    border: solid $accent-primary;
 }
 
 .tile-action-dl {
@@ -635,7 +891,7 @@ Rule {
 
 .tile-action-dl:hover {
     background: $accent-success;
-    border: tall $accent-success;
+    border: solid $accent-success;
 }
 
 .tile-actions-row {
@@ -645,7 +901,7 @@ Rule {
     align: center middle;
 }
 
-/* ---- Album grid: compact tiles ---- */
+/* ---- Album grid ---- */
 .album-grid {
     height: auto;
     width: 100%;
@@ -660,25 +916,26 @@ Rule {
     padding: 1;
     margin: 0 1 1 0;
     background: $bg-elevated;
-    border: wide $border-color;
+    border: none;
     text-align: center;
     content-align: center top;
 }
 
 .album-tile:hover {
     background: $bg-hover;
-    border: wide $accent-secondary;
+    border-left: thick $accent-secondary;
 }
 
 .album-tile:focus {
     background: $bg-hover;
-    border: wide $accent-secondary;
+    border-left: thick $accent-secondary;
+    transition: border 150ms;
 }
 
 .album-tile-cover {
     width: 24;
     height: 12;
-    background: $bg-surface;
+    background: $bg-inset;
     border: solid $border-subtle;
     overflow: hidden;
     content-align: center middle;
@@ -697,19 +954,9 @@ Rule {
     width: 100%;
     padding: 0 2;
     margin: 0 0 1 0;
-    background: $bg-elevated;
-    border: solid $border-subtle;
-    align: left middle;
-}
-
-.row-cover {
-    width: 10;
-    height: 5;
     background: $bg-surface;
-    border: solid $border-subtle;
-    overflow: hidden;
-    content-align: center middle;
-    margin-right: 1;
+    border: none;
+    align: left middle;
 }
 
 .compact-row:hover {
@@ -718,7 +965,18 @@ Rule {
 
 .compact-row:focus {
     background: $bg-hover;
-    border-bottom: solid $accent-primary;
+    border-left: thick $accent-primary;
+    transition: border 150ms;
+}
+
+.row-cover {
+    width: 10;
+    height: 5;
+    background: $bg-inset;
+    border: solid $border-subtle;
+    overflow: hidden;
+    content-align: center middle;
+    margin-right: 1;
 }
 
 .row-icon {
@@ -760,23 +1018,23 @@ Rule {
     min-width: 4;
     padding: 0;
     margin: 0;
-    background: $bg-elevated;
-    border: tall $border-subtle;
+    background: $bg-surface;
+    border: solid $border-subtle;
     color: $text-muted;
 }
 
 .row-action:hover {
     color: $accent-primary;
-    background: $bg-surface;
-    border: tall $accent-primary;
+    background: $bg-hover;
+    border: solid $accent-primary;
 }
 
 .row-action-dl:hover {
     color: $accent-success;
-    border: tall $accent-success;
+    border: solid $accent-success;
 }
 
-/* ---- Card cover (generic, used in tiles) ---- */
+/* ---- Card cover (generic, in tiles) ---- */
 .card-cover {
     overflow: hidden;
     content-align: center middle;
@@ -822,107 +1080,211 @@ Rule {
     margin: 1 0 0 0;
     padding: 0 2;
     background: $bg-surface;
-    border: tall $border-color;
+    border: solid $border-color;
     color: $text-muted;
 }
 
 .load-more-btn:hover {
     background: $bg-hover;
-    border: tall $accent-primary;
+    border: solid $accent-primary;
     color: $text-primary;
 }
 
 .load-more-btn:focus {
     background: $bg-hover;
-    border: tall $accent-primary;
+    border: solid $accent-focus;
 }
 
-/* ---- Entity type badges (used in detail screens) ---- */
-.badge-artist {
-    background: #332200;
-    color: $accent-warning;
+
+/* ==========================================================================
+   7. DETAIL SCREENS — Shared hero, stat chips, two-column layout
+   ========================================================================== */
+
+/* ---- Hero sections ---- */
+.hero-section {
+    background: $bg-panel;
+    padding: 2 3;
+    margin-bottom: 2;
+    border-bottom: solid $border-subtle;
 }
 
-.badge-track {
-    background: #003322;
-    color: $accent-success;
-}
-
-.badge-album {
-    background: #002233;
-    color: $accent-secondary;
-}
-
-.badge-playlist {
-    background: #331100;
-    color: $accent-primary;
-}
-
-/* Platform badges */
-.platform-badges {
-    width: auto;
+#track-hero-content,
+#album-hero-content,
+#artist-hero-content,
+#playlist-hero-content {
     height: auto;
-    margin-left: 1;
+    min-height: 10;
+    align: left top;
 }
 
-.platform-badge {
-    width: auto;
-    padding: 0 1;
-    margin-right: 1;
-    text-style: bold;
+/* ---- CoverArt widget ---- */
+CoverArt {
+    overflow: hidden;
 }
 
-/* ---- Legacy card styles (kept for detail screens) ---- */
-.card-info {
+CoverArt #cover-image {
     width: 1fr;
+    height: 1fr;
+}
+
+.cover-placeholder-icon {
+    content-align: center middle;
+    width: 100%;
+    height: 100%;
+    color: $text-dim;
+}
+
+/* ---- Cover / Avatar placeholders ---- */
+.cover-placeholder {
+    width: 20;
+    height: 10;
+    background: $bg-inset;
+    border: solid $border-subtle;
+    content-align: center middle;
+    margin-right: 2;
+}
+
+.cover-placeholder-large {
+    width: 26;
+    height: 13;
+    background: $bg-inset;
+    border: solid $border-subtle;
+    content-align: center middle;
+    margin-right: 2;
+}
+
+.avatar-placeholder {
+    width: 16;
+    height: 8;
+    background: $bg-inset;
+    border: solid $accent-primary;
+    content-align: center middle;
+    margin-right: 2;
+}
+
+/* ---- Info sections ---- */
+#track-info,
+#album-info,
+#artist-info,
+#playlist-info {
+    width: 1fr;
+}
+
+/* Badges rows */
+#track-badges,
+#album-badges {
     height: auto;
-    padding: 0 1;
+    margin-bottom: 1;
 }
 
-.card-title {
-    color: $text-primary;
-    text-style: bold;
+/* Stats rows */
+.stats-row {
+    height: auto;
+    margin: 1 0;
 }
 
-.card-subtitle {
+.stat-item {
+    width: auto;
+    margin-right: 3;
+}
+
+/* Genre row */
+.genre-row {
+    height: auto;
+    margin: 1 0;
+}
+
+.genre-row .badge {
+    margin-right: 1;
+}
+
+/* Actions row */
+.actions-row {
+    height: auto;
+    margin-top: 1;
+}
+
+.actions-row Button {
+    margin-right: 1;
+}
+
+/* Detail row (ISRC, Label, etc.) */
+.detail-row {
+    height: auto;
+    margin: 0;
     color: $text-secondary;
 }
 
-.card-action {
-    width: auto;
+/* Description text */
+.description-text {
+    color: $text-secondary;
+    max-height: 4;
+    overflow: hidden;
+    margin: 1 0;
+}
+
+/* ---- Content grids ---- */
+#track-content,
+#album-content,
+#artist-content,
+#playlist-content {
+    width: 100%;
     height: auto;
-    padding: 0;
+    min-height: 20;
+    padding: 1 2;
 }
 
-.card-meta-row {
+/* Main column (left, 2/3 width) */
+.main-column {
+    width: 66%;
+    padding-right: 2;
+}
+
+/* Sidebar column (right, 1/3 width) */
+.sidebar-column {
+    width: 34%;
+    padding-left: 2;
+    border-left: solid $border-subtle;
+}
+
+/* ---- Stats grid ---- */
+.stats-grid {
     height: auto;
-    align: left middle;
-    margin-bottom: 0;
 }
 
-.entity-card {
-    height: 9;
-    max-width: 120;
-    padding: 0 1;
-    margin-bottom: 0;
-    background: $bg-elevated;
-    border: wide $border-color;
-    align: left middle;
+.stat-box {
+    width: 1fr;
+    text-align: center;
+    padding: 1;
 }
 
-.entity-card:hover {
-    background: $bg-hover;
-    border: wide $accent-primary;
+.stat-value {
+    text-style: bold;
+    color: $accent-primary;
 }
 
-.card-cover-small {
-    width: 14;
-    height: 7;
-    background: $bg-surface;
-    border: wide $border-color;
+.stat-label {
+    color: $text-muted;
 }
 
-/* Info panel sections */
+/* ---- Bio text ---- */
+.bio-text {
+    color: $text-secondary;
+    max-height: 8;
+    overflow: hidden;
+}
+
+/* ---- Detail containers ---- */
+#track-container,
+#album-container,
+#artist-container,
+#playlist-container {
+    width: 100%;
+    height: 100%;
+    background: $bg-chassis;
+}
+
+/* ---- Info panel sections (legacy / shared) ---- */
 .info-section {
     margin-bottom: 2;
 }
@@ -954,373 +1316,176 @@ Rule {
     color: $text-muted;
 }
 
-/* ==================== LOGIN SCREEN ==================== */
-
-#login-container {
-    width: 100%;
-    height: 100%;
-    align: center middle;
-    background: $bg-chassis;
-}
-
-#login-form {
-    width: 60;
+/* ---- Legacy card info styles ---- */
+.card-info {
+    width: 1fr;
     height: auto;
-    padding: 2 4;
-    background: $bg-surface;
-    border: wide $border-color;
+    padding: 0 1;
 }
 
-#login-form Input {
-    margin-bottom: 1;
-}
-
-#login-btn {
-    width: 100%;
-    margin-top: 1;
-}
-
-.text-center {
-    text-align: center;
-}
-
-.mb-2 {
-    margin-bottom: 2;
-}
-
-.mt-2 {
-    margin-top: 2;
-}
-
-.text-sm {
-    height: 1;
-}
-
-.w-full {
-    width: 100%;
-}
-
-/* ==================== ONBOARDING SCREEN ==================== */
-
-#onboarding-container {
-    width: 100%;
-    height: 100%;
-    background: $bg-chassis;
-}
-
-/* Progress header */
-#onboarding-header {
-    dock: top;
-    height: 5;
-    background: $bg-panel;
-    border-bottom: wide $border-color;
-    padding: 1 2;
-}
-
-#progress-steps {
-    height: auto;
-    align: center middle;
-}
-
-.step-item {
+.card-action {
     width: auto;
-    padding: 0 2;
-    text-align: center;
+    height: auto;
+    padding: 0;
 }
 
-.step-number {
-    text-style: bold;
+.card-meta-row {
+    height: auto;
+    align: left middle;
+    margin-bottom: 0;
 }
 
-.step-number-active {
-    color: $accent-primary;
+/* ---- Entity card cover (small, used in detail views) ---- */
+.card-cover-small {
+    width: 14;
+    height: 7;
+    background: $bg-inset;
+    border: solid $border-subtle;
 }
 
-.step-number-complete {
-    color: $accent-success;
+
+/* ==========================================================================
+   8. TRACK-SPECIFIC — Match bars, audio meters, lyrics panel
+   ========================================================================== */
+
+/* ---- Matches container ---- */
+#matches-container {
+    height: auto;
+    min-height: 10;
 }
 
-.step-number-pending {
-    color: $text-muted;
+#matches-table {
+    height: auto;
+    min-height: 8;
+    max-height: 30;
 }
 
-.step-connector {
-    width: 4;
-    color: $border-color;
+/* ---- Tracks container ---- */
+#tracks-container {
+    height: auto;
+    min-height: 10;
 }
 
-.step-connector-complete {
-    color: $accent-success;
+#tracks-table {
+    height: auto;
+    min-height: 8;
+    max-height: 40;
 }
 
-#step-title {
-    text-align: center;
-    color: $text-muted;
-    margin-top: 1;
+/* ---- Top tracks container ---- */
+#top-tracks-container {
+    height: auto;
+    min-height: 8;
 }
 
-/* Content area */
-#onboarding-content {
-    height: 1fr;
-    padding: 2 4;
+#top-tracks-table {
+    height: auto;
+    min-height: 6;
+    max-height: 20;
 }
 
-.onboarding-step {
-    width: 100%;
-    max-width: 80;
-    margin: 0 2;
+/* ---- Album tables ---- */
+#albums-table-all,
+#albums-table-albums,
+#albums-table-singles,
+#albums-table-eps {
+    height: auto;
+    min-height: 6;
+    max-height: 20;
 }
 
-/* Welcome step */
-#welcome-content {
-    text-align: center;
+#albums-table-compilations {
+    height: auto;
+    min-height: 6;
+    max-height: 20;
 }
 
-#welcome-logo {
-    color: $accent-primary;
-    text-style: bold;
-    padding: 1;
+/* ---- Discography tabs ---- */
+#discography-tabs {
+    height: auto;
+    min-height: 10;
 }
 
-#welcome-title {
-    text-style: bold;
-    color: $text-primary;
-    padding: 1;
-}
-
-#welcome-subtitle {
-    color: $text-secondary;
-    padding: 1;
-}
-
-.feature-grid {
-    margin: 2 0;
-}
-
-.feature-item {
+/* ---- Audio features ---- */
+.feature-row {
+    height: auto;
     margin: 1 0;
-    padding: 1 2;
-    background: $bg-surface;
-    border: wide $border-color;
+    align: left middle;
 }
 
-.feature-icon {
-    color: $accent-primary;
-    width: 4;
+.feature-label {
+    width: 12;
+    color: $text-secondary;
 }
 
-.feature-text {
+.feature-value {
+    color: $text-primary;
+    text-style: bold;
+}
+
+.feature-row ProgressBar {
     width: 1fr;
 }
 
-.feature-title {
-    text-style: bold;
-    color: $text-primary;
-}
-
-.feature-desc {
+.feature-detail-value {
     color: $text-secondary;
+    margin: 0 0 1 0;
 }
 
-/* Config cards */
-.config-card {
-    background: $bg-surface;
-    border: wide $border-color;
-    padding: 1 2;
-    margin-bottom: 2;
-}
-
-.config-card-header {
-    height: auto;
-    margin-bottom: 1;
-}
-
-.config-card-icon {
-    color: $accent-primary;
-    width: 3;
-}
-
-.config-card-title {
-    text-style: bold;
-    color: $text-primary;
-}
-
-.config-card-desc {
-    color: $text-secondary;
-    margin-bottom: 1;
-}
-
-.config-input {
-    width: 100%;
-    margin-top: 1;
-}
-
-.config-select {
-    width: 100%;
-    margin-top: 1;
-}
-
-/* Credentials card */
-.credentials-card {
-    background: $bg-surface;
-    border: wide $accent-primary;
-    padding: 1 2;
-    margin: 1 0;
-}
-
-.credentials-header {
-    height: auto;
-    align: left middle;
-    margin-bottom: 1;
-}
-
-.credentials-title {
-    text-style: bold;
-    color: $text-primary;
-    width: auto;
-}
-
-.credentials-badge {
-    margin-left: 2;
-    background: #332200;
-    color: $accent-warning;
-    padding: 0 1;
-    text-style: bold;
-}
-
-.cred-status-bar {
-    height: 3;
-    margin: 1 0;
+/* ---- Lyrics ---- */
+.lyrics-scroll {
+    max-height: 20;
+    background: $bg-inset;
     padding: 1;
-    text-align: center;
-    background: $bg-elevated;
-    border: wide $border-color;
-}
-
-.cred-status-bar.configured {
-    background: #003322;
-    border: wide $accent-success;
-}
-
-.cred-status-bar.partial {
-    background: #332200;
-    border: wide $accent-warning;
-}
-
-.cred-field {
-    margin: 1 0;
-}
-
-.cred-field-header {
-    height: auto;
-    align: left middle;
-    margin-bottom: 1;
-}
-
-.cred-field-label {
-    text-style: bold;
-    color: $text-primary;
-    width: auto;
-}
-
-.toggle-btn {
-    min-width: 8;
-    height: 1;
-    margin-left: 2;
-    padding: 0 1;
-}
-
-.auth-section {
-    margin-top: 1;
-    padding-top: 1;
-    border-top: solid $border-color;
-}
-
-.auth-hint {
-    color: $text-muted;
-    text-style: italic;
-    padding-left: 4;
-}
-
-/* Instructions */
-.instructions-card {
-    margin-top: 2;
-    background: $bg-elevated;
-    border: dashed $border-color;
-    padding: 1;
-}
-
-.instructions-btn {
-    width: 100%;
-    background: transparent;
     border: none;
-    color: $accent-secondary;
 }
 
-#instructions-content {
-    margin-top: 1;
+.lyrics-text {
+    color: $text-secondary;
+}
+
+/* ---- Card header row (inline selectors) ---- */
+.card-header-row {
+    height: auto;
+    align: left middle;
+    margin-bottom: 1;
+}
+
+.card-header-row .card-title {
+    width: auto;
+    margin-right: 2;
+}
+
+.card-header-row Select {
+    width: 1fr;
+}
+
+/* ---- Inline match submission ---- */
+#submit-match-form {
+    height: auto;
     padding: 1;
 }
 
-.skip-note {
-    color: $text-muted;
-    text-style: italic;
-    text-align: center;
-    margin-top: 2;
-}
-
-/* Complete step */
-#complete-content {
-    text-align: center;
-}
-
-#complete-icon {
-    color: $accent-success;
-    padding: 1;
-}
-
-#complete-title {
-    text-style: bold;
-    color: $text-primary;
-    padding: 1;
-}
-
-.tips-grid {
-    margin: 2 0;
-}
-
-.tip-item {
+#submit-match-form Input {
     margin: 1 0;
-    padding: 1;
-    text-align: left;
 }
 
-.tip-key {
-    color: $accent-primary;
-    text-style: bold;
-    width: 8;
+#submit-match-form Button {
+    margin-top: 1;
 }
 
-.tip-desc {
-    color: $text-primary;
+/* ---- Technical info and rights cards ---- */
+#technical-info-card,
+#rights-info-card,
+#copyright-card,
+#created-by-card {
+    height: auto;
 }
 
-/* Navigation */
-#onboarding-nav {
-    dock: bottom;
-    height: 5;
-    background: $bg-panel;
-    border-top: wide $border-color;
-    padding: 1 4;
-    align: center middle;
-}
 
-#onboarding-nav Button {
-    margin: 0 2;
-    min-width: 14;
-}
-
-/* ==================== QUEUE SCREEN ==================== */
+/* ==========================================================================
+   9. QUEUE SCREEN — Progress bar, status indicators, now-playing
+   ========================================================================== */
 
 #queue-container {
     padding: 1 2;
@@ -1334,7 +1499,7 @@ Rule {
     align: left middle;
     padding: 1 1;
     background: $bg-panel;
-    border-bottom: wide $border-color;
+    border-bottom: solid $border-subtle;
 }
 
 #queue-title-block {
@@ -1374,14 +1539,14 @@ Rule {
 #queue-sidebar {
     width: 30%;
     padding-left: 1;
-    border-left: wide $border-color;
+    border-left: solid $border-subtle;
 }
 
 #queue-table-container {
     height: 1fr;
     min-height: 10;
     background: $bg-surface;
-    border: wide $border-color;
+    border: none;
 }
 
 #queue-table {
@@ -1390,16 +1555,87 @@ Rule {
     min-height: 10;
 }
 
-#queue-now-card #current-download {
+#queue-now-footer {
+    dock: bottom;
+    height: 5;
+    width: 100%;
+    padding: 0 1;
+    background: $bg-panel;
+    border-top: solid $border-subtle;
+}
+
+#queue-now-footer #queue-cover {
+    width: 8;
+    height: 4;
+}
+
+#queue-now-info {
+    width: 1fr;
+    padding: 0 1;
+}
+
+#queue-now-footer #current-download {
+    height: 1;
     color: $text-primary;
-    margin-bottom: 1;
+}
+
+#current-meta {
+    width: auto;
+    padding: 0 1;
 }
 
 #queue-summary {
     color: $text-secondary;
 }
 
-/* Download status colors */
+/* ---- Queue filter tabs ---- */
+#queue-filter-tabs {
+    height: auto;
+    max-height: 3;
+    margin: 0 0 1 0;
+    padding: 0 1;
+    align: left middle;
+}
+
+#queue-filter-tabs Button {
+    min-width: 10;
+    margin-right: 1;
+}
+
+.queue-filter-active {
+    background: $accent-primary;
+    color: $text-primary;
+    border: solid $accent-primary;
+}
+
+/* ---- Overall progress ---- */
+#overall-progress-container {
+    height: auto;
+    padding: 0 1;
+    margin-bottom: 1;
+}
+
+#overall-progress {
+    width: 100%;
+}
+
+/* ---- Queue empty / complete ---- */
+#queue-empty-state {
+    text-align: center;
+    padding: 3;
+}
+
+#queue-empty-state Button {
+    margin-top: 2;
+}
+
+#queue-complete-notice {
+    color: $accent-success;
+    text-align: center;
+    padding: 1;
+}
+
+/* ---- Download status colors ---- */
 .dl-pending {
     color: $text-muted;
 }
@@ -1432,7 +1668,10 @@ Rule {
     color: $text-muted;
 }
 
-/* ==================== SETTINGS SCREEN ==================== */
+
+/* ==========================================================================
+   10. SETTINGS SCREEN — Sidebar nav pattern (left nav 20 cols + right content)
+   ========================================================================== */
 
 #settings-container {
     padding: 1 2;
@@ -1444,7 +1683,7 @@ Rule {
     height: auto;
     min-height: 5;
     margin-bottom: 1;
-    border-bottom: wide $border-color;
+    border-bottom: solid $border-subtle;
     padding-bottom: 1;
 }
 
@@ -1460,7 +1699,7 @@ Rule {
 /* Settings groups */
 .settings-group {
     background: $bg-surface;
-    border: wide $border-color;
+    border: none;
     padding: 1 2;
     margin-bottom: 2;
     height: auto;
@@ -1511,7 +1750,7 @@ Rule {
 
 .settings-group-title {
     text-style: bold;
-    color: $text-primary;
+    color: $text-accent;
     width: auto;
 }
 
@@ -1524,7 +1763,7 @@ Rule {
     margin-bottom: 1;
 }
 
-/* Group title used in settings.py */
+/* Group title */
 .group-title {
     text-style: bold;
     color: $accent-primary;
@@ -1582,7 +1821,7 @@ Rule {
     margin-bottom: 1;
 }
 
-/* Group header (used in credentials sections) */
+/* Group header */
 .group-header {
     height: auto;
     width: 100%;
@@ -1595,9 +1834,9 @@ Rule {
     height: auto;
 }
 
-/* Credentials section styling */
+/* ---- Credentials sections ---- */
 .credentials-section {
-    border: wide $accent-primary;
+    border: solid $accent-primary;
 }
 
 .cred-field-group {
@@ -1644,10 +1883,10 @@ Rule {
     margin-top: 1;
 }
 
-/* Credential sections in settings */
+/* Credential groups in settings */
 .credentials-group {
     background: $bg-surface;
-    border: wide $accent-primary;
+    border: solid $accent-primary;
     padding: 1 2;
     margin-bottom: 2;
 }
@@ -1721,7 +1960,7 @@ Rule {
     height: 5;
     margin-top: 2;
     padding-top: 1;
-    border-top: wide $border-color;
+    border-top: solid $border-subtle;
     align: center middle;
 }
 
@@ -1730,317 +1969,435 @@ Rule {
     min-width: 16;
 }
 
-/* ==================== MARKDOWN ==================== */
-
-Markdown {
-    padding: 1;
-    background: transparent;
-}
-
-MarkdownH1 {
-    color: $accent-primary;
-    text-style: bold;
-    padding: 1 0;
-}
-
-MarkdownH2 {
-    color: $text-primary;
-    text-style: bold;
-    padding: 1 0;
-}
-
-MarkdownH3 {
-    color: $text-primary;
-    text-style: bold;
-    padding: 1 0;
-}
-
-MarkdownBulletList {
-    padding-left: 2;
-}
-
-MarkdownOrderedList {
-    padding-left: 2;
-}
-
-/* ==================== DETAIL SCREENS (Track/Album/Artist/Playlist) ==================== */
-
-/* Hero sections */
-.hero-section {
-    background: $bg-panel;
-    padding: 2 3;
-    margin-bottom: 2;
-    border-bottom: wide $border-color;
-}
-
-#track-hero-content,
-#album-hero-content,
-#artist-hero-content,
-#playlist-hero-content {
+/* Matching thresholds */
+#matching-thresholds {
     height: auto;
-    min-height: 16;
-    align: left top;
+    width: 100%;
 }
 
-/* CoverArt widget */
-CoverArt {
-    overflow: hidden;
+/* Export/Import buttons */
+.settings-action-btn {
+    margin: 0 1;
+    min-width: 14;
 }
 
-CoverArt #cover-image {
-    width: 1fr;
-    height: 1fr;
+
+/* ==========================================================================
+   11. MODALS — Login, submit match, report overlays
+   ========================================================================== */
+
+/* ---- Login screen ---- */
+#login-container {
+    width: 100%;
+    height: 100%;
+    align: center middle;
+    background: $bg-chassis;
 }
 
-/* Cover/Avatar placeholders */
-.cover-placeholder {
-    width: 24;
-    height: 12;
-    background: $bg-surface;
-    border: wide $border-color;
-    content-align: center middle;
-    margin-right: 2;
-}
-
-.cover-placeholder-large {
-    width: 32;
-    height: 16;
-    background: $bg-surface;
-    border: wide $border-color;
-    content-align: center middle;
-    margin-right: 2;
-}
-
-.avatar-placeholder {
-    width: 24;
-    height: 12;
-    background: $bg-surface;
-    border: wide $accent-primary;
-    content-align: center middle;
-    margin-right: 2;
-}
-
-/* Info sections */
-#track-info,
-#album-info,
-#artist-info,
-#playlist-info {
-    width: 1fr;
-}
-
-/* Badges rows */
-#track-badges,
-#album-badges {
+#login-form {
+    width: 60;
     height: auto;
+    padding: 2 4;
+    background: $bg-surface;
+    border: solid $border-subtle;
+}
+
+#login-form Input {
     margin-bottom: 1;
 }
 
-/* Stats rows */
-.stats-row {
-    height: auto;
-    margin: 1 0;
+#login-btn {
+    width: 100%;
+    margin-top: 1;
 }
 
-.stat-item {
-    width: auto;
-    margin-right: 3;
+/* ---- Submit match screen ---- */
+#submit-match-container {
+    padding: 2;
 }
 
-/* Genre row */
-.genre-row {
-    height: auto;
-    margin: 1 0;
-}
-
-.genre-row .badge {
-    margin-right: 1;
-}
-
-/* Actions row */
-.actions-row {
+#submit-match-actions {
     height: auto;
     margin-top: 1;
 }
 
-.actions-row Button {
+#submit-match-actions Button {
     margin-right: 1;
 }
 
-/* Detail row (for ISRC, Label, etc.) */
-.detail-row {
-    height: auto;
-    margin: 0;
-    color: $text-secondary;
+/* ---- Report screen ---- */
+#report-container {
+    padding: 2;
 }
 
-/* Description text */
-.description-text {
-    color: $text-secondary;
-    max-height: 4;
-    overflow: hidden;
-    margin: 1 0;
+#report-actions {
+    height: auto;
+    margin-top: 1;
 }
 
-/* Content grids */
-#track-content,
-#album-content,
-#artist-content,
-#playlist-content {
-    width: 100%;
-    height: auto;
-    min-height: 20;
+#report-actions Button {
+    margin-right: 1;
+}
+
+
+/* ==========================================================================
+   12. ADMIN — Dashboard stat grid, tables
+   ========================================================================== */
+
+#admin-container {
     padding: 1 2;
+    width: 100%;
+    height: 100%;
 }
 
-/* Main column (left, 2/3 width) */
-.main-column {
-    width: 66%;
-    padding-right: 2;
-}
-
-/* Sidebar column (right, 1/3 width) */
-.sidebar-column {
-    width: 34%;
-    padding-left: 2;
-    border-left: wide $border-color;
-}
-
-/* Stats grid */
-.stats-grid {
+#admin-stats-grid {
     height: auto;
+    margin-bottom: 2;
 }
 
-.stat-box {
-    width: 1fr;
-    text-align: center;
+#admin-stats-grid .stat-box {
+    background: $bg-surface;
+    margin-right: 1;
     padding: 1;
 }
 
-.stat-value {
-    text-style: bold;
-    color: $accent-primary;
-}
-
-.stat-label {
-    color: $text-muted;
-}
-
-/* Bio text */
-.bio-text {
-    color: $text-secondary;
-    max-height: 8;
-    overflow: hidden;
-}
-
-/* Feature rows (for audio features) */
-.feature-row {
+.admin-actions-row {
     height: auto;
-    margin: 1 0;
+    margin-bottom: 1;
     align: left middle;
 }
 
-.feature-label {
-    width: 12;
-    color: $text-secondary;
+.admin-actions-row Button {
+    margin-right: 1;
 }
 
-.feature-value {
-    color: $text-primary;
-    text-style: bold;
-}
 
-.feature-row ProgressBar {
-    width: 1fr;
-}
+/* ==========================================================================
+   13. ONBOARDING — Step progress, feature grid
+   ========================================================================== */
 
-/* Lyrics display */
-.lyrics-scroll {
-    max-height: 20;
-    background: $bg-elevated;
-    padding: 1;
-    border: wide $border-color;
-}
-
-.lyrics-text {
-    color: $text-secondary;
-}
-
-/* Matches container */
-#matches-container {
-    height: auto;
-    min-height: 10;
-}
-
-#matches-table {
-    height: auto;
-    min-height: 8;
-    max-height: 30;
-}
-
-/* Tracks container */
-#tracks-container {
-    height: auto;
-    min-height: 10;
-}
-
-#tracks-table {
-    height: auto;
-    min-height: 8;
-    max-height: 40;
-}
-
-/* Top tracks container */
-#top-tracks-container {
-    height: auto;
-    min-height: 8;
-}
-
-#top-tracks-table {
-    height: auto;
-    min-height: 6;
-    max-height: 20;
-}
-
-/* Album tables */
-#albums-table-all,
-#albums-table-albums,
-#albums-table-singles,
-#albums-table-eps {
-    height: auto;
-    min-height: 6;
-    max-height: 20;
-}
-
-/* Tabbed content */
-#discography-tabs {
-    height: auto;
-    min-height: 10;
-}
-
-TabbedContent {
-    height: auto;
-}
-
-TabPane {
-    height: auto;
-    padding: 1;
-}
-
-ContentSwitcher {
-    height: auto;
-}
-
-/* Detail containers */
-#track-container,
-#album-container,
-#artist-container,
-#playlist-container {
+#onboarding-container {
     width: 100%;
     height: 100%;
     background: $bg-chassis;
 }
 
-/* ==================== ACCOUNT SCREEN ==================== */
+/* Progress header */
+#onboarding-header {
+    dock: top;
+    height: 5;
+    background: $bg-panel;
+    border-bottom: solid $border-subtle;
+    padding: 1 2;
+}
+
+#progress-steps {
+    height: auto;
+    align: center middle;
+}
+
+.step-item {
+    width: auto;
+    padding: 0 2;
+    text-align: center;
+}
+
+.step-number {
+    text-style: bold;
+}
+
+.step-number-active {
+    color: $accent-primary;
+}
+
+.step-number-complete {
+    color: $accent-success;
+}
+
+.step-number-pending {
+    color: $text-muted;
+}
+
+.step-connector {
+    width: 4;
+    color: $border-color;
+}
+
+.step-connector-complete {
+    color: $accent-success;
+}
+
+#step-title {
+    text-align: center;
+    color: $text-muted;
+    margin-top: 1;
+}
+
+/* Content area */
+#onboarding-content {
+    height: 1fr;
+    padding: 2 4;
+}
+
+.onboarding-step {
+    width: 100%;
+    max-width: 80;
+    margin: 0 2;
+}
+
+/* Welcome step */
+#welcome-content {
+    text-align: center;
+}
+
+#welcome-logo {
+    color: $accent-primary;
+    text-style: bold;
+    padding: 1;
+}
+
+#welcome-title {
+    text-style: bold;
+    color: $text-accent;
+    padding: 1;
+}
+
+#welcome-subtitle {
+    color: $text-secondary;
+    padding: 1;
+}
+
+.feature-grid {
+    margin: 2 0;
+}
+
+.feature-item {
+    margin: 1 0;
+    padding: 1 2;
+    background: $bg-surface;
+    border: none;
+}
+
+.feature-icon {
+    color: $accent-primary;
+    width: 4;
+}
+
+.feature-text {
+    width: 1fr;
+}
+
+.feature-title {
+    text-style: bold;
+    color: $text-accent;
+}
+
+.feature-desc {
+    color: $text-secondary;
+}
+
+/* Config cards */
+.config-card {
+    background: $bg-surface;
+    border: none;
+    padding: 1 2;
+    margin-bottom: 2;
+}
+
+.config-card-header {
+    height: auto;
+    margin-bottom: 1;
+}
+
+.config-card-icon {
+    color: $accent-primary;
+    width: 3;
+}
+
+.config-card-title {
+    text-style: bold;
+    color: $text-accent;
+}
+
+.config-card-desc {
+    color: $text-secondary;
+    margin-bottom: 1;
+}
+
+.config-input {
+    width: 100%;
+    margin-top: 1;
+}
+
+.config-select {
+    width: 100%;
+    margin-top: 1;
+}
+
+/* Credentials card */
+.credentials-card {
+    background: $bg-surface;
+    border: solid $accent-primary;
+    padding: 1 2;
+    margin: 1 0;
+}
+
+.credentials-header {
+    height: auto;
+    align: left middle;
+    margin-bottom: 1;
+}
+
+.credentials-title {
+    text-style: bold;
+    color: $text-primary;
+    width: auto;
+}
+
+.credentials-badge {
+    margin-left: 2;
+    background: #332200;
+    color: $accent-warning;
+    padding: 0 1;
+    text-style: bold;
+}
+
+.cred-status-bar {
+    height: 3;
+    margin: 1 0;
+    padding: 1;
+    text-align: center;
+    background: $bg-elevated;
+    border: solid $border-color;
+}
+
+.cred-status-bar.configured {
+    background: #003322;
+    border: solid $accent-success;
+}
+
+.cred-status-bar.partial {
+    background: #332200;
+    border: solid $accent-warning;
+}
+
+.cred-field {
+    margin: 1 0;
+}
+
+.cred-field-header {
+    height: auto;
+    align: left middle;
+    margin-bottom: 1;
+}
+
+.cred-field-label {
+    text-style: bold;
+    color: $text-primary;
+    width: auto;
+}
+
+.toggle-btn {
+    min-width: 8;
+    height: 1;
+    margin-left: 2;
+    padding: 0 1;
+}
+
+.auth-section {
+    margin-top: 1;
+    padding-top: 1;
+    border-top: solid $border-subtle;
+}
+
+.auth-hint {
+    color: $text-muted;
+    text-style: italic;
+    padding-left: 4;
+}
+
+/* Instructions */
+.instructions-card {
+    margin-top: 2;
+    background: $bg-elevated;
+    border: none;
+    padding: 1;
+}
+
+.instructions-btn {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: $accent-secondary;
+}
+
+#instructions-content {
+    margin-top: 1;
+    padding: 1;
+}
+
+.skip-note {
+    color: $text-muted;
+    text-style: italic;
+    text-align: center;
+    margin-top: 2;
+}
+
+/* Complete step */
+#complete-content {
+    text-align: center;
+}
+
+#complete-icon {
+    color: $accent-success;
+    padding: 1;
+}
+
+#complete-title {
+    text-style: bold;
+    color: $text-accent;
+    padding: 1;
+}
+
+.tips-grid {
+    margin: 2 0;
+}
+
+.tip-item {
+    margin: 1 0;
+    padding: 1;
+    text-align: left;
+}
+
+.tip-key {
+    color: $accent-primary;
+    text-style: bold;
+    width: 8;
+}
+
+.tip-desc {
+    color: $text-primary;
+}
+
+/* Navigation */
+#onboarding-nav {
+    dock: bottom;
+    height: 5;
+    background: $bg-panel;
+    border-top: solid $border-subtle;
+    padding: 1 4;
+    align: center middle;
+}
+
+#onboarding-nav Button {
+    margin: 0 2;
+    min-width: 14;
+}
+
+
+/* ==========================================================================
+   14. ACCOUNT SCREEN
+   ========================================================================== */
 
 #account-scroll {
     padding: 1 2;
@@ -2070,7 +2427,7 @@ ContentSwitcher {
 }
 
 .danger-zone {
-    border: wide $accent-error;
+    border: solid $accent-error;
 }
 
 #delete-actions {
@@ -2082,168 +2439,12 @@ ContentSwitcher {
     margin-right: 1;
 }
 
-/* ==================== QUEUE FILTER TABS ==================== */
-
-#queue-filter-tabs {
-    height: auto;
-    max-height: 3;
-    margin: 0 0 1 0;
-    padding: 0 1;
-    align: left middle;
-}
-
-#queue-filter-tabs Button {
-    min-width: 10;
-    margin-right: 1;
-}
-
-.queue-filter-active {
-    background: $accent-primary;
-    color: $text-primary;
-    border: tall $accent-primary;
-}
-
-/* Queue overall progress */
-#overall-progress-container {
-    height: auto;
-    padding: 0 1;
-    margin-bottom: 1;
-}
-
-#overall-progress {
-    width: 100%;
-}
-
-/* Queue empty state */
-#queue-empty-state {
-    text-align: center;
-    padding: 3;
-}
-
-#queue-empty-state Button {
-    margin-top: 2;
-}
-
-/* Queue complete notice */
-#queue-complete-notice {
-    color: $accent-success;
-    text-align: center;
-    padding: 1;
-}
-
-/* ==================== ERROR MESSAGE ==================== */
-
-.error-message {
-    color: $accent-error;
-    padding: 0 1;
-    margin: 1 0;
-}
-
-/* ==================== ALBUM TYPE BADGES ==================== */
-
-.badge-album-single {
-    background: #1a0033;
-    color: $platform-deezer;
-}
-
-.badge-album-ep {
-    background: #002233;
-    color: $accent-secondary;
-}
-
-.badge-album-compilation {
-    background: #332200;
-    color: $accent-warning;
-}
-
-/* ==================== TRACK SCREEN ENHANCEMENTS ==================== */
-
-/* Card header row for inline selectors */
-.card-header-row {
-    height: auto;
-    align: left middle;
-    margin-bottom: 1;
-}
-
-.card-header-row .card-title {
-    width: auto;
-    margin-right: 2;
-}
-
-.card-header-row Select {
-    width: 1fr;
-}
-
-/* Match badges */
-.match-badge {
-    padding: 0 1;
-    text-style: bold;
-}
-
-.match-badge-best {
-    background: #003322;
-    color: $accent-success;
-}
-
-.match-badge-user {
-    background: #002233;
-    color: $accent-secondary;
-}
-
-.match-badge-pending {
-    background: #332200;
-    color: $accent-warning;
-}
-
-.match-badge-verified {
-    background: #003322;
-    color: $accent-success;
-}
-
-/* Technical info and rights cards */
-#technical-info-card,
-#rights-info-card,
-#copyright-card,
-#created-by-card {
-    height: auto;
-}
-
-/* Inline match submission */
-Collapsible {
-    background: $bg-surface;
-    border: wide $border-color;
-    padding: 0;
-    margin: 1 0;
-}
-
-#submit-match-form {
-    height: auto;
-    padding: 1;
-}
-
-#submit-match-form Input {
-    margin: 1 0;
-}
-
-#submit-match-form Button {
-    margin-top: 1;
-}
-
-/* Audio feature detail values */
-.feature-detail-value {
-    color: $text-secondary;
-    margin: 0 0 1 0;
-}
-
-/* ==================== ARTIST SCREEN ENHANCEMENTS ==================== */
-
-/* Bio expand */
+/* ---- Artist screen extras ---- */
 #expand-bio-btn {
     min-width: 12;
     margin-top: 1;
 }
 
-/* Related artists */
 #related-artists-content {
     height: auto;
 }
@@ -2254,28 +2455,10 @@ Collapsible {
     margin: 0 0 1 0;
 }
 
-/* Compilations table */
-#albums-table-compilations {
-    height: auto;
-    min-height: 6;
-    max-height: 20;
-}
 
-/* ==================== SETTINGS ENHANCEMENTS ==================== */
-
-/* Matching thresholds conditional visibility */
-#matching-thresholds {
-    height: auto;
-    width: 100%;
-}
-
-/* Export/Import buttons */
-.settings-action-btn {
-    margin: 0 1;
-    min-width: 14;
-}
-
-/* ==================== TEXT UTILITIES ==================== */
+/* ==========================================================================
+   15. RESPONSIVE / TEXT UTILITIES
+   ========================================================================== */
 
 .text-muted {
     color: $text-muted;
@@ -2289,6 +2472,14 @@ Collapsible {
     height: auto;
 }
 
-/* ==================== RESPONSIVE ==================== */
+.mb-2 {
+    margin-bottom: 2;
+}
 
-/* Adjustments for smaller terminals handled by Textual's responsive system */
+.mt-2 {
+    margin-top: 2;
+}
+
+.w-full {
+    width: 100%;
+}

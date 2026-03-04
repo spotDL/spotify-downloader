@@ -9,7 +9,6 @@ import textual_image.renderable  # noqa: F401 — must import before App starts 
 
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.widgets import Footer, Header
 
 from spotdl_cli import __version__
 from spotdl_cli.config import get_settings
@@ -20,13 +19,14 @@ from spotdl_cli.core import (
     get_api_client,
     get_image_service,
 )
-from spotdl_cli.core.backend import get_backend_manager
+from spotdl_cli.core.backend import BackendState, get_backend_manager
 from spotdl_cli.screens.account import AccountScreen
 from spotdl_cli.screens.main import MainScreen
 from spotdl_cli.screens.onboarding import OnboardingScreen, should_show_onboarding
 from spotdl_cli.screens.queue import QueueScreen
 from spotdl_cli.screens.settings import SettingsScreen
 from spotdl_cli.providers import SpotDLCommandProvider
+from spotdl_cli.widgets import NavRail, StatusBar
 
 if TYPE_CHECKING:
     from textual.screen import Screen
@@ -40,17 +40,18 @@ class SpotDLApp(App[None]):
     TITLE = "SpotDL"
     SUB_TITLE = f"v{__version__}"
     CSS_PATH = "app.tcss"
-    
+
     COMMANDS = App.COMMANDS | {SpotDLCommandProvider}
 
     BINDINGS: ClassVar[list[Binding]] = [
         Binding("q", "quit", "Quit", priority=True),
-        Binding("s", "push_screen('search')", "Search", show=True),
-        Binding("d", "push_screen('queue')", "Downloads", show=True),
-        Binding("comma", "push_screen('settings')", "Settings", show=True),
-        Binding("a", "push_screen('account')", "Account", show=True),
+        Binding("s", "push_screen('search')", "Search", show=False),
+        Binding("d", "push_screen('queue')", "Downloads", show=False),
+        Binding("comma", "push_screen('settings')", "Settings", show=False),
+        Binding("a", "push_screen('account')", "Account", show=False),
         Binding("ctrl+k", "command_palette", "Commands"),
         Binding("?", "toggle_help", "Help"),
+        Binding("left_square_bracket", "toggle_nav", "Toggle Nav", show=False),
     ]
 
     SCREENS: ClassVar[dict[str, type[Screen[object]]]] = {
@@ -102,13 +103,26 @@ class SpotDLApp(App[None]):
 
     def compose(self) -> ComposeResult:
         """Compose the application layout."""
-        yield Header()
-        yield Footer()
+        yield NavRail(id="app-nav-rail")
+        yield StatusBar(id="app-status-bar")
 
     async def on_mount(self) -> None:
         """Handle application mount."""
+        status_bar = self.query_one("#app-status-bar", StatusBar)
+
         # Start local backend if configured
         manager = get_backend_manager()
+
+        # Wire backend state changes to status bar
+        def _on_backend_state(state: BackendState) -> None:
+            try:
+                status_bar.backend_state = state.value
+            except Exception:
+                pass
+
+        manager.on_state_change(_on_backend_state)
+        status_bar.backend_state = manager.state.value
+
         if not self._settings.offline_mode:
             try:
                 await manager.start()
@@ -135,21 +149,44 @@ class SpotDLApp(App[None]):
 
     async def _check_connectivity(self) -> None:
         """Check if backend is available."""
+        status_bar = self.query_one("#app-status-bar", StatusBar)
+
         if self._settings.offline_mode:
             self._is_online = False
-            self.sub_title = f"v{__version__} - Offline Mode"
+            status_bar.is_connected = False
             return
 
         try:
             self._is_online = await self.api_client.is_online()
-            if self._is_online:
-                self.sub_title = f"v{__version__} - Connected"
-            else:
-                self.sub_title = f"v{__version__} - Offline Mode"
+            status_bar.is_connected = self._is_online
         except Exception as e:
             logger.warning(f"Failed to check connectivity: {e}")
             self._is_online = False
-            self.sub_title = f"v{__version__} - Offline Mode"
+            status_bar.is_connected = False
+
+    def on_screen_resume(self) -> None:
+        """Update NavRail active state on screen changes."""
+        try:
+            nav = self.query_one("#app-nav-rail", NavRail)
+            screen_name = self.screen.__class__.__name__
+            name_map = {
+                "MainScreen": "search",
+                "QueueScreen": "queue",
+                "SettingsScreen": "settings",
+                "AccountScreen": "account",
+            }
+            if screen_name in name_map:
+                nav.active_screen = name_map[screen_name]
+        except Exception:
+            pass
+
+    def action_toggle_nav(self) -> None:
+        """Toggle NavRail collapse."""
+        try:
+            nav = self.query_one("#app-nav-rail", NavRail)
+            nav.toggle()
+        except Exception:
+            pass
 
     async def action_quit(self) -> None:
         """Quit the application."""

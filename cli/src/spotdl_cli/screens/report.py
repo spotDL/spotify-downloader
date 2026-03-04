@@ -7,8 +7,8 @@ from typing import ClassVar
 
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Horizontal, Vertical
-from textual.screen import Screen
+from textual.containers import Center, Horizontal, Vertical
+from textual.screen import ModalScreen
 from textual.widgets import Button, Input, Select, Static
 
 from spotdl_cli.core import APIError, get_api_client
@@ -16,7 +16,7 @@ from spotdl_cli.core import APIError, get_api_client
 logger = logging.getLogger(__name__)
 
 
-class ReportScreen(Screen[None]):
+class ReportScreen(ModalScreen[None]):
     """Report incorrect metadata."""
 
     BINDINGS: ClassVar[list[Binding]] = [
@@ -40,33 +40,34 @@ class ReportScreen(Screen[None]):
 
     def compose(self) -> ComposeResult:
         """Compose the report screen."""
-        with Vertical(id="report-container"):
-            yield Static("Report Incorrect Data", classes="title")
-            yield Static(
-                f'Report an issue with "{self._entity_name}"',
-                classes="status-muted",
-            )
+        with Center(id="report-overlay"):
+            with Vertical(id="report-container", classes="card"):
+                yield Static("Report Incorrect Data", classes="title")
+                yield Static(
+                    f'Report an issue with "{self._entity_name}"',
+                    classes="status-muted",
+                )
 
-            yield Select(
-                [(f["label"], f["name"]) for f in self._fields],
-                id="report-field",
-                prompt="Select a field",
-            )
+                yield Select(
+                    [(f["label"], f["name"]) for f in self._fields],
+                    id="report-field",
+                    prompt="Select a field",
+                )
 
-            yield Static("", id="report-current-value", classes="status-muted")
+                yield Static("", id="report-current-value", classes="status-muted")
 
-            yield Input(
-                placeholder="Correct value",
-                id="report-suggested-value",
-            )
-            yield Input(
-                placeholder="Additional details (optional)",
-                id="report-description",
-            )
+                yield Input(
+                    placeholder="Correct value",
+                    id="report-suggested-value",
+                )
+                yield Input(
+                    placeholder="Additional details (optional)",
+                    id="report-description",
+                )
 
-            with Horizontal(id="report-actions"):
-                yield Button("Submit Report", id="report-submit", variant="primary")
-                yield Button("Cancel", id="report-cancel", variant="default")
+                with Horizontal(id="report-actions"):
+                    yield Button("Submit Report", id="report-submit", variant="primary")
+                    yield Button("Cancel", id="report-cancel", variant="default")
 
     def action_submit(self) -> None:
         """Submit report action."""

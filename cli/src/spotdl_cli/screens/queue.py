@@ -27,6 +27,7 @@ from spotdl_cli.core import (
     get_offline_matcher,
 )
 from spotdl_cli.core.types import TargetPlatform
+from spotdl_cli.theme import Theme
 from spotdl_cli.widgets import CoverArt
 
 if TYPE_CHECKING:
@@ -67,11 +68,8 @@ class QueueScreen(Screen[None]):
     def compose(self) -> ComposeResult:
         """Compose the screen layout."""
         with Vertical(id="queue-container"):
-            # Header
+            # Toolbar
             with Horizontal(id="queue-header"):
-                with Vertical(id="queue-title-block"):
-                    yield Static("Downloads", id="queue-title")
-                    yield Static("", id="queue-stats", classes="status-muted")
                 with Horizontal(id="queue-actions"):
                     yield Button("Start", id="start-btn", variant="success")
                     yield Button("Pause", id="pause-btn", variant="warning")
@@ -79,50 +77,49 @@ class QueueScreen(Screen[None]):
                     yield Button("Clear Done", id="clear-done-btn")
                     yield Button("Retry Failed", id="retry-failed-btn")
 
-            # Filter tabs
+            # Overall progress with text
+            with Horizontal(id="queue-progress-row"):
+                yield ProgressBar(id="overall-progress", total=100, show_eta=False)
+                yield Static("0% (0/0)", id="overall-progress-text")
+
+            # Stats line
+            yield Static("", id="queue-stats", classes="status-muted")
+
+            # Filter tabs (underline style)
             with Horizontal(id="queue-filter-tabs"):
-                yield Button("All (0)", id="filter-all", classes="filter-btn active")
-                yield Button("Active (0)", id="filter-active", classes="filter-btn")
-                yield Button("Done (0)", id="filter-done", classes="filter-btn")
-                yield Button("Failed (0)", id="filter-failed", classes="filter-btn")
+                yield Button("All (0)", id="filter-all", classes="filter-tab filter-tab-active")
+                yield Button("Active (0)", id="filter-active", classes="filter-tab")
+                yield Button("Done (0)", id="filter-done", classes="filter-tab")
+                yield Button("Failed (0)", id="filter-failed", classes="filter-tab")
 
-            # Overall progress
-            yield ProgressBar(id="overall-progress", total=100, show_eta=False)
+            # Empty state
+            with Vertical(id="queue-empty-state", classes="empty-state hidden"):
+                yield Static("No downloads yet", classes="empty-title")
+                yield Static(
+                    "Search for music and add tracks to the download queue.",
+                    classes="empty-subtitle",
+                )
+                yield Button(
+                    "Go to Search",
+                    id="go-search-btn",
+                    variant="primary",
+                )
 
-            # Content split
-            with Horizontal(id="queue-content"):
-                with Vertical(id="queue-main"):
-                    # Empty state
-                    with Vertical(id="queue-empty-state", classes="empty-state hidden"):
-                        yield Static("No downloads yet", classes="empty-title")
-                        yield Static(
-                            "Search for music and add tracks to the download queue.",
-                            classes="empty-subtitle",
-                        )
-                        yield Button(
-                            "Go to Search",
-                            id="go-search-btn",
-                            variant="primary",
-                        )
+            # Complete notice
+            with Vertical(id="queue-complete-notice", classes="hidden"):
+                yield Static("", id="complete-notice-text")
 
-                    # Complete notice
-                    with Vertical(id="queue-complete-notice", classes="hidden"):
-                        yield Static("", id="complete-notice-text")
+            # Queue table (full width, no sidebar)
+            with Vertical(id="queue-table-container"):
+                yield DataTable(id="queue-table")
 
-                    with Vertical(id="queue-table-container"):
-                        yield DataTable(id="queue-table")
-
-                with Vertical(id="queue-sidebar"):
-                    with Vertical(classes="card", id="queue-now-card"):
-                        yield Static("Now Downloading", classes="card-title")
-                        yield CoverArt(id="queue-cover", classes="cover-placeholder")
-                        yield Static("", id="current-download")
-                        yield ProgressBar(id="download-progress", total=100, show_eta=False)
-                        yield Static("", id="current-meta", classes="status-muted")
-
-                    with Vertical(classes="card", id="queue-summary-card"):
-                        yield Static("Summary", classes="card-title")
-                        yield Static("", id="queue-summary")
+            # "Now Downloading" footer panel (docked at bottom)
+            with Horizontal(id="queue-now-footer"):
+                yield CoverArt(id="queue-cover", classes="cover-small")
+                with Vertical(id="queue-now-info"):
+                    yield Static("Idle", id="current-download")
+                    yield ProgressBar(id="download-progress", total=100, show_eta=False)
+                yield Static("", id="current-meta", classes="status-muted")
 
     async def on_mount(self) -> None:
         """Handle screen mount."""
@@ -131,10 +128,10 @@ class QueueScreen(Screen[None]):
         table.cursor_type = "row"
         table.zebra_stripes = True
         table.add_columns(
+            "Status",
             "Title",
             "Artist",
             "Platform",
-            "Status",
             "Progress",
             "Speed",
             "ETA",
@@ -226,10 +223,10 @@ class QueueScreen(Screen[None]):
             platform = self._get_platform_mapping(item)
 
             table.add_row(
+                status,
                 item.song.name,
                 item.song.artist,
                 platform,
-                status,
                 progress,
                 item.speed or "-",
                 eta,
@@ -253,9 +250,9 @@ class QueueScreen(Screen[None]):
             eta = item.eta or "-"
             platform = self._get_platform_mapping(item)
 
-            # Update cells (columns: Title, Artist, Platform, Status, Progress, Speed, ETA)
-            table.update_cell_at((row_key, 2), platform)
-            table.update_cell_at((row_key, 3), status)
+            # Update cells (columns: Status, Title, Artist, Platform, Progress, Speed, ETA)
+            table.update_cell_at((row_key, 0), status)
+            table.update_cell_at((row_key, 3), platform)
             table.update_cell_at((row_key, 4), progress)
             table.update_cell_at((row_key, 5), item.speed or "-")
             table.update_cell_at((row_key, 6), eta)
@@ -267,7 +264,6 @@ class QueueScreen(Screen[None]):
         """Update queue statistics."""
         queue = self.spotdl_app.download_queue
         stats = self.query_one("#queue-stats", Static)
-        summary = self.query_one("#queue-summary", Static)
 
         total = len(queue.items)
         pending = queue.pending_count
@@ -280,12 +276,6 @@ class QueueScreen(Screen[None]):
             f"Pending: {pending} | Active: {active} | "
             f"Done: {completed} | Failed: {failed}"
         )
-        summary.update(
-            f"[bold]{pending}[/bold] pending\n"
-            f"[bold]{active}[/bold] active\n"
-            f"[bold]{completed}[/bold] done\n"
-            f"[bold]{failed}[/bold] failed"
-        )
 
         # Update filter tab counts
         try:
@@ -296,14 +286,17 @@ class QueueScreen(Screen[None]):
         except Exception:
             pass
 
-        # Update overall progress bar
+        # Update overall progress bar and text
         try:
             overall = self.query_one("#overall-progress", ProgressBar)
+            progress_text = self.query_one("#overall-progress-text", Static)
             if total > 0:
                 overall_pct = (completed / total) * 100
                 overall.update(progress=overall_pct)
+                progress_text.update(f"{overall_pct:.0f}% ({completed}/{total})")
             else:
                 overall.update(progress=0)
+                progress_text.update("0% (0/0)")
         except Exception:
             pass
 
@@ -356,22 +349,22 @@ class QueueScreen(Screen[None]):
         cover.cover_url = item.song.cover_url
         current.update(item.song.display_name)
         progress.update(progress=item.progress)
-        meta.update(f"{item.status.value.title()} • {item.speed or '-'} • {item.eta or '-'}")
+        meta.update(f"{item.status.value.title()} {Theme.ICON_DOT} {item.speed or '-'} {Theme.ICON_DOT} {item.eta or '-'}")
 
     def _format_status(self, status: DownloadStatus) -> str:
-        """Format status string with color."""
-        colors = {
-            DownloadStatus.PENDING: "dim",
-            DownloadStatus.SEARCHING: "yellow",
-            DownloadStatus.DOWNLOADING: "cyan",
-            DownloadStatus.CONVERTING: "blue",
-            DownloadStatus.EMBEDDING: "blue",
-            DownloadStatus.COMPLETED: "green",
-            DownloadStatus.FAILED: "red",
-            DownloadStatus.CANCELLED: "dim",
+        """Format status with Unicode symbols."""
+        symbols = {
+            DownloadStatus.PENDING: ("\u2026", "dim"),          # ...
+            DownloadStatus.SEARCHING: (Theme.ICON_SEARCH, "yellow"),  # ⌕
+            DownloadStatus.DOWNLOADING: (Theme.ICON_DOWNLOAD, "cyan"),  # ↓
+            DownloadStatus.CONVERTING: ("~", "blue"),
+            DownloadStatus.EMBEDDING: ("~", "blue"),
+            DownloadStatus.COMPLETED: (Theme.ICON_CHECK, "green"),  # ✓
+            DownloadStatus.FAILED: (Theme.ICON_CROSS, "red"),      # ✕
+            DownloadStatus.CANCELLED: (Theme.ICON_CROSS, "dim"),
         }
-        color = colors.get(status, "white")
-        return f"[{color}]{status.value.title()}[/{color}]"
+        symbol, color = symbols.get(status, ("?", "white"))
+        return f"[{color}]{symbol}[/{color}]"
 
     def _set_active_filter(self, filter_name: str) -> None:
         """Set the active filter tab."""
@@ -379,9 +372,11 @@ class QueueScreen(Screen[None]):
         for btn_id in ("filter-all", "filter-active", "filter-done", "filter-failed"):
             btn = self.query_one(f"#{btn_id}", Button)
             if btn_id == f"filter-{filter_name}":
-                btn.add_class("active")
+                btn.add_class("filter-tab-active")
+                btn.remove_class("filter-tab-inactive")
             else:
-                btn.remove_class("active")
+                btn.remove_class("filter-tab-active")
+                btn.add_class("filter-tab-inactive")
         self._update_table()
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:

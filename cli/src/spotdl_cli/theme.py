@@ -12,7 +12,9 @@ class Theme:
 
     # ==================== ACCENT COLORS ====================
     # Primary actions, highlights
-    PRIMARY = "#ff6b35"  # --accent-primary (orange)
+    PRIMARY = "#e8764b"  # muted terracotta (Midnight Vinyl)
+    # Focus glow — separate identity from primary
+    FOCUS = "#c4a35a"  # warm gold
     # Secondary actions
     SECONDARY = "#4ecdc4"  # --accent-secondary (teal)
     # Success states
@@ -21,6 +23,10 @@ class Theme:
     ERROR = "#ff3333"  # --accent-error (red)
     # Premium highlights, warnings
     WARNING = "#ffd93d"  # --accent-gold (gold/amber)
+
+    # ==================== ADDITIONAL TOKENS ====================
+    BG_INSET = "#0c0c0e"  # Recessed panels for depth
+    TEXT_ACCENT = "#e8e0d0"  # Warm white for titles
 
     # ==================== BACKGROUND COLORS ====================
     # True black - deepest layer
@@ -56,6 +62,20 @@ class Theme:
     APPLE_MUSIC = "#fc3c44"  # --color-apple
     TIDAL = "#000000"  # --color-tidal
     AMAZON = "#ff9900"  # --color-amazon
+
+    # ==================== UNICODE ICONS ====================
+    ICON_SEARCH = "⌕"
+    ICON_DOWNLOAD = "↓"
+    ICON_SETTINGS = "⚙"
+    ICON_ACCOUNT = "⚇"
+    ICON_MUSIC = "♪"
+    ICON_ARTIST = "♫"
+    ICON_ALBUM = "◉"
+    ICON_PLAYLIST = "≡"
+    ICON_CHECK = "✓"
+    ICON_CROSS = "✕"
+    ICON_ARROW_RIGHT = "→"
+    ICON_DOT = "●"
 
 
 # Platform color mapping for easy lookup
@@ -188,3 +208,19 @@ __all__ = [
     "get_status_color",
     "truncate",
 ]
+
+# Convenience aliases for icon access
+ICONS = {
+    "search": Theme.ICON_SEARCH,
+    "download": Theme.ICON_DOWNLOAD,
+    "settings": Theme.ICON_SETTINGS,
+    "account": Theme.ICON_ACCOUNT,
+    "music": Theme.ICON_MUSIC,
+    "artist": Theme.ICON_ARTIST,
+    "album": Theme.ICON_ALBUM,
+    "playlist": Theme.ICON_PLAYLIST,
+    "check": Theme.ICON_CHECK,
+    "cross": Theme.ICON_CROSS,
+    "arrow_right": Theme.ICON_ARROW_RIGHT,
+    "dot": Theme.ICON_DOT,
+}

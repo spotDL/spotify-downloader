@@ -24,7 +24,7 @@ from textual.widgets import (
     Static,
 )
 
-from spotdl_cli.widgets import CoverArt
+from spotdl_cli.widgets import CoverArt, StatChip
 
 from spotdl_cli.config import get_settings
 from spotdl_cli.core import (
@@ -33,7 +33,7 @@ from spotdl_cli.core import (
     get_api_client,
     get_offline_matcher,
 )
-from spotdl_cli.theme import format_number, get_platform_icon, truncate
+from spotdl_cli.theme import Theme, format_number, get_platform_icon, truncate
 
 if TYPE_CHECKING:
     from spotdl_cli.app import SpotDLApp
@@ -91,29 +91,42 @@ class PlaylistScreen(Screen[None]):
             # Hero section
             with Vertical(id="playlist-hero", classes="hero-section"):
                 with Horizontal(id="playlist-hero-content"):
-                    # Left: Cover art placeholder
-                    yield CoverArt(id="playlist-cover", classes="cover-placeholder-large")
+                    # Left: Cover art
+                    yield CoverArt(
+                        entity_type="playlist",
+                        id="playlist-cover",
+                        classes="cover-placeholder-large",
+                    )
 
                     # Right: Playlist info
                     with Vertical(id="playlist-info"):
                         # Badge
-                        yield Static("PLAYLIST", classes="badge badge-info")
+                        yield Static(
+                            f"{Theme.ICON_PLAYLIST} PLAYLIST",
+                            classes="badge badge-info",
+                        )
 
                         # Title
-                        yield Static("Loading...", id="playlist-title", classes="title-xl")
+                        yield Static(
+                            "Loading...", id="playlist-title", classes="title-xl"
+                        )
 
                         # Owner
                         yield Static("", id="playlist-owner", classes="subtitle")
 
-                        # Description
-                        yield Static("", id="playlist-description", classes="description-text")
+                        # Description (faded text in hero)
+                        yield Static(
+                            "",
+                            id="playlist-description",
+                            classes="description-text text-muted",
+                        )
 
-                        # Quick stats
+                        # Quick stats as StatChip widgets
                         with Horizontal(id="playlist-stats", classes="stats-row"):
-                            yield Static("", id="playlist-tracks-count", classes="stat-item")
-                            yield Static("", id="playlist-followers", classes="stat-item")
-                            yield Static("", id="playlist-duration", classes="stat-item")
-                            yield Static("", id="playlist-visibility", classes="stat-item")
+                            yield StatChip("Tracks", id="playlist-tracks-count")
+                            yield StatChip("Followers", id="playlist-followers")
+                            yield StatChip("Duration", id="playlist-duration")
+                            yield StatChip("Visibility", id="playlist-visibility")
 
                         # Action buttons
                         with Horizontal(id="playlist-actions", classes="actions-row"):
@@ -122,16 +135,24 @@ class PlaylistScreen(Screen[None]):
                                 id="download-all-btn",
                                 variant="primary",
                             )
-                            yield Button("Add to Queue", id="add-queue-btn", variant="success")
-                            yield Button("Refresh", id="refresh-btn", variant="default")
-                            yield Button("Report Data", id="report-btn", variant="default")
+                            yield Button(
+                                "Add to Queue", id="add-queue-btn", variant="success"
+                            )
+                            yield Button(
+                                "Refresh", id="refresh-btn", variant="default"
+                            )
+                            yield Button(
+                                "Report Data", id="report-btn", variant="default"
+                            )
 
             # Main content grid
             with Horizontal(id="playlist-content"):
                 # Left column (2/3) - Track list
                 with Vertical(id="playlist-main", classes="main-column"):
                     with Vertical(classes="card"):
-                        yield Static("Tracks", classes="card-title")
+                        yield Static(
+                            f"{Theme.ICON_MUSIC} Tracks", classes="card-title"
+                        )
                         yield Static(
                             "All tracks in this playlist",
                             classes="card-subtitle",
@@ -142,7 +163,7 @@ class PlaylistScreen(Screen[None]):
 
                         yield Static("", id="tracks-status", classes="status-muted")
 
-                # Right column (1/3)
+                # Right column (1/3) - combined details panel
                 with Vertical(id="playlist-sidebar", classes="sidebar-column"):
                     # Platform links
                     with Vertical(classes="card"):
@@ -150,14 +171,14 @@ class PlaylistScreen(Screen[None]):
                         with Vertical(id="platform-links"):
                             yield Static("", id="platform-links-content")
 
-                    # Created By card
-                    with Vertical(classes="card", id="created-by-card"):
-                        yield Static("Created By", classes="card-title")
+                    # Combined playlist details panel
+                    with Vertical(classes="card", id="playlist-details-card"):
+                        yield Static("Playlist Details", classes="card-title")
+
+                        # Created by (inline)
                         yield Static("", id="created-by-name")
 
-                    # Playlist details
-                    with Vertical(classes="card"):
-                        yield Static("Playlist Details", classes="card-title")
+                        # Detail fields
                         with Vertical(id="playlist-details"):
                             yield Static("", id="detail-owner")
                             yield Static("", id="detail-visibility")
@@ -165,19 +186,11 @@ class PlaylistScreen(Screen[None]):
                             yield Static("", id="detail-created")
                             yield Static("", id="detail-platform-id")
 
-                    # Quick stats card
-                    with Vertical(classes="card"):
-                        yield Static("Quick Stats", classes="card-title")
+                        # Quick stats (inline within same card)
                         with Horizontal(id="quick-stats", classes="stats-grid"):
-                            with Vertical(classes="stat-box"):
-                                yield Static("", id="stat-tracks", classes="stat-value")
-                                yield Static("Tracks", classes="stat-label")
-                            with Vertical(classes="stat-box"):
-                                yield Static("", id="stat-duration", classes="stat-value")
-                                yield Static("Duration", classes="stat-label")
-                            with Vertical(classes="stat-box"):
-                                yield Static("", id="stat-followers", classes="stat-value")
-                                yield Static("Followers", classes="stat-label")
+                            yield StatChip("Tracks", id="stat-tracks")
+                            yield StatChip("Duration", id="stat-duration")
+                            yield StatChip("Followers", id="stat-followers")
 
     async def on_mount(self) -> None:
         """Handle screen mount."""
@@ -324,8 +337,10 @@ class PlaylistScreen(Screen[None]):
             owner_name = "Unknown"
         self.query_one("#playlist-owner", Static).update(f"by {owner_name}")
 
-        # Created By card
-        self.query_one("#created-by-name", Static).update(f"👤 {owner_name}")
+        # Created By (inline in merged card)
+        self.query_one("#created-by-name", Static).update(
+            f"{Theme.ICON_ARTIST} {owner_name}"
+        )
 
         # Description - strip HTML tags and format paragraphs
         description = data.get("description", "")
@@ -346,8 +361,8 @@ class PlaylistScreen(Screen[None]):
         if isinstance(tracks, dict):
             tracks = tracks.get("items", [])
         track_count = data.get("total_tracks", len(tracks))
-        self.query_one("#playlist-tracks-count", Static).update(
-            f"[dim]Tracks:[/] {track_count}"
+        self.query_one("#playlist-tracks-count", StatChip).update_value(
+            str(track_count)
         )
 
         # Followers
@@ -356,12 +371,10 @@ class PlaylistScreen(Screen[None]):
             followers = followers.get("total", 0)
         if followers:
             followers_str = format_number(followers)
-            self.query_one("#playlist-followers", Static).update(
-                f"[dim]Followers:[/] {followers_str}"
-            )
-            self.query_one("#stat-followers", Static).update(followers_str)
+            self.query_one("#playlist-followers", StatChip).update_value(followers_str)
+            self.query_one("#stat-followers", StatChip).update_value(followers_str)
         else:
-            self.query_one("#stat-followers", Static).update("--")
+            self.query_one("#stat-followers", StatChip).update_value("--")
 
         # Total duration
         total_duration = self._calculate_total_duration(tracks)
@@ -372,19 +385,17 @@ class PlaylistScreen(Screen[None]):
                 duration_str = f"{hours}h {minutes}m"
             else:
                 duration_str = f"{minutes}m {seconds}s"
-            self.query_one("#playlist-duration", Static).update(
-                f"[dim]Duration:[/] {duration_str}"
-            )
-            self.query_one("#stat-duration", Static).update(
+            self.query_one("#playlist-duration", StatChip).update_value(duration_str)
+            self.query_one("#stat-duration", StatChip).update_value(
                 f"{hours}h {minutes}m" if hours else f"{minutes}m"
             )
         else:
-            self.query_one("#stat-duration", Static).update("--")
+            self.query_one("#stat-duration", StatChip).update_value("--")
 
         # Visibility
         is_public = data.get("public", True)
         visibility = "Public" if is_public else "Private"
-        self.query_one("#playlist-visibility", Static).update(f"[dim]{visibility}[/]")
+        self.query_one("#playlist-visibility", StatChip).update_value(visibility)
 
         # Platform link
         url = data.get("url") or data.get("external_urls", {}).get(
@@ -411,8 +422,8 @@ class PlaylistScreen(Screen[None]):
             f"[dim]ID:[/] {self._playlist_id}"
         )
 
-        # Quick stats
-        self.query_one("#stat-tracks", Static).update(str(track_count))
+        # Quick stats (now StatChip widgets)
+        self.query_one("#stat-tracks", StatChip).update_value(str(track_count))
 
         # Update tracks table
         self._update_tracks_table(tracks)

@@ -5,7 +5,8 @@ from __future__ import annotations
 import logging
 import os
 from contextlib import AsyncExitStack
-from typing import TYPE_CHECKING
+from enum import StrEnum
+from typing import TYPE_CHECKING, Callable
 
 import httpx
 
@@ -15,6 +16,16 @@ if TYPE_CHECKING:
     from fastapi import FastAPI
 
 logger = logging.getLogger(__name__)
+
+
+class BackendState(StrEnum):
+    """Backend lifecycle states."""
+
+    STOPPED = "stopped"
+    STARTING = "starting"
+    RUNNING = "running"
+    STOPPING = "stopping"
+    ERROR = "error"
 
 
 class BackendManager:
@@ -29,63 +40,94 @@ class BackendManager:
     def __init__(self) -> None:
         self._app: FastAPI | None = None
         self._lifespan_stack: AsyncExitStack | None = None
-        self._started = False
+        self._state: BackendState = BackendState.STOPPED
+        self._error_message: str | None = None
+        self._state_callbacks: list[Callable[[BackendState], None]] = []
+
+    @property
+    def state(self) -> BackendState:
+        return self._state
+
+    @property
+    def error_message(self) -> str | None:
+        return self._error_message
 
     @property
     def is_started(self) -> bool:
-        return self._started
+        return self._state == BackendState.RUNNING
+
+    def on_state_change(self, callback: Callable[[BackendState], None]) -> None:
+        """Register a callback for state changes."""
+        self._state_callbacks.append(callback)
+
+    def _set_state(self, state: BackendState) -> None:
+        self._state = state
+        for cb in self._state_callbacks:
+            try:
+                cb(state)
+            except Exception:
+                logger.debug("State change callback error", exc_info=True)
 
     async def start(self) -> None:
         """Start the local backend (import app, run lifespan/migrations)."""
-        if self._started:
+        if self._state == BackendState.RUNNING:
             return
 
         settings = get_settings()
         if settings.backend_mode != "local":
-            self._started = True
+            self._set_state(BackendState.RUNNING)
             return
 
-        # Set env vars BEFORE importing the backend so pydantic-settings picks them up
-        db_path = settings.database_path
-        db_path.parent.mkdir(parents=True, exist_ok=True)
-        os.environ.setdefault("DATABASE_URL", f"sqlite+aiosqlite:///{db_path}")
-        os.environ.setdefault("DEPLOYMENT_MODE", "self-hosted")
-        os.environ.setdefault("ENVIRONMENT", "production")
-        os.environ.setdefault("LOG_LEVEL", "WARNING")
+        self._set_state(BackendState.STARTING)
 
-        # Clear the backend's lru_cache so it picks up our env vars
-        from spotdl.config import get_settings as backend_get_settings
+        try:
+            # Set env vars BEFORE importing the backend so pydantic-settings picks them up
+            db_path = settings.database_path
+            db_path.parent.mkdir(parents=True, exist_ok=True)
+            os.environ.setdefault("DATABASE_URL", f"sqlite+aiosqlite:///{db_path}")
+            os.environ.setdefault("DEPLOYMENT_MODE", "self-hosted")
+            os.environ.setdefault("ENVIRONMENT", "production")
+            os.environ.setdefault("LOG_LEVEL", "WARNING")
 
-        backend_get_settings.cache_clear()
+            # Clear the backend's lru_cache so it picks up our env vars
+            from spotdl.config import get_settings as backend_get_settings
 
-        # Import and create the app
-        from spotdl.main import create_app
+            backend_get_settings.cache_clear()
 
-        self._app = create_app()
+            # Import and create the app
+            from spotdl.main import create_app
 
-        # Trigger the lifespan (runs DB init/migrations)
-        self._lifespan_stack = AsyncExitStack()
-        await self._lifespan_stack.__aenter__()
+            self._app = create_app()
 
-        # The lifespan is an async context manager on the app
-        # We need to manually enter it via the app's router lifespan
-        lifespan_cm = self._app.router.lifespan_context(self._app)
-        await self._lifespan_stack.enter_async_context(lifespan_cm)
+            # Trigger the lifespan (runs DB init/migrations)
+            self._lifespan_stack = AsyncExitStack()
+            await self._lifespan_stack.__aenter__()
 
-        self._started = True
-        logger.info("Local backend started (db: %s)", db_path)
+            # The lifespan is an async context manager on the app
+            # We need to manually enter it via the app's router lifespan
+            lifespan_cm = self._app.router.lifespan_context(self._app)
+            await self._lifespan_stack.enter_async_context(lifespan_cm)
+
+            self._set_state(BackendState.RUNNING)
+            logger.info("Local backend started (db: %s)", db_path)
+        except Exception as e:
+            self._error_message = str(e)
+            self._set_state(BackendState.ERROR)
+            raise
 
     async def stop(self) -> None:
         """Stop the local backend (exit lifespan, close DB)."""
-        if not self._started:
+        if self._state == BackendState.STOPPED:
             return
+
+        self._set_state(BackendState.STOPPING)
 
         if self._lifespan_stack is not None:
             await self._lifespan_stack.aclose()
             self._lifespan_stack = None
 
         self._app = None
-        self._started = False
+        self._set_state(BackendState.STOPPED)
         logger.info("Local backend stopped")
 
     def create_client(self) -> httpx.AsyncClient:

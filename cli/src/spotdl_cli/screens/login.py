@@ -29,9 +29,9 @@ class LoginScreen(Screen[bool]):
         """Compose the login screen."""
         with Center(id="login-container"):
             with Vertical(id="login-form", classes="card"):
-                yield Static("Welcome Back", classes="title-lg text-center")
+                yield Static("spotdl", classes="title-lg text-center")
                 yield Static(
-                    "Sign in to your account to continue",
+                    "Sign In",
                     classes="subtitle text-center mb-2",
                 )
 
@@ -45,7 +45,7 @@ class LoginScreen(Screen[bool]):
                     id="password-input",
                 )
 
-                yield Static("", id="login-error", classes="error-message hidden")
+                yield Static("", id="login-error", classes="error-alert hidden")
                 yield Button("Sign In", id="login-btn", variant="primary", classes="w-full")
 
                 settings = get_settings()

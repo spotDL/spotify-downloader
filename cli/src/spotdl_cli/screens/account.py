@@ -37,63 +37,69 @@ class AccountScreen(Screen[None]):
             with Vertical(id="not-logged-in", classes="card settings-group"):
                 yield Static("Account", classes="settings-group-title")
                 yield Static(
-                    "You are not logged in. Sign in to view your profile, vote on matches, and submit contributions.",
+                    "Sign in to view your profile, vote on matches, and submit contributions.",
                     classes="text-muted",
                 )
                 yield Button("Sign In", id="sign-in-btn", variant="primary")
 
-            # Profile card
-            with Vertical(id="profile-card", classes="card settings-group hidden"):
-                yield Static("Profile", classes="settings-group-title")
-                yield Static("", id="profile-username", classes="account-field")
-                yield Static("", id="profile-email", classes="account-field")
-                yield Static("", id="profile-role", classes="account-field")
-                yield Static("", id="profile-member-since", classes="account-field")
-                yield Static("", id="profile-status", classes="account-field")
-                yield Button("Admin Dashboard", id="admin-dashboard-btn", variant="success", classes="hidden")
+            # Two-column layout for wide terminals
+            with Horizontal(id="account-columns", classes="hidden"):
+                # Left column: Profile + Reputation
+                with Vertical(id="account-col-left", classes="account-column"):
+                    # Profile card
+                    with Vertical(id="profile-card", classes="card settings-group hidden"):
+                        yield Static("Profile", classes="settings-group-title")
+                        yield Static("", id="profile-username", classes="account-field")
+                        yield Static("", id="profile-email", classes="account-field")
+                        yield Static("", id="profile-role", classes="account-field")
+                        yield Static("", id="profile-member-since", classes="account-field")
+                        yield Static("", id="profile-status", classes="account-field")
+                        yield Button("Admin Dashboard", id="admin-dashboard-btn", variant="success", classes="hidden")
 
-            # Reputation card
-            with Vertical(id="reputation-card", classes="card settings-group hidden"):
-                yield Static("Reputation", classes="settings-group-title")
-                yield Static("0", id="reputation-score", classes="reputation-score")
-                yield Static("Reputation Points", classes="text-muted text-center")
-                yield Static(
-                    "Earn points by submitting matches, voting, and contributing.",
-                    classes="text-muted text-center text-sm",
-                )
+                    # Reputation card
+                    with Vertical(id="reputation-card", classes="card settings-group hidden"):
+                        yield Static("Reputation", classes="settings-group-title")
+                        yield Static("0", id="reputation-score", classes="reputation-score")
+                        yield Static("Reputation Points", classes="text-muted text-center")
+                        yield Static(
+                            "Earn points by submitting matches, voting, and contributing.",
+                            classes="text-muted text-center text-sm",
+                        )
 
-            # Security card
-            with Vertical(id="security-card", classes="card settings-group hidden"):
-                yield Static("Security", classes="settings-group-title")
-                yield Input(
-                    placeholder="Current Password",
-                    password=True,
-                    id="current-password",
-                )
-                yield Input(
-                    placeholder="New Password",
-                    password=True,
-                    id="new-password",
-                )
-                yield Input(
-                    placeholder="Confirm New Password",
-                    password=True,
-                    id="confirm-password",
-                )
-                yield Static("", id="password-error", classes="error-message hidden")
-                yield Button(
-                    "Update Password",
-                    id="change-password-btn",
-                    variant="primary",
-                )
+                # Right column: Security + Session
+                with Vertical(id="account-col-right", classes="account-column"):
+                    # Security card
+                    with Vertical(id="security-card", classes="card settings-group hidden"):
+                        yield Static("Security", classes="settings-group-title")
+                        yield Input(
+                            placeholder="Current Password",
+                            password=True,
+                            id="current-password",
+                        )
+                        yield Input(
+                            placeholder="New Password",
+                            password=True,
+                            id="new-password",
+                        )
+                        yield Input(
+                            placeholder="Confirm New Password",
+                            password=True,
+                            id="confirm-password",
+                        )
+                        yield Static("", id="password-error", classes="error-message hidden")
+                        yield Button(
+                            "Update Password",
+                            id="change-password-btn",
+                            variant="primary",
+                        )
 
-            # Session card
-            with Vertical(id="session-card", classes="card settings-group hidden"):
-                yield Static("Session", classes="settings-group-title")
-                yield Static("", id="session-info", classes="account-field")
-                yield Button("Log Out", id="logout-btn", variant="warning")
+                    # Session card
+                    with Vertical(id="session-card", classes="card settings-group hidden"):
+                        yield Static("Session", classes="settings-group-title")
+                        yield Static("", id="session-info", classes="account-field")
+                        yield Button("Log Out", id="logout-btn", variant="warning")
 
-            # Danger zone card
+            # Danger zone: full width below columns
             with Vertical(id="danger-zone-card", classes="card settings-group danger-zone hidden"):
                 yield Static("Danger Zone", classes="settings-group-title")
                 yield Static(
@@ -154,18 +160,21 @@ class AccountScreen(Screen[None]):
         )
         sign_in_btn = not_logged_in.query_one("#sign-in-btn", Button)
         sign_in_btn.add_class("hidden")
+        self.query_one("#account-columns").add_class("hidden")
         for card_id in ["profile-card", "reputation-card", "security-card", "session-card", "danger-zone-card"]:
             self.query_one(f"#{card_id}").add_class("hidden")
 
     def _show_unauthenticated(self) -> None:
         """Show the not-logged-in state."""
         self.query_one("#not-logged-in").remove_class("hidden")
+        self.query_one("#account-columns").add_class("hidden")
         for card_id in ["profile-card", "reputation-card", "security-card", "session-card", "danger-zone-card"]:
             self.query_one(f"#{card_id}").add_class("hidden")
 
     def _show_authenticated(self) -> None:
         """Show the authenticated state."""
         self.query_one("#not-logged-in").add_class("hidden")
+        self.query_one("#account-columns").remove_class("hidden")
         for card_id in ["profile-card", "reputation-card", "security-card", "session-card", "danger-zone-card"]:
             self.query_one(f"#{card_id}").remove_class("hidden")
 

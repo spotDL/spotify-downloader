@@ -24,6 +24,7 @@ from textual.widgets import (
 
 from spotdl_cli.config import get_settings
 from spotdl_cli.core import APIError, get_api_client
+from spotdl_cli.theme import Theme
 
 if TYPE_CHECKING:
     from spotdl_cli.app import SpotDLApp
@@ -72,6 +73,18 @@ LYRICS_PROVIDER_LABELS = {
     "azlyrics": "AZLyrics",
 }
 
+# Nav group definitions: (group_id, label)
+_SETTINGS_NAV_GROUPS = [
+    ("api", "API"),
+    ("download", "Download"),
+    ("output", "Output"),
+    ("metadata", "Metadata"),
+    ("providers", "Providers"),
+    ("spotify", "Spotify"),
+    ("archive", "Archive"),
+    ("advanced", "Advanced"),
+]
+
 
 class SettingsScreen(Screen[None]):
     """Application settings screen."""
@@ -116,613 +129,723 @@ class SettingsScreen(Screen[None]):
 
     def compose(self) -> ComposeResult:
         """Compose the screen layout."""
-        with VerticalScroll(id="settings-container"):
-            # Header
-            yield Static("Settings", id="settings-title", classes="title")
-
-            # API Settings
-            with Vertical(classes="settings-group"):
-                yield Static("API Connection", classes="group-title")
-
-                with Horizontal(classes="setting-row"):
-                    yield Label("Backend URL:")
-                    yield Input(
-                        value=self._settings.api_url,
-                        id="api-url",
-                        placeholder="http://localhost:8000",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Label("Offline Mode:")
-                    yield Checkbox(
-                        "Enable offline mode",
-                        value=self._settings.offline_mode,
-                        id="offline-mode",
-                    )
-                with Horizontal(classes="setting-row"):
-                    yield Label("API Timeout (s):")
-                    yield Input(
-                        value=str(self._settings.api_timeout),
-                        id="api-timeout",
-                        placeholder="30",
-                    )
-                with Horizontal(classes="setting-row"):
-                    yield Label("Auth Token:")
-                    yield Input(
-                        value=self._settings.auth_token or "",
-                        id="api-auth-token",
-                        placeholder="Bearer token",
-                        password=True,
-                    )
-                    yield Button(
-                        "Show",
-                        id="toggle-api-auth-token",
-                        variant="default",
-                        classes="toggle-visibility-btn",
-                    )
-
-            # Connection Status
-            with Vertical(classes="settings-group"):
-                yield Static("Connection Status", classes="group-title")
-                yield Button(
-                    "Refresh Status",
-                    id="refresh-service-status",
-                    variant="default",
-                )
-                yield DataTable(id="service-status-table")
-                yield Static("", id="service-status-overall", classes="status-muted")
-
-            # Download Settings
-            with Vertical(classes="settings-group"):
-                yield Static("Download Settings", classes="group-title")
-
-                with Horizontal(classes="setting-row"):
-                    yield Label("Output Directory:")
-                    yield Input(
-                        value=str(self._settings.output_dir),
-                        id="output-dir",
-                        placeholder="~/Music/SpotDL",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Label("Audio Format:")
-                    yield Select(
-                        [
-                            ("MP3", "mp3"),
-                            ("M4A", "m4a"),
-                            ("FLAC", "flac"),
-                            ("Opus", "opus"),
-                            ("OGG", "ogg"),
-                            ("WAV", "wav"),
-                        ],
-                        value=self._settings.audio_format,
-                        id="audio-format",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Label("Audio Quality:")
-                    yield Select(
-                        [
-                            ("Best", "best"),
-                            ("320 kbps", "320k"),
-                            ("256 kbps", "256k"),
-                            ("192 kbps", "192k"),
-                            ("128 kbps", "128k"),
-                        ],
-                        value=self._settings.audio_quality,
-                        id="audio-quality",
-                    )
-                with Horizontal(classes="setting-row"):
-                    yield Label("Bitrate:")
-                    yield Select(
-                        [
-                            ("Auto", "auto"),
-                            ("Disable", "disable"),
-                            ("320k", "320k"),
-                            ("128k", "128k"),
-                            ("VBR 0", "0"),
-                            ("VBR 1", "1"),
-                            ("VBR 2", "2"),
-                            ("VBR 3", "3"),
-                            ("VBR 4", "4"),
-                            ("VBR 5", "5"),
-                            ("VBR 6", "6"),
-                            ("VBR 7", "7"),
-                            ("VBR 8", "8"),
-                            ("VBR 9", "9"),
-                        ],
-                        value=self._settings.bitrate or "auto",
-                        id="bitrate",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Label("Concurrent Downloads:")
-                    yield Select(
-                        [(str(i), i) for i in range(1, 17)],
-                        value=self._settings.threads,
-                        id="threads",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Label("Overwrite Files:")
-                    yield Select(
-                        [
-                            ("Skip", "skip"),
-                            ("Force", "force"),
-                            ("Metadata", "metadata"),
-                        ],
-                        value=self._settings.overwrite,
-                        id="overwrite",
-                    )
-                with Horizontal(classes="setting-row"):
-                    yield Label("Max Filename Length:")
-                    yield Input(
-                        value=str(self._settings.max_filename_length),
-                        id="max-filename-length",
-                        placeholder="255",
-                    )
-                with Horizontal(classes="setting-row"):
-                    yield Label("Filename Restrict:")
-                    yield Select(
-                        [
-                            ("Off", ""),
-                            ("Strict", "strict"),
-                            ("Loose", "loose"),
-                        ],
-                        value=self._settings.restrict or "",
-                        id="restrict",
-                    )
-                with Horizontal(classes="setting-row"):
-                    yield Label("ID3 Separator:")
-                    yield Input(
-                        value=self._settings.id3_separator,
-                        id="id3-separator",
-                        placeholder="/",
-                    )
-
-            # Output Template
-            with Vertical(classes="settings-group"):
-                yield Static("Output Template", classes="group-title")
-
-                with Horizontal(classes="setting-row"):
-                    yield Label("Filename Template:")
-                    yield Input(
-                        value=self._settings.output_template,
-                        id="output-template",
-                        placeholder="{artist} - {title}",
-                    )
-
-                yield Static(
-                    "Variables: {artist}, {artists}, {title}, {album}, "
-                    "{year}, {track_number}, {disc_number}",
-                    classes="help-text",
-                )
-
-            # Metadata Settings
-            with Vertical(classes="settings-group"):
-                yield Static("Metadata Embedding", classes="group-title")
-
-                with Horizontal(classes="setting-row"):
-                    yield Checkbox(
-                        "Embed metadata",
-                        value=self._settings.embed_metadata,
-                        id="embed-metadata",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Checkbox(
-                        "Embed lyrics",
-                        value=self._settings.embed_lyrics,
-                        id="embed-lyrics",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Checkbox(
-                        "Embed cover art",
-                        value=self._settings.embed_cover,
-                        id="embed-cover",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Checkbox(
-                        "Generate LRC files",
-                        value=self._settings.generate_lrc,
-                        id="generate-lrc",
-                    )
-
-            # Provider Settings
-            with Vertical(classes="settings-group"):
-                yield Static("Provider Preferences", classes="group-title")
-
-                yield Static("Audio Sources", classes="subgroup-title")
-                yield DataTable(id="audio-source-table")
-                with Horizontal(classes="setting-row"):
-                    yield Button("Up", id="audio-source-up", variant="default")
-                    yield Button("Down", id="audio-source-down", variant="default")
-                    yield Button("Toggle", id="audio-source-toggle", variant="default")
-
-                yield Rule()
-
-                yield Static("Metadata Sources", classes="subgroup-title")
-                yield DataTable(id="metadata-source-table")
-                with Horizontal(classes="setting-row"):
-                    yield Button("Up", id="metadata-source-up", variant="default")
-                    yield Button("Down", id="metadata-source-down", variant="default")
-                    yield Button("Toggle", id="metadata-source-toggle", variant="default")
-
-                yield Rule()
-
-                yield Static("Lyrics Sources", classes="subgroup-title")
-                yield DataTable(id="lyrics-source-table")
-                with Horizontal(classes="setting-row"):
-                    yield Button("Up", id="lyrics-source-up", variant="default")
-                    yield Button("Down", id="lyrics-source-down", variant="default")
-                    yield Button("Toggle", id="lyrics-source-toggle", variant="default")
-
-                with Horizontal(classes="setting-row"):
-                    yield Label("Search Query Template:")
-                    yield Input(
-                        value=self._settings.search_query or "",
-                        id="search-query",
-                        placeholder="{artist} - {title}",
-                    )
-
-            # Playlist Settings
-            with Vertical(classes="settings-group"):
-                yield Static("Playlists", classes="group-title")
-
-                with Horizontal(classes="setting-row"):
-                    yield Checkbox(
-                        "Playlist numbering",
-                        value=self._settings.playlist_numbering,
-                        id="playlist-numbering",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Checkbox(
-                        "Fetch albums for artists",
-                        value=self._settings.fetch_albums,
-                        id="fetch-albums",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Label("M3U Template:")
-                    yield Input(
-                        value=self._settings.m3u or "",
-                        id="m3u",
-                        placeholder="{list}.m3u",
-                    )
-
-            # Archive & Sync
-            with Vertical(classes="settings-group"):
-                yield Static("Archive & Sync", classes="group-title")
-
-                with Horizontal(classes="setting-row"):
-                    yield Label("Archive File:")
-                    yield Input(
-                        value=self._settings.archive or "",
-                        id="archive",
-                        placeholder="~/.spotdl-archive.txt",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Checkbox(
-                        "Archive unavailable tracks",
-                        value=self._settings.add_unavailable,
-                        id="add-unavailable",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Label("Save File Path:")
-                    yield Input(
-                        value=self._settings.save_file or "",
-                        id="save-file",
-                        placeholder="~/spotdl-save.txt",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Checkbox(
-                        "Sync without deleting",
-                        value=self._settings.sync_without_deleting,
-                        id="sync-without-deleting",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Checkbox(
-                        "Remove LRC on sync",
-                        value=self._settings.sync_remove_lrc,
-                        id="sync-remove-lrc",
-                    )
-
-            # Library Scan
-            with Vertical(classes="settings-group"):
-                yield Static("Library Scan", classes="group-title")
-
-                with Horizontal(classes="setting-row"):
-                    yield Checkbox(
-                        "Create skip file",
-                        value=self._settings.create_skip_file,
-                        id="create-skip-file",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Checkbox(
-                        "Respect skip file",
-                        value=self._settings.respect_skip_file,
-                        id="respect-skip-file",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Checkbox(
-                        "Scan for existing songs",
-                        value=self._settings.scan_for_songs,
-                        id="scan-for-songs",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Checkbox(
-                        "Skip explicit tracks",
-                        value=self._settings.skip_explicit,
-                        id="skip-explicit",
-                    )
-
-            # SponsorBlock
-            with Vertical(classes="settings-group"):
-                yield Static("SponsorBlock", classes="group-title")
-
-                with Horizontal(classes="setting-row"):
-                    yield Checkbox(
-                        "Enable SponsorBlock",
-                        value=self._settings.sponsor_block,
-                        id="sponsor-block",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Label("Categories (CSV):")
-                    yield Input(
-                        value=", ".join(self._settings.sponsor_block_categories),
-                        id="sponsor-block-categories",
-                        placeholder="sponsor, intro, outro",
-                    )
-
-            # Advanced
-            with Vertical(classes="settings-group"):
-                yield Static("Advanced", classes="group-title")
-
-                with Horizontal(classes="setting-row"):
-                    yield Label("Log Level:")
-                    yield Select(
-                        [
-                            ("Debug", "DEBUG"),
-                            ("Info", "INFO"),
-                            ("Warning", "WARNING"),
-                            ("Error", "ERROR"),
-                            ("Critical", "CRITICAL"),
-                        ],
-                        value=self._settings.log_level,
-                        id="log-level",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Label("Cookie File Path:")
-                    yield Input(
-                        value=self._settings.cookie_file or "",
-                        id="cookie-file",
-                        placeholder="path/to/cookies.txt",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Label("FFmpeg Args:")
-                    yield Input(
-                        value=self._settings.ffmpeg_args or "",
-                        id="ffmpeg-args",
-                        placeholder="-af loudnorm",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Label("yt-dlp Args:")
-                    yield Input(
-                        value=self._settings.yt_dlp_args or "",
-                        id="yt-dlp-args",
-                        placeholder="--cookies cookies.txt",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Label("Proxy:")
-                    yield Input(
-                        value=self._settings.proxy or "",
-                        id="proxy",
-                        placeholder="http://127.0.0.1:8080",
-                    )
-
-            # Errors
-            with Vertical(classes="settings-group"):
-                yield Static("Error Handling", classes="group-title")
-
-                with Horizontal(classes="setting-row"):
-                    yield Label("Save Errors Path:")
-                    yield Input(
-                        value=self._settings.save_errors or "",
-                        id="save-errors",
-                        placeholder="~/spotdl-errors.log",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Checkbox(
-                        "Print errors to console",
-                        value=self._settings.print_errors,
-                        id="print-errors",
-                    )
-
-            # Matching (Offline)
-            with Vertical(classes="settings-group"):
-                yield Static("Matching", classes="group-title")
-
-                with Horizontal(classes="setting-row"):
-                    yield Checkbox(
-                        "Auto-select best match",
-                        value=not self._settings.offline_mode,
-                        id="auto-select-match",
-                    )
-
-                with Vertical(
-                    id="matching-thresholds",
-                    classes="" if self._settings.offline_mode else "hidden",
-                ):
-                    with Horizontal(classes="setting-row"):
-                        yield Label("Name Match Threshold:")
-                        yield Input(
-                            value=str(self._settings.name_match_threshold),
-                            id="name-match-threshold",
-                            placeholder="60",
-                        )
-
-                    with Horizontal(classes="setting-row"):
-                        yield Label("Artist Match Threshold:")
-                        yield Input(
-                            value=str(self._settings.artist_match_threshold),
-                            id="artist-match-threshold",
-                            placeholder="70",
-                        )
-
-                    with Horizontal(classes="setting-row"):
-                        yield Label("Time Match Threshold:")
-                        yield Input(
-                            value=str(self._settings.time_match_threshold),
-                            id="time-match-threshold",
-                            placeholder="25",
-                        )
-
-            # Appearance
-            with Vertical(classes="settings-group"):
-                yield Static("Appearance", classes="group-title")
-
-                with Horizontal(classes="setting-row"):
-                    yield Checkbox(
-                        "Compact mode",
-                        value=self._settings.compact_mode,
-                        id="compact-mode",
-                    )
-
-                with Horizontal(classes="setting-row"):
-                    yield Checkbox(
-                        "Enable animations",
-                        value=self._settings.enable_animations,
-                        id="enable-animations",
-                    )
-
-            # Spotify Integration - improved UI
-            with Vertical(classes="settings-group credentials-section"):
-                with Horizontal(classes="group-header"):
-                    yield Static("Spotify Integration", classes="group-title")
-                    yield Static("", id="spotify-status-badge", classes="status-badge")
-
-                yield Static(
-                    "Enable Spotify URL support and enhanced metadata",
-                    classes="help-text section-desc",
-                )
-
-                yield Rule()
-
-                # Client ID field
-                with Vertical(classes="cred-field-group"):
-                    with Horizontal(classes="cred-label-row"):
-                        yield Label("Client ID:", classes="cred-label")
-                    yield Input(
-                        value=self._settings.spotify_client_id or "",
-                        id="spotify-client-id",
-                        placeholder="Your Spotify Client ID",
-                        classes="cred-input",
-                    )
-
-                # Client Secret field with show/hide
-                with Vertical(classes="cred-field-group"):
-                    with Horizontal(classes="cred-label-row"):
-                        yield Label("Client Secret:", classes="cred-label")
+        with Vertical(id="settings-container"):
+            # Title
+            yield Static(
+                f"{Theme.ICON_SETTINGS} Settings", id="settings-title", classes="title"
+            )
+
+            # Main layout: left nav + right content
+            with Horizontal(id="settings-layout"):
+                # Left navigation pane
+                with Vertical(id="settings-nav"):
+                    for group_id, label in _SETTINGS_NAV_GROUPS:
+                        cls = "settings-nav-item active" if group_id == "api" else "settings-nav-item"
                         yield Button(
-                            "Show",
-                            id="toggle-spotify-secret",
-                            variant="default",
-                            classes="toggle-visibility-btn",
+                            label,
+                            id=f"settings-nav-{group_id}",
+                            classes=cls,
                         )
-                    yield Input(
-                        value=self._settings.spotify_client_secret or "",
-                        id="spotify-client-secret",
-                        placeholder="Your Spotify Client Secret",
-                        password=True,
-                        classes="cred-input",
-                    )
 
-                # User auth checkbox
-                with Vertical(classes="cred-option-group"):
-                    yield Checkbox(
-                        "Enable user authentication",
-                        value=self._settings.spotify_user_auth,
-                        id="spotify-user-auth",
-                    )
-                    yield Static(
-                        "Required for private playlists and liked songs",
-                        classes="option-hint",
-                    )
+                # Right content pane
+                with VerticalScroll(id="settings-content"):
+                    # ── API Group ──
+                    with Vertical(
+                        id="settings-group-api", classes="settings-group"
+                    ):
+                        yield Static("API Connection", classes="group-title")
 
-                yield Rule()
+                        with Horizontal(classes="setting-row"):
+                            yield Label("Backend URL:")
+                            yield Input(
+                                value=self._settings.api_url,
+                                id="api-url",
+                                placeholder="http://localhost:8000",
+                            )
 
-                # Help link
-                yield Static(
-                    "Get credentials at: developer.spotify.com/dashboard",
-                    classes="cred-help-link",
-                )
+                        with Horizontal(classes="setting-row"):
+                            yield Label("Offline Mode:")
+                            yield Checkbox(
+                                "Enable offline mode",
+                                value=self._settings.offline_mode,
+                                id="offline-mode",
+                            )
+                        with Horizontal(classes="setting-row"):
+                            yield Label("API Timeout (s):")
+                            yield Input(
+                                value=str(self._settings.api_timeout),
+                                id="api-timeout",
+                                placeholder="30",
+                            )
+                        with Horizontal(classes="setting-row"):
+                            yield Label("Auth Token:")
+                            yield Input(
+                                value=self._settings.auth_token or "",
+                                id="api-auth-token",
+                                placeholder="Bearer token",
+                                password=True,
+                            )
+                            yield Button(
+                                "Show",
+                                id="toggle-api-auth-token",
+                                variant="default",
+                                classes="toggle-visibility-btn",
+                            )
 
-            # SoundCloud OAuth - improved UI
-            with Vertical(classes="settings-group credentials-section"):
-                with Horizontal(classes="group-header"):
-                    yield Static("SoundCloud Authentication", classes="group-title")
-                    yield Static("", id="soundcloud-status-badge", classes="status-badge")
+                        yield Rule()
 
-                yield Static(
-                    "Required for some SoundCloud downloads",
-                    classes="help-text section-desc",
-                )
-
-                yield Rule()
-
-                # Client ID field with show/hide
-                with Vertical(classes="cred-field-group"):
-                    with Horizontal(classes="cred-label-row"):
-                        yield Label("Client ID:", classes="cred-label")
+                        # Connection Status (kept in API group)
+                        yield Static("Connection Status", classes="group-title")
                         yield Button(
-                            "Show",
-                            id="toggle-sc-client-id",
+                            "Refresh Status",
+                            id="refresh-service-status",
                             variant="default",
-                            classes="toggle-visibility-btn",
                         )
-                    yield Input(
-                        value=self._settings.soundcloud_client_id or "",
-                        id="soundcloud-client-id",
-                        placeholder="Optional - SoundCloud Client ID",
-                        password=True,
-                        classes="cred-input",
-                    )
-
-                # Auth Token field with show/hide
-                with Vertical(classes="cred-field-group"):
-                    with Horizontal(classes="cred-label-row"):
-                        yield Label("Auth Token:", classes="cred-label")
-                        yield Button(
-                            "Show",
-                            id="toggle-sc-auth-token",
-                            variant="default",
-                            classes="toggle-visibility-btn",
+                        yield DataTable(id="service-status-table")
+                        yield Static(
+                            "", id="service-status-overall", classes="status-muted"
                         )
-                    yield Input(
-                        value=self._settings.soundcloud_auth_token or "",
-                        id="soundcloud-auth-token",
-                        placeholder="Optional - SoundCloud Auth Token",
-                        password=True,
-                        classes="cred-input",
-                    )
 
-            # Actions
+                    # ── Download Group ──
+                    with Vertical(
+                        id="settings-group-download",
+                        classes="settings-group hidden",
+                    ):
+                        yield Static("Download Settings", classes="group-title")
+
+                        with Horizontal(classes="setting-row"):
+                            yield Label("Audio Format:")
+                            yield Select(
+                                [
+                                    ("MP3", "mp3"),
+                                    ("M4A", "m4a"),
+                                    ("FLAC", "flac"),
+                                    ("Opus", "opus"),
+                                    ("OGG", "ogg"),
+                                    ("WAV", "wav"),
+                                ],
+                                value=self._settings.audio_format,
+                                id="audio-format",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Label("Audio Quality:")
+                            yield Select(
+                                [
+                                    ("Best", "best"),
+                                    ("320 kbps", "320k"),
+                                    ("256 kbps", "256k"),
+                                    ("192 kbps", "192k"),
+                                    ("128 kbps", "128k"),
+                                ],
+                                value=self._settings.audio_quality,
+                                id="audio-quality",
+                            )
+                        with Horizontal(classes="setting-row"):
+                            yield Label("Bitrate:")
+                            yield Select(
+                                [
+                                    ("Auto", "auto"),
+                                    ("Disable", "disable"),
+                                    ("320k", "320k"),
+                                    ("128k", "128k"),
+                                    ("VBR 0", "0"),
+                                    ("VBR 1", "1"),
+                                    ("VBR 2", "2"),
+                                    ("VBR 3", "3"),
+                                    ("VBR 4", "4"),
+                                    ("VBR 5", "5"),
+                                    ("VBR 6", "6"),
+                                    ("VBR 7", "7"),
+                                    ("VBR 8", "8"),
+                                    ("VBR 9", "9"),
+                                ],
+                                value=self._settings.bitrate or "auto",
+                                id="bitrate",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Label("Concurrent Downloads:")
+                            yield Select(
+                                [(str(i), i) for i in range(1, 17)],
+                                value=self._settings.threads,
+                                id="threads",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Label("Overwrite Files:")
+                            yield Select(
+                                [
+                                    ("Skip", "skip"),
+                                    ("Force", "force"),
+                                    ("Metadata", "metadata"),
+                                ],
+                                value=self._settings.overwrite,
+                                id="overwrite",
+                            )
+                        with Horizontal(classes="setting-row"):
+                            yield Label("Max Filename Length:")
+                            yield Input(
+                                value=str(self._settings.max_filename_length),
+                                id="max-filename-length",
+                                placeholder="255",
+                            )
+                        with Horizontal(classes="setting-row"):
+                            yield Label("Filename Restrict:")
+                            yield Select(
+                                [
+                                    ("Off", ""),
+                                    ("Strict", "strict"),
+                                    ("Loose", "loose"),
+                                ],
+                                value=self._settings.restrict or "",
+                                id="restrict",
+                            )
+                        with Horizontal(classes="setting-row"):
+                            yield Label("ID3 Separator:")
+                            yield Input(
+                                value=self._settings.id3_separator,
+                                id="id3-separator",
+                                placeholder="/",
+                            )
+
+                        yield Rule()
+
+                        yield Static("SponsorBlock", classes="group-title")
+
+                        with Horizontal(classes="setting-row"):
+                            yield Checkbox(
+                                "Enable SponsorBlock",
+                                value=self._settings.sponsor_block,
+                                id="sponsor-block",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Label("Categories (CSV):")
+                            yield Input(
+                                value=", ".join(
+                                    self._settings.sponsor_block_categories
+                                ),
+                                id="sponsor-block-categories",
+                                placeholder="sponsor, intro, outro",
+                            )
+
+                    # ── Output Group ──
+                    with Vertical(
+                        id="settings-group-output",
+                        classes="settings-group hidden",
+                    ):
+                        yield Static("Output", classes="group-title")
+
+                        with Horizontal(classes="setting-row"):
+                            yield Label("Output Directory:")
+                            yield Input(
+                                value=str(self._settings.output_dir),
+                                id="output-dir",
+                                placeholder="~/Music/SpotDL",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Label("Filename Template:")
+                            yield Input(
+                                value=self._settings.output_template,
+                                id="output-template",
+                                placeholder="{artist} - {title}",
+                            )
+
+                        yield Static(
+                            "Variables: {artist}, {artists}, {title}, {album}, "
+                            "{year}, {track_number}, {disc_number}",
+                            classes="help-text",
+                        )
+
+                        yield Rule()
+
+                        yield Static("Playlists", classes="group-title")
+
+                        with Horizontal(classes="setting-row"):
+                            yield Checkbox(
+                                "Playlist numbering",
+                                value=self._settings.playlist_numbering,
+                                id="playlist-numbering",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Checkbox(
+                                "Fetch albums for artists",
+                                value=self._settings.fetch_albums,
+                                id="fetch-albums",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Label("M3U Template:")
+                            yield Input(
+                                value=self._settings.m3u or "",
+                                id="m3u",
+                                placeholder="{list}.m3u",
+                            )
+
+                    # ── Metadata Group ──
+                    with Vertical(
+                        id="settings-group-metadata",
+                        classes="settings-group hidden",
+                    ):
+                        yield Static("Metadata Embedding", classes="group-title")
+
+                        with Horizontal(classes="setting-row"):
+                            yield Checkbox(
+                                "Embed metadata",
+                                value=self._settings.embed_metadata,
+                                id="embed-metadata",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Checkbox(
+                                "Embed lyrics",
+                                value=self._settings.embed_lyrics,
+                                id="embed-lyrics",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Checkbox(
+                                "Embed cover art",
+                                value=self._settings.embed_cover,
+                                id="embed-cover",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Checkbox(
+                                "Generate LRC files",
+                                value=self._settings.generate_lrc,
+                                id="generate-lrc",
+                            )
+
+                        yield Rule()
+
+                        yield Static("Matching", classes="group-title")
+
+                        with Horizontal(classes="setting-row"):
+                            yield Checkbox(
+                                "Auto-select best match",
+                                value=not self._settings.offline_mode,
+                                id="auto-select-match",
+                            )
+
+                        with Vertical(
+                            id="matching-thresholds",
+                            classes=""
+                            if self._settings.offline_mode
+                            else "hidden",
+                        ):
+                            with Horizontal(classes="setting-row"):
+                                yield Label("Name Match Threshold:")
+                                yield Input(
+                                    value=str(
+                                        self._settings.name_match_threshold
+                                    ),
+                                    id="name-match-threshold",
+                                    placeholder="60",
+                                )
+
+                            with Horizontal(classes="setting-row"):
+                                yield Label("Artist Match Threshold:")
+                                yield Input(
+                                    value=str(
+                                        self._settings.artist_match_threshold
+                                    ),
+                                    id="artist-match-threshold",
+                                    placeholder="70",
+                                )
+
+                            with Horizontal(classes="setting-row"):
+                                yield Label("Time Match Threshold:")
+                                yield Input(
+                                    value=str(
+                                        self._settings.time_match_threshold
+                                    ),
+                                    id="time-match-threshold",
+                                    placeholder="25",
+                                )
+
+                        yield Rule()
+
+                        yield Static("Appearance", classes="group-title")
+
+                        with Horizontal(classes="setting-row"):
+                            yield Checkbox(
+                                "Compact mode",
+                                value=self._settings.compact_mode,
+                                id="compact-mode",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Checkbox(
+                                "Enable animations",
+                                value=self._settings.enable_animations,
+                                id="enable-animations",
+                            )
+
+                    # ── Providers Group ──
+                    with Vertical(
+                        id="settings-group-providers",
+                        classes="settings-group hidden",
+                    ):
+                        yield Static("Provider Preferences", classes="group-title")
+
+                        yield Static("Audio Sources", classes="subgroup-title")
+                        yield DataTable(id="audio-source-table")
+                        with Horizontal(classes="setting-row"):
+                            yield Button(
+                                "Up", id="audio-source-up", variant="default"
+                            )
+                            yield Button(
+                                "Down",
+                                id="audio-source-down",
+                                variant="default",
+                            )
+                            yield Button(
+                                "Toggle",
+                                id="audio-source-toggle",
+                                variant="default",
+                            )
+
+                        yield Rule()
+
+                        yield Static("Metadata Sources", classes="subgroup-title")
+                        yield DataTable(id="metadata-source-table")
+                        with Horizontal(classes="setting-row"):
+                            yield Button(
+                                "Up",
+                                id="metadata-source-up",
+                                variant="default",
+                            )
+                            yield Button(
+                                "Down",
+                                id="metadata-source-down",
+                                variant="default",
+                            )
+                            yield Button(
+                                "Toggle",
+                                id="metadata-source-toggle",
+                                variant="default",
+                            )
+
+                        yield Rule()
+
+                        yield Static("Lyrics Sources", classes="subgroup-title")
+                        yield DataTable(id="lyrics-source-table")
+                        with Horizontal(classes="setting-row"):
+                            yield Button(
+                                "Up",
+                                id="lyrics-source-up",
+                                variant="default",
+                            )
+                            yield Button(
+                                "Down",
+                                id="lyrics-source-down",
+                                variant="default",
+                            )
+                            yield Button(
+                                "Toggle",
+                                id="lyrics-source-toggle",
+                                variant="default",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Label("Search Query Template:")
+                            yield Input(
+                                value=self._settings.search_query or "",
+                                id="search-query",
+                                placeholder="{artist} - {title}",
+                            )
+
+                    # ── Spotify Group ──
+                    with Vertical(
+                        id="settings-group-spotify",
+                        classes="settings-group hidden",
+                    ):
+                        # Spotify Integration
+                        with Vertical(classes="credentials-section"):
+                            with Horizontal(classes="group-header"):
+                                yield Static(
+                                    "Spotify Integration", classes="group-title"
+                                )
+                                yield Static(
+                                    "",
+                                    id="spotify-status-badge",
+                                    classes="status-badge",
+                                )
+
+                            yield Static(
+                                "Enable Spotify URL support and enhanced metadata",
+                                classes="help-text section-desc",
+                            )
+
+                            yield Rule()
+
+                            with Vertical(classes="cred-field-group"):
+                                with Horizontal(classes="cred-label-row"):
+                                    yield Label(
+                                        "Client ID:", classes="cred-label"
+                                    )
+                                yield Input(
+                                    value=self._settings.spotify_client_id
+                                    or "",
+                                    id="spotify-client-id",
+                                    placeholder="Your Spotify Client ID",
+                                    classes="cred-input",
+                                )
+
+                            with Vertical(classes="cred-field-group"):
+                                with Horizontal(classes="cred-label-row"):
+                                    yield Label(
+                                        "Client Secret:",
+                                        classes="cred-label",
+                                    )
+                                    yield Button(
+                                        "Show",
+                                        id="toggle-spotify-secret",
+                                        variant="default",
+                                        classes="toggle-visibility-btn",
+                                    )
+                                yield Input(
+                                    value=self._settings.spotify_client_secret
+                                    or "",
+                                    id="spotify-client-secret",
+                                    placeholder="Your Spotify Client Secret",
+                                    password=True,
+                                    classes="cred-input",
+                                )
+
+                            with Vertical(classes="cred-option-group"):
+                                yield Checkbox(
+                                    "Enable user authentication",
+                                    value=self._settings.spotify_user_auth,
+                                    id="spotify-user-auth",
+                                )
+                                yield Static(
+                                    "Required for private playlists and liked songs",
+                                    classes="option-hint",
+                                )
+
+                            yield Rule()
+
+                            yield Static(
+                                "Get credentials at: developer.spotify.com/dashboard",
+                                classes="cred-help-link",
+                            )
+
+                        yield Rule()
+
+                        # SoundCloud Authentication
+                        with Vertical(classes="credentials-section"):
+                            with Horizontal(classes="group-header"):
+                                yield Static(
+                                    "SoundCloud Authentication",
+                                    classes="group-title",
+                                )
+                                yield Static(
+                                    "",
+                                    id="soundcloud-status-badge",
+                                    classes="status-badge",
+                                )
+
+                            yield Static(
+                                "Required for some SoundCloud downloads",
+                                classes="help-text section-desc",
+                            )
+
+                            yield Rule()
+
+                            with Vertical(classes="cred-field-group"):
+                                with Horizontal(classes="cred-label-row"):
+                                    yield Label(
+                                        "Client ID:", classes="cred-label"
+                                    )
+                                    yield Button(
+                                        "Show",
+                                        id="toggle-sc-client-id",
+                                        variant="default",
+                                        classes="toggle-visibility-btn",
+                                    )
+                                yield Input(
+                                    value=self._settings.soundcloud_client_id
+                                    or "",
+                                    id="soundcloud-client-id",
+                                    placeholder="Optional - SoundCloud Client ID",
+                                    password=True,
+                                    classes="cred-input",
+                                )
+
+                            with Vertical(classes="cred-field-group"):
+                                with Horizontal(classes="cred-label-row"):
+                                    yield Label(
+                                        "Auth Token:", classes="cred-label"
+                                    )
+                                    yield Button(
+                                        "Show",
+                                        id="toggle-sc-auth-token",
+                                        variant="default",
+                                        classes="toggle-visibility-btn",
+                                    )
+                                yield Input(
+                                    value=self._settings.soundcloud_auth_token
+                                    or "",
+                                    id="soundcloud-auth-token",
+                                    placeholder="Optional - SoundCloud Auth Token",
+                                    password=True,
+                                    classes="cred-input",
+                                )
+
+                    # ── Archive Group ──
+                    with Vertical(
+                        id="settings-group-archive",
+                        classes="settings-group hidden",
+                    ):
+                        yield Static("Archive & Sync", classes="group-title")
+
+                        with Horizontal(classes="setting-row"):
+                            yield Label("Archive File:")
+                            yield Input(
+                                value=self._settings.archive or "",
+                                id="archive",
+                                placeholder="~/.spotdl-archive.txt",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Checkbox(
+                                "Archive unavailable tracks",
+                                value=self._settings.add_unavailable,
+                                id="add-unavailable",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Label("Save File Path:")
+                            yield Input(
+                                value=self._settings.save_file or "",
+                                id="save-file",
+                                placeholder="~/spotdl-save.txt",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Checkbox(
+                                "Sync without deleting",
+                                value=self._settings.sync_without_deleting,
+                                id="sync-without-deleting",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Checkbox(
+                                "Remove LRC on sync",
+                                value=self._settings.sync_remove_lrc,
+                                id="sync-remove-lrc",
+                            )
+
+                        yield Rule()
+
+                        yield Static("Library Scan", classes="group-title")
+
+                        with Horizontal(classes="setting-row"):
+                            yield Checkbox(
+                                "Create skip file",
+                                value=self._settings.create_skip_file,
+                                id="create-skip-file",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Checkbox(
+                                "Respect skip file",
+                                value=self._settings.respect_skip_file,
+                                id="respect-skip-file",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Checkbox(
+                                "Scan for existing songs",
+                                value=self._settings.scan_for_songs,
+                                id="scan-for-songs",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Checkbox(
+                                "Skip explicit tracks",
+                                value=self._settings.skip_explicit,
+                                id="skip-explicit",
+                            )
+
+                    # ── Advanced Group ──
+                    with Vertical(
+                        id="settings-group-advanced",
+                        classes="settings-group hidden",
+                    ):
+                        yield Static("Advanced", classes="group-title")
+
+                        with Horizontal(classes="setting-row"):
+                            yield Label("Log Level:")
+                            yield Select(
+                                [
+                                    ("Debug", "DEBUG"),
+                                    ("Info", "INFO"),
+                                    ("Warning", "WARNING"),
+                                    ("Error", "ERROR"),
+                                    ("Critical", "CRITICAL"),
+                                ],
+                                value=self._settings.log_level,
+                                id="log-level",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Label("Cookie File Path:")
+                            yield Input(
+                                value=self._settings.cookie_file or "",
+                                id="cookie-file",
+                                placeholder="path/to/cookies.txt",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Label("FFmpeg Args:")
+                            yield Input(
+                                value=self._settings.ffmpeg_args or "",
+                                id="ffmpeg-args",
+                                placeholder="-af loudnorm",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Label("yt-dlp Args:")
+                            yield Input(
+                                value=self._settings.yt_dlp_args or "",
+                                id="yt-dlp-args",
+                                placeholder="--cookies cookies.txt",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Label("Proxy:")
+                            yield Input(
+                                value=self._settings.proxy or "",
+                                id="proxy",
+                                placeholder="http://127.0.0.1:8080",
+                            )
+
+                        yield Rule()
+
+                        yield Static("Error Handling", classes="group-title")
+
+                        with Horizontal(classes="setting-row"):
+                            yield Label("Save Errors Path:")
+                            yield Input(
+                                value=self._settings.save_errors or "",
+                                id="save-errors",
+                                placeholder="~/spotdl-errors.log",
+                            )
+
+                        with Horizontal(classes="setting-row"):
+                            yield Checkbox(
+                                "Print errors to console",
+                                value=self._settings.print_errors,
+                                id="print-errors",
+                            )
+
+            # Bottom action bar — always visible
             with Horizontal(id="settings-actions"):
                 yield Button("Save", id="save-btn", variant="primary")
                 yield Button("Sync with Server", id="sync-btn", variant="default")
@@ -731,6 +854,38 @@ class SettingsScreen(Screen[None]):
                 yield Button("Import from File", id="import-btn", variant="default")
                 yield Button("Reset to Defaults", id="reset-btn", variant="warning")
                 yield Button("Cancel", id="cancel-btn")
+
+    # ── Navigation switching ──
+
+    def _switch_settings_group(self, group_name: str) -> None:
+        """Hide all settings groups and show the selected one.
+
+        Also updates nav button active states.
+        """
+        for group_id, _ in _SETTINGS_NAV_GROUPS:
+            # Toggle group visibility
+            try:
+                group = self.query_one(f"#settings-group-{group_id}")
+                if group_id == group_name:
+                    group.remove_class("hidden")
+                else:
+                    group.add_class("hidden")
+            except Exception:
+                pass
+
+            # Toggle nav button active state
+            try:
+                nav_btn = self.query_one(
+                    f"#settings-nav-{group_id}", Button
+                )
+                if group_id == group_name:
+                    nav_btn.add_class("active")
+                else:
+                    nav_btn.remove_class("active")
+            except Exception:
+                pass
+
+    # ── Lifecycle ──
 
     async def on_mount(self) -> None:
         """Handle screen mount."""
@@ -759,89 +914,97 @@ class SettingsScreen(Screen[None]):
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses."""
-        if event.button.id == "save-btn":
+        btn_id = event.button.id or ""
+
+        # Nav buttons
+        if btn_id.startswith("settings-nav-"):
+            group_name = btn_id.removeprefix("settings-nav-")
+            self._switch_settings_group(group_name)
+            return
+
+        if btn_id == "save-btn":
             await self._save_settings()
-        elif event.button.id == "sync-btn":
+        elif btn_id == "sync-btn":
             await self._sync_settings()
-        elif event.button.id == "reset-btn":
+        elif btn_id == "reset-btn":
             self._reset_to_defaults()
-        elif event.button.id == "cancel-btn":
+        elif btn_id == "cancel-btn":
             self.app.pop_screen()
-        elif event.button.id == "toggle-api-auth-token":
+        elif btn_id == "toggle-api-auth-token":
             self._toggle_visibility("api-auth-token", "toggle-api-auth-token")
-        elif event.button.id == "toggle-spotify-secret":
+        elif btn_id == "toggle-spotify-secret":
             self._toggle_visibility("spotify-client-secret", "toggle-spotify-secret")
-        elif event.button.id == "toggle-sc-client-id":
+        elif btn_id == "toggle-sc-client-id":
             self._toggle_visibility("soundcloud-client-id", "toggle-sc-client-id")
-        elif event.button.id == "toggle-sc-auth-token":
+        elif btn_id == "toggle-sc-auth-token":
             self._toggle_visibility("soundcloud-auth-token", "toggle-sc-auth-token")
-        elif event.button.id == "audio-source-up":
+        elif btn_id == "audio-source-up":
             self._move_provider(
                 "#audio-source-table",
                 self._audio_prefs,
                 AUDIO_PROVIDER_LABELS,
                 -1,
             )
-        elif event.button.id == "audio-source-down":
+        elif btn_id == "audio-source-down":
             self._move_provider(
                 "#audio-source-table",
                 self._audio_prefs,
                 AUDIO_PROVIDER_LABELS,
                 1,
             )
-        elif event.button.id == "audio-source-toggle":
+        elif btn_id == "audio-source-toggle":
             self._toggle_provider(
                 "#audio-source-table",
                 self._audio_prefs,
                 AUDIO_PROVIDER_LABELS,
             )
-        elif event.button.id == "metadata-source-up":
+        elif btn_id == "metadata-source-up":
             self._move_provider(
                 "#metadata-source-table",
                 self._metadata_prefs,
                 METADATA_PROVIDER_LABELS,
                 -1,
             )
-        elif event.button.id == "metadata-source-down":
+        elif btn_id == "metadata-source-down":
             self._move_provider(
                 "#metadata-source-table",
                 self._metadata_prefs,
                 METADATA_PROVIDER_LABELS,
                 1,
             )
-        elif event.button.id == "metadata-source-toggle":
+        elif btn_id == "metadata-source-toggle":
             self._toggle_provider(
                 "#metadata-source-table",
                 self._metadata_prefs,
                 METADATA_PROVIDER_LABELS,
             )
-        elif event.button.id == "lyrics-source-up":
+        elif btn_id == "lyrics-source-up":
             self._move_provider(
                 "#lyrics-source-table",
                 self._lyrics_prefs,
                 LYRICS_PROVIDER_LABELS,
                 -1,
             )
-        elif event.button.id == "lyrics-source-down":
+        elif btn_id == "lyrics-source-down":
             self._move_provider(
                 "#lyrics-source-table",
                 self._lyrics_prefs,
                 LYRICS_PROVIDER_LABELS,
                 1,
             )
-        elif event.button.id == "lyrics-source-toggle":
+        elif btn_id == "lyrics-source-toggle":
             self._toggle_provider(
                 "#lyrics-source-table",
                 self._lyrics_prefs,
                 LYRICS_PROVIDER_LABELS,
             )
-        elif event.button.id == "refresh-service-status":
+        elif btn_id == "refresh-service-status":
             self.run_worker(self._load_service_status())
-        elif event.button.id == "export-btn":
+        elif btn_id == "export-btn":
             self.run_worker(self._export_settings())
-        elif event.button.id == "import-btn":
+        elif btn_id == "import-btn":
             self.run_worker(self._import_settings())
-        elif event.button.id == "load-server-btn":
+        elif btn_id == "load-server-btn":
             self.run_worker(self._load_from_server())
 
     async def _sync_settings(self) -> None:
@@ -852,21 +1015,21 @@ class SettingsScreen(Screen[None]):
 
         try:
             api_client = get_api_client()
-            
+
             # First save local changes
             await self._save_settings(close_screen=False)
-            
+
             # Then push to server
             # Convert settings to dict matching backend model
             settings_dict = self._settings.model_dump()
-            
+
             # Filter out fields that are not in UserSettingsUpdate
             # This is a simplification; ideally we'd map fields precisely
             # For now, we'll rely on the backend ignoring extra fields or handle specific mapping if needed
-            
+
             await api_client.update_user_settings(settings_dict)
             self.notify("Settings synced with server")
-            
+
         except APIError as e:
             self.notify(f"Sync failed: {e}", severity="error")
         except Exception as e:
@@ -890,9 +1053,9 @@ class SettingsScreen(Screen[None]):
             spotify_badge = self.query_one("#spotify-status-badge", Static)
 
             if spotify_id and spotify_secret:
-                spotify_badge.update("[green]Configured[/green]")
+                spotify_badge.update(f"[green]{Theme.ICON_CHECK} Configured[/green]")
             elif spotify_id or spotify_secret:
-                spotify_badge.update("[yellow]Incomplete[/yellow]")
+                spotify_badge.update(f"[yellow]{Theme.ICON_DOT} Incomplete[/yellow]")
             else:
                 spotify_badge.update("[dim]Not configured[/dim]")
 
@@ -902,7 +1065,7 @@ class SettingsScreen(Screen[None]):
             sc_badge = self.query_one("#soundcloud-status-badge", Static)
 
             if sc_id or sc_token:
-                sc_badge.update("[green]Configured[/green]")
+                sc_badge.update(f"[green]{Theme.ICON_CHECK} Configured[/green]")
             else:
                 sc_badge.update("[dim]Not configured[/dim]")
 
@@ -995,7 +1158,7 @@ class SettingsScreen(Screen[None]):
         for idx, pref in enumerate(prefs, 1):
             provider_id = pref.get("id", "")
             label = labels.get(provider_id, provider_id)
-            enabled = "Yes" if pref.get("enabled", True) else "No"
+            enabled = Theme.ICON_CHECK if pref.get("enabled", True) else Theme.ICON_CROSS
             table.add_row(str(idx), label, enabled, key=provider_id)
 
     def _selected_provider_index(self, table_id: str, prefs: list[dict[str, Any]]) -> int | None:

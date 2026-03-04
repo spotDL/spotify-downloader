@@ -20,16 +20,13 @@ from textual.screen import Screen
 from textual.widgets import (
     Button,
     Collapsible,
-    DataTable,
     Input,
-    Label,
-    ProgressBar,
     Rule,
     Select,
     Static,
 )
 
-from spotdl_cli.widgets import CoverArt
+from spotdl_cli.widgets import AudioMeter, CoverArt, MatchBar, StatChip
 
 from spotdl_cli.config import get_settings
 from spotdl_cli.core import (
@@ -93,6 +90,8 @@ class TrackScreen(Screen[None]):
         self._active_lyrics_source: str | None = None
         self._audio_features: dict[str, Any] = {}
         self._track_details: dict[str, Any] = {}
+        # Track selected match index for voting
+        self._selected_match_idx: int = 0
 
     @property
     def spotdl_app(self) -> SpotDLApp:
@@ -108,18 +107,17 @@ class TrackScreen(Screen[None]):
             # Hero section
             with Vertical(id="track-hero", classes="hero-section"):
                 with Horizontal(id="track-hero-content"):
-                    # Left: Cover art placeholder
-                    yield CoverArt(id="track-cover", classes="cover-placeholder")
+                    # Left: Cover art with entity_type
+                    yield CoverArt(entity_type="track", id="track-cover", classes="cover-placeholder")
 
                     # Right: Track info
                     with Vertical(id="track-info"):
-                        # Badges row
-                        with Horizontal(id="track-badges"):
-                            yield Static("TRACK", classes="badge badge-info")
-                            yield Static(
-                                "", id="explicit-badge", classes="badge badge-warning hidden"
-                            )
-                            yield Static("", id="track-number-badge", classes="badge badge-muted")
+                        # Type label as small muted text
+                        yield Static(
+                            "[dim]TRACK[/dim]",
+                            id="track-type-label",
+                            classes="type-label-muted",
+                        )
 
                         # Title
                         yield Static("", id="track-title", classes="title-xl")
@@ -127,18 +125,30 @@ class TrackScreen(Screen[None]):
                         # Artist (clickable)
                         yield Static("", id="track-artist", classes="subtitle link")
 
-                        # Quick stats
+                        # Platform badges as subtle text
+                        yield Static(
+                            "", id="track-platform-badge", classes="platform-badge-subtle"
+                        )
+
+                        # Quick stats using StatChip widgets
                         with Horizontal(id="track-stats", classes="stats-row"):
-                            yield Static("", id="track-duration", classes="stat-item")
-                            yield Static("", id="track-album", classes="stat-item link")
-                            yield Static("", id="track-year", classes="stat-item")
-                            yield Static("", id="track-key", classes="stat-item")
+                            yield StatChip("Duration", "--", id="stat-duration")
+                            yield StatChip("Album", "--", id="stat-album")
+                            yield StatChip("Year", "--", id="stat-year")
+                            yield StatChip("Key", "--", id="stat-key")
+
+                        # Badges row (explicit, track number)
+                        with Horizontal(id="track-badges"):
+                            yield Static(
+                                "", id="explicit-badge", classes="badge badge-warning hidden"
+                            )
+                            yield Static("", id="track-number-badge", classes="badge badge-muted")
 
                         # Genres
                         with Horizontal(id="track-genres", classes="genre-row"):
                             pass  # Will be populated dynamically
 
-                        # Action buttons
+                        # Action buttons: minimal toolbar row (no emoji)
                         with Horizontal(id="track-actions", classes="actions-row"):
                             yield Button(
                                 "Download Best Match",
@@ -149,7 +159,7 @@ class TrackScreen(Screen[None]):
                             yield Button(
                                 "Refresh Metadata",
                                 id="refresh-meta-btn",
-                                variant="warning",
+                                variant="default",
                             )
                             yield Button(
                                 "Submit Match",
@@ -162,9 +172,9 @@ class TrackScreen(Screen[None]):
                                 variant="default",
                             )
 
-            # Main content grid
+            # Main content: responsive 2-column split
             with Horizontal(id="track-content"):
-                # Left column (2/3)
+                # Left column (2/3) — matches + lyrics
                 with Vertical(id="track-main", classes="main-column"):
                     # Cross-platform matches card
                     with Vertical(classes="card"):
@@ -178,7 +188,7 @@ class TrackScreen(Screen[None]):
                         )
 
                         with Container(id="matches-container"):
-                            yield DataTable(id="matches-table")
+                            pass  # MatchBar widgets mounted dynamically
 
                         yield Static("", id="matches-status", classes="status-muted")
 
@@ -220,7 +230,7 @@ class TrackScreen(Screen[None]):
 
                         yield Static("", id="lyrics-status", classes="status-muted")
 
-                # Right column (1/3)
+                # Right column (1/3) — details + audio features
                 with Vertical(id="track-sidebar", classes="sidebar-column"):
                     # Platform links
                     with Vertical(classes="card"):
@@ -228,61 +238,20 @@ class TrackScreen(Screen[None]):
                         with Vertical(id="platform-links"):
                             yield Static("[dim]Loading...[/]", id="platform-links-content")
 
-                    # Audio features
+                    # Audio features using AudioMeter widgets
                     with Vertical(classes="card", id="audio-features-card"):
                         yield Static("Audio Features", classes="card-title")
                         with Vertical(id="audio-features-content"):
-                            # BPM
-                            with Horizontal(classes="feature-row"):
-                                yield Label("BPM", classes="feature-label")
-                                yield Static("--", id="feature-bpm", classes="feature-value")
-
-                            # Energy
-                            with Horizontal(classes="feature-row"):
-                                yield Label("Energy", classes="feature-label")
-                                yield ProgressBar(id="feature-energy", total=100, show_eta=False)
-
-                            # Danceability
-                            with Horizontal(classes="feature-row"):
-                                yield Label("Danceability", classes="feature-label")
-                                yield ProgressBar(
-                                    id="feature-danceability", total=100, show_eta=False
-                                )
-
-                            # Valence (happiness)
-                            with Horizontal(classes="feature-row"):
-                                yield Label("Valence", classes="feature-label")
-                                yield ProgressBar(id="feature-valence", total=100, show_eta=False)
-
-                            # Speechiness
-                            with Horizontal(classes="feature-row"):
-                                yield Label("Speechiness", classes="feature-label")
-                                yield ProgressBar(id="feature-speechiness", total=100, show_eta=False)
-
-                            # Acousticness
-                            with Horizontal(classes="feature-row"):
-                                yield Label("Acousticness", classes="feature-label")
-                                yield ProgressBar(id="feature-acousticness", total=100, show_eta=False)
-
-                            # Instrumentalness
-                            with Horizontal(classes="feature-row"):
-                                yield Label("Instrumental", classes="feature-label")
-                                yield ProgressBar(id="feature-instrumentalness", total=100, show_eta=False)
-
-                            # Liveness
-                            with Horizontal(classes="feature-row"):
-                                yield Label("Liveness", classes="feature-label")
-                                yield ProgressBar(id="feature-liveness", total=100, show_eta=False)
-
-                            # Loudness
-                            with Horizontal(classes="feature-row"):
-                                yield Label("Loudness", classes="feature-label")
-                                yield Static("--", id="feature-loudness", classes="feature-value")
-
-                            # Time Signature
-                            with Horizontal(classes="feature-row"):
-                                yield Label("Time Sig.", classes="feature-label")
-                                yield Static("--", id="feature-time-sig", classes="feature-value")
+                            yield StatChip("BPM", "--", id="feature-bpm")
+                            yield AudioMeter("Energy", 0.0, id="meter-energy")
+                            yield AudioMeter("Danceability", 0.0, id="meter-danceability")
+                            yield AudioMeter("Valence", 0.0, id="meter-valence")
+                            yield AudioMeter("Speechiness", 0.0, id="meter-speechiness")
+                            yield AudioMeter("Acousticness", 0.0, id="meter-acousticness")
+                            yield AudioMeter("Instrumental", 0.0, id="meter-instrumentalness")
+                            yield AudioMeter("Liveness", 0.0, id="meter-liveness")
+                            yield StatChip("Loudness", "--", id="feature-loudness")
+                            yield StatChip("Time Sig.", "--", id="feature-time-sig")
 
                     # Track details
                     with Vertical(classes="card", id="track-details-card"):
@@ -309,21 +278,6 @@ class TrackScreen(Screen[None]):
 
     async def on_mount(self) -> None:
         """Handle screen mount."""
-        # Setup matches table
-        table = self.query_one("#matches-table", DataTable)
-        table.cursor_type = "row"
-        table.zebra_stripes = True
-        table.add_columns(
-            "#",
-            "Platform",
-            "Title",
-            "Artist",
-            "Duration",
-            "Score",
-            "Votes",
-            "Status",
-        )
-
         # Display initial song data
         self._update_song_display()
 
@@ -342,17 +296,29 @@ class TrackScreen(Screen[None]):
 
         # Duration
         duration_str = f"{song.duration // 60}:{song.duration % 60:02d}"
-        self.query_one("#track-duration", Static).update(f"[dim]Duration:[/] {duration_str}")
+        try:
+            self.query_one("#stat-duration", StatChip).update_value(duration_str)
+        except Exception:
+            pass
 
         # Album
         if song.album_name:
-            self.query_one("#track-album", Static).update(f"[dim]Album:[/] {song.album_name}")
+            try:
+                self.query_one("#stat-album", StatChip).update_value(song.album_name)
+            except Exception:
+                pass
         else:
-            self.query_one("#track-album", Static).update("")
+            try:
+                self.query_one("#stat-album", StatChip).update_value("--")
+            except Exception:
+                pass
 
         # Year
         if song.year:
-            self.query_one("#track-year", Static).update(f"[dim]Year:[/] {song.year}")
+            try:
+                self.query_one("#stat-year", StatChip).update_value(str(song.year))
+            except Exception:
+                pass
 
         # Track number
         if song.track_number:
@@ -372,10 +338,19 @@ class TrackScreen(Screen[None]):
         for genre in (song.genres or [])[:4]:
             genres_container.mount(Static(genre, classes="badge badge-muted"))
 
-        # Platform link
-        platform_content = self.query_one("#platform-links-content", Static)
+        # Platform link — subtle text
         platform_icon = get_platform_icon(song.platform.value)
         platform_name = song.platform.value.replace("_", " ").title()
+        platform_badge = self.query_one("#track-platform-badge", Static)
+        if song.url:
+            platform_badge.update(
+                f"{platform_icon} {platform_name}  [dim]{song.url}[/dim]"
+            )
+        else:
+            platform_badge.update(f"{platform_icon} {platform_name}")
+
+        # Update platform links sidebar
+        platform_content = self.query_one("#platform-links-content", Static)
         if song.url:
             platform_content.update(
                 f"{platform_icon} {platform_name}\n[dim]{song.url}[/dim]"
@@ -438,7 +413,7 @@ class TrackScreen(Screen[None]):
                     self._matches = [
                         self._wrap_download_result(m) for m in dl_matches
                     ]
-                self._update_matches_table()
+                self._update_matches_display()
             except APIError as e:
                 logger.warning(f"Failed to get matches: {e}")
                 # Fall back to offline matching
@@ -645,16 +620,16 @@ class TrackScreen(Screen[None]):
                     self._matches.append(self._wrap_download_result(dl_result))
                     seen_ids.add(r.platform_id)
 
-            self._update_matches_table()
+            self._update_matches_display()
 
         except Exception as e:
             logger.error(f"Offline matching failed: {e}")
             status.update(f"[red]Error: {e}[/]")
 
-    def _update_matches_table(self) -> None:
-        """Update the matches table."""
-        table = self.query_one("#matches-table", DataTable)
-        table.clear()
+    def _update_matches_display(self) -> None:
+        """Update the matches display using MatchBar widgets."""
+        container = self.query_one("#matches-container", Container)
+        container.remove_children()
 
         status = self.query_one("#matches-status", Static)
 
@@ -662,51 +637,34 @@ class TrackScreen(Screen[None]):
             status.update("[yellow]No matches found[/]")
             return
 
-        for i, match in enumerate(self._matches[:10], 1):
+        for i, match in enumerate(self._matches[:10]):
             result = match.result
-            duration = f"{result.duration // 60}:{result.duration % 60:02d}"
-            platform_icon = get_platform_icon(result.platform.value)
 
-            # Score display
-            score_str = f"{match.score:.0f}%" if match.score > 0 else "\u2014"
+            # Build title: name + artist truncated
+            title = result.name
+            if result.artist:
+                title = f"{result.name} - {result.artist}"
 
-            # Color-coded votes
+            # Score
+            score = match.score if match.score > 0 else 0.0
+
+            # Net votes
             net = match.net_votes
-            if net > 0:
-                votes_str = f"[green]+{net}[/green]"
-            elif net < 0:
-                votes_str = f"[red]{net}[/red]"
-            else:
-                votes_str = "0"
 
-            # Status with badges
-            badges: list[str] = []
-            if i == 1 and result.verified:
-                badges.append("[green]Best Match[/green]")
-            if match.match_type == "user":
-                badges.append("[cyan]User Submitted[/cyan]")
-            if match.status == "pending":
-                badges.append("[yellow]Pending Review[/yellow]")
-            elif match.status == "verified":
-                badges.append("[green]Verified[/green]")
-            elif match.status:
-                badges.append(match.status.title())
-            elif result.verified:
-                badges.append("[green]Verified[/green]")
-            else:
-                badges.append("[dim]Unverified[/dim]")
-            status_str = " ".join(badges)
-
-            table.add_row(
-                str(i),
-                f"{platform_icon} {result.platform.value}",
-                result.name[:35] + "..." if len(result.name) > 35 else result.name,
-                result.artist[:20] + "..." if len(result.artist) > 20 else result.artist,
-                duration,
-                score_str,
-                votes_str,
-                status_str,
+            bar = MatchBar(
+                platform=result.platform.value,
+                title=title,
+                score=score,
+                votes=net,
+                match_data={
+                    "index": i,
+                    "match_id": match.id,
+                    "platform": result.platform.value,
+                    "url": result.url,
+                },
+                id=f"match-bar-{i}",
             )
+            container.mount(bar)
 
         status.update(f"[dim]Found {len(self._matches)} match(es)[/]")
 
@@ -751,42 +709,51 @@ class TrackScreen(Screen[None]):
             lyrics_content.update("[dim]No lyrics available[/]")
 
     def _update_audio_features(self) -> None:
-        """Update audio features display."""
+        """Update audio features display using AudioMeter and StatChip widgets."""
         if not self._audio_features:
             return
 
-        def set_bar(feature_id: str, key: str) -> None:
+        def set_meter(meter_id: str, key: str) -> None:
             val = self._audio_features.get(key)
             if val is not None:
                 try:
-                    bar = self.query_one(f"#feature-{feature_id}", ProgressBar)
-                    bar.update(progress=int(float(val) * 100))
+                    meter = self.query_one(f"#meter-{meter_id}", AudioMeter)
+                    meter.update_value(float(val))
                 except Exception:
                     pass
 
         # BPM
         bpm = self._audio_features.get("tempo") or self._audio_features.get("bpm")
         if bpm:
-            self.query_one("#feature-bpm", Static).update(f"{bpm:.0f}")
+            try:
+                self.query_one("#feature-bpm", StatChip).update_value(f"{bpm:.0f}")
+            except Exception:
+                pass
 
-        # Progress bar features (0-1 scale)
-        set_bar("energy", "energy")
-        set_bar("danceability", "danceability")
-        set_bar("valence", "valence")
-        set_bar("speechiness", "speechiness")
-        set_bar("acousticness", "acousticness")
-        set_bar("instrumentalness", "instrumentalness")
-        set_bar("liveness", "liveness")
+        # AudioMeter features (0-1 scale)
+        set_meter("energy", "energy")
+        set_meter("danceability", "danceability")
+        set_meter("valence", "valence")
+        set_meter("speechiness", "speechiness")
+        set_meter("acousticness", "acousticness")
+        set_meter("instrumentalness", "instrumentalness")
+        set_meter("liveness", "liveness")
 
         # Loudness (dB value)
         loudness = self._audio_features.get("loudness")
         if loudness is not None:
-            self.query_one("#feature-loudness", Static).update(f"{loudness:.1f} dB")
+            try:
+                self.query_one("#feature-loudness", StatChip).update_value(f"{loudness:.1f} dB")
+            except Exception:
+                pass
 
         # Time signature
         time_sig = self._audio_features.get("time_signature")
         if time_sig is not None:
-            self.query_one("#feature-time-sig", Static).update(f"{time_sig}/4")
+            try:
+                self.query_one("#feature-time-sig", StatChip).update_value(f"{time_sig}/4")
+            except Exception:
+                pass
 
         # Key signature (if available)
         key = self._audio_features.get("key")
@@ -796,7 +763,10 @@ class TrackScreen(Screen[None]):
             key_name = key_names[int(key) % 12]
             mode_name = "Major" if mode == 1 else "Minor" if mode == 0 else ""
             label = f"{key_name} {mode_name}".strip()
-            self.query_one("#track-key", Static).update(f"[dim]Key:[/] {label}")
+            try:
+                self.query_one("#stat-key", StatChip).update_value(label)
+            except Exception:
+                pass
 
     def _update_track_details(self) -> None:
         """Update track details and technical info sidebar cards.
@@ -871,6 +841,11 @@ class TrackScreen(Screen[None]):
                 self._active_lyrics_source = source
                 self._lyrics = self._all_lyrics[source]
                 self._update_lyrics_display()
+
+    def on_match_bar_selected(self, message: MatchBar.Selected) -> None:
+        """Handle MatchBar selection — track selected index for voting."""
+        idx = message.match_data.get("index", 0)
+        self._selected_match_idx = idx
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses."""
@@ -1017,12 +992,11 @@ class TrackScreen(Screen[None]):
 
     async def _vote_selected(self, vote_type: str) -> None:
         """Vote on the selected match."""
-        table = self.query_one("#matches-table", DataTable)
-        if table.cursor_row is None or table.cursor_row >= len(self._matches):
+        if self._selected_match_idx >= len(self._matches):
             self.notify("Select a match to vote", severity="warning")
             return
 
-        match = self._matches[table.cursor_row]
+        match = self._matches[self._selected_match_idx]
         if not match.id:
             self.notify("Voting requires a saved match", severity="warning")
             return
@@ -1042,7 +1016,7 @@ class TrackScreen(Screen[None]):
 
             match.upvotes = summary.get("upvotes", match.upvotes)
             match.downvotes = summary.get("downvotes", match.downvotes)
-            self._update_matches_table()
+            self._update_matches_display()
         except APIError as e:
             self.notify(f"Vote failed: {e}", severity="error")
 
@@ -1100,4 +1074,4 @@ class TrackScreen(Screen[None]):
         existing_ids = {m.id for m in self._matches if m.id}
         if match.id and match.id not in existing_ids:
             self._matches.append(match)
-            self._update_matches_table()
+            self._update_matches_display()
