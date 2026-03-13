@@ -28,7 +28,7 @@ from spotdl.providers.audio import (
 )
 from spotdl.providers.lyrics import AzLyrics, Genius, LyricsProvider, MusixMatch, Synced
 from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
-from spotdl.types.song import Song
+from spotdl.types.song import Song, SongError
 from spotdl.utils.archive import Archive
 from spotdl.utils.config import (
     DOWNLOADER_OPTIONS,
@@ -463,7 +463,12 @@ class Downloader:
                 ]
             )
         ):
-            song = reinit_song(song)
+            try:
+                song = reinit_song(song)
+            except SongError as exc:
+                logger.warning("Skipping %s: %s", song.display_name, exc)
+                self.errors.append(f"Skipping {song.display_name}: {exc}")
+                return song, None
 
         # Create the output file path
         output_file = create_file_name(
