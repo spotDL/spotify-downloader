@@ -99,7 +99,8 @@ class YouTubeMusicProvider(SourceProvider):
         artists_data = song_data.get("artists", [])
         artists = [a.get("name", "") for a in artists_data if a.get("name")]
         if not artists:
-            artists = [song_data.get("author", "Unknown")]
+            author = (song_data.get("author") or "").strip()
+            artists = [author] if author else ["Unknown"]
 
         primary_artist = artists[0] if artists else "Unknown"
 
@@ -149,8 +150,26 @@ class YouTubeMusicProvider(SourceProvider):
             except ValueError:
                 pass
 
+        # Extract track number from ytmusicapi data
+        track_number = None
+        raw_tn = song_data.get("trackNumber") or song_data.get("index")
+        if raw_tn is not None:
+            try:
+                track_number = int(raw_tn)
+            except (ValueError, TypeError):
+                pass
+        # Fall back to list position when in album/playlist context
+        if track_number is None and list_info and list_info.get("position"):
+            try:
+                track_number = int(list_info["position"])
+            except (ValueError, TypeError):
+                pass
+
+        # Ensure name is never None/empty
+        name = song_data.get("title") or "Unknown"
+
         song = Song(
-            name=song_data.get("title", "Unknown"),
+            name=name,
             artists=artists,
             artist=primary_artist,
             duration=duration,
@@ -159,6 +178,7 @@ class YouTubeMusicProvider(SourceProvider):
             url=f"https://music.youtube.com/watch?v={video_id}",
             album_name=album_name,
             album_artist=primary_artist,
+            track_number=track_number or 1,
             year=year,
             explicit=song_data.get("isExplicit", False),
             cover_url=cover_url,

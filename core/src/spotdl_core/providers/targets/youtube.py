@@ -36,11 +36,11 @@ class YouTubeProvider(TargetProvider):
 
     # List of Invidious instances to try
     INVIDIOUS_INSTANCES = [
+        "https://yewtu.be",
+        "https://invidious.nerdvpn.de",
         "https://vid.puffyan.us",
         "https://invidious.snopyta.org",
-        "https://yewtu.be",
         "https://invidious.kavin.rocks",
-        "https://inv.riverside.rocks",
     ]
 
     def __init__(

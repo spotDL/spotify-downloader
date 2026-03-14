@@ -86,6 +86,51 @@ def _primary_artist(payload: dict[str, Any]) -> str:
     return "Unknown"
 
 
+def _query_relevance(query: str, entity: Entity) -> float:
+    """Score how relevant an entity is to a search query (0..1+)."""
+    ec = entity.canonical_data
+    if ec is None:
+        return 0.0
+
+    q_lower = query.lower().strip()
+    q_terms = set(q_lower.split())
+    if not q_terms:
+        return 0.0
+
+    name = (ec.name or "").lower()
+    canonical = ec.canonical or {}
+    artist = str(canonical.get("artist") or "").lower()
+    artists = [str(a).lower() for a in (canonical.get("artists") or [])]
+
+    # Build candidate strings to match against
+    if entity.entity_type == "track":
+        candidates = [f"{artist} {name}", f"{name} {artist}", name]
+        for a in artists:
+            candidates.append(f"{a} {name}")
+    else:
+        candidates = [name] + artists
+
+    best_score = 0.0
+    for candidate in candidates:
+        candidate = candidate.strip()
+        if not candidate:
+            continue
+        if q_lower in candidate or candidate in q_lower:
+            best_score = max(best_score, 1.0)
+            break
+        c_terms = set(candidate.split())
+        if c_terms:
+            overlap = len(q_terms & c_terms)
+            score = overlap / max(len(q_terms), len(c_terms))
+            best_score = max(best_score, score)
+
+    # Tiny tiebreaker: prefer tracks over albums/artists in text search
+    if entity.entity_type == "track":
+        best_score += 0.001
+
+    return best_score
+
+
 def _detect_target_platform(url: str) -> str | None:
     host = urlparse(url).netloc.lower()
     if "music.youtube.com" in host:
@@ -128,10 +173,12 @@ class DiscoveryService:
 
     def _bundle_from_song(self, song: Song) -> ProviderEntityBundle:
         provider_id = SOURCE_PLATFORM_TO_ID.get(song.platform, "unknown")
+        # Filter empty artist strings; fall back to primary artist
+        artists = [a for a in song.artists if a and a.strip()] or [song.artist or "Unknown"]
         payload = {
-            "name": song.name,
-            "artists": list(song.artists),
-            "artist": song.artist,
+            "name": song.name or "Unknown",
+            "artists": artists,
+            "artist": song.artist or artists[0],
             "duration": song.duration,
             "platform": provider_id,
             "platform_id": song.platform_id,
@@ -139,8 +186,8 @@ class DiscoveryService:
             "album_name": song.album_name or None,
             "album_artist": song.album_artist or None,
             "album_id": song.album_id,
-            "track_number": song.track_number,
-            "disc_number": song.disc_number,
+            "track_number": int(song.track_number) if song.track_number else None,
+            "disc_number": int(song.disc_number) if song.disc_number else None,
             "year": song.year or None,
             "date": song.date or None,
             "genres": list(song.genres) if song.genres else [],
@@ -170,13 +217,14 @@ class DiscoveryService:
         if not song.artist_id:
             return None
         provider_id = SOURCE_PLATFORM_TO_ID.get(song.platform, "unknown")
+        artist_url = self._construct_artist_url(song.platform, song.artist_id)
         payload = {
             "name": artist_name,
             "artists": [artist_name],
             "artist": artist_name,
             "platform": provider_id,
             "platform_id": song.artist_id,
-            "url": None,
+            "url": artist_url,
             "cover_url": song.cover_url,
             "genres": list(song.genres) if song.genres else [],
             "entity_type": "artist",
@@ -184,7 +232,7 @@ class DiscoveryService:
         return ProviderEntityBundle(
             provider_id=provider_id,
             provider_entity_id=song.artist_id,
-            provider_url=None,
+            provider_url=artist_url,
             entity_type="artist",
             normalized_payload=payload,
             raw_payload=payload,
@@ -233,6 +281,17 @@ class DiscoveryService:
             Platform.DEEZER: f"https://www.deezer.com/album/{album_id}",
             Platform.TIDAL: f"https://tidal.com/browse/album/{album_id}",
             Platform.APPLE_MUSIC: f"https://music.apple.com/album/{album_id}",
+        }
+        return url_templates.get(platform)
+
+    @staticmethod
+    def _construct_artist_url(platform: Platform, artist_id: str) -> str | None:
+        """Construct canonical artist URL from platform and artist ID."""
+        url_templates = {
+            Platform.SPOTIFY: f"https://open.spotify.com/artist/{artist_id}",
+            Platform.DEEZER: f"https://www.deezer.com/artist/{artist_id}",
+            Platform.TIDAL: f"https://tidal.com/browse/artist/{artist_id}",
+            Platform.APPLE_MUSIC: f"https://music.apple.com/artist/{artist_id}",
         }
         return url_templates.get(platform)
 
@@ -400,14 +459,23 @@ class DiscoveryService:
             "lyrics": Capability.LYRICS,
             "enrichable": Capability.ENRICH,
         }
-        providers = list(dict.fromkeys(provider_ids))
+        # RESOLVE requires an existing snapshot; other capabilities are
+        # available from any registered provider.
+        snapshot_only_caps = {Capability.RESOLVE}
+        snapshot_providers = list(dict.fromkeys(provider_ids))
         payload: dict[str, Any] = {}
         for key, cap in map_keys.items():
-            capable: list[str] = []
-            for provider_id in providers:
-                plugin = self._registry.get(provider_id)
-                if plugin and cap in plugin.capabilities:
-                    capable.append(provider_id)
+            if cap in snapshot_only_caps:
+                capable: list[str] = []
+                for provider_id in snapshot_providers:
+                    plugin = self._registry.get(provider_id)
+                    if plugin and cap in plugin.capabilities:
+                        capable.append(provider_id)
+            else:
+                capable = [
+                    p.provider_id
+                    for p in self._registry.get_with_capability(cap)
+                ]
             if key in {"matchable", "downloadable", "lyrics"} and entity_type != "track":
                 capable = []
             payload[key] = {
@@ -1214,7 +1282,7 @@ class DiscoveryService:
             if relation is not None:
                 relations.setdefault(str(from_entity.id), []).append(relation)
 
-        # Task 1.6: Deduplicate then filter (same order as URL discovery)
+        # Task 1.6: Deduplicate then filter, sort by relevance
         deduped: dict[str, Entity] = {}
         for entity in entities:
             deduped[str(entity.id)] = entity
@@ -1222,6 +1290,9 @@ class DiscoveryService:
         filtered = list(deduped.values())
         if requested_types:
             filtered = [e for e in filtered if e.entity_type in requested_types]
+
+        # Sort by relevance to the original search query
+        filtered.sort(key=lambda e: _query_relevance(query, e), reverse=True)
 
         return DiscoverResult(
             entities=filtered[:limit],

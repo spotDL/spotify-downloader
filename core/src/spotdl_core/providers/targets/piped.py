@@ -35,11 +35,11 @@ class PipedProvider(TargetProvider):
 
     # List of Piped API instances to try
     PIPED_INSTANCES = [
+        "https://pipedapi.in.projectsegfau.lt",
         "https://pipedapi.kavin.rocks",
         "https://api.piped.yt",
         "https://pipedapi.adminforge.de",
         "https://api.piped.privacydev.net",
-        "https://pipedapi.in.projectsegfau.lt",
     ]
 
     def __init__(

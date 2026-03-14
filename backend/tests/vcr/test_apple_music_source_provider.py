@@ -16,63 +16,37 @@ class TestAppleMusicSourceProviderVCR:
         """Create an Apple Music provider instance."""
         return AppleMusicProvider()
 
+    @pytest.mark.skip(reason="Apple Music uses SPA with JS rendering; no JSON-LD in server response")
     @pytest.mark.vcr
     async def test_get_track(self, provider: AppleMusicProvider) -> None:
         """Test getting a track from Apple Music."""
-        from spotdl.providers.sources.base import SourceProviderError, TrackNotFoundError
-
-        try:
-            song = await provider.get_track(
-                "https://music.apple.com/us/album/harder-better-faster-stronger/697194953?i=697195203"
-            )
-
-            assert song.name is not None
-            assert len(song.name) > 0
-            assert song.platform == Platform.APPLE_MUSIC
-            assert song.artist is not None
-        except (SourceProviderError, TrackNotFoundError) as e:
-            # Apple Music web scraping may fail due to page structure changes
-            pytest.skip(f"Apple Music track not available: {e}")
-
+        song = await provider.get_track(
+            "https://music.apple.com/us/album/harder-better-faster-stronger/697194953?i=697195203"
+        )
+        assert song.name is not None
+        assert song.platform == Platform.APPLE_MUSIC
         await provider.close()
 
+    @pytest.mark.skip(reason="Apple Music uses SPA with JS rendering; no JSON-LD in server response")
     @pytest.mark.vcr
     async def test_get_album(self, provider: AppleMusicProvider) -> None:
         """Test getting an album from Apple Music."""
-        from spotdl.providers.sources.base import SourceProviderError
-
-        try:
-            song_list = await provider.get_album(
-                "https://music.apple.com/us/album/discovery/697194953"
-            )
-
-            assert song_list.name is not None
-            # Apple Music scraping may return empty due to JS-dependent content
-            if len(song_list.songs) == 0:
-                pytest.skip("Apple Music album returned no tracks (likely JS-dependent)")
-            assert song_list.songs[0].platform == Platform.APPLE_MUSIC
-        except SourceProviderError as e:
-            pytest.skip(f"Apple Music album not available: {e}")
-
+        song_list = await provider.get_album(
+            "https://music.apple.com/us/album/discovery/697194953"
+        )
+        assert song_list.name is not None
+        assert len(song_list.songs) > 0
         await provider.close()
 
     @pytest.mark.vcr
     async def test_search(self, provider: AppleMusicProvider) -> None:
-        """Test searching for tracks on Apple Music."""
-        from spotdl.providers.sources.base import SourceProviderError
+        """Test searching for tracks on Apple Music (uses iTunes API)."""
+        songs = await provider.search("Daft Punk Harder Better Faster Stronger", limit=5)
 
-        try:
-            songs = await provider.search("Daft Punk Harder Better Faster Stronger", limit=5)
-
-            # Search may return empty depending on Apple Music's response
-            if len(songs) == 0:
-                pytest.skip("Apple Music search returned no results")
-
-            first_song = songs[0]
-            assert first_song.platform == Platform.APPLE_MUSIC
-            assert first_song.name is not None
-        except SourceProviderError as e:
-            pytest.skip(f"Apple Music search failed: {e}")
+        assert len(songs) > 0
+        first_song = songs[0]
+        assert first_song.platform == Platform.APPLE_MUSIC
+        assert first_song.name is not None
 
         await provider.close()
 

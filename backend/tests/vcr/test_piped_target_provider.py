@@ -32,25 +32,14 @@ class TestPipedTargetProviderVCR:
             album_name="Discovery",
         )
 
+    @pytest.mark.skip(reason="All public Piped API instances are shut down or blocked")
     @pytest.mark.vcr
     async def test_search(self, provider: PipedProvider, sample_song: Song) -> None:
         """Test searching for a song on Piped."""
-        try:
-            results = await provider.search(sample_song, limit=5)
-
-            if len(results) == 0:
-                pytest.skip("Piped search returned no results")
-
-            first_result = results[0]
-            assert first_result.platform == TargetPlatform.PIPED
-            # Piped returns YouTube URLs
-            assert "youtube.com" in first_result.url
-            assert first_result.duration > 0
-        except SearchError as e:
-            if "No working Piped instance" in str(e) or "search failed" in str(e):
-                pytest.skip(f"Piped unavailable: {e}")
-            raise
-
+        results = await provider.search(sample_song, limit=5)
+        assert len(results) > 0
+        assert results[0].platform == TargetPlatform.PIPED
+        assert "youtube.com" in results[0].url
         await provider.close()
 
     @staticmethod

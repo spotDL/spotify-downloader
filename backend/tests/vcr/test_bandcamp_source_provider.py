@@ -23,7 +23,7 @@ class TestBandcampSourceProviderVCR:
 
         try:
             # Using a well-known Bandcamp track
-            song = await provider.get_track("https://ghostly.bandcamp.com/track/dripping-sun")
+            song = await provider.get_track("https://c418.bandcamp.com/track/minecraft")
 
             assert song.name is not None
             assert len(song.name) > 0
@@ -42,7 +42,7 @@ class TestBandcampSourceProviderVCR:
 
         try:
             song_list = await provider.get_album(
-                "https://ghostly.bandcamp.com/album/diving-station"
+                "https://c418.bandcamp.com/album/minecraft-volume-alpha"
             )
 
             assert song_list.name is not None

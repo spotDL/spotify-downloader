@@ -24,7 +24,7 @@ interactions:
       Content-Type:
       - text/html
       Date:
-      - Sat, 31 Jan 2026 12:15:13 GMT
+      - Sat, 14 Mar 2026 14:46:38 GMT
       Onion-Location:
       - http://grwp24hodrefzvjjuccrkw3mjq4tzhaaq32amf33dzpmuxe7ilepcmad.onion/api/v1/stats
       Server:
@@ -54,7 +54,7 @@ interactions:
       Content-Length:
       - '0'
       Date:
-      - Sat, 31 Jan 2026 12:10:01 GMT
+      - Sat, 14 Mar 2026 14:40:27 GMT
       Location:
       - https://redirect.invidious.io/api/v1/stats
       Server:
@@ -116,7 +116,7 @@ interactions:
       Content-Type:
       - text/html
       Date:
-      - Sat, 31 Jan 2026 12:15:14 GMT
+      - Sat, 14 Mar 2026 14:46:39 GMT
       Etag:
       - '"6626b37f-b68"'
       Last-Modified:
@@ -153,7 +153,7 @@ interactions:
       Content-Length:
       - '0'
       Date:
-      - Sat, 31 Jan 2026 12:10:02 GMT
+      - Sat, 14 Mar 2026 14:40:28 GMT
       Location:
       - https://redirect.invidious.io/api/v1/search?q=Daft+Punk+-+Harder%2C+Better%2C+Faster%2C+Stronger&type=video&sort_by=relevance
       Server:
@@ -215,7 +215,238 @@ interactions:
       Content-Type:
       - text/html
       Date:
-      - Sat, 31 Jan 2026 12:15:14 GMT
+      - Sat, 14 Mar 2026 14:46:39 GMT
+      Etag:
+      - '"6626b37f-b68"'
+      Last-Modified:
+      - Mon, 22 Apr 2024 18:59:11 GMT
+      Server:
+      - Caddy
+      - nginx/1.25.5
+      Vary:
+      - Accept-Encoding
+      content-length:
+      - '2920'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - vid.puffyan.us
+    method: GET
+    uri: https://vid.puffyan.us/api/v1/stats
+  response:
+    body:
+      string: "<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502
+        Bad Gateway</h1></center>\r\n<hr><center>nginx/1.22.1</center>\r\n</body>\r\n</html>\r\n"
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '157'
+      Content-Type:
+      - text/html
+      Date:
+      - Sat, 14 Mar 2026 14:49:39 GMT
+      Onion-Location:
+      - http://grwp24hodrefzvjjuccrkw3mjq4tzhaaq32amf33dzpmuxe7ilepcmad.onion/api/v1/stats
+      Server:
+      - nginx/1.22.1
+    status:
+      code: 502
+      message: Bad Gateway
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - invidious.snopyta.org
+    method: GET
+    uri: https://invidious.snopyta.org/api/v1/stats
+  response:
+    body:
+      string: ''
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000
+      Content-Length:
+      - '0'
+      Date:
+      - Sat, 14 Mar 2026 14:43:28 GMT
+      Location:
+      - https://redirect.invidious.io/api/v1/stats
+      Server:
+      - Caddy
+    status:
+      code: 302
+      message: Found
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - redirect.invidious.io
+    method: GET
+    uri: https://redirect.invidious.io/api/v1/stats
+  response:
+    body:
+      string: "<!DOCTYPE html><html lang=\"en\"><head><title>Select instance - Invidious</title><meta
+        charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link
+        rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/main.css?static=bd312d0b07\"><script
+        src=\"/static/js/main.min.js?static=e3687696e1\" text=\"text/javascript\"
+        defer></script></head><body><noscript><style>.requires-scripts {\n\tdisplay:
+        none;\n}\n</style></noscript><header class=\"banner\"><div class=\"logo\"></div><h1>Invidious</h1></header><noscript><div
+        class=\"script-warning\"><p>You are seeing the fallback version of this page.<br>\nSome
+        features are missing.</p><p>JavaScript is required to use the regular page.\n</p></div></noscript><div
+        class=\"story\"><div class=\"requires-scripts\"><p>To see this content, select
+        an instance,\nor <a id=\"watch-on-youtube\">see directly on YouTube.</a></p></div><noscript><p>To
+        see this content, please select an instance,\nor <a href=\"https://www.youtube.com\">go
+        to YouTube</a> and look for it there.\n</p></noscript></div><div class=\"instances-table
+        requires-scripts\"><table><thead><tr><th scope=\"col\">Region</th><th scope=\"col\">Domain</th><th
+        scope=\"col\">Health</th><th scope=\"col\">Action</th></tr></thead><tbody
+        id=\"instances-tbody\"><tr class=\"loading\"><td class=\"loading-td\" colspan=\"4\"
+        data-loading-message=\"Loading instances...\">Trying to run scripts...</td></tr></tbody></table></div><noscript><div
+        class=\"instances-list\"><h2>Available instances</h2><ul class=\"list\"><li>\U0001F1F3\U0001F1F1
+        <a href=\"https://yewtu.be\">yewtu.be</a></li><li>\U0001F1FA\U0001F1F8 <a
+        href=\"https://vid.puffyan.us\">vid.puffyan.us</a></li><li>\U0001F1F7\U0001F1F4
+        <a href=\"https://invidious.flokinet.to\">invidious.flokinet.to</a></li><li>\U0001F1EB\U0001F1F7
+        <a href=\"https://invidious.projectsegfau.lt\">invidious.projectsegfau.lt</a></li><li>\U0001F1F1\U0001F1FA
+        <a href=\"https://inv.bp.projectsegfau.lt\">inv.bp.projectsegfau.lt</a></li><li>\U0001F1EE\U0001F1F3
+        <a href=\"https://inv.in.projectsegfau.lt\">inv.in.projectsegfau.lt</a></li><li>\U0001F1E9\U0001F1EA
+        <a href=\"https://invidious.tiekoetter.com\">invidious.tiekoetter.com</a></li><li>\U0001F1FA\U0001F1F8
+        <a href=\"https://invidious.slipfox.xyz\">invidious.slipfox.xyz</a></li><li>\U0001F1EB\U0001F1F7
+        <a href=\"https://invidious.privacydev.net\">invidious.privacydev.net</a></li><li>\U0001F1F8\U0001F1EC
+        <a href=\"https://vid.priv.au\">vid.priv.au</a></li><li>\U0001F1E8\U0001F1E6
+        <a href=\"https://iv.ggtyler.dev\">iv.ggtyler.dev</a></li><li>\U0001F1F1\U0001F1F9
+        <a href=\"https://invidious.0011.lt\">invidious.0011.lt</a></li><li>\U0001F1E8\U0001F1F1
+        <a href=\"https://inv.zzls.xyz\">inv.zzls.xyz</a></li><li>\U0001F1EB\U0001F1EE
+        <a href=\"https://invidious.protokolla.fi\">invidious.protokolla.fi</a></li></ul></div></noscript><footer><ul
+        class=\"footer-link-list\"><li><a href=\"/\">Home</a></li><li><a href=\"https://github.com/iv-org/invidious-redirect\">Source
+        code</a></li><li><a href=\"https://github.com/iv-org/invidious\">Invidious
+        project</a></li><li><a href=\"/js-licenses.html\" data-jslicense=\"1\">JavaScript
+        license</a></li></ul></footer></body></html>"
+    headers:
+      Content-Type:
+      - text/html
+      Date:
+      - Sat, 14 Mar 2026 14:49:40 GMT
+      Etag:
+      - '"6626b37f-b68"'
+      Last-Modified:
+      - Mon, 22 Apr 2024 18:59:11 GMT
+      Server:
+      - Caddy
+      - nginx/1.25.5
+      Vary:
+      - Accept-Encoding
+      content-length:
+      - '2920'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - invidious.snopyta.org
+    method: GET
+    uri: https://invidious.snopyta.org/api/v1/search?q=Daft+Punk+-+Harder%2C+Better%2C+Faster%2C+Stronger&sort_by=relevance&type=video
+  response:
+    body:
+      string: ''
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000
+      Content-Length:
+      - '0'
+      Date:
+      - Sat, 14 Mar 2026 14:43:29 GMT
+      Location:
+      - https://redirect.invidious.io/api/v1/search?q=Daft+Punk+-+Harder%2C+Better%2C+Faster%2C+Stronger&type=video&sort_by=relevance
+      Server:
+      - Caddy
+    status:
+      code: 302
+      message: Found
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - redirect.invidious.io
+    method: GET
+    uri: https://redirect.invidious.io/api/v1/search?q=Daft+Punk+-+Harder%2C+Better%2C+Faster%2C+Stronger&sort_by=relevance&type=video
+  response:
+    body:
+      string: "<!DOCTYPE html><html lang=\"en\"><head><title>Select instance - Invidious</title><meta
+        charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link
+        rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/main.css?static=bd312d0b07\"><script
+        src=\"/static/js/main.min.js?static=e3687696e1\" text=\"text/javascript\"
+        defer></script></head><body><noscript><style>.requires-scripts {\n\tdisplay:
+        none;\n}\n</style></noscript><header class=\"banner\"><div class=\"logo\"></div><h1>Invidious</h1></header><noscript><div
+        class=\"script-warning\"><p>You are seeing the fallback version of this page.<br>\nSome
+        features are missing.</p><p>JavaScript is required to use the regular page.\n</p></div></noscript><div
+        class=\"story\"><div class=\"requires-scripts\"><p>To see this content, select
+        an instance,\nor <a id=\"watch-on-youtube\">see directly on YouTube.</a></p></div><noscript><p>To
+        see this content, please select an instance,\nor <a href=\"https://www.youtube.com\">go
+        to YouTube</a> and look for it there.\n</p></noscript></div><div class=\"instances-table
+        requires-scripts\"><table><thead><tr><th scope=\"col\">Region</th><th scope=\"col\">Domain</th><th
+        scope=\"col\">Health</th><th scope=\"col\">Action</th></tr></thead><tbody
+        id=\"instances-tbody\"><tr class=\"loading\"><td class=\"loading-td\" colspan=\"4\"
+        data-loading-message=\"Loading instances...\">Trying to run scripts...</td></tr></tbody></table></div><noscript><div
+        class=\"instances-list\"><h2>Available instances</h2><ul class=\"list\"><li>\U0001F1F3\U0001F1F1
+        <a href=\"https://yewtu.be\">yewtu.be</a></li><li>\U0001F1FA\U0001F1F8 <a
+        href=\"https://vid.puffyan.us\">vid.puffyan.us</a></li><li>\U0001F1F7\U0001F1F4
+        <a href=\"https://invidious.flokinet.to\">invidious.flokinet.to</a></li><li>\U0001F1EB\U0001F1F7
+        <a href=\"https://invidious.projectsegfau.lt\">invidious.projectsegfau.lt</a></li><li>\U0001F1F1\U0001F1FA
+        <a href=\"https://inv.bp.projectsegfau.lt\">inv.bp.projectsegfau.lt</a></li><li>\U0001F1EE\U0001F1F3
+        <a href=\"https://inv.in.projectsegfau.lt\">inv.in.projectsegfau.lt</a></li><li>\U0001F1E9\U0001F1EA
+        <a href=\"https://invidious.tiekoetter.com\">invidious.tiekoetter.com</a></li><li>\U0001F1FA\U0001F1F8
+        <a href=\"https://invidious.slipfox.xyz\">invidious.slipfox.xyz</a></li><li>\U0001F1EB\U0001F1F7
+        <a href=\"https://invidious.privacydev.net\">invidious.privacydev.net</a></li><li>\U0001F1F8\U0001F1EC
+        <a href=\"https://vid.priv.au\">vid.priv.au</a></li><li>\U0001F1E8\U0001F1E6
+        <a href=\"https://iv.ggtyler.dev\">iv.ggtyler.dev</a></li><li>\U0001F1F1\U0001F1F9
+        <a href=\"https://invidious.0011.lt\">invidious.0011.lt</a></li><li>\U0001F1E8\U0001F1F1
+        <a href=\"https://inv.zzls.xyz\">inv.zzls.xyz</a></li><li>\U0001F1EB\U0001F1EE
+        <a href=\"https://invidious.protokolla.fi\">invidious.protokolla.fi</a></li></ul></div></noscript><footer><ul
+        class=\"footer-link-list\"><li><a href=\"/\">Home</a></li><li><a href=\"https://github.com/iv-org/invidious-redirect\">Source
+        code</a></li><li><a href=\"https://github.com/iv-org/invidious\">Invidious
+        project</a></li><li><a href=\"/js-licenses.html\" data-jslicense=\"1\">JavaScript
+        license</a></li></ul></footer></body></html>"
+    headers:
+      Content-Type:
+      - text/html
+      Date:
+      - Sat, 14 Mar 2026 14:49:40 GMT
       Etag:
       - '"6626b37f-b68"'
       Last-Modified:

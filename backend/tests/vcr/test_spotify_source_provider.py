@@ -18,11 +18,11 @@ class TestSpotifySourceProviderVCR:
         """Create a Spotify provider instance.
 
         Uses environment variables for credentials if available,
-        otherwise falls back to None (will fail if no cassette exists).
+        otherwise uses dummy values for VCR cassette playback.
         """
         return SpotifyProvider(
-            client_id=os.environ.get("SPOTIFY_CLIENT_ID"),
-            client_secret=os.environ.get("SPOTIFY_CLIENT_SECRET"),
+            client_id=os.environ.get("SPOTIFY_CLIENT_ID") or os.environ.get("SPOTIPY_CLIENT_ID") or "vcr-dummy-id",
+            client_secret=os.environ.get("SPOTIFY_CLIENT_SECRET") or os.environ.get("SPOTIPY_CLIENT_SECRET") or "vcr-dummy-secret",
         )
 
     @pytest.mark.vcr
@@ -33,13 +33,13 @@ class TestSpotifySourceProviderVCR:
         from spotdl.providers.sources.base import SourceProviderError
 
         try:
-            song = await provider.get_track("https://open.spotify.com/track/0DiWol3AO6WpXZgp0goxAV")
+            song = await provider.get_track("https://open.spotify.com/track/5W3cjX2J3tjhG8zb6u0qHn")
 
             assert song.name == "Harder, Better, Faster, Stronger"
             assert song.artist == "Daft Punk"
             assert "Daft Punk" in song.artists
             assert song.platform == Platform.SPOTIFY
-            assert song.platform_id == "0DiWol3AO6WpXZgp0goxAV"
+            assert song.platform_id == "5W3cjX2J3tjhG8zb6u0qHn"
             assert song.album_name == "Discovery"
             assert song.duration > 0
         except (SourceProviderError, SpotifyOauthError) as e:
@@ -86,9 +86,9 @@ class TestSpotifySourceProviderVCR:
     def test_extract_id_track() -> None:
         """Test extracting track ID from URL."""
         result = SpotifyProvider._extract_id(
-            "https://open.spotify.com/track/0DiWol3AO6WpXZgp0goxAV"
+            "https://open.spotify.com/track/5W3cjX2J3tjhG8zb6u0qHn"
         )
-        assert result == ("track", "0DiWol3AO6WpXZgp0goxAV")
+        assert result == ("track", "5W3cjX2J3tjhG8zb6u0qHn")
 
     @staticmethod
     def test_extract_id_album() -> None:
@@ -118,15 +118,15 @@ class TestSpotifySourceProviderVCR:
     def test_extract_id_with_intl() -> None:
         """Test extracting ID from URL with intl prefix."""
         result = SpotifyProvider._extract_id(
-            "https://open.spotify.com/intl-de/track/0DiWol3AO6WpXZgp0goxAV"
+            "https://open.spotify.com/intl-de/track/5W3cjX2J3tjhG8zb6u0qHn"
         )
-        assert result == ("track", "0DiWol3AO6WpXZgp0goxAV")
+        assert result == ("track", "5W3cjX2J3tjhG8zb6u0qHn")
 
     @staticmethod
     def test_extract_id_uri() -> None:
         """Test extracting ID from Spotify URI."""
-        result = SpotifyProvider._extract_id("spotify:track:0DiWol3AO6WpXZgp0goxAV")
-        assert result == ("track", "0DiWol3AO6WpXZgp0goxAV")
+        result = SpotifyProvider._extract_id("spotify:track:5W3cjX2J3tjhG8zb6u0qHn")
+        assert result == ("track", "5W3cjX2J3tjhG8zb6u0qHn")
 
     @staticmethod
     def test_extract_id_invalid() -> None:
@@ -139,11 +139,11 @@ class TestSpotifySourceProviderVCR:
     @staticmethod
     def test_matches_url() -> None:
         """Test URL matching."""
-        assert SpotifyProvider.matches_url("https://open.spotify.com/track/0DiWol3AO6WpXZgp0goxAV")
+        assert SpotifyProvider.matches_url("https://open.spotify.com/track/5W3cjX2J3tjhG8zb6u0qHn")
         assert SpotifyProvider.matches_url(
             "https://open.spotify.com/intl-de/album/2noRn2Aes5aoNVsU6iWThc"
         )
-        assert SpotifyProvider.matches_url("spotify:track:0DiWol3AO6WpXZgp0goxAV")
+        assert SpotifyProvider.matches_url("spotify:track:5W3cjX2J3tjhG8zb6u0qHn")
         assert not SpotifyProvider.matches_url("https://example.com/track/123")
 
     async def test_provider_attributes(self) -> None:

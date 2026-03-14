@@ -62,6 +62,21 @@ interactions:
         \"discCount\":1, \"discNumber\":1, \"trackCount\":4, \"trackNumber\":3, \"trackTimeMillis\":312507,
         \"country\":\"USA\", \"currency\":\"USD\", \"primaryGenreName\":\"Dance\",
         \"isStreamable\":true}, \n{\"wrapperType\":\"track\", \"kind\":\"song\", \"artistId\":5468295,
+        \"collectionId\":696669068, \"trackId\":696669452, \"artistName\":\"Daft Punk\",
+        \"collectionName\":\"Daft Club\", \"trackName\":\"Harder Better Faster Stronger
+        (The Neptunes Remix)\", \"collectionCensoredName\":\"Daft Club\", \"trackCensoredName\":\"Harder
+        Better Faster Stronger (The Neptunes Remix)\", \"artistViewUrl\":\"https://music.apple.com/us/artist/daft-punk/5468295?uo=4\",
+        \"collectionViewUrl\":\"https://music.apple.com/us/album/harder-better-faster-stronger-the-neptunes-remix/696669068?i=696669452&uo=4\",
+        \"trackViewUrl\":\"https://music.apple.com/us/album/harder-better-faster-stronger-the-neptunes-remix/696669068?i=696669452&uo=4\",
+        \n\"previewUrl\":\"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/b3/b8/bc/b3b8bcd2-8476-a22a-0d0e-6acf917e5a4d/mzaf_18149168866848541408.plus.aac.p.m4a\",
+        \"artworkUrl30\":\"https://is1-ssl.mzstatic.com/image/thumb/Features124/v4/ac/e1/07/ace10786-a064-0ed0-17ff-ba0cebecefe9/dj.mpdjtkyu.jpg/30x30bb.jpg\",
+        \"artworkUrl60\":\"https://is1-ssl.mzstatic.com/image/thumb/Features124/v4/ac/e1/07/ace10786-a064-0ed0-17ff-ba0cebecefe9/dj.mpdjtkyu.jpg/60x60bb.jpg\",
+        \"artworkUrl100\":\"https://is1-ssl.mzstatic.com/image/thumb/Features124/v4/ac/e1/07/ace10786-a064-0ed0-17ff-ba0cebecefe9/dj.mpdjtkyu.jpg/100x100bb.jpg\",
+        \"collectionPrice\":9.99, \"trackPrice\":1.29, \"releaseDate\":\"2003-11-27T08:00:00Z\",
+        \"collectionExplicitness\":\"explicit\", \"trackExplicitness\":\"notExplicit\",
+        \"discCount\":1, \"discNumber\":1, \"trackCount\":14, \"trackNumber\":3, \"trackTimeMillis\":312507,
+        \"country\":\"USA\", \"currency\":\"USD\", \"primaryGenreName\":\"Dance\",
+        \"isStreamable\":true}, \n{\"wrapperType\":\"track\", \"kind\":\"song\", \"artistId\":5468295,
         \"collectionId\":693608241, \"trackId\":693608242, \"artistName\":\"Daft Punk\",
         \"collectionName\":\"Harder, Better, Faster, Stronger (The Neptunes Remix)
         - Single\", \"trackName\":\"Harder, Better, Faster, Stronger (The Neptunes
@@ -78,31 +93,16 @@ interactions:
         \"collectionExplicitness\":\"notExplicit\", \"trackExplicitness\":\"notExplicit\",
         \"discCount\":1, \"discNumber\":1, \"trackCount\":1, \"trackNumber\":1, \"trackTimeMillis\":311493,
         \"country\":\"USA\", \"currency\":\"USD\", \"primaryGenreName\":\"Hip-Hop/Rap\",
-        \"isStreamable\":true}, \n{\"wrapperType\":\"track\", \"kind\":\"song\", \"artistId\":5468295,
-        \"collectionId\":696669068, \"trackId\":696669452, \"artistName\":\"Daft Punk\",
-        \"collectionName\":\"Daft Club\", \"trackName\":\"Harder Better Faster Stronger
-        (The Neptunes Remix)\", \"collectionCensoredName\":\"Daft Club\", \"trackCensoredName\":\"Harder
-        Better Faster Stronger (The Neptunes Remix)\", \"artistViewUrl\":\"https://music.apple.com/us/artist/daft-punk/5468295?uo=4\",
-        \"collectionViewUrl\":\"https://music.apple.com/us/album/harder-better-faster-stronger-the-neptunes-remix/696669068?i=696669452&uo=4\",
-        \"trackViewUrl\":\"https://music.apple.com/us/album/harder-better-faster-stronger-the-neptunes-remix/696669068?i=696669452&uo=4\",
-        \n\"previewUrl\":\"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/b3/b8/bc/b3b8bcd2-8476-a22a-0d0e-6acf917e5a4d/mzaf_18149168866848541408.plus.aac.p.m4a\",
-        \"artworkUrl30\":\"https://is1-ssl.mzstatic.com/image/thumb/Features124/v4/ac/e1/07/ace10786-a064-0ed0-17ff-ba0cebecefe9/dj.mpdjtkyu.jpg/30x30bb.jpg\",
-        \"artworkUrl60\":\"https://is1-ssl.mzstatic.com/image/thumb/Features124/v4/ac/e1/07/ace10786-a064-0ed0-17ff-ba0cebecefe9/dj.mpdjtkyu.jpg/60x60bb.jpg\",
-        \"artworkUrl100\":\"https://is1-ssl.mzstatic.com/image/thumb/Features124/v4/ac/e1/07/ace10786-a064-0ed0-17ff-ba0cebecefe9/dj.mpdjtkyu.jpg/100x100bb.jpg\",
-        \"collectionPrice\":9.99, \"trackPrice\":1.29, \"releaseDate\":\"2003-11-27T08:00:00Z\",
-        \"collectionExplicitness\":\"explicit\", \"trackExplicitness\":\"notExplicit\",
-        \"discCount\":1, \"discNumber\":1, \"trackCount\":14, \"trackNumber\":3, \"trackTimeMillis\":312507,
-        \"country\":\"USA\", \"currency\":\"USD\", \"primaryGenreName\":\"Dance\",
         \"isStreamable\":true}]\n}\n\n\n"
     headers:
       Cache-Control:
-      - max-age=86400
+      - max-age=86088
       Connection:
       - keep-alive
       Content-Type:
       - text/javascript; charset=utf-8
       Date:
-      - Sat, 07 Feb 2026 03:31:30 GMT
+      - Sat, 14 Mar 2026 14:51:40 GMT
       Server:
       - daiquiri/5
       Vary:
@@ -110,10 +110,7 @@ interactions:
       X-Apple-Partner:
       - origin.0
       X-Cache:
-      - TCP_MISS from a95-101-60-152.deploy.akamaitechnologies.com (AkamaiGHost/22.4.1-457a7ac92aced575f7fafeb6146c6a89)
-        (-)
-      X-Cache-Remote:
-      - TCP_MISS from a92-122-215-12.deploy.akamaitechnologies.com (AkamaiGHost/22.4.2-1edda81bef43cb1c10d4898543aeed8e)
+      - TCP_HIT from a95-101-60-139.deploy.akamaitechnologies.com (AkamaiGHost/22.4.3-90cfec5b1d9fb5e086ffb86de3f67006)
         (-)
       X-True-Cache-Key:
       - /L/itunes.apple.com/search?entity=song&limit=5&media=music&term=Daft+Punk+Harder+Better+Faster+StrongerBrowser
@@ -123,11 +120,11 @@ interactions:
       apple-seq:
       - '0.0'
       apple-timing-app:
-      - 132 ms
+      - 119 ms
       apple-tk:
       - 'false'
       b3:
-      - 6e8237f7ca5dab9567328d58e1df1214-776a8a1624f69e17
+      - 13ba9f52adbe5f7a2b588507f4064c63-68a1bdb84855301d
       content-disposition:
       - attachment; filename=1.txt
       content-length:
@@ -135,31 +132,31 @@ interactions:
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       x-apple-application-instance:
-      - '6502144'
+      - '6501384'
       x-apple-application-site:
       - MR22
       x-apple-jingle-correlation-key:
-      - N2BDP56KLWVZKZZSRVMODXYSCQ
+      - CO5J6UVNXZPXUK2YQUD7IBSMMM
       x-apple-orig-url:
       - https://mzstoreservices-mr.itunes.apple.com/search?term=Daft+Punk+Harder+Better+Faster+Stronger&media=music&entity=song&limit=5
       x-apple-request-uuid:
-      - 6e8237f7-ca5d-ab95-6732-8d58e1df1214
+      - 13ba9f52-adbe-5f7a-2b58-8507f4064c63
       x-apple-translated-wo-url:
       - /WebObjects/MZStoreServices.woa/ws/wsSearch?term=Daft+Punk+Harder+Better+Faster+Stronger&media=music&entity=song&limit=5&urlDesc=
       x-b3-spanid:
-      - 776a8a1624f69e17
+      - 68a1bdb84855301d
       x-b3-traceid:
-      - 6e8237f7ca5dab9567328d58e1df1214
+      - 13ba9f52adbe5f7a2b588507f4064c63
       x-content-type-options:
       - nosniff
       x-daiquiri-debug-worker-pid:
-      - '44448'
-      - '60260'
+      - '46186'
+      - '127557'
       x-daiquiri-instance:
-      - daiquiri:17317001:mr85p00it-hyhk03124901:7987:26RELEASE27:daiquiri-amp-store-shared-int-001-mr
-      - daiquiri:12282002:mr47p00it-qujn07081302:7987:26RELEASE27:daiquiri-amp-store-l7shared-ext-001-mr
+      - daiquiri:17317002:mr85p00it-hyhk03144801:7987:26RELEASE40:daiquiri-amp-store-shared-int-001-mr
+      - daiquiri:12282005:mr47p00it-qujn02122302:7987:26RELEASE40:daiquiri-amp-store-l7shared-ext-001-mr
       x-responding-instance:
-      - 'MZStoreServices:6502144:::'
+      - 'MZStoreServices:6501384:::'
       x-webobjects-loadaverage:
       - '0'
     status:

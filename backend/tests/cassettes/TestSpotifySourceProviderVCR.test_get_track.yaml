@@ -1,0 +1,449 @@
+interactions:
+- request:
+    body: grant_type=client_credentials
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '29'
+      Content-Type:
+      - application/x-www-form-urlencoded
+    method: POST
+    uri: https://accounts.spotify.com/api/token
+  response:
+    body:
+      string: '{"access_token":"BQD6ngTTgJk426PkY4SGkQ3GqENsGHp9TE5pXpey28cfJis_sZTYHnI_tStGaDf--lloR5vrbNitqBB2DLWnLAcO8Slc3uPd1qTA1XZtpkCCAeYbm9owfP_WA69NZnXMCgjo1-7njkc","token_type":"Bearer","expires_in":3600}'
+    headers:
+      Transfer-Encoding:
+      - chunked
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      content-length:
+      - '198'
+      content-type:
+      - application/json
+      date:
+      - Sat, 14 Mar 2026 14:56:45 GMT
+      request-id:
+      - 4b49da69-f195-4dad-ba0d-882de023977c
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      vary:
+      - Accept-Encoding
+      via:
+      - HTTP/1.1 fringe, HTTP/2 edgeproxy, 1.1 google
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '11'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+    method: GET
+    uri: https://api.spotify.com/v1/tracks/5W3cjX2J3tjhG8zb6u0qHn
+  response:
+    body:
+      string: '{"album":{"album_type":"album","artists":[{"external_urls":{"spotify":"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi"},"href":"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi","id":"4tZwfgrHOc3mvqYlEYSvVi","name":"Daft
+        Punk","type":"artist","uri":"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi"}],"available_markets":["AR","AU","AT","BE","BO","BR","BG","CA","CL","CO","CR","CY","CZ","DK","DO","DE","EC","EE","SV","FI","FR","GR","GT","HN","HK","HU","IS","IE","IT","LV","LT","LU","MY","MT","MX","NL","NZ","NI","NO","PA","PY","PE","PH","PL","PT","SG","SK","ES","SE","CH","TW","TR","UY","US","GB","AD","LI","MC","ID","JP","TH","VN","RO","IL","ZA","SA","AE","BH","QA","OM","KW","EG","MA","DZ","TN","LB","JO","PS","IN","BY","KZ","MD","UA","AL","BA","HR","ME","MK","RS","SI","KR","BD","PK","LK","GH","KE","NG","TZ","UG","AG","AM","BS","BB","BZ","BT","BW","BF","CV","CW","DM","FJ","GM","GE","GD","GW","GY","HT","JM","KI","LS","LR","MW","MV","ML","MH","FM","NA","NR","NE","PW","PG","PR","WS","SM","ST","SN","SC","SL","SB","KN","LC","VC","SR","TL","TO","TT","TV","VU","AZ","BN","BI","KH","CM","TD","KM","GQ","SZ","GA","GN","KG","LA","MO","MR","MN","NP","RW","TG","UZ","ZW","BJ","MG","MU","MZ","AO","CI","DJ","ZM","CD","CG","IQ","LY","TJ","VE","ET","XK"],"external_urls":{"spotify":"https://open.spotify.com/album/2noRn2Aes5aoNVsU6iWThc"},"href":"https://api.spotify.com/v1/albums/2noRn2Aes5aoNVsU6iWThc","id":"2noRn2Aes5aoNVsU6iWThc","images":[{"url":"https://i.scdn.co/image/ab67616d0000b2731e81bff9807a9e629fce5ade","width":640,"height":640},{"url":"https://i.scdn.co/image/ab67616d00001e021e81bff9807a9e629fce5ade","width":300,"height":300},{"url":"https://i.scdn.co/image/ab67616d000048511e81bff9807a9e629fce5ade","width":64,"height":64}],"name":"Discovery","release_date":"2001-03-12","release_date_precision":"day","total_tracks":14,"type":"album","uri":"spotify:album:2noRn2Aes5aoNVsU6iWThc"},"artists":[{"external_urls":{"spotify":"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi"},"href":"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi","id":"4tZwfgrHOc3mvqYlEYSvVi","name":"Daft
+        Punk","type":"artist","uri":"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi"}],"available_markets":["AR","AU","AT","BE","BO","BR","BG","CA","CL","CO","CR","CY","CZ","DK","DO","DE","EC","EE","SV","FI","FR","GR","GT","HN","HK","HU","IS","IE","IT","LV","LT","LU","MY","MT","MX","NL","NZ","NI","NO","PA","PY","PE","PH","PL","PT","SG","SK","ES","SE","CH","TW","TR","UY","US","GB","AD","LI","MC","ID","JP","TH","VN","RO","IL","ZA","SA","AE","BH","QA","OM","KW","EG","MA","DZ","TN","LB","JO","PS","IN","BY","KZ","MD","UA","AL","BA","HR","ME","MK","RS","SI","KR","BD","PK","LK","GH","KE","NG","TZ","UG","AG","AM","BS","BB","BZ","BT","BW","BF","CV","CW","DM","FJ","GM","GE","GD","GW","GY","HT","JM","KI","LS","LR","MW","MV","ML","MH","FM","NA","NR","NE","PW","PG","PR","WS","SM","ST","SN","SC","SL","SB","KN","LC","VC","SR","TL","TO","TT","TV","VU","AZ","BN","BI","KH","CM","TD","KM","GQ","SZ","GA","GN","KG","LA","MO","MR","MN","NP","RW","TG","UZ","ZW","BJ","MG","MU","MZ","AO","CI","DJ","ZM","CD","CG","IQ","LY","TJ","VE","ET","XK"],"disc_number":1,"duration_ms":226413,"explicit":false,"external_ids":{"isrc":"GBDUW0000059"},"external_urls":{"spotify":"https://open.spotify.com/track/5W3cjX2J3tjhG8zb6u0qHn"},"href":"https://api.spotify.com/v1/tracks/5W3cjX2J3tjhG8zb6u0qHn","id":"5W3cjX2J3tjhG8zb6u0qHn","is_local":false,"name":"Harder,
+        Better, Faster, Stronger","popularity":75,"preview_url":null,"track_number":4,"type":"track","uri":"spotify:track:5W3cjX2J3tjhG8zb6u0qHn"}'
+    headers:
+      Transfer-Encoding:
+      - chunked
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      cache-control:
+      - public, max-age=0
+      content-length:
+      - '3569'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sat, 14 Mar 2026 14:56:45 GMT
+      etag:
+      - '"MC-ImFlYzk4ZDM5YWQ0ZWI4NzYyZjk1OGM3ODJjM2U5MGZjIg=="'
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      via:
+      - HTTP/2 edgeproxy, 1.1 google
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+    method: GET
+    uri: https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi
+  response:
+    body:
+      string: '{"external_urls":{"spotify":"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi"},"followers":{"href":null,"total":11255818},"genres":["french
+        house","electronic","electro"],"href":"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi","id":"4tZwfgrHOc3mvqYlEYSvVi","images":[{"url":"https://i.scdn.co/image/ab6761610000e5ebd3aa7cc0e419b6c459b08e8e","height":640,"width":640},{"url":"https://i.scdn.co/image/ab67616100005174d3aa7cc0e419b6c459b08e8e","height":320,"width":320},{"url":"https://i.scdn.co/image/ab6761610000f178d3aa7cc0e419b6c459b08e8e","height":160,"width":160}],"name":"Daft
+        Punk","popularity":81,"type":"artist","uri":"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi"}'
+    headers:
+      Transfer-Encoding:
+      - chunked
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      cache-control:
+      - public, max-age=0
+      content-length:
+      - '683'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sat, 14 Mar 2026 14:56:45 GMT
+      etag:
+      - '"MC-IjdkZTY1MWVkNGRlYzBjZGQzY2E5ZjhmMDc4ZjZhZDY1Ig=="'
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      via:
+      - HTTP/2 edgeproxy, 1.1 google
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+    method: GET
+    uri: https://api.spotify.com/v1/albums/2noRn2Aes5aoNVsU6iWThc
+  response:
+    body:
+      string: "{\"album_type\":\"album\",\"total_tracks\":14,\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"external_urls\":{\"spotify\":\"https://open.spotify.com/album/2noRn2Aes5aoNVsU6iWThc\"},\"href\":\"https://api.spotify.com/v1/albums/2noRn2Aes5aoNVsU6iWThc\",\"id\":\"2noRn2Aes5aoNVsU6iWThc\",\"images\":[{\"url\":\"https://i.scdn.co/image/ab67616d0000b2731e81bff9807a9e629fce5ade\",\"height\":640,\"width\":640},{\"url\":\"https://i.scdn.co/image/ab67616d00001e021e81bff9807a9e629fce5ade\",\"height\":300,\"width\":300},{\"url\":\"https://i.scdn.co/image/ab67616d000048511e81bff9807a9e629fce5ade\",\"height\":64,\"width\":64}],\"name\":\"Discovery\",\"release_date\":\"2001-03-12\",\"release_date_precision\":\"day\",\"type\":\"album\",\"uri\":\"spotify:album:2noRn2Aes5aoNVsU6iWThc\",\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"tracks\":{\"href\":\"https://api.spotify.com/v1/albums/2noRn2Aes5aoNVsU6iWThc/tracks?offset=0&limit=50\",\"limit\":50,\"next\":null,\"offset\":0,\"previous\":null,\"total\":14,\"items\":[{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":320357,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/0DiWol3AO6WpXZgp0goxAV\"},\"href\":\"https://api.spotify.com/v1/tracks/0DiWol3AO6WpXZgp0goxAV\",\"id\":\"0DiWol3AO6WpXZgp0goxAV\",\"name\":\"One
+        More Time\",\"preview_url\":null,\"track_number\":1,\"type\":\"track\",\"uri\":\"spotify:track:0DiWol3AO6WpXZgp0goxAV\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":212546,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/3H3cOQ6LBLSvmcaV7QkZEu\"},\"href\":\"https://api.spotify.com/v1/tracks/3H3cOQ6LBLSvmcaV7QkZEu\",\"id\":\"3H3cOQ6LBLSvmcaV7QkZEu\",\"name\":\"Aerodynamic\",\"preview_url\":null,\"track_number\":2,\"type\":\"track\",\"uri\":\"spotify:track:3H3cOQ6LBLSvmcaV7QkZEu\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":301373,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/2VEZx7NWsZ1D0eJ4uv5Fym\"},\"href\":\"https://api.spotify.com/v1/tracks/2VEZx7NWsZ1D0eJ4uv5Fym\",\"id\":\"2VEZx7NWsZ1D0eJ4uv5Fym\",\"name\":\"Digital
+        Love\",\"preview_url\":null,\"track_number\":3,\"type\":\"track\",\"uri\":\"spotify:track:2VEZx7NWsZ1D0eJ4uv5Fym\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":226413,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/5W3cjX2J3tjhG8zb6u0qHn\"},\"href\":\"https://api.spotify.com/v1/tracks/5W3cjX2J3tjhG8zb6u0qHn\",\"id\":\"5W3cjX2J3tjhG8zb6u0qHn\",\"name\":\"Harder,
+        Better, Faster, Stronger\",\"preview_url\":null,\"track_number\":4,\"type\":\"track\",\"uri\":\"spotify:track:5W3cjX2J3tjhG8zb6u0qHn\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":211640,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/6vuPZX9fWESg5js2JFTQRJ\"},\"href\":\"https://api.spotify.com/v1/tracks/6vuPZX9fWESg5js2JFTQRJ\",\"id\":\"6vuPZX9fWESg5js2JFTQRJ\",\"name\":\"Crescendolls\",\"preview_url\":null,\"track_number\":5,\"type\":\"track\",\"uri\":\"spotify:track:6vuPZX9fWESg5js2JFTQRJ\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":104466,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/63JXZZRbmzooashakb0zbu\"},\"href\":\"https://api.spotify.com/v1/tracks/63JXZZRbmzooashakb0zbu\",\"id\":\"63JXZZRbmzooashakb0zbu\",\"name\":\"Nightvision\",\"preview_url\":null,\"track_number\":6,\"type\":\"track\",\"uri\":\"spotify:track:63JXZZRbmzooashakb0zbu\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":237800,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/186hvCTyrni4KT9nwIQ7zS\"},\"href\":\"https://api.spotify.com/v1/tracks/186hvCTyrni4KT9nwIQ7zS\",\"id\":\"186hvCTyrni4KT9nwIQ7zS\",\"name\":\"Superheroes\",\"preview_url\":null,\"track_number\":7,\"type\":\"track\",\"uri\":\"spotify:track:186hvCTyrni4KT9nwIQ7zS\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":201800,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/098ttCNmncrO4YvqWUNMvn\"},\"href\":\"https://api.spotify.com/v1/tracks/098ttCNmncrO4YvqWUNMvn\",\"id\":\"098ttCNmncrO4YvqWUNMvn\",\"name\":\"High
+        Life\",\"preview_url\":null,\"track_number\":8,\"type\":\"track\",\"uri\":\"spotify:track:098ttCNmncrO4YvqWUNMvn\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":232666,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/1NeLwFETswx8Fzxl2AFl91\"},\"href\":\"https://api.spotify.com/v1/tracks/1NeLwFETswx8Fzxl2AFl91\",\"id\":\"1NeLwFETswx8Fzxl2AFl91\",\"name\":\"Something
+        About Us\",\"preview_url\":null,\"track_number\":9,\"type\":\"track\",\"uri\":\"spotify:track:1NeLwFETswx8Fzxl2AFl91\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":227866,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/7cMFjxhbXBpOlais7KMF3j\"},\"href\":\"https://api.spotify.com/v1/tracks/7cMFjxhbXBpOlais7KMF3j\",\"id\":\"7cMFjxhbXBpOlais7KMF3j\",\"name\":\"Voyager\",\"preview_url\":null,\"track_number\":10,\"type\":\"track\",\"uri\":\"spotify:track:7cMFjxhbXBpOlais7KMF3j\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":345186,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/2LD2gT7gwAurzdQDQtILds\"},\"href\":\"https://api.spotify.com/v1/tracks/2LD2gT7gwAurzdQDQtILds\",\"id\":\"2LD2gT7gwAurzdQDQtILds\",\"name\":\"Veridis
+        Quo\",\"preview_url\":null,\"track_number\":11,\"type\":\"track\",\"uri\":\"spotify:track:2LD2gT7gwAurzdQDQtILds\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":206866,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/4npMbTuxrUA3Wd7edACZ2L\"},\"href\":\"https://api.spotify.com/v1/tracks/4npMbTuxrUA3Wd7edACZ2L\",\"id\":\"4npMbTuxrUA3Wd7edACZ2L\",\"name\":\"Short
+        Circuit\",\"preview_url\":null,\"track_number\":12,\"type\":\"track\",\"uri\":\"spotify:track:4npMbTuxrUA3Wd7edACZ2L\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":240173,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/7v9Q0dAb9t7h8gJOkcJHay\"},\"href\":\"https://api.spotify.com/v1/tracks/7v9Q0dAb9t7h8gJOkcJHay\",\"id\":\"7v9Q0dAb9t7h8gJOkcJHay\",\"name\":\"Face
+        to Face\",\"preview_url\":null,\"track_number\":13,\"type\":\"track\",\"uri\":\"spotify:track:7v9Q0dAb9t7h8gJOkcJHay\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":600293,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/3zMvotMEQK3xvH01vA9wAP\"},\"href\":\"https://api.spotify.com/v1/tracks/3zMvotMEQK3xvH01vA9wAP\",\"id\":\"3zMvotMEQK3xvH01vA9wAP\",\"name\":\"Too
+        Long\",\"preview_url\":null,\"track_number\":14,\"type\":\"track\",\"uri\":\"spotify:track:3zMvotMEQK3xvH01vA9wAP\",\"is_local\":false}]},\"copyrights\":[{\"text\":\"\xA9
+        2001 Daft Life Limited\",\"type\":\"C\"},{\"text\":\"\u2117 2001 Daft Life
+        Limited\",\"type\":\"P\"}],\"external_ids\":{\"upc\":\"0724384960650\"},\"genres\":[],\"label\":\"Daft
+        Life Ltd./ADA France\",\"popularity\":78}"
+    headers:
+      Transfer-Encoding:
+      - chunked
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      cache-control:
+      - public, max-age=0
+      content-length:
+      - '24626'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sat, 14 Mar 2026 14:56:45 GMT
+      etag:
+      - '"MC-ImE5ZWFmZWJlMjQ1N2Q1ZTYwNTk3OTU3ZGI3YjkyZTA3Ig=="'
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      via:
+      - HTTP/2 edgeproxy, 1.1 google
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+    method: GET
+    uri: https://api.spotify.com/v1/tracks/5W3cjX2J3tjhG8zb6u0qHn
+  response:
+    body:
+      string: '{"album":{"album_type":"album","artists":[{"external_urls":{"spotify":"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi"},"href":"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi","id":"4tZwfgrHOc3mvqYlEYSvVi","name":"Daft
+        Punk","type":"artist","uri":"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi"}],"available_markets":["AR","AU","AT","BE","BO","BR","BG","CA","CL","CO","CR","CY","CZ","DK","DO","DE","EC","EE","SV","FI","FR","GR","GT","HN","HK","HU","IS","IE","IT","LV","LT","LU","MY","MT","MX","NL","NZ","NI","NO","PA","PY","PE","PH","PL","PT","SG","SK","ES","SE","CH","TW","TR","UY","US","GB","AD","LI","MC","ID","JP","TH","VN","RO","IL","ZA","SA","AE","BH","QA","OM","KW","EG","MA","DZ","TN","LB","JO","PS","IN","BY","KZ","MD","UA","AL","BA","HR","ME","MK","RS","SI","KR","BD","PK","LK","GH","KE","NG","TZ","UG","AG","AM","BS","BB","BZ","BT","BW","BF","CV","CW","DM","FJ","GM","GE","GD","GW","GY","HT","JM","KI","LS","LR","MW","MV","ML","MH","FM","NA","NR","NE","PW","PG","PR","WS","SM","ST","SN","SC","SL","SB","KN","LC","VC","SR","TL","TO","TT","TV","VU","AZ","BN","BI","KH","CM","TD","KM","GQ","SZ","GA","GN","KG","LA","MO","MR","MN","NP","RW","TG","UZ","ZW","BJ","MG","MU","MZ","AO","CI","DJ","ZM","CD","CG","IQ","LY","TJ","VE","ET","XK"],"external_urls":{"spotify":"https://open.spotify.com/album/2noRn2Aes5aoNVsU6iWThc"},"href":"https://api.spotify.com/v1/albums/2noRn2Aes5aoNVsU6iWThc","id":"2noRn2Aes5aoNVsU6iWThc","images":[{"url":"https://i.scdn.co/image/ab67616d0000b2731e81bff9807a9e629fce5ade","width":640,"height":640},{"url":"https://i.scdn.co/image/ab67616d00001e021e81bff9807a9e629fce5ade","width":300,"height":300},{"url":"https://i.scdn.co/image/ab67616d000048511e81bff9807a9e629fce5ade","width":64,"height":64}],"name":"Discovery","release_date":"2001-03-12","release_date_precision":"day","total_tracks":14,"type":"album","uri":"spotify:album:2noRn2Aes5aoNVsU6iWThc"},"artists":[{"external_urls":{"spotify":"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi"},"href":"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi","id":"4tZwfgrHOc3mvqYlEYSvVi","name":"Daft
+        Punk","type":"artist","uri":"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi"}],"available_markets":["AR","AU","AT","BE","BO","BR","BG","CA","CL","CO","CR","CY","CZ","DK","DO","DE","EC","EE","SV","FI","FR","GR","GT","HN","HK","HU","IS","IE","IT","LV","LT","LU","MY","MT","MX","NL","NZ","NI","NO","PA","PY","PE","PH","PL","PT","SG","SK","ES","SE","CH","TW","TR","UY","US","GB","AD","LI","MC","ID","JP","TH","VN","RO","IL","ZA","SA","AE","BH","QA","OM","KW","EG","MA","DZ","TN","LB","JO","PS","IN","BY","KZ","MD","UA","AL","BA","HR","ME","MK","RS","SI","KR","BD","PK","LK","GH","KE","NG","TZ","UG","AG","AM","BS","BB","BZ","BT","BW","BF","CV","CW","DM","FJ","GM","GE","GD","GW","GY","HT","JM","KI","LS","LR","MW","MV","ML","MH","FM","NA","NR","NE","PW","PG","PR","WS","SM","ST","SN","SC","SL","SB","KN","LC","VC","SR","TL","TO","TT","TV","VU","AZ","BN","BI","KH","CM","TD","KM","GQ","SZ","GA","GN","KG","LA","MO","MR","MN","NP","RW","TG","UZ","ZW","BJ","MG","MU","MZ","AO","CI","DJ","ZM","CD","CG","IQ","LY","TJ","VE","ET","XK"],"disc_number":1,"duration_ms":226413,"explicit":false,"external_ids":{"isrc":"GBDUW0000059"},"external_urls":{"spotify":"https://open.spotify.com/track/5W3cjX2J3tjhG8zb6u0qHn"},"href":"https://api.spotify.com/v1/tracks/5W3cjX2J3tjhG8zb6u0qHn","id":"5W3cjX2J3tjhG8zb6u0qHn","is_local":false,"name":"Harder,
+        Better, Faster, Stronger","popularity":75,"preview_url":null,"track_number":4,"type":"track","uri":"spotify:track:5W3cjX2J3tjhG8zb6u0qHn"}'
+    headers:
+      Transfer-Encoding:
+      - chunked
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      cache-control:
+      - public, max-age=0
+      content-length:
+      - '3569'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sat, 14 Mar 2026 14:56:55 GMT
+      etag:
+      - '"MC-ImFlYzk4ZDM5YWQ0ZWI4NzYyZjk1OGM3ODJjM2U5MGZjIg=="'
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      via:
+      - HTTP/2 edgeproxy, 1.1 google
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+    method: GET
+    uri: https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi
+  response:
+    body:
+      string: '{"external_urls":{"spotify":"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi"},"followers":{"href":null,"total":11255818},"genres":["french
+        house","electronic","electro"],"href":"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi","id":"4tZwfgrHOc3mvqYlEYSvVi","images":[{"url":"https://i.scdn.co/image/ab6761610000e5ebd3aa7cc0e419b6c459b08e8e","height":640,"width":640},{"url":"https://i.scdn.co/image/ab67616100005174d3aa7cc0e419b6c459b08e8e","height":320,"width":320},{"url":"https://i.scdn.co/image/ab6761610000f178d3aa7cc0e419b6c459b08e8e","height":160,"width":160}],"name":"Daft
+        Punk","popularity":81,"type":"artist","uri":"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi"}'
+    headers:
+      Transfer-Encoding:
+      - chunked
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      cache-control:
+      - public, max-age=0
+      content-length:
+      - '683'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sat, 14 Mar 2026 14:56:55 GMT
+      etag:
+      - '"MC-IjdkZTY1MWVkNGRlYzBjZGQzY2E5ZjhmMDc4ZjZhZDY1Ig=="'
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      via:
+      - HTTP/2 edgeproxy, 1.1 google
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+    method: GET
+    uri: https://api.spotify.com/v1/albums/2noRn2Aes5aoNVsU6iWThc
+  response:
+    body:
+      string: "{\"album_type\":\"album\",\"total_tracks\":14,\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"external_urls\":{\"spotify\":\"https://open.spotify.com/album/2noRn2Aes5aoNVsU6iWThc\"},\"href\":\"https://api.spotify.com/v1/albums/2noRn2Aes5aoNVsU6iWThc\",\"id\":\"2noRn2Aes5aoNVsU6iWThc\",\"images\":[{\"url\":\"https://i.scdn.co/image/ab67616d0000b2731e81bff9807a9e629fce5ade\",\"height\":640,\"width\":640},{\"url\":\"https://i.scdn.co/image/ab67616d00001e021e81bff9807a9e629fce5ade\",\"height\":300,\"width\":300},{\"url\":\"https://i.scdn.co/image/ab67616d000048511e81bff9807a9e629fce5ade\",\"height\":64,\"width\":64}],\"name\":\"Discovery\",\"release_date\":\"2001-03-12\",\"release_date_precision\":\"day\",\"type\":\"album\",\"uri\":\"spotify:album:2noRn2Aes5aoNVsU6iWThc\",\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"tracks\":{\"href\":\"https://api.spotify.com/v1/albums/2noRn2Aes5aoNVsU6iWThc/tracks?offset=0&limit=50\",\"limit\":50,\"next\":null,\"offset\":0,\"previous\":null,\"total\":14,\"items\":[{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":320357,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/0DiWol3AO6WpXZgp0goxAV\"},\"href\":\"https://api.spotify.com/v1/tracks/0DiWol3AO6WpXZgp0goxAV\",\"id\":\"0DiWol3AO6WpXZgp0goxAV\",\"name\":\"One
+        More Time\",\"preview_url\":null,\"track_number\":1,\"type\":\"track\",\"uri\":\"spotify:track:0DiWol3AO6WpXZgp0goxAV\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":212546,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/3H3cOQ6LBLSvmcaV7QkZEu\"},\"href\":\"https://api.spotify.com/v1/tracks/3H3cOQ6LBLSvmcaV7QkZEu\",\"id\":\"3H3cOQ6LBLSvmcaV7QkZEu\",\"name\":\"Aerodynamic\",\"preview_url\":null,\"track_number\":2,\"type\":\"track\",\"uri\":\"spotify:track:3H3cOQ6LBLSvmcaV7QkZEu\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":301373,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/2VEZx7NWsZ1D0eJ4uv5Fym\"},\"href\":\"https://api.spotify.com/v1/tracks/2VEZx7NWsZ1D0eJ4uv5Fym\",\"id\":\"2VEZx7NWsZ1D0eJ4uv5Fym\",\"name\":\"Digital
+        Love\",\"preview_url\":null,\"track_number\":3,\"type\":\"track\",\"uri\":\"spotify:track:2VEZx7NWsZ1D0eJ4uv5Fym\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":226413,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/5W3cjX2J3tjhG8zb6u0qHn\"},\"href\":\"https://api.spotify.com/v1/tracks/5W3cjX2J3tjhG8zb6u0qHn\",\"id\":\"5W3cjX2J3tjhG8zb6u0qHn\",\"name\":\"Harder,
+        Better, Faster, Stronger\",\"preview_url\":null,\"track_number\":4,\"type\":\"track\",\"uri\":\"spotify:track:5W3cjX2J3tjhG8zb6u0qHn\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":211640,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/6vuPZX9fWESg5js2JFTQRJ\"},\"href\":\"https://api.spotify.com/v1/tracks/6vuPZX9fWESg5js2JFTQRJ\",\"id\":\"6vuPZX9fWESg5js2JFTQRJ\",\"name\":\"Crescendolls\",\"preview_url\":null,\"track_number\":5,\"type\":\"track\",\"uri\":\"spotify:track:6vuPZX9fWESg5js2JFTQRJ\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":104466,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/63JXZZRbmzooashakb0zbu\"},\"href\":\"https://api.spotify.com/v1/tracks/63JXZZRbmzooashakb0zbu\",\"id\":\"63JXZZRbmzooashakb0zbu\",\"name\":\"Nightvision\",\"preview_url\":null,\"track_number\":6,\"type\":\"track\",\"uri\":\"spotify:track:63JXZZRbmzooashakb0zbu\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":237800,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/186hvCTyrni4KT9nwIQ7zS\"},\"href\":\"https://api.spotify.com/v1/tracks/186hvCTyrni4KT9nwIQ7zS\",\"id\":\"186hvCTyrni4KT9nwIQ7zS\",\"name\":\"Superheroes\",\"preview_url\":null,\"track_number\":7,\"type\":\"track\",\"uri\":\"spotify:track:186hvCTyrni4KT9nwIQ7zS\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":201800,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/098ttCNmncrO4YvqWUNMvn\"},\"href\":\"https://api.spotify.com/v1/tracks/098ttCNmncrO4YvqWUNMvn\",\"id\":\"098ttCNmncrO4YvqWUNMvn\",\"name\":\"High
+        Life\",\"preview_url\":null,\"track_number\":8,\"type\":\"track\",\"uri\":\"spotify:track:098ttCNmncrO4YvqWUNMvn\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":232666,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/1NeLwFETswx8Fzxl2AFl91\"},\"href\":\"https://api.spotify.com/v1/tracks/1NeLwFETswx8Fzxl2AFl91\",\"id\":\"1NeLwFETswx8Fzxl2AFl91\",\"name\":\"Something
+        About Us\",\"preview_url\":null,\"track_number\":9,\"type\":\"track\",\"uri\":\"spotify:track:1NeLwFETswx8Fzxl2AFl91\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":227866,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/7cMFjxhbXBpOlais7KMF3j\"},\"href\":\"https://api.spotify.com/v1/tracks/7cMFjxhbXBpOlais7KMF3j\",\"id\":\"7cMFjxhbXBpOlais7KMF3j\",\"name\":\"Voyager\",\"preview_url\":null,\"track_number\":10,\"type\":\"track\",\"uri\":\"spotify:track:7cMFjxhbXBpOlais7KMF3j\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":345186,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/2LD2gT7gwAurzdQDQtILds\"},\"href\":\"https://api.spotify.com/v1/tracks/2LD2gT7gwAurzdQDQtILds\",\"id\":\"2LD2gT7gwAurzdQDQtILds\",\"name\":\"Veridis
+        Quo\",\"preview_url\":null,\"track_number\":11,\"type\":\"track\",\"uri\":\"spotify:track:2LD2gT7gwAurzdQDQtILds\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":206866,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/4npMbTuxrUA3Wd7edACZ2L\"},\"href\":\"https://api.spotify.com/v1/tracks/4npMbTuxrUA3Wd7edACZ2L\",\"id\":\"4npMbTuxrUA3Wd7edACZ2L\",\"name\":\"Short
+        Circuit\",\"preview_url\":null,\"track_number\":12,\"type\":\"track\",\"uri\":\"spotify:track:4npMbTuxrUA3Wd7edACZ2L\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":240173,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/7v9Q0dAb9t7h8gJOkcJHay\"},\"href\":\"https://api.spotify.com/v1/tracks/7v9Q0dAb9t7h8gJOkcJHay\",\"id\":\"7v9Q0dAb9t7h8gJOkcJHay\",\"name\":\"Face
+        to Face\",\"preview_url\":null,\"track_number\":13,\"type\":\"track\",\"uri\":\"spotify:track:7v9Q0dAb9t7h8gJOkcJHay\",\"is_local\":false},{\"artists\":[{\"external_urls\":{\"spotify\":\"https://open.spotify.com/artist/4tZwfgrHOc3mvqYlEYSvVi\"},\"href\":\"https://api.spotify.com/v1/artists/4tZwfgrHOc3mvqYlEYSvVi\",\"id\":\"4tZwfgrHOc3mvqYlEYSvVi\",\"name\":\"Daft
+        Punk\",\"type\":\"artist\",\"uri\":\"spotify:artist:4tZwfgrHOc3mvqYlEYSvVi\"}],\"available_markets\":[\"AR\",\"AU\",\"AT\",\"BE\",\"BO\",\"BR\",\"BG\",\"CA\",\"CL\",\"CO\",\"CR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"DE\",\"EC\",\"EE\",\"SV\",\"FI\",\"FR\",\"GR\",\"GT\",\"HN\",\"HK\",\"HU\",\"IS\",\"IE\",\"IT\",\"LV\",\"LT\",\"LU\",\"MY\",\"MT\",\"MX\",\"NL\",\"NZ\",\"NI\",\"NO\",\"PA\",\"PY\",\"PE\",\"PH\",\"PL\",\"PT\",\"SG\",\"SK\",\"ES\",\"SE\",\"CH\",\"TW\",\"TR\",\"UY\",\"US\",\"GB\",\"AD\",\"LI\",\"MC\",\"ID\",\"JP\",\"TH\",\"VN\",\"RO\",\"IL\",\"ZA\",\"SA\",\"AE\",\"BH\",\"QA\",\"OM\",\"KW\",\"EG\",\"MA\",\"DZ\",\"TN\",\"LB\",\"JO\",\"PS\",\"IN\",\"BY\",\"KZ\",\"MD\",\"UA\",\"AL\",\"BA\",\"HR\",\"ME\",\"MK\",\"RS\",\"SI\",\"KR\",\"BD\",\"PK\",\"LK\",\"GH\",\"KE\",\"NG\",\"TZ\",\"UG\",\"AG\",\"AM\",\"BS\",\"BB\",\"BZ\",\"BT\",\"BW\",\"BF\",\"CV\",\"CW\",\"DM\",\"FJ\",\"GM\",\"GE\",\"GD\",\"GW\",\"GY\",\"HT\",\"JM\",\"KI\",\"LS\",\"LR\",\"MW\",\"MV\",\"ML\",\"MH\",\"FM\",\"NA\",\"NR\",\"NE\",\"PW\",\"PG\",\"PR\",\"WS\",\"SM\",\"ST\",\"SN\",\"SC\",\"SL\",\"SB\",\"KN\",\"LC\",\"VC\",\"SR\",\"TL\",\"TO\",\"TT\",\"TV\",\"VU\",\"AZ\",\"BN\",\"BI\",\"KH\",\"CM\",\"TD\",\"KM\",\"GQ\",\"SZ\",\"GA\",\"GN\",\"KG\",\"LA\",\"MO\",\"MR\",\"MN\",\"NP\",\"RW\",\"TG\",\"UZ\",\"ZW\",\"BJ\",\"MG\",\"MU\",\"MZ\",\"AO\",\"CI\",\"DJ\",\"ZM\",\"CD\",\"CG\",\"IQ\",\"LY\",\"TJ\",\"VE\",\"ET\",\"XK\"],\"disc_number\":1,\"duration_ms\":600293,\"explicit\":false,\"external_urls\":{\"spotify\":\"https://open.spotify.com/track/3zMvotMEQK3xvH01vA9wAP\"},\"href\":\"https://api.spotify.com/v1/tracks/3zMvotMEQK3xvH01vA9wAP\",\"id\":\"3zMvotMEQK3xvH01vA9wAP\",\"name\":\"Too
+        Long\",\"preview_url\":null,\"track_number\":14,\"type\":\"track\",\"uri\":\"spotify:track:3zMvotMEQK3xvH01vA9wAP\",\"is_local\":false}]},\"copyrights\":[{\"text\":\"\xA9
+        2001 Daft Life Limited\",\"type\":\"C\"},{\"text\":\"\u2117 2001 Daft Life
+        Limited\",\"type\":\"P\"}],\"external_ids\":{\"upc\":\"0724384960650\"},\"genres\":[],\"label\":\"Daft
+        Life Ltd./ADA France\",\"popularity\":78}"
+    headers:
+      Transfer-Encoding:
+      - chunked
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      cache-control:
+      - public, max-age=0
+      content-length:
+      - '24626'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sat, 14 Mar 2026 14:56:55 GMT
+      etag:
+      - '"MC-ImE5ZWFmZWJlMjQ1N2Q1ZTYwNTk3OTU3ZGI3YjkyZTA3Ig=="'
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      via:
+      - HTTP/2 edgeproxy, 1.1 google
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+version: 1
