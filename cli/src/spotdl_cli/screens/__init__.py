@@ -8,6 +8,7 @@ from spotdl_cli.screens.main import MainScreen
 from spotdl_cli.screens.onboarding import OnboardingScreen, should_show_onboarding
 from spotdl_cli.screens.playlist import PlaylistScreen
 from spotdl_cli.screens.queue import QueueScreen
+from spotdl_cli.screens.register import RegisterScreen
 from spotdl_cli.screens.settings import SettingsScreen
 from spotdl_cli.screens.track import TrackScreen
 
@@ -20,6 +21,7 @@ __all__ = [
     "OnboardingScreen",
     "PlaylistScreen",
     "QueueScreen",
+    "RegisterScreen",
     "SettingsScreen",
     "TrackScreen",
     "should_show_onboarding",

@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
@@ -53,6 +55,11 @@ class DownloadQueue:
         self._active_downloads: set[str] = set()
         self._callbacks: list[Callable[[QueueEvent], None]] = []
         self._lock = asyncio.Lock()
+
+        # Load persisted queue
+        from spotdl_cli.config import get_settings
+        self._save_path = get_settings().data_dir / "queue.json"
+        self.load_queue(self._save_path)
 
     @property
     def items(self) -> list[DownloadItem]:
@@ -322,6 +329,8 @@ class DownloadQueue:
         elif status in (DownloadStatus.COMPLETED, DownloadStatus.FAILED, DownloadStatus.CANCELLED):
             item.completed_at = datetime.now()
             self._active_downloads.discard(item_id)
+            # Auto-save after item completes or fails
+            self.save_queue(self._save_path)
 
         self._emit(QueueEvent(
             "status_changed",
@@ -379,3 +388,91 @@ class DownloadQueue:
 
             self._emit(QueueEvent("reordered", item_id))
             return True
+
+    def save_queue(self, path: Path) -> None:
+        """
+        Persist queue items to a JSON file.
+
+        Only saves items with status completed, failed, or pending.
+        Active items cannot be resumed and are excluded.
+
+        Args:
+            path: Path to the JSON file
+        """
+        persistable_statuses = {
+            DownloadStatus.COMPLETED,
+            DownloadStatus.FAILED,
+            DownloadStatus.PENDING,
+        }
+
+        items_data: list[dict[str, Any]] = []
+        for item_id in self._order:
+            item = self._items.get(item_id)
+            if item is None or item.status not in persistable_statuses:
+                continue
+
+            entry: dict[str, Any] = {
+                "id": item_id,
+                "song": item.song.json,
+                "status": item.status.value,
+                "progress": item.progress,
+                "error": item.error,
+                "output_path": str(item.output_path) if item.output_path else None,
+                "created_at": item.created_at.isoformat(),
+                "started_at": item.started_at.isoformat() if item.started_at else None,
+                "completed_at": item.completed_at.isoformat() if item.completed_at else None,
+            }
+            items_data.append(entry)
+
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(items_data, f, indent=2)
+            logger.debug("Queue saved to %s (%d items)", path, len(items_data))
+        except OSError as e:
+            logger.error("Failed to save queue: %s", e)
+
+    def load_queue(self, path: Path) -> None:
+        """
+        Restore queue from a JSON file.
+
+        Args:
+            path: Path to the JSON file
+        """
+        if not path.exists():
+            return
+
+        try:
+            with open(path, encoding="utf-8") as f:
+                items_data = json.load(f)
+        except (OSError, json.JSONDecodeError) as e:
+            logger.warning("Failed to load queue from %s: %s", path, e)
+            return
+
+        loaded = 0
+        for entry in items_data:
+            try:
+                song = Song.from_dict(entry["song"])
+                status = DownloadStatus(entry.get("status", "pending"))
+
+                item = DownloadItem(
+                    song=song,
+                    status=status,
+                    progress=entry.get("progress", 0.0),
+                    error=entry.get("error"),
+                    output_path=Path(entry["output_path"]) if entry.get("output_path") else None,
+                    created_at=datetime.fromisoformat(entry["created_at"]) if entry.get("created_at") else datetime.now(),
+                    started_at=datetime.fromisoformat(entry["started_at"]) if entry.get("started_at") else None,
+                    completed_at=datetime.fromisoformat(entry["completed_at"]) if entry.get("completed_at") else None,
+                )
+
+                item_id = entry.get("id", str(uuid4()))
+                self._items[item_id] = item
+                self._order.append(item_id)
+                loaded += 1
+            except (KeyError, ValueError) as e:
+                logger.warning("Skipping invalid queue entry: %s", e)
+                continue
+
+        if loaded:
+            logger.info("Loaded %d items from queue file %s", loaded, path)

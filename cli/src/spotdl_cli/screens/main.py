@@ -9,7 +9,9 @@ Matches frontend layout with:
 
 from __future__ import annotations
 
+import json
 import logging
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar
 
 from textual.app import ComposeResult
@@ -81,6 +83,8 @@ LOAD_MORE_INCREMENT = {
     EntityType.PLAYLIST: 10,
 }
 
+MAX_RECENT_SEARCHES = 10
+
 
 class MainScreen(Screen[None]):
     """Main search screen matching frontend layout."""
@@ -119,6 +123,9 @@ class MainScreen(Screen[None]):
         # Button ID -> Entity mapping (avoids sanitized ID collisions)
         self._entity_button_map: dict[str, EntityResult] = {}
         self._service_status: dict[str, Any] | None = None
+        # Recent searches
+        self._recent_searches_path: Path = self._settings.data_dir / "recent_searches.json"
+        self._recent_searches: list[str] = self._load_recent_searches()
 
     def _next_id(self, prefix: str) -> str:
         """Generate a unique widget ID."""
@@ -145,6 +152,15 @@ class MainScreen(Screen[None]):
                 yield Button("Search", id="search-btn", variant="primary")
                 yield Button("Refresh", id="refresh-btn", variant="default")
                 yield Button("Login", id="login-btn", variant="default")
+
+            # Recent searches (shown when input is empty)
+            with Vertical(id="recent-searches", classes="hidden"):
+                yield Static(
+                    "Recent Searches",
+                    classes="section-title text-muted",
+                )
+                with Vertical(id="recent-searches-list"):
+                    pass  # Populated dynamically
 
             # Connection status strip below search bar
             yield Static("", id="connection-status", classes="status-muted")
@@ -297,7 +313,20 @@ class MainScreen(Screen[None]):
         """Handle screen mount."""
         self.query_one("#search-input", Input).focus()
         self._update_auth_button()
+        self._update_recent_searches_display()
         self.run_worker(self._load_connection_status())
+
+    def on_input_changed(self, event: Input.Changed) -> None:
+        """Show/hide recent searches based on input content."""
+        if event.input.id == "search-input":
+            recent_section = self.query_one("#recent-searches", Vertical)
+            if event.value.strip():
+                recent_section.add_class("hidden")
+            else:
+                if self._recent_searches:
+                    recent_section.remove_class("hidden")
+                else:
+                    recent_section.add_class("hidden")
 
     async def on_input_submitted(self, event: Input.Submitted) -> None:
         """Handle search input submission."""
@@ -334,15 +363,27 @@ class MainScreen(Screen[None]):
             await self._handle_entity_click(button_id)
 
     def on_click(self, event) -> None:
-        """Handle clicks on filter tabs (Static widgets)."""
+        """Handle clicks on filter tabs and recent search items."""
         widget = event.widget if hasattr(event, "widget") else None
         if widget is None:
             return
         widget_id = getattr(widget, "id", None)
-        if widget_id and isinstance(widget_id, str) and widget_id.startswith("filter-"):
-            filter_type = widget_id.replace("filter-", "")
-            if filter_type in self._filter_buttons:
-                self._set_active_filter(filter_type)
+        if widget_id and isinstance(widget_id, str):
+            if widget_id.startswith("filter-"):
+                filter_type = widget_id.replace("filter-", "")
+                if filter_type in self._filter_buttons:
+                    self._set_active_filter(filter_type)
+            elif widget_id.startswith("recent-search-"):
+                idx_str = widget_id.replace("recent-search-", "")
+                try:
+                    idx = int(idx_str)
+                    if 0 <= idx < len(self._recent_searches):
+                        search_input = self.query_one("#search-input", Input)
+                        search_input.value = self._recent_searches[idx]
+                        search_input.focus()
+                        self.query_one("#recent-searches", Vertical).add_class("hidden")
+                except ValueError:
+                    pass
 
     def on_entity_card_selected(self, message: EntityCard.Selected) -> None:
         """Handle EntityCard selection."""
@@ -415,9 +456,10 @@ class MainScreen(Screen[None]):
         status_bar = self.query_one("#status-bar", Static)
         status_bar.update("Searching...")
 
-        # Hide empty state
+        # Hide empty state and recent searches
         self.query_one("#empty-state", Vertical).add_class("hidden")
         self.query_one("#no-results", Vertical).add_class("hidden")
+        self.query_one("#recent-searches", Vertical).add_class("hidden")
 
         # Reset display counts for new search
         for entity_type in EntityType:
@@ -432,6 +474,9 @@ class MainScreen(Screen[None]):
 
             self._search_response = response
             await self._display_results(response)
+
+            # Save to recent searches on success
+            self._add_recent_search(query)
 
             # Update status with query type info
             total = response.total
@@ -1021,6 +1066,65 @@ class MainScreen(Screen[None]):
             isrc=data.get("isrc"),
             cover_url=data.get("cover_url") or data.get("image_url"),
         )
+
+    def _load_recent_searches(self) -> list[str]:
+        """Load recent searches from disk."""
+        if not self._recent_searches_path.exists():
+            return []
+        try:
+            with open(self._recent_searches_path, encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data, list):
+                return [str(s) for s in data[:MAX_RECENT_SEARCHES]]
+        except (OSError, json.JSONDecodeError) as e:
+            logger.warning("Failed to load recent searches: %s", e)
+        return []
+
+    def _save_recent_searches(self) -> None:
+        """Save recent searches to disk."""
+        try:
+            self._recent_searches_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(self._recent_searches_path, "w", encoding="utf-8") as f:
+                json.dump(self._recent_searches, f, indent=2)
+        except OSError as e:
+            logger.warning("Failed to save recent searches: %s", e)
+
+    def _add_recent_search(self, query: str) -> None:
+        """Add a query to recent searches."""
+        # Remove if already present (will be re-added at front)
+        if query in self._recent_searches:
+            self._recent_searches.remove(query)
+
+        # Insert at front
+        self._recent_searches.insert(0, query)
+
+        # Trim to max
+        self._recent_searches = self._recent_searches[:MAX_RECENT_SEARCHES]
+
+        self._save_recent_searches()
+        self._update_recent_searches_display()
+
+    def _update_recent_searches_display(self) -> None:
+        """Update the recent searches widget list."""
+        container = self.query_one("#recent-searches-list", Vertical)
+        container.remove_children()
+
+        recent_section = self.query_one("#recent-searches", Vertical)
+        search_input = self.query_one("#search-input", Input)
+
+        if not self._recent_searches or search_input.value.strip():
+            recent_section.add_class("hidden")
+            return
+
+        for idx, query in enumerate(self._recent_searches):
+            widget = Static(
+                f"  {query}",
+                id=f"recent-search-{idx}",
+                classes="recent-search-item text-muted",
+            )
+            container.mount(widget)
+
+        recent_section.remove_class("hidden")
 
     def action_submit_search(self) -> None:
         """Submit search action."""

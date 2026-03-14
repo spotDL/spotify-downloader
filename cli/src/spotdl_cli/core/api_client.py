@@ -487,6 +487,44 @@ class APIClient:
         except httpx.HTTPError as e:
             raise APIError(f"Request failed: {e}") from e
 
+    async def discover_entities(
+        self,
+        url: str = "",
+        query: str = "",
+        types: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """Discover entities from URL or query.
+
+        Args:
+            url: URL to discover entities from
+            query: Text query to search
+            types: Optional list of entity type filters
+
+        Returns:
+            Raw discovery response dict
+        """
+        try:
+            client = await self._get_client()
+            payload: dict[str, Any] = {}
+            if url:
+                payload["url"] = url
+            elif query:
+                payload["query"] = query
+            if types:
+                payload["types"] = types
+            response = await client.post(
+                "/api/v1/entities/discover",
+                json=payload,
+            )
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
     async def find_matches(
         self,
         song: Song,
@@ -1429,6 +1467,25 @@ class APIClient:
             result = response.json()
             await self._cache.set(result, "lyrics_all", song_id, ttl=self.CACHE_TTL_LYRICS)
             return result
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def submit_lyrics(
+        self, entity_id: str, lyrics: str, source: str, synced: bool = False
+    ) -> dict[str, Any]:
+        """Submit user-contributed lyrics."""
+        try:
+            client = await self._get_client()
+            response = await client.post(
+                f"/api/v1/entities/{entity_id}/lyrics",
+                json={"lyrics": lyrics, "source": source, "synced": synced},
+            )
+            response.raise_for_status()
+            return response.json()
         except httpx.ConnectError as e:
             raise ConnectionError(f"Cannot connect to API: {e}") from e
         except httpx.HTTPStatusError as e:

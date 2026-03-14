@@ -11,7 +11,6 @@ from textual.containers import Center, Vertical
 from textual.screen import Screen
 from textual.widgets import Button, Input, Static
 
-from spotdl_cli.config import get_settings
 from spotdl_cli.core import APIError, get_api_client
 
 logger = logging.getLogger(__name__)
@@ -47,11 +46,10 @@ class LoginScreen(Screen[bool]):
 
                 yield Static("", id="login-error", classes="error-alert hidden")
                 yield Button("Sign In", id="login-btn", variant="primary", classes="w-full")
+                yield Button("Register", id="register-btn", variant="default", classes="w-full")
 
-                settings = get_settings()
-                register_url = f"{settings.api_url}/auth/register"
                 yield Static(
-                    f"Don't have an account? Register at {register_url}",
+                    "Don't have an account? Click Register above",
                     classes="text-muted text-center mt-2 text-sm",
                 )
 
@@ -59,10 +57,19 @@ class LoginScreen(Screen[bool]):
         """Focus username input on mount."""
         self.query_one("#username-input").focus()
 
+    async def _on_register_complete(self, success: bool) -> None:
+        """Handle registration completion."""
+        if success:
+            self.notify("Account created! You are now logged in.")
+            self.dismiss(True)
+
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses."""
         if event.button.id == "login-btn":
             await self._login()
+        elif event.button.id == "register-btn":
+            from spotdl_cli.screens.register import RegisterScreen
+            await self.app.push_screen(RegisterScreen(), self._on_register_complete)
 
     async def action_submit(self) -> None:
         """Handle enter key."""

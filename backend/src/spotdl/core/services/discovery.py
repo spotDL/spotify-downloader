@@ -702,9 +702,18 @@ class DiscoveryService:
             delete(EntityCanonical).where(EntityCanonical.entity_id == duplicate.id)
         )
 
-        # Delete duplicate entity
-        await self._db.delete(duplicate)
+        # Delete duplicate entity using raw SQL to avoid ORM cascade
+        # (ORM cascade="all, delete-orphan" would re-delete snapshots/relations
+        # that were already moved to the survivor via UPDATE statements above)
+        await self._db.execute(
+            delete(Entity).where(Entity.id == duplicate.id)
+        )
+        # Expunge the now-deleted object from the session to avoid stale state
         await self._db.flush()
+        try:
+            self._db.expunge(duplicate)
+        except Exception:
+            pass
 
     async def _upsert_entity_snapshot(self, bundle: ProviderEntityBundle) -> tuple[Entity, bool]:
         """Upsert via snapshot-based lookup. Wrapper around _find_or_create_entity

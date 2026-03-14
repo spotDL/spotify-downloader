@@ -20,13 +20,14 @@ from textual.screen import Screen
 from textual.widgets import (
     Button,
     Collapsible,
+    DataTable,
     Input,
     Rule,
     Select,
     Static,
+    TabbedContent,
+    TabPane,
 )
-
-from spotdl_cli.widgets import AudioMeter, CoverArt, MatchBar, StatChip
 
 from spotdl_cli.config import get_settings
 from spotdl_cli.core import (
@@ -39,6 +40,7 @@ from spotdl_cli.core import (
 )
 from spotdl_cli.core.types import Platform
 from spotdl_cli.theme import get_platform_icon
+from spotdl_cli.widgets import AudioMeter, CoverArt, MatchBar, StatChip
 
 if TYPE_CHECKING:
     from spotdl_cli.app import SpotDLApp
@@ -57,6 +59,7 @@ class TrackScreen(Screen[None]):
         Binding("r", "refresh", "Refresh"),
         Binding("m", "refresh_metadata", "Refresh Metadata"),
         Binding("s", "submit_match", "Submit Match"),
+        Binding("l", "submit_lyrics", "Submit Lyrics"),
         Binding("p", "report", "Report Data"),
         Binding("u", "vote_up", "Upvote Match"),
         Binding("n", "vote_down", "Downvote Match"),
@@ -90,6 +93,7 @@ class TrackScreen(Screen[None]):
         self._active_lyrics_source: str | None = None
         self._audio_features: dict[str, Any] = {}
         self._track_details: dict[str, Any] = {}
+        self._snapshots: list[dict[str, Any]] = []
         # Track selected match index for voting
         self._selected_match_idx: int = 0
 
@@ -215,20 +219,35 @@ class TrackScreen(Screen[None]):
 
                     yield Rule()
 
-                    # Lyrics card
+                    # Lyrics card with tabbed multi-source display
                     with Vertical(classes="card", id="lyrics-card"):
                         with Horizontal(classes="card-header-row"):
                             yield Static("Lyrics", classes="card-title")
-                            yield Select(
-                                [("Default", "default")],
-                                value="default",
-                                id="lyrics-source-select",
+                            yield Button(
+                                "Fetch All Sources",
+                                id="fetch-all-lyrics-btn",
+                                variant="default",
+                            )
+                            yield Button(
+                                "Submit Lyrics",
+                                id="submit-lyrics-btn",
+                                variant="default",
                             )
 
-                        with VerticalScroll(id="lyrics-container", classes="lyrics-scroll"):
-                            yield Static("", id="lyrics-content", classes="lyrics-text")
+                        with TabbedContent(id="lyrics-tabs"):
+                            with TabPane("Default", id="lyrics-tab-default"):
+                                with VerticalScroll(id="lyrics-container", classes="lyrics-scroll"):
+                                    yield Static("", id="lyrics-content", classes="lyrics-text")
 
                         yield Static("", id="lyrics-status", classes="status-muted")
+
+                    yield Rule()
+
+                    # Metadata Sources card
+                    with Collapsible(title="Metadata Sources", id="metadata-sources-section"):
+                        yield DataTable(id="metadata-sources-table")
+                        with Vertical(id="snapshot-detail-container"):
+                            yield Static("", id="snapshot-detail-content", classes="status-muted")
 
                 # Right column (1/3) — details + audio features
                 with Vertical(id="track-sidebar", classes="sidebar-column"):
@@ -446,15 +465,8 @@ class TrackScreen(Screen[None]):
                             if text:
                                 self._all_lyrics[name] = text
                         if self._all_lyrics:
-                            options = [(name.title(), name) for name in self._all_lyrics]
-                            try:
-                                select = self.query_one("#lyrics-source-select", Select)
-                                select.set_options(options)
-                                first_source = next(iter(self._all_lyrics))
-                                select.value = first_source
-                                self._active_lyrics_source = first_source
-                            except Exception:
-                                pass
+                            first_source = next(iter(self._all_lyrics))
+                            self._active_lyrics_source = first_source
 
                 self._update_lyrics_display()
             except APIError as e:
@@ -464,6 +476,17 @@ class TrackScreen(Screen[None]):
             if self._track_details.get("audio_features"):
                 self._audio_features = self._track_details.get("audio_features") or {}
                 self._update_audio_features()
+
+            # Load metadata snapshots
+            try:
+                if self._entity_id:
+                    snapshots_data = await api_client.get_metadata_sources(
+                        self._entity_id
+                    )
+                    self._snapshots = snapshots_data.get("snapshots", [])
+                    self._update_snapshots_display()
+            except APIError as e:
+                logger.debug(f"No metadata snapshots available: {e}")
 
         except Exception as e:
             logger.error(f"Error loading online data: {e}")
@@ -540,16 +563,9 @@ class TrackScreen(Screen[None]):
                 if not self._lyrics:
                     self._lyrics = next(iter(all_lyrics.values()))
 
-                # Populate lyrics source selector
-                options = [(name, name) for name in all_lyrics]
-                try:
-                    select = self.query_one("#lyrics-source-select", Select)
-                    select.set_options(options)
-                    first_source = next(iter(all_lyrics))
-                    select.value = first_source
-                    self._active_lyrics_source = first_source
-                except Exception:
-                    pass
+                # Set active lyrics source
+                first_source = next(iter(all_lyrics))
+                self._active_lyrics_source = first_source
         except Exception as e:
             logger.warning(f"Offline lyrics fetch failed: {e}")
 
@@ -690,23 +706,66 @@ class TrackScreen(Screen[None]):
             result=result,
         )
 
+    def _format_lyrics_text(self, text: str) -> str:
+        """Format lyrics text for display, handling LRC timestamps."""
+        if not text:
+            return "[dim]No lyrics available[/]"
+        # Truncate very long lyrics for display
+        if len(text) > 2000:
+            text = text[:2000] + "\n\n[dim]... (truncated)[/]"
+        return text
+
     def _update_lyrics_display(self) -> None:
-        """Update lyrics display."""
-        lyrics_content = self.query_one("#lyrics-content", Static)
+        """Update lyrics display with tabbed multi-source view."""
         lyrics_status = self.query_one("#lyrics-status", Static)
 
-        if self._lyrics:
-            # Truncate very long lyrics for display
-            display_lyrics = self._lyrics
-            if len(display_lyrics) > 2000:
-                display_lyrics = display_lyrics[:2000] + "\n\n[dim]... (truncated)[/]"
-            lyrics_content.update(display_lyrics)
-            if self._lyrics_sources_count:
-                lyrics_status.update(f"[dim]{self._lyrics_sources_count} source(s)[/]")
+        # Update the default tab content
+        try:
+            lyrics_content = self.query_one("#lyrics-content", Static)
+            if self._lyrics:
+                lyrics_content.update(self._format_lyrics_text(self._lyrics))
             else:
-                lyrics_status.update("")
+                lyrics_content.update("[dim]No lyrics available[/]")
+        except Exception:
+            pass
+
+        # Build tabs for all lyrics sources
+        if self._all_lyrics:
+            try:
+                tabbed = self.query_one("#lyrics-tabs", TabbedContent)
+                # Remove existing extra tabs (keep default)
+                existing_panes = list(tabbed.query(TabPane))
+                for pane in existing_panes:
+                    if pane.id != "lyrics-tab-default":
+                        pane.remove()
+
+                # Add a tab per source
+                for source_name, source_text in self._all_lyrics.items():
+                    tab_id = f"lyrics-tab-{source_name.lower().replace(' ', '-')}"
+                    # Skip if already present
+                    try:
+                        tabbed.query_one(f"#{tab_id}")
+                        continue
+                    except Exception:
+                        pass
+                    pane = TabPane(source_name.title(), id=tab_id)
+                    tabbed.add_pane(pane)
+                    formatted = self._format_lyrics_text(source_text)
+                    pane.mount(
+                        VerticalScroll(
+                            Static(formatted, classes="lyrics-text"),
+                            classes="lyrics-scroll",
+                        )
+                    )
+            except Exception:
+                pass
+
+        if self._lyrics_sources_count:
+            lyrics_status.update(f"[dim]{self._lyrics_sources_count} source(s)[/]")
+        elif self._all_lyrics:
+            lyrics_status.update(f"[dim]{len(self._all_lyrics)} source(s)[/]")
         else:
-            lyrics_content.update("[dim]No lyrics available[/]")
+            lyrics_status.update("")
 
     def _update_audio_features(self) -> None:
         """Update audio features display using AudioMeter and StatChip widgets."""
@@ -833,14 +892,66 @@ class TrackScreen(Screen[None]):
             f"[dim]\u00a9[/] {copyright_text}" if copyright_text else "[dim]Copyright:[/] --"
         )
 
+    def _update_snapshots_display(self) -> None:
+        """Update metadata snapshots table."""
+        try:
+            table = self.query_one("#metadata-sources-table", DataTable)
+            table.cursor_type = "row"
+            table.zebra_stripes = True
+            if len(table.columns) == 0:
+                table.add_columns("Provider", "Confidence", "Fetched At")
+            table.clear()
+
+            if not self._snapshots:
+                return
+
+            for snap in self._snapshots:
+                provider = snap.get("provider", snap.get("source", "unknown"))
+                confidence = snap.get("confidence", snap.get("quality_score", 0))
+                if isinstance(confidence, float):
+                    confidence_str = f"{confidence:.0%}"
+                else:
+                    confidence_str = str(confidence)
+                fetched_at = snap.get("fetched_at", snap.get("created_at", "--"))
+                if fetched_at and len(fetched_at) > 19:
+                    fetched_at = fetched_at[:19]
+                table.add_row(
+                    str(provider).title(),
+                    confidence_str,
+                    str(fetched_at),
+                    key=str(provider),
+                )
+        except Exception:
+            pass
+
+    def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
+        """Handle row selection in metadata sources table."""
+        if event.data_table.id == "metadata-sources-table" and self._snapshots:
+            key = str(event.row_key.value) if event.row_key else None
+            if key is None:
+                return
+            # Find the matching snapshot
+            for snap in self._snapshots:
+                provider = snap.get("provider", snap.get("source", "unknown"))
+                if str(provider) == key:
+                    payload = snap.get("normalized_payload", snap.get("canonical", {}))
+                    if payload:
+                        lines = []
+                        for k, v in payload.items():
+                            if v is not None and v != "" and v != []:
+                                lines.append(f"[dim]{k}:[/] {v}")
+                        detail_text = "\n".join(lines) if lines else "[dim]No fields[/]"
+                    else:
+                        detail_text = "[dim]No payload data[/]"
+                    try:
+                        self.query_one("#snapshot-detail-content", Static).update(detail_text)
+                    except Exception:
+                        pass
+                    break
+
     def on_select_changed(self, event: Select.Changed) -> None:
         """Handle select widget changes."""
-        if event.select.id == "lyrics-source-select" and self._all_lyrics:
-            source = str(event.value)
-            if source in self._all_lyrics:
-                self._active_lyrics_source = source
-                self._lyrics = self._all_lyrics[source]
-                self._update_lyrics_display()
+        pass
 
     def on_match_bar_selected(self, message: MatchBar.Selected) -> None:
         """Handle MatchBar selection — track selected index for voting."""
@@ -861,6 +972,10 @@ class TrackScreen(Screen[None]):
             await self._open_report()
         elif event.button.id == "inline-submit-btn":
             await self._inline_submit_match()
+        elif event.button.id == "fetch-all-lyrics-btn":
+            await self._fetch_all_lyrics()
+        elif event.button.id == "submit-lyrics-btn":
+            await self._open_submit_lyrics()
 
     async def _download_best_match(self) -> None:
         """Download the best available match."""
@@ -893,6 +1008,10 @@ class TrackScreen(Screen[None]):
     def action_report(self) -> None:
         """Report data action."""
         self.run_worker(self._open_report())
+
+    def action_submit_lyrics(self) -> None:
+        """Submit lyrics action."""
+        self.run_worker(self._open_submit_lyrics())
 
     def action_vote_up(self) -> None:
         """Upvote selected match."""
@@ -953,6 +1072,95 @@ class TrackScreen(Screen[None]):
                 on_submit=self._on_match_submitted,
             )
         )
+
+    async def _fetch_all_lyrics(self) -> None:
+        """Fetch lyrics from all sources."""
+        if not self.spotdl_app.is_online:
+            self.notify("Fetch all lyrics requires online mode", severity="warning")
+            return
+        if not self._entity_id:
+            self.notify("Entity ID required", severity="warning")
+            return
+
+        try:
+            self.notify("Fetching lyrics from all sources...")
+            api_client = get_api_client()
+            await api_client.fetch_all_lyrics(self._entity_id)
+
+            # Reload lyrics data
+            all_lyrics = await api_client.get_all_lyrics(self._entity_id)
+            self._lyrics_sources_count = all_lyrics.get("total_sources")
+            sources = all_lyrics.get("sources", [])
+            if sources:
+                self._all_lyrics = {}
+                for src in sources:
+                    name = src.get("source", src.get("name", "unknown"))
+                    text = (
+                        src.get("lyrics_text")
+                        or src.get("lyrics")
+                        or src.get("lyrics_synced")
+                        or ""
+                    )
+                    if text:
+                        self._all_lyrics[name] = text
+                if self._all_lyrics and not self._lyrics:
+                    self._lyrics = next(iter(self._all_lyrics.values()))
+            self._update_lyrics_display()
+            self.notify(f"Fetched {len(self._all_lyrics)} lyrics source(s)")
+        except APIError as e:
+            self.notify(f"Fetch failed: {e}", severity="error")
+
+    async def _open_submit_lyrics(self) -> None:
+        """Open submit lyrics screen."""
+        if not self.spotdl_app.is_online:
+            self.notify("Submit lyrics requires online mode", severity="warning")
+            return
+        if not await self._ensure_authenticated():
+            return
+        if not self._entity_id:
+            self.notify("Entity ID required", severity="warning")
+            return
+
+        from spotdl_cli.screens.submit_lyrics import SubmitLyricsScreen
+
+        self.app.push_screen(
+            SubmitLyricsScreen(
+                entity_id=self._entity_id,
+                song_name=self._song.name,
+                on_submit=self._on_lyrics_submitted,
+            )
+        )
+
+    def _on_lyrics_submitted(self) -> None:
+        """Handle lyrics submission callback."""
+        self.run_worker(self._reload_lyrics())
+
+    async def _reload_lyrics(self) -> None:
+        """Reload lyrics data after submission."""
+        if not self._entity_id:
+            return
+        try:
+            api_client = get_api_client()
+            all_lyrics = await api_client.get_all_lyrics(self._entity_id)
+            self._lyrics_sources_count = all_lyrics.get("total_sources")
+            sources = all_lyrics.get("sources", [])
+            if sources:
+                self._all_lyrics = {}
+                for src in sources:
+                    name = src.get("source", src.get("name", "unknown"))
+                    text = (
+                        src.get("lyrics_text")
+                        or src.get("lyrics")
+                        or src.get("lyrics_synced")
+                        or ""
+                    )
+                    if text:
+                        self._all_lyrics[name] = text
+                if self._all_lyrics and not self._lyrics:
+                    self._lyrics = next(iter(self._all_lyrics.values()))
+            self._update_lyrics_display()
+        except APIError as e:
+            logger.debug(f"Lyrics reload failed: {e}")
 
     async def _open_report(self) -> None:
         """Open report data screen."""

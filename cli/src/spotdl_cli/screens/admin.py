@@ -12,6 +12,7 @@ from textual.screen import Screen
 from textual.widgets import (
     Button,
     DataTable,
+    Input,
     Label,
     Static,
     TabbedContent,
@@ -67,6 +68,8 @@ class AdminScreen(Screen[None]):
                     yield self._compose_reports()
                 with TabPane("Users", id="tab-users"):
                     yield self._compose_users()
+                with TabPane("Import", id="tab-import"):
+                    yield self._compose_import()
 
     def _compose_dashboard(self) -> Vertical:
         return Vertical(
@@ -117,6 +120,21 @@ class AdminScreen(Screen[None]):
             ),
             DataTable(id="table-users", cursor_type="row"),
             id="users-content",
+            classes="card"
+        )
+
+    def _compose_import(self) -> Vertical:
+        return Vertical(
+            Input(
+                placeholder="Enter URL to import (Spotify, YouTube, etc.)",
+                id="import-url-input",
+            ),
+            Horizontal(
+                Button("Import", id="btn-import", variant="primary"),
+                classes="admin-actions-row mb-2",
+            ),
+            Static("", id="import-status", classes="status-muted"),
+            id="import-content",
             classes="card"
         )
 
@@ -243,6 +261,9 @@ class AdminScreen(Screen[None]):
         elif btn_id == "btn-users-ban":
             self.run_worker(self._handle_user_ban_toggle())
 
+        elif btn_id == "btn-import":
+            self.run_worker(self._handle_import())
+
     async def _handle_match_action(self, action: str) -> None:
         table = self.query_one("#table-matches", DataTable)
         
@@ -318,6 +339,40 @@ class AdminScreen(Screen[None]):
             await self._load_all_data()
         except APIError as e:
             self.notify(f"Failed to toggle ban: {e}", severity="error")
+
+    async def _handle_import(self) -> None:
+        """Handle URL import."""
+        url_input = self.query_one("#import-url-input", Input)
+        status_widget = self.query_one("#import-status", Static)
+        import_btn = self.query_one("#btn-import", Button)
+        url = url_input.value.strip()
+
+        if not url:
+            self.notify("Please enter a URL to import", severity="warning")
+            return
+
+        import_btn.disabled = True
+        import_btn.label = "Importing..."
+        status_widget.update("[dim]Importing...[/]")
+
+        try:
+            api_client = get_api_client()
+            data = await api_client.discover_entities(url=url)
+            entities = data.get("entities", [])
+            entities_created = data.get("entities_created", len(entities))
+            status_widget.update(
+                f"[green]Import complete: {entities_created} "
+                f"entit{'y' if entities_created == 1 else 'ies'} created[/]"
+            )
+            self.notify(f"Imported {entities_created} entities from URL")
+            url_input.value = ""
+        except APIError as e:
+            logger.error(f"Import failed: {e}")
+            status_widget.update(f"[red]Import failed: {e}[/]")
+            self.notify(f"Import failed: {e}", severity="error")
+        finally:
+            import_btn.disabled = False
+            import_btn.label = "Import"
 
     def action_refresh_data(self) -> None:
         """Refresh data action."""
