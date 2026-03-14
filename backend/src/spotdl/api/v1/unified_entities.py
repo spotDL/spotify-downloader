@@ -464,21 +464,24 @@ async def discover_entities(
         raise _translate_error(exc) from exc
 
 
-def _platform_id_to_url(platform_id: str, entity_type: str | None = None) -> str | None:
+def _platform_id_to_url(platform_id: str, entity_type: str | None = None) -> tuple[str | None, str | None]:
     """Convert a platform URI like ``spotify:track:xxx`` to a canonical URL.
 
-    Returns None if the format is not recognised.
+    Returns ``(url, inferred_entity_type)`` or ``(None, None)`` if the format
+    is not recognised.  The *inferred_entity_type* is the type parsed from the
+    URI (e.g. ``"track"`` from ``spotify:track:xxx``).
     """
     # Handle colon-separated format: platform:type:id
     parts = platform_id.split(":")
     if len(parts) == 3:
         platform, ptype, pid = parts
-        return _build_platform_url(platform.lower(), ptype.lower(), pid)
+        ptype_lower = ptype.lower()
+        return _build_platform_url(platform.lower(), ptype_lower, pid), ptype_lower
     if len(parts) == 2 and entity_type:
         # platform:id with type provided externally
         platform, pid = parts
-        return _build_platform_url(platform.lower(), entity_type.lower(), pid)
-    return None
+        return _build_platform_url(platform.lower(), entity_type.lower(), pid), entity_type.lower()
+    return None, None
 
 
 def _build_platform_url(platform: str, entity_type: str, entity_id: str) -> str | None:
@@ -569,12 +572,15 @@ async def resolve_entity(
         raise HTTPException(status_code=404, detail=f"Could not resolve URL: {value}")
 
     # 3. Try platform ID (e.g. spotify:track:xxx, deezer:track:123)
-    platform_url = _platform_id_to_url(value, type)
+    platform_url, inferred_type = _platform_id_to_url(value, type)
     if platform_url:
+        # Use the type from the URI (e.g. "track" from spotify:track:xxx)
+        # when no explicit type query param was provided.
+        effective_type = type or inferred_type
         try:
             result = await service.discover(
                 value=platform_url,
-                entity_types=[type] if type else None,
+                entity_types=[effective_type] if effective_type else None,
                 limit=1,
             )
             if result.entities:
