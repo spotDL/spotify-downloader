@@ -71,17 +71,20 @@ class User(Base, TimestampMixin):
         "UserSettings",
         back_populates="user",
         uselist=False,
+        lazy="selectin",
         cascade="all, delete-orphan",
     )
     submitted_reports: Mapped[list[MetadataReport]] = relationship(
         "MetadataReport",
         back_populates="reporter",
         foreign_keys="MetadataReport.reporter_id",
+        lazy="selectin",
     )
     reviewed_reports: Mapped[list[MetadataReport]] = relationship(
         "MetadataReport",
         back_populates="reviewer",
         foreign_keys="MetadataReport.reviewed_by",
+        lazy="selectin",
     )
 
     def __repr__(self) -> str:

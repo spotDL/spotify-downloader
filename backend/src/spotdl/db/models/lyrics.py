@@ -118,6 +118,7 @@ class Lyrics(Base, TimestampMixin):
     # Relationships
     entity: Mapped[Entity] = relationship(
         "Entity",
+        lazy="selectin",
     )
 
     def __repr__(self) -> str:

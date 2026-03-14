@@ -297,6 +297,7 @@ class UserSettings(Base, TimestampMixin):
     user: Mapped[User] = relationship(
         "User",
         back_populates="settings",
+        lazy="selectin",
     )
 
     def __repr__(self) -> str:

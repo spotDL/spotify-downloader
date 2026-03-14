@@ -46,28 +46,33 @@ class Entity(Base, TimestampMixin):
         "EntityCanonical",
         back_populates="entity",
         uselist=False,
+        lazy="selectin",
         cascade="all, delete-orphan",
     )
     snapshots: Mapped[list[EntitySnapshot]] = relationship(
         "EntitySnapshot",
         back_populates="entity",
+        lazy="selectin",
         cascade="all, delete-orphan",
     )
     provenance: Mapped[list[EntityFieldProvenance]] = relationship(
         "EntityFieldProvenance",
         back_populates="entity",
+        lazy="selectin",
         cascade="all, delete-orphan",
     )
     outgoing_relations: Mapped[list[EntityRelation]] = relationship(
         "EntityRelation",
         back_populates="from_entity",
         foreign_keys="EntityRelation.from_entity_id",
+        lazy="selectin",
         cascade="all, delete-orphan",
     )
     incoming_relations: Mapped[list[EntityRelation]] = relationship(
         "EntityRelation",
         back_populates="to_entity",
         foreign_keys="EntityRelation.to_entity_id",
+        lazy="selectin",
         cascade="all, delete-orphan",
     )
 
@@ -111,6 +116,7 @@ class EntityCanonical(Base, TimestampMixin):
     entity: Mapped[Entity] = relationship(
         "Entity",
         back_populates="canonical_data",
+        lazy="selectin",
     )
 
 
@@ -189,10 +195,12 @@ class EntitySnapshot(Base, TimestampMixin):
     entity: Mapped[Entity] = relationship(
         "Entity",
         back_populates="snapshots",
+        lazy="selectin",
     )
     field_provenance: Mapped[list[EntityFieldProvenance]] = relationship(
         "EntityFieldProvenance",
         back_populates="snapshot",
+        lazy="selectin",
         cascade="all, delete-orphan",
     )
 
@@ -244,10 +252,12 @@ class EntityFieldProvenance(Base, TimestampMixin):
     entity: Mapped[Entity] = relationship(
         "Entity",
         back_populates="provenance",
+        lazy="selectin",
     )
     snapshot: Mapped[EntitySnapshot] = relationship(
         "EntitySnapshot",
         back_populates="field_provenance",
+        lazy="selectin",
     )
 
 
@@ -319,15 +329,18 @@ class EntityRelation(Base, TimestampMixin):
         "Entity",
         back_populates="outgoing_relations",
         foreign_keys=[from_entity_id],
+        lazy="selectin",
     )
     to_entity: Mapped[Entity] = relationship(
         "Entity",
         back_populates="incoming_relations",
         foreign_keys=[to_entity_id],
+        lazy="selectin",
     )
     votes: Mapped[list[RelationVote]] = relationship(
         "RelationVote",
         back_populates="relation",
+        lazy="selectin",
         cascade="all, delete-orphan",
     )
 
@@ -373,5 +386,6 @@ class RelationVote(Base, TimestampMixin):
     relation: Mapped[EntityRelation] = relationship(
         "EntityRelation",
         back_populates="votes",
+        lazy="selectin",
     )
-    user: Mapped[User] = relationship("User")
+    user: Mapped[User] = relationship("User", lazy="selectin")

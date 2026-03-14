@@ -101,11 +101,13 @@ class MetadataReport(Base, TimestampMixin):
         "User",
         back_populates="submitted_reports",
         foreign_keys=[reporter_id],
+        lazy="selectin",
     )
     reviewer: Mapped[User | None] = relationship(
         "User",
         back_populates="reviewed_reports",
         foreign_keys=[reviewed_by],
+        lazy="selectin",
     )
 
     def __repr__(self) -> str:
