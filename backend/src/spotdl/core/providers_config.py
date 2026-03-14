@@ -58,12 +58,6 @@ AUDIO_SOURCE_PROVIDERS: list[ProviderInfo] = [
 # Metadata providers for enriching song information
 METADATA_PROVIDERS: list[ProviderInfo] = [
     {
-        "id": "spotify",
-        "name": "Spotify",
-        "icon": "spotify",
-        "default_enabled": True,
-    },
-    {
         "id": "musicbrainz",
         "name": "MusicBrainz",
         "icon": "musicbrainz",
@@ -73,12 +67,6 @@ METADATA_PROVIDERS: list[ProviderInfo] = [
         "id": "discogs",
         "name": "Discogs",
         "icon": "discogs",
-        "default_enabled": True,
-    },
-    {
-        "id": "deezer",
-        "name": "Deezer",
-        "icon": "deezer",
         "default_enabled": True,
     },
 ]

@@ -166,7 +166,7 @@ class TidalProvider(SourceProvider):
 
         return meta_data
 
-    def _parse_duration(self, duration_str: str) -> int:
+    def _parse_duration(self, duration_str: str) -> int | None:
         """
         Parse ISO 8601 duration to seconds.
 
@@ -174,14 +174,14 @@ class TidalProvider(SourceProvider):
             duration_str: Duration string (e.g., "PT3M45S")
 
         Returns:
-            Duration in seconds
+            Duration in seconds, or None if missing/unparseable
         """
         if not duration_str:
-            return 0
+            return None
 
         match = re.match(r"PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?", duration_str)
         if not match:
-            return 0
+            return None
 
         hours = int(match.group(1) or 0)
         minutes = int(match.group(2) or 0)
@@ -243,14 +243,14 @@ class TidalProvider(SourceProvider):
 
         # Parse duration
         duration = self._parse_duration(track_data.get("duration", ""))
-        if not duration:
+        if duration is None:
             # Try to parse from meta
             duration_meta = meta_data.get("duration", "")
             duration = self._parse_duration(duration_meta)
 
         # Parse date
         date_published = track_data.get("datePublished", "")
-        year = 0
+        year = None
         if date_published:
             try:
                 year = int(date_published[:4])
@@ -264,6 +264,36 @@ class TidalProvider(SourceProvider):
         if extracted:
             platform_id = extracted[1]
 
+        # Extract album_id from inAlbum URL
+        album_id = None
+        if isinstance(album_data, dict):
+            album_url_str = album_data.get("url", "")
+            if album_url_str:
+                album_extracted = self._extract_id(album_url_str)
+                if album_extracted and album_extracted[0] == "album":
+                    album_id = album_extracted[1]
+        # If no album URL in data, try to get from list_info context
+        if not album_id and list_info and "/album/" in (list_info.get("url") or ""):
+            album_extracted = self._extract_id(list_info.get("url", ""))
+            if album_extracted and album_extracted[0] == "album":
+                album_id = album_extracted[1]
+
+        # Extract artist_id from byArtist URL
+        artist_id = None
+        if isinstance(artist_data, dict):
+            artist_url = artist_data.get("url", "")
+            if artist_url:
+                artist_extracted = self._extract_id(artist_url)
+                if artist_extracted and artist_extracted[0] == "artist":
+                    artist_id = artist_extracted[1]
+        elif isinstance(artist_data, list) and artist_data:
+            first_artist = artist_data[0] if isinstance(artist_data[0], dict) else {}
+            artist_url = first_artist.get("url", "")
+            if artist_url:
+                artist_extracted = self._extract_id(artist_url)
+                if artist_extracted and artist_extracted[0] == "artist":
+                    artist_id = artist_extracted[1]
+
         song = Song(
             name=track_data.get("name", meta_data.get("title", "Unknown")),
             artists=artists,
@@ -274,10 +304,12 @@ class TidalProvider(SourceProvider):
             url=url,
             album_name=album_name,
             album_artist=artist_name,
+            album_id=album_id,
             year=year,
             date=date_published,
             isrc=track_data.get("isrcCode"),
             cover_url=cover_url,
+            artist_id=artist_id,
         )
 
         # Add list context if provided
@@ -503,11 +535,12 @@ class TidalProvider(SourceProvider):
 
             artist_name = json_ld.get("name", meta_data.get("title", "Unknown Artist"))
 
-            # Find album links from the page
+            # Find album links from the page - only accept /browse/album/ pattern
             album_links: list[str] = []
+            album_pattern = re.compile(r'/browse/album/(\d+)')
             for link in soup.find_all("a", href=True):
                 href = str(link.get("href", ""))
-                if "/album/" in href:
+                if album_pattern.search(href):
                     # Normalize URL
                     if href.startswith("/"):
                         href = f"https://tidal.com{href}"
@@ -522,15 +555,18 @@ class TidalProvider(SourceProvider):
                 "url": url,
             }
 
-            # Collect songs from albums
+            # Collect songs from albums, filtering by artist name
             songs: list[Song] = []
+            artist_name_lower = artist_name.lower()
             for album_url in album_links[:20]:  # Limit to first 20 albums
                 try:
                     album_songs = await self.get_album(album_url)
                     for song in album_songs.songs:
-                        song.list_name = list_info["name"]
-                        song.list_url = list_info["url"]
-                        songs.append(song)
+                        # Only include tracks where the artist is a performer
+                        if artist_name_lower in [a.lower() for a in song.artists]:
+                            song.list_name = list_info["name"]
+                            song.list_url = list_info["url"]
+                            songs.append(song)
                 except SourceProviderError:
                     continue
 
@@ -612,7 +648,7 @@ class TidalProvider(SourceProvider):
                                 name=track.get("title", "Unknown"),
                                 artists=artist_names or [artist],
                                 artist=artist,
-                                duration=track.get("duration", 0),
+                                duration=track.get("duration"),
                                 platform=Platform.TIDAL,
                                 platform_id=track_id,
                                 url=track_url,

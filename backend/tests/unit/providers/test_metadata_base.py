@@ -495,7 +495,7 @@ class TestMetadataProviderBase:
         assert song.date == "2024-06-15"
 
     def test_merge_metadata_track_number(self) -> None:
-        """Test merging track number."""
+        """Test merging track number when missing."""
         provider = ConcreteMetadataProvider()
 
         song = Song(
@@ -506,7 +506,7 @@ class TestMetadataProviderBase:
             platform=Platform.SPOTIFY,
             platform_id="abc",
             url="https://test.com",
-            track_number=1,  # Default
+            # track_number defaults to None (unknown)
         )
 
         result = MetadataResult(track_number=5)
@@ -535,7 +535,7 @@ class TestMetadataProviderBase:
         assert song.track_number == 3
 
     def test_merge_metadata_disc_number(self) -> None:
-        """Test merging disc number."""
+        """Test merging disc number when missing."""
         provider = ConcreteMetadataProvider()
 
         song = Song(
@@ -546,7 +546,7 @@ class TestMetadataProviderBase:
             platform=Platform.SPOTIFY,
             platform_id="abc",
             url="https://test.com",
-            disc_number=1,  # Default
+            # disc_number defaults to None (unknown)
         )
 
         result = MetadataResult(disc_number=2)

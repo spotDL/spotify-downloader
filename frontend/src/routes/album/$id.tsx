@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { useInternalAlbum, useRefreshAlbumMetadata } from "@/api/entities";
+import { useInternalAlbum, useRefreshEntity } from "@/api/entities";
 import { useCreateReport } from "@/api";
 import { useQueueStore } from "@/stores/queue";
 import { useAuthStore } from "@/stores/auth";
@@ -70,7 +70,7 @@ function AlbumPage() {
   const { id } = Route.useParams();
   const { data: album, isLoading, error } = useInternalAlbum(id);
   const createReportMutation = useCreateReport();
-  const refreshMetadata = useRefreshAlbumMetadata();
+  const refreshMetadata = useRefreshEntity();
   const { addItem, addBulkItems } = useQueueStore();
   const { isAuthenticated } = useAuthStore();
   const { features } = useDevConfig();

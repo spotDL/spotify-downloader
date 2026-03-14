@@ -178,7 +178,7 @@ class SpotifyProvider(SourceProvider):
 
         # Parse release date
         release_date = album.get("release_date", "")
-        year = 0
+        year = None
         if release_date:
             try:
                 year = int(release_date[:4])
@@ -190,7 +190,7 @@ class SpotifyProvider(SourceProvider):
             name=track.get("name", "Unknown"),
             artists=artists,
             artist=primary_artist,
-            duration=int(track.get("duration_ms", 0) / 1000),
+            duration=int(track["duration_ms"] / 1000) if track.get("duration_ms") else None,
             platform=Platform.SPOTIFY,
             platform_id=track.get("id", ""),
             url=track.get("external_urls", {}).get("spotify", ""),
@@ -201,10 +201,10 @@ class SpotifyProvider(SourceProvider):
             album_id=album.get("id"),
             album_type=album.get("album_type"),
             genres=genres,
-            disc_number=track.get("disc_number", 1),
-            disc_count=1,  # Will be updated if album data is available
-            track_number=track.get("track_number", 1),
-            tracks_count=album.get("total_tracks", 1),
+            disc_number=track.get("disc_number"),
+            disc_count=album_data.get("disc_count") if album_data else None,
+            track_number=track.get("track_number"),
+            tracks_count=album.get("total_tracks"),
             year=year,
             date=release_date,
             isrc=track.get("external_ids", {}).get("isrc"),
@@ -458,13 +458,13 @@ class SpotifyProvider(SourceProvider):
                 if albums_data:
                     all_albums.extend(albums_data.get("items", []))
 
-            # Deduplicate albums by name
-            seen_names: set[str] = set()
+            # Deduplicate albums by ID
+            seen_ids: set[str] = set()
             unique_albums = []
             for album in all_albums:
-                name = album.get("name", "").lower().strip()
-                if name not in seen_names:
-                    seen_names.add(name)
+                album_id = album.get("id", "")
+                if album_id and album_id not in seen_ids:
+                    seen_ids.add(album_id)
                     unique_albums.append(album)
 
             # Build list info

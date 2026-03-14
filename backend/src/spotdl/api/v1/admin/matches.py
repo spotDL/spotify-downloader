@@ -137,11 +137,21 @@ async def purge_unverified_matches(
 ) -> dict[str, Any]:
     """Purge unverified (suggested/rejected) entity relations."""
     pending_count = (
-        await db.execute(select(func.count()).where(EntityRelation.status == "suggested"))
+        await db.execute(
+            select(func.count()).where(
+                EntityRelation.status == "suggested",
+                EntityRelation.relation_type == "audio_match",
+            )
+        )
     ).scalar() or 0
 
     rejected_count = (
-        await db.execute(select(func.count()).where(EntityRelation.status == "rejected"))
+        await db.execute(
+            select(func.count()).where(
+                EntityRelation.status == "rejected",
+                EntityRelation.relation_type == "audio_match",
+            )
+        )
     ).scalar() or 0
 
     total = pending_count + rejected_count
@@ -155,7 +165,10 @@ async def purge_unverified_matches(
         }
 
     await db.execute(
-        delete(EntityRelation).where(EntityRelation.status.in_(["suggested", "rejected"]))
+        delete(EntityRelation).where(
+            EntityRelation.status.in_(["suggested", "rejected"]),
+            EntityRelation.relation_type == "audio_match",
+        )
     )
     await db.flush()
 

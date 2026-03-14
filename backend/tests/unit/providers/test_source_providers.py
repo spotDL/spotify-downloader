@@ -952,12 +952,12 @@ class TestTidalProvider:
         assert provider._parse_duration("PT1H30M15S") == 5415
 
     def test_parse_duration_empty(self) -> None:
-        """Test parsing empty duration."""
+        """Test parsing empty or invalid duration returns None."""
         from spotdl.providers.sources.tidal import TidalProvider
 
         provider = TidalProvider()
-        assert provider._parse_duration("") == 0
-        assert provider._parse_duration("invalid") == 0
+        assert provider._parse_duration("") is None
+        assert provider._parse_duration("invalid") is None
 
     def test_track_to_song(self) -> None:
         """Test converting Tidal track data to Song."""

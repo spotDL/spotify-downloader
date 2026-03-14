@@ -146,7 +146,7 @@ class DeezerProvider(SourceProvider):
 
         # Parse release date
         release_date = album.get("release_date", "") or track.get("release_date", "")
-        year = 0
+        year = None
         if release_date:
             try:
                 year = int(release_date[:4])
@@ -158,7 +158,7 @@ class DeezerProvider(SourceProvider):
             name=track.get("title", "Unknown"),
             artists=artists,
             artist=artist_name,
-            duration=track.get("duration", 0),
+            duration=track.get("duration") or None,
             platform=Platform.DEEZER,
             platform_id=str(track.get("id", "")),
             url=track.get("link", f"https://www.deezer.com/track/{track.get('id', '')}"),
@@ -168,9 +168,9 @@ class DeezerProvider(SourceProvider):
             else artist_name,
             album_id=str(album.get("id", "")) if album.get("id") else None,
             album_type=album.get("record_type"),
-            disc_number=track.get("disk_number", 1),
-            track_number=track.get("track_position", 1),
-            tracks_count=album.get("nb_tracks", 1),
+            disc_number=track.get("disk_number"),
+            track_number=track.get("track_position"),
+            tracks_count=album.get("nb_tracks"),
             year=year,
             date=release_date,
             isrc=track.get("isrc"),
@@ -448,27 +448,41 @@ class DeezerProvider(SourceProvider):
             albums_data = await self._api_request(f"/artist/{artist_id}/albums?limit=100")
             albums = albums_data.get("data", [])
 
-            # Collect songs from albums
+            # Collect full track API data from albums
             for album in albums:
-                album_id = album.get("id")
-                if not album_id:
+                album_api_id = album.get("id")
+                if not album_api_id:
                     continue
 
                 try:
-                    album_url = f"https://www.deezer.com/album/{album_id}"
-                    album_songs = await self.get_album(album_url)
-                    # Add album songs (will dedupe later)
-                    for song in album_songs.songs:
-                        tracks.append(
-                            {
-                                "id": song.platform_id,
-                                "title": song.name,
-                                "duration": song.duration,
-                                "artist": {"id": artist_id, "name": artist_name},
-                                "album": {"id": song.album_id, "title": song.album_name},
-                                "link": song.url,
+                    album_detail = await self._api_request(f"/album/{album_api_id}")
+                    album_tracks = album_detail.get("tracks", {}).get("data", [])
+
+                    for track_stub in album_tracks:
+                        track_id = track_stub.get("id")
+                        if not track_id:
+                            continue
+                        try:
+                            full_track = await self._api_request(f"/track/{track_id}")
+                            # Check if target artist is a contributor
+                            track_artist_id = full_track.get("artist", {}).get("id")
+                            contributors = full_track.get("contributors", [])
+                            contributor_ids = {
+                                c.get("id") for c in contributors if c.get("id")
                             }
-                        )
+                            try:
+                                artist_id_int = int(artist_id)
+                            except (ValueError, TypeError):
+                                artist_id_int = None
+                            if (
+                                track_artist_id != artist_id_int
+                                and artist_id_int not in contributor_ids
+                            ):
+                                continue  # Skip tracks where target artist is not involved
+                            full_track["album"] = album_detail
+                            tracks.append(full_track)
+                        except SourceProviderError:
+                            continue
                 except SourceProviderError:
                     continue
 

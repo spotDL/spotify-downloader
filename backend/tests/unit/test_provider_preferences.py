@@ -134,13 +134,11 @@ class TestGetEnabledMetadataProviderIds:
     def test_custom_preferences_respected(self) -> None:
         """Test custom metadata preferences are respected."""
         prefs = [
-            {"id": "spotify", "enabled": True},
             {"id": "musicbrainz", "enabled": True},
             {"id": "discogs", "enabled": False},
         ]
         result = get_enabled_metadata_provider_ids(prefs)
 
-        assert "spotify" in result["provider_ids"]
         assert "musicbrainz" in result["provider_ids"]
         assert "discogs" not in result["provider_ids"]
         assert result["enable_musicbrainz"] is True
@@ -149,7 +147,6 @@ class TestGetEnabledMetadataProviderIds:
     def test_all_disabled_returns_defaults(self) -> None:
         """Test all disabled returns defaults."""
         prefs = [
-            {"id": "spotify", "enabled": False},
             {"id": "musicbrainz", "enabled": False},
             {"id": "discogs", "enabled": False},
         ]

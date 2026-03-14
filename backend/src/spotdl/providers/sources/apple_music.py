@@ -229,7 +229,7 @@ class AppleMusicProvider(SourceProvider):
 
         # Parse date
         date_published = track_data.get("datePublished", "")
-        year = 0
+        year = None
         if date_published:
             try:
                 year = int(date_published[:4])
@@ -247,6 +247,38 @@ class AppleMusicProvider(SourceProvider):
         elif url_info.get("id"):
             platform_id = str(url_info["id"])
 
+        # Extract album_id from inAlbum URL
+        album_id = None
+        if isinstance(album_data, dict):
+            album_url_str = album_data.get("url", "")
+            if album_url_str:
+                album_info = self._extract_url_info(album_url_str)
+                album_id = str(album_info.get("id", "")) if album_info.get("id") else None
+
+        # If no album URL, try list_info context
+        if not album_id and list_info and "/album/" in (list_info.get("url") or ""):
+            album_info = self._extract_url_info(list_info.get("url", ""))
+            album_id = str(album_info.get("id", "")) if album_info.get("id") else None
+
+        # Extract artist_id from byArtist URL
+        artist_id = None
+        by_artist = track_data.get("byArtist", {})
+        if isinstance(by_artist, dict):
+            artist_url_str = by_artist.get("url", "")
+            if artist_url_str:
+                artist_info = self._extract_url_info(artist_url_str)
+                artist_id = (
+                    str(artist_info.get("id", "")) if artist_info.get("id") else None
+                )
+        elif isinstance(by_artist, list) and by_artist:
+            first = by_artist[0] if isinstance(by_artist[0], dict) else {}
+            artist_url_str = first.get("url", "")
+            if artist_url_str:
+                artist_info = self._extract_url_info(artist_url_str)
+                artist_id = (
+                    str(artist_info.get("id", "")) if artist_info.get("id") else None
+                )
+
         song = Song(
             name=track_data.get("name", "Unknown"),
             artists=artists,
@@ -257,10 +289,12 @@ class AppleMusicProvider(SourceProvider):
             url=url,
             album_name=album_name,
             album_artist=artist_name,
+            album_id=album_id,
             year=year,
             date=date_published,
             explicit=track_data.get("contentRating") == "explicit",
             cover_url=cover_url,
+            artist_id=artist_id,
         )
 
         # Add list context if provided
@@ -492,15 +526,18 @@ class AppleMusicProvider(SourceProvider):
                 "url": url,
             }
 
-            # Collect songs from albums
+            # Collect songs from albums, filtering by artist name
             songs: list[Song] = []
+            artist_name_lower = artist_name.lower()
             for album_url in album_links[:20]:  # Limit to first 20 albums
                 try:
                     album_songs = await self.get_album(album_url)
                     for song in album_songs.songs:
-                        song.list_name = list_info["name"]
-                        song.list_url = list_info["url"]
-                        songs.append(song)
+                        # Only include tracks where the artist is a performer
+                        if artist_name_lower in [a.lower() for a in song.artists]:
+                            song.list_name = list_info["name"]
+                            song.list_url = list_info["url"]
+                            songs.append(song)
                 except SourceProviderError:
                     continue
 

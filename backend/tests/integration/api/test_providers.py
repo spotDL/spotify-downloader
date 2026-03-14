@@ -74,7 +74,6 @@ class TestProvidersEndpoints:
         data = response.json()
 
         metadata_ids = [p["id"] for p in data["metadata_sources"]]
-        assert "spotify" in metadata_ids
         assert "musicbrainz" in metadata_ids
         assert "discogs" in metadata_ids
 

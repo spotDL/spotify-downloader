@@ -2,8 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useMemo, useCallback } from "react";
 import {
   useInternalSong,
-  useRefreshSongMetadata,
-  useFullEnrichment,
+  useRefreshEntity,
 } from "@/api/entities";
 import { useCreateReport } from "@/api";
 import {
@@ -32,8 +31,7 @@ function SongPage() {
   const { data: song, isLoading, error } = useInternalSong(id);
 
   const createReportMutation = useCreateReport();
-  const refreshMetadata = useRefreshSongMetadata();
-  const fullEnrichment = useFullEnrichment();
+  const refreshMetadata = useRefreshEntity();
 
   const [showReportModal, setShowReportModal] = useState(false);
   const [showAllFeatures, setShowAllFeatures] = useState(false);
@@ -70,8 +68,7 @@ function SongPage() {
 
   const handleRefresh = useCallback(async () => {
     await refreshMetadata.mutateAsync(id);
-    await fullEnrichment.mutateAsync(id);
-  }, [id, refreshMetadata, fullEnrichment]);
+  }, [id, refreshMetadata]);
 
   if (isLoading) {
     return (

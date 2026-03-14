@@ -20,16 +20,6 @@ export interface VoteResponse extends VoteSummary {
   confidence: number;
 }
 
-export interface UserVoteItem {
-  match_id: string;
-  vote_type: "up" | "down";
-  created_at: string;
-}
-
-export interface UserVotesResponse {
-  votes: UserVoteItem[];
-}
-
 interface RelationVoteResponse {
   relation_id: string;
   upvotes: number;
@@ -73,15 +63,10 @@ export async function getMatchVotes(matchId: string): Promise<VoteSummary> {
   };
 }
 
-export async function getUserVotes(): Promise<UserVoteItem[]> {
-  return [];
-}
-
 // Query keys
 export const voteKeys = {
   all: ["votes"] as const,
   lists: () => [...voteKeys.all, "list"] as const,
-  userVotes: () => [...voteKeys.lists(), "user"] as const,
   match: (matchId: string) => [...voteKeys.all, "match", matchId] as const,
 };
 
@@ -95,14 +80,6 @@ export function useMatchVotes(matchId: string) {
   });
 }
 
-export function useUserVotes() {
-  return useQuery({
-    queryKey: voteKeys.userVotes(),
-    queryFn: getUserVotes,
-    staleTime: 1000 * 60 * 5,
-  });
-}
-
 export function useCreateVote() {
   const queryClient = useQueryClient();
 
@@ -111,7 +88,6 @@ export function useCreateVote() {
     onSuccess: (vote) => {
       queryClient.invalidateQueries({ queryKey: voteKeys.match(vote.match_id) });
       queryClient.invalidateQueries({ queryKey: matchKeys.detail(vote.match_id) });
-      queryClient.invalidateQueries({ queryKey: voteKeys.userVotes() });
     },
   });
 }

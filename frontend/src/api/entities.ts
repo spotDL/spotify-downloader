@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "./client";
+import { matchKeys } from "./matches";
 import type {
   EnhancedAlbum,
   EnhancedArtist,
@@ -11,7 +12,6 @@ import type {
 } from "@/types";
 import type {
   AllLyricsResponse,
-  FullEnrichmentResult,
   LyricsSource,
   MetadataSnapshot,
   MetadataSourcesResponse as TypedMetadataSourcesResponse,
@@ -156,6 +156,8 @@ export const entityKeys = {
   playlist: (id: string) => [...entityKeys.playlists(), id] as const,
   songs: () => [...entityKeys.all, "songs"] as const,
   song: (id: string) => [...entityKeys.songs(), id] as const,
+  snapshots: (id: string) => [...entityKeys.all, "snapshots", id] as const,
+  relations: (id: string, type: string) => [...entityKeys.all, "relations", id, type] as const,
   search: (query: string, type?: EntityType) => [...entityKeys.all, "search", query, type] as const,
 };
 
@@ -189,9 +191,79 @@ export function useInternalPlaylist(id: string) {
 }
 
 export function useInternalSong(id: string) {
+  const queryClient = useQueryClient();
   return useQuery({
     queryKey: entityKeys.song(id),
-    queryFn: () => getSongById(id),
+    queryFn: async () => {
+      const [entity, snapshots, relations] = await Promise.all([
+        getEntity(id),
+        getEntitySnapshots(id),
+        getEntityRelations(id, "audio_match"),
+      ]);
+
+      // Seed snapshot cache so SongSnapshotsSection doesn't re-fetch
+      const snapshotData: TypedMetadataSourcesResponse = {
+        songId: id,
+        sources: snapshots.snapshots.map((s) => s.provider_id),
+        snapshots: snapshots.snapshots.map((s) => ({
+          id: s.id,
+          source: s.provider_id as MetadataSnapshot["source"],
+          fetchedAt: s.fetched_at,
+          confidence: s.confidence,
+          data: s.normalized_payload,
+          rawResponse: s.raw_payload,
+        })),
+      };
+      queryClient.setQueryData(entityKeys.snapshots(id), snapshotData);
+
+      // Seed relations cache so SongMatchesSection doesn't re-fetch
+      const sourceEntity = entity;
+      const matches = relations.relations.map((relation) => {
+        const targetEntity = relation.target;
+        const targetCanonical = targetEntity?.canonical || {};
+        const sourceCanonical = sourceEntity.canonical || {};
+        const normalizedStatus =
+          relation.status === "verified" || relation.status === "rejected"
+            ? relation.status
+            : "pending";
+        return {
+          id: relation.id,
+          source_url: typeof sourceCanonical.url === "string" ? sourceCanonical.url : "",
+          source_song_id: relation.from_entity_id,
+          source_platform: typeof sourceCanonical.platform === "string" ? sourceCanonical.platform : "",
+          target_url: typeof targetCanonical?.url === "string" ? targetCanonical.url : "",
+          target_song_id: relation.to_entity_id,
+          target_platform: typeof targetCanonical?.platform === "string" ? targetCanonical.platform : "unknown",
+          score: relation.match_score ?? 0,
+          confidence: relation.confidence ?? 0,
+          match_type: (relation.relation_data?.manual ? "user" : "system") as "user" | "system",
+          status: normalizedStatus as "verified" | "rejected" | "pending",
+          upvotes: relation.upvotes,
+          downvotes: relation.downvotes,
+          net_votes: relation.net_votes,
+          result: {
+            name: targetEntity?.name ?? "Unknown",
+            artists: Array.isArray(targetCanonical?.artists)
+              ? targetCanonical.artists.filter((a: unknown): a is string => typeof a === "string")
+              : [],
+            artist: typeof targetCanonical?.artist === "string" ? targetCanonical.artist : "Unknown",
+            duration: typeof targetCanonical?.duration === "number" ? targetCanonical.duration : 0,
+            platform: typeof targetCanonical?.platform === "string" ? targetCanonical.platform : "unknown",
+            platform_id: typeof targetCanonical?.platform_id === "string" ? targetCanonical.platform_id : "",
+            url: typeof targetCanonical?.url === "string" ? targetCanonical.url : "",
+            album_name: typeof targetCanonical?.album_name === "string" ? targetCanonical.album_name : null,
+            cover_url: typeof targetCanonical?.cover_url === "string" ? targetCanonical.cover_url : null,
+            views: typeof targetCanonical?.views === "number" ? targetCanonical.views : null,
+            explicit: Boolean(targetCanonical?.explicit),
+            verified: Boolean(targetCanonical?.verified),
+          },
+          submitted_by_username: relation.discovered_by || undefined,
+        };
+      });
+      queryClient.setQueryData(matchKeys.list({ songId: id }), matches);
+
+      return mapEntityDataToSong(entity, snapshots, relations);
+    },
     enabled: !!id,
     staleTime: 1000 * 60 * 30,
   });
@@ -216,48 +288,6 @@ export function useUniversalSearchMutation() {
   });
 }
 
-// ====== Metadata sources ======
-
-export interface MetadataSnapshotResponse {
-  id: string;
-  source: string;
-  snapshot_data: Record<string, unknown>;
-  fetched_at: string;
-  confidence: number;
-}
-
-export interface MetadataSourcesResponse {
-  song_id: string;
-  sources: string[];
-  snapshots: MetadataSnapshotResponse[];
-}
-
-export async function getSongMetadataSources(songId: string): Promise<MetadataSourcesResponse> {
-  const resolvedId = await resolveEntityId(songId, "track");
-  const response = await apiClient.get<EntitySnapshotsApiResponse>(`/entities/${resolvedId}/snapshots`);
-  const sources = response.data.snapshots.map((snapshot) => snapshot.provider_id);
-  return {
-    song_id: songId,
-    sources,
-    snapshots: response.data.snapshots.map((snapshot) => ({
-      id: snapshot.id,
-      source: snapshot.provider_id,
-      snapshot_data: snapshot.normalized_payload,
-      fetched_at: snapshot.fetched_at,
-      confidence: snapshot.confidence,
-    })),
-  };
-}
-
-export function useMetadataSources(songId: string, options?: { enabled?: boolean }) {
-  return useQuery({
-    queryKey: [...entityKeys.song(songId), "metadata-sources"],
-    queryFn: () => getSongMetadataSources(songId),
-    enabled: options?.enabled ?? !!songId,
-    staleTime: 1000 * 60 * 15,
-  });
-}
-
 // ====== Refresh / Enrich ======
 
 export interface RefreshResponse {
@@ -272,8 +302,8 @@ async function refreshEntityMetadata(entityId: string): Promise<RefreshApiRespon
   return response.data;
 }
 
-export async function refreshSongMetadata(songId: string): Promise<RefreshResponse> {
-  const response = await refreshEntityMetadata(songId);
+export async function refreshEntity(entityId: string): Promise<RefreshResponse> {
+  const response = await refreshEntityMetadata(entityId);
   return {
     success: true,
     message: `Refreshed ${response.refreshed_snapshots} snapshot(s)`,
@@ -281,67 +311,12 @@ export async function refreshSongMetadata(songId: string): Promise<RefreshRespon
   };
 }
 
-export async function refreshAlbumMetadata(albumId: string): Promise<RefreshResponse> {
-  return refreshSongMetadata(albumId);
-}
-
-export async function refreshArtistMetadata(artistId: string): Promise<RefreshResponse> {
-  return refreshSongMetadata(artistId);
-}
-
-export async function refreshPlaylistMetadata(playlistId: string): Promise<RefreshResponse> {
-  return refreshSongMetadata(playlistId);
-}
-
-function useRefreshMutation(keyBuilder: (id: string) => readonly unknown[]) {
+export function useRefreshEntity() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => refreshSongMetadata(id),
-    onSuccess: (_result, id) => {
-      queryClient.invalidateQueries({ queryKey: keyBuilder(id) });
-    },
-  });
-}
-
-export function useRefreshSongMetadata() {
-  return useRefreshMutation(entityKeys.song);
-}
-
-export function useRefreshAlbumMetadata() {
-  return useRefreshMutation(entityKeys.album);
-}
-
-export function useRefreshArtistMetadata() {
-  return useRefreshMutation(entityKeys.artist);
-}
-
-export function useRefreshPlaylistMetadata() {
-  return useRefreshMutation(entityKeys.playlist);
-}
-
-export interface EnrichResponse {
-  success: boolean;
-  message: string;
-  sources_used: string[];
-  fields_updated: string[];
-}
-
-export async function enrichSongMetadata(songId: string): Promise<EnrichResponse> {
-  const refreshed = await refreshEntityMetadata(songId);
-  return {
-    success: true,
-    message: `Refreshed ${refreshed.refreshed_snapshots} snapshot(s)`,
-    sources_used: refreshed.entity.capabilities ? Object.keys(refreshed.entity.capabilities) : [],
-    fields_updated: [],
-  };
-}
-
-export function useEnrichSongMetadata() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (songId: string) => enrichSongMetadata(songId),
-    onSuccess: (_result, songId) => {
-      queryClient.invalidateQueries({ queryKey: entityKeys.song(songId) });
+    mutationFn: (id: string) => refreshEntity(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: entityKeys.all });
     },
   });
 }
@@ -419,7 +394,7 @@ export function useMetadataSnapshots(
   options?: { enabled?: boolean; includeRaw?: boolean }
 ) {
   return useQuery({
-    queryKey: [...entityKeys.song(songId), "metadata-snapshots", options?.includeRaw],
+    queryKey: entityKeys.snapshots(songId),
     queryFn: () => getMetadataSnapshots(songId, options?.includeRaw ?? false),
     enabled: options?.enabled ?? !!songId,
     staleTime: 1000 * 60 * 10,
@@ -511,31 +486,6 @@ export async function fetchAllLyrics(songId: string): Promise<AllLyricsResponse>
       totalSources: 0,
     };
   }
-}
-
-// ====== Full enrichment ======
-
-export async function enrichSongFromAllSources(songId: string): Promise<FullEnrichmentResult> {
-  await refreshEntityMetadata(songId);
-  return {
-    success: true,
-    message: "Entity refreshed from all available providers",
-    metadataSourcesCount: 0,
-    lyricsSourcesCount: 0,
-    metadataSources: [],
-  };
-}
-
-export function useFullEnrichment() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (songId: string) => enrichSongFromAllSources(songId),
-    onSuccess: (_result, songId) => {
-      queryClient.invalidateQueries({ queryKey: entityKeys.song(songId) });
-      queryClient.invalidateQueries({ queryKey: [...entityKeys.song(songId), "metadata-snapshots"] });
-      queryClient.invalidateQueries({ queryKey: [...entityKeys.song(songId), "all-lyrics"] });
-    },
-  });
 }
 
 // ====== Submit lyrics ======

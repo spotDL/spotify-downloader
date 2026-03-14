@@ -7,7 +7,7 @@ import uuid
 from dataclasses import dataclass
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import and_, delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.core.capabilities import (
@@ -273,12 +273,68 @@ class UnifiedEntityService:
                     elif source_type == "album":
                         album = await self._song_service.get_album(provider_url)
                         bundle = self._discovery._bundle_from_songlist(album, "album")
+                        # Rebuild track relations
+                        current_track_ids: set[uuid.UUID] = set()
+                        for track in album.songs:
+                            track_bundle = self._discovery._bundle_from_song(track)
+                            track_entity, _ = await self._discovery._upsert_entity_snapshot(
+                                track_bundle
+                            )
+                            current_track_ids.add(track_entity.id)
+                            await self._discovery._create_or_update_relation(
+                                entity_id,
+                                track_entity.id,
+                                "contains",
+                                None,
+                                snapshot.provider_id,
+                                relation_data={"position": track.track_number},
+                            )
+                        await self._cleanup_stale_relations(
+                            entity_id, "contains", current_track_ids
+                        )
                     elif source_type == "artist":
                         artist = await self._song_service.get_artist(provider_url)
                         bundle = self._discovery._bundle_from_songlist(artist, "artist")
+                        # Rebuild track relations
+                        current_track_ids_artist: set[uuid.UUID] = set()
+                        for track in artist.songs:
+                            track_bundle = self._discovery._bundle_from_song(track)
+                            track_entity, _ = await self._discovery._upsert_entity_snapshot(
+                                track_bundle
+                            )
+                            current_track_ids_artist.add(track_entity.id)
+                            await self._discovery._create_or_update_relation(
+                                entity_id,
+                                track_entity.id,
+                                "performed",
+                                None,
+                                snapshot.provider_id,
+                            )
+                        await self._cleanup_stale_relations(
+                            entity_id, "performed", current_track_ids_artist
+                        )
                     elif source_type == "playlist":
                         playlist = await self._song_service.get_playlist(provider_url)
                         bundle = self._discovery._bundle_from_songlist(playlist, "playlist")
+                        # Rebuild track relations
+                        current_track_ids_playlist: set[uuid.UUID] = set()
+                        for idx, track in enumerate(playlist.songs):
+                            track_bundle = self._discovery._bundle_from_song(track)
+                            track_entity, _ = await self._discovery._upsert_entity_snapshot(
+                                track_bundle
+                            )
+                            current_track_ids_playlist.add(track_entity.id)
+                            await self._discovery._create_or_update_relation(
+                                entity_id,
+                                track_entity.id,
+                                "contains",
+                                None,
+                                snapshot.provider_id,
+                                relation_data={"position": idx + 1},
+                            )
+                        await self._cleanup_stale_relations(
+                            entity_id, "contains", current_track_ids_playlist
+                        )
                 elif snapshot.provider_id in self._target_providers and provider_url:
                     bundle = await self._discovery._resolve_target_url(
                         provider_url, snapshot.provider_id
@@ -430,6 +486,26 @@ class UnifiedEntityService:
             "used_provider_hook": False,
             "fallback_used": True,
         }
+
+    async def _cleanup_stale_relations(
+        self,
+        from_entity_id: uuid.UUID,
+        relation_type: str,
+        valid_target_ids: set[uuid.UUID],
+    ) -> int:
+        """Delete relations from entity that point to targets not in valid_target_ids."""
+        if not valid_target_ids:
+            return 0
+        result = await self._db.execute(
+            delete(EntityRelation).where(
+                and_(
+                    EntityRelation.from_entity_id == from_entity_id,
+                    EntityRelation.relation_type == relation_type,
+                    EntityRelation.to_entity_id.not_in(valid_target_ids),
+                )
+            )
+        )
+        return result.rowcount or 0
 
     async def _upsert_entity_snapshot(
         self, bundle: ProviderEntityBundle

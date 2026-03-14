@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { useInternalPlaylist, useRefreshPlaylistMetadata } from "@/api/entities";
+import { useInternalPlaylist, useRefreshEntity } from "@/api/entities";
 import { useCreateReport } from "@/api";
 import { useQueueStore } from "@/stores/queue";
 import { useAuthStore } from "@/stores/auth";
@@ -111,7 +111,7 @@ function PlaylistPage() {
   const navigate = useNavigate();
   const { id } = Route.useParams();
   const { data: playlist, isLoading, error } = useInternalPlaylist(id);
-  const refreshMetadata = useRefreshPlaylistMetadata();
+  const refreshMetadata = useRefreshEntity();
   const { addItem, addBulkItems } = useQueueStore();
   const { isAuthenticated } = useAuthStore();
   const createReportMutation = useCreateReport();

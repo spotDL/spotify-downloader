@@ -111,52 +111,6 @@ async def get_lyrics_for_entity(
     )
 
 
-@router.get("/search", response_model=LyricsResponse | LyricsNotFoundResponse)
-async def search_lyrics(
-    name: Annotated[str, Query(description="Song/Entity name")],
-    artist: Annotated[str, Query(description="Artist name")],
-    preferences: Annotated[UserPreferences, Depends(get_user_preferences)],
-    db: AsyncSession = Depends(get_db_session),
-) -> LyricsResponse | LyricsNotFoundResponse:
-    """
-    Search for lyrics by name and artist.
-
-    Does not cache results (use entity ID endpoint for caching).
-
-    Uses user's lyrics source preferences to determine provider order.
-    Unauthenticated users get default provider order.
-    """
-    settings = get_settings()
-    genius_token = (
-        settings.genius_access_token.get_secret_value() if settings.genius_access_token else None
-    )
-
-    async with get_lyrics_service(
-        session=db,
-        genius_token=genius_token,
-        enable_cache=False,  # Don't cache search results
-        lyrics_preferences=preferences["lyrics"],
-    ) as lyrics_service:
-        # Use a dummy UUID since we're not caching
-        result = await lyrics_service.fetch_lyrics(
-            entity_id=uuid.uuid4(),
-            name=name,
-            artists=[artist],
-            force_refresh=True,
-        )
-
-    if not result:
-        return LyricsNotFoundResponse(entity_id="search", message="No lyrics found")
-
-    return LyricsResponse(
-        entity_id="search",
-        source=result.source,
-        lyrics_text=result.lyrics_text,
-        lyrics_synced=result.lyrics_synced,
-        from_cache=False,
-    )
-
-
 class LyricsSourceResponse(BaseModel):
     """Response model for a single lyrics source."""
 

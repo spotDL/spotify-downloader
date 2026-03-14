@@ -56,7 +56,7 @@ DEFAULT_PLATFORM_ORDER: list[TargetPlatform] = [
 ]
 
 # Metadata provider IDs
-METADATA_PROVIDER_IDS = {"spotify", "musicbrainz", "discogs"}
+METADATA_PROVIDER_IDS = {"musicbrainz", "discogs"}
 
 # Lyrics provider IDs
 LYRICS_PROVIDER_IDS = {"synced", "genius", "musixmatch", "azlyrics"}

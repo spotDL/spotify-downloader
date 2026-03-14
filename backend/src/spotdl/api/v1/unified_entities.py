@@ -6,7 +6,7 @@ import logging
 import uuid
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException, Path
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -182,6 +182,7 @@ async def _batch_resolve_entity_refs(
     are enriched; artists and playlists get empty refs.
     """
     from sqlalchemy import or_, select
+    from sqlalchemy.orm import aliased
 
     enrichable_ids = [e.id for e in entities if e.entity_type in {"track", "album"}]
     refs: dict[str, EntityRefs] = {str(e.id): EntityRefs() for e in entities}
@@ -189,8 +190,12 @@ async def _batch_resolve_entity_refs(
     if not enrichable_ids:
         return refs
 
+    # Join EntityRelation with Entity (the from-side) to get entity_type
+    from_entity = aliased(Entity)
     result = await db.execute(
-        select(EntityRelation).where(
+        select(EntityRelation, from_entity.entity_type)
+        .join(from_entity, EntityRelation.from_entity_id == from_entity.id)
+        .where(
             EntityRelation.to_entity_id.in_(enrichable_ids),
             or_(
                 EntityRelation.relation_type == "contains",
@@ -198,23 +203,36 @@ async def _batch_resolve_entity_refs(
             ),
         )
     )
-    relations: list[EntityRelation] = list(result.scalars().all())
+    rows = result.all()
 
     entity_type_map = {str(e.id): e.entity_type for e in entities}
 
-    for rel in relations:
+    for rel, from_entity_type in rows:
         key = str(rel.to_entity_id)
         entity_type = entity_type_map.get(key)
         entry = refs.get(key)
         if entry is None or entity_type is None:
             continue
         if entity_type == "track":
-            if rel.relation_type == "contains" and entry.album_entity_id is None:
+            # Only assign album_entity_id if from_entity is actually an album
+            if (
+                rel.relation_type == "contains"
+                and from_entity_type == "album"
+                and entry.album_entity_id is None
+            ):
                 entry.album_entity_id = str(rel.from_entity_id)
-            elif rel.relation_type == "performed" and entry.artist_entity_id is None:
+            elif (
+                rel.relation_type == "performed"
+                and from_entity_type == "artist"
+                and entry.artist_entity_id is None
+            ):
                 entry.artist_entity_id = str(rel.from_entity_id)
         elif entity_type == "album":
-            if rel.relation_type == "performed" and entry.artist_entity_id is None:
+            if (
+                rel.relation_type == "performed"
+                and from_entity_type == "artist"
+                and entry.artist_entity_id is None
+            ):
                 entry.artist_entity_id = str(rel.from_entity_id)
 
     return refs
@@ -280,12 +298,21 @@ async def _relation_to_response(
     db: AsyncSession,
     *,
     ec_cache: dict[str, EntityCanonical] | None = None,
+    entity_cache: dict[str, Entity] | None = None,
 ) -> RelationResponse:
     target = None
     try:
         target_id = relation.to_entity_id
-        entity_result = await db.execute(select(Entity).where(Entity.id == target_id))
-        target_entity = entity_result.scalar_one_or_none()
+        target_entity = None
+
+        # Use pre-loaded entity cache if available (Task 1.5: avoid N+1)
+        if entity_cache is not None:
+            target_entity = entity_cache.get(str(target_id))
+
+        if target_entity is None:
+            entity_result = await db.execute(select(Entity).where(Entity.id == target_id))
+            target_entity = entity_result.scalar_one_or_none()
+
         if target_entity is not None:
             ec = None
             if ec_cache is not None:
@@ -386,9 +413,16 @@ async def discover_entities(
                 if len(relations_by_entity[key]) < 5:
                     relations_by_entity[key].append(rel)
 
-            # Batch-load canonical data for all relation targets
+            # Batch-load all relation target entities + canonicals in a single query
             target_ids = {rel.to_entity_id for rels in relations_by_entity.values() for rel in rels}
+            entity_cache: dict[str, Entity] = {}
             if target_ids:
+                target_entity_result = await db.execute(
+                    select(Entity).where(Entity.id.in_(target_ids))
+                )
+                for target_entity in target_entity_result.scalars().all():
+                    entity_cache[str(target_entity.id)] = target_entity
+
                 target_ec_result = await db.execute(
                     select(EntityCanonical).where(EntityCanonical.entity_id.in_(target_ids))
                 )
@@ -397,7 +431,10 @@ async def discover_entities(
 
             for eid_str, rels in relations_by_entity.items():
                 top_relations[eid_str] = [
-                    await _relation_to_response(rel, db, ec_cache=ec_map) for rel in rels
+                    await _relation_to_response(
+                        rel, db, ec_cache=ec_map, entity_cache=entity_cache
+                    )
+                    for rel in rels
                 ]
 
         # Ensure all entities have an entry
@@ -425,6 +462,140 @@ async def discover_entities(
         )
     except Exception as exc:
         raise _translate_error(exc) from exc
+
+
+def _platform_id_to_url(platform_id: str, entity_type: str | None = None) -> str | None:
+    """Convert a platform URI like ``spotify:track:xxx`` to a canonical URL.
+
+    Returns None if the format is not recognised.
+    """
+    # Handle colon-separated format: platform:type:id
+    parts = platform_id.split(":")
+    if len(parts) == 3:
+        platform, ptype, pid = parts
+        return _build_platform_url(platform.lower(), ptype.lower(), pid)
+    if len(parts) == 2 and entity_type:
+        # platform:id with type provided externally
+        platform, pid = parts
+        return _build_platform_url(platform.lower(), entity_type.lower(), pid)
+    return None
+
+
+def _build_platform_url(platform: str, entity_type: str, entity_id: str) -> str | None:
+    """Build a canonical URL from platform, type, and ID."""
+    templates: dict[str, dict[str, str]] = {
+        "spotify": {
+            "track": f"https://open.spotify.com/track/{entity_id}",
+            "album": f"https://open.spotify.com/album/{entity_id}",
+            "artist": f"https://open.spotify.com/artist/{entity_id}",
+            "playlist": f"https://open.spotify.com/playlist/{entity_id}",
+        },
+        "deezer": {
+            "track": f"https://www.deezer.com/track/{entity_id}",
+            "album": f"https://www.deezer.com/album/{entity_id}",
+            "artist": f"https://www.deezer.com/artist/{entity_id}",
+            "playlist": f"https://www.deezer.com/playlist/{entity_id}",
+        },
+        "apple_music": {
+            "track": f"https://music.apple.com/us/album/_/{entity_id}",
+            "album": f"https://music.apple.com/us/album/_/{entity_id}",
+            "artist": f"https://music.apple.com/us/artist/_/{entity_id}",
+            "playlist": f"https://music.apple.com/us/playlist/_/{entity_id}",
+        },
+        "tidal": {
+            "track": f"https://tidal.com/track/{entity_id}",
+            "album": f"https://tidal.com/album/{entity_id}",
+            "artist": f"https://tidal.com/artist/{entity_id}",
+            "playlist": f"https://tidal.com/playlist/{entity_id}",
+        },
+        "youtube": {
+            "track": f"https://www.youtube.com/watch?v={entity_id}",
+        },
+        "youtube_music": {
+            "track": f"https://music.youtube.com/watch?v={entity_id}",
+        },
+        "soundcloud": {
+            "track": f"https://soundcloud.com/{entity_id}",
+        },
+    }
+    platform_templates = templates.get(platform)
+    if not platform_templates:
+        return None
+    return platform_templates.get(entity_type)
+
+
+@router.get("/entities/resolve", response_model=EntityResponse)
+async def resolve_entity(
+    service: Annotated[UnifiedEntityService, Depends(get_entity_service)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+    id: Annotated[str, Query(description="External ID: UUID, URL, or platform ID (e.g. spotify:track:xxx)")],
+    type: Annotated[str | None, Query(description="Entity type hint (track, album, artist, playlist)")] = None,
+) -> EntityResponse:
+    """Resolve an external identifier to a canonical entity.
+
+    Accepts:
+    - A UUID: direct lookup
+    - A URL (http/https): discovers via URL
+    - A platform URI (e.g. ``spotify:track:6rqhFgbbKwnb9MLmUQDhG6``): constructs
+      the canonical URL and discovers
+    """
+    value = id.strip()
+    if not value:
+        raise HTTPException(status_code=400, detail="'id' parameter is required.")
+
+    # 1. Try UUID direct lookup
+    try:
+        entity_uuid = uuid.UUID(value)
+        try:
+            entity = await service.get_entity(entity_uuid)
+            return await _entity_to_enriched_response(entity, db)
+        except Exception:
+            raise HTTPException(status_code=404, detail=f"Entity not found: {value}")
+    except ValueError:
+        pass  # Not a UUID, continue
+
+    # 2. Try URL discovery
+    if value.startswith("http://") or value.startswith("https://"):
+        try:
+            result = await service.discover(
+                value=value,
+                entity_types=[type] if type else None,
+                limit=1,
+            )
+            if result.entities:
+                return await _entity_to_enriched_response(result.entities[0], db)
+        except Exception as exc:
+            logger.debug("URL discovery failed for %s: %s", value, exc)
+        raise HTTPException(status_code=404, detail=f"Could not resolve URL: {value}")
+
+    # 3. Try platform ID (e.g. spotify:track:xxx, deezer:track:123)
+    platform_url = _platform_id_to_url(value, type)
+    if platform_url:
+        try:
+            result = await service.discover(
+                value=platform_url,
+                entity_types=[type] if type else None,
+                limit=1,
+            )
+            if result.entities:
+                return await _entity_to_enriched_response(result.entities[0], db)
+        except Exception as exc:
+            logger.debug("Platform ID discovery failed for %s: %s", value, exc)
+        raise HTTPException(status_code=404, detail=f"Could not resolve platform ID: {value}")
+
+    # 4. Fall back to query discovery
+    try:
+        result = await service.discover(
+            value=value,
+            entity_types=[type] if type else None,
+            limit=1,
+        )
+        if result.entities:
+            return await _entity_to_enriched_response(result.entities[0], db)
+    except Exception as exc:
+        logger.debug("Query discovery failed for %s: %s", value, exc)
+
+    raise HTTPException(status_code=404, detail=f"Could not resolve identifier: {value}")
 
 
 @router.get("/entities/{entity_id}", response_model=EntityResponse)

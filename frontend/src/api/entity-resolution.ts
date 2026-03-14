@@ -1,12 +1,12 @@
 /**
  * Entity ID resolution logic.
  *
- * Handles resolving external IDs (Spotify IDs, URLs, search queries)
- * to canonical internal entity UUIDs via the discover endpoint.
+ * Resolves external IDs (Spotify IDs, URLs, etc.) to canonical internal
+ * entity UUIDs via the backend resolve endpoint.
  */
 
 import { apiClient } from "./client";
-import type { DiscoverApiResponse, EntityApiResponse } from "./entity-mappers";
+import type { EntityApiResponse } from "./entity-mappers";
 
 export type DiscoverEntityType = EntityApiResponse["type"];
 
@@ -16,69 +16,6 @@ const entityIdResolutionCache = new Map<string, string>();
 
 export function isUuid(value: string): boolean {
   return UUID_REGEX.test(value);
-}
-
-export function buildCandidateUrls(entityId: string, expectedType?: DiscoverEntityType): string[] {
-  if (!entityId || entityId.includes("/") || entityId.includes(":")) {
-    return [];
-  }
-
-  const candidates = new Set<string>();
-  const add = (url: string) => candidates.add(url);
-  const type = expectedType ?? "track";
-
-  if (type === "track") {
-    add(`https://open.spotify.com/track/${entityId}`);
-    add(`https://www.youtube.com/watch?v=${entityId}`);
-    add(`https://music.youtube.com/watch?v=${entityId}`);
-  }
-  if (type === "album") {
-    add(`https://open.spotify.com/album/${entityId}`);
-    add(`https://music.youtube.com/browse/${entityId}`);
-  }
-  if (type === "artist") {
-    add(`https://open.spotify.com/artist/${entityId}`);
-    add(`https://music.youtube.com/channel/${entityId}`);
-    add(`https://music.youtube.com/browse/${entityId}`);
-  }
-  if (type === "playlist") {
-    add(`https://open.spotify.com/playlist/${entityId}`);
-    add(`https://www.youtube.com/playlist?list=${entityId}`);
-    add(`https://music.youtube.com/playlist?list=${entityId}`);
-    add(`https://music.youtube.com/browse/${entityId}`);
-  }
-
-  if (!expectedType) {
-    add(`https://open.spotify.com/track/${entityId}`);
-    add(`https://open.spotify.com/album/${entityId}`);
-    add(`https://open.spotify.com/artist/${entityId}`);
-    add(`https://open.spotify.com/playlist/${entityId}`);
-  }
-
-  return Array.from(candidates);
-}
-
-export function pickDiscoveredEntity(
-  entities: EntityApiResponse[],
-  expectedType?: DiscoverEntityType
-): EntityApiResponse | null {
-  if (!entities.length) return null;
-  if (expectedType) {
-    return entities.find((entity) => entity.type === expectedType) ?? null;
-  }
-  return entities[0];
-}
-
-export async function discoverEntity(
-  payload: { query?: string; url?: string; types?: string[]; limit?: number },
-  expectedType?: DiscoverEntityType
-): Promise<EntityApiResponse | null> {
-  try {
-    const response = await apiClient.post<DiscoverApiResponse>("/entities/discover", payload);
-    return pickDiscoveredEntity(response.data.entities, expectedType);
-  } catch {
-    return null;
-  }
 }
 
 export async function resolveEntityId(
@@ -99,49 +36,14 @@ export async function resolveEntityId(
     return cached;
   }
 
-  const isUrl = entityIdOrExternalId.startsWith("http://") || entityIdOrExternalId.startsWith("https://");
-
-  const byUrl = isUrl
-    ? await discoverEntity(
-      {
-        url: entityIdOrExternalId,
-        types: expectedType ? [expectedType] : undefined,
-        limit: 20,
-      },
-      expectedType
-    )
-    : null;
-  if (byUrl) {
-    entityIdResolutionCache.set(cacheKey, byUrl.id);
-    return byUrl.id;
+  const params: Record<string, string> = { id: entityIdOrExternalId };
+  if (expectedType) {
+    params.type = expectedType;
   }
 
-  const byQuery = await discoverEntity(
-    {
-      query: entityIdOrExternalId,
-      types: expectedType ? [expectedType] : undefined,
-      limit: 20,
-    },
-    expectedType
-  );
-  if (byQuery) {
-    entityIdResolutionCache.set(cacheKey, byQuery.id);
-    return byQuery.id;
-  }
+  const response = await apiClient.get<{ entity_id: string }>("/entities/resolve", { params });
+  const resolvedId = response.data.entity_id;
 
-  const fallbackUrls = buildCandidateUrls(entityIdOrExternalId, expectedType);
-  for (const url of fallbackUrls) {
-    const found = await discoverEntity(
-      { url, types: expectedType ? [expectedType] : undefined, limit: 20 },
-      expectedType
-    );
-    if (found) {
-      entityIdResolutionCache.set(cacheKey, found.id);
-      return found.id;
-    }
-  }
-
-  throw new Error(
-    `Could not resolve '${entityIdOrExternalId}' to a canonical entity ID`
-  );
+  entityIdResolutionCache.set(cacheKey, resolvedId);
+  return resolvedId;
 }

@@ -6,7 +6,7 @@ import logging
 from datetime import UTC, datetime
 from typing import Any
 
-from sqlalchemy import delete, desc, func, select
+from sqlalchemy import delete, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.db.models.entity_unified import (
@@ -104,14 +104,16 @@ class MergeEngine:
         canonical_query = select(EntityCanonical).where(EntityCanonical.entity_id == entity.id)
         canonical_result = await session.execute(canonical_query)
         ec = canonical_result.scalar_one_or_none()
+        is_new = False
         if ec is None:
             ec = EntityCanonical(entity_id=entity.id)
             session.add(ec)
+            is_new = True
 
         if not snapshots:
             ec.canonical = ec.canonical or {}
             ec.name = str(ec.canonical.get("name") or ec.name or "Unknown")
-            ec.merge_version = func.coalesce(EntityCanonical.merge_version, 0) + 1
+            ec.merge_version = 1 if is_new else (ec.merge_version or 0) + 1
             ec.quality_score = 0.0
             return ec
 
@@ -169,5 +171,5 @@ class MergeEngine:
         ec.quality_score = (
             float(sum(selected_scores) / len(selected_scores)) if selected_scores else 0.0
         )
-        ec.merge_version = func.coalesce(EntityCanonical.merge_version, 0) + 1
+        ec.merge_version = 1 if is_new else (ec.merge_version or 0) + 1
         return ec

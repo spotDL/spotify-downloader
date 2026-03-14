@@ -367,6 +367,8 @@ def calc_time_match(song: Song, result: Result) -> float:
     Returns:
         Match score from 0 to 100
     """
+    if song.duration is None or result.duration is None:
+        return 0.0
     time_diff = abs(song.duration - result.duration)
     score = exp(-0.1 * time_diff)
     return score * 100

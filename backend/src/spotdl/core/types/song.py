@@ -38,7 +38,7 @@ class Song:
     name: str
     artists: list[str]
     artist: str  # Primary artist (convenience field)
-    duration: int  # Duration in seconds
+    duration: int | None  # Duration in seconds (None if unknown)
 
     # Platform identification
     platform: Platform
@@ -53,11 +53,11 @@ class Song:
 
     # Track metadata
     genres: list[str] = field(default_factory=list)
-    disc_number: int = 1
-    disc_count: int = 1
-    track_number: int = 1
-    tracks_count: int = 1
-    year: int = 0
+    disc_number: int | None = None
+    disc_count: int | None = None
+    track_number: int | None = None
+    tracks_count: int | None = None
+    year: int | None = None
     date: str = ""
 
     # Identification

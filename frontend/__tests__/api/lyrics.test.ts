@@ -4,10 +4,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createElement } from "react";
 import {
   getLyricsForSong,
-  searchLyrics,
   useLyrics,
   useRefreshLyrics,
-  useSearchLyrics,
   hasLyrics,
   toLyrics,
   lyricsKeys,
@@ -63,14 +61,6 @@ describe("Lyrics API", () => {
       ]);
     });
 
-    it("should generate correct search key", () => {
-      expect(lyricsKeys.search("Test Song", "Test Artist")).toEqual([
-        "lyrics",
-        "search",
-        "Test Song",
-        "Test Artist",
-      ]);
-    });
   });
 
   describe("getLyricsForSong", () => {
@@ -125,38 +115,6 @@ describe("Lyrics API", () => {
       expect(result).toEqual({
         entity_id: "song-123",
         message: "Failed to fetch lyrics",
-      });
-    });
-  });
-
-  describe("searchLyrics", () => {
-    const mockLyricsResponse: LyricsResponse = {
-      entity_id: "song-123",
-      lyrics_text: "Found lyrics",
-      lyrics_synced: null,
-      source: "musixmatch",
-      from_cache: false,
-    };
-
-    it("should search for lyrics by name and artist", async () => {
-      mockApiClient.get.mockResolvedValueOnce({ data: mockLyricsResponse });
-
-      const result = await searchLyrics("Test Song", "Test Artist");
-
-      expect(mockApiClient.get).toHaveBeenCalledWith("/lyrics/search", {
-        params: { name: "Test Song", artist: "Test Artist" },
-      });
-      expect(result).toEqual(mockLyricsResponse);
-    });
-
-    it("should return fallback on API failure instead of throwing", async () => {
-      mockApiClient.get.mockRejectedValueOnce(new Error("Search failed"));
-
-      const result = await searchLyrics("Song", "Artist");
-
-      expect(result).toEqual({
-        entity_id: "Artist:Song",
-        message: "Lyrics search failed",
       });
     });
   });
@@ -256,46 +214,6 @@ describe("Lyrics API", () => {
       result.current.mutate("song-123");
 
       // getLyricsForSong catches and returns fallback, so mutation succeeds
-      await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    });
-  });
-
-  describe("useSearchLyrics hook", () => {
-    const mockLyricsResponse: LyricsResponse = {
-      entity_id: "search-result",
-      lyrics_text: "Search result lyrics",
-      lyrics_synced: null,
-      source: "azlyrics",
-      from_cache: false,
-    };
-
-    it("should search for lyrics", async () => {
-      mockApiClient.get.mockResolvedValueOnce({ data: mockLyricsResponse });
-
-      const { result } = renderHook(() => useSearchLyrics(), {
-        wrapper: createWrapper(),
-      });
-
-      result.current.mutate({ name: "Test Song", artist: "Test Artist" });
-
-      await waitFor(() => expect(result.current.isSuccess).toBe(true));
-
-      expect(mockApiClient.get).toHaveBeenCalledWith("/lyrics/search", {
-        params: { name: "Test Song", artist: "Test Artist" },
-      });
-      expect(result.current.data).toEqual(mockLyricsResponse);
-    });
-
-    it("should succeed with fallback on error (catch returns value)", async () => {
-      mockApiClient.get.mockRejectedValueOnce(new Error("Search failed"));
-
-      const { result } = renderHook(() => useSearchLyrics(), {
-        wrapper: createWrapper(),
-      });
-
-      result.current.mutate({ name: "Unknown", artist: "Unknown" });
-
-      // searchLyrics catches and returns fallback, so mutation succeeds
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
     });
   });

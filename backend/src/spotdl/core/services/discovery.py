@@ -13,8 +13,8 @@ from datetime import UTC, datetime
 from typing import Any
 from urllib.parse import urlparse
 
-from sqlalchemy import and_, delete, desc, func, select, update
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy import and_, delete, desc, func, or_, select, update
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.core.capabilities import (
@@ -199,13 +199,17 @@ class DiscoveryService:
         if not song.album_id:
             return None
         provider_id = SOURCE_PLATFORM_TO_ID.get(song.platform, "unknown")
+
+        # Construct album URL from platform + album_id instead of using song.list_url
+        album_url = self._construct_album_url(song.platform, song.album_id)
+
         payload = {
             "name": album_name,
             "artists": list(song.artists),
-            "artist": song.artist,
+            "artist": song.album_artist or song.artist,
             "platform": provider_id,
             "platform_id": song.album_id,
-            "url": song.list_url if song.list_url and "/album/" in song.list_url else None,
+            "url": album_url,
             "cover_url": song.cover_url,
             "year": song.year or None,
             "track_count": song.tracks_count or None,
@@ -214,12 +218,23 @@ class DiscoveryService:
         return ProviderEntityBundle(
             provider_id=provider_id,
             provider_entity_id=song.album_id,
-            provider_url=payload["url"],  # type: ignore[arg-type]
+            provider_url=album_url,
             entity_type="album",
             normalized_payload=payload,
             raw_payload=payload,
             confidence=0.74,
         )
+
+    @staticmethod
+    def _construct_album_url(platform: Platform, album_id: str) -> str | None:
+        """Construct canonical album URL from platform and album ID."""
+        url_templates = {
+            Platform.SPOTIFY: f"https://open.spotify.com/album/{album_id}",
+            Platform.DEEZER: f"https://www.deezer.com/album/{album_id}",
+            Platform.TIDAL: f"https://tidal.com/browse/album/{album_id}",
+            Platform.APPLE_MUSIC: f"https://music.apple.com/album/{album_id}",
+        }
+        return url_templates.get(platform)
 
     def _bundle_from_result(self, result: Result) -> ProviderEntityBundle:
         provider_id = result.platform.value
@@ -238,6 +253,11 @@ class DiscoveryService:
             "verified": bool(result.verified),
             "year": result.year,
             "track_number": result.track_number,
+            "disc_number": None,
+            "date": None,
+            "isrc": None,
+            "album_artist": None,
+            "genres": [],
             "entity_type": "track",
         }
         return ProviderEntityBundle(
@@ -254,7 +274,37 @@ class DiscoveryService:
         provider_id = SOURCE_PLATFORM_TO_ID.get(songlist.platform, "unknown")
         info = extract_url_info(songlist.url)
         provider_entity_id = info.get("id") or songlist.url
-        first_song = songlist.songs[0] if songlist.songs else None
+
+        # Try to get container-level metadata from the raw JSON
+        raw = songlist.json if hasattr(songlist, 'json') else {}
+
+        # For albums, use album_artist from songs if available
+        if entity_type == "album" and songlist.songs:
+            album_artist = next(
+                (s.album_artist for s in songlist.songs if s.album_artist),
+                songlist.songs[0].artist if songlist.songs else None,
+            )
+            artists = [album_artist] if album_artist else []
+            cover_url = songlist.songs[0].cover_url if songlist.songs else None
+            year = next(
+                (s.year for s in songlist.songs if s.year),
+                None,
+            )
+        elif entity_type == "artist" and songlist.songs:
+            # For artist entities, the name IS the artist
+            artists = [songlist.name]
+            album_artist = songlist.name
+            # Don't use album art for artists - use None and let enrichment provide it
+            cover_url = None
+            year = None
+        else:
+            # Playlists and others
+            first_song = songlist.songs[0] if songlist.songs else None
+            artists = []
+            album_artist = None
+            cover_url = first_song.cover_url if first_song else None
+            year = None
+
         payload = {
             "name": songlist.name,
             "url": songlist.url,
@@ -262,10 +312,10 @@ class DiscoveryService:
             "platform_id": provider_entity_id,
             "entity_type": entity_type,
             "track_count": len(songlist.songs),
-            "cover_url": first_song.cover_url if first_song else None,
-            "artists": list(first_song.artists) if first_song else [],
-            "artist": first_song.artist if first_song else None,
-            "year": first_song.year if first_song else None,
+            "cover_url": cover_url,
+            "artists": artists,
+            "artist": artists[0] if artists else None,
+            "year": year,
         }
         return ProviderEntityBundle(
             provider_id=provider_id,
@@ -273,7 +323,7 @@ class DiscoveryService:
             provider_url=songlist.url,
             entity_type=entity_type,
             normalized_payload=payload,
-            raw_payload=songlist.json,
+            raw_payload=raw if raw else payload,
             confidence=0.9,
         )
 
@@ -403,37 +453,44 @@ class DiscoveryService:
         snapshots to a survivor. This re-queries each snapshot to get the
         current owning entity, ensuring relations point to live entities.
         """
-        # Collect all provider_entity_ids for a single batch query
-        pe_ids = []
-        key_to_peid: dict[str, tuple[str, str]] = {}
+        # Collect (provider_id, provider_entity_id) pairs for batch query
+        composite_keys: list[tuple[str, str]] = []  # (provider_id, provider_entity_id)
+        key_to_composite: dict[tuple[str, str], tuple[str, str]] = {}  # composite -> bundle key
         for key in list(entities_by_key.keys()):
             bundle = bundles.get(key)
             if bundle is None:
                 continue
-            pe_ids.append(bundle.provider_entity_id)
-            key_to_peid[bundle.provider_entity_id] = key
+            composite = (bundle.provider_id, bundle.provider_entity_id)
+            composite_keys.append(composite)
+            key_to_composite[composite] = key
 
-        if not pe_ids:
+        if not composite_keys:
             return
 
-        # Batch fetch all snapshots in one query
-        snap_result = await self._db.execute(
-            select(EntitySnapshot).where(
-                EntitySnapshot.provider_entity_id.in_(pe_ids),
+        # Batch fetch snapshots with BOTH provider_id and provider_entity_id filters
+        conditions = [
+            and_(
+                EntitySnapshot.provider_id == pid,
+                EntitySnapshot.provider_entity_id == peid,
             )
+            for pid, peid in composite_keys
+        ]
+        snap_result = await self._db.execute(
+            select(EntitySnapshot).where(or_(*conditions))
         )
-        snap_map: dict[str, EntitySnapshot] = {}
+        # Key by (provider_id, provider_entity_id) to avoid collisions
+        snap_map: dict[tuple[str, str], EntitySnapshot] = {}
         for snap in snap_result.scalars().all():
-            snap_map[snap.provider_entity_id] = snap
+            snap_map[(snap.provider_id, snap.provider_entity_id)] = snap
 
         # Re-resolve entity references
-        for peid, key in key_to_peid.items():
-            snap = snap_map.get(peid)
+        for composite, key in key_to_composite.items():
+            snap = snap_map.get(composite)
             if snap is None:
                 entities_by_key.pop(key, None)
                 continue
-            old_entity = entities_by_key[key]
-            if old_entity.id != snap.entity_id:
+            old_entity = entities_by_key.get(key)
+            if old_entity is not None and old_entity.id != snap.entity_id:
                 entities_by_key[key] = await self._get_entity(snap.entity_id)
 
     # ── Snapshot upsert & entity creation ────────────────────────────
@@ -551,31 +608,40 @@ class DiscoveryService:
             return entity
 
         # Find other snapshots with same ISRC from different entities
-        other_query = select(EntitySnapshot).where(
-            EntitySnapshot.entity_id != entity.id,
-            func.upper(func.replace(EntitySnapshot.normalized_payload["isrc"].as_string(), "-", "")) == isrc,
-        )
-        other_result = await self._db.execute(other_query)
-        other_snapshots = list(other_result.scalars().all())
+        try:
+            other_query = select(EntitySnapshot).where(
+                EntitySnapshot.entity_id != entity.id,
+                func.upper(func.replace(EntitySnapshot.normalized_payload["isrc"].as_string(), "-", "")) == isrc,
+            )
+            other_result = await self._db.execute(other_query)
+            other_snapshots = list(other_result.scalars().all())
+        except SQLAlchemyError as exc:
+            logger.warning(
+                "ISRC merge query failed for entity %s (ISRC=%s): %s — skipping merge",
+                entity.id,
+                isrc,
+                exc,
+            )
+            return entity
 
         if not other_snapshots:
             return entity
 
-        # Merge all duplicate entities into the oldest one (survivor)
+        # Choose survivor by creation time (oldest entity survives)
         all_entity_ids = {entity.id} | {s.entity_id for s in other_snapshots}
-        sorted_ids = sorted(all_entity_ids)
-        survivor_id = sorted_ids[0]
+        all_entity_ids_list = list(all_entity_ids)
+        entities_result = await self._db.execute(
+            select(Entity)
+            .where(Entity.id.in_(all_entity_ids_list))
+            .order_by(Entity.created_at.asc())
+        )
+        ordered_entities = list(entities_result.scalars().all())
+        if not ordered_entities:
+            return entity
+        survivor = ordered_entities[0]
 
-        if survivor_id != entity.id:
-            survivor = await self._get_entity(survivor_id)
-        else:
-            survivor = entity
-
-        for eid in sorted_ids[1:]:
-            if eid == survivor.id:
-                continue
-            duplicate = await self._get_entity(eid)
-            await self._merge_entities(survivor, duplicate)
+        for dup_entity in ordered_entities[1:]:
+            await self._merge_entities(survivor, dup_entity)
 
         return survivor
 
@@ -773,7 +839,8 @@ class DiscoveryService:
                 )
                 return None
 
-        relation.match_score = match_score
+        if match_score is not None:
+            relation.match_score = match_score
         relation.discovered_by = discovered_by
         if relation_data is not None:
             relation.relation_data = relation_data
@@ -1059,11 +1126,14 @@ class DiscoveryService:
             tuple[tuple[str, str], tuple[str, str], str, str, dict[str, Any] | None]
         ] = []
 
+        # Task 1.2: Track total entities across platforms, stop when limit reached
+        total_track_count = 0
         for songs in source_results:
             for song in songs:
                 track_bundle = self._bundle_from_song(song)
                 track_key = (track_bundle.provider_id, track_bundle.provider_entity_id)
                 bundles_to_upsert[track_key] = track_bundle
+                total_track_count += 1
 
                 artist_bundle = self._bundle_from_song_artist(song)
                 if artist_bundle:
@@ -1091,6 +1161,10 @@ class DiscoveryService:
                             (artist_key, album_key, "performed", album_bundle.provider_id, None)
                         )
 
+            # Stop searching more platforms if we already have enough results
+            if total_track_count >= limit:
+                break
+
         entities: list[Entity] = []
         created_entities = 0
         entities_by_key: dict[tuple[str, str], Entity] = {}
@@ -1112,13 +1186,15 @@ class DiscoveryService:
         for r in relations_to_create:
             unique_relations[(r[0], r[1], r[2])] = r
 
+        # Task 1.1: Collect relations the same way URL discovery does
+        relations: dict[str, list[EntityRelation]] = {}
         for r_tuple in sorted(unique_relations.values(), key=lambda x: (x[0], x[1], x[2])):
             from_key, to_key, rel_type, provider_id, rel_data = r_tuple
             from_entity = entities_by_key.get(from_key)
             to_entity = entities_by_key.get(to_key)
             if from_entity is None or to_entity is None:
                 continue
-            await self._create_or_update_relation(
+            relation = await self._create_or_update_relation(
                 from_entity.id,
                 to_entity.id,
                 rel_type,
@@ -1126,15 +1202,20 @@ class DiscoveryService:
                 provider_id,
                 relation_data=rel_data,
             )
+            if relation is not None:
+                relations.setdefault(str(from_entity.id), []).append(relation)
 
-        filtered_entities = [entity for entity in entities if entity.entity_type in requested_types]
-
+        # Task 1.6: Deduplicate then filter (same order as URL discovery)
         deduped: dict[str, Entity] = {}
-        for entity in filtered_entities:
+        for entity in entities:
             deduped[str(entity.id)] = entity
 
+        filtered = list(deduped.values())
+        if requested_types:
+            filtered = [e for e in filtered if e.entity_type in requested_types]
+
         return DiscoverResult(
-            entities=list(deduped.values())[:limit],
-            relations={},
+            entities=filtered[:limit],
+            relations=relations,
             created_entities=created_entities,
         )

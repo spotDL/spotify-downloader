@@ -30,17 +30,6 @@ export {
 
 // Legacy votes export removed
 
-// Health
-export {
-  checkHealth,
-  checkDetailedHealth,
-  checkServiceHealth,
-  useHealth,
-  useDetailedHealth,
-  useServiceHealth,
-  healthKeys,
-} from "./health";
-
 // Settings
 export {
   getUserSettings,
@@ -85,28 +74,24 @@ export {
   getSongById,
   universalSearch,
   universalSearchGet,
-  getSongMetadataSources,
   useInternalArtist,
   useInternalAlbum,
   useInternalPlaylist,
   useInternalSong,
   useUniversalSearch,
   useUniversalSearchMutation,
-  useMetadataSources,
+  refreshEntity,
+  useRefreshEntity,
   submitLyrics,
   useSubmitLyrics,
   entityKeys,
-  type MetadataSnapshotResponse,
-  type MetadataSourcesResponse,
 } from "./entities";
 
 // Lyrics
 export {
   getLyricsForSong,
-  searchLyrics,
   useLyrics,
   useRefreshLyrics,
-  useSearchLyrics,
   hasLyrics,
   toLyrics,
   lyricsKeys,

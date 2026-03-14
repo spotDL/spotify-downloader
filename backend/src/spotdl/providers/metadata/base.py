@@ -256,20 +256,20 @@ class MetadataProvider(ABC):
             existing = set(song.genres) if song.genres else set()
             song.genres = list(existing.union(result.genres))
 
-        # Year (0 is considered missing)
-        if song.year == 0 and result.year:
+        # Year (None or 0 is considered missing)
+        if not song.year and result.year:
             song.year = result.year
 
         # Date (empty string is considered missing)
         if not song.date and result.date:
             song.date = result.date
 
-        # Track number (1 is the default, only update if result has a different value)
-        if song.track_number == 1 and result.track_number and result.track_number != 1:
+        # Track number (None is considered missing)
+        if song.track_number is None and result.track_number:
             song.track_number = result.track_number
 
-        # Disc number (1 is the default, only update if result has a different value)
-        if song.disc_number == 1 and result.disc_number and result.disc_number != 1:
+        # Disc number (None is considered missing)
+        if song.disc_number is None and result.disc_number:
             song.disc_number = result.disc_number
 
         # Cover URL

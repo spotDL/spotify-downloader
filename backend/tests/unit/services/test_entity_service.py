@@ -91,14 +91,16 @@ async def test_snapshot_based_entity_lookup(
     service = UnifiedEntityService(db_session)
 
     bundle = _make_bundle()
-    entity1 = await service._upsert_entity_snapshot(bundle)
+    entity1, created1 = await service._upsert_entity_snapshot(bundle)
     await db_session.flush()
 
     # Upsert same bundle again
-    entity2 = await service._upsert_entity_snapshot(bundle)
+    entity2, created2 = await service._upsert_entity_snapshot(bundle)
     await db_session.flush()
 
     assert entity1.id == entity2.id
+    assert created1 is True
+    assert created2 is False
 
     # Only one entity in DB
     result = await db_session.execute(select(Entity))
@@ -115,7 +117,7 @@ async def test_entity_creation_with_canonical(
     service = UnifiedEntityService(db_session)
 
     bundle = _make_bundle(name="My Song")
-    entity = await service._upsert_entity_snapshot(bundle)
+    entity, _ = await service._upsert_entity_snapshot(bundle)
     await db_session.flush()
 
     assert entity.entity_type == "track"
@@ -232,7 +234,7 @@ async def test_isrc_cross_provider_merge(
         name="Same Song",
         isrc="USRC12345678",
     )
-    entity1 = await service._upsert_entity_snapshot(bundle1)
+    entity1, _ = await service._upsert_entity_snapshot(bundle1)
     await db_session.flush()
 
     # Create second track from Apple Music with same ISRC
@@ -242,7 +244,7 @@ async def test_isrc_cross_provider_merge(
         name="Same Song",
         isrc="USRC12345678",
     )
-    entity2 = await service._upsert_entity_snapshot(bundle2)
+    entity2, _ = await service._upsert_entity_snapshot(bundle2)
     await db_session.flush()
 
     # They should have merged into one entity
@@ -275,7 +277,7 @@ async def test_different_isrc_no_merge(
         name="Song A",
         isrc="ISRC_AAA",
     )
-    entity1 = await service._upsert_entity_snapshot(bundle1)
+    entity1, _ = await service._upsert_entity_snapshot(bundle1)
     await db_session.flush()
 
     bundle2 = _make_bundle(
@@ -284,7 +286,7 @@ async def test_different_isrc_no_merge(
         name="Song B",
         isrc="ISRC_BBB",
     )
-    entity2 = await service._upsert_entity_snapshot(bundle2)
+    entity2, _ = await service._upsert_entity_snapshot(bundle2)
     await db_session.flush()
 
     assert entity1.id != entity2.id
@@ -307,7 +309,7 @@ async def test_entity_canonical_recomputation(
         provider_entity_id="track_recomp",
         name="Original Name",
     )
-    entity = await service._upsert_entity_snapshot(bundle1)
+    entity, _ = await service._upsert_entity_snapshot(bundle1)
     await db_session.flush()
 
     ec_result = await db_session.execute(

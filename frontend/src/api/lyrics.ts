@@ -24,8 +24,6 @@ export interface LyricsNotFoundResponse {
 export const lyricsKeys = {
   all: ["lyrics"] as const,
   song: (songId: string) => [...lyricsKeys.all, "song", songId] as const,
-  search: (name: string, artist: string) =>
-    [...lyricsKeys.all, "search", name, artist] as const,
 };
 
 /**
@@ -45,27 +43,6 @@ export async function getLyricsForSong(
     return {
       entity_id: songId,
       message: "Failed to fetch lyrics",
-    };
-  }
-}
-
-/**
- * Search for lyrics by song name and artist.
- */
-export async function searchLyrics(
-  name: string,
-  artist: string
-): Promise<LyricsResponse | LyricsNotFoundResponse> {
-  try {
-    const response = await apiClient.get<LyricsResponse | LyricsNotFoundResponse>(
-      "/lyrics/search",
-      { params: { name, artist } }
-    );
-    return response.data;
-  } catch {
-    return {
-      entity_id: `${artist}:${name}`,
-      message: "Lyrics search failed",
     };
   }
 }
@@ -93,16 +70,6 @@ export function useRefreshLyrics() {
     onSuccess: (data, songId) => {
       queryClient.setQueryData(lyricsKeys.song(songId), data);
     },
-  });
-}
-
-/**
- * Hook to search for lyrics.
- */
-export function useSearchLyrics() {
-  return useMutation({
-    mutationFn: ({ name, artist }: { name: string; artist: string }) =>
-      searchLyrics(name, artist),
   });
 }
 
