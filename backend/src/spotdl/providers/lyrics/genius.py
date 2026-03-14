@@ -66,7 +66,7 @@ class GeniusProvider(BaseLyricsProvider):
 
             return results
 
-        except Exception as exc:
+        except (httpx.HTTPError, KeyError, ValueError) as exc:
             logger.debug("Genius search failed: %s", exc)
             return {}
 
@@ -100,7 +100,7 @@ class GeniusProvider(BaseLyricsProvider):
                     lyrics = "\n".join(con.get_text() for con in lyrics_containers)
                     return lyrics.strip() if lyrics else None
 
-            except Exception as exc:
+            except (httpx.HTTPError, ValueError) as exc:
                 logger.debug("Genius scrape attempt %d failed: %s", attempt + 1, exc)
                 continue
 
@@ -142,7 +142,7 @@ class GeniusWebProvider(BaseLyricsProvider):
 
             return results
 
-        except Exception as exc:
+        except (httpx.HTTPError, KeyError, ValueError) as exc:
             logger.debug("Genius web search failed: %s", exc)
             return {}
 
@@ -170,7 +170,7 @@ class GeniusWebProvider(BaseLyricsProvider):
                     lyrics = "\n".join(con.get_text() for con in lyrics_containers)
                     return lyrics.strip() if lyrics else None
 
-            except Exception as exc:
+            except (httpx.HTTPError, ValueError) as exc:
                 logger.debug("Genius scrape attempt %d failed: %s", attempt + 1, exc)
                 continue
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import time
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Annotated, Any
@@ -19,6 +20,8 @@ from spotdl.db.database import get_db_session
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -154,6 +157,7 @@ async def detailed_health_check(
             else:
                 database_status = "connection failed"
         except Exception as exc:
+            logger.warning("Database health check failed: %s", exc)
             database_status = f"error: {exc}"
 
     cache_status = "configured" if settings.redis_url else "not configured"
@@ -250,6 +254,7 @@ async def service_status(
                 error="Timeout",
             )
         except Exception as exc:
+            logger.debug("Provider %s health check failed: %s", provider.provider_id, exc)
             return ServiceStatusItem(
                 name=provider.provider_id,
                 display_name=provider.display_name,

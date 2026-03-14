@@ -197,7 +197,7 @@ class SoundCloudProvider(TargetProvider):
 
             return None
 
-        except Exception as e:
+        except (httpx.HTTPError, KeyError, ValueError) as e:
             logger.debug("Failed to get track info: %s", e)
             return None
 

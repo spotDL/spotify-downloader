@@ -125,7 +125,7 @@ class BandcampProvider(TargetProvider):
                 cover_url=cover_url,
             )
 
-        except Exception as e:
+        except (AttributeError, KeyError, TypeError, ValueError) as e:
             logger.debug("Failed to parse search result item: %s", e)
             return None
 
@@ -227,7 +227,7 @@ class BandcampProvider(TargetProvider):
 
             return None
 
-        except Exception as e:
+        except (httpx.HTTPError, KeyError, ValueError) as e:
             logger.debug("Failed to get track info: %s", e)
             return None
 

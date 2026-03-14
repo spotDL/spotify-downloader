@@ -1,6 +1,12 @@
 // Re-export metadata types
 export * from "./metadata";
 
+// Re-export API request/response types
+export * from "./api";
+
+// Re-export UI component prop types
+export * from "./ui";
+
 // ====== USER & AUTH ======
 export interface User {
   id: string;
@@ -29,6 +35,10 @@ export interface AudioFeatures {
 }
 
 // ====== BASIC SONG ======
+/**
+ * Legacy Song type used for download queue items and platform-specific track data.
+ * For entity-backed song data, use InternalSong or EnhancedSong instead.
+ */
 export interface Song {
   id?: string;
   platform: string;
@@ -103,25 +113,6 @@ export interface Vote {
   user_id: string;
   vote_type: "up" | "down";
   created_at: string;
-}
-
-// ====== API RESPONSES ======
-export interface HealthResponse {
-  status: string;
-  version: string;
-  environment: string;
-  timestamp: string;
-}
-
-export interface FindMatchesRequest {
-  source_url: string;
-  target_platforms: string[];
-}
-
-export interface FindMatchesResponse {
-  source_url: string;
-  matches: Match[];
-  total: number;
 }
 
 // ====== PLATFORM LINKS ======
@@ -379,32 +370,6 @@ export interface AdminUser extends User {
   reports_submitted: number;
 }
 
-
-export interface AdminUserListRequest {
-  page?: number;
-  per_page?: number;
-  search?: string;
-  is_admin?: boolean;
-  is_active?: boolean;
-  sort_by?: "created_at" | "reputation_score" | "username";
-  sort_order?: "asc" | "desc";
-}
-
-export interface AdminUserListResponse {
-  users: AdminUser[];
-  total: number;
-  page: number;
-  per_page: number;
-  total_pages: number;
-}
-
-export interface AdminMatchListRequest {
-  page?: number;
-  per_page?: number;
-  status?: "pending" | "verified" | "rejected";
-  match_type?: "system" | "user" | "metadata";
-}
-
 export interface AdminMatch {
   id: string;
   source_url: string;
@@ -420,28 +385,6 @@ export interface AdminMatch {
   net_votes: number;
   created_at: string;
   discovered_by: string | null;
-}
-
-export interface AdminMatchListResponse {
-  matches: AdminMatch[];
-  total: number;
-  page: number;
-  per_page: number;
-  total_pages: number;
-}
-
-export interface AdminReportListRequest {
-  page?: number;
-  per_page?: number;
-  status?: MetadataReportStatus;
-  entity_type?: MetadataReportEntityType;
-}
-
-export interface AdminReportListResponse {
-  reports: MetadataReport[];
-  total: number;
-  page: number;
-  per_page: number;
 }
 
 // ====== DOWNLOAD QUEUE ======
@@ -471,63 +414,6 @@ export interface DownloadQueueStats {
   total: number;
 }
 
-// ====== NAVIGATION ======
-export interface BreadcrumbItem {
-  label: React.ReactNode;
-  href?: string;
-  icon?: React.ComponentType<{ className?: string }>;
-}
-
-export interface NavItem {
-  label: string;
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-  badge?: number;
-  adminOnly?: boolean;
-}
-
-// ====== UI COMPONENT PROPS ======
-export type CoverArtSize = "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "hero";
-export type CoverArtShape = "rounded" | "circle";
-
-export interface CoverArtProps {
-  src: string | null;
-  alt: string;
-  size?: CoverArtSize;
-  shape?: CoverArtShape;
-  className?: string;
-  fallbackIcon?: "artist" | "album" | "playlist" | "track";
-  showPlayButton?: boolean;
-  onPlay?: () => void;
-}
-
-export type ScoreLevel = "high" | "medium" | "low";
-
-export interface MatchScoreGaugeProps {
-  score: number; // 0-100
-  size?: "sm" | "md" | "lg";
-  showLabel?: boolean;
-  animated?: boolean;
-}
-
-export type ToastVariant = "success" | "error" | "warning" | "info";
-
-export interface Toast {
-  id: string;
-  message: string;
-  variant: ToastVariant;
-  duration?: number;
-}
-
-export interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title?: string;
-  description?: string;
-  size?: "sm" | "md" | "lg" | "xl";
-  children: React.ReactNode;
-}
-
 // ====== TRENDING & POPULAR ======
 export interface TrendingMatch {
   match: Match;
@@ -544,20 +430,6 @@ export interface PopularSong extends InternalSong {
 export interface PopularArtist extends ArtistSummary {
   song_count: number;
   total_downloads: number;
-}
-
-// ====== API PAGINATION ======
-export interface PaginatedRequest {
-  page?: number;
-  per_page?: number;
-}
-
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  per_page: number;
-  total_pages: number;
 }
 
 // ====== ACTIVITY & HISTORY ======

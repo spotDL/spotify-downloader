@@ -8,6 +8,7 @@ from unittest.mock import AsyncMock, patch
 
 import httpx
 import pytest
+import sqlalchemy.exc
 
 from spotdl.core.providers_config import ProviderPreference
 
@@ -665,7 +666,7 @@ class TestCacheOperations:
         )
 
         # Mock session to raise error
-        with patch.object(db_session, "execute", side_effect=Exception("DB Error")):
+        with patch.object(db_session, "execute", side_effect=sqlalchemy.exc.SQLAlchemyError("DB Error")):
             # Should not raise exception
             await service._save_to_cache(song_id, result)
 

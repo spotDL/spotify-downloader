@@ -59,7 +59,7 @@ class AZLyricsProvider(BaseLyricsProvider):
 
             return bool(self.x_code)
 
-        except Exception as exc:
+        except (httpx.HTTPError, ValueError, IndexError) as exc:
             logger.debug("Failed to get AZLyrics x_code: %s", exc)
             return False
 
@@ -113,7 +113,7 @@ class AZLyricsProvider(BaseLyricsProvider):
 
                 return results
 
-            except Exception as exc:
+            except (httpx.HTTPError, ValueError) as exc:
                 logger.debug("AZLyrics search attempt %d failed: %s", attempt + 1, exc)
                 continue
 
@@ -139,6 +139,6 @@ class AZLyricsProvider(BaseLyricsProvider):
 
             return lyrics if lyrics else None
 
-        except Exception as exc:
+        except (httpx.HTTPError, ValueError) as exc:
             logger.debug("AZLyrics extraction failed: %s", exc)
             return None

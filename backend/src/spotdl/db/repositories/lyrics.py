@@ -5,7 +5,8 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import and_, delete as sa_delete, select
+from sqlalchemy import and_, select
+from sqlalchemy import delete as sa_delete
 from sqlalchemy.exc import IntegrityError
 
 from spotdl.db.models.lyrics import Lyrics

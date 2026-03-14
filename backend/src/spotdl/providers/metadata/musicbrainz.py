@@ -141,7 +141,7 @@ class MusicBrainzProvider(MetadataProvider):
             return recording, self._parse_recording(recording, isrc=isrc)
 
         except Exception as e:
-            logger.warning(f"MusicBrainz ISRC lookup failed for {isrc}: {e}")
+            logger.warning("MusicBrainz ISRC lookup failed for %s: %s", isrc, e)
             return None, None
 
     async def lookup_by_name(

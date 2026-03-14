@@ -13,6 +13,7 @@ from spotdl.providers.metadata import (
     MetadataProvider,
     MusicBrainzProvider,
 )
+from spotdl.providers.metadata.base import MetadataProviderError
 
 if TYPE_CHECKING:
     from spotdl.core.types.song import Song
@@ -72,7 +73,7 @@ class MetadataService:
                 try:
                     self._providers.append(MusicBrainzProvider())
                     logger.debug("MusicBrainz provider enabled")
-                except Exception as e:
+                except (MetadataProviderError, ImportError) as e:
                     logger.warning(f"Failed to initialize MusicBrainz provider: {e}")
 
             if enable_discogs:
@@ -82,7 +83,7 @@ class MetadataService:
                         f"Discogs provider enabled "
                         f"(authenticated: {discogs_user_token is not None})"
                     )
-                except Exception as e:
+                except (MetadataProviderError, ImportError) as e:
                     logger.warning(f"Failed to initialize Discogs provider: {e}")
 
     def _init_providers_from_preferences(
@@ -102,7 +103,7 @@ class MetadataService:
                 try:
                     self._providers.append(MusicBrainzProvider())
                     logger.debug("MusicBrainz provider enabled")
-                except Exception as e:
+                except (MetadataProviderError, ImportError) as e:
                     logger.warning(f"Failed to initialize MusicBrainz provider: {e}")
             elif provider_id == "discogs":
                 try:
@@ -111,7 +112,7 @@ class MetadataService:
                         f"Discogs provider enabled "
                         f"(authenticated: {discogs_user_token is not None})"
                     )
-                except Exception as e:
+                except (MetadataProviderError, ImportError) as e:
                     logger.warning(f"Failed to initialize Discogs provider: {e}")
             # Note: "spotify" is not a metadata enrichment provider
             # It's the source platform, not a metadata lookup service

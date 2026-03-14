@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import uuid
 from typing import Annotated, Any
 
@@ -12,6 +13,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.api.v1.auth import get_current_user_id, get_current_user_id_optional
+from spotdl.api.v1.dependencies import get_entity_service
 from spotdl.api.v1.download import require_downloads_enabled
 from spotdl.api.v1.validation import validate_uuid
 from spotdl.core.services.entity_unified import (
@@ -29,6 +31,8 @@ from spotdl.db.models.entity_unified import (
     EntityRelation,
     EntitySnapshot,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -292,7 +296,8 @@ async def _relation_to_response(
                 )
                 ec = ec_result.scalar_one_or_none()
             target = _entity_to_response(target_entity, ec=ec)
-    except Exception:
+    except Exception as exc:
+        logger.debug("Failed to resolve target entity for relation %s: %s", relation.id, exc)
         target = None
 
     return RelationResponse(
@@ -330,6 +335,7 @@ def _translate_error(exc: Exception) -> HTTPException:
 @router.post("/entities/discover", response_model=DiscoverResponse)
 async def discover_entities(
     request: EntityDiscoverRequest,
+    service: Annotated[UnifiedEntityService, Depends(get_entity_service)],
     db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> DiscoverResponse:
     if not request.url and not request.query:
@@ -337,7 +343,6 @@ async def discover_entities(
     if request.url and request.query:
         raise HTTPException(status_code=400, detail="Provide either 'url' or 'query', not both.")
 
-    service = UnifiedEntityService(db)
     value = request.url or request.query or ""
     try:
         result = await service.discover(
@@ -420,33 +425,28 @@ async def discover_entities(
         )
     except Exception as exc:
         raise _translate_error(exc) from exc
-    finally:
-        await service.close()
 
 
 @router.get("/entities/{entity_id}", response_model=EntityResponse)
 async def get_entity(
     entity_id: Annotated[str, Path(description="Canonical entity UUID")],
+    service: Annotated[UnifiedEntityService, Depends(get_entity_service)],
     db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> EntityResponse:
     entity_uuid = validate_uuid(entity_id, "entity ID")
-    service = UnifiedEntityService(db)
     try:
         entity = await service.get_entity(entity_uuid)
         return await _entity_to_enriched_response(entity, db)
     except Exception as exc:
         raise _translate_error(exc) from exc
-    finally:
-        await service.close()
 
 
 @router.get("/entities/{entity_id}/snapshots", response_model=SnapshotsResponse)
 async def get_entity_snapshots(
     entity_id: Annotated[str, Path(description="Canonical entity UUID")],
-    db: Annotated[AsyncSession, Depends(get_db_session)],
+    service: Annotated[UnifiedEntityService, Depends(get_entity_service)],
 ) -> SnapshotsResponse:
     entity_uuid = validate_uuid(entity_id, "entity ID")
-    service = UnifiedEntityService(db)
     try:
         snapshots, provenance = await service.get_entity_snapshots(entity_uuid)
         return SnapshotsResponse(
@@ -456,14 +456,13 @@ async def get_entity_snapshots(
         )
     except Exception as exc:
         raise _translate_error(exc) from exc
-    finally:
-        await service.close()
 
 
 @router.post("/entities/{entity_id}/refresh", response_model=RefreshResponse)
 async def refresh_entity(
     entity_id: Annotated[str, Path(description="Canonical entity UUID")],
     request: RefreshRequest,
+    service: Annotated[UnifiedEntityService, Depends(get_entity_service)],
     db: Annotated[AsyncSession, Depends(get_db_session)],
     user_id: Annotated[uuid.UUID | None, Depends(get_current_user_id_optional)],
 ) -> RefreshResponse:
@@ -489,7 +488,6 @@ async def refresh_entity(
             detail=f"Refresh on cooldown. Try again in {remaining} seconds.",
         )
 
-    service = UnifiedEntityService(db)
     try:
         result = await service.refresh_entity(entity_uuid, request.providers)
 
@@ -503,18 +501,16 @@ async def refresh_entity(
         )
     except Exception as exc:
         raise _translate_error(exc) from exc
-    finally:
-        await service.close()
 
 
 @router.post("/entities/{entity_id}/relations:discover", response_model=RelationsResponse)
 async def discover_entity_relations(
     entity_id: Annotated[str, Path(description="Canonical entity UUID")],
     request: DiscoverRelationsRequest,
+    service: Annotated[UnifiedEntityService, Depends(get_entity_service)],
     db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> RelationsResponse:
     entity_uuid = validate_uuid(entity_id, "entity ID")
-    service = UnifiedEntityService(db)
     try:
         relations = await service.discover_relations(
             entity_uuid,
@@ -528,18 +524,16 @@ async def discover_entity_relations(
         )
     except Exception as exc:
         raise _translate_error(exc) from exc
-    finally:
-        await service.close()
 
 
 @router.get("/entities/{entity_id}/relations", response_model=RelationsResponse)
 async def list_entity_relations(
     entity_id: Annotated[str, Path(description="Canonical entity UUID")],
+    service: Annotated[UnifiedEntityService, Depends(get_entity_service)],
     db: Annotated[AsyncSession, Depends(get_db_session)],
     relation_type: str = "audio_match",
 ) -> RelationsResponse:
     entity_uuid = validate_uuid(entity_id, "entity ID")
-    service = UnifiedEntityService(db)
     try:
         relations = await service.list_relations(entity_uuid, relation_type=relation_type)
         return RelationsResponse(
@@ -549,8 +543,6 @@ async def list_entity_relations(
         )
     except Exception as exc:
         raise _translate_error(exc) from exc
-    finally:
-        await service.close()
 
 
 @router.post("/relations/{relation_id}/vote", response_model=RelationVoteResponse)
@@ -558,10 +550,9 @@ async def vote_relation(
     relation_id: Annotated[str, Path(description="Relation UUID")],
     request: RelationVoteRequest,
     user_id: Annotated[uuid.UUID, Depends(get_current_user_id)],
-    db: Annotated[AsyncSession, Depends(get_db_session)],
+    service: Annotated[UnifiedEntityService, Depends(get_entity_service)],
 ) -> RelationVoteResponse:
     relation_uuid = validate_uuid(relation_id, "relation ID")
-    service = UnifiedEntityService(db)
     normalized_vote = request.vote.strip().lower()
     vote_type = None if normalized_vote in {"remove", "none", ""} else normalized_vote
     try:
@@ -576,34 +567,29 @@ async def vote_relation(
         )
     except Exception as exc:
         raise _translate_error(exc) from exc
-    finally:
-        await service.close()
 
 
 @router.get("/relations/{relation_id}", response_model=RelationResponse)
 async def get_relation(
     relation_id: Annotated[str, Path(description="Relation UUID")],
+    service: Annotated[UnifiedEntityService, Depends(get_entity_service)],
     db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> RelationResponse:
     relation_uuid = validate_uuid(relation_id, "relation ID")
-    service = UnifiedEntityService(db)
     try:
         relation = await service.get_relation(relation_uuid)
         return await _relation_to_response(relation, db)
     except Exception as exc:
         raise _translate_error(exc) from exc
-    finally:
-        await service.close()
 
 
 @router.get("/relations/{relation_id}/vote", response_model=RelationVoteResponse)
 async def get_relation_vote_summary(
     relation_id: Annotated[str, Path(description="Relation UUID")],
     user_id: Annotated[uuid.UUID | None, Depends(get_current_user_id_optional)],
-    db: Annotated[AsyncSession, Depends(get_db_session)],
+    service: Annotated[UnifiedEntityService, Depends(get_entity_service)],
 ) -> RelationVoteResponse:
     relation_uuid = validate_uuid(relation_id, "relation ID")
-    service = UnifiedEntityService(db)
     try:
         relation = await service.get_relation(relation_uuid)
         user_vote = await service.get_user_relation_vote(relation_uuid, user_id)
@@ -617,8 +603,6 @@ async def get_relation_vote_summary(
         )
     except Exception as exc:
         raise _translate_error(exc) from exc
-    finally:
-        await service.close()
 
 
 @router.post("/entities/{entity_id}/relations", response_model=RelationResponse)
@@ -626,6 +610,7 @@ async def create_relation(
     entity_id: Annotated[str, Path(description="Canonical source entity UUID")],
     request: CreateRelationRequest,
     user_id: Annotated[uuid.UUID, Depends(get_current_user_id)],
+    service: Annotated[UnifiedEntityService, Depends(get_entity_service)],
     db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> RelationResponse:
     source_entity_uuid = validate_uuid(entity_id, "entity ID")
@@ -635,7 +620,6 @@ async def create_relation(
     if not to_entity_uuid and not request.to_url:
         raise HTTPException(status_code=400, detail="Provide either to_entity_id or to_url.")
 
-    service = UnifiedEntityService(db)
     try:
         relation = await service.create_relation(
             source_entity_uuid,
@@ -648,22 +632,19 @@ async def create_relation(
         return await _relation_to_response(relation, db)
     except Exception as exc:
         raise _translate_error(exc) from exc
-    finally:
-        await service.close()
 
 
 @router.post("/entities/{entity_id}/download", response_model=DownloadEntityResponse)
 async def download_entity(
     entity_id: Annotated[str, Path(description="Canonical entity UUID")],
     request: DownloadEntityRequest,
-    db: Annotated[AsyncSession, Depends(get_db_session)],
+    service: Annotated[UnifiedEntityService, Depends(get_entity_service)],
     _: None = Depends(require_downloads_enabled),
 ) -> DownloadEntityResponse:
     entity_uuid = validate_uuid(entity_id, "entity ID")
     relation_uuid = (
         validate_uuid(request.relation_id, "relation ID") if request.relation_id else None
     )
-    service = UnifiedEntityService(db)
     try:
         result = await service.download_entity(
             entity_uuid,
@@ -674,5 +655,3 @@ async def download_entity(
         return DownloadEntityResponse(**result)
     except Exception as exc:
         raise _translate_error(exc) from exc
-    finally:
-        await service.close()

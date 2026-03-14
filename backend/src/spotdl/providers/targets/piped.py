@@ -224,7 +224,7 @@ class PipedProvider(TargetProvider):
                 verified=data.get("uploaderVerified", False),
             )
 
-        except Exception as e:
+        except (httpx.HTTPError, KeyError, ValueError) as e:
             logger.debug("Failed to get video info for %s: %s", video_id, e)
             return None
 
@@ -263,7 +263,7 @@ class PipedProvider(TargetProvider):
             stream_url = sorted_streams[0].get("url")
             return str(stream_url) if stream_url else None
 
-        except Exception as e:
+        except (httpx.HTTPError, KeyError, ValueError) as e:
             logger.debug("Failed to get audio stream for %s: %s", video_id, e)
             return None
 

@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import httpx
+import sqlalchemy.exc
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -331,7 +332,7 @@ class LyricsService:
 
             await self.session.flush()
 
-        except Exception as exc:
+        except (sqlalchemy.exc.SQLAlchemyError, ValueError) as exc:
             logger.warning("Failed to cache lyrics: %s", exc)
 
     async def get_lyrics_for_entity(self, entity_id: uuid.UUID) -> LyricsResult | None:
@@ -441,7 +442,7 @@ class LyricsService:
                             entity_id,
                             quality_score,
                         )
-                    except Exception as e:
+                    except sqlalchemy.exc.SQLAlchemyError as e:
                         logger.warning("Failed to save %s lyrics: %s", provider.name, e)
 
                     results.append(

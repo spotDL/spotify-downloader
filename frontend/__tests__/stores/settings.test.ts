@@ -39,59 +39,59 @@ describe("useSettingsStore", () => {
   });
 
   it("should update audio format", () => {
-    useSettingsStore.getState().setAudioFormat("flac");
+    useSettingsStore.getState().update("audioFormat", "flac");
     expect(useSettingsStore.getState().audioFormat).toBe("flac");
   });
 
   it("should update audio quality", () => {
-    useSettingsStore.getState().setAudioQuality("320k");
+    useSettingsStore.getState().update("audioQuality", "320k");
     expect(useSettingsStore.getState().audioQuality).toBe("320k");
   });
 
   it("should update bitrate", () => {
-    useSettingsStore.getState().setBitrate("256k");
+    useSettingsStore.getState().update("bitrate", "256k");
     expect(useSettingsStore.getState().bitrate).toBe("256k");
   });
 
   it("should update output template", () => {
-    useSettingsStore.getState().setOutputTemplate("{title} - {artist}");
+    useSettingsStore.getState().update("outputTemplate", "{title} - {artist}");
     expect(useSettingsStore.getState().outputTemplate).toBe("{title} - {artist}");
   });
 
   it("should update max concurrent downloads", () => {
-    useSettingsStore.getState().setMaxConcurrentDownloads(5);
+    useSettingsStore.getState().update("maxConcurrentDownloads", 5);
     expect(useSettingsStore.getState().maxConcurrentDownloads).toBe(5);
   });
 
   it("should update overwrite mode", () => {
-    useSettingsStore.getState().setOverwrite("force");
+    useSettingsStore.getState().update("overwrite", "force");
     expect(useSettingsStore.getState().overwrite).toBe("force");
 
-    useSettingsStore.getState().setOverwrite("metadata");
+    useSettingsStore.getState().update("overwrite", "metadata");
     expect(useSettingsStore.getState().overwrite).toBe("metadata");
 
-    useSettingsStore.getState().setOverwrite("skip");
+    useSettingsStore.getState().update("overwrite", "skip");
     expect(useSettingsStore.getState().overwrite).toBe("skip");
   });
 
   it("should update filename settings", () => {
-    useSettingsStore.getState().setMaxFilenameLength(200);
+    useSettingsStore.getState().update("maxFilenameLength", 200);
     expect(useSettingsStore.getState().maxFilenameLength).toBe(200);
 
-    useSettingsStore.getState().setRestrict("strict");
+    useSettingsStore.getState().update("restrict", "strict");
     expect(useSettingsStore.getState().restrict).toBe("strict");
 
-    useSettingsStore.getState().setRestrict("loose");
+    useSettingsStore.getState().update("restrict", "loose");
     expect(useSettingsStore.getState().restrict).toBe("loose");
 
-    useSettingsStore.getState().setRestrict(null);
+    useSettingsStore.getState().update("restrict", null);
     expect(useSettingsStore.getState().restrict).toBeNull();
   });
 
   it("should toggle metadata settings", () => {
-    useSettingsStore.getState().setEmbedMetadata(false);
-    useSettingsStore.getState().setEmbedLyrics(false);
-    useSettingsStore.getState().setEmbedCover(false);
+    useSettingsStore.getState().update("embedMetadata", false);
+    useSettingsStore.getState().update("embedLyrics", false);
+    useSettingsStore.getState().update("embedCover", false);
 
     const state = useSettingsStore.getState();
     expect(state.embedMetadata).toBe(false);
@@ -100,65 +100,77 @@ describe("useSettingsStore", () => {
   });
 
   it("should update ID3 separator", () => {
-    useSettingsStore.getState().setId3Separator("; ");
+    useSettingsStore.getState().update("id3Separator", "; ");
     expect(useSettingsStore.getState().id3Separator).toBe("; ");
   });
 
   it("should toggle download feature settings", () => {
-    useSettingsStore.getState().setSponsorBlock(true);
+    useSettingsStore.getState().update("sponsorBlock", true);
     expect(useSettingsStore.getState().sponsorBlock).toBe(true);
 
-    useSettingsStore.getState().setGenerateLrc(true);
+    useSettingsStore.getState().update("generateLrc", true);
     expect(useSettingsStore.getState().generateLrc).toBe(true);
 
-    useSettingsStore.getState().setSkipExplicit(true);
+    useSettingsStore.getState().update("skipExplicit", true);
     expect(useSettingsStore.getState().skipExplicit).toBe(true);
 
-    useSettingsStore.getState().setScanForSongs(true);
+    useSettingsStore.getState().update("scanForSongs", true);
     expect(useSettingsStore.getState().scanForSongs).toBe(true);
 
-    useSettingsStore.getState().setPlaylistNumbering(true);
+    useSettingsStore.getState().update("playlistNumbering", true);
     expect(useSettingsStore.getState().playlistNumbering).toBe(true);
 
-    useSettingsStore.getState().setFetchAlbums(true);
+    useSettingsStore.getState().update("fetchAlbums", true);
     expect(useSettingsStore.getState().fetchAlbums).toBe(true);
   });
 
   it("should update string-based feature settings", () => {
-    useSettingsStore.getState().setM3u("{list}.m3u8");
+    useSettingsStore.getState().update("m3u", "{list}.m3u8");
     expect(useSettingsStore.getState().m3u).toBe("{list}.m3u8");
 
-    useSettingsStore.getState().setArchive("archive.txt");
+    useSettingsStore.getState().update("archive", "archive.txt");
     expect(useSettingsStore.getState().archive).toBe("archive.txt");
 
-    useSettingsStore.getState().setProxy("socks5://127.0.0.1:1080");
+    useSettingsStore.getState().update("proxy", "socks5://127.0.0.1:1080");
     expect(useSettingsStore.getState().proxy).toBe("socks5://127.0.0.1:1080");
 
-    useSettingsStore.getState().setFfmpegArgs("-ac 2");
+    useSettingsStore.getState().update("ffmpegArgs", "-ac 2");
     expect(useSettingsStore.getState().ffmpegArgs).toBe("-ac 2");
 
-    useSettingsStore.getState().setYtDlpArgs("--no-check-certificate");
+    useSettingsStore.getState().update("ytDlpArgs", "--no-check-certificate");
     expect(useSettingsStore.getState().ytDlpArgs).toBe("--no-check-certificate");
   });
 
   it("should update API URL", () => {
-    useSettingsStore.getState().setApiUrl("http://example.com:8080");
+    useSettingsStore.getState().update("apiUrl", "http://example.com:8080");
     expect(useSettingsStore.getState().apiUrl).toBe("http://example.com:8080");
   });
 
   it("should toggle offline mode", () => {
-    useSettingsStore.getState().setOfflineMode(true);
+    useSettingsStore.getState().update("offlineMode", true);
     expect(useSettingsStore.getState().offlineMode).toBe(true);
+  });
+
+  it("should update multiple settings at once with updateMany", () => {
+    useSettingsStore.getState().updateMany({
+      audioFormat: "flac",
+      audioQuality: "192k",
+      embedMetadata: false,
+    });
+    const state = useSettingsStore.getState();
+    expect(state.audioFormat).toBe("flac");
+    expect(state.audioQuality).toBe("192k");
+    expect(state.embedMetadata).toBe(false);
   });
 
   it("should reset to defaults", () => {
     // Change some values
-    useSettingsStore.getState().setAudioFormat("flac");
-    useSettingsStore.getState().setAudioQuality("192k");
-    useSettingsStore.getState().setEmbedMetadata(false);
-    useSettingsStore.getState().setOverwrite("force");
-    useSettingsStore.getState().setSponsorBlock(true);
-    useSettingsStore.getState().setGenerateLrc(true);
+    useSettingsStore.getState().update("audioFormat", "flac");
+    useSettingsStore.getState().update("audioQuality", "192k");
+    useSettingsStore.getState().update("embedMetadata", false);
+    useSettingsStore.getState().update("overwrite", "force");
+    useSettingsStore.getState().update("sponsorBlock", true);
+    useSettingsStore.getState().update("generateLrc", true);
 
     // Reset
     useSettingsStore.getState().resetToDefaults();
@@ -174,9 +186,9 @@ describe("useSettingsStore", () => {
 
   it("should export and import settings", () => {
     // Change some settings
-    useSettingsStore.getState().setAudioFormat("flac");
-    useSettingsStore.getState().setOverwrite("metadata");
-    useSettingsStore.getState().setSponsorBlock(true);
+    useSettingsStore.getState().update("audioFormat", "flac");
+    useSettingsStore.getState().update("overwrite", "metadata");
+    useSettingsStore.getState().update("sponsorBlock", true);
 
     // Export
     const exported = useSettingsStore.getState().exportSettings();

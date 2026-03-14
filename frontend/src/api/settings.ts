@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "./client";
-import type { ExportableSettings } from "@/stores/settings";
+import { defaultSettings, type SettingsData } from "@/stores/settings";
 
 // Provider preference type matching backend
 export interface ProviderPreferenceApi {
@@ -8,7 +8,7 @@ export interface ProviderPreferenceApi {
   enabled: boolean;
 }
 
-// API response matches our ExportableSettings but with snake_case
+// API response matches our SettingsData but with snake_case
 export interface UserSettingsResponse {
   // Download
   audio_format: string;
@@ -84,98 +84,46 @@ export interface UserSettingsResponse {
   lyrics_source_preferences: ProviderPreferenceApi[] | null;
 }
 
+function snakeToCamel(s: string): string {
+  return s.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+}
+
+function camelToSnake(s: string): string {
+  return s.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
+}
+
+function convertKeys(
+  obj: object,
+  converter: (key: string) => string
+): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    result[converter(key)] = value;
+  }
+  return result;
+}
+
 // Convert API response to store format
-export function apiToStoreSettings(api: UserSettingsResponse): Partial<ExportableSettings> {
-  return {
-    audioFormat: api.audio_format as ExportableSettings["audioFormat"],
-    audioQuality: api.audio_quality as ExportableSettings["audioQuality"],
-    bitrate: api.bitrate ?? "",
-    outputTemplate: api.output_template,
-    outputDirectory: api.output_directory ?? "",
-    maxConcurrentDownloads: api.max_concurrent_downloads,
-    overwrite: api.overwrite as ExportableSettings["overwrite"],
-    maxFilenameLength: api.max_filename_length,
-    restrict: (api.restrict as ExportableSettings["restrict"]) ?? null,
-    embedMetadata: api.embed_metadata,
-    embedLyrics: api.embed_lyrics,
-    embedCover: api.embed_cover,
-    id3Separator: api.id3_separator,
-    sponsorBlock: api.sponsor_block,
-    generateLrc: api.generate_lrc,
-    m3u: api.m3u ?? "",
-    archive: api.archive ?? "",
-    skipExplicit: api.skip_explicit,
-    scanForSongs: api.scan_for_songs,
-    playlistNumbering: api.playlist_numbering,
-    fetchAlbums: api.fetch_albums,
-    proxy: api.proxy ?? "",
-    ffmpegArgs: api.ffmpeg_args ?? "",
-    ytDlpArgs: api.yt_dlp_args ?? "",
-    spotifyClientId: api.spotify_client_id ?? "",
-    spotifyClientSecret: api.spotify_client_secret ?? "",
-    spotifyUserAuth: api.spotify_user_auth,
-    apiUrl: api.api_url,
-    apiTimeout: api.api_timeout,
-    offlineMode: api.offline_mode,
-    nameMatchThreshold: api.name_match_threshold,
-    artistMatchThreshold: api.artist_match_threshold,
-    timeMatchThreshold: api.time_match_threshold,
-    logLevel: api.log_level as ExportableSettings["logLevel"],
-    cookieFile: api.cookie_file ?? "",
-    compactSidebar: api.compact_sidebar,
-    enableAnimations: api.enable_animations,
-    reduceMotion: api.reduce_motion,
-    ...(api.audio_source_preferences && { audioSourcePreferences: api.audio_source_preferences }),
-    ...(api.metadata_source_preferences && { metadataSourcePreferences: api.metadata_source_preferences }),
-    ...(api.lyrics_source_preferences && { lyricsSourcePreferences: api.lyrics_source_preferences }),
-  };
+export function apiToStoreSettings(api: UserSettingsResponse): Partial<SettingsData> {
+  const converted = convertKeys(api, snakeToCamel);
+  // Handle null -> empty string conversions for string fields
+  for (const key of Object.keys(converted)) {
+    if (converted[key] === null && typeof defaultSettings[key as keyof SettingsData] === 'string') {
+      converted[key] = '';
+    }
+  }
+  return converted as Partial<SettingsData>;
 }
 
 // Convert store format to API request
-export function storeToApiSettings(store: ExportableSettings): Partial<UserSettingsResponse> {
-  return {
-    audio_format: store.audioFormat,
-    audio_quality: store.audioQuality,
-    bitrate: store.bitrate || null,
-    output_template: store.outputTemplate,
-    output_directory: store.outputDirectory || null,
-    max_concurrent_downloads: store.maxConcurrentDownloads,
-    overwrite: store.overwrite,
-    max_filename_length: store.maxFilenameLength,
-    restrict: store.restrict,
-    embed_metadata: store.embedMetadata,
-    embed_lyrics: store.embedLyrics,
-    embed_cover: store.embedCover,
-    id3_separator: store.id3Separator,
-    sponsor_block: store.sponsorBlock,
-    generate_lrc: store.generateLrc,
-    m3u: store.m3u || null,
-    archive: store.archive || null,
-    skip_explicit: store.skipExplicit,
-    scan_for_songs: store.scanForSongs,
-    playlist_numbering: store.playlistNumbering,
-    fetch_albums: store.fetchAlbums,
-    proxy: store.proxy || null,
-    ffmpeg_args: store.ffmpegArgs || null,
-    yt_dlp_args: store.ytDlpArgs || null,
-    spotify_client_id: store.spotifyClientId || null,
-    spotify_client_secret: store.spotifyClientSecret || null,
-    spotify_user_auth: store.spotifyUserAuth,
-    api_url: store.apiUrl,
-    api_timeout: store.apiTimeout,
-    offline_mode: store.offlineMode,
-    name_match_threshold: store.nameMatchThreshold,
-    artist_match_threshold: store.artistMatchThreshold,
-    time_match_threshold: store.timeMatchThreshold,
-    log_level: store.logLevel,
-    cookie_file: store.cookieFile || null,
-    compact_sidebar: store.compactSidebar,
-    enable_animations: store.enableAnimations,
-    reduce_motion: store.reduceMotion,
-    audio_source_preferences: store.audioSourcePreferences,
-    metadata_source_preferences: store.metadataSourcePreferences,
-    lyrics_source_preferences: store.lyricsSourcePreferences,
-  };
+export function storeToApiSettings(store: SettingsData): Partial<UserSettingsResponse> {
+  const converted = convertKeys(store, camelToSnake);
+  // Handle empty string -> null conversions for nullable API fields
+  const nullableFields = ['bitrate', 'output_directory', 'm3u', 'archive', 'proxy', 'ffmpeg_args', 'yt_dlp_args', 'spotify_client_id', 'spotify_client_secret', 'cookie_file', 'restrict'];
+  for (const field of nullableFields) {
+    if (converted[field] === '') converted[field] = null;
+  }
+  return converted as Partial<UserSettingsResponse>;
 }
 
 // API functions

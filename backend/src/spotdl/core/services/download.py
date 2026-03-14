@@ -83,7 +83,8 @@ def is_safe_url(url: str) -> bool:
         except (socket.gaierror, socket.herror):
             return False
         return True
-    except Exception:
+    except (ValueError, TypeError, OSError) as exc:
+        logger.debug("URL safety check failed for %s: %s", url, exc)
         return False
 
 
@@ -499,7 +500,7 @@ class DownloadService:
                 return await provider.get_lyrics(title, [artist])
         except ImportError:
             logger.debug("Lyrics provider not available")
-        except Exception as e:
+        except (httpx.HTTPError, ValueError, OSError) as e:
             logger.debug("Failed to fetch lyrics: %s", e)
         return None
 

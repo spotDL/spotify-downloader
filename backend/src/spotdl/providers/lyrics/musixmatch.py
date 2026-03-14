@@ -6,6 +6,7 @@ import logging
 from typing import Any, ClassVar
 from urllib.parse import quote
 
+import httpx
 from bs4 import BeautifulSoup
 
 from spotdl.providers.lyrics.base import BaseLyricsProvider
@@ -54,7 +55,7 @@ class MusixMatchProvider(BaseLyricsProvider):
 
             return results
 
-        except Exception as exc:
+        except (httpx.HTTPError, ValueError) as exc:
             logger.debug("MusixMatch search failed: %s", exc)
             return {}
 
@@ -73,6 +74,6 @@ class MusixMatchProvider(BaseLyricsProvider):
             lyrics = "\n".join(p.get_text() for p in lyrics_paragraphs)
             return lyrics.strip() if lyrics else None
 
-        except Exception as exc:
+        except (httpx.HTTPError, ValueError) as exc:
             logger.debug("MusixMatch extraction failed: %s", exc)
             return None

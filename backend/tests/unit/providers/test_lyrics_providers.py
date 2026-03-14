@@ -435,7 +435,7 @@ class TestGeniusProvider:
         provider = GeniusProvider(access_token="test_token")
 
         mock_client = MagicMock(spec=httpx.AsyncClient)
-        mock_client.get = AsyncMock(side_effect=Exception("Network error"))
+        mock_client.get = AsyncMock(side_effect=httpx.HTTPError("Network error"))
 
         provider._client = mock_client
         provider._owns_client = True
@@ -616,7 +616,7 @@ class TestAZLyricsProvider:
         provider = AZLyricsProvider()
 
         mock_client = MagicMock(spec=httpx.AsyncClient)
-        mock_client.get = AsyncMock(side_effect=Exception("Network error"))
+        mock_client.get = AsyncMock(side_effect=httpx.HTTPError("Network error"))
 
         provider._client = mock_client
         provider._owns_client = True
@@ -631,7 +631,7 @@ class TestAZLyricsProvider:
         provider = AZLyricsProvider()
 
         mock_client = MagicMock(spec=httpx.AsyncClient)
-        mock_client.get = AsyncMock(side_effect=Exception("Error"))
+        mock_client.get = AsyncMock(side_effect=httpx.HTTPError("Error"))
 
         provider._client = mock_client
         provider._owns_client = True

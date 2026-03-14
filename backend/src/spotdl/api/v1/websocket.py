@@ -52,7 +52,8 @@ class ConnectionManager:
             for connection in self.active_connections[client_id]:
                 try:
                     await connection.send_json(message)
-                except Exception:
+                except Exception as exc:
+                    logger.debug("WebSocket send failed, marking for disconnect: %s", exc)
                     disconnected.append(connection)
 
             # Clean up disconnected

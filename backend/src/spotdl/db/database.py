@@ -84,8 +84,8 @@ def run_migrations() -> None:
         pkg_alembic = Path(str(pkg_root)).parent / "alembic.ini"
         if pkg_alembic not in possible_paths:
             possible_paths.append(pkg_alembic)
-    except Exception:
-        pass
+    except (TypeError, FileNotFoundError, ModuleNotFoundError) as exc:
+        logger.debug("Could not resolve package alembic.ini: %s", exc)
 
     alembic_ini = None
     for path in possible_paths:

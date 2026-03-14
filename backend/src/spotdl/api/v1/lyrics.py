@@ -12,7 +12,7 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.api.v1.auth import get_current_user_id
-from spotdl.api.v1.dependencies import UserPreferences, get_user_preferences
+from spotdl.api.v1.dependencies import UserPreferences, get_entity_service, get_user_preferences
 from spotdl.api.v1.validation import validate_uuid
 from spotdl.config import get_settings
 from spotdl.core.services.entity_unified import EntityNotFoundError, UnifiedEntityService
@@ -47,6 +47,7 @@ class LyricsNotFoundResponse(BaseModel):
 async def get_lyrics_for_entity(
     entity_id: str,
     preferences: Annotated[UserPreferences, Depends(get_user_preferences)],
+    entity_service: Annotated[UnifiedEntityService, Depends(get_entity_service)],
     force_refresh: Annotated[
         bool, Query(description="Force refresh lyrics from providers")
     ] = False,
@@ -64,14 +65,10 @@ async def get_lyrics_for_entity(
     # Validate UUID
     entity_uuid = validate_uuid(entity_id, "entity ID")
 
-    entity_service = UnifiedEntityService(db)
     try:
         entity = await entity_service.get_entity(entity_uuid)
     except EntityNotFoundError:
-        await entity_service.close()
         raise HTTPException(status_code=404, detail=f"Entity not found: {entity_id}")
-
-    await entity_service.close()
 
     # Get lyrics using service
     settings = get_settings()
@@ -185,6 +182,7 @@ async def submit_user_lyrics(
     entity_id: str,
     request: SubmitLyricsRequest,
     _user_id: Annotated[uuid.UUID, Depends(get_current_user_id)],
+    entity_service: Annotated[UnifiedEntityService, Depends(get_entity_service)],
     db: AsyncSession = Depends(get_db_session),
 ) -> LyricsSourceResponse:
     """
@@ -195,14 +193,10 @@ async def submit_user_lyrics(
     # Validate UUID
     entity_uuid = validate_uuid(entity_id, "entity ID")
 
-    entity_service = UnifiedEntityService(db)
     try:
         entity = await entity_service.get_entity(entity_uuid)
     except EntityNotFoundError:
-        await entity_service.close()
         raise HTTPException(status_code=404, detail=f"Entity not found: {entity_id}")
-    finally:
-        await entity_service.close()
 
     lyrics_repo = LyricsRepository(db)
 
@@ -242,6 +236,7 @@ class AllLyricsResponse(BaseModel):
 @router.get("/entity/{entity_id}/all")
 async def get_all_lyrics_for_entity(
     entity_id: str,
+    entity_service: Annotated[UnifiedEntityService, Depends(get_entity_service)],
     db: AsyncSession = Depends(get_db_session),
 ) -> AllLyricsResponse:
     """
@@ -253,14 +248,10 @@ async def get_all_lyrics_for_entity(
     # Validate UUID
     entity_uuid = validate_uuid(entity_id, "entity ID")
 
-    entity_service = UnifiedEntityService(db)
     try:
         entity = await entity_service.get_entity(entity_uuid)
     except EntityNotFoundError:
-        await entity_service.close()
         raise HTTPException(status_code=404, detail=f"Entity not found: {entity_id}")
-    finally:
-        await entity_service.close()
 
     # Get all lyrics from repository
     lyrics_repo = LyricsRepository(db)
@@ -288,6 +279,7 @@ async def get_all_lyrics_for_entity(
 async def fetch_all_lyrics_sources(
     entity_id: str,
     preferences: Annotated[UserPreferences, Depends(get_user_preferences)],
+    entity_service: Annotated[UnifiedEntityService, Depends(get_entity_service)],
     db: AsyncSession = Depends(get_db_session),
 ) -> AllLyricsResponse:
     """
@@ -303,14 +295,10 @@ async def fetch_all_lyrics_sources(
     # Validate UUID
     entity_uuid = validate_uuid(entity_id, "entity ID")
 
-    entity_service = UnifiedEntityService(db)
     try:
         entity = await entity_service.get_entity(entity_uuid)
     except EntityNotFoundError:
-        await entity_service.close()
         raise HTTPException(status_code=404, detail=f"Entity not found: {entity_id}")
-    finally:
-        await entity_service.close()
 
     # Fetch from all providers
     settings = get_settings()

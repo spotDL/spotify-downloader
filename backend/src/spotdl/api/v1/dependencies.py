@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import AsyncGenerator
 from typing import Annotated, TypedDict, cast
 
 from fastapi import Depends
@@ -23,6 +24,7 @@ from spotdl.core.provider_preferences import (
 from spotdl.core.providers_config import (
     ProviderPreference,
 )
+from spotdl.core.services.entity_unified import UnifiedEntityService
 from spotdl.db.database import get_db_session
 from spotdl.db.models.user import User
 from spotdl.db.repositories.user_settings import UserSettingsRepository
@@ -159,3 +161,14 @@ async def get_embed_preferences(
         return validate_embed_preferences(None)
 
     return validate_embed_preferences(settings.metadata_embed_preferences)
+
+
+async def get_entity_service(
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+) -> AsyncGenerator[UnifiedEntityService]:
+    """Get an entity service instance with automatic cleanup."""
+    service = UnifiedEntityService(db)
+    try:
+        yield service
+    finally:
+        await service.close()

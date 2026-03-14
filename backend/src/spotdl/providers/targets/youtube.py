@@ -229,7 +229,7 @@ class YouTubeProvider(TargetProvider):
 
             return None
 
-        except Exception as e:
+        except (httpx.HTTPError, KeyError, ValueError) as e:
             logger.debug("Failed to get by ISRC: %s", e)
             return None
 
@@ -253,7 +253,7 @@ class YouTubeProvider(TargetProvider):
 
             return self._result_to_result(video)
 
-        except Exception as e:
+        except (httpx.HTTPError, KeyError, ValueError) as e:
             logger.debug("Failed to get video info for %s: %s", video_id, e)
             return None
 

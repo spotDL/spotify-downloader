@@ -8,6 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from unittest.mock import AsyncMock, Mock, patch
 
+import httpx
 import pytest
 from spotdl_core.download import DownloadError, DownloadMeta
 
@@ -832,7 +833,7 @@ class TestDownloadService:
     async def test_fetch_lyrics_provider_error(self, download_manager: DownloadService) -> None:
         """Test fetching lyrics with provider error."""
         mock_provider = AsyncMock()
-        mock_provider.get_lyrics.side_effect = Exception("Provider error")
+        mock_provider.get_lyrics.side_effect = httpx.HTTPError("Provider error")
 
         with (
             patch("spotdl.providers.lyrics.genius.GeniusWebProvider", return_value=mock_provider),

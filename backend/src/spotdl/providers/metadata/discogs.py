@@ -441,7 +441,8 @@ class DiscogsProvider(MetadataProvider):
 
             return score
 
-        except Exception:
+        except Exception as exc:
+            logger.debug("Error calculating match score: %s", exc)
             return 0.0
 
     async def _parse_release(

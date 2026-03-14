@@ -11,11 +11,11 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.core.capabilities import ProviderEntityBundle
+from spotdl.core.services.discovery import _url_hash
 from spotdl.core.services.entity_unified import (
-    MergeEngine,
     UnifiedEntityService,
-    _url_hash,
 )
+from spotdl.core.services.merge_engine import MergeEngine
 from spotdl.db.models.entity_unified import (
     Entity,
     EntityCanonical,
