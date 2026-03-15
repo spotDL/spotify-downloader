@@ -2,6 +2,7 @@ import pytest
 
 from spotdl.types.album import Album
 from spotdl.types.song import Song
+from spotdl.utils.spotify import SpotifyClient
 
 
 def test_song_init():
@@ -201,6 +202,57 @@ def test_song_from_data_dump_wrong_type():
 
     with pytest.raises(TypeError):
         Song.from_data_dump(1)  # type: ignore
+
+
+def test_song_from_url_missing_optional_spotify_fields(monkeypatch):
+    """
+    Song.from_url() should tolerate partial Spotify payloads.
+    """
+
+    class DummySpotifyClient:
+        def track(self, _url):
+            return {
+                "id": "track-id",
+                "name": "Test Track",
+                "duration_ms": 204000,
+                "disc_number": 1,
+                "track_number": 1,
+                "explicit": False,
+                "popularity": 17,
+                "external_urls": {"spotify": "https://open.spotify.com/track/track-id"},
+                "external_ids": {"isrc": "TEST12345678"},
+                "artists": [{"id": "artist-id", "name": "Test Artist"}],
+                "album": {"id": "album-id"},
+            }
+
+        def artist(self, _artist_id):
+            return {
+                "id": "artist-id",
+                "name": "Test Artist",
+            }
+
+        def album(self, _album_id):
+            return {
+                "id": "album-id",
+                "name": "Test Album",
+                "artists": [{"name": "Test Artist"}],
+                "release_date": "2024-01-02",
+                "total_tracks": 1,
+                "tracks": {"items": [{"disc_number": 1}]},
+                "copyrights": [],
+            }
+
+    monkeypatch.setattr(SpotifyClient, "_instance", DummySpotifyClient())
+
+    song = Song.from_url("https://open.spotify.com/track/track-id")
+
+    assert song.name == "Test Track"
+    assert song.artists == ["Test Artist"]
+    assert song.album_name == "Test Album"
+    assert song.genres == []
+    assert song.publisher == ""
+    assert song.cover_url is None
+    assert song.popularity == 17
 
 
 def test_song_from_dict():
