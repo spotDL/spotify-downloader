@@ -100,9 +100,12 @@ class Singleton(type):
         )
         # Use SpotifyOAuth as auth manager
         if user_auth:
-            redirect_uri = os.getenv(
-                "SPOTIPY_REDIRECT_URI", "https://kichelle.free.beeceptor.com"
-            )
+            redirect_uri = os.getenv("SPOTIPY_REDIRECT_URI")
+            if not redirect_uri:
+                raise SpotifyError(
+                    "SPOTIPY_REDIRECT_URI environment variable is not set. "
+                    "Please set it to your application's redirect URI."
+                )
             credential_manager = SpotifyOAuth(
                 client_id=client_id,
                 client_secret=client_secret,
