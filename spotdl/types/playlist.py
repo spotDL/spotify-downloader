@@ -45,7 +45,17 @@ class Playlist(SongList):
 
         spotify_client = SpotifyClient()
 
-        playlist = spotify_client.playlist(url)
+        market = None
+        try:
+            profile = spotify_client.me()
+            if profile:
+                market = profile.get("country")
+        except Exception:  # noqa: BLE001
+            pass
+
+        playlist = spotify_client.playlist(
+            url, additional_types=("track",), market=market
+        )
         if playlist is None:
             raise PlaylistError("Invalid playlist URL.")
 
@@ -69,24 +79,32 @@ class Playlist(SongList):
             ),
         }
 
-        playlist_response = spotify_client.playlist_items(url)
-        if playlist_response is None:
+        page = playlist.get("tracks")
+        if page is None:
+            page = playlist.get("items")
+        if not isinstance(page, dict):
             raise PlaylistError(f"Wrong playlist id: {url}")
 
-        # Get all tracks from playlist
-        tracks = playlist_response["items"]
-        while playlist_response["next"]:
-            playlist_response = spotify_client.next(playlist_response)
+        def _row_track(row: Dict[str, Any]) -> Dict[str, Any]:
+            t = row.get("track")
+            if t is None:
+                item = row.get("item")
+                if isinstance(item, dict) and item.get("type") == "track":
+                    t = item
+            return {"track": t}
 
-            # Failed to get response, break the loop
-            if playlist_response is None:
+        raw_tracks = [_row_track(r) for r in page.get("items", [])]
+        while page.get("next"):
+            try:
+                page = spotify_client.next(page)
+            except Exception as exc:  # noqa: BLE001
+                raise PlaylistError("Could not fetch next page of tracks.") from exc
+            if page is None:
                 break
-
-            # Add tracks to the list
-            tracks.extend(playlist_response["items"])
+            raw_tracks.extend(_row_track(r) for r in page.get("items", []))
 
         songs = []
-        for track_no, track in enumerate(tracks):
+        for track_no, track in enumerate(raw_tracks):
             if not isinstance(track, dict) or track.get("track") is None:
                 continue
 
