@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock, patch
+
 import pytest
 
 from spotdl.types.album import Album
@@ -257,3 +259,77 @@ def test_song_from_dict():
     )
     assert song.explicit == False
     assert song.popularity == 0
+
+
+def _make_raw_track_meta():
+    return {
+        "name": "Test Song",
+        "artists": [{"name": "Test Artist", "id": "artist123"}],
+        "album": {"id": "album123"},
+        "disc_number": 1,
+        "track_number": 1,
+        "duration_ms": 180000,
+        "explicit": False,
+        "external_urls": {"spotify": "https://open.spotify.com/track/abc123"},
+        "external_ids": {"isrc": "USTEST0000001"},
+        "id": "abc123",
+        "popularity": 50,
+    }
+
+
+def _make_raw_album_meta(genres=None):
+    meta = {
+        "name": "Test Album",
+        "artists": [{"name": "Test Artist"}],
+        "album_type": "album",
+        "copyrights": [{"text": "(c) 2024"}],
+        "release_date": "2024-01-01",
+        "total_tracks": 1,
+        "tracks": {"items": [{"disc_number": 1}]},
+        "label": "Test Label",
+        "images": [{"url": "https://example.com/img.jpg", "width": 300, "height": 300}],
+    }
+    if genres is not None:
+        meta["genres"] = genres
+    return meta
+
+
+def _make_raw_artist_meta(genres=None):
+    meta = {"name": "Test Artist"}
+    if genres is not None:
+        meta["genres"] = genres
+    return meta
+
+
+@patch("spotdl.types.song.SpotifyClient")
+def test_song_from_url_missing_genres(mock_sc_cls):
+    """
+    Spotify's Feb 2026 API removed 'genres' from album/artist metadata.
+    Song.from_url should handle missing genres gracefully.
+    """
+    mock_client = MagicMock()
+    mock_client.track.return_value = _make_raw_track_meta()
+    mock_client.artist.return_value = _make_raw_artist_meta(genres=None)
+    mock_client.album.return_value = _make_raw_album_meta(genres=None)
+    mock_sc_cls.return_value = mock_client
+
+    song = Song.from_url("https://open.spotify.com/track/abc123")
+
+    assert song.genres == []
+    assert song.name == "Test Song"
+
+
+@patch("spotdl.types.song.SpotifyClient")
+def test_song_from_url_with_genres(mock_sc_cls):
+    """
+    When genres are present, they should still be combined from album + artist.
+    """
+    mock_client = MagicMock()
+    mock_client.track.return_value = _make_raw_track_meta()
+    mock_client.artist.return_value = _make_raw_artist_meta(genres=["pop"])
+    mock_client.album.return_value = _make_raw_album_meta(genres=["rock"])
+    mock_sc_cls.return_value = mock_client
+
+    song = Song.from_url("https://open.spotify.com/track/abc123")
+
+    assert song.genres == ["rock", "pop"]
