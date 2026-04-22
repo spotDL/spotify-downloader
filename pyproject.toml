@@ -1,21 +1,18 @@
 [project]
 name = "spotdl"
 version = "4.4.3"
-requires-python = ">=3.10,<3.14"
+requires-python = ">=3.10,<3.15"
 
 description = "Download your Spotify playlists and songs along with album art and metadata"
 authors = [{ name = "spotDL Team", email = "spotdladmins@googlegroups.com" }]
 readme = "README.md"
 license = "MIT"
 
-maintainers = [{ name = "Silverarmor", email = "spotdladmins@googlegroups.com" }]
-
-keywords = [
-    "spotify",
-    "downloader",
-    "spotdl",
-    "music",
+maintainers = [
+    { name = "Silverarmor", email = "spotdladmins@googlegroups.com" },
 ]
+
+keywords = ["spotify", "downloader", "spotdl", "music"]
 classifiers = [
     "Intended Audience :: End Users/Desktop",
     "License :: OSI Approved :: MIT License",
@@ -26,6 +23,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Multimedia",
     "Topic :: Multimedia :: Sound/Audio",
     "Topic :: Utilities",
@@ -34,7 +32,7 @@ dependencies = [
     "spotipy>=2.24.0,<3",
     "ytmusicapi>=1.11.1,<2",
     "pytube>=15.0.0,<16",
-    "yt-dlp>=2025.09.26,<2027",
+    "yt-dlp>=2026.01.29,<2027",
     "mutagen>=1.47.0,<2",
     "rich>=13.9.4,<14",
     "beautifulsoup4>=4.12.3,<5",
@@ -49,6 +47,9 @@ dependencies = [
     "syncedlyrics>=1.0.1,<2",
     "soundcloud-v2>=1.6.0,<2",
     "websockets~=14.1",
+    "datastar-py>=0.6.3",
+    "jinja2>=3.1.5",
+    "python-multipart>=0.0.20",
 ]
 
 [project.urls]
@@ -108,6 +109,4 @@ fail-under = 9
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-markers = [
-    "vcr",
-]
+markers = ["vcr"]

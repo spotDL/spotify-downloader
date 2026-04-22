@@ -44,8 +44,7 @@ from mutagen.wave import WAVE
 
 from spotdl.types.song import Song
 from spotdl.utils.config import GlobalConfig
-from spotdl.utils.formatter import to_ms
-from spotdl.utils.lrc import remomve_lrc
+from spotdl.utils.lrc import parse_lrc_timestamps, remove_lrc
 
 logger = logging.getLogger(__name__)
 
@@ -370,25 +369,9 @@ def embed_lyrics(audio_file, song: Song, encoding: str):
     else:
         # Lyrics are in lrc format
         # Embed them as SYLT id3 tag
-        clean_lyrics = remomve_lrc(lyrics)
+        clean_lyrics = remove_lrc(lyrics)
         if encoding == "mp3":
-            lrc_data = []
-            for line in lyrics.splitlines():
-                time_tag = line.split("]", 1)[0] + "]"
-                text = line.replace(time_tag, "")
-
-                time_tag = time_tag.replace("[", "")
-                time_tag = time_tag.replace("]", "")
-                time_tag = time_tag.replace(".", ":")
-                time_tag_vals = time_tag.split(":")
-                if len(time_tag_vals) != 3 or any(
-                    not isinstance(tag, int) for tag in time_tag_vals
-                ):
-                    continue
-
-                minute, sec, millisecond = time_tag_vals
-                time = to_ms(min=minute, sec=sec, ms=millisecond)
-                lrc_data.append((text, time))
+            lrc_data = parse_lrc_timestamps(lyrics)
 
             audio_file.add(USLT(encoding=3, text=clean_lyrics))
             audio_file.add(SYLT(encoding=3, text=lrc_data, format=2, type=1))
@@ -635,24 +618,8 @@ def embed_wav_file(output_file: Path, song: Song):
         if len(lrc_lines) == 0:
             audio.tags.add(USLT(encoding=Encoding.UTF8, text=song.lyrics))  # type: ignore
         else:
-            lrc_data = []
-            clean_lyrics = remomve_lrc(song.lyrics)
-            for line in song.lyrics.splitlines():
-                time_tag = line.split("]", 1)[0] + "]"
-                text = line.replace(time_tag, "")
-
-                time_tag = time_tag.replace("[", "")
-                time_tag = time_tag.replace("]", "")
-                time_tag = time_tag.replace(".", ":")
-                time_tag_vals = time_tag.split(":")
-                if len(time_tag_vals) != 3 or any(
-                    not isinstance(tag, int) for tag in time_tag_vals
-                ):
-                    continue
-
-                minute, sec, millisecond = time_tag_vals
-                time = to_ms(min=minute, sec=sec, ms=millisecond)
-                lrc_data.append((text, time))
+            clean_lyrics = remove_lrc(song.lyrics)
+            lrc_data = parse_lrc_timestamps(song.lyrics)
 
             audio.tags.add(USLT(encoding=3, text=clean_lyrics))  # type: ignore
             audio.tags.add(SYLT(encoding=3, text=lrc_data, format=2, type=1))  # type: ignore

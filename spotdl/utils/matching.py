@@ -50,13 +50,10 @@ FORBIDDEN_WORDS = [
     "acoustic",
     "8daudio",
     "concert",
-    "live",
     "acapella",
     "slowed",
     "instrumental",
-    "remix",
     "cover",
-    "reverb",
 ]
 
 

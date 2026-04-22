@@ -338,9 +338,6 @@ If you don't want the config to load automatically, change the `load_config` opt
     "ca_file": null,
     "allowed_origins": null,
     "keep_sessions": false,
-    "force_update_gui": false,
-    "web_gui_repo": null,
-    "web_gui_location": null
 }
 ```
 
@@ -435,7 +432,7 @@ Spotify options:
   --max-retries MAX_RETRIES
                         The maximum number of retries to perform when getting metadata.
   --headless            Run in headless mode.
-  --use-cache-file      Use the cache file to get metadata. It's located under C:\Users\user\.spotdl\.spotify_cache or ~/.spotdl/.spotify_cache under linux. It only caches tracks and
+  --use-cache-file      Use the cache file to get metadata. It's located under C:\Users\<user>\.spotdl\.spotify_cache or ~/.spotdl/.spotify_cache under linux. It only caches tracks and
                         gets updated whenever spotDL gets metadata from Spotify. (It may provide outdated metadata use with caution)
 
 FFmpeg options:
@@ -510,11 +507,6 @@ Web options:
                         The allowed origins for the web server.
   --web-use-output-dir  Use the output directory instead of the session directory for downloads. (This might cause issues if you have multiple users using the web-ui at the same time)
   --keep-sessions       Keep the session directory after the web server is closed.
-  --force-update-gui    Refresh the web server directory with a fresh git checkout
-  --web-gui-repo WEB_GUI_REPO
-                        Custom web gui repo to use for the web server. Example: https://github.com/spotdl/web-ui/tree/master/dist
-  --web-gui-location WEB_GUI_LOCATION
-                        Path to the web gui directory to use for the web server.
   --enable-tls          Enable TLS on the web server.
   --cert-file CERT_FILE
                         File Path to the TLS Certificate (PEM format).

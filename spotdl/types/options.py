@@ -107,9 +107,6 @@ class WebOptions(TypedDict):
     ca_file: Optional[str]
     allowed_origins: Optional[List[str]]
     keep_sessions: bool
-    force_update_gui: bool
-    web_gui_repo: Optional[str]
-    web_gui_location: Optional[str]
 
 
 class SpotDLOptions(SpotifyOptions, DownloaderOptions, WebOptions):
@@ -204,9 +201,6 @@ class WebOptionalOptions(TypedDict, total=False):
     ca_file: Optional[str]
     allowed_origins: Optional[str]
     keep_sessions: bool
-    force_update_gui: bool
-    web_gui_repo: Optional[str]
-    web_gui_location: Optional[str]
 
 
 class SpotDLOptionalOptions(
