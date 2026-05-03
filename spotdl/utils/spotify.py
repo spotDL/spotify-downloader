@@ -10,6 +10,7 @@ spotify.Spotify.init(client_id, client_secret)
 
 import json
 import logging
+import os
 from typing import Dict, Optional
 
 import requests
@@ -99,11 +100,21 @@ class Singleton(type):
         )
         # Use SpotifyOAuth as auth manager
         if user_auth:
+            redirect_uri = os.getenv("SPOTIPY_REDIRECT_URI")
+            if not redirect_uri:
+                raise SpotifyError(
+                    "SPOTIPY_REDIRECT_URI environment variable is not set. "
+                    "Please set it to your application's redirect URI."
+                )
             credential_manager = SpotifyOAuth(
                 client_id=client_id,
                 client_secret=client_secret,
-                redirect_uri="http://127.0.0.1:9900/",
-                scope="user-library-read,user-follow-read,playlist-read-private",
+                redirect_uri=redirect_uri,
+                scope=(
+                    "user-library-read,user-follow-read,"
+                    "playlist-read-private,playlist-read-collaborative,"
+                    "user-read-private"
+                ),
                 cache_handler=cache_handler,
                 open_browser=not headless,
             )
