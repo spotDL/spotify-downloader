@@ -19,7 +19,7 @@ from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
 from spotdl.types.playlist import Playlist
 from spotdl.types.song import Song
 from spotdl.utils.arguments import create_parser
-from spotdl.utils.config import get_spotdl_path
+from spotdl.utils.config import get_state_path
 from spotdl.utils.github import RateLimitError, get_latest_version, get_status
 from spotdl.utils.search import get_search_results
 from spotdl.utils.web import (
@@ -141,7 +141,7 @@ async def shutdown_event():
         and not app_state.web_settings["web_use_output_dir"]
     ):
         app_state.logger.info("Removing sessions directories")
-        sessions_dir = Path(get_spotdl_path(), "web/sessions")
+        sessions_dir = get_state_path() / "web" / "sessions"
         if sessions_dir.exists():
             shutil.rmtree(sessions_dir)
 
@@ -181,7 +181,7 @@ async def download_url(
         client.downloader.settings["output"] = client.downloader_settings["output"]
     else:
         client.downloader.settings["output"] = str(
-            (get_spotdl_path() / f"web/sessions/{client.client_id}").absolute()
+            (get_state_path() / "web" / "sessions" / client.client_id).absolute()
         )
 
     try:
@@ -225,7 +225,7 @@ async def download_file(
     - returns the file response, filename specified to return as attachment.
     """
 
-    expected_path = str((get_spotdl_path() / "web/sessions").absolute())
+    expected_path = str((get_state_path() / "web" / "sessions").absolute())
     if state.web_settings.get("web_use_output_dir", False):
         expected_path = str(
             Path(client.downloader_settings["output"].split("{", 1)[0]).absolute()

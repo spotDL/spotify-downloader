@@ -17,7 +17,7 @@ from spotipy import Spotify
 from spotipy.cache_handler import CacheFileHandler, MemoryCacheHandler
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 
-from spotdl.utils.config import get_cache_path, get_spotify_cache_path
+from spotdl.utils.config import get_spotipy_client_cache_path, get_spotify_cache_path
 
 __all__ = [
     "SpotifyError",
@@ -93,7 +93,7 @@ class Singleton(type):
         credential_manager = None
 
         cache_handler = (
-            CacheFileHandler(cache_path or get_cache_path())
+            CacheFileHandler(cache_path or get_spotipy_client_cache_path())
             if not no_cache
             else MemoryCacheHandler()
         )

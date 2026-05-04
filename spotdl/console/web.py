@@ -16,7 +16,7 @@ from uvicorn import Config, Server
 
 from spotdl._version import __version__
 from spotdl.types.options import DownloaderOptions, WebOptions
-from spotdl.utils.config import get_spotdl_path, get_web_ui_path
+from spotdl.utils.config import get_state_path, get_web_ui_path
 from spotdl.utils.logging import NAME_TO_LEVEL
 from spotdl.utils.web import (
     ALLOWED_ORIGINS,
@@ -154,7 +154,7 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
             not app_state.web_settings["keep_sessions"]
             and not app_state.web_settings["web_use_output_dir"]
         ):
-            sessions_dir = Path(get_spotdl_path() / "web/sessions")
+            sessions_dir = Path(get_state_path() / "web" / "sessions")
             logger.info("Removing sessions directories")
             if sessions_dir.exists():
                 shutil.rmtree(sessions_dir)

@@ -237,8 +237,9 @@ add option `--web-use-output-dir`, which will make output directory follow `--ou
 
 ### Config file location
 
-The config file is located at `C:\Users\user\.spotdl\config.json`
-or `~/.config/spotdl/config.json` under Linux
+The config file is located at `%USERPROFILE%\AppData\Local\spotdl\config.json`
+or `$XDG_CONFIG_HOME/spotdl/config.json` under Linux (usually
+`XDG_CONFIG_HOME=~/.config`)
 
 > Note: Prior to v4.4.3 the default Linux location was `~/.spotdl/config.json` which will be used if the new directory doesn't exist.
 
@@ -273,7 +274,7 @@ If you don't want the config to load automatically, change the `load_config` opt
     "auth_token": null,
     "user_auth": false,
     "headless": false,
-    "cache_path": "/Users/username/.spotdl/.spotipy",
+    "cache_path": "/home/username/.cache/spotdl/spotipy",
     "no_cache": false,
     "max_retries": 3,
     "use_cache_file": false,
@@ -407,7 +408,7 @@ Main options:
                         to use `--generate-lrc` option.
   --genius-access-token GENIUS_TOKEN
                         Lets you choose your own Genius access token.
-  --config              Use the config file to download songs. It's located under C:\Users\user\.spotdl\config.json or ~/.spotdl/config.json under linux
+  --config              Use the config file to download songs. It's located under %USERPROFILE%\AppData\Local\spotdl\config.json or $XDG_CONFIG_HOME/spotdl/config.json under linux
   --search-query SEARCH_QUERY
                         The search query to use, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year},
                         {original-date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
@@ -432,7 +433,7 @@ Spotify options:
   --max-retries MAX_RETRIES
                         The maximum number of retries to perform when getting metadata.
   --headless            Run in headless mode.
-  --use-cache-file      Use the cache file to get metadata. It's located under C:\Users\<user>\.spotdl\.spotify_cache or ~/.spotdl/.spotify_cache under linux. It only caches tracks and
+  --use-cache-file      Use the cache file to get metadata. It's located under %USERPROFILE%\AppData\Local\spotdl\Cache\spotify_cache or $XDG_CACHE_HOME/spotdl/spotify_cache under linux. It only caches tracks and
                         gets updated whenever spotDL gets metadata from Spotify. (It may provide outdated metadata use with caution)
 
 FFmpeg options:
