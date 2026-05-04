@@ -44,6 +44,7 @@ from spotdl.utils.lrc import generate_lrc
 from spotdl.utils.m3u import gen_m3u_files
 from spotdl.utils.metadata import MetadataError, embed_metadata
 from spotdl.utils.search import gather_known_songs, reinit_song, songs_from_albums
+from spotdl.utils.youtube_utils import detect_youtube_premium
 
 __all__ = [
     "AUDIO_PROVIDERS",
@@ -197,6 +198,16 @@ class Downloader:
 
         # Initialize audio providers
         self.audio_providers: List[AudioProvider] = []
+
+        # Extract cookie file path once
+        cookie_file_path = self.settings.get("cookie_file")
+
+        # Detect Premium only once if YouTube is an audio provider
+        if cookie_file_path and any(
+            "youtube" in ap.lower() for ap in self.settings["audio_providers"]
+        ):
+            detect_youtube_premium(cookie_file_path)
+
         for audio_provider in self.settings["audio_providers"]:
             audio_class = AUDIO_PROVIDERS.get(audio_provider)
             if audio_class is None:
@@ -674,6 +685,21 @@ class Downloader:
             audio_downloader.audio_handler.add_progress_hook(
                 display_progress_tracker.yt_dlp_progress_hook
             )
+
+            # Premium format selection
+            if "youtube" in self.settings["audio_providers"][0].lower():
+                try:
+                    from spotdl.utils.youtube_utils import get_best_audio_format
+
+                    premium_format_string = get_best_audio_format(
+                        download_url, self.settings.get("cookie_file")
+                    )
+                    self.settings["yt_dlp_args"]["format"] = premium_format_string
+
+                except Exception as e:
+                    logger.debug(
+                        f"Failed to determine Premium format for {download_url}: {e}"
+                    )
 
             download_info = audio_downloader.get_download_metadata(
                 download_url, download=True
