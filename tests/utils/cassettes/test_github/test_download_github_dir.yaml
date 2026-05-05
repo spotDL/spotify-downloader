@@ -5,11 +5,11 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate, br
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.32.3
+      - python-requests/2.32.5
     method: GET
     uri: https://api.github.com/repos/spotdl/web-ui/contents/dist?ref=master
   response:
@@ -36,11 +36,11 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 24 Aug 2024 15:48:49 GMT
+      - Sun, 24 Aug 2025 14:56:15 GMT
       ETag:
       - W/"3892625446d39a6d62325fe99a98266db584a84d"
       Last-Modified:
-      - Sun, 21 Jul 2024 10:35:19 GMT
+      - Sun, 24 Aug 2025 00:29:57 GMT
       Referrer-Policy:
       - origin-when-cross-origin, strict-origin-when-cross-origin
       Server:
@@ -56,17 +56,17 @@ interactions:
       X-GitHub-Media-Type:
       - github.v3; format=json
       X-GitHub-Request-Id:
-      - 3B42:F134:80EA967:829FD09:66CA00E1
+      - 8524:363F3B:2C57C5:5763F8:68AB280F
       X-RateLimit-Limit:
       - '60'
       X-RateLimit-Remaining:
-      - '53'
+      - '37'
       X-RateLimit-Reset:
-      - '1724518125'
+      - '1756049545'
       X-RateLimit-Resource:
       - core
       X-RateLimit-Used:
-      - '7'
+      - '23'
       X-XSS-Protection:
       - '0'
       x-github-api-version-selected:
@@ -80,11 +80,11 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate, br
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.32.3
+      - python-requests/2.32.5
     method: GET
     uri: https://api.github.com/repos/spotDL/web-ui/contents/dist/assets?ref=master
   response:
@@ -111,11 +111,11 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 24 Aug 2024 15:48:49 GMT
+      - Sun, 24 Aug 2025 14:56:16 GMT
       ETag:
       - W/"3892625446d39a6d62325fe99a98266db584a84d"
       Last-Modified:
-      - Sun, 21 Jul 2024 10:35:19 GMT
+      - Sun, 24 Aug 2025 00:29:57 GMT
       Referrer-Policy:
       - origin-when-cross-origin, strict-origin-when-cross-origin
       Server:
@@ -131,17 +131,17 @@ interactions:
       X-GitHub-Media-Type:
       - github.v3; format=json
       X-GitHub-Request-Id:
-      - 3AEF:1207C7:7EA4F4B:805B231:66CA00E1
+      - 852A:101530:348DF4:71B4C2:68AB280F
       X-RateLimit-Limit:
       - '60'
       X-RateLimit-Remaining:
-      - '52'
+      - '36'
       X-RateLimit-Reset:
-      - '1724518125'
+      - '1756049545'
       X-RateLimit-Resource:
       - core
       X-RateLimit-Used:
-      - '8'
+      - '24'
       X-XSS-Protection:
       - '0'
       x-github-api-version-selected:
@@ -155,11 +155,11 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate, br
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.32.3
+      - python-requests/2.32.5
     method: GET
     uri: https://raw.githubusercontent.com/spotDL/web-ui/master/dist/assets/index-CqL-qAH-.js
   response:
@@ -1482,17 +1482,17 @@ interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       Date:
-      - Sat, 24 Aug 2024 15:48:50 GMT
+      - Sun, 24 Aug 2025 14:56:16 GMT
       ETag:
       - W/"e387e05246a9bd857e3dc348d512f4213928e0349fa375d6b8b88a99b16cf1ac"
       Expires:
-      - Sat, 24 Aug 2024 15:53:50 GMT
+      - Sun, 24 Aug 2025 15:01:16 GMT
       Source-Age:
       - '0'
       Strict-Transport-Security:
       - max-age=31536000
       Vary:
-      - Authorization,Accept-Encoding,Origin
+      - Authorization,Accept-Encoding
       Via:
       - 1.1 varnish
       X-Cache:
@@ -1502,15 +1502,15 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-Fastly-Request-ID:
-      - 07ba4bc10909213f6077f7cf59d4745183ef864e
+      - 396658c285f5009c70fa2d9a07891fe3bd08d576
       X-Frame-Options:
       - deny
       X-GitHub-Request-Id:
-      - 6D1E:312304:1F46880:20B7E8E:66C5F8D1
+      - E61D:209604:DA951E:FBE185:68AB227C
       X-Served-By:
-      - cache-ams2100135-AMS
+      - cache-mrs1050096-MRS
       X-Timer:
-      - S1724514530.981464,VS0,VE128
+      - S1756047376.303472,VS0,VE129
       X-XSS-Protection:
       - 1; mode=block
     status:
@@ -1522,11 +1522,11 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate, br
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.32.3
+      - python-requests/2.32.5
     method: GET
     uri: https://raw.githubusercontent.com/spotDL/web-ui/master/dist/assets/index-DRB2_ZPb.css
   response:
@@ -2008,17 +2008,17 @@ interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       Date:
-      - Sat, 24 Aug 2024 15:48:50 GMT
+      - Sun, 24 Aug 2025 14:56:16 GMT
       ETag:
       - W/"aa5bca76c7fa3f8034d01c41b1c4b48f069178db3aca2d4f8522708c114b9025"
       Expires:
-      - Sat, 24 Aug 2024 15:53:50 GMT
+      - Sun, 24 Aug 2025 15:01:16 GMT
       Source-Age:
       - '0'
       Strict-Transport-Security:
       - max-age=31536000
       Vary:
-      - Authorization,Accept-Encoding,Origin
+      - Authorization,Accept-Encoding
       Via:
       - 1.1 varnish
       X-Cache:
@@ -2028,15 +2028,15 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-Fastly-Request-ID:
-      - aa18a30abf5591b06237e334644064c73fe9fccf
+      - bc6ac2a9cefd4984ede42e802ba96f417d26fe4d
       X-Frame-Options:
       - deny
       X-GitHub-Request-Id:
-      - 500C:33AA5C:1AB7C60:1BFF248:66C6DD18
+      - FE00:316EC2:1735305:1AD9CA0:68AB227E
       X-Served-By:
-      - cache-ams2100139-AMS
+      - cache-mrs10523-MRS
       X-Timer:
-      - S1724514530.287696,VS0,VE123
+      - S1756047377.645533,VS0,VE125
       X-XSS-Protection:
       - 1; mode=block
     status:
@@ -2048,11 +2048,11 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate, br
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.32.3
+      - python-requests/2.32.5
     method: GET
     uri: https://raw.githubusercontent.com/spotDL/web-ui/master/dist/favicon.ico
   response:
@@ -2341,17 +2341,17 @@ interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       Date:
-      - Sat, 24 Aug 2024 15:48:50 GMT
+      - Sun, 24 Aug 2025 14:56:17 GMT
       ETag:
       - W/"296fad3cf5b4f828eb9272a78ca3a8c6a70eeeeaaae8805ac0d77009a009c84c"
       Expires:
-      - Sat, 24 Aug 2024 15:53:50 GMT
+      - Sun, 24 Aug 2025 15:01:17 GMT
       Source-Age:
       - '0'
       Strict-Transport-Security:
       - max-age=31536000
       Vary:
-      - Authorization,Accept-Encoding,Origin
+      - Authorization,Accept-Encoding
       Via:
       - 1.1 varnish
       X-Cache:
@@ -2361,15 +2361,15 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-Fastly-Request-ID:
-      - bd5550083d7de76574d5362ec113de08b0d771fb
+      - 0654002e84c76cfb1093e737b45f27f1e7763f1c
       X-Frame-Options:
       - deny
       X-GitHub-Request-Id:
-      - CFD8:2B1110:3341C77:35B5863:66C5F8D3
+      - 0A93:2E05B9:803386:93547B:68AB227E
       X-Served-By:
-      - cache-ams2100132-AMS
+      - cache-mrs1050095-MRS
       X-Timer:
-      - S1724514531.539692,VS0,VE125
+      - S1756047377.927125,VS0,VE131
       X-XSS-Protection:
       - 1; mode=block
     status:
@@ -2381,11 +2381,11 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate, br
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.32.3
+      - python-requests/2.32.5
     method: GET
     uri: https://raw.githubusercontent.com/spotDL/web-ui/master/dist/index.html
   response:
@@ -2416,17 +2416,17 @@ interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       Date:
-      - Sat, 24 Aug 2024 15:48:50 GMT
+      - Sun, 24 Aug 2025 14:56:17 GMT
       ETag:
       - W/"7ed27212e0f605f9f8a898342a431038bb12da3a05884d4c7513bb160f0b6cc3"
       Expires:
-      - Sat, 24 Aug 2024 15:53:50 GMT
+      - Sun, 24 Aug 2025 15:01:17 GMT
       Source-Age:
       - '0'
       Strict-Transport-Security:
       - max-age=31536000
       Vary:
-      - Authorization,Accept-Encoding,Origin
+      - Authorization,Accept-Encoding
       Via:
       - 1.1 varnish
       X-Cache:
@@ -2436,15 +2436,15 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-Fastly-Request-ID:
-      - 149a9d47b90f879d34cf3bee0662e217ae38ecd9
+      - 71ec936cf14ad82490d49f3a841a94464a6d04c0
       X-Frame-Options:
       - deny
       X-GitHub-Request-Id:
-      - A9DE:D7DD5:349B0FC:371EE1A:66C5F8D3
+      - 4AFB:10E2:BF2F46:DC8137:68AB227E
       X-Served-By:
-      - cache-ams2100107-AMS
+      - cache-mrs10571-MRS
       X-Timer:
-      - S1724514531.797658,VS0,VE139
+      - S1756047377.220793,VS0,VE119
       X-XSS-Protection:
       - 1; mode=block
     status:

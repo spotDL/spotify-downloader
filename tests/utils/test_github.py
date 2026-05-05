@@ -11,6 +11,7 @@ from spotdl.utils.github import (
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_get_status():
     status = get_status("master", "dev", "spotdl/spotify-downloader")
 
@@ -18,12 +19,14 @@ def test_get_status():
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_get_status_fail():
     with pytest.raises(RuntimeError):
         get_status("master", "dev", "spotdl/spotify-downloader-fail")
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_check_for_updates(monkeypatch):
     monkeypatch.setattr(_version, "__version__", "3.9.4")
     message = check_for_updates("spotdl/spotify-downloader")
@@ -32,6 +35,7 @@ def test_check_for_updates(monkeypatch):
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_check_for_updates_fail(monkeypatch):
     monkeypatch.setattr(_version, "__version__", "3.9.4")
     with pytest.raises(RuntimeError):
@@ -39,6 +43,7 @@ def test_check_for_updates_fail(monkeypatch):
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_create_github_url():
     url = create_github_url(WEB_APP_URL)
 
@@ -46,6 +51,7 @@ def test_create_github_url():
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_download_github_dir(tmpdir, monkeypatch):
     monkeypatch.chdir(tmpdir)
     download_github_dir(WEB_APP_URL, False)

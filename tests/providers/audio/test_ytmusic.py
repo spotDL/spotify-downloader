@@ -5,6 +5,7 @@ from spotdl.types.song import Song
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_ytm_search():
     provider = YouTubeMusic()
 
@@ -43,6 +44,7 @@ def test_ytm_search():
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_ytm_get_results():
     provider = YouTubeMusic()
 

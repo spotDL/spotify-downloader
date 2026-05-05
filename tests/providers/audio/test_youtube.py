@@ -5,6 +5,7 @@ from spotdl.types.song import Song
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_yt_search():
     provider = YouTube()
 
@@ -43,6 +44,7 @@ def test_yt_search():
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_yt_get_results():
     provider = YouTube()
 

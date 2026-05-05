@@ -372,6 +372,7 @@ from tests.conftest import new_initialize
             # Fukaj x Mata - OWOCE 33
             "https://open.spotify.com/track/4Dy9azWTLsDMUdUxrT1170",
             [
+                "https://www.youtube.com/watch?v=JrkrkvJVd7Q",
                 "https://www.youtube.com/watch?v=KD5ncAFjRzY",
                 "https://www.youtube.com/watch?v=9DKKhnmgCIo",
             ],
@@ -401,6 +402,8 @@ from tests.conftest import new_initialize
         ),
     ],
 )
+@pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_ytmusic_matching(monkeypatch, query, expected, capsys):
     monkeypatch.setattr(SpotifyClient, "init", new_initialize)
 

@@ -19,6 +19,7 @@ SAVED = ["saved"]
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_parse_song():
     songs = parse_query(SONG)
 
@@ -28,6 +29,7 @@ def test_parse_song():
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_parse_album():
     songs = parse_query(ALBUM)
 
@@ -36,6 +38,7 @@ def test_parse_album():
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_parse_yt_link():
     songs = parse_query(YT)
 
@@ -45,6 +48,7 @@ def test_parse_yt_link():
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_parse_artist():
     songs = parse_query(ARTIST)
 
@@ -52,6 +56,7 @@ def test_parse_artist():
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_parse_album_search():
     songs = parse_query(ALBUM_SEARCH)
 
@@ -59,11 +64,14 @@ def test_parse_album_search():
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_parse_saved():
     with pytest.raises(SavedError):
         parse_query(SAVED)
 
 
+@pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_parse_query():
     songs = parse_query(QUERY)
 
@@ -71,6 +79,7 @@ def test_parse_query():
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_get_search_results():
     results = get_search_results("test")
     assert len(results) > 1
@@ -86,6 +95,7 @@ def test_create_empty_song():
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_get_simple_songs():
     songs = get_simple_songs(QUERY)
     assert len(songs) > 1

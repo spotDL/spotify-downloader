@@ -78,6 +78,7 @@ def test_song_wrong_init():
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_song_from_url():
     """
     Tests if Song.from_url() works correctly.
@@ -109,6 +110,7 @@ def test_song_from_url():
 
 
 # @pytest.mark.vcr()
+# @pytest.mark.vcr_delete_on_fail
 # def test_song_from_search_term():
 #     """
 #     Tests if Song.from_search_term() works correctly.
