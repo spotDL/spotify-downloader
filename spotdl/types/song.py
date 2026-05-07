@@ -110,11 +110,11 @@ class Song:
             album_artist=raw_album_meta["artists"][0]["name"],
             album_type=raw_album_meta.get("album_type"),
             copyright_text=(
-                raw_album_meta["copyrights"][0]["text"]
-                if raw_album_meta["copyrights"]
+                raw_album_meta.get("copyrights", [{}])[0].get("text")
+                if raw_album_meta.get("copyrights")
                 else None
             ),
-            genres=raw_album_meta["genres"] + raw_artist_meta["genres"],
+            genres=raw_album_meta.get("genres", []) + raw_artist_meta.get("genres", []),
             disc_number=raw_track_meta["disc_number"],
             disc_count=int(raw_album_meta["tracks"]["items"][-1]["disc_number"]),
             duration=int(raw_track_meta["duration_ms"] / 1000),
@@ -125,9 +125,9 @@ class Song:
             isrc=raw_track_meta.get("external_ids", {}).get("isrc"),
             song_id=raw_track_meta["id"],
             explicit=raw_track_meta["explicit"],
-            publisher=raw_album_meta["label"],
-            url=raw_track_meta["external_urls"]["spotify"],
-            popularity=raw_track_meta["popularity"],
+            publisher=raw_album_meta.get("label", "Unknown"),
+            url=raw_track_meta.get("external_urls", {}).get("spotify", ""),
+            popularity=raw_track_meta.get("popularity", 0),
             cover_url=(
                 max(raw_album_meta["images"], key=lambda i: i["width"] * i["height"])[
                     "url"
