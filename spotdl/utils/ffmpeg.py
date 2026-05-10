@@ -15,7 +15,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import requests
 
-from spotdl.utils.config import get_spotdl_path
+from spotdl.utils.config import get_utils_path
 from spotdl.utils.formatter import to_ms
 
 __all__ = [
@@ -182,18 +182,29 @@ def get_ffmpeg_version(ffmpeg: str = "ffmpeg") -> Tuple[Optional[float], Optiona
     return (version, build_year)
 
 
-def get_local_ffmpeg() -> Optional[Path]:
+def get_local_ffmpeg_path() -> Path:
     """
     Get local ffmpeg binary path.
 
     ### Returns
-    - Path to ffmpeg binary or None if not found.
+    - Path to where the ffmpeg binary should be
     """
 
-    ffmpeg_path = Path(get_spotdl_path()) / (
-        "ffmpeg" + (".exe" if platform.system() == "Windows" else "")
+    os_name = platform.system().lower()
+    ffmpeg_path = get_utils_path() / (
+        "ffmpeg" + (".exe" if os_name == "windows" else "")
     )
+    return ffmpeg_path
 
+
+def get_local_ffmpeg() -> Optional[Path]:
+    """
+    Get a path pointing to the local ffmpeg binary, or None if it doesn't exist.
+
+    ### Returns
+    - Path to the local ffmpeg binary if it exists, None otherwise
+    """
+    ffmpeg_path = get_local_ffmpeg_path()
     if ffmpeg_path.is_file():
         return ffmpeg_path
 
@@ -230,11 +241,7 @@ def download_ffmpeg() -> Path:
     if ffmpeg_url is None:
         raise FFmpegError("FFmpeg binary is not available for your system.")
 
-    ffmpeg_path = Path(
-        os.path.join(
-            get_spotdl_path(), "ffmpeg" + (".exe" if os_name == "windows" else "")
-        )
-    )
+    ffmpeg_path = get_local_ffmpeg_path()
 
     # Download binary and save it to a file in spotdl directory
     ffmpeg_binary = requests.get(ffmpeg_url, allow_redirects=True, timeout=10).content

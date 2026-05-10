@@ -18,7 +18,7 @@ from fastapi.templating import Jinja2Templates
 from spotdl._version import __version__
 from spotdl.download.downloader import AUDIO_PROVIDERS, LYRICS_PROVIDERS
 from spotdl.types.song import Song
-from spotdl.utils.config import get_spotdl_path
+from spotdl.utils.config import get_state_path
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
 from spotdl.utils.search import get_search_results
 from spotdl.utils.web import Client, app_state, validate_search_term
@@ -324,7 +324,7 @@ async def gen_download(signals: Signals):
         client.downloader.settings["output"] = client.downloader_settings["output"]
     else:
         client.downloader.settings["output"] = str(
-            (get_spotdl_path() / f"web/sessions/{client.client_id}").absolute()
+            (get_state_path() / "web" / "sessions" / client.client_id).absolute()
         )
 
     try:

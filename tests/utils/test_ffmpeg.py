@@ -101,23 +101,21 @@ def test_get_local_ffmpeg(monkeypatch):
         assert str(local_ffmpeg).endswith("ffmpeg.exe")
 
 
-def test_download_ffmpeg(monkeypatch, tmpdir):
+def test_download_ffmpeg(config_dirs):
     """
     Test download_ffmpeg function.
     """
 
-    monkeypatch.setattr(spotdl.utils.ffmpeg, "get_spotdl_path", lambda *_: tmpdir)
-
     assert download_ffmpeg() is not None
 
 
-def test_convert(tmpdir, monkeypatch):
+def test_convert(config_dirs):
     """
     Test convert function.
     """
 
-    monkeypatch.chdir(tmpdir)
-    monkeypatch.setattr(spotdl.utils.ffmpeg, "get_spotdl_path", lambda *_: tmpdir)
+    home = Path(os.environ['HOME'])
+    os.chdir(home)
 
     yt = YoutubeDL(
         {
@@ -134,12 +132,12 @@ def test_convert(tmpdir, monkeypatch):
 
     assert convert(
         input_file=(download_info["url"], download_info["ext"]),
-        output_file=Path(tmpdir, "test.mp3"),
+        output_file=home / "test.mp3",
     ) == (True, None)
 
     assert convert(
-        input_file=Path(tmpdir, "test.mp3"),
-        output_file=Path(tmpdir, "test.m4a"),
+        input_file=home / "test.mp3",
+        output_file=home / "test.m4a",
         output_format="m4a",
         bitrate="320K",
     ) == (True, None)

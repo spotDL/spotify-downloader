@@ -6,11 +6,11 @@ Default config - spotdl.utils.config.DEFAULT_CONFIG
 
 import json
 import logging
-import os
 import platform
+import platformdirs as pd
 from argparse import Namespace
 from pathlib import Path
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, Tuple, Union, TypeVar
 
 from spotdl.types.options import (
     DownloaderOptions,
@@ -19,12 +19,15 @@ from spotdl.types.options import (
     WebOptions,
 )
 
+T = TypeVar("T")
+
 __all__ = [
     "ConfigError",
-    "get_spotdl_path",
     "get_config_file",
-    "get_cache_path",
+    "get_state_path",
     "get_temp_path",
+    "get_utils_path",
+    "get_spotipy_client_cache_path",
     "get_errors_path",
     "get_web_ui_path",
     "get_config",
@@ -45,43 +48,52 @@ class ConfigError(Exception):
     """
 
 
-def get_spotdl_path() -> Path:
+def get_path_fallback(default: Path, *fallbacks: Path) -> Path:
     """
-    Get the path to the spotdl folder, following XDG standards on Linux.
-    ~/.config/spotdl/ is used if it exists, else ~/.spotdl if it exists.
-    If the spotdl directory does not exist, it will be created
+    Get the first path among current and fallbacks that exists.
+    If none exist, create current and return it.
+    All the paths passed must refer to directories.
 
     ### Returns
-    - The path to the spotdl folder.
-
-    ### Notes
+    - A path, guaranteed to exist, the first such among default and fallbacks.
+    ### Note
+    - This has the implication that for fallbacks for files, we pick behaviours according to whether
+      their _parent directory_ exists. For our current purposes, this is sufficient, since we need
+      to be able to raise ConfigError if the config file doesn't exist, and are so far not moving
+      files into subdirectories of existing fallback paths.
+      (To clarify -- the identified failure mode is moving ~/.spotdlrc to ~/.spotdl/spotdlrc)
     """
 
-    # For Linux systems, we follow the XDG Base Directory Specification
-    if platform.system() == "Linux":
-        # Define the new, correct XDG config path (~/.config/spotdl)
-        xdg_config_path = Path.home() / ".config" / "spotdl"
+    for path in default, *fallbacks:
+        if path.exists():
+            return path
+    default.mkdir(parents=True, exist_ok=True)
+    return default
 
-        # Define the old path (~/.spotdl) for backward compatibility
-        old_spotdl_path = Path.home() / ".spotdl"
 
-        # Scenario 1: The user already has the new XDG config folder. Use it.
-        if xdg_config_path.exists():
-            return xdg_config_path
+def elemIf(x: T, p: bool) -> T:
+    """
+    Yields x if p is true.
+    Useful for inserting x into a list only when p is true.
+    """
+    if p:
+        yield x
 
-        # Scenario 2: The user is an existing user with only the old folder. Use the old one.
-        if old_spotdl_path.exists():
-            return old_spotdl_path
 
-        # Scenario 3: The user is brand new. Create and use the new XDG path.
-        os.makedirs(xdg_config_path, exist_ok=True)
-        return xdg_config_path
-
-    # For non-Linux systems (like Windows), use the default ~/.spotdl path
-    spotdl_path = Path.home() / ".spotdl"
-    os.makedirs(spotdl_path, exist_ok=True)
-
-    return spotdl_path
+# Backwards-compatibility for paths under the old behaviour where spotdl would put everything under
+# a "spotdl folder" and all paths would be relative to these root directories.
+#
+# In order for this list to be affected by the monkeypatching to `os.environ` in tests, we need to
+# wrap it in a function so it gets reevaluated every time.
+# This way, it picks up the changes to the environment.
+def old_spotdl_dirs():
+    return [
+        # An initial attempt at XDG Base Directory support hardcoded the path as ~/.config/spotdl on
+        # linux
+        *(elemIf(Path.home() / ".config" / "spotdl", platform.system() == "Linux")),
+        # The previous behaviour, which unconditionally used the unixy ~/.spotdl
+        Path.home() / ".spotdl",
+    ]
 
 
 def get_config_file() -> Path:
@@ -92,29 +104,29 @@ def get_config_file() -> Path:
     - The path to the config file.
     """
 
-    return get_spotdl_path() / "config.json"
+    return (
+        get_path_fallback(
+            *([pd.user_config_path(appname="spotdl")] + old_spotdl_dirs())
+        )
+        / "config.json"
+    )
 
 
-def get_cache_path() -> Path:
+def get_state_path() -> Path:
     """
-    Get the path to the cache folder.
+    Get the path to the state folder.
 
     ### Returns
-    - The path to the spotipy cache file.
+    - The path to the directory containing working state.
     """
 
-    return get_spotdl_path() / ".spotipy"
-
-
-def get_spotify_cache_path() -> Path:
-    """
-    Get the path to the spotify cache folder.
-
-    ### Returns
-    - The path to the spotipy cache file.
-    """
-
-    return get_spotdl_path() / ".spotify_cache"
+    return get_path_fallback(
+        *(
+            r / d
+            for r in [pd.user_state_path(appname="spotdl")] + old_spotdl_dirs()
+            for d in [""]
+        )
+    )
 
 
 def get_temp_path() -> Path:
@@ -125,11 +137,73 @@ def get_temp_path() -> Path:
     - The path to the temp folder.
     """
 
-    temp_path = get_spotdl_path() / "temp"
-    if not temp_path.exists():
-        os.mkdir(temp_path)
+    return get_path_fallback(
+        *(
+            r / d
+            for r in [pd.user_cache_path(appname="spotdl")] + old_spotdl_dirs()
+            for d in ["temp"]
+        )
+    )
 
-    return temp_path
+
+def get_utils_path() -> Path:
+    """
+    Get the path to the utilities folder.
+
+    ### Returns
+    - The path to the directory containing support programs.
+    """
+
+    return get_path_fallback(
+        *(
+            [r / d for r in [pd.user_data_path(appname="spotdl")] for d in ["utils"]]
+            + [r / d for r in old_spotdl_dirs() for d in [""]]
+        )
+    )
+
+
+def get_spotipy_client_cache_path() -> Path:
+    """
+    Get the path to the cache folder.
+
+    ### Returns
+    - The path to the spotipy cache file.
+    """
+
+    return get_path_fallback(
+        *(
+            [
+                r / d
+                for r in [pd.user_cache_path(appname="spotdl")]
+                for d in ["spotipy", ".spotipy"]
+            ]
+            + [r / d for r in old_spotdl_dirs() for d in [".spotipy", "spotipy"]]
+        )
+    )
+
+
+def get_spotify_cache_path() -> Path:
+    """
+    Get the path to the spotify cache folder.
+
+    ### Returns
+    - The path to the spotipy cache file.
+    """
+
+    return get_path_fallback(
+        *(
+            [
+                r / d
+                for r in [pd.user_cache_path(appname="spotdl")]
+                for d in ["spotify_cache", ".spotify_cache"]
+            ]
+            + [
+                r / d
+                for r in old_spotdl_dirs()
+                for d in [".spotify_cache", "spotify_cache"]
+            ]
+        )
+    )
 
 
 def get_errors_path() -> Path:
@@ -143,12 +217,13 @@ def get_errors_path() -> Path:
     - If the errors directory does not exist, it will be created.
     """
 
-    errors_path = get_spotdl_path() / "errors"
-
-    if not errors_path.exists():
-        os.mkdir(errors_path)
-
-    return errors_path
+    return get_path_fallback(
+        *(
+            r / d
+            for r in [pd.user_log_path(appname="spotdl")] + old_spotdl_dirs()
+            for d in ["errors"]
+        )
+    )
 
 
 def get_web_ui_path() -> Path:
@@ -162,14 +237,14 @@ def get_web_ui_path() -> Path:
     - If the web-ui directory does not exist, it will be created.
     """
 
-    # web_ui_path = get_spotdl_path() / "web-ui"
-    # web_ui_path = get_spotdl_path() / "src" / "spotdl" / "web" / "static"
-    web_ui_path = Path(__file__).parent.parent / "web" / "static"
-
-    if not web_ui_path.exists():
-        os.mkdir(web_ui_path)
-
-    return web_ui_path
+    return get_path_fallback(
+        pd.user_data_path(appname="spotdl") / "web" / "static",
+        *(
+            r / d
+            for r in old_spotdl_dirs()
+            for d in ["web-ui", "src" / "spotdl" / "web" / "static"]
+        )
+    )
 
 
 def get_config() -> Dict[str, Any]:
@@ -312,7 +387,7 @@ SPOTIFY_OPTIONS: SpotifyOptions = {
     "auth_token": None,
     "user_auth": False,
     "headless": False,
-    "cache_path": str(get_cache_path()),
+    "cache_path": str(get_spotipy_client_cache_path()),
     "no_cache": False,
     "max_retries": 3,
     "use_cache_file": False,

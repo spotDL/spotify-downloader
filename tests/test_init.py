@@ -1,8 +1,4 @@
-from types import SimpleNamespace
 
-import pytest
-
-import spotdl.utils.config
 from spotdl import Spotdl
 from spotdl.types.song import Song
 from spotdl.utils.config import DEFAULT_CONFIG, DOWNLOADER_OPTIONS
@@ -10,15 +6,7 @@ from spotdl.utils.spotify import SpotifyClient
 from tests.conftest import new_initialize
 
 
-@pytest.fixture()
-def setup(tmp_path, monkeypatch):
-    monkeypatch.setattr(spotdl.utils.config, "get_spotdl_path", lambda *_: tmp_path)
-    data = SimpleNamespace()
-    data.directory = tmp_path
-    yield data
-
-
-def test_get_urls(monkeypatch):
+def test_get_urls(config_dirs, monkeypatch):
     """
     Tests if spotdl can be initialized correctly.
     """
@@ -48,7 +36,7 @@ def test_get_urls(monkeypatch):
     assert len(urls) == 1
 
 
-def test_download(setup, monkeypatch, tmpdir):
+def test_download(config_dirs, monkeypatch, tmpdir):
     """
     Tests if spotdl can be initialized correctly.
     """

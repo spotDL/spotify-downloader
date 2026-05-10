@@ -140,8 +140,8 @@ def parse_main_options(parser: _ArgumentGroup):
         action="store_true",
         help=(
             "Use the config file to download songs. "
-            "It's located under C:\\Users\\user\\.spotdl\\config.json "
-            "or ~/.spotdl/config.json under linux"
+            "It's located under %USERPROFILE%\\AppData\\Local\\spotdl\\config.json "
+            "or $XDG_CONFIG_HOME/spotdl/config.json under linux"
         ),
     )
 
@@ -252,8 +252,8 @@ def parse_spotify_options(parser: _ArgumentGroup):
         const=True,
         help=(
             "Use the cache file to get metadata. "
-            "It's located under C:\\Users\\user\\.spotdl\\.spotify_cache "
-            "or ~/.spotdl/.spotify_cache under linux. "
+            "It's located under %USERPROFILE%\\AppData\\Local\\spotdl\\Cache\\spotify_cache "
+            "or $XDG_CACHE_HOME/spotdl/spotify_cache under linux. "
             "It only caches tracks and "
             "gets updated whenever spotDL gets metadata from Spotify. "
             "(It may provide outdated metadata use with caution)"
