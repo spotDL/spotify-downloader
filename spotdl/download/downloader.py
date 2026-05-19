@@ -10,6 +10,8 @@ import re
 import shutil
 import sys
 import traceback
+import os
+
 from argparse import Namespace
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Type, Union
@@ -237,6 +239,23 @@ class Downloader:
         logger.debug("Archive: %d urls", len(self.url_archive))
 
         logger.debug("Downloader initialized")
+
+    
+    # === add start ===
+    @staticmethod
+    def record_download_log(track_display_name, status="Success"):
+        """
+        Append a record to download_log.txt (project root).
+        """
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log_line = f"{now} | {track_display_name} | {status}\n"
+        log_path = os.path.join(os.getcwd(), "download_log.txt")
+        try:
+            with open(log_path, "a", encoding="utf-8") as f:
+                f.write(log_line)
+        except Exception as e:
+            print(f"Failed to write download log: {e}")
+    # === add end ===
 
     def download_song(self, song: Song) -> Tuple[Song, Optional[Path]]:
         """
@@ -850,6 +869,10 @@ class Downloader:
 
             logger.info('Downloaded "%s": %s', song.display_name, song.download_url)
 
+            # === add start === 新增: 下载成功日志记录
+            Downloader.record_download_log(song.display_name, status="Success")
+            # === add end ===
+            
             return song, output_file
         except (Exception, UnicodeEncodeError) as exception:
             if isinstance(exception, UnicodeEncodeError):
