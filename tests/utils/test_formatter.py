@@ -152,6 +152,25 @@ def test_create_file_name_restrict():
         "Ornette - Crazy - Nôze Remix - Extended Club Version.mp3"
     )
 
+    # restrict must sanitize directory names too, not just the file name (#2371).
+    # Otherwise template dirs like {album} keep non-ASCII chars and break on
+    # filesystems such as FAT32.
+    assert create_file_name(
+        song, "{album}/{artist} - {title}", "mp3", restrict="strict"
+    ) == Path("Crazy_Noze_Remix/Ornette-Crazy-Noze_Remix-Extended_Club_Version.mp3")
+
+    assert create_file_name(
+        song, "{album}/{artist} - {title}", "mp3", restrict="ascii"
+    ) == Path(
+        "Crazy (Noze Remix)/Ornette - Crazy - Noze Remix - Extended Club Version.mp3"
+    )
+
+    assert create_file_name(
+        song, "{album}/{artist} - {title}", "mp3", restrict=None
+    ) == Path(
+        "Crazy (Nôze Remix)/Ornette - Crazy - Nôze Remix - Extended Club Version.mp3"
+    )
+
 
 def test_parse_duration():
     """

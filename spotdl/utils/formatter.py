@@ -504,7 +504,8 @@ def to_ms(
 
 def restrict_filename(pathobj: Path, strict: bool = True) -> Path:
     """
-    Sanitizes the filename part of a Path object. Returns modified object.
+    Sanitizes every part of a Path object (directories and the file name).
+    Returns modified object.
 
     ### Arguments
     - pathobj: the Path object to sanitize
@@ -515,19 +516,36 @@ def restrict_filename(pathobj: Path, strict: bool = True) -> Path:
 
     ### Notes
     - Based on the `sanitize_filename` function from yt-dlp
+    - All path components are sanitized, not just the file name, so that
+      directory names produced by the output template (e.g. ``{artist}`` or
+      ``{album}``) are also restricted. This is required for filesystems like
+      FAT32 that reject non-ASCII characters in directory names too.
+    - The path anchor (drive letter / root, e.g. ``C:\\`` or ``/``) is
+      preserved as-is so absolute paths stay valid.
     """
-    if strict:
-        result = sanitize_filename(pathobj.name, True, False)  # type: ignore
-        result = result.replace("_-_", "-")
-    else:
-        result = (
-            normalize("NFKD", pathobj.name).encode("ascii", "ignore").decode("utf-8")
-        )
 
-    if not result:
-        result = "_"
+    def _restrict_part(part: str) -> str:
+        if strict:
+            result = sanitize_filename(part, True, False)  # type: ignore
+            result = result.replace("_-_", "-")
+        else:
+            result = normalize("NFKD", part).encode("ascii", "ignore").decode("utf-8")
 
-    return pathobj.with_name(result)
+        return result or "_"
+
+    # Nothing to do for an empty path
+    if not pathobj.parts:
+        return pathobj
+
+    anchor = pathobj.anchor
+    # Skip the anchor (drive/root); sanitize every remaining component
+    relative_parts = pathobj.parts[1:] if anchor else pathobj.parts
+    sanitized_parts = [_restrict_part(part) for part in relative_parts]
+
+    if anchor:
+        return Path(anchor, *sanitized_parts)
+
+    return Path(*sanitized_parts) if sanitized_parts else pathobj
 
 
 @lru_cache()
