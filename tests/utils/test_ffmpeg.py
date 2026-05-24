@@ -114,9 +114,6 @@ def test_convert(config_dirs):
     Test convert function.
     """
 
-    home = Path(os.environ['HOME'])
-    os.chdir(home)
-
     yt = YoutubeDL(
         {
             "format": "bestaudio",

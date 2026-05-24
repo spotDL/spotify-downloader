@@ -26,9 +26,6 @@ def test_embed_metadata(config_dirs, output_format):
     Test convert function.
     """
 
-    home = Path(os.environ['HOME'])
-    os.chdir(home)
-
     youtube = YoutubeDL(
         {
             "format": "bestaudio",

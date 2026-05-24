@@ -121,6 +121,7 @@ def config_dirs(tmp_path_factory, monkeypatch):
     monkeypatch.setenv('USERPROFILE', str(home))
     paths = config_paths()
     populate_config(paths)
+    monkeypatch.chdir(home)
 
 def populate_config(paths):
     for p in filter(lambda k: k.endswith('_file'), paths):
