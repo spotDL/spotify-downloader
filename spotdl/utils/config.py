@@ -71,7 +71,7 @@ def get_path_fallback(default: Path, *fallbacks: Path) -> Path:
     return default
 
 
-def elemIf(x: T, p: bool) -> T:
+def elem_if(x: T, p: bool) -> Iterable[T]:
     """
     Yields x if p is true.
     Useful for inserting x into a list only when p is true.
@@ -90,7 +90,7 @@ def old_spotdl_dirs():
     return [
         # An initial attempt at XDG Base Directory support hardcoded the path as ~/.config/spotdl on
         # linux
-        *(elemIf(Path.home() / ".config" / "spotdl", platform.system() == "Linux")),
+        *(elem_if(Path.home() / ".config" / "spotdl", platform.system() == "Linux")),
         # The previous behaviour, which unconditionally used the unixy ~/.spotdl
         Path.home() / ".spotdl",
     ]
