@@ -122,9 +122,9 @@ def get_state_path() -> Path:
 
     return get_path_fallback(
         *(
-            r / d
-            for r in [pd.user_state_path(appname="spotdl")] + old_spotdl_dirs()
-            for d in [""]
+            root / dir
+            for root in [pd.user_state_path(appname="spotdl")] + old_spotdl_dirs()
+            for dir in [""]
         )
     )
 
@@ -139,9 +139,9 @@ def get_temp_path() -> Path:
 
     return get_path_fallback(
         *(
-            r / d
-            for r in [pd.user_cache_path(appname="spotdl")] + old_spotdl_dirs()
-            for d in ["temp"]
+            root / dir
+            for root in [pd.user_cache_path(appname="spotdl")] + old_spotdl_dirs()
+            for dir in ["temp"]
         )
     )
 
@@ -156,8 +156,16 @@ def get_utils_path() -> Path:
 
     return get_path_fallback(
         *(
-            [r / d for r in [pd.user_data_path(appname="spotdl")] for d in ["utils"]]
-            + [r / d for r in old_spotdl_dirs() for d in [""]]
+            [
+                root / dir
+                for root in [pd.user_data_path(appname="spotdl")]
+                for dir in ["utils"]
+            ]
+            + [
+                root / dir
+                for root in old_spotdl_dirs()
+                for dir in [""]
+            ]
         )
     )
 
@@ -173,11 +181,15 @@ def get_spotipy_client_cache_path() -> Path:
     return get_path_fallback(
         *(
             [
-                r / d
-                for r in [pd.user_cache_path(appname="spotdl")]
-                for d in ["spotipy", ".spotipy"]
+                root / dir
+                for root in [pd.user_cache_path(appname="spotdl")]
+                for dir in ["spotipy", ".spotipy"]
             ]
-            + [r / d for r in old_spotdl_dirs() for d in [".spotipy", "spotipy"]]
+            + [
+                root / dir
+                for root in old_spotdl_dirs()
+                for dir in [".spotipy", "spotipy"]
+            ]
         )
     )
 
@@ -193,14 +205,14 @@ def get_spotify_cache_path() -> Path:
     return get_path_fallback(
         *(
             [
-                r / d
-                for r in [pd.user_cache_path(appname="spotdl")]
-                for d in ["spotify_cache", ".spotify_cache"]
+                root / dir
+                for root in [pd.user_cache_path(appname="spotdl")]
+                for dir in ["spotify_cache", ".spotify_cache"]
             ]
             + [
-                r / d
-                for r in old_spotdl_dirs()
-                for d in [".spotify_cache", "spotify_cache"]
+                root / dir
+                for root in old_spotdl_dirs()
+                for dir in [".spotify_cache", "spotify_cache"]
             ]
         )
     )
@@ -219,9 +231,9 @@ def get_errors_path() -> Path:
 
     return get_path_fallback(
         *(
-            r / d
-            for r in [pd.user_log_path(appname="spotdl")] + old_spotdl_dirs()
-            for d in ["errors"]
+            root / dir
+            for root in [pd.user_log_path(appname="spotdl")] + old_spotdl_dirs()
+            for dir in ["errors"]
         )
     )
 
@@ -240,9 +252,9 @@ def get_web_ui_path() -> Path:
     return get_path_fallback(
         pd.user_data_path(appname="spotdl") / "web" / "static",
         *(
-            r / d
-            for r in old_spotdl_dirs()
-            for d in ["web-ui", "src" / "spotdl" / "web" / "static"]
+            root / dir
+            for root in old_spotdl_dirs()
+            for dir in ["web-ui", "src" / "spotdl" / "web" / "static"]
         )
     )
 
