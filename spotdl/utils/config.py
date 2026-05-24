@@ -104,12 +104,13 @@ def get_config_file() -> Path:
     - The path to the config file.
     """
 
-    return (
-        get_path_fallback(
-            *([pd.user_config_path(appname="spotdl")] + old_spotdl_dirs())
+    return get_path_fallback(
+        *(
+            root / file
+            for root in [pd.user_config_path(appname="spotdl")] + old_spotdl_dirs()
+            for file in ["config.json"]
+            )
         )
-        / "config.json"
-    )
 
 
 def get_state_path() -> Path:
@@ -254,7 +255,7 @@ def get_web_ui_path() -> Path:
         *(
             root / dir
             for root in old_spotdl_dirs()
-            for dir in ["web-ui", "src" / "spotdl" / "web" / "static"]
+            for dir in ["web-ui", Path("src") / "spotdl" / "web" / "static"]
         )
     )
 
