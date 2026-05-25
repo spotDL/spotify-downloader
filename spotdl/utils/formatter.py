@@ -522,9 +522,8 @@ def restrict_filename(
 
     ### Notes
     - Based on the `sanitize_filename` function from yt-dlp
-    - Sanitizing directory components (not just the file name) is required for
-      filesystems like FAT32 that reject non-ASCII characters in directory
-      names too (#2371).
+    - Sanitizing the file and directory name is required for
+      filesystems like FAT32 that reject non-ASCII characters.
     """
 
     def _restrict_part(part: str) -> str:
