@@ -171,6 +171,19 @@ def test_create_file_name_restrict():
         "Crazy (Nôze Remix)/Ornette - Crazy - Nôze Remix - Extended Club Version.mp3"
     )
 
+    # Literal directories typed by the user (not produced by a template
+    # placeholder) must be left untouched even with restrict — spotDL should
+    # not rename folders it does not create.
+    assert create_file_name(
+        song, "Mü Music/{artist} - {title}", "mp3", restrict="strict"
+    ) == Path("Mü Music/Ornette-Crazy-Noze_Remix-Extended_Club_Version.mp3")
+
+    assert create_file_name(
+        song, "Mü Music/{artist} - {title}", "mp3", restrict="ascii"
+    ) == Path(
+        "Mü Music/Ornette - Crazy - Noze Remix - Extended Club Version.mp3"
+    )
+
 
 def test_parse_duration():
     """

@@ -352,7 +352,7 @@ def create_file_name(
     if len(file.name) < length_limit:
         # Restrict the filename if needed
         if restrict and restrict != "none":
-            return restrict_filename(file, restrict == "strict")
+            return restrict_filename(file, restrict == "strict", template)
 
         return file
 
@@ -502,26 +502,29 @@ def to_ms(
     return result
 
 
-def restrict_filename(pathobj: Path, strict: bool = True) -> Path:
+def restrict_filename(
+    pathobj: Path, strict: bool = True, template: Optional[str] = None
+) -> Path:
     """
-    Sanitizes every part of a Path object (directories and the file name).
-    Returns modified object.
+    Sanitizes path components of a Path object. Returns modified object.
 
     ### Arguments
     - pathobj: the Path object to sanitize
     - strict: whether sanitization should be strict
+    - template: the output template the path was built from. When provided,
+      only the components produced from a template placeholder (e.g.
+      ``{artist}`` / ``{album}``) are sanitized, so literal directories the
+      user typed into ``--output`` (and that spotDL did not create) are left
+      untouched. When omitted, only the file name is sanitized (legacy).
 
     ### Returns
     - the modified Path object
 
     ### Notes
     - Based on the `sanitize_filename` function from yt-dlp
-    - All path components are sanitized, not just the file name, so that
-      directory names produced by the output template (e.g. ``{artist}`` or
-      ``{album}``) are also restricted. This is required for filesystems like
-      FAT32 that reject non-ASCII characters in directory names too.
-    - The path anchor (drive letter / root, e.g. ``C:\\`` or ``/``) is
-      preserved as-is so absolute paths stay valid.
+    - Sanitizing directory components (not just the file name) is required for
+      filesystems like FAT32 that reject non-ASCII characters in directory
+      names too (#2371).
     """
 
     def _restrict_part(part: str) -> str:
@@ -533,19 +536,31 @@ def restrict_filename(pathobj: Path, strict: bool = True) -> Path:
 
         return result or "_"
 
-    # Nothing to do for an empty path
     if not pathobj.parts:
         return pathobj
 
-    anchor = pathobj.anchor
-    # Skip the anchor (drive/root); sanitize every remaining component
-    relative_parts = pathobj.parts[1:] if anchor else pathobj.parts
-    sanitized_parts = [_restrict_part(part) for part in relative_parts]
+    # Legacy behaviour: no template -> only sanitize the file name.
+    if template is None:
+        result = _restrict_part(pathobj.name)
+        return pathobj.with_name(result)
 
-    if anchor:
-        return Path(anchor, *sanitized_parts)
+    parts = list(pathobj.parts)
+    template_parts = [part for part in re.split(r"[\\/]+", template) if part]
 
-    return Path(*sanitized_parts) if sanitized_parts else pathobj
+    # If the path structure doesn't line up with the template (unexpected),
+    # fall back to sanitizing the file name only, to avoid touching the wrong
+    # components.
+    if len(template_parts) != len(parts):
+        result = _restrict_part(pathobj.name)
+        return pathobj.with_name(result)
+
+    # Only sanitize components that came from a template placeholder; leave
+    # literal path segments (e.g. a base output directory) as-is.
+    new_parts = [
+        _restrict_part(part) if "{" in tmpl else part
+        for part, tmpl in zip(parts, template_parts)
+    ]
+    return Path(*new_parts)
 
 
 @lru_cache()
