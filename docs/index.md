@@ -85,10 +85,16 @@ Refer to our [Installation Guide](installation.md) for more details.
     pip install uv
     uv sync
     uv run scripts/build.py
-    ```
+    `
 
     An executable is created in `spotify-downloader/dist/`.
 
+- uv tool
+
+  ```bash
+  uv tool install spotdl
+  ```
+  
 ### Installing FFmpeg
 
 FFmpeg is required for spotDL. If using FFmpeg only for spotDL, you can simply install FFmpeg to your spotDL installation directory:
