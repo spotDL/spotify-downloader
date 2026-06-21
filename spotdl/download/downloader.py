@@ -3,6 +3,7 @@ Downloader module, this is where all the downloading pre/post processing happens
 """
 
 import asyncio
+import threading
 import datetime
 import json
 import logging
@@ -233,6 +234,7 @@ class Downloader:
         self.url_archive = Archive()
         if self.settings["archive"]:
             self.url_archive.load(self.settings["archive"])
+        self._archive_lock = threading.Lock()
 
         logger.debug("Archive: %d urls", len(self.url_archive))
 
@@ -315,15 +317,11 @@ class Downloader:
 
             logger.info("Saved errors to %s", self.settings["save_errors"])
 
-        # Save archive
+        # Note: archive is now saved incrementally in search_and_download
+        # so that progress is not lost if the process crashes mid-playlist.
         if self.settings["archive"]:
-            for result in results:
-                if result[1] or self.settings["add_unavailable"]:
-                    self.url_archive.add(result[0].url)
-
-            self.url_archive.save(self.settings["archive"])
             logger.info(
-                "Saved archive with %d urls to %s",
+                "Archive contains %d urls (saved to %s)",
                 len(self.url_archive),
                 self.settings["archive"],
             )
@@ -848,6 +846,13 @@ class Downloader:
             # Add the song to the known songs
             self.known_songs.get(song.url, []).append(output_file)
 
+            # Save to archive immediately so progress is not lost on crash
+            if self.settings["archive"]:
+                with self._archive_lock:
+                    self.url_archive.add(song.url)
+                    self.url_archive.save(self.settings["archive"])
+                logger.debug("Archived %s", song.url)
+
             logger.info('Downloaded "%s": %s', song.display_name, song.download_url)
 
             return song, output_file
@@ -866,4 +871,12 @@ class Downloader:
             self.errors.append(
                 f"{song.url} - {exception.__class__.__name__}: {exception}"
             )
+
+            # Archive unavailable songs immediately if add_unavailable is set
+            if self.settings["archive"] and self.settings["add_unavailable"]:
+                with self._archive_lock:
+                    self.url_archive.add(song.url)
+                    self.url_archive.save(self.settings["archive"])
+                logger.debug("Archived unavailable song %s", song.url)
+
             return song, None
