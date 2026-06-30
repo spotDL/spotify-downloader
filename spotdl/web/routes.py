@@ -4,6 +4,7 @@ Module which contains the web client routes and functions.
 
 import asyncio
 import uuid
+from pathlib import Path
 from typing import Any, Optional, cast
 
 # from datastar_py.sse import DatastarEvent
@@ -17,10 +18,9 @@ from fastapi.templating import Jinja2Templates
 
 from spotdl._version import __version__
 from spotdl.download.downloader import AUDIO_PROVIDERS, LYRICS_PROVIDERS
-from spotdl.types.song import Song
 from spotdl.utils.config import get_spotdl_path
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
-from spotdl.utils.search import get_search_results
+from spotdl.utils.search import get_search_results, get_simple_songs
 from spotdl.utils.web import Client, app_state, validate_search_term
 from spotdl.web.utils import Signals, handle_signals
 
@@ -28,7 +28,26 @@ __all__ = ["router"]
 
 router = APIRouter()
 
-templates = Jinja2Templates(directory="spotdl/web/components")
+# Resolve the templates directory relative to this package so the web UI works
+# regardless of the current working directory (e.g. inside Docker, WORKDIR=/music).
+templates = Jinja2Templates(directory=str(Path(__file__).parent / "components"))
+
+# Strong references to background download tasks.
+# asyncio only keeps a *weak* reference to tasks created with create_task(),
+# so without this the task can be garbage-collected the moment it suspends on
+# its first `await` (e.g. await asyncio.to_thread(Playlist.from_url, ...)),
+# causing the download to silently vanish.
+_background_tasks: set = set()
+
+
+def _spawn_background_task(coro) -> None:
+    """
+    Schedule a coroutine as a background task and retain a strong reference to
+    it until it completes, so it is not garbage-collected mid-execution.
+    """
+    task = asyncio.create_task(coro)
+    _background_tasks.add(task)
+    task.add_done_callback(_background_tasks.discard)
 
 
 # PATHS
@@ -126,18 +145,31 @@ async def handle_get_client_search(datastar_signals: ReadSignals):
     """
     app_state.logger.info("Loading search...")
     signals = handle_signals(datastar_signals)
+
+    # If the client ID is stale (server restarted), create a new one and inform the browser.
+    if signals.client_id and Client.get_instance(signals.client_id) is None:
+        app_state.logger.warning(
+            f"Client {signals.client_id} not found in search, creating new client..."
+        )
+        signals.client_id = uuid.uuid4().hex
+        client = Client(signals.client_id)
+        await client.connect()
+        yield SSE.patch_signals({"client_id": signals.client_id})
+
     app_state.logger.info(f"[{signals.client_id}] Search term: {signals.search_term}")
     is_valid_url = validate_search_term(signals.search_term)
 
     if is_valid_url:
-        # redirect client to downloads page
         app_state.logger.info(
             f"[{signals.client_id}] Valid URL detected, redirecting to downloads..."
         )
-        yield SSE.redirect("/downloads")
         signals.song_url = signals.search_term
-        async for update in gen_download(signals):
-            yield update
+        # Start the download as a background task BEFORE redirecting.
+        # If we redirect first, the browser closes this SSE connection and the
+        # generator gets cancelled before gen_download can run.
+        _spawn_background_task(_run_download_task(signals))
+        yield SSE.redirect("/downloads")
+        return
 
     songs = get_search_results(signals.search_term)
     yield SSE.patch_elements(
@@ -289,6 +321,43 @@ async def handle_post_client_download(datastar_signals: ReadSignals):
 # HELPERS
 
 
+async def _run_download_task(signals: Signals):
+    """
+    Background task wrapper for gen_download.
+    Consumes the generator without yielding to any SSE stream,
+    so it survives the closure of the search SSE connection.
+    Deduplicates by URL so datastar retries don't trigger multiple downloads.
+    """
+    app_state.logger.info(
+        f"[{signals.client_id}] Background download task started for: {signals.song_url}"
+    )
+    client = Client.get_instance(signals.client_id)
+    if client is None:
+        app_state.logger.warning(
+            f"[{signals.client_id}] Client not found in background task, aborting."
+        )
+        return
+    url = signals.song_url
+    if url in client.active_download_urls:
+        app_state.logger.info(
+            f"[{signals.client_id}] Download already in progress for {url}, skipping duplicate."
+        )
+        return
+    client.active_download_urls.add(url)
+    try:
+        async for _ in gen_download(signals):
+            pass
+    except BaseException as exc:
+        app_state.logger.error(
+            f"[{signals.client_id}] Background download task failed ({type(exc).__name__}): {exc}"
+        )
+    finally:
+        client.active_download_urls.discard(url)
+        app_state.logger.info(
+            f"[{signals.client_id}] Background download task finished for: {url}"
+        )
+
+
 async def gen_download(signals: Signals):
     """
     Generate the download process for the client.
@@ -318,22 +387,50 @@ async def gen_download(signals: Signals):
         )
 
     try:
-        # Fetch song metadata
-        song = Song.from_url(signals.song_url)
-        app_state.logger.info(f"Downloading song: {song}")
+        url = signals.song_url
+        app_state.logger.info(f"[{signals.client_id}] Resolving URL: {url}")
 
-        # Download Song
-        _, path = await client.downloader.pool_download(song)
+        # Resolve the URL (track / playlist / album / artist) into a flat list of
+        # Song objects using the same canonical resolver the CLI uses.
+        # get_simple_songs():
+        #   * already calls *.from_url(url, fetch_songs=False), so it does NOT
+        #     make one slow Spotify call per song (doing so made playlists appear
+        #     to hang), and
+        #   * populates each song's list_name/list_url/list_position/list_length,
+        #     which the output template "{list-name}/..." relies on. Without it the
+        #     template collapses to "/..." (an absolute path to the filesystem
+        #     root) and ffmpeg fails with "Permission denied".
+        # It internally calls asyncio.run() via spotipyfree, so it must run in a
+        # worker thread to avoid clashing with the server's running event loop.
+        app_state.logger.info(f"[{signals.client_id}] Fetching metadata...")
+        songs = await asyncio.to_thread(get_simple_songs, [url])
+
+        app_state.logger.info(f"[{signals.client_id}] Resolved {len(songs)} song(s), starting download from: {url}")
+
+        # Download all songs concurrently. pool_download() acquires the
+        # downloader's semaphore (sized to the "threads" setting, e.g. 4), so
+        # gathering every task at once still only runs N downloads in parallel
+        # instead of one-at-a-time.
+        client.downloader.progress_handler.set_song_count(len(songs))
+        results = await asyncio.gather(
+            *(client.downloader.pool_download(song) for song in songs),
+            return_exceptions=True,
+        )
+        for song, result in zip(songs, results):
+            if isinstance(result, BaseException):
+                app_state.logger.error(
+                    f"[{signals.client_id}] Error downloading {song.name}: {result}"
+                )
+                continue
+            _, path = result
+            if path is None:
+                app_state.logger.error(f"Failure downloading {song.name}")
+
         yield SSE.patch_elements(f"""
             <button id="download-{signals.song_url}" class="btn btn-primary btn-square">
                     <iconify-icon icon="clarity:check-line" style="font-size: 24px"></iconify-icon>
                 </button>
         """)
-
-        if path is None:
-            app_state.logger.error(f"Failure downloading {song.name}")
-
-        # return str(path.absolute())
 
     except Exception as exception:
         app_state.logger.error(f"Error downloading! {exception}")

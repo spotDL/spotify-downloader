@@ -26,6 +26,7 @@ from spotdl.providers.audio import (
     YouTube,
     YouTubeMusic,
 )
+from spotdl.providers.audio.base import AudioProviderError
 from spotdl.providers.lyrics import AzLyrics, Genius, LyricsProvider, MusixMatch, Synced
 from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
 from spotdl.types.song import Song
@@ -674,26 +675,105 @@ class Downloader:
                 display_progress_tracker.yt_dlp_progress_hook
             )
 
-            if song.download_url is None:
-                download_url = self.search(song)
-            else:
+            if song.download_url is not None:
                 download_url = song.download_url
-
-            logger.debug("Downloading %s using %s", song.display_name, download_url)
-            download_info = audio_downloader.get_download_metadata(
-                download_url, download=True
-            )
-
-            if download_info is None:
                 logger.debug(
-                    "No download info found for %s, url: %s",
-                    song.display_name,
-                    download_url,
+                    "Downloading %s using %s", song.display_name, download_url
                 )
+                download_info = audio_downloader.get_download_metadata(
+                    download_url, download=True
+                )
+                if download_info is None:
+                    raise DownloaderError(
+                        f"yt-dlp failed to get metadata for: {song.name} - {song.artist}"
+                    )
+            else:
+                download_info = None
+                download_url = None
+                last_provider_error: Optional[Exception] = None
+                provider_results: List[str] = []
+                failed_urls: set = set()
+                providers = self.audio_providers
+                for idx, audio_provider in enumerate(providers, 1):
+                    provider_url = None
+                    logger.debug(
+                        "[%d/%d] Trying provider %s for %s",
+                        idx,
+                        len(providers),
+                        audio_provider.name,
+                        song.display_name,
+                    )
+                    try:
+                        provider_url = audio_provider.search(
+                            song, self.settings["only_verified_results"]
+                        )
+                        if not provider_url:
+                            result_msg = f"{audio_provider.name}: no results"
+                            provider_results.append(result_msg)
+                            logger.debug(
+                                "[%d/%d] %s",
+                                idx,
+                                len(providers),
+                                result_msg,
+                            )
+                            continue
+                        if provider_url in failed_urls:
+                            result_msg = f"{audio_provider.name}: skipped (same URL already failed: {provider_url})"
+                            provider_results.append(result_msg)
+                            logger.debug(
+                                "[%d/%d] %s",
+                                idx,
+                                len(providers),
+                                result_msg,
+                            )
+                            continue
+                        logger.debug(
+                            "[%d/%d] %s found URL %s — attempting download",
+                            idx,
+                            len(providers),
+                            audio_provider.name,
+                            provider_url,
+                        )
+                        provider_download_info = audio_downloader.get_download_metadata(
+                            provider_url, download=True
+                        )
+                        if provider_download_info is not None:
+                            download_url = provider_url
+                            download_info = provider_download_info
+                            logger.debug(
+                                "[%d/%d] %s succeeded for %s",
+                                idx,
+                                len(providers),
+                                audio_provider.name,
+                                song.display_name,
+                            )
+                            break
+                        result_msg = f"{audio_provider.name}: no download info"
+                        provider_results.append(result_msg)
+                        logger.debug(
+                            "[%d/%d] %s",
+                            idx,
+                            len(providers),
+                            result_msg,
+                        )
+                    except Exception as exc:
+                        result_msg = f"{audio_provider.name}: {exc}"
+                        provider_results.append(result_msg)
+                        logger.debug(
+                            "[%d/%d] %s",
+                            idx,
+                            len(providers),
+                            result_msg,
+                        )
+                        last_provider_error = exc
+                        if provider_url:
+                            failed_urls.add(provider_url)
 
-                raise DownloaderError(
-                    f"yt-dlp failed to get metadata for: {song.name} - {song.artist}"
-                )
+                if download_info is None:
+                    summary = " | ".join(provider_results) if provider_results else "no providers available"
+                    raise DownloaderError(
+                        f"All providers failed for: {song.name} - {song.artist} [{summary}]"
+                    )
 
             temp_file = Path(
                 temp_folder / f"{download_info['id']}.{download_info['ext']}"

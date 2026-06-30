@@ -1,6 +1,33 @@
+# Version control
 .git
 .github
+
+# Editor / IDE
 .vscode
+.idea
+
+# Python artefacts
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.egg-info
+dist
+build
+.pytest_cache
+.mypy_cache
+.ruff_cache
+
+# Project-specific build outputs
+spotdl.egg-info
+
+# Host-specific runtime files — must NOT land in the image
+config.json
+spotdl.log
+Music
+
+# Docs and test code not needed in the image
 docs
 scripts
 tests

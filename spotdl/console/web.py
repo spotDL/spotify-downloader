@@ -10,8 +10,11 @@ import sys
 import webbrowser
 from pathlib import Path
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import ClientDisconnect
 from uvicorn import Config, Server
 
 from spotdl._version import __version__
@@ -70,6 +73,15 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
         version=__version__,
         dependencies=[Depends(get_current_state)],
     )
+
+    class SuppressClientDisconnect(BaseHTTPMiddleware):
+        async def dispatch(self, request: Request, call_next):
+            try:
+                return await call_next(request)
+            except ClientDisconnect:
+                return Response(status_code=204)
+
+    app_state.api.add_middleware(SuppressClientDisconnect)
 
     app_state.api.include_router(api.router)
     app_state.api.include_router(routes.router)
@@ -141,7 +153,14 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
         frame (FrameType): The current stack frame.
 
         """
+        # Cancel all pending disconnect timers so non-daemon threads don't
+        # block the process from exiting.
+        for client in list(app_state.clients.values()):
+            if client.disconnect_timer and client.disconnect_timer.is_alive():
+                client.disconnect_timer.cancel()
+
         app_state.server.should_exit = True
+        app_state.server.force_exit = True
 
     signal.signal(signal.SIGINT, handle_shutdown)
     signal.signal(signal.SIGTERM, handle_shutdown)
