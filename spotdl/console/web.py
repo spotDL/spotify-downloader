@@ -75,7 +75,12 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     )
 
     class SuppressClientDisconnect(BaseHTTPMiddleware):
+        """Return 204 when the client closes the connection mid-request."""
+
         async def dispatch(self, request: Request, call_next):
+            """
+            Run the request handler and swallow ClientDisconnect exceptions.
+            """
             try:
                 return await call_next(request)
             except ClientDisconnect:

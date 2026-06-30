@@ -8,11 +8,15 @@ from pathlib import Path
 from typing import Any, Optional, cast
 
 # from datastar_py.sse import DatastarEvent
-from datastar_py.fastapi import ReadSignals
+from datastar_py.fastapi import (
+    ReadSignals,
+)
 from datastar_py.fastapi import (
     ServerSentEventGenerator as SSE,  # DatastarResponse,; read_signals,
 )
-from datastar_py.fastapi import datastar_response
+from datastar_py.fastapi import (
+    datastar_response,
+)
 from fastapi import APIRouter, Request
 from fastapi.templating import Jinja2Templates
 
@@ -405,7 +409,9 @@ async def gen_download(signals: Signals):
         app_state.logger.info(f"[{signals.client_id}] Fetching metadata...")
         songs = await asyncio.to_thread(get_simple_songs, [url])
 
-        app_state.logger.info(f"[{signals.client_id}] Resolved {len(songs)} song(s), starting download from: {url}")
+        app_state.logger.info(
+            f"[{signals.client_id}] Resolved {len(songs)} song(s), starting download from: {url}"
+        )
 
         # Download all songs concurrently. pool_download() acquires the
         # downloader's semaphore (sized to the "threads" setting, e.g. 4), so

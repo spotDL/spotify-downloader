@@ -26,7 +26,6 @@ from spotdl.providers.audio import (
     YouTube,
     YouTubeMusic,
 )
-from spotdl.providers.audio.base import AudioProviderError
 from spotdl.providers.lyrics import AzLyrics, Genius, LyricsProvider, MusixMatch, Synced
 from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
 from spotdl.types.song import Song
@@ -677,9 +676,7 @@ class Downloader:
 
             if song.download_url is not None:
                 download_url = song.download_url
-                logger.debug(
-                    "Downloading %s using %s", song.display_name, download_url
-                )
+                logger.debug("Downloading %s using %s", song.display_name, download_url)
                 download_info = audio_downloader.get_download_metadata(
                     download_url, download=True
                 )
@@ -690,7 +687,6 @@ class Downloader:
             else:
                 download_info = None
                 download_url = None
-                last_provider_error: Optional[Exception] = None
                 provider_results: List[str] = []
                 failed_urls: set = set()
                 providers = self.audio_providers
@@ -718,7 +714,10 @@ class Downloader:
                             )
                             continue
                         if provider_url in failed_urls:
-                            result_msg = f"{audio_provider.name}: skipped (same URL already failed: {provider_url})"
+                            result_msg = (
+                                f"{audio_provider.name}: skipped "
+                                f"(same URL already failed: {provider_url})"
+                            )
                             provider_results.append(result_msg)
                             logger.debug(
                                 "[%d/%d] %s",
@@ -765,15 +764,23 @@ class Downloader:
                             len(providers),
                             result_msg,
                         )
-                        last_provider_error = exc
                         if provider_url:
                             failed_urls.add(provider_url)
 
                 if download_info is None:
-                    summary = " | ".join(provider_results) if provider_results else "no providers available"
+                    summary = (
+                        " | ".join(provider_results)
+                        if provider_results
+                        else "no providers available"
+                    )
                     raise DownloaderError(
                         f"All providers failed for: {song.name} - {song.artist} [{summary}]"
                     )
+
+            if download_info is None:
+                raise DownloaderError(
+                    f"Failed to download: {song.name} - {song.artist}"
+                )
 
             temp_file = Path(
                 temp_folder / f"{download_info['id']}.{download_info['ext']}"
