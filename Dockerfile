@@ -1,6 +1,6 @@
-FROM python:3.13-slim-bookworm
+FROM python:3.14-slim-bookworm
 
-LABEL maintainer="Silverarmor"
+LABEL maintainer="Tzur Soffer"
 
 # Allow customizing the user/group IDs
 # Default to 1000
@@ -58,7 +58,7 @@ VOLUME /music
 # Change Workdir to download location
 WORKDIR /music
 
-# Switch to not root user
+# Switch to non-root user
 USER spotdl
 
 # Entrypoint to run spotdl
