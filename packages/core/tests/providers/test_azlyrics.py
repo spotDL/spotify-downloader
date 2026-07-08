@@ -102,9 +102,18 @@ async def test_lyrics_returns_plain() -> None:
     assert lyrics.kind is LyricsKind.PLAIN
     assert lyrics.source is ProviderId.AZLYRICS
     assert "Placeholder verse one" in lyrics.text
-    params = search.calls.last.request.url.params
+    request_url = search.calls.last.request.url
+    params = request_url.params
     assert params["x"] == "placeholdertoken1234"
-    assert "Placeholder" in params["q"]
+    # The query round-trips to the real space-separated terms, not the literal
+    # '+' characters a manual space->'+' substitution would leave behind (which
+    # httpx would then percent-encode as '%2B', i.e. a literal plus on the wire).
+    assert params["q"] == "Placeholder Song Placeholder Artist"
+    # Guard the wire encoding directly: spaces become '+' (form encoding), and
+    # crucially there is no '%2B' that would decode to a literal plus server-side.
+    wire_query = request_url.query.decode("ascii")
+    assert "q=Placeholder+Song+Placeholder+Artist" in wire_query
+    assert "%2B" not in wire_query
 
 
 @respx.mock

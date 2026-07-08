@@ -116,9 +116,7 @@ class AZLyricsProvider(HttpProvider):
         x_code = _extract_x_code(await self._get_text(_GEO_URL))
         if x_code is None:
             return None
-        query = (
-            f"{track.name.strip().replace(' ', '+')}+{track.main_artist.strip().replace(' ', '+')}"
-        )
+        query = f"{track.name.strip()} {track.main_artist.strip()}"
         search_html = await self._get_text(_SEARCH_URL, params={"q": query, "x": x_code})
         url = _best_azlyrics_url(search_html, track)
         if url is None:
