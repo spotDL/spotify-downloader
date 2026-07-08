@@ -1,0 +1,64 @@
+{
+  "href": "https://api.spotify.com/v1/albums/3T4tUhGYeRNVUGevb0wThu/tracks?offset=0&limit=50",
+  "limit": 50,
+  "offset": 0,
+  "total": 3,
+  "next": null,
+  "previous": null,
+  "items": [
+    {
+      "id": "7oolFzHipTMy7mbjDElpQV",
+      "name": "Eraser",
+      "duration_ms": 227426,
+      "track_number": 1,
+      "disc_number": 1,
+      "explicit": true,
+      "type": "track",
+      "uri": "spotify:track:7oolFzHipTMy7mbjDElpQV",
+      "artists": [
+        {
+          "id": "6eUKZXaKkcviH0Ku9w2n3V",
+          "name": "Ed Sheeran",
+          "type": "artist",
+          "uri": "spotify:artist:6eUKZXaKkcviH0Ku9w2n3V"
+        }
+      ]
+    },
+    {
+      "id": "6PCUP3dWmTjcTtXY02oFdT",
+      "name": "Castle on the Hill",
+      "duration_ms": 261154,
+      "track_number": 2,
+      "disc_number": 1,
+      "explicit": false,
+      "type": "track",
+      "uri": "spotify:track:6PCUP3dWmTjcTtXY02oFdT",
+      "artists": [
+        {
+          "id": "6eUKZXaKkcviH0Ku9w2n3V",
+          "name": "Ed Sheeran",
+          "type": "artist",
+          "uri": "spotify:artist:6eUKZXaKkcviH0Ku9w2n3V"
+        }
+      ]
+    },
+    {
+      "id": "6rqhFgbbKwnb9MLmUQDhG6",
+      "name": "Shape of You",
+      "duration_ms": 233713,
+      "track_number": 3,
+      "disc_number": 1,
+      "explicit": false,
+      "type": "track",
+      "uri": "spotify:track:6rqhFgbbKwnb9MLmUQDhG6",
+      "artists": [
+        {
+          "id": "6eUKZXaKkcviH0Ku9w2n3V",
+          "name": "Ed Sheeran",
+          "type": "artist",
+          "uri": "spotify:artist:6eUKZXaKkcviH0Ku9w2n3V"
+        }
+      ]
+    }
+  ]
+}

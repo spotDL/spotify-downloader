@@ -1,0 +1,107 @@
+{
+  "id": "3T4tUhGYeRNVUGevb0wThu",
+  "name": "÷ (Deluxe)",
+  "album_type": "album",
+  "total_tracks": 3,
+  "release_date": "2017-03-03",
+  "release_date_precision": "day",
+  "type": "album",
+  "uri": "spotify:album:3T4tUhGYeRNVUGevb0wThu",
+  "label": "Asylum Records UK",
+  "popularity": 82,
+  "external_ids": {
+    "upc": "190295851286"
+  },
+  "external_urls": {
+    "spotify": "https://open.spotify.com/album/3T4tUhGYeRNVUGevb0wThu"
+  },
+  "artists": [
+    {
+      "id": "6eUKZXaKkcviH0Ku9w2n3V",
+      "name": "Ed Sheeran",
+      "type": "artist",
+      "uri": "spotify:artist:6eUKZXaKkcviH0Ku9w2n3V"
+    }
+  ],
+  "images": [
+    {
+      "url": "https://i.scdn.co/image/ab67616d0000b273ba5db46f4b838ef6027e6f96",
+      "width": 640,
+      "height": 640
+    },
+    {
+      "url": "https://i.scdn.co/image/ab67616d00001e02ba5db46f4b838ef6027e6f96",
+      "width": 300,
+      "height": 300
+    },
+    {
+      "url": "https://i.scdn.co/image/ab67616d00004851ba5db46f4b838ef6027e6f96",
+      "width": 64,
+      "height": 64
+    }
+  ],
+  "tracks": {
+    "href": "https://api.spotify.com/v1/albums/3T4tUhGYeRNVUGevb0wThu/tracks?offset=0&limit=50",
+    "limit": 50,
+    "offset": 0,
+    "total": 3,
+    "next": null,
+    "previous": null,
+    "items": [
+      {
+        "id": "7oolFzHipTMy7mbjDElpQV",
+        "name": "Eraser",
+        "duration_ms": 227426,
+        "track_number": 1,
+        "disc_number": 1,
+        "explicit": true,
+        "type": "track",
+        "uri": "spotify:track:7oolFzHipTMy7mbjDElpQV",
+        "artists": [
+          {
+            "id": "6eUKZXaKkcviH0Ku9w2n3V",
+            "name": "Ed Sheeran",
+            "type": "artist",
+            "uri": "spotify:artist:6eUKZXaKkcviH0Ku9w2n3V"
+          }
+        ]
+      },
+      {
+        "id": "6PCUP3dWmTjcTtXY02oFdT",
+        "name": "Castle on the Hill",
+        "duration_ms": 261154,
+        "track_number": 2,
+        "disc_number": 1,
+        "explicit": false,
+        "type": "track",
+        "uri": "spotify:track:6PCUP3dWmTjcTtXY02oFdT",
+        "artists": [
+          {
+            "id": "6eUKZXaKkcviH0Ku9w2n3V",
+            "name": "Ed Sheeran",
+            "type": "artist",
+            "uri": "spotify:artist:6eUKZXaKkcviH0Ku9w2n3V"
+          }
+        ]
+      },
+      {
+        "id": "6rqhFgbbKwnb9MLmUQDhG6",
+        "name": "Shape of You",
+        "duration_ms": 233713,
+        "track_number": 3,
+        "disc_number": 1,
+        "explicit": false,
+        "type": "track",
+        "uri": "spotify:track:6rqhFgbbKwnb9MLmUQDhG6",
+        "artists": [
+          {
+            "id": "6eUKZXaKkcviH0Ku9w2n3V",
+            "name": "Ed Sheeran",
+            "type": "artist",
+            "uri": "spotify:artist:6eUKZXaKkcviH0Ku9w2n3V"
+          }
+        ]
+      }
+    ]
+  }
+}

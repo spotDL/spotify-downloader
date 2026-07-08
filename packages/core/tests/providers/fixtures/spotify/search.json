@@ -1,0 +1,109 @@
+{
+  "tracks": {
+    "href": "https://api.spotify.com/v1/search?query=shape+of+you+ed+sheeran&type=track&offset=0&limit=5",
+    "limit": 5,
+    "offset": 0,
+    "total": 812,
+    "next": "https://api.spotify.com/v1/search?query=shape+of+you+ed+sheeran&type=track&offset=5&limit=5",
+    "previous": null,
+    "items": [
+      {
+        "id": "7qiZfU4dY1lWllzX7mPBI3",
+        "name": "Shape of You",
+        "duration_ms": 233713,
+        "explicit": false,
+        "track_number": 4,
+        "disc_number": 1,
+        "popularity": 87,
+        "type": "track",
+        "uri": "spotify:track:7qiZfU4dY1lWllzX7mPBI3",
+        "external_ids": {
+          "isrc": "GBAHS1600463"
+        },
+        "artists": [
+          {
+            "id": "6eUKZXaKkcviH0Ku9w2n3V",
+            "name": "Ed Sheeran",
+            "type": "artist",
+            "uri": "spotify:artist:6eUKZXaKkcviH0Ku9w2n3V"
+          }
+        ],
+        "album": {
+          "id": "3T4tUhGYeRNVUGevb0wThu",
+          "name": "÷ (Deluxe)",
+          "album_type": "album",
+          "total_tracks": 16,
+          "release_date": "2017-03-03",
+          "release_date_precision": "day",
+          "type": "album",
+          "uri": "spotify:album:3T4tUhGYeRNVUGevb0wThu",
+          "artists": [
+            {
+              "id": "6eUKZXaKkcviH0Ku9w2n3V",
+              "name": "Ed Sheeran",
+              "type": "artist"
+            }
+          ],
+          "images": [
+            {
+              "url": "https://i.scdn.co/image/ab67616d0000b273ba5db46f4b838ef6027e6f96",
+              "width": 640,
+              "height": 640
+            },
+            {
+              "url": "https://i.scdn.co/image/ab67616d00001e02ba5db46f4b838ef6027e6f96",
+              "width": 300,
+              "height": 300
+            }
+          ]
+        }
+      },
+      {
+        "id": "1VdZ0vKfR5jneCmWIUAMxK",
+        "name": "Shape of You - Acoustic",
+        "duration_ms": 234000,
+        "explicit": false,
+        "track_number": 1,
+        "disc_number": 1,
+        "popularity": 61,
+        "type": "track",
+        "uri": "spotify:track:1VdZ0vKfR5jneCmWIUAMxK",
+        "external_ids": {
+          "isrc": "GBAHS1700120"
+        },
+        "artists": [
+          {
+            "id": "6eUKZXaKkcviH0Ku9w2n3V",
+            "name": "Ed Sheeran",
+            "type": "artist",
+            "uri": "spotify:artist:6eUKZXaKkcviH0Ku9w2n3V"
+          }
+        ],
+        "album": {
+          "id": "5Azr3nWuLNj2WtqxTyWZTa",
+          "name": "Shape of You (Acoustic)",
+          "album_type": "single",
+          "total_tracks": 1,
+          "release_date": "2017",
+          "release_date_precision": "year",
+          "type": "album",
+          "uri": "spotify:album:5Azr3nWuLNj2WtqxTyWZTa",
+          "artists": [
+            {
+              "id": "6eUKZXaKkcviH0Ku9w2n3V",
+              "name": "Ed Sheeran",
+              "type": "artist"
+            }
+          ],
+          "images": [
+            {
+              "url": "https://i.scdn.co/image/ab67616d0000b2732887ca5be6f11e3fef2f0f30",
+              "width": 640,
+              "height": 640
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

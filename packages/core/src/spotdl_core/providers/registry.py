@@ -273,13 +273,29 @@ class ProviderRegistry:
         await self.aclose()
 
 
+def _spotify_factory(ctx: ProviderContext) -> Provider:
+    """Lazily import and build the Spotify provider (isolation constraint)."""
+    from spotdl_core.providers.metadata.spotify import build_spotify_provider
+
+    return build_spotify_provider(ctx)
+
+
 def build_default_registry(context: ProviderContext) -> ProviderRegistry:
     """Return the registry wired with spotDL's built-in providers.
 
-    STUB (Task 5): registers nothing yet. Tasks 6-11 append their
-    ``reg.register(...)`` calls here as each provider lands, and Task 12 asserts
-    the full built-in set is present.
+    Tasks 6-12 append their ``reg.register(...)`` calls here as each provider
+    lands; Task 12 asserts the full built-in set is present. Every factory
+    imports its provider module lazily so a broken optional dependency degrades
+    exactly one provider instead of breaking registry import.
     """
+    from spotdl_core.providers.base import Enriches, Resolves, Searches
+
     reg = ProviderRegistry(context)
-    # Provider registrations are appended by Tasks 6-12.
+    reg.register(
+        ProviderSpec(
+            ProviderId.SPOTIFY,
+            frozenset({Resolves, Searches, Enriches}),
+            _spotify_factory,
+        )
+    )
     return reg

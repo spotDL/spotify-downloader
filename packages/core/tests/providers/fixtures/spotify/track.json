@@ -1,0 +1,68 @@
+{
+  "id": "6rqhFgbbKwnb9MLmUQDhG6",
+  "name": "Shape of You",
+  "duration_ms": 233713,
+  "explicit": false,
+  "track_number": 4,
+  "disc_number": 1,
+  "popularity": 88,
+  "is_local": false,
+  "type": "track",
+  "uri": "spotify:track:6rqhFgbbKwnb9MLmUQDhG6",
+  "external_ids": {
+    "isrc": "GBAHS1600463"
+  },
+  "external_urls": {
+    "spotify": "https://open.spotify.com/track/6rqhFgbbKwnb9MLmUQDhG6"
+  },
+  "artists": [
+    {
+      "id": "6eUKZXaKkcviH0Ku9w2n3V",
+      "name": "Ed Sheeran",
+      "type": "artist",
+      "uri": "spotify:artist:6eUKZXaKkcviH0Ku9w2n3V",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/6eUKZXaKkcviH0Ku9w2n3V"
+      }
+    }
+  ],
+  "album": {
+    "id": "3T4tUhGYeRNVUGevb0wThu",
+    "name": "÷ (Deluxe)",
+    "album_type": "album",
+    "album_group": "album",
+    "total_tracks": 16,
+    "release_date": "2017-03-03",
+    "release_date_precision": "day",
+    "type": "album",
+    "uri": "spotify:album:3T4tUhGYeRNVUGevb0wThu",
+    "external_urls": {
+      "spotify": "https://open.spotify.com/album/3T4tUhGYeRNVUGevb0wThu"
+    },
+    "artists": [
+      {
+        "id": "6eUKZXaKkcviH0Ku9w2n3V",
+        "name": "Ed Sheeran",
+        "type": "artist",
+        "uri": "spotify:artist:6eUKZXaKkcviH0Ku9w2n3V"
+      }
+    ],
+    "images": [
+      {
+        "url": "https://i.scdn.co/image/ab67616d0000b273ba5db46f4b838ef6027e6f96",
+        "width": 640,
+        "height": 640
+      },
+      {
+        "url": "https://i.scdn.co/image/ab67616d00001e02ba5db46f4b838ef6027e6f96",
+        "width": 300,
+        "height": 300
+      },
+      {
+        "url": "https://i.scdn.co/image/ab67616d00004851ba5db46f4b838ef6027e6f96",
+        "width": 64,
+        "height": 64
+      }
+    ]
+  }
+}
