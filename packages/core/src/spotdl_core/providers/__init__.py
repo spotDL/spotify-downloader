@@ -19,6 +19,7 @@ from spotdl_core.providers.errors import (
     SpotdlError,
     UnsupportedURL,
 )
+from spotdl_core.providers.urls import PlatformRef, parse, resolve_shortlink, strip_intl
 
 __all__ = [
     "ConversionFailed",
@@ -26,10 +27,14 @@ __all__ = [
     "EntityNotFound",
     "MetadataEmbedFailed",
     "NoMatchFound",
+    "PlatformRef",
     "ProviderAuthError",
     "ProviderError",
     "ProviderUnavailable",
     "RateLimited",
     "SpotdlError",
     "UnsupportedURL",
+    "parse",
+    "resolve_shortlink",
+    "strip_intl",
 ]
