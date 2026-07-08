@@ -280,6 +280,20 @@ def _spotify_factory(ctx: ProviderContext) -> Provider:
     return build_spotify_provider(ctx)
 
 
+def _deezer_factory(ctx: ProviderContext) -> Provider:
+    """Lazily import and build the Deezer provider (isolation constraint)."""
+    from spotdl_core.providers.metadata.deezer import build_deezer_provider
+
+    return build_deezer_provider(ctx)
+
+
+def _itunes_factory(ctx: ProviderContext) -> Provider:
+    """Lazily import and build the iTunes provider (isolation constraint)."""
+    from spotdl_core.providers.metadata.itunes import build_itunes_provider
+
+    return build_itunes_provider(ctx)
+
+
 def build_default_registry(context: ProviderContext) -> ProviderRegistry:
     """Return the registry wired with spotDL's built-in providers.
 
@@ -296,6 +310,20 @@ def build_default_registry(context: ProviderContext) -> ProviderRegistry:
             ProviderId.SPOTIFY,
             frozenset({Resolves, Searches, Enriches}),
             _spotify_factory,
+        )
+    )
+    reg.register(
+        ProviderSpec(
+            ProviderId.DEEZER,
+            frozenset({Resolves, Searches, Enriches}),
+            _deezer_factory,
+        )
+    )
+    reg.register(
+        ProviderSpec(
+            ProviderId.ITUNES,
+            frozenset({Resolves, Searches, Enriches}),
+            _itunes_factory,
         )
     )
     return reg
