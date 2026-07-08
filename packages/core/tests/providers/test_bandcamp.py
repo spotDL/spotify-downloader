@@ -67,8 +67,11 @@ def test_bandcamp_map_search_parses_track_results() -> None:
     assert first.provider_id == "3164368466"
     # search results have no duration
     assert first.duration_ms is None
-    # subhead with only "by <artist>" still parses the artist
+    # album parsed from a "from <album> by <artist>" subhead is retained
+    assert first.album == "Travel Light"
+    # subhead with only "by <artist>" still parses the artist and leaves album unset
     assert candidates[1].artists == ("Another Band",)
+    assert candidates[1].album is None
 
 
 def test_bandcamp_map_tralbum_from_fixture(load_fixture: Any) -> None:

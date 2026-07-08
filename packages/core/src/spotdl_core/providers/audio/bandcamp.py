@@ -104,7 +104,7 @@ def _search_result_to_candidate(result: Any) -> AudioCandidate | None:
     if not name:
         return None
     subhead = result.find("div", class_="subhead")
-    artist, _album = _parse_subhead(subhead.get_text()) if subhead is not None else (None, None)
+    artist, album = _parse_subhead(subhead.get_text()) if subhead is not None else (None, None)
     provider_id = _search_result_id(result) or url
     return AudioCandidate(
         provider=ProviderId.BANDCAMP,
@@ -112,6 +112,7 @@ def _search_result_to_candidate(result: Any) -> AudioCandidate | None:
         url=url,
         name=name,
         artists=(artist,) if artist else (),
+        album=album,
         duration_ms=None,
         verified=False,
     )

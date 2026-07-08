@@ -110,6 +110,41 @@ async def test_soundcloud_search_scrapes_hydration(load_fixture: Any) -> None:
 
 
 @respx.mock
+async def test_soundcloud_api_search_used_when_client_id_present() -> None:
+    # api-v2 returns a `collection` payload; the same hydration mapper consumes it.
+    body = {
+        "collection": [
+            {
+                "id": 999,
+                "kind": "track",
+                "title": "Get Lucky (API)",
+                "duration": 224_896,
+                "permalink_url": "https://soundcloud.com/daftpunk/get-lucky-api",
+                "playback_count": 7,
+                "user": {"username": "Daft Punk"},
+            }
+        ]
+    }
+    route = respx.get("https://api-v2.soundcloud.com/search/tracks").mock(
+        return_value=httpx.Response(200, json=body)
+    )
+    search_page = respx.get("https://soundcloud.com/search/sounds").mock(
+        return_value=httpx.Response(200, text="<html></html>")
+    )
+    async with create_client() as client:
+        provider = SoundCloudProvider(client, client_id="test-client-id")
+        candidates = await provider.audio_candidates(_QUERY_TRACK, limit=5)
+    # the api-v2 path is taken; the scrape page is never requested
+    assert route.called
+    assert not search_page.called
+    assert [c.provider_id for c in candidates] == ["999"]
+    assert candidates[0].duration_ms == 224_896
+    params = httpx.QueryParams(route.calls.last.request.url.query)
+    assert params["q"] == "Daft Punk - Get Lucky"
+    assert params["client_id"] == "test-client-id"
+
+
+@respx.mock
 async def test_soundcloud_resolve_track_from_sound_hydratable() -> None:
     hydration = [
         {
