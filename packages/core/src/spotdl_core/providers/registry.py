@@ -301,6 +301,20 @@ def _musicbrainz_factory(ctx: ProviderContext) -> Provider:
     return build_musicbrainz_provider(ctx)
 
 
+def _ytmusic_factory(ctx: ProviderContext) -> Provider:
+    """Lazily import and build the YTMusic provider (isolation constraint)."""
+    from spotdl_core.providers.audio.ytmusic import build_ytmusic_provider
+
+    return build_ytmusic_provider(ctx)
+
+
+def _youtube_factory(ctx: ProviderContext) -> Provider:
+    """Lazily import and build the YouTube provider (isolation constraint)."""
+    from spotdl_core.providers.audio.youtube import build_youtube_provider
+
+    return build_youtube_provider(ctx)
+
+
 def build_default_registry(context: ProviderContext) -> ProviderRegistry:
     """Return the registry wired with spotDL's built-in providers.
 
@@ -309,7 +323,7 @@ def build_default_registry(context: ProviderContext) -> ProviderRegistry:
     imports its provider module lazily so a broken optional dependency degrades
     exactly one provider instead of breaking registry import.
     """
-    from spotdl_core.providers.base import Enriches, Resolves, Searches
+    from spotdl_core.providers.base import Enriches, ProvidesAudio, Resolves, Searches
 
     reg = ProviderRegistry(context)
     reg.register(
@@ -338,6 +352,20 @@ def build_default_registry(context: ProviderContext) -> ProviderRegistry:
             ProviderId.MUSICBRAINZ,
             frozenset({Resolves, Searches, Enriches}),
             _musicbrainz_factory,
+        )
+    )
+    reg.register(
+        ProviderSpec(
+            ProviderId.YTMUSIC,
+            frozenset({ProvidesAudio, Resolves, Searches}),
+            _ytmusic_factory,
+        )
+    )
+    reg.register(
+        ProviderSpec(
+            ProviderId.YOUTUBE,
+            frozenset({ProvidesAudio}),
+            _youtube_factory,
         )
     )
     return reg
