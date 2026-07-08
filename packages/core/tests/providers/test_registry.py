@@ -147,6 +147,53 @@ def test_register_is_idempotent_later_wins() -> None:
     assert reg.get(ProviderId.SPOTIFY) is marker
 
 
+def test_reregister_after_construction_supersedes_cached_instance() -> None:
+    reg = ProviderRegistry(_ctx())
+    first = FakeResolver(ProviderId.SPOTIFY)
+    reg.register(
+        ProviderSpec(
+            id=ProviderId.SPOTIFY,
+            capabilities=frozenset({Resolves}),
+            factory=lambda ctx: first,
+        )
+    )
+    assert reg.get(ProviderId.SPOTIFY) is first  # constructs + caches
+    second = FakeResolver(ProviderId.SPOTIFY)
+    reg.register(
+        ProviderSpec(
+            id=ProviderId.SPOTIFY,
+            capabilities=frozenset({Resolves}),
+            factory=lambda ctx: second,
+        )
+    )
+    # "later wins" holds even though the id was already queried.
+    assert reg.get(ProviderId.SPOTIFY) is second
+
+
+def test_reregister_after_failure_clears_cached_failure() -> None:
+    def boom(ctx: ProviderContext) -> FakeResolver:
+        raise ImportError("missing dep")
+
+    reg = ProviderRegistry(_ctx())
+    reg.register(
+        ProviderSpec(id=ProviderId.SPOTIFY, capabilities=frozenset({Resolves}), factory=boom)
+    )
+    with pytest.raises(ProviderUnavailable):
+        reg.get(ProviderId.SPOTIFY)
+    assert ProviderId.SPOTIFY in reg.unavailable
+    # Re-registering with a working factory supersedes the cached failure.
+    good = FakeResolver(ProviderId.SPOTIFY)
+    reg.register(
+        ProviderSpec(
+            id=ProviderId.SPOTIFY,
+            capabilities=frozenset({Resolves}),
+            factory=lambda ctx: good,
+        )
+    )
+    assert ProviderId.SPOTIFY not in reg.unavailable
+    assert reg.get(ProviderId.SPOTIFY) is good
+
+
 # --- lazy construction + caching ------------------------------------------
 
 

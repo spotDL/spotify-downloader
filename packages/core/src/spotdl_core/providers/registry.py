@@ -185,12 +185,20 @@ class ProviderRegistry:
     def register(self, spec: ProviderSpec) -> None:
         """Register (or replace) a provider spec, keyed by id.
 
-        Idempotent by id: a later registration for the same id wins. Raises
+        Idempotent by id: a later registration for the same id wins, and it
+        fully supersedes any earlier one -- if a provider for that id was
+        already constructed (or its construction already failed and was cached),
+        that cached instance/failure is discarded so the *new* factory takes
+        effect on the next :meth:`get`/:meth:`capable`. Raises
         :class:`ValueError` if the id has no place in :data:`PROVIDER_ORDER`.
         """
         if spec.id not in _ORDER_INDEX:
             raise ValueError(f"provider id {spec.id!r} is not part of PROVIDER_ORDER")
         self._specs[spec.id] = spec
+        # A replacement spec supersedes any cached result from the old factory
+        # so "later wins" holds even after the id has already been queried.
+        self._instances.pop(spec.id, None)
+        self._failures.pop(spec.id, None)
 
     def get(self, provider_id: ProviderId) -> Provider:
         """Return the provider for ``provider_id``, constructing it on demand.
