@@ -6,6 +6,16 @@ Later tasks extend this package (and ``__all__``) with capability Protocols,
 downstream layer imports errors from a single place.
 """
 
+from spotdl_core.providers.base import (
+    Enriches,
+    HttpProvider,
+    Provider,
+    ProvidesAudio,
+    ProvidesLyrics,
+    ResolvedEntity,
+    Resolves,
+    Searches,
+)
 from spotdl_core.providers.errors import (
     ConversionFailed,
     DownloadFailed,
@@ -24,14 +34,22 @@ from spotdl_core.providers.urls import PlatformRef, parse, resolve_shortlink, st
 __all__ = [
     "ConversionFailed",
     "DownloadFailed",
+    "Enriches",
     "EntityNotFound",
+    "HttpProvider",
     "MetadataEmbedFailed",
     "NoMatchFound",
     "PlatformRef",
+    "Provider",
     "ProviderAuthError",
     "ProviderError",
     "ProviderUnavailable",
+    "ProvidesAudio",
+    "ProvidesLyrics",
     "RateLimited",
+    "ResolvedEntity",
+    "Resolves",
+    "Searches",
     "SpotdlError",
     "UnsupportedURL",
     "parse",
