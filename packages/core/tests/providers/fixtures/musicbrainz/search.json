@@ -1,0 +1,87 @@
+{
+  "count": 112,
+  "offset": 0,
+  "recordings": [
+    {
+      "id": "9bb0d17a-a97a-495e-9645-c1efb16cf457",
+      "title": "Harder, Better, Faster, Stronger",
+      "length": 225373,
+      "first-release-date": "2001-10-26",
+      "artist-credit": [
+        {
+          "name": "Daft Punk",
+          "joinphrase": "",
+          "artist": {
+            "id": "056e4f3e-d505-4dad-8ec1-d04f521cbb56",
+            "name": "Daft Punk",
+            "sort-name": "Daft Punk"
+          }
+        }
+      ],
+      "releases": [
+        {
+          "id": "d35b23ae-43e9-4513-852a-24cabcf7ae7e",
+          "title": "All The Hits Now: Inverno 2001",
+          "date": "2001-10-26",
+          "status": "Official",
+          "country": "IT"
+        }
+      ],
+      "score": 100
+    },
+    {
+      "id": "6296e7f5-f8d1-4312-8675-b6df8290e7f9",
+      "title": "Harder, Better, Faster, Stronger",
+      "length": 112000,
+      "first-release-date": "2007",
+      "artist-credit": [
+        {
+          "name": "Daft Punk",
+          "joinphrase": "",
+          "artist": {
+            "id": "056e4f3e-d505-4dad-8ec1-d04f521cbb56",
+            "name": "Daft Punk",
+            "sort-name": "Daft Punk"
+          }
+        }
+      ],
+      "releases": [
+        {
+          "id": "465ad58c-f396-4fc4-976d-6d08cbba1852",
+          "title": "As Heard on Radio Soulwax, Part 11",
+          "date": "2007",
+          "status": "Bootleg",
+          "country": "US"
+        }
+      ],
+      "score": 100
+    },
+    {
+      "id": "37038c07-492f-434b-9094-a22e8aeaf599",
+      "title": "Harder, Better, Faster, Stronger",
+      "length": 203746,
+      "first-release-date": "2002-04-01",
+      "artist-credit": [
+        {
+          "name": "Daft Punk",
+          "joinphrase": "",
+          "artist": {
+            "id": "056e4f3e-d505-4dad-8ec1-d04f521cbb56",
+            "name": "Daft Punk",
+            "sort-name": "Daft Punk"
+          }
+        }
+      ],
+      "releases": [
+        {
+          "id": "577c5ea5-69bb-49a1-9481-ce42b14e7d2d",
+          "title": "Dance Nation 2002",
+          "date": "2002-04-01",
+          "status": "Official",
+          "country": "AU"
+        }
+      ],
+      "score": 100
+    }
+  ]
+}

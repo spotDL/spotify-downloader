@@ -294,6 +294,13 @@ def _itunes_factory(ctx: ProviderContext) -> Provider:
     return build_itunes_provider(ctx)
 
 
+def _musicbrainz_factory(ctx: ProviderContext) -> Provider:
+    """Lazily import and build the MusicBrainz provider (isolation constraint)."""
+    from spotdl_core.providers.metadata.musicbrainz import build_musicbrainz_provider
+
+    return build_musicbrainz_provider(ctx)
+
+
 def build_default_registry(context: ProviderContext) -> ProviderRegistry:
     """Return the registry wired with spotDL's built-in providers.
 
@@ -324,6 +331,13 @@ def build_default_registry(context: ProviderContext) -> ProviderRegistry:
             ProviderId.ITUNES,
             frozenset({Resolves, Searches, Enriches}),
             _itunes_factory,
+        )
+    )
+    reg.register(
+        ProviderSpec(
+            ProviderId.MUSICBRAINZ,
+            frozenset({Resolves, Searches, Enriches}),
+            _musicbrainz_factory,
         )
     )
     return reg
