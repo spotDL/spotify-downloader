@@ -13,3 +13,6 @@ apps/web/dist/
 coverage.xml
 .env
 .DS_Store
+
+# agent scratch (reports, briefs, review diffs)
+.superpowers/
