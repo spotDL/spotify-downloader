@@ -1,0 +1,51 @@
+[
+  { "hydratable": "anonymousId", "data": "123456-789012-345678-901234" },
+  { "hydratable": "features", "data": { "features": [] } },
+  { "hydratable": "geoip", "data": { "country_code": "US" } },
+  {
+    "hydratable": "search",
+    "data": {
+      "collection": [
+        {
+          "artwork_url": "https://i1.sndcdn.com/artworks-000-large.jpg",
+          "id": 264032352,
+          "kind": "track",
+          "duration": 224896,
+          "full_duration": 224896,
+          "title": "Get Lucky (feat. Pharrell Williams)",
+          "permalink_url": "https://soundcloud.com/daftpunkofficialmusic/get-lucky",
+          "playback_count": 4200000,
+          "genre": "Electronic",
+          "user": {
+            "id": 9876543,
+            "kind": "user",
+            "username": "Daft Punk",
+            "avatar_url": "https://i1.sndcdn.com/avatars-000-large.jpg"
+          }
+        },
+        {
+          "artwork_url": "https://i1.sndcdn.com/artworks-111-large.jpg",
+          "id": 264032999,
+          "kind": "track",
+          "duration": 369000,
+          "title": "Get Lucky (Daftendirekt Remix)",
+          "permalink_url": "https://soundcloud.com/someremixer/get-lucky-remix",
+          "playback_count": 15321,
+          "user": {
+            "id": 555,
+            "kind": "user",
+            "username": "Some Remixer"
+          }
+        },
+        {
+          "id": 777,
+          "kind": "user",
+          "username": "Not A Track",
+          "permalink_url": "https://soundcloud.com/not-a-track"
+        }
+      ],
+      "total_results": 2,
+      "query": "Daft Punk - Get Lucky"
+    }
+  }
+]

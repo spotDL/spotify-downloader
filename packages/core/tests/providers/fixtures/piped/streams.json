@@ -1,0 +1,31 @@
+{
+  "title": "Daft Punk - Get Lucky (Official Audio) ft. Pharrell Williams",
+  "description": "Official audio",
+  "uploadDate": "2013-04-01",
+  "uploader": "Daft Punk",
+  "uploaderUrl": "/channel/UC_kRDKYrUlrbtrSiyu5Tflg",
+  "uploaderAvatar": "https://pipedproxy.kavin.rocks/avatar.jpg",
+  "thumbnailUrl": "https://pipedproxy.kavin.rocks/vi/5NV6Rdv1a3I/maxresdefault.jpg",
+  "duration": 369,
+  "views": 168000000,
+  "uploaderVerified": true,
+  "audioStreams": [
+    {
+      "url": "https://pipedproxy.kavin.rocks/videoplayback?itag=140",
+      "format": "M4A",
+      "quality": "128 kbps",
+      "mimeType": "audio/mp4",
+      "bitrate": 128000,
+      "codec": "mp4a.40.2"
+    },
+    {
+      "url": "https://pipedproxy.kavin.rocks/videoplayback?itag=251",
+      "format": "WEBMA_OPUS",
+      "quality": "160 kbps",
+      "mimeType": "audio/webm",
+      "bitrate": 160000,
+      "codec": "opus"
+    }
+  ],
+  "videoStreams": []
+}

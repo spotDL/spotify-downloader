@@ -315,6 +315,27 @@ def _youtube_factory(ctx: ProviderContext) -> Provider:
     return build_youtube_provider(ctx)
 
 
+def _soundcloud_factory(ctx: ProviderContext) -> Provider:
+    """Lazily import and build the SoundCloud provider (isolation constraint)."""
+    from spotdl_core.providers.audio.soundcloud import build_soundcloud_provider
+
+    return build_soundcloud_provider(ctx)
+
+
+def _bandcamp_factory(ctx: ProviderContext) -> Provider:
+    """Lazily import and build the Bandcamp provider (isolation constraint)."""
+    from spotdl_core.providers.audio.bandcamp import build_bandcamp_provider
+
+    return build_bandcamp_provider(ctx)
+
+
+def _piped_factory(ctx: ProviderContext) -> Provider:
+    """Lazily import and build the Piped provider (isolation constraint)."""
+    from spotdl_core.providers.audio.piped import build_piped_provider
+
+    return build_piped_provider(ctx)
+
+
 def build_default_registry(context: ProviderContext) -> ProviderRegistry:
     """Return the registry wired with spotDL's built-in providers.
 
@@ -366,6 +387,27 @@ def build_default_registry(context: ProviderContext) -> ProviderRegistry:
             ProviderId.YOUTUBE,
             frozenset({ProvidesAudio}),
             _youtube_factory,
+        )
+    )
+    reg.register(
+        ProviderSpec(
+            ProviderId.SOUNDCLOUD,
+            frozenset({ProvidesAudio, Resolves}),
+            _soundcloud_factory,
+        )
+    )
+    reg.register(
+        ProviderSpec(
+            ProviderId.BANDCAMP,
+            frozenset({ProvidesAudio, Resolves}),
+            _bandcamp_factory,
+        )
+    )
+    reg.register(
+        ProviderSpec(
+            ProviderId.PIPED,
+            frozenset({ProvidesAudio}),
+            _piped_factory,
         )
     )
     return reg
