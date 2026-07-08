@@ -4,7 +4,15 @@ version = "5.0.0a0"
 description = "spotDL command-line interface"
 requires-python = ">=3.13"
 license = "MIT"
-dependencies = ["spotdl-server"]
+dependencies = [
+    "spotdl-server",
+    "typer>=0.15",
+    "httpx>=0.28",
+    "rich>=13.9",
+]
+
+[project.scripts]
+spotdl = "spotdl_cli.__main__:main"
 
 [build-system]
 requires = ["hatchling"]
