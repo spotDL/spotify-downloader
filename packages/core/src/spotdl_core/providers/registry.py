@@ -344,6 +344,38 @@ def _piped_factory(ctx: ProviderContext) -> Provider:
     return build_piped_provider(ctx)
 
 
+def _lrclib_factory(ctx: ProviderContext) -> Provider:
+    """Lazily import and build the LRCLIB provider (isolation constraint)."""
+    from spotdl_core.providers.lyrics.lrclib import build_lrclib_provider
+
+    return build_lrclib_provider(ctx)
+
+
+def _genius_factory(ctx: ProviderContext) -> Provider:
+    """Lazily import and build the Genius provider (isolation constraint).
+
+    The factory raises :class:`ProviderUnavailable` when no token is configured;
+    :meth:`ProviderRegistry._construct` caches that so ``capable`` omits Genius.
+    """
+    from spotdl_core.providers.lyrics.genius import build_genius_provider
+
+    return build_genius_provider(ctx)
+
+
+def _musixmatch_factory(ctx: ProviderContext) -> Provider:
+    """Lazily import and build the Musixmatch provider (isolation constraint)."""
+    from spotdl_core.providers.lyrics.musixmatch import build_musixmatch_provider
+
+    return build_musixmatch_provider(ctx)
+
+
+def _azlyrics_factory(ctx: ProviderContext) -> Provider:
+    """Lazily import and build the AZLyrics provider (isolation constraint)."""
+    from spotdl_core.providers.lyrics.azlyrics import build_azlyrics_provider
+
+    return build_azlyrics_provider(ctx)
+
+
 def build_default_registry(context: ProviderContext) -> ProviderRegistry:
     """Return the registry wired with spotDL's built-in providers.
 
@@ -352,7 +384,13 @@ def build_default_registry(context: ProviderContext) -> ProviderRegistry:
     imports its provider module lazily so a broken optional dependency degrades
     exactly one provider instead of breaking registry import.
     """
-    from spotdl_core.providers.base import Enriches, ProvidesAudio, Resolves, Searches
+    from spotdl_core.providers.base import (
+        Enriches,
+        ProvidesAudio,
+        ProvidesLyrics,
+        Resolves,
+        Searches,
+    )
 
     reg = ProviderRegistry(context)
     reg.register(
@@ -416,6 +454,34 @@ def build_default_registry(context: ProviderContext) -> ProviderRegistry:
             ProviderId.PIPED,
             frozenset({ProvidesAudio}),
             _piped_factory,
+        )
+    )
+    reg.register(
+        ProviderSpec(
+            ProviderId.LRCLIB,
+            frozenset({ProvidesLyrics}),
+            _lrclib_factory,
+        )
+    )
+    reg.register(
+        ProviderSpec(
+            ProviderId.GENIUS,
+            frozenset({ProvidesLyrics}),
+            _genius_factory,
+        )
+    )
+    reg.register(
+        ProviderSpec(
+            ProviderId.MUSIXMATCH,
+            frozenset({ProvidesLyrics}),
+            _musixmatch_factory,
+        )
+    )
+    reg.register(
+        ProviderSpec(
+            ProviderId.AZLYRICS,
+            frozenset({ProvidesLyrics}),
+            _azlyrics_factory,
         )
     )
     return reg

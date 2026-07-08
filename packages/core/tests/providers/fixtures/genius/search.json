@@ -1,0 +1,29 @@
+{
+  "meta": { "status": 200 },
+  "response": {
+    "hits": [
+      {
+        "type": "song",
+        "result": {
+          "id": 111,
+          "title": "Placeholder Song",
+          "full_title": "Placeholder Song by Placeholder Artist",
+          "artist_names": "Placeholder Artist",
+          "primary_artist": { "id": 1, "name": "Placeholder Artist" },
+          "url": "https://genius.com/placeholder-artist-placeholder-song-lyrics"
+        }
+      },
+      {
+        "type": "song",
+        "result": {
+          "id": 222,
+          "title": "Unrelated Tune",
+          "full_title": "Unrelated Tune by Other Band",
+          "artist_names": "Other Band",
+          "primary_artist": { "id": 2, "name": "Other Band" },
+          "url": "https://genius.com/other-band-unrelated-tune-lyrics"
+        }
+      }
+    ]
+  }
+}
