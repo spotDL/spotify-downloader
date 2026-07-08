@@ -4,7 +4,12 @@ version = "5.0.0a0"
 description = "spotDL server"
 requires-python = ">=3.13"
 license = "MIT"
-dependencies = ["spotdl-core"]
+dependencies = [
+    "spotdl-core",
+    "fastapi>=0.115,<1",
+    "uvicorn>=0.34",
+    "pydantic-settings>=2.7",
+]
 
 [build-system]
 requires = ["hatchling"]
