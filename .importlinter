@@ -1,0 +1,21 @@
+[importlinter]
+root_packages =
+    spotdl_core
+    spotdl_server
+    spotdl_cli
+
+[importlinter:contract:layers]
+name = Dependency direction: core <- server <- cli
+type = layers
+layers =
+    spotdl_cli
+    spotdl_server
+    spotdl_core
+
+[importlinter:contract:no_cli_core]
+name = CLI must not import core directly (server API only)
+type = forbidden
+source_modules =
+    spotdl_cli
+forbidden_modules =
+    spotdl_core
