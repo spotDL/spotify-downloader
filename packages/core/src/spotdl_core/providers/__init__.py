@@ -29,9 +29,15 @@ from spotdl_core.providers.errors import (
     SpotdlError,
     UnsupportedURL,
 )
+from spotdl_core.providers.http import (
+    DEFAULT_USER_AGENT,
+    create_client,
+    request_json,
+)
 from spotdl_core.providers.urls import PlatformRef, parse, resolve_shortlink, strip_intl
 
 __all__ = [
+    "DEFAULT_USER_AGENT",
     "ConversionFailed",
     "DownloadFailed",
     "Enriches",
@@ -52,7 +58,9 @@ __all__ = [
     "Searches",
     "SpotdlError",
     "UnsupportedURL",
+    "create_client",
     "parse",
+    "request_json",
     "resolve_shortlink",
     "strip_intl",
 ]
