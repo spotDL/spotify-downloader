@@ -34,10 +34,19 @@ from spotdl_core.providers.http import (
     create_client,
     request_json,
 )
+from spotdl_core.providers.registry import (
+    PROVIDER_ORDER,
+    ProviderContext,
+    ProviderRegistry,
+    ProviderSpec,
+    SpotifyConfig,
+    build_default_registry,
+)
 from spotdl_core.providers.urls import PlatformRef, parse, resolve_shortlink, strip_intl
 
 __all__ = [
     "DEFAULT_USER_AGENT",
+    "PROVIDER_ORDER",
     "ConversionFailed",
     "DownloadFailed",
     "Enriches",
@@ -48,7 +57,10 @@ __all__ = [
     "PlatformRef",
     "Provider",
     "ProviderAuthError",
+    "ProviderContext",
     "ProviderError",
+    "ProviderRegistry",
+    "ProviderSpec",
     "ProviderUnavailable",
     "ProvidesAudio",
     "ProvidesLyrics",
@@ -57,7 +69,9 @@ __all__ = [
     "Resolves",
     "Searches",
     "SpotdlError",
+    "SpotifyConfig",
     "UnsupportedURL",
+    "build_default_registry",
     "create_client",
     "parse",
     "request_json",
