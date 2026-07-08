@@ -4,7 +4,16 @@ version = "5.0.0a0"
 description = "spotDL core: domain model, providers, matching, download engine"
 requires-python = ">=3.13"
 license = "MIT"
-dependencies = ["pydantic>=2.9,<3"]
+dependencies = [
+    "pydantic>=2.9,<3",
+    "httpx>=0.28",
+    "tenacity>=9.0",
+    "pyotp>=2.9",
+    "ytmusicapi>=1.8",
+    "yt-dlp>=2025.1.0",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.3",
+]
 
 [build-system]
 requires = ["hatchling"]

@@ -21,6 +21,7 @@ dev = [
     "ruff>=0.9",
     "import-linter>=2.1",
     "httpx>=0.28",
+    "respx>=0.22",
 ]
 
 [tool.ruff]
@@ -36,5 +37,8 @@ python_version = "3.13"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-addopts = "--import-mode=importlib"
+addopts = "--import-mode=importlib -m 'not network'"
 testpaths = ["packages/core/tests", "apps/server/tests", "apps/cli/tests"]
+markers = [
+    "network: test hits a real provider API over the network; excluded from default runs and CI",
+]
