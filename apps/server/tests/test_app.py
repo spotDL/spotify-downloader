@@ -4,13 +4,21 @@ import httpx
 import pytest
 from spotdl_core.model import ProviderId, Track
 from spotdl_server.app import create_app
+from spotdl_server.auth.clock import SystemClock
+from spotdl_server.ratelimit.memory import InMemoryRateLimiter
 from spotdl_server.settings import DeploymentMode, Settings
 
 from apps.server.tests.fakes import FakeResolver, build_fake_registry
 
 
 def make_client(settings: Settings | None = None) -> httpx.AsyncClient:
-    transport = httpx.ASGITransport(app=create_app(settings))
+    app = create_app(settings)
+    # These config tests skip the lifespan (they only read startup-fixed feature
+    # flags), so provide the process-scoped state the rate-limit middleware reads
+    # in HOSTED mode where it is mounted (built by the lifespan in production).
+    app.state.clock = SystemClock()
+    app.state.rate_limiter = InMemoryRateLimiter(app.state.clock)
+    transport = httpx.ASGITransport(app=app)
     return httpx.AsyncClient(transport=transport, base_url="http://test")
 
 

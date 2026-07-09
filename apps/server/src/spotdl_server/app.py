@@ -25,6 +25,7 @@ from spotdl_core.providers import ProviderRegistry, build_default_registry
 from spotdl_server import __version__
 from spotdl_server.api.deps import provider_context
 from spotdl_server.api.errors import register_exception_handlers
+from spotdl_server.api.middleware import RateLimitMiddleware
 from spotdl_server.api.routers import (
     admin,
     auth,
@@ -40,6 +41,7 @@ from spotdl_server.api.routers import (
 )
 from spotdl_server.auth.clock import SystemClock
 from spotdl_server.db.engine import build_engine, build_sessionmaker
+from spotdl_server.ratelimit import build_rate_limiter
 from spotdl_server.settings import DeploymentMode, Settings
 
 
@@ -56,6 +58,13 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # rotation, PAT expiry). Built once here per the no-module-level-singletons
     # rule; tests swap a FakeClock onto ``app.state.clock`` after startup.
     app.state.clock = SystemClock()
+
+    # The process-scoped rate-limit backend (spec §6.4). Built once here (no
+    # module-level singleton): a Redis backend when ``redis_url`` is set and the
+    # ``redis`` extra is installed, else the in-memory default bound to the same
+    # clock. Closed on shutdown. Read per request by ``RateLimitMiddleware`` — and
+    # only when the middleware was mounted (``rate_limit_active()``).
+    app.state.rate_limiter = build_rate_limiter(settings.redis_url, app.state.clock)
 
     # Fail fast in HOSTED: a hosted server with auth active but no signing secret
     # would mint junk tokens, so refuse to start. Self-host/embedded stay lenient
@@ -81,6 +90,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         if injected is None:  # caller-owned registries are NOT closed by the app
             await app.state.registry.aclose()
         await app.state.http.aclose()
+        await app.state.rate_limiter.aclose()
         await engine.dispose()
 
 
@@ -100,6 +110,14 @@ def create_app(
     app.state.settings = settings
     app.state.injected_registry = registry
     register_exception_handlers(app)
+
+    # Rate limiting is a *mount-time* decision (spec §6.4): the middleware is added
+    # only when active (hosted-only default, or an explicit ``rate_limit_enabled``).
+    # When inactive it is not mounted at all, so no per-request conditional runs
+    # and every route behaves exactly as if rate limiting did not exist. The
+    # backend + clock it reads live on ``app.state`` (built in the lifespan).
+    if settings.rate_limit_active():
+        app.add_middleware(RateLimitMiddleware)
 
     # The Plan 5 surface is entirely read-only and available in every deployment
     # mode, so these routers mount unconditionally. Mode gating is a *mount-time*

@@ -2,7 +2,9 @@
 
 ``config`` needs no DB or provider I/O — the feature flags are computed from
 ``settings.mode`` (a startup-fixed value), so a plain ASGITransport (no lifespan)
-suffices. Downloads + library are on for selfhost/embedded, off for hosted; auth
+suffices (the process-scoped ``clock``/``rate_limiter`` the HOSTED rate-limit
+middleware reads are set directly on ``app.state`` in lieu of the lifespan).
+Downloads + library are on for selfhost/embedded, off for hosted; auth
 + voting are hardcoded ``False`` until Plan 6; ``matcher_version`` is always
 present.
 """
@@ -12,11 +14,18 @@ from __future__ import annotations
 import httpx
 from spotdl_core.matching import MATCHER_V5_DEFAULT
 from spotdl_server.app import create_app
+from spotdl_server.auth.clock import SystemClock
+from spotdl_server.ratelimit.memory import InMemoryRateLimiter
 from spotdl_server.settings import DeploymentMode, Settings
 
 
 def _client(mode: DeploymentMode) -> httpx.AsyncClient:
     app = create_app(Settings(mode=mode))
+    # This test skips the lifespan (config flags are startup-fixed), so provide
+    # the process-scoped state the rate-limit middleware reads in HOSTED mode
+    # where it is mounted (built by the lifespan in production).
+    app.state.clock = SystemClock()
+    app.state.rate_limiter = InMemoryRateLimiter(app.state.clock)
     transport = httpx.ASGITransport(app=app)
     return httpx.AsyncClient(transport=transport, base_url="http://test")
 

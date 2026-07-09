@@ -64,6 +64,16 @@ module = "syncedlyrics.*"
 follow_imports = "skip"
 ignore_missing_imports = true
 
+# ``redis`` is an optional runtime extra (apps/server's ``redis`` group) backing
+# the alternate rate-limit backend, and is not installed in the default/CI
+# environment, so it has no importable stub. It is lazily imported behind the
+# RedisRateLimiter seam; ignoring its imports keeps spotdl_server.ratelimit.redis
+# type-checkable whether or not the extra is present.
+[[tool.mypy.overrides]]
+module = "redis.*"
+follow_imports = "skip"
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 addopts = "--import-mode=importlib -m 'not network'"
