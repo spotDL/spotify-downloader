@@ -12,6 +12,9 @@ from spotdl_server.repositories.entities import (
     TrackRepository,
     normalize_artist_name,
 )
+from spotdl_server.repositories.links import EntityLinkRepository
+from spotdl_server.repositories.lyrics import LyricsRepository
+from spotdl_server.repositories.matches import MatchRepository
 from spotdl_server.repositories.merge import SOURCE_PRIORITY, CanonicalMerger
 from spotdl_server.repositories.snapshots import SnapshotRepository
 
@@ -20,6 +23,9 @@ __all__ = [
     "AlbumRepository",
     "ArtistRepository",
     "CanonicalMerger",
+    "EntityLinkRepository",
+    "LyricsRepository",
+    "MatchRepository",
     "PlaylistRepository",
     "SnapshotRepository",
     "TrackRepository",
