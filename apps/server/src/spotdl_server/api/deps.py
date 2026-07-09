@@ -143,13 +143,19 @@ def get_token_service(
 ) -> TokenService:
     """Build the request's :class:`TokenService` from settings + the shared clock.
 
-    The signing secret comes from ``settings.require_auth_secret()`` (never
-    hardcoded); it raises if auth is active but unconfigured, so a misconfigured
-    server fails loudly at the first auth request instead of minting junk tokens.
+    When auth is **active** the signing secret comes from
+    ``settings.require_auth_secret()`` (never hardcoded); it raises if the secret
+    is unconfigured, so a misconfigured server fails loudly at the first auth
+    request instead of minting junk tokens. When auth is **inactive** (a loopback
+    embedded server, or a selfhost with auth disabled) there may be no secret at
+    all, yet the Plan 7 download surface still resolves an auth context (which
+    degrades to ``ANONYMOUS`` since no token is ever presented) — so a placeholder
+    secret is used and no token is ever verified against it.
     """
     settings = get_settings(request)
+    secret = settings.require_auth_secret() if settings.auth_active() else "auth-inactive"
     return TokenService(
-        secret=settings.require_auth_secret(),
+        secret=secret,
         clock=clock,
         access_ttl_s=settings.access_token_ttl_seconds,
         refresh_ttl_s=settings.refresh_token_ttl_seconds,
