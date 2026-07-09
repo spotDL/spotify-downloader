@@ -39,7 +39,9 @@ on:
   workflow_dispatch:
 
 env:
-  GHCR_IMAGE: ghcr.io/spotdl/spotify-downloader
+  # Owner-derived so forks publish to their own namespace; on the spotDL org
+  # repo this resolves to ghcr.io/spotdl/spotify-downloader (lowercased in-job).
+  GHCR_IMAGE: ghcr.io/${{ github.repository_owner }}/spotify-downloader
   DOCKERHUB_IMAGE: spotdl/spotify-downloader
   PLATFORMS: linux/amd64,linux/arm64
 
