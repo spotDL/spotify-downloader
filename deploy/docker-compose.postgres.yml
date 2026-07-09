@@ -1,0 +1,26 @@
+# deploy/docker-compose.postgres.yml
+# Optional Postgres override for the self-host stack. Opt-in and additive:
+#   docker compose -f deploy/docker-compose.selfhost.yml \
+#                  -f deploy/docker-compose.postgres.yml up -d
+# Requires SPOTDL_DB_PASSWORD to be set (see deploy/.env.example).
+name: spotdl
+services:
+  spotdl:
+    environment:
+      SPOTDL_DATABASE_URL: postgresql+asyncpg://spotdl:${SPOTDL_DB_PASSWORD:?}@db:5432/spotdl
+    depends_on:
+      db: { condition: service_healthy }
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: spotdl
+      POSTGRES_PASSWORD: ${SPOTDL_DB_PASSWORD:?}
+      POSTGRES_DB: spotdl
+    volumes: [ spotdl_pg:/var/lib/postgresql/data ]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U spotdl"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+volumes:
+  spotdl_pg:
