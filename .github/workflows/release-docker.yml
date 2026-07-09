@@ -1,0 +1,141 @@
+# CONTRACT E2 (Plan 11, Task 3): publish the single multi-stage deploy/Dockerfile
+# image (CONTRACT B) to GHCR on every branch/tag build, and to Docker Hub ONLY on
+# a GA (final) tag. Both registries are built from the SAME deploy/Dockerfile so the
+# self-host GHCR image is byte-identical to what Railway runs (spec §9).
+#
+# Tag scheme (spec §12 / CONTRACT B) — the release scheme uses PEP 440 style tags:
+#   push to branch v5      -> ghcr :edge
+#   pre-release tag v5.0.0aN -> ghcr :5.0.0aN + :sha-<short>          (NO :latest)
+#   GA (final) tag vX.Y.Z    -> ghcr :X.Y.Z + :X.Y + :sha-<short> + :latest
+#                               AND Docker Hub :X.Y.Z + :X.Y + :sha-<short> + :latest
+#
+# GA detection: PEP 440 pre-releases in this scheme are alpha only (`5.0.0aN`), so a
+# final version string never contains the letter `a` while a pre-release always does.
+# We therefore gate on `github.ref_type == 'tag' && !contains(github.ref_name, 'a')`.
+#
+# DELIBERATE DEVIATION FROM CONTRACT E2's literal expression:
+#   CONTRACT E2 writes the dockerhub gate as `!contains(github.ref, 'a')`, but
+#   `github.ref` for a tag is the FULL ref `refs/tags/v5.0.0` — and the literal string
+#   "refs/tags/" already contains the letter `a` (in "t-a-gs"). So `contains(github.ref,
+#   'a')` is ALWAYS true for every tag, making `!contains(github.ref, 'a')` ALWAYS false:
+#   the verbatim gate would NEVER publish to Docker Hub or emit `:latest`, even at GA.
+#   `github.ref_name` is the bare tag (`v5.0.0`), which contains no `a` for a final
+#   release, so it classifies GA correctly. The `ref_type == 'tag'` guard replaces
+#   `startsWith(github.ref, 'refs/tags/v')` (a branch push named `v5` would also start
+#   with `v`). This is the smallest change that makes the contract's stated intent work.
+#   NOTE: if beta/rc pre-release tags (`bN`/`rcN`) are ever introduced, extend the guard.
+#
+# metadata-action uses `type=match` (regex over the tag) rather than `type=semver`
+# because the PEP 440 tag `v5.0.0a1` is NOT valid semver (semver would be `v5.0.0-a1`),
+# so the semver parser cannot classify it. The regex + explicit `enable` gates give
+# deterministic, PEP-440-correct tag emission.
+
+name: Release Docker image
+
+on:
+  push:
+    branches: [v5]
+    tags: ["v*"]
+  workflow_dispatch:
+
+env:
+  GHCR_IMAGE: ghcr.io/spotdl/spotify-downloader
+  DOCKERHUB_IMAGE: spotdl/spotify-downloader
+  PLATFORMS: linux/amd64,linux/arm64
+
+jobs:
+  # ---- GHCR: always (branch edge + every tag), multi-arch, GITHUB_TOKEN login ----
+  ghcr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-qemu-action@v3
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker metadata (GHCR)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.GHCR_IMAGE }}
+          # Disable the built-in `latest` auto-tagging (it relies on semver parsing,
+          # which PEP 440 tags defeat) and emit `latest` explicitly, GA-gated below.
+          flavor: |
+            latest=false
+          tags: |
+            type=edge,branch=v5
+            type=match,pattern=v(.*),group=1
+            type=match,pattern=v(\d+\.\d+)\.\d+,group=1,enable=${{ github.ref_type == 'tag' && !contains(github.ref_name, 'a') }}
+            type=raw,value=latest,enable=${{ github.ref_type == 'tag' && !contains(github.ref_name, 'a') }}
+            type=sha,prefix=sha-
+
+      - name: Build and push (GHCR)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile
+          platforms: ${{ env.PLATFORMS }}
+          # Never push on a pull_request event (defence-in-depth; the triggers above
+          # do not include pull_request, so this is belt-and-suspenders per CONTRACT E2).
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ---- Docker Hub: GA (final tags) ONLY, incl. :latest. Pre-release tags are skipped
+  #      entirely so the community `latest` never flips to a pre-release build. ----
+  dockerhub:
+    needs: ghcr
+    runs-on: ubuntu-latest
+    if: github.ref_type == 'tag' && !contains(github.ref_name, 'a')
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-qemu-action@v3
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker metadata (Docker Hub)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKERHUB_IMAGE }}
+          flavor: |
+            latest=false
+          # This job only runs on GA tags (see `if:` above), so `latest` and the
+          # X.Y alias are unconditional here.
+          tags: |
+            type=match,pattern=v(.*),group=1
+            type=match,pattern=v(\d+\.\d+)\.\d+,group=1
+            type=raw,value=latest
+            type=sha,prefix=sha-
+
+      - name: Build and push (Docker Hub)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile
+          platforms: ${{ env.PLATFORMS }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
