@@ -1,0 +1,145 @@
+"""Pilot tests for the home / search screen (Plan 9 Task 5).
+
+Runs headless through ``App.run_test()`` with a :class:`ViewModelFactory` over
+:class:`FakeSpotdlClient`. The screen's contract (CONTRACT A/C): a query + Enter
+runs ``SearchViewModel.search`` and fills the results table; selecting a row posts
+``NavigateTo`` and the app pushes the entity screen; pasting a URL routes via
+``SearchViewModel.open`` → ``resolve`` → the entity screen; a ``search`` error is a
+toast with an empty table (no crash); and ``/`` focuses the input.
+"""
+
+from __future__ import annotations
+
+from uuid import uuid4
+
+from spotdl_cli._generated.api.models.error_code import ErrorCode
+from spotdl_cli.errors import ApiError
+from spotdl_cli.tui.app import SpotdlApp
+from spotdl_cli.tui.screens.home import HomeSearchScreen
+from spotdl_cli.viewmodels.factory import ViewModelFactory
+from spotdl_cli.views import AlbumRefView, EntityView
+from textual.widgets import DataTable, Input
+
+from .conftest import FakeConfigStore, FakeCredentialStore
+from .fakes import FakeSpotdlClient, make_track
+
+_ORIGIN = "https://api.example.test"
+_TRANSPORT = "remote · api.example.test"
+
+
+def _factory(client: FakeSpotdlClient) -> ViewModelFactory:
+    return ViewModelFactory(
+        client,
+        FakeCredentialStore(),
+        FakeConfigStore(),
+        server_origin=_ORIGIN,
+        transport_label=_TRANSPORT,
+    )
+
+
+async def test_query_enter_renders_result_rows() -> None:
+    client = FakeSpotdlClient()
+    track_id = uuid4()
+    client.search_results = [
+        make_track(
+            id=track_id,
+            name="One More Time",
+            artists=["Daft Punk", "Romanthony"],
+            duration_ms=185_000,
+            album=AlbumRefView(id=str(uuid4()), name="Discovery"),
+        )
+    ]
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        assert isinstance(app.screen, HomeSearchScreen)
+        app.screen.query_one("#search-input", Input).focus()
+        await pilot.press("d", "a", "f", "t", "enter")
+        await app.workers.wait_for_complete()
+        await pilot.pause()
+
+        table = app.screen.query_one("#search-results", DataTable)
+        assert table.row_count == 1
+        cells = [str(c) for c in table.get_row_at(0)]
+        assert cells[0] == "1"
+        assert "Daft Punk, Romanthony" in cells[1]
+        assert "One More Time" in cells[1]
+        assert cells[2] == "Discovery"
+        assert cells[3] == "3:05"
+        assert client.called("search")
+
+
+async def test_row_selection_navigates_to_entity_screen() -> None:
+    client = FakeSpotdlClient()
+    track_id = uuid4()
+    client.search_results = [make_track(id=track_id, name="Aerodynamic")]
+    # Populate the track so the entity screen (once Task 6 registers it) loads clean.
+    client.tracks[str(track_id)] = make_track(id=track_id, name="Aerodynamic")
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        app.screen.query_one("#search-input", Input).focus()
+        await pilot.press("a", "enter")
+        await app.workers.wait_for_complete()
+        await pilot.pause()
+
+        table = app.screen.query_one("#search-results", DataTable)
+        table.focus()
+        await pilot.press("enter")  # select the focused row
+        await pilot.pause()
+
+        assert len(app.screen_stack) == 2
+        assert not isinstance(app.screen, HomeSearchScreen)
+
+
+async def test_pasted_url_routes_through_open() -> None:
+    client = FakeSpotdlClient()
+    track_id = uuid4()
+    client.resolve_result = EntityView(
+        type="track", track=make_track(id=track_id, name="Around the World")
+    )
+    client.tracks[str(track_id)] = make_track(id=track_id, name="Around the World")
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        search_input = app.screen.query_one("#search-input", Input)
+        search_input.focus()
+        search_input.value = "https://open.spotify.com/track/x"
+        await pilot.press("enter")
+        await app.workers.wait_for_complete()
+        await pilot.pause()
+
+        assert client.called("resolve")
+        assert not client.called("search")
+        assert len(app.screen_stack) == 2
+        assert not isinstance(app.screen, HomeSearchScreen)
+
+
+async def test_search_error_toasts_and_leaves_table_empty() -> None:
+    client = FakeSpotdlClient()
+    client.errors["search"] = ApiError(ErrorCode.INTERNAL_ERROR, message="boom")
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        app.screen.query_one("#search-input", Input).focus()
+        await pilot.press("x", "enter")
+        await app.workers.wait_for_complete()
+        await pilot.pause()
+
+        table = app.screen.query_one("#search-results", DataTable)
+        assert table.row_count == 0
+        assert app._notifications  # the failure surfaced as a toast
+
+
+async def test_slash_focuses_the_search_input() -> None:
+    client = FakeSpotdlClient()
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        table = app.screen.query_one("#search-results", DataTable)
+        table.focus()
+        await pilot.pause()
+        assert app.focused is table
+        await pilot.press("slash")
+        await pilot.pause()
+        assert app.focused is app.screen.query_one("#search-input", Input)
