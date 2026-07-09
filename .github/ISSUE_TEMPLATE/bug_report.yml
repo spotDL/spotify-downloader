@@ -1,0 +1,86 @@
+name: Bug report
+description: Report something in spotDL that is broken or behaves incorrectly.
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        Thanks for reporting a bug! For **usage questions** please use the
+        [Discord](https://discord.gg/xCa23pwJWH) instead — this form is for
+        reproducible defects.
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before you start
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+        - label: I am on a supported version (v5 pre-release, or latest v4) and read the relevant docs.
+          required: true
+  - type: input
+    id: version
+    attributes:
+      label: spotDL version
+      description: Output of `spotdl --version`.
+      placeholder: "5.0.0a1"
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install spotDL?
+      options:
+        - pip / pipx (PyPI)
+        - Standalone binary
+        - Docker image
+        - From source
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Which server were you using?
+      options:
+        - Community server (default)
+        - Embedded / --offline
+        - Self-hosted
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command / steps to reproduce
+      description: The exact command you ran (redact any tokens) and the steps to trigger the bug.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened instead. Include the full error output / logs (redact secrets).
+      render: shell
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "macOS 15 / Ubuntu 24.04 / Windows 11"
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      description: Output of `python --version` (skip if you use a standalone binary).
+      placeholder: "3.13.1"

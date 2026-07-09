@@ -1,0 +1,14 @@
+# Route support questions to Discord (mirrors v4's practice); keep the tracker
+# for actionable bug reports and feature requests only.
+blank_issues_enabled: false
+contact_links:
+  - name: spotDL Discord (support & questions)
+    url: https://discord.gg/xCa23pwJWH
+    about: >-
+      Need help using spotDL, or have a question? Ask on the Discord — it is the
+      fastest way to get support and where the community and maintainers are.
+  - name: Documentation
+    url: https://spotdl.dev
+    about: >-
+      Installation, quickstart, self-hosting and the v4→v5 migration guide.
+      Please check the docs before opening an issue.

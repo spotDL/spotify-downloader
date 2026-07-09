@@ -1,0 +1,82 @@
+name: Self-hosting issue
+description: Report a problem running your own spotDL server (Docker, Compose, Railway, reverse proxy).
+title: "[Self-hosting]: "
+labels: ["self-hosting", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        For self-hosting a spotDL server. If you just need help getting started,
+        check the [self-hosting docs](https://spotdl.dev/self-hosting/docker/) and
+        the [Discord](https://discord.gg/xCa23pwJWH) first.
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before you start
+      options:
+        - label: I searched existing issues and read the self-hosting docs.
+          required: true
+        - label: I confirmed secrets (SPOTDL_AUTH_SECRET_KEY, DB/redis URLs) are set and not the cause.
+          required: true
+  - type: dropdown
+    id: method
+    attributes:
+      label: Deployment method
+      options:
+        - Docker Compose (SQLite)
+        - Docker Compose (Postgres override)
+        - Docker (image directly)
+        - Railway
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: image
+    attributes:
+      label: Image tag / version
+      placeholder: "ghcr.io/spotdl/spotify-downloader:edge"
+    validations:
+      required: true
+  - type: dropdown
+    id: database
+    attributes:
+      label: Database
+      options:
+        - SQLite (default)
+        - Postgres
+    validations:
+      required: true
+  - type: dropdown
+    id: proxy
+    attributes:
+      label: Reverse proxy / TLS
+      options:
+        - None (direct)
+        - Caddy
+        - Cloudflare
+        - nginx / Traefik / other
+    validations:
+      required: false
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what went wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Server logs
+      description: >-
+        Relevant JSON log lines from the container (stdout). Redact secrets,
+        tokens and full database URLs.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: env
+    attributes:
+      label: Relevant configuration
+      description: Your SPOTDL_* environment (with secret VALUES redacted) and compose/railway overrides.
+      render: shell
