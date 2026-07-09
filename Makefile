@@ -1,4 +1,4 @@
-.PHONY: sync lint typecheck test check web-install web-check openapi ws-schema clients docs docs-check
+.PHONY: sync lint typecheck test check web-install web-check web-clients web-clients-check web-build web-embed web-e2e dist openapi ws-schema clients docs docs-check
 
 sync:
 	uv sync --all-packages --all-groups
@@ -22,6 +22,41 @@ web-check:
 	pnpm -C apps/web run type-check
 	pnpm -C apps/web run test
 	pnpm -C apps/web run build
+
+# Regenerate the checked-in TS API client + WS types from the server artifacts
+# (apps/server/openapi.json, apps/server/ws-protocol.json). Never hand-edit the
+# output; run this and commit it.
+web-clients:
+	pnpm -C apps/web run generate:api
+	pnpm -C apps/web run generate:ws
+
+# In-sync guard (CONTRACT A3): regenerate and fail if the committed client is
+# stale. Sibling of the Python client's test_clients_in_sync. Run in CI.
+web-clients-check: web-clients
+	git diff --exit-code apps/web/src/api/generated apps/web/src/api/ws-types.gen.ts apps/web/src/api/ws-protocol.gen.ts \
+		|| (echo 'generated TS client is stale — run `make web-clients` and commit'; exit 1)
+
+# Build the production SPA bundle (apps/web/dist).
+web-build:
+	pnpm -C apps/web run build
+
+# Copy the built SPA into the server package so the wheel can ship it (Plan 10).
+# The target dir is git-ignored and force-included by apps/server/pyproject.toml.
+web-embed:
+	rm -rf apps/server/src/spotdl_server/webui
+	mkdir -p apps/server/src/spotdl_server/webui
+	cp -R apps/web/dist/. apps/server/src/spotdl_server/webui/
+
+# Playwright e2e: build + embed the SPA, then drive it against the seeded server
+# (playwright.config.ts boots apps/server/scripts/serve_e2e.py). Kept OUT of
+# web-check / check — it needs a built server + a browser (CI runs it as its own
+# job; run `pnpm -C apps/web exec playwright install chromium` first locally).
+web-e2e: web-build web-embed
+	pnpm -C apps/web exec playwright test
+
+# Build the spotdl-server wheel with the SPA embedded: build → embed → wheel.
+dist: web-build web-embed
+	uv build --wheel --package spotdl-server
 
 openapi:
 	uv run python apps/server/scripts/export_openapi.py

@@ -1,9 +1,10 @@
 """``spotdl web`` — the local web UI (embedded server + browser).
 
 Boots the embedded server (loopback, downloads on by mode), runs migrations, and
-opens the browser. The bundled single-page app ships in Plan 10; until then ``/``
-serves a stub that points at the live API, so ``web`` is usable today (the API is
-real) and gains the UI without a command change.
+opens the browser at the SPA root. The server serves the bundled single-page app
+from ``spotdl_server/webui`` (embedded into the wheel by ``make web-embed`` /
+``make dist``); the app self-gates on ``GET /config``, so the same build serves
+every deployment mode. Fully offline — no GitHub fetch (spec §8).
 """
 
 from __future__ import annotations
@@ -13,41 +14,21 @@ import webbrowser
 import typer
 import uvicorn
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
 from spotdl_server.app import create_app
 from spotdl_server.bootstrap import upgrade_to_head
 from spotdl_server.settings import DeploymentMode, Settings
 
 from spotdl_cli.commands import _support
 
-_STUB_TITLE = "spotdl"
 
+def build_web_app(settings: Settings) -> FastAPI:
+    """Build the embedded app that serves the bundled SPA at ``/``.
 
-def _stub_html(api_url: str) -> str:
-    return (
-        "<!doctype html><html><head><title>spotdl</title></head>"
-        "<body style='font-family:sans-serif;max-width:40rem;margin:4rem auto'>"
-        "<h1>spotdl</h1>"
-        "<p>The web UI ships in a later release. The API is running at "
-        f"<a href='{api_url}'>{api_url}</a>.</p>"
-        "</body></html>"
-    )
-
-
-def build_web_app(settings: Settings, *, api_url: str) -> FastAPI:
-    """Build the embedded app with the ``/`` SPA stub mounted.
-
-    Factored out so a test can assert the stub without booting a real server. The
-    API routers live under ``/api/v1``; only the SPA root is added here.
+    Thin factory so a test can drive the ASGI app without binding a socket. The
+    SPA static mount lives in ``create_app`` (Plan 10, :func:`mount_webui`), so
+    ``web`` boots exactly the app every deployment serves.
     """
-    app = create_app(settings)
-
-    # Plan 10: mount bundled SPA static assets here (replacing this stub root).
-    @app.get("/", response_class=HTMLResponse, include_in_schema=False)
-    async def _spa_root() -> HTMLResponse:
-        return HTMLResponse(_stub_html(api_url))
-
-    return app
+    return create_app(settings)
 
 
 def _migrate(settings: Settings) -> None:
@@ -66,12 +47,12 @@ def web(
     settings = Settings(mode=DeploymentMode.EMBEDDED)
     _migrate(settings)
 
-    api_url = f"http://{host}:{port}/api/v1"
-    app = build_web_app(settings, api_url=api_url)
+    app = build_web_app(settings)
 
-    _support.console.print(f"the web UI ships in a later release; the API is running at {api_url}")
+    url = f"http://{host}:{port}/"
+    _support.console.print(f"serving the spotDL web UI at {url}")
     if open_browser:
-        webbrowser.open(f"http://{host}:{port}/")
+        webbrowser.open(url)
 
     uvicorn.run(app, host=host, port=port)
 

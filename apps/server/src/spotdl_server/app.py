@@ -49,6 +49,7 @@ from spotdl_server.downloads.worker import DownloadWorkerPool
 from spotdl_server.ratelimit import build_rate_limiter
 from spotdl_server.services.batch import BatchFinalizer
 from spotdl_server.settings import DeploymentMode, Settings
+from spotdl_server.webui import mount_webui
 
 if TYPE_CHECKING:
     from spotdl_server.downloads.worker import Engine, Finalizer
@@ -199,5 +200,11 @@ def create_app(
     if settings.downloads_enabled():
         app.include_router(downloads.router)
         app.include_router(progress_ws.router)
+
+    # Serve the bundled SPA when its assets were embedded into the wheel (Plan
+    # 10). Mounted last so the catch-all fallback never shadows an API route; a
+    # no-op when absent (API-only installs are unaffected). The SPA self-gates on
+    # GET /config, so it mounts in every deployment mode.
+    mount_webui(app)
 
     return app

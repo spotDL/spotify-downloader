@@ -118,4 +118,5 @@ markers = [
     "network: test hits a real provider API over the network; excluded from default runs and CI",
     "postgres: test requires a Postgres server (SPOTDL_TEST_POSTGRES_URL); skipped locally, run in CI",
     "codegen: test spawns the client generators to verify the checked-in client is in sync",
+    "packaging: test builds a wheel to verify packaging (e.g. the embedded web UI); slower",
 ]

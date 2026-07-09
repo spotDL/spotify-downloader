@@ -9,6 +9,8 @@ build/
 *.egg-info/
 node_modules/
 apps/web/dist/
+# Bundled web UI copied in by `make web-embed` (Plan 10); rebuilt, never committed.
+apps/server/src/spotdl_server/webui/
 # mkdocs build output
 site/
 .coverage
@@ -18,3 +20,9 @@ coverage.xml
 
 # agent scratch (reports, briefs, review diffs)
 .superpowers/
+
+# Playwright e2e artifacts
+apps/web/test-results/
+apps/web/playwright-report/
+apps/web/blob-report/
+apps/web/.playwright/
