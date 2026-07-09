@@ -43,6 +43,13 @@ docs = [
     "mkdocs-gen-files>=0.5",
     "mkdocs-swagger-ui-tag>=0.6",
 ]
+# Binary-build toolchain (Plan 11 Task 8, CONTRACT G). PyInstaller is only
+# needed to freeze the standalone binary (`scripts/build_binary.py`), so it
+# lives in its own group kept out of the default `make sync`/`make check` path;
+# the release-binaries workflow and a local build run `uv sync --group build`.
+build = [
+    "pyinstaller>=6.11",
+]
 
 [tool.ruff]
 target-version = "py313"
@@ -105,6 +112,16 @@ ignore_missing_imports = true
 # type-checkable whether or not the extra is present.
 [[tool.mypy.overrides]]
 module = "redis.*"
+follow_imports = "skip"
+ignore_missing_imports = true
+
+# ``PyInstaller`` is a build-only tool (the ``build`` group) used solely by
+# scripts/build_binary.py to freeze the standalone binary; it is untyped and not
+# installed in the default `make check`/CI typecheck environment. Ignoring its
+# imports keeps the build script type-checkable whether or not the group is
+# synced (locally it resolves as an untyped import, in CI as a missing one).
+[[tool.mypy.overrides]]
+module = "PyInstaller.*"
 follow_imports = "skip"
 ignore_missing_imports = true
 

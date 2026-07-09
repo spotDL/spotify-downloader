@@ -1,0 +1,132 @@
+# CONTRACT E3 (Plan 11, Task 8): build the standalone PyInstaller binaries and
+# attach them to the GitHub Release.
+#
+# The binary bundles CLI + server + embedded SPA + Alembic migrations (see
+# scripts/build_binary.py / CONTRACT G): `make bundle-spa` must run FIRST so the
+# web UI is embedded under spotdl_server/webui, then `scripts/build_binary.py`
+# freezes the onefile executable. Its default action is the TUI (bare TTY), so no
+# extra flag is needed.
+#
+# Platforms: a matrix over ubuntu/macos/windows (native x86_64 / Apple-arm
+# runners), plus a separate `build-arm` job that builds linux/aarch64 under
+# emulation via uraimo/run-on-arch-action (mirrors v4). The arch-independent SPA
+# is built once on the host and mounted into the emulated container so the slow
+# emulator only runs PyInstaller.
+#
+# Each artifact self-names `spotdl-<version>-<sys.platform>`; the aarch64 build
+# also reports `linux`, so it is copied to a `-aarch64` suffix to avoid colliding
+# with the x86_64 linux artifact on the Release.
+
+name: Release binaries
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "11.10.0" # the one pnpm pin (apps/web packageManager + ci.yml)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+      # SPA must be embedded (spotdl_server/webui) before freezing the binary.
+      - run: pnpm -C apps/web install --frozen-lockfile
+      - run: make bundle-spa
+      - run: uv sync --all-packages --group build
+      - run: uv run python scripts/build_binary.py
+
+      # Smoke test the frozen binary before uploading (CONTRACT G).
+      - name: Smoke test binary
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          bins=(dist/spotdl-*)
+          BIN="${bins[0]}"
+          echo "smoke-testing $BIN"
+          "$BIN" --version
+          "$BIN" web --help
+          # Boot the embedded server offline: runs the bundled Alembic migrations
+          # against a throwaway SQLite DB and hits /api/v1/health.
+          HOME="${RUNNER_TEMP}/spotdl-smoke" "$BIN" status --offline
+
+      - name: Upload to release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/spotdl-*
+      # Keep dispatch runs useful (nothing to attach to without a release).
+      - uses: actions/upload-artifact@v4
+        with:
+          name: spotdl-${{ matrix.os }}
+          path: dist/spotdl-*
+
+  build-arm:
+    runs-on: ubuntu-latest
+    name: Build linux/aarch64
+    steps:
+      - uses: actions/checkout@v4
+      # Build the arch-independent SPA on the host so the emulated aarch64
+      # container only has to run PyInstaller (embedding it from the mounted tree).
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "11.10.0"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+      - run: pnpm -C apps/web install --frozen-lockfile
+      - run: make bundle-spa
+
+      - uses: uraimo/run-on-arch-action@v3
+        name: Build + smoke on aarch64
+        with:
+          arch: aarch64
+          distro: ubuntu24.04
+          # Mount the checkout (with the SPA already embedded) into the container.
+          dockerRunArgs: |
+            --volume "${PWD}:/spotdl"
+          install: |
+            apt-get update -q -y
+            apt-get install -y curl ca-certificates make
+          run: |
+            set -euo pipefail
+            cd /spotdl
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            export PATH="$HOME/.local/bin:$PATH"
+            rm -rf dist build
+            uv sync --all-packages --group build
+            uv run python scripts/build_binary.py
+            # sys.platform is "linux" here too — disambiguate from the x86_64 build.
+            for f in dist/spotdl-*-linux; do cp "$f" "${f}-aarch64"; done
+            shopt -s nullglob
+            bins=(dist/spotdl-*-linux-aarch64)
+            BIN="${bins[0]}"
+            "$BIN" --version
+            "$BIN" web --help
+
+      - name: Upload to release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/spotdl-*-aarch64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: spotdl-linux-aarch64
+          path: dist/spotdl-*-aarch64
