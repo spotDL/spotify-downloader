@@ -79,8 +79,9 @@ async def test_search_returns_track_views(client: SpotdlClient) -> None:
 
     assert route.called
     assert route.calls.last.request.url.params["limit"] == "5"
-    assert [type(r) for r in results] == [TrackView]
-    assert results[0].name == "One More Time"
+    assert results.degraded_sources == []
+    assert [type(r) for r in results.tracks] == [TrackView]
+    assert results.tracks[0].name == "One More Time"
 
 
 async def test_404_envelope_becomes_api_error(client: SpotdlClient) -> None:

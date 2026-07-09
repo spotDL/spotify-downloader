@@ -3,8 +3,10 @@
 One base for the three collection kinds: it loads a :class:`CollectionDetail` through
 :class:`CollectionViewModel`, renders an :class:`EntityCard` header plus a track
 ``DataTable``, and wires the enqueue/drill-in bindings. The three subclasses
-(``album``/``artist``/``playlist``) differ only in their ``KIND`` — all logic lives
-here and in the view-model, keeping each subclass a handful of lines (CONTRACT B).
+(:class:`AlbumScreen`/:class:`ArtistScreen`/:class:`PlaylistScreen`) differ only in
+their ``KIND`` and live in this same module (all logic is here and in the view-model,
+so each is a one-liner) — one file per concept keeps the screen-module count bounded
+(CONTRACT B, spec §13).
 
 Bindings (documented decision, since the brief's letter map is ambiguous):
 
@@ -127,3 +129,21 @@ class CollectionScreen(SpotdlScreen):
     def _can_download(self) -> bool:
         session = self.spotdl_app.session
         return session is not None and session.can_download
+
+
+class AlbumScreen(CollectionScreen):
+    """The album variant of :class:`CollectionScreen` (CONTRACT C)."""
+
+    KIND = "album"
+
+
+class ArtistScreen(CollectionScreen):
+    """The artist variant of :class:`CollectionScreen` (CONTRACT C)."""
+
+    KIND = "artist"
+
+
+class PlaylistScreen(CollectionScreen):
+    """The playlist variant of :class:`CollectionScreen` (CONTRACT C)."""
+
+    KIND = "playlist"

@@ -23,6 +23,7 @@ class SessionSnapshot:
     can_download: bool
     can_auth: bool
     can_vote: bool
+    library: bool
     is_admin: bool
     user_email: str | None
     server_origin: str
@@ -62,6 +63,7 @@ class AppStateViewModel:
             can_download=download.features.downloads,
             can_auth=config.features.auth,
             can_vote=config.features.voting,
+            library=config.features.library,
             is_admin=is_admin,
             user_email=user_email,
             server_origin=self._server_origin,

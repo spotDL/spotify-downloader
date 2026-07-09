@@ -5,21 +5,22 @@ from __future__ import annotations
 from spotdl_cli.viewmodels.base import ErrorDisplay, Loadable, guard
 from spotdl_cli.viewmodels.mappers import entity_ref, track_row
 from spotdl_cli.viewmodels.protocol import SpotdlClientProtocol
-from spotdl_cli.viewmodels.types import EntityRef, TrackRow
+from spotdl_cli.viewmodels.types import ResolveOutcome, SearchResult
 
 
 class SearchViewModel:
     def __init__(self, client: SpotdlClientProtocol) -> None:
         self._client = client
 
-    async def search(self, query: str, *, limit: int = 20) -> Loadable[tuple[TrackRow, ...]]:
-        async def _run() -> tuple[TrackRow, ...]:
-            results = await self._client.search(query, limit=limit)
-            return tuple(track_row(track) for track in results)
+    async def search(self, query: str, *, limit: int = 20) -> Loadable[SearchResult]:
+        async def _run() -> SearchResult:
+            result = await self._client.search(query, limit=limit)
+            rows = tuple(track_row(track) for track in result.tracks)
+            return SearchResult(rows=rows, degraded=bool(result.degraded_sources))
 
         return await guard(_run())
 
-    async def open(self, query: str) -> Loadable[EntityRef]:
+    async def open(self, query: str) -> Loadable[ResolveOutcome]:
         """Resolve a pasted URL/query to a router ``EntityRef`` (CONTRACT C)."""
         resolved = await guard(self._client.resolve(query))
         if resolved.error is not None:
@@ -34,4 +35,6 @@ class SearchViewModel:
                     severity="error",
                 )
             )
-        return Loadable.ready(ref)
+        return Loadable.ready(
+            ResolveOutcome(ref=ref, degraded=bool(resolved.data.degraded_sources))
+        )

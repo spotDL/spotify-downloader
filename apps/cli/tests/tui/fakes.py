@@ -33,6 +33,7 @@ from spotdl_cli.views import (
     PatCreated,
     PlaylistView,
     ReportView,
+    SearchResultView,
     StatsView,
     Tokens,
     TrackView,
@@ -221,13 +222,19 @@ def make_job(
     status: str = "queued",
     progress: float = 0.0,
     batch_id: UUID | None = None,
+    track_name: str = "Song",
+    artists: list[str] | None = None,
+    output_path: str | None = None,
+    skip_reason: str | None = None,
 ) -> JobView:
     return JobView(
         id=str(id or uuid4()),
         status=status,
         progress=progress,
-        track_name="Song",
-        artists=["Artist"],
+        track_name=track_name,
+        artists=artists if artists is not None else ["Artist"],
+        output_path=output_path,
+        skip_reason=skip_reason,
         batch_id=str(batch_id) if batch_id is not None else None,
     )
 
@@ -272,6 +279,7 @@ def make_session(
     can_download: bool = True,
     can_auth: bool = True,
     can_vote: bool = True,
+    library: bool = True,
     is_admin: bool = False,
     user_email: str | None = None,
     server_origin: str = "https://api.example.test",
@@ -284,6 +292,7 @@ def make_session(
         can_download=can_download,
         can_auth=can_auth,
         can_vote=can_vote,
+        library=library,
         is_admin=is_admin,
         user_email=user_email,
         server_origin=server_origin,
@@ -411,6 +420,7 @@ class FakeSpotdlClient:
         # per-key canned returns (tests override); keyed by method name where a
         # single canned value suffices, or by entity id for the lookup methods.
         self.search_results: list[TrackView] = []
+        self.search_degraded: list[str] = []
         self.resolve_result: EntityView | None = None
         self.tracks: dict[str, TrackView] = {}
         self.albums: dict[str, AlbumView] = {}
@@ -477,10 +487,10 @@ class FakeSpotdlClient:
         assert self.resolve_result is not None
         return self.resolve_result
 
-    async def search(self, q: str, *, limit: int = 10) -> list[TrackView]:
+    async def search(self, q: str, *, limit: int = 10) -> SearchResultView:
         self._record("search", q, limit=limit)
         self._maybe_raise("search")
-        return self.search_results
+        return SearchResultView(tracks=self.search_results, degraded_sources=self.search_degraded)
 
     async def track(self, id: UUID) -> TrackView:
         self._record("track", id)

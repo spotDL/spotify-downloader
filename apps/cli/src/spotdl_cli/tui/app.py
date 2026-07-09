@@ -12,19 +12,20 @@ the client only through ``vm_factory``; the app is their only channel to toasts
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from textual.app import App
 from textual.binding import Binding
 from textual.reactive import reactive
 
-from spotdl_cli.tui.messages import AuthChanged, NavigateTo
+from spotdl_cli.tui.messages import AuthChanged, DegradedChanged, NavigateTo
 from spotdl_cli.tui.router import open_entity
 from spotdl_cli.tui.screens.admin import AdminScreen
 from spotdl_cli.tui.screens.auth import AuthScreen
 from spotdl_cli.tui.screens.base import PlaceholderScreen, SpotdlScreen
 from spotdl_cli.tui.screens.help import HelpScreen
 from spotdl_cli.tui.screens.home import HomeSearchScreen
+from spotdl_cli.tui.screens.library import LibraryScreen
 from spotdl_cli.tui.screens.queue import QueueScreen
 from spotdl_cli.tui.screens.settings import SettingsScreen
 from spotdl_cli.tui.widgets.status_bar import StatusBar
@@ -54,15 +55,17 @@ _SECTIONS: tuple[Section, ...] = (
     Section("3", "settings", "Settings", None),
     Section("4", "auth", "Account", "can_auth"),
     Section("5", "admin", "Admin", "is_admin"),
+    Section("6", "library", "Library", "library"),
 )
 
-# section name -> screen class. All five sections are registered.
+# section name -> screen class. All six sections are registered.
 SECTION_SCREENS: dict[str, type[SpotdlScreen]] = {
     "home": HomeSearchScreen,
     "queue": QueueScreen,
     "settings": SettingsScreen,
     "auth": AuthScreen,
     "admin": AdminScreen,
+    "library": LibraryScreen,
 }
 
 
@@ -75,6 +78,7 @@ class SpotdlApp(App[None]):
         Binding("3", "switch_section('settings')", "Settings"),
         Binding("4", "switch_section('auth')", "Account"),
         Binding("5", "switch_section('admin')", "Admin"),
+        Binding("6", "switch_section('library')", "Library"),
         Binding("question_mark", "help", "Help"),
         Binding("q", "quit", "Quit"),
     ]
@@ -129,6 +133,19 @@ class SpotdlApp(App[None]):
         if name in self._sections:
             await self.switch_mode(name)
 
+    def check_action(self, action: str, parameters: tuple[object, ...]) -> bool | None:
+        """Hide a gated section's key from the footer entirely (CONTRACT F).
+
+        Returning ``False`` for an unavailable section drops its binding from
+        ``active_bindings`` — and so from the ``Footer`` — and disables the key,
+        rather than advertising one that silently no-ops. (``None`` would keep a
+        greyed-out entry; ``False`` removes it, per ``Screen.active_bindings``.)
+        Available sections and every non-section action stay visible.
+        """
+        if action == "switch_section":
+            return not (parameters and parameters[0] not in self._sections)
+        return True
+
     def action_help(self) -> None:
         self.push_screen(HelpScreen())
 
@@ -138,6 +155,15 @@ class SpotdlApp(App[None]):
 
     def on_navigate_to(self, message: NavigateTo) -> None:
         open_entity(self, message.ref)
+
+    def on_degraded_changed(self, message: DegradedChanged) -> None:
+        """Fold the latest search/resolve degraded state into the session badge."""
+        session = self.session
+        if session is None or session.degraded == message.degraded:
+            return
+        updated = replace(session, degraded=message.degraded)
+        self._vm_factory.set_session(updated)
+        self.session = updated
 
     async def on_auth_changed(self, message: AuthChanged) -> None:
         """Re-evaluate identity + section availability after a login/logout."""

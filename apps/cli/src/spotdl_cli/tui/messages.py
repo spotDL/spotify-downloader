@@ -34,3 +34,16 @@ class AuthChanged(Message):
     and re-evaluates which feature sections are reachable. Wired here in Task 4 so
     the seam exists before the auth screen lands (Task 10).
     """
+
+
+class DegradedChanged(Message):
+    """Report the degraded state of the latest search/resolve (CONTRACT F, spec §10).
+
+    The search screen posts this whenever a search or paste-resolve completes with
+    (or without) ``degraded_sources``; the app folds ``degraded`` into the session so
+    the status bar's degraded badge tracks the most recent resolution.
+    """
+
+    def __init__(self, degraded: bool) -> None:
+        self.degraded = degraded
+        super().__init__()

@@ -20,9 +20,10 @@ from spotdl_cli.tui.widgets.status_bar import StatusBar
 from spotdl_cli.viewmodels.base import ErrorDisplay
 from spotdl_cli.viewmodels.factory import ViewModelFactory
 from spotdl_cli.viewmodels.types import EntityRef
+from textual.widgets import Input
 
 from .conftest import FakeConfigStore, FakeCredentialStore
-from .fakes import FakeSpotdlClient, make_config, make_features, make_stats, make_user
+from .fakes import FakeSpotdlClient, make_config, make_features, make_stats, make_track, make_user
 
 _ORIGIN = "https://api.example.test"
 _TRANSPORT = "remote · api.example.test"
@@ -152,6 +153,43 @@ async def test_show_error_raises_toast() -> None:
         await pilot.pause()
         toasts = [(n.message, n.severity) for n in app._notifications]
         assert ("rate limited, retrying", "warning") in toasts
+
+
+async def test_degraded_search_lights_the_status_bar_badge() -> None:
+    client = FakeSpotdlClient()
+    client.search_results = [make_track(name="One More Time")]
+    client.search_degraded = ["genius"]  # a fallen-back metadata source
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        bar = app.screen.query_one(StatusBar)
+        assert "degraded" not in bar.summary  # clean before any search
+        app.screen.query_one("#search-input", Input).value = "daft"
+        await pilot.press("slash")  # focus the search box
+        await pilot.press("enter")  # submit → search worker → DegradedChanged
+        await app.workers.wait_for_complete()
+        await pilot.pause()
+        assert "degraded" in app.screen.query_one(StatusBar).summary
+
+
+async def test_gated_section_key_is_hidden_from_the_footer() -> None:
+    # hosted-remote style: downloads off ⇒ the Queue section is unreachable and its
+    # key must not appear in the footer's active bindings (CONTRACT F).
+    client = FakeSpotdlClient(download_config=make_config(features=make_features(downloads=False)))
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        assert "2" not in app.active_bindings  # Queue key hidden
+        assert "1" in app.active_bindings  # always-on Search key stays
+        assert app.check_action("switch_section", ("queue",)) is False
+        assert app.check_action("switch_section", ("home",)) is True
+
+
+async def test_available_section_key_is_shown_in_the_footer() -> None:
+    app = SpotdlApp(_factory())
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        assert "2" in app.active_bindings  # downloads on by default ⇒ Queue visible
 
 
 async def test_boot_load_failure_toasts_and_keeps_always_on_sections() -> None:

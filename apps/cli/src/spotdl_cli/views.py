@@ -34,6 +34,7 @@ from spotdl_cli._generated.api.models.match_out import MatchOut
 from spotdl_cli._generated.api.models.pat_created_response import PatCreatedResponse
 from spotdl_cli._generated.api.models.playlist_out import PlaylistOut
 from spotdl_cli._generated.api.models.report_response import ReportResponse
+from spotdl_cli._generated.api.models.search_response import SearchResponse
 from spotdl_cli._generated.api.models.token_response import TokenResponse
 from spotdl_cli._generated.api.models.track_out import TrackOut
 from spotdl_cli._generated.api.models.user_response import UserResponse
@@ -126,6 +127,23 @@ class TrackView:
             popularity=_opt(track.popularity),
             track_number=_opt(track.track_number),
             year=_opt(track.year),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class SearchResultView:
+    """``GET /search``: the ranked track list plus the ``degraded_sources`` the
+    resolution layer reported for the query (a non-empty list means one or more
+    metadata providers fell back — the caller surfaces a "degraded" hint)."""
+
+    tracks: list[TrackView]
+    degraded_sources: list[str] = field(default_factory=list)
+
+    @classmethod
+    def from_generated(cls, response: SearchResponse) -> SearchResultView:
+        return cls(
+            tracks=[TrackView.from_generated(t) for t in response.results],
+            degraded_sources=list(response.degraded_sources),
         )
 
 

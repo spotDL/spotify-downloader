@@ -33,6 +33,7 @@ async def test_all_flags_true_when_admin_logged_in() -> None:
     assert snap.can_auth is True
     assert snap.can_vote is True
     assert snap.can_download is True
+    assert snap.library is True
     assert snap.is_admin is True
     assert snap.user_email == "admin@example.com"
     assert snap.mode == "self_host"

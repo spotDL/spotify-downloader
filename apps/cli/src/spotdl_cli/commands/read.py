@@ -66,7 +66,7 @@ def _file_query(path: Path) -> str:
 
 async def _search(q: str, *, limit: int, offline: bool) -> list[TrackView]:
     async with _support.open_client(offline=offline) as client:
-        return await client.search(q, limit=limit)
+        return (await client.search(q, limit=limit)).tracks
 
 
 async def _urls(queries: list[str], *, offline: bool) -> list[tuple[TrackView, str | None]]:

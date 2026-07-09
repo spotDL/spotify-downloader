@@ -14,9 +14,7 @@ from uuid import UUID, uuid4
 
 from spotdl_cli.tui.app import SpotdlApp
 from spotdl_cli.tui.messages import NavigateTo
-from spotdl_cli.tui.screens.album import AlbumScreen
-from spotdl_cli.tui.screens.artist import ArtistScreen
-from spotdl_cli.tui.screens.playlist import PlaylistScreen
+from spotdl_cli.tui.screens.collection import AlbumScreen, ArtistScreen, PlaylistScreen
 from spotdl_cli.tui.widgets.entity_card import EntityCard
 from spotdl_cli.viewmodels.factory import ViewModelFactory
 from spotdl_cli.viewmodels.types import EntityRef

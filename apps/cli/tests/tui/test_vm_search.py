@@ -30,7 +30,8 @@ async def test_search_maps_track_rows() -> None:
 
     assert result.state is LoadState.READY
     assert result.data is not None
-    (row,) = result.data
+    assert result.data.degraded is False
+    (row,) = result.data.rows
     assert row.id == track_id
     assert row.title == "One More Time"
     assert row.artists == "Daft Punk, Romanthony"
@@ -62,9 +63,33 @@ async def test_open_resolves_to_entity_ref() -> None:
 
     assert result.state is LoadState.READY
     assert result.data is not None
-    assert result.data.entity_type == "track"
-    assert result.data.id == track_id
-    assert result.data.title == "Around the World"
+    assert result.data.degraded is False
+    assert result.data.ref.entity_type == "track"
+    assert result.data.ref.id == track_id
+    assert result.data.ref.title == "Around the World"
+
+
+async def test_search_flags_degraded_sources() -> None:
+    client = FakeSpotdlClient()
+    client.search_results = [make_track()]
+    client.search_degraded = ["genius"]
+    result = await SearchViewModel(client).search("daft")
+
+    assert result.state is LoadState.READY
+    assert result.data is not None
+    assert result.data.degraded is True
+
+
+async def test_open_flags_degraded_sources() -> None:
+    client = FakeSpotdlClient()
+    client.resolve_result = EntityView(
+        type="track", track=make_track(), degraded_sources=["musicbrainz"]
+    )
+    result = await SearchViewModel(client).open("https://open.spotify.com/track/x")
+
+    assert result.state is LoadState.READY
+    assert result.data is not None
+    assert result.data.degraded is True
 
 
 async def test_open_unresolvable_entity_fails() -> None:

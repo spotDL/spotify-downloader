@@ -16,6 +16,7 @@ from spotdl_cli.viewmodels.types import (
     EntityHeader,
     EntityRef,
     JobRow,
+    LibraryTrack,
     LyricsChoice,
     LyricsLine,
     MatchRow,
@@ -203,6 +204,21 @@ def job_row(job: JobView) -> JobRow:
         output_path=job.output_path,
         skip_reason=job.skip_reason,
     )
+
+
+def library_track(job: JobView) -> LibraryTrack:
+    return LibraryTrack(
+        job_id=UUID(job.id),
+        title=job.track_name or "",
+        artists=", ".join(job.artists),
+        output_path=job.output_path,
+        skip_reason=job.skip_reason,
+    )
+
+
+def save_file_url(server_origin: str, batch_id: UUID) -> str:
+    """The server URL that serves a batch's ``.spotdl`` save file (web parity)."""
+    return f"{server_origin.rstrip('/')}/api/v1/downloads/batches/{batch_id}/save-file"
 
 
 def report_row(report: ReportView) -> ReportRow:

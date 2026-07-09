@@ -37,6 +37,52 @@ class TrackRow:
 
 
 @dataclass(frozen=True, slots=True)
+class SearchResult:
+    """A search outcome: the mapped rows plus whether the query degraded a source.
+
+    ``degraded`` is ``True`` when the resolution layer reported one or more fallen-
+    back metadata providers (``degraded_sources`` non-empty); the app folds it into
+    the session so the status bar's degraded badge fires (CONTRACT F, spec §10).
+    """
+
+    rows: tuple[TrackRow, ...]
+    degraded: bool
+
+
+@dataclass(frozen=True, slots=True)
+class ResolveOutcome:
+    """A resolved paste (``open``): the router ``EntityRef`` + its degraded flag."""
+
+    ref: EntityRef
+    degraded: bool
+
+
+@dataclass(frozen=True, slots=True)
+class LibraryTrack:
+    """One completed download in the library (a job's local output file)."""
+
+    job_id: UUID
+    title: str
+    artists: str
+    output_path: str | None
+    skip_reason: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class LibraryBatch:
+    """A submission batch's completed tracks + its ``.spotdl`` save-file URL.
+
+    ``save_file_url`` is the server endpoint that serves the batch's ``.spotdl``
+    document (web parity: ``apps/web`` links the same URL); ``None`` for the
+    synthetic "unbatched" group, which has no batch to save.
+    """
+
+    batch_id: UUID | None
+    save_file_url: str | None
+    tracks: tuple[LibraryTrack, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class EntityHeader:
     title: str
     subtitle: str

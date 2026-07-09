@@ -15,7 +15,7 @@ from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.widgets import DataTable, Input
 
-from spotdl_cli.tui.messages import NavigateTo
+from spotdl_cli.tui.messages import DegradedChanged, NavigateTo
 from spotdl_cli.tui.screens.base import SpotdlScreen
 from spotdl_cli.viewmodels.base import LoadState
 from spotdl_cli.viewmodels.types import EntityRef, TrackRow
@@ -76,7 +76,8 @@ class HomeSearchScreen(SpotdlScreen):
             self._render_rows(())
             return
         assert result.data is not None
-        self._render_rows(result.data)
+        self.post_message(DegradedChanged(result.data.degraded))
+        self._render_rows(result.data.rows)
 
     @work(exclusive=True, group="home-search")
     async def _open(self, query: str) -> None:
@@ -86,7 +87,8 @@ class HomeSearchScreen(SpotdlScreen):
                 self.show_error(result.error)
             return
         assert result.data is not None
-        self.post_message(NavigateTo(result.data))
+        self.post_message(DegradedChanged(result.data.degraded))
+        self.post_message(NavigateTo(result.data.ref))
 
     def _render_rows(self, rows: tuple[TrackRow, ...]) -> None:
         table = self.query_one("#search-results", DataTable)

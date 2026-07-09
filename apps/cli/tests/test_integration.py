@@ -27,6 +27,7 @@ from spotdl_cli.commands import _support
 from spotdl_cli.commands import download as dl
 from spotdl_cli.errors import ExitCode
 from spotdl_cli.transport import EmbeddedTransport
+from spotdl_cli.views import SearchResultView
 from spotdl_core.model import AudioCandidate, ProviderId, Track
 from spotdl_server.app import create_app
 from spotdl_server.settings import DeploymentMode, Settings
@@ -201,8 +202,8 @@ def _reset_invocation_overrides() -> Iterator[None]:
 class _FakeSearchClient:
     """Records the effective config it was opened with; returns no search hits."""
 
-    async def search(self, q: str, *, limit: int = 10) -> list[object]:
-        return []
+    async def search(self, q: str, *, limit: int = 10) -> SearchResultView:
+        return SearchResultView(tracks=[])
 
 
 def _capture_open(monkeypatch: pytest.MonkeyPatch, captured: dict[str, object]) -> None:

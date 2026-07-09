@@ -15,13 +15,14 @@ from spotdl_cli.tui.screens.base import SpotdlScreen
 _HELP = """\
 spotDL — keys
 
-  1   Search            ?   this help
-  2   Queue             esc back / close
-  3   Settings          q   quit
-  4   Account
-  5   Admin
+  1   Search            5   Admin
+  2   Queue             6   Library
+  3   Settings          ?   this help
+  4   Account           esc back / close
+                        q   quit
 
-  Within a screen, the footer shows that screen's own actions.
+  Sections you can't reach on this server are hidden; the footer only lists the
+  keys that work here. Within a screen, the footer shows that screen's own actions.
 """
 
 

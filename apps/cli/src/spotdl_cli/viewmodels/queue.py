@@ -149,7 +149,11 @@ class QueueViewModel:
                     attempts = 0
                     async for msg in frames:
                         if isinstance(msg.root, WsHello):
-                            version = msg.root.protocol_version or WS_PROTOCOL_VERSION
+                            version = (
+                                msg.root.protocol_version
+                                if msg.root.protocol_version is not None
+                                else WS_PROTOCOL_VERSION
+                            )
                             if version != WS_PROTOCOL_VERSION:
                                 yield Loadable.failed(_PROTOCOL_MISMATCH)
                                 return

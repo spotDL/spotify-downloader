@@ -12,7 +12,7 @@ from contextlib import asynccontextmanager
 import pytest
 from spotdl_cli.__main__ import app
 from spotdl_cli.commands import _support
-from spotdl_cli.views import AlbumRefView, TrackView
+from spotdl_cli.views import AlbumRefView, SearchResultView, TrackView
 from typer.testing import CliRunner
 
 runner = CliRunner()
@@ -25,9 +25,9 @@ class FakeReadClient:
         self._results = results
         self.search_calls: list[tuple[str, int]] = []
 
-    async def search(self, q: str, *, limit: int = 10) -> list[TrackView]:
+    async def search(self, q: str, *, limit: int = 10) -> SearchResultView:
         self.search_calls.append((q, limit))
-        return self._results[:limit]
+        return SearchResultView(tracks=self._results[:limit])
 
 
 @pytest.fixture

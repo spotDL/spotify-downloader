@@ -13,10 +13,8 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from spotdl_cli.tui.screens.album import AlbumScreen
-from spotdl_cli.tui.screens.artist import ArtistScreen
 from spotdl_cli.tui.screens.base import PlaceholderScreen, SpotdlScreen
-from spotdl_cli.tui.screens.playlist import PlaylistScreen
+from spotdl_cli.tui.screens.collection import AlbumScreen, ArtistScreen, PlaylistScreen
 from spotdl_cli.tui.screens.track import TrackScreen
 from spotdl_cli.viewmodels.types import EntityRef
 

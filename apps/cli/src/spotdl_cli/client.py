@@ -153,6 +153,7 @@ from spotdl_cli.views import (
     PatCreated,
     PlaylistView,
     ReportView,
+    SearchResultView,
     StatsView,
     Tokens,
     TrackView,
@@ -492,13 +493,13 @@ class SpotdlClient:
         assert isinstance(result, ResolveResponse)
         return EntityView.from_generated(result.entity, degraded_sources=result.degraded_sources)
 
-    async def search(self, q: str, *, limit: int = 10) -> list[TrackView]:
+    async def search(self, q: str, *, limit: int = 10) -> SearchResultView:
         resp = await _search_ep.asyncio_detailed(
             client=self._client(self._resolution), q=q, limit=limit
         )
         result = _unwrap(resp)
         assert isinstance(result, SearchResponse)
-        return [TrackView.from_generated(t) for t in result.results]
+        return SearchResultView.from_generated(result)
 
     async def track(self, id: UUID) -> TrackView:
         resp = await _track_ep.asyncio_detailed(id=id, client=self._client(self._resolution))
