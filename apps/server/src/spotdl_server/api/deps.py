@@ -16,18 +16,22 @@ from __future__ import annotations
 
 from collections.abc import AsyncIterator
 
+import httpx
 from fastapi import Depends, Request
 from spotdl_core.providers import ProviderContext, ProviderRegistry, SpotifyConfig
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from spotdl_server.auth.clock import Clock, ensure_utc
 from spotdl_server.auth.context import ANONYMOUS, AuthContext
+from spotdl_server.auth.oauth_providers import OAuthProviderClient, build_oauth_client
 from spotdl_server.auth.tokens import TokenService, is_pat, sha256_hex
+from spotdl_server.db.enums import OAuthProvider
 from spotdl_server.repositories.tokens import ApiTokenRepository, RefreshTokenRepository
-from spotdl_server.repositories.users import UserRepository
+from spotdl_server.repositories.users import OAuthIdentityRepository, UserRepository
 from spotdl_server.services.auth import AuthService
 from spotdl_server.services.entities import EntityService
 from spotdl_server.services.errors import AuthRequired, Forbidden
+from spotdl_server.services.oauth import OAuthService
 from spotdl_server.services.resolve import ResolveService
 from spotdl_server.services.search import SearchService
 from spotdl_server.settings import Settings
@@ -228,4 +232,71 @@ def get_auth_service(
         clock=clock,
         users=UserRepository(session),
         refresh_tokens=RefreshTokenRepository(session),
+    )
+
+
+# --------------------------------------------------------------------------
+# OAuth wiring (Plan 6, Task 6). The shared ``httpx.AsyncClient`` is built once
+# in the lifespan and stored on ``app.state.http`` (closed on shutdown); the
+# provider-client dict is assembled per request from the enabled providers so a
+# test can override :func:`build_oauth_clients` with fakes and never touch the
+# network. The oauth router is mounted only when at least one provider is
+# configured, so these dependencies only ever run for a live provider.
+# --------------------------------------------------------------------------
+
+
+def get_http_client(request: Request) -> httpx.AsyncClient:
+    """The lifespan-built shared :class:`httpx.AsyncClient` on ``app.state``."""
+    http: httpx.AsyncClient = request.app.state.http
+    return http
+
+
+def build_oauth_clients(
+    request: Request,
+    http: httpx.AsyncClient = Depends(get_http_client),
+) -> dict[OAuthProvider, OAuthProviderClient]:
+    """Assemble the enabled provider clients keyed by :class:`OAuthProvider`.
+
+    Credentials come from ``Settings`` (never hardcoded); each client shares the
+    process-wide ``httpx`` client so connection pooling and ``respx`` interception
+    both work. Only providers with both an id and a secret appear
+    (``settings.enabled_oauth_providers()``), so the dict doubles as the router's
+    enabled-provider set (an absent key → 404).
+    """
+    settings = get_settings(request)
+    clients: dict[OAuthProvider, OAuthProviderClient] = {}
+    for provider in settings.enabled_oauth_providers():
+        if provider is OAuthProvider.GITHUB:
+            assert settings.github_client_id and settings.github_client_secret
+            client_id = settings.github_client_id
+            client_secret = settings.github_client_secret.get_secret_value()
+        else:  # OAuthProvider.DISCORD (the only other enabled value)
+            assert settings.discord_client_id and settings.discord_client_secret
+            client_id = settings.discord_client_id
+            client_secret = settings.discord_client_secret.get_secret_value()
+        clients[provider] = build_oauth_client(
+            provider, client_id=client_id, client_secret=client_secret, http=http
+        )
+    return clients
+
+
+def get_oauth_service(
+    request: Request,
+    session: AsyncSession = Depends(get_session),
+    token_service: TokenService = Depends(get_token_service),
+    clock: Clock = Depends(get_clock),
+    clients: dict[OAuthProvider, OAuthProviderClient] = Depends(build_oauth_clients),
+) -> OAuthService:
+    """Compose the :class:`OAuthService` from the request's session + auth wiring."""
+    settings = get_settings(request)
+    return OAuthService(
+        session=session,
+        token_service=token_service,
+        clock=clock,
+        users=UserRepository(session),
+        identities=OAuthIdentityRepository(session),
+        refresh_tokens=RefreshTokenRepository(session),
+        clients=clients,
+        auth_secret=settings.require_auth_secret(),
+        redirect_base_url=settings.oauth_redirect_base_url or "",
     )

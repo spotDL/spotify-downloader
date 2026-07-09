@@ -309,6 +309,17 @@ class UserResponse(BaseModel):
     created_at: datetime
 
 
+class AuthorizeUrlResponse(BaseModel):
+    """``GET /auth/oauth/{provider}/authorize?json=true`` body.
+
+    Returned to clients that open their own browser (the CLI, native apps): the
+    fully-formed provider authorize URL — carrying our signed ``state`` — for the
+    client to navigate to, instead of the default 307 redirect.
+    """
+
+    authorize_url: str
+
+
 class TokenResponse(BaseModel):
     """A minted session: the access JWT, the rotating refresh token, and profile.
 

@@ -18,13 +18,14 @@ from __future__ import annotations
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
+import httpx
 from fastapi import FastAPI
 from spotdl_core.providers import ProviderRegistry, build_default_registry
 
 from spotdl_server import __version__
 from spotdl_server.api.deps import provider_context
 from spotdl_server.api.errors import register_exception_handlers
-from spotdl_server.api.routers import auth, entities, meta, resolve, search
+from spotdl_server.api.routers import auth, entities, meta, oauth, resolve, search
 from spotdl_server.auth.clock import SystemClock
 from spotdl_server.db.engine import build_engine, build_sessionmaker
 from spotdl_server.settings import DeploymentMode, Settings
@@ -55,6 +56,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.engine = engine
     app.state.sessionmaker = build_sessionmaker(engine)
 
+    # Shared outbound HTTP client for OAuth provider calls (Task 6). Built once
+    # here (no module-level singleton) and closed on shutdown; the oauth
+    # dependencies read it from ``app.state`` and respx intercepts it in tests.
+    app.state.http = httpx.AsyncClient()
+
     injected: ProviderRegistry | None = app.state.injected_registry
     app.state.registry = injected or build_default_registry(provider_context(settings))
     try:
@@ -62,6 +68,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     finally:
         if injected is None:  # caller-owned registries are NOT closed by the app
             await app.state.registry.aclose()
+        await app.state.http.aclose()
         await engine.dispose()
 
 
@@ -96,6 +103,10 @@ def create_app(
     # / loopback mode). Mount-time gate — not a per-request conditional.
     if settings.auth_active():
         app.include_router(auth.router)
+        # The OAuth router additionally requires at least one configured provider
+        # (id + secret). Mount-time gate — never a per-request conditional.
+        if settings.enabled_oauth_providers():
+            app.include_router(oauth.router)
     # if settings.mode is not DeploymentMode.HOSTED:
     #     app.include_router(downloads_router)  # Plan 7
 
