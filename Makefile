@@ -1,7 +1,7 @@
 .PHONY: sync lint typecheck test check web-install web-check openapi ws-schema docs docs-check
 
 sync:
-	uv sync --all-packages
+	uv sync --all-packages --all-groups
 
 lint:
 	uv run ruff check .
