@@ -85,6 +85,10 @@ class TrackView:
     year: int | None = None
     genres: tuple[str, ...] = ()
     popularity: int | None = None
+    # Source-provider ref (search previews only): lets clients resolve a hit
+    # into a canonical entity ("{provider}:track:{provider_id}").
+    provider: str | None = None
+    provider_id: str | None = None
     album: AlbumView | None = None
     matches: tuple[MatchView, ...] = ()
     lyrics: tuple[LyricsView, ...] = ()

@@ -1165,6 +1165,14 @@ export type TrackOut = {
      */
     popularity?: number | null;
     /**
+     * Provider
+     */
+    provider?: string | null;
+    /**
+     * Provider Id
+     */
+    provider_id?: string | null;
+    /**
      * Track Number
      */
     track_number?: number | null;

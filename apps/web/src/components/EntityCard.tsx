@@ -19,6 +19,7 @@ export function EntityCard({
   subtitle,
   imageUrl,
   className = "",
+  onSelect,
 }: {
   type: EntityType;
   id: string;
@@ -26,10 +27,20 @@ export function EntityCard({
   subtitle?: string;
   imageUrl?: string | null;
   className?: string;
+  /** Overrides the default link navigation (e.g. resolve-then-navigate). */
+  onSelect?: () => void;
 }) {
   return (
     <a
       href={`/${ROUTE_SEGMENT[type]}/${id}`}
+      onClick={
+        onSelect
+          ? (e) => {
+              e.preventDefault();
+              onSelect();
+            }
+          : undefined
+      }
       className={`flex items-center gap-3 rounded-card border border-black/10 bg-surface p-3 transition-colors hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/5 ${className}`}
     >
       {imageUrl != null && imageUrl !== "" ? (

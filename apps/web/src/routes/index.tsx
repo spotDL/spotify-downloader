@@ -17,9 +17,22 @@ export const Route = createFileRoute("/")({
 // track's scope; album/artist/playlist pages land in Task 8, so those types
 // surface a placeholder toast until their routes are integrated.
 // MERGE: extend to /albums, /artists, /playlists once those routes exist.
-function entityTarget(entity: EntityEnvelope) {
+type ResolveTarget =
+  | { kind: "track"; trackId: string; title: string }
+  | { kind: "album" | "artist" | "playlist"; id: string; title: string };
+
+function entityTarget(entity: EntityEnvelope): ResolveTarget | null {
   if (entity.type === "track" && entity.track) {
-    return { trackId: entity.track.id, title: entity.track.name };
+    return { kind: "track", trackId: entity.track.id, title: entity.track.name };
+  }
+  if (entity.type === "album" && entity.album) {
+    return { kind: "album", id: entity.album.id, title: entity.album.name };
+  }
+  if (entity.type === "artist" && entity.artist) {
+    return { kind: "artist", id: entity.artist.id, title: entity.artist.name };
+  }
+  if (entity.type === "playlist" && entity.playlist) {
+    return { kind: "playlist", id: entity.playlist.id, title: entity.playlist.name };
   }
   return null;
 }
@@ -39,6 +52,15 @@ function Home() {
   const goToTrack = (trackId: string) =>
     navigate({ to: "/tracks/$trackId", params: { trackId } });
 
+  const goToTarget = (target: ResolveTarget) => {
+    if (target.kind === "track") return goToTrack(target.trackId);
+    if (target.kind === "album")
+      return navigate({ to: "/albums/$albumId", params: { albumId: target.id } });
+    if (target.kind === "artist")
+      return navigate({ to: "/artists/$artistId", params: { artistId: target.id } });
+    return navigate({ to: "/playlists/$playlistId", params: { playlistId: target.id } });
+  };
+
   const onResolve = (e: React.FormEvent) => {
     e.preventDefault();
     const value = url.trim();
@@ -50,14 +72,14 @@ function Home() {
         onSuccess: (res) => {
           const target = entityTarget(res.entity);
           if (!target) {
-            toast.info(
-              "That resolved to an album, artist, or playlist — those views land soon.",
-            );
+            toast.info("That link resolved to something spotDL can't display yet.");
             return;
           }
           // Surface any degraded sources before leaving the page; a clean
-          // resolve navigates straight through (CONTRACT — spec §6).
-          if (res.degraded_sources.length > 0) {
+          // resolve navigates straight through (CONTRACT — spec §6). The
+          // banner's continue button only supports tracks; other kinds
+          // navigate directly (their pages render their own degraded state).
+          if (res.degraded_sources.length > 0 && target.kind === "track") {
             setDegraded({
               sources: res.degraded_sources,
               trackId: target.trackId,
@@ -65,7 +87,7 @@ function Home() {
             });
             return;
           }
-          void goToTrack(target.trackId);
+          void goToTarget(target);
         },
         onError: (err) => reportError(err, "Couldn't open that link."),
       },

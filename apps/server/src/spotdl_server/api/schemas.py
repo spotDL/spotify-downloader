@@ -259,6 +259,9 @@ class TrackOut(BaseModel):
     year: int | None = None
     genres: list[str] = []
     popularity: int | None = None
+    provider: str | None = None
+    """Source-provider ref (search previews): resolve via ``{provider}:track:{provider_id}``."""
+    provider_id: str | None = None
     album: AlbumRefOut | None = None
 
     @classmethod

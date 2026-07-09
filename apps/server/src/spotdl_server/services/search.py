@@ -98,6 +98,8 @@ class SearchService:
             year=track.year,
             genres=tuple(track.genres),
             popularity=track.popularity,
+            provider=track.provider.value if track.provider is not None else None,
+            provider_id=track.provider_id,
         )
 
 
