@@ -1,4 +1,4 @@
-.PHONY: sync lint typecheck test check web-install web-check openapi ws-schema docs docs-check
+.PHONY: sync lint typecheck test check web-install web-check web-clients web-clients-check openapi ws-schema docs docs-check
 
 sync:
 	uv sync --all-packages --all-groups
@@ -22,6 +22,19 @@ web-check:
 	pnpm -C apps/web run type-check
 	pnpm -C apps/web run test
 	pnpm -C apps/web run build
+
+# Regenerate the checked-in TS API client + WS types from the server artifacts
+# (apps/server/openapi.json, apps/server/ws-protocol.json). Never hand-edit the
+# output; run this and commit it.
+web-clients:
+	pnpm -C apps/web run generate:api
+	pnpm -C apps/web run generate:ws
+
+# In-sync guard (CONTRACT A3): regenerate and fail if the committed client is
+# stale. Sibling of the Python client's test_clients_in_sync. Run in CI.
+web-clients-check: web-clients
+	git diff --exit-code apps/web/src/api/generated apps/web/src/api/ws-types.gen.ts apps/web/src/api/ws-protocol.gen.ts \
+		|| (echo 'generated TS client is stale — run `make web-clients` and commit'; exit 1)
 
 openapi:
 	uv run python apps/server/scripts/export_openapi.py
