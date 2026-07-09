@@ -3,6 +3,7 @@ from typing import Any
 from fastapi import FastAPI
 
 from spotdl_server import __version__
+from spotdl_server.api.errors import register_exception_handlers
 from spotdl_server.settings import DeploymentMode, Settings
 
 
@@ -10,6 +11,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or Settings()
     app = FastAPI(title="spotdl-server", version=__version__)
     app.state.settings = settings
+    register_exception_handlers(app)
 
     @app.get("/api/v1/health")
     async def health() -> dict[str, str]:
