@@ -147,7 +147,15 @@ class DownloadEngine:
 
             # 2. metadata-only branch --------------------------------------
             if file_exists and request.overwrite is OverwriteMode.METADATA:
-                return await self._metadata_only(request, output_path, duplicates, on_progress)
+                target = self._consolidate_metadata_target(output_path, duplicates)
+                # ``target`` is an existing user file (possibly the just-moved
+                # duplicate). Mark it final on the OUTER ctx so that a later
+                # EmbedStep failure routes through _cleanup_partial with
+                # final_path set and never deletes the user's only audio copy.
+                ctx = ctx.updated(output_path=target, final_path=target)
+                ctx = await EmbedStep(self._cover, on_progress)(ctx)
+                self._emit(on_progress, ProgressPhase.DONE, percent=100)
+                return DownloadOutcome.downloaded(request.track, target)
 
             # 3. force branch: drop duplicates before re-downloading -------
             if file_exists and request.overwrite is OverwriteMode.FORCE:
@@ -200,35 +208,26 @@ class DownloadEngine:
         except Exception as exc:
             raise DownloadFailed(str(exc), step="plan") from exc
 
-    async def _metadata_only(
-        self,
-        request: DownloadRequest,
-        output_path: Path,
-        duplicates: list[Path],
-        on_progress: ProgressCallback | None,
-    ) -> DownloadOutcome:
-        """Re-embed metadata into the existing file without fetching/converting
-        (port of v4's ``overwrite == "metadata"`` branch, simplified).
+    @staticmethod
+    def _consolidate_metadata_target(output_path: Path, duplicates: list[Path]) -> Path:
+        """Resolve the file to re-embed for the ``overwrite == "metadata"`` branch
+        (port of v4's metadata path, simplified): re-embed without fetching.
 
         When the planned output is absent but a same-extension duplicate exists,
-        the most recent such duplicate is consolidated into ``output_path`` first.
+        the most recent such duplicate is consolidated onto ``output_path`` (moved)
+        and that path is returned. A different-container duplicate is embedded in
+        place (v4 could not move across extensions either). The returned path is
+        always an existing user file, which the caller marks ``final`` so a later
+        embed failure cannot delete it.
         """
-        target = output_path
-        if not output_path.exists() and duplicates:
-            most_recent = max(duplicates, key=lambda path: path.stat().st_mtime)
-            if most_recent.suffix == output_path.suffix:
-                output_path.parent.mkdir(parents=True, exist_ok=True)
-                most_recent.replace(output_path)
-                target = output_path
-            else:
-                # Different container: embed the duplicate in place (v4 could not
-                # move across extensions either).
-                target = most_recent
-
-        ctx = DownloadContext(request=request, output_path=target, final_path=target)
-        ctx = await EmbedStep(self._cover, on_progress)(ctx)
-        self._emit(on_progress, ProgressPhase.DONE, percent=100)
-        return DownloadOutcome.downloaded(request.track, target)
+        if output_path.exists() or not duplicates:
+            return output_path
+        most_recent = max(duplicates, key=lambda path: path.stat().st_mtime)
+        if most_recent.suffix == output_path.suffix:
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            most_recent.replace(output_path)
+            return output_path
+        return most_recent
 
     async def _generate_lrc(
         self,

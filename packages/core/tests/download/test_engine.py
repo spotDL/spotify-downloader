@@ -282,6 +282,41 @@ async def test_metadata_only_reembeds_without_fetching(tmp_path: Path) -> None:
     assert audio["\xa9nam"] == ["Test Song"]
 
 
+async def test_metadata_only_embed_failure_preserves_consolidated_file(tmp_path: Path) -> None:
+    """Regression: a metadata-only run that consolidates a same-extension
+    duplicate onto ``output_path`` and then fails to embed must NOT delete the
+    just-moved file — it is the user's only audio copy.
+
+    Opus bytes carried under an ``.m4a`` name are not a valid MP4 container, so
+    EmbedStep raises. Before the fix, ``_metadata_only`` built a separate local
+    context so ``download()``'s cleanup saw ``final_path=None`` and unlinked the
+    renamed file, destroying the user's audio.
+    """
+    config = _config(tmp_path)
+    request = _request(output_format=OutputFormat.M4A, overwrite=OverwriteMode.METADATA)
+    output_path = build_output_path(request, config)
+    assert not output_path.exists()  # planned target absent -> triggers consolidation
+
+    # A same-extension duplicate that is not a real MP4 container -> embed fails.
+    duplicate = tmp_path / "existing duplicate.m4a"
+    shutil.copy(FIXTURES / "tiny.opus", duplicate)
+    request = _request(
+        output_format=OutputFormat.M4A,
+        overwrite=OverwriteMode.METADATA,
+        known_paths=(duplicate,),
+    )
+    fetcher = FakeFetcher(error=AssertionError("fetch must not run in metadata mode"))
+
+    outcome = await DownloadEngine(config, fetcher=fetcher).download(request)
+
+    assert outcome.status is OutcomeStatus.FAILED
+    assert outcome.failed_step == "embed"
+    # The consolidated file must survive: it was moved onto output_path and is
+    # the only remaining copy of the user's audio.
+    assert output_path.exists()
+    assert not duplicate.exists()  # confirms it really was consolidated (moved)
+
+
 # --- failure isolation ----------------------------------------------------
 
 
