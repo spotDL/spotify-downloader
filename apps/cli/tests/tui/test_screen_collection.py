@@ -141,6 +141,51 @@ async def test_enqueue_bindings_absent_when_downloads_disabled() -> None:
         assert not client.called("submit_download")
 
 
+async def test_side_panel_has_enqueue_buttons() -> None:
+    client, album_id, _ = _album_client()
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await _open_album(app, album_id, pilot)
+        from textual.widgets import Button
+
+        ids = {b.id for b in app.screen.query(Button)}
+        assert {"enqueue-all", "enqueue-track"} <= ids
+
+
+async def test_artist_side_panel_omits_enqueue_all_and_explains() -> None:
+    config = make_config(features=make_features(downloads=True))
+    client = FakeSpotdlClient(config=config, download_config=config)
+    artist_id = uuid4()
+    client.artists[str(artist_id)] = make_artist(id=artist_id, name="Daft Punk")
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        app.post_message(
+            NavigateTo(EntityRef(entity_type="artist", id=artist_id, title="Daft Punk"))
+        )
+        await pilot.pause()
+        await pilot.pause()
+        from textual.widgets import Button, Static
+
+        ids = {b.id for b in app.screen.query(Button)}
+        assert "enqueue-all" not in ids  # unsupported for an artist (§4)
+        assert "enqueue-track" in ids
+        assert app.screen.check_action("enqueue_all", ()) is None
+        notes = " ".join(str(n.render()) for n in app.screen.query(Static))
+        assert "unsupported for an artist" in notes
+
+
+async def test_narrow_width_collapses_columns() -> None:
+    client, album_id, _ = _album_client()
+    app = SpotdlApp(_factory(client))
+    async with app.run_test(size=(90, 24)) as pilot:
+        await pilot.pause()
+        await _open_album(app, album_id, pilot)
+        main = app.screen.query_one("#collection-main")
+        assert main.has_class("narrow")
+
+
 async def test_artist_and_playlist_reuse_the_base() -> None:
     config = make_config(features=make_features(downloads=True))
     client = FakeSpotdlClient(config=config, download_config=config)

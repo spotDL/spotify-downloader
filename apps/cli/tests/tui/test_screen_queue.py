@@ -31,7 +31,9 @@ from .conftest import FakeConfigStore, FakeCredentialStore
 from .fakes import (
     FakeSpotdlClient,
     make_batch,
+    make_config,
     make_download_page,
+    make_features,
     make_job,
     make_session,
     ws_failed,
@@ -76,7 +78,12 @@ def _summary(screen: QueueScreen) -> str:
 
 def _status_cell(screen: QueueScreen, job_id: UUID) -> str:
     row = screen.query_one(QueueTable).get_row(str(job_id))
-    return str(row[3])  # (Track, Phase, Progress, Status)
+    return str(row[0])  # (Status, Title, Progress, Step)
+
+
+def _step_cell(screen: QueueScreen, job_id: UUID) -> str:
+    row = screen.query_one(QueueTable).get_row(str(job_id))
+    return str(row[3])  # the Step/detail cell (phase, or failure/skip reason)
 
 
 async def test_frames_update_rows_and_counts() -> None:
@@ -91,8 +98,8 @@ async def test_frames_update_rows_and_counts() -> None:
         client.push_ws(ws_progress(job, batch, phase="convert", percent=60))
         await pilot.pause()
         table = screen.query_one(QueueTable)
-        assert table.row_count == 1
-        assert "convert" in str(table.get_row(str(job))[1])  # phase cell
+        assert table.job_row_count == 1  # one job row (plus its batch header row)
+        assert "convert" in _step_cell(screen, job)  # phase in the step cell
         assert "60%" in str(table.get_row(str(job))[2])  # progress cell
         client.push_ws(ws_finished(job, batch))
         await pilot.pause()
@@ -114,8 +121,8 @@ async def test_failed_job_is_counted_and_shows_error() -> None:
         client.push_ws(ws_queued(second, batch, track_name="Fine"))
         await pilot.pause()
         assert "failed 1" in _summary(screen)
-        assert "404 not found" in _status_cell(screen, first)
-        assert screen.query_one(QueueTable).row_count == 2
+        assert "404 not found" in _step_cell(screen, first)
+        assert screen.query_one(QueueTable).job_row_count == 2
 
 
 async def test_x_cancels_focused_job() -> None:
@@ -177,6 +184,53 @@ async def test_enqueue_input_submits_query() -> None:
         await pilot.pause()
         assert client.called("submit_download")
         assert "queued 2" in [n.message for n in app._notifications]
+
+
+# --- redesign §3: mode-aware queue semantics ---------------------------------
+
+
+def _mode_client(mode: str) -> FakeSpotdlClient:
+    config = make_config(mode=mode, features=make_features(downloads=True))
+    client = FakeSpotdlClient(config=config, download_config=config)
+    client.download_page = make_download_page(jobs=[])
+    return client
+
+
+async def test_local_mode_labels_downloads_and_hides_fetch() -> None:
+    client = _mode_client("hosted")  # community: downloads run on the local engine
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        screen = await _open_queue(app, pilot)
+        assert screen.query_one("#queue-summary", Static).border_title == "Downloads (local)"
+        assert screen.check_action("fetch_save_file", ()) is None
+
+
+async def test_selfhost_flips_to_server_queue_and_fetches_save_file() -> None:
+    """Flow 3: self-hosted flags flip the queue semantics + WS frames render (§5.3)."""
+    client = _mode_client("selfhost")
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        screen = await _open_queue(app, pilot)
+        # /config mode flips the panel label + reveals the fetch-save-file action.
+        assert screen.query_one("#queue-summary", Static).border_title == "Server queue"
+        assert screen.check_action("fetch_save_file", ()) is True
+        assert "fetch save file" in str(screen.query_one("#queue-actions", Static).render())
+        # WS progress frames render into the grouped table.
+        job, batch = uuid4(), uuid4()
+        client.push_ws(ws_queued(job, batch, track_name="Aerodynamic"))
+        client.push_ws(ws_started(job, batch))
+        client.push_ws(ws_progress(job, batch, phase="download", percent=40))
+        await pilot.pause()
+        assert screen.query_one(QueueTable).job_row_count == 1
+        assert "40%" in str(screen.query_one(QueueTable).get_row(str(job))[2])
+        # ``f`` surfaces the focused batch's server save-file URL.
+        await pilot.press("f")
+        await pilot.pause()
+        assert any(
+            f"/api/v1/downloads/batches/{batch}/save-file" in n.message for n in app._notifications
+        )
 
 
 # --- WsHello seam: both shapes surface the same typed error -------------------

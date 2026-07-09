@@ -201,7 +201,7 @@ async def test_end_to_end_pilot_crosses_every_section() -> None:
         client.push_ws(ws_started(job, batch))
         client.push_ws(ws_progress(job, batch, phase="convert", percent=60))
         await pilot.pause()
-        assert app.screen.query_one(QueueTable).row_count == 1
+        assert app.screen.query_one(QueueTable).job_row_count == 1  # one job (+ its batch header)
 
         # 6) open settings
         await pilot.press("4")
