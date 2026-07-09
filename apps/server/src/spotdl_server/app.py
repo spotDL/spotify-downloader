@@ -17,7 +17,6 @@ from __future__ import annotations
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import Any
 
 from fastapi import FastAPI
 from spotdl_core.providers import ProviderRegistry, build_default_registry
@@ -25,8 +24,9 @@ from spotdl_core.providers import ProviderRegistry, build_default_registry
 from spotdl_server import __version__
 from spotdl_server.api.deps import provider_context
 from spotdl_server.api.errors import register_exception_handlers
+from spotdl_server.api.routers import entities, meta, resolve, search
 from spotdl_server.db.engine import build_engine, build_sessionmaker
-from spotdl_server.settings import DeploymentMode, Settings
+from spotdl_server.settings import Settings
 
 
 @asynccontextmanager
@@ -68,15 +68,16 @@ def create_app(
     app.state.injected_registry = registry
     register_exception_handlers(app)
 
-    @app.get("/api/v1/health")
-    async def health() -> dict[str, str]:
-        return {"status": "ok"}
-
-    @app.get("/api/v1/config")
-    async def config() -> dict[str, Any]:
-        return {
-            "mode": settings.mode.value,
-            "features": {"downloads": settings.mode is not DeploymentMode.HOSTED},
-        }
+    # The Plan 5 surface is entirely read-only and available in every deployment
+    # mode, so these routers mount unconditionally. Mode gating is a *mount-time*
+    # decision, not a per-request ``if``: the download router (Plan 7) will be
+    # mounted only for non-HOSTED modes via the seam below — it is deliberately
+    # NOT created in this plan.
+    app.include_router(meta.router)
+    app.include_router(resolve.router)
+    app.include_router(search.router)
+    app.include_router(entities.router)
+    # if settings.mode is not DeploymentMode.HOSTED:
+    #     app.include_router(downloads_router)  # Plan 7
 
     return app

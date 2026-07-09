@@ -1,0 +1,301 @@
+"""API request/response models — the OpenAPI CONTRACT (spec §6.2).
+
+These Pydantic models define the wire shape the Plan 8 clients are generated
+against, so their field names, types, and nesting are a **contract** and must not
+drift. Enum-typed fields reuse the core / server ``StrEnum`` vocabularies
+(:class:`~spotdl_core.model.EntityType`, :class:`ProviderId`, :class:`MatchStatus`,
+:class:`LyricsKind`) and :class:`~spotdl_server.settings.DeploymentMode` so the
+generated clients get real enums, not bare strings.
+
+The models are pure boundary shapes: they carry **no** ORM rows and **no** FastAPI
+types. Each ``*Out`` model is built from a frozen service DTO
+(:mod:`spotdl_server.services.dto`) via ``from_attributes`` — the single
+DTO → response mapping seam. The routers only ever hand a DTO to a ``from_*``
+classmethod; they never construct nested response models by hand.
+
+**EntityEnvelope shape (documented choice).** ``POST /resolve`` and the resolve
+of a dynamic ref return an entity whose type is only known at runtime, so the
+envelope is a **tagged object**: a ``type`` discriminator plus one populated
+optional field (``track`` / ``album`` / ``artist`` / ``playlist``) matching that
+type; the other three are ``null``. This is stable and unambiguous for client
+code generation (a single object type keyed by ``type``). The typed entity GETs
+(``GET /tracks/{id}`` etc.) return the bare ``*Out`` model directly — their type
+is fixed by the path, so no envelope is needed.
+"""
+
+from __future__ import annotations
+
+from pydantic import BaseModel, ConfigDict
+from spotdl_core.matching import MATCHER_V5_DEFAULT
+from spotdl_core.model import EntityType, LyricsKind, MatchStatus, ProviderId
+
+from spotdl_server.services.dto import (
+    AlbumView,
+    ArtistView,
+    LyricsView,
+    MatchView,
+    PlaylistView,
+    ResolveResult,
+    SearchResult,
+    TrackView,
+)
+from spotdl_server.settings import DeploymentMode, Settings
+
+# --------------------------------------------------------------------------
+# Requests
+# --------------------------------------------------------------------------
+
+
+class ResolveRequest(BaseModel):
+    """Body of ``POST /resolve``: a URL, ``provider:type:id`` ref, or free text."""
+
+    query: str
+
+
+# --------------------------------------------------------------------------
+# Entity response models
+# --------------------------------------------------------------------------
+
+
+class AlbumRefOut(BaseModel):
+    """Album metadata as it appears nested inside a :class:`TrackOut`.
+
+    An ``AlbumRef``-like shape (no track listing) plus the canonical ``id`` so a
+    client can follow it to ``GET /albums/{id}``.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    name: str
+    album_artist: str | None = None
+    year: int | None = None
+    track_count: int | None = None
+    cover_url: str | None = None
+
+
+class TrackOut(BaseModel):
+    """A canonical track (metadata only; matches/lyrics are separate resources)."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    name: str
+    artists: list[str]
+    duration_ms: int
+    isrc: str | None = None
+    explicit: bool | None = None
+    track_number: int | None = None
+    disc_number: int | None = None
+    year: int | None = None
+    genres: list[str] = []
+    popularity: int | None = None
+    album: AlbumRefOut | None = None
+
+    @classmethod
+    def from_view(cls, view: TrackView) -> TrackOut:
+        return cls.model_validate(view)
+
+
+class AlbumOut(BaseModel):
+    """A canonical album with its (metadata-only) track listing."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    name: str
+    album_artist: str | None = None
+    year: int | None = None
+    track_count: int | None = None
+    cover_url: str | None = None
+    tracks: list[TrackOut] = []
+
+    @classmethod
+    def from_view(cls, view: AlbumView) -> AlbumOut:
+        return cls.model_validate(view)
+
+
+class ArtistOut(BaseModel):
+    """A canonical artist with its (metadata-only) top tracks."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    name: str
+    genres: list[str] = []
+    image_url: str | None = None
+    tracks: list[TrackOut] = []
+
+    @classmethod
+    def from_view(cls, view: ArtistView) -> ArtistOut:
+        return cls.model_validate(view)
+
+
+class PlaylistOut(BaseModel):
+    """A canonical playlist with its ordered (metadata-only) track listing."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    name: str
+    description: str | None = None
+    owner: str | None = None
+    cover_url: str | None = None
+    tracks: list[TrackOut] = []
+
+    @classmethod
+    def from_view(cls, view: PlaylistView) -> PlaylistOut:
+        return cls.model_validate(view)
+
+
+class EntityEnvelope(BaseModel):
+    """A resolved entity tagged by ``type``; exactly one payload field is set."""
+
+    type: EntityType
+    track: TrackOut | None = None
+    album: AlbumOut | None = None
+    artist: ArtistOut | None = None
+    playlist: PlaylistOut | None = None
+
+
+class ResolveResponse(BaseModel):
+    """``POST /resolve`` result: the tagged entity + the sources that degraded."""
+
+    entity: EntityEnvelope
+    degraded_sources: list[str]
+
+    @classmethod
+    def from_result(cls, result: ResolveResult) -> ResolveResponse:
+        envelope = EntityEnvelope(
+            type=EntityType(result.entity_type),
+            track=TrackOut.from_view(result.track) if result.track is not None else None,
+            album=AlbumOut.from_view(result.album) if result.album is not None else None,
+            artist=ArtistOut.from_view(result.artist) if result.artist is not None else None,
+            playlist=(
+                PlaylistOut.from_view(result.playlist) if result.playlist is not None else None
+            ),
+        )
+        return cls(entity=envelope, degraded_sources=list(result.degraded_sources))
+
+
+class SearchResponse(BaseModel):
+    """``GET /search`` result: a ranked track list + degraded sources."""
+
+    results: list[TrackOut]
+    degraded_sources: list[str]
+
+    @classmethod
+    def from_result(cls, result: SearchResult) -> SearchResponse:
+        return cls(
+            results=[TrackOut.from_view(t) for t in result.tracks],
+            degraded_sources=list(result.degraded_sources),
+        )
+
+
+# --------------------------------------------------------------------------
+# Matches + lyrics sub-resources
+# --------------------------------------------------------------------------
+
+
+class MatchOut(BaseModel):
+    """One ranked audio target for a track (``GET /tracks/{id}/matches`` element)."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    target_provider: ProviderId
+    target_id: str
+    target_url: str
+    score: float
+    matcher_version: str
+    status: MatchStatus
+    upvotes: int
+    downvotes: int
+    net_score: int
+    candidate_name: str | None = None
+    candidate_artists: list[str] = []
+    candidate_duration_ms: int | None = None
+
+    @classmethod
+    def from_view(cls, view: MatchView) -> MatchOut:
+        return cls.model_validate(view)
+
+
+class MatchesResponse(BaseModel):
+    """``GET /tracks/{id}/matches``: the track id + its ranked matches."""
+
+    track_id: str
+    matches: list[MatchOut]
+
+
+class LyricsOut(BaseModel):
+    """One lyrics variant for a track (``GET /tracks/{id}/lyrics`` element)."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    source: ProviderId
+    kind: LyricsKind
+    text: str
+    upvotes: int
+    downvotes: int
+    net_score: int
+
+    @classmethod
+    def from_view(cls, view: LyricsView) -> LyricsOut:
+        return cls.model_validate(view)
+
+
+class LyricsResponse(BaseModel):
+    """``GET /tracks/{id}/lyrics``: the track id + its lyrics variants."""
+
+    track_id: str
+    lyrics: list[LyricsOut]
+
+
+# --------------------------------------------------------------------------
+# Meta
+# --------------------------------------------------------------------------
+
+
+class HealthResponse(BaseModel):
+    """``GET /health`` body."""
+
+    status: str
+
+
+class FeatureFlags(BaseModel):
+    """The per-mode feature switches surfaced to clients (spec §4)."""
+
+    downloads: bool
+    auth: bool
+    voting: bool
+    library: bool
+
+
+class ConfigResponse(BaseModel):
+    """``GET /config`` body: deployment mode, feature flags, matcher version."""
+
+    mode: DeploymentMode
+    features: FeatureFlags
+    matcher_version: str
+
+    @classmethod
+    def from_settings(cls, settings: Settings) -> ConfigResponse:
+        """Compute the config view from ``settings.mode`` (a startup-fixed value).
+
+        ``downloads`` / ``library`` follow the mode (off only for HOSTED);
+        ``auth`` / ``voting`` are hardcoded ``False`` until Plan 6 flips them per
+        mode. ``matcher_version`` comes from the default scoring config.
+        """
+        downloads = settings.mode is not DeploymentMode.HOSTED
+        return cls(
+            mode=settings.mode,
+            features=FeatureFlags(
+                downloads=downloads,
+                library=downloads,
+                auth=False,
+                voting=False,
+            ),
+            matcher_version=MATCHER_V5_DEFAULT.matcher_version,
+        )

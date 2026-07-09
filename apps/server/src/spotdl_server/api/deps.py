@@ -20,7 +20,9 @@ from fastapi import Depends, Request
 from spotdl_core.providers import ProviderContext, ProviderRegistry, SpotifyConfig
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from spotdl_server.services.entities import EntityService
 from spotdl_server.services.resolve import ResolveService
+from spotdl_server.services.search import SearchService
 from spotdl_server.settings import Settings
 
 
@@ -33,6 +35,16 @@ def provider_context(settings: Settings) -> ProviderContext:
     """
     _ = settings  # reserved for future settings-sourced provider configuration
     return ProviderContext(spotify=SpotifyConfig.from_env())
+
+
+def get_settings(request: Request) -> Settings:
+    """The ``Settings`` stored on ``app.state`` at ``create_app`` time.
+
+    Deployment mode is fixed at startup, so reading it per request is a cheap,
+    consistent lookup — the feature flags in ``GET /config`` derive from it.
+    """
+    settings: Settings = request.app.state.settings
+    return settings
 
 
 def get_sessionmaker(request: Request) -> async_sessionmaker[AsyncSession]:
@@ -70,3 +82,18 @@ def get_resolve_service(
 ) -> ResolveService:
     """Compose a :class:`ResolveService` from the request's session + registry."""
     return ResolveService(session=session, registry=registry)
+
+
+def get_search_service(
+    session: AsyncSession = Depends(get_session),
+    registry: ProviderRegistry = Depends(get_registry),
+) -> SearchService:
+    """Compose a :class:`SearchService` from the request's session + registry."""
+    return SearchService(session=session, registry=registry)
+
+
+def get_entity_service(
+    session: AsyncSession = Depends(get_session),
+) -> EntityService:
+    """Compose a read-only :class:`EntityService` from the request's session."""
+    return EntityService(session=session)
