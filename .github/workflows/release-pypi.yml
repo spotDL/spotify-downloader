@@ -59,6 +59,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+      - run: pnpm -C apps/web install --frozen-lockfile
       - run: make bundle-spa
       - run: uv build --package spotdl-server --out-dir dist
       - uses: pypa/gh-action-pypi-publish@release/v1
