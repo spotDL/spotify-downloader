@@ -15,6 +15,11 @@ jobs:
         with:
           python-version: "3.13"
       - run: uv sync --all-packages
+      # ffmpeg is a binary, not a pip dep: install it so convert/tag tests run
+      # (rather than auto-skip) in CI. Local dev without ffmpeg still passes.
+      - uses: FedericoCarboni/setup-ffmpeg@v3
+        with:
+          ffmpeg-version: release
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run lint-imports

@@ -28,6 +28,13 @@ from spotdl_core.download.context import (
     SkipReason,
     Step,
 )
+from spotdl_core.download.convert import (
+    FFMPEG_CODECS,
+    ConvertStep,
+    build_ffmpeg_command,
+    resolve_bitrate,
+    should_move,
+)
 from spotdl_core.download.fetch import (
     Fetcher,
     FetchResult,
@@ -46,9 +53,11 @@ from spotdl_core.providers.errors import (
 __all__ = [
     "BITRATE_AUTO",
     "BITRATE_DISABLE",
+    "FFMPEG_CODECS",
     "AudioFetchFailed",
     "Bitrate",
     "ConversionFailed",
+    "ConvertStep",
     "DownloadConfig",
     "DownloadContext",
     "DownloadFailed",
@@ -69,5 +78,8 @@ __all__ = [
     "SkipReason",
     "Step",
     "YtDlpFetcher",
+    "build_ffmpeg_command",
+    "resolve_bitrate",
+    "should_move",
     "ytdl_format_for",
 ]
