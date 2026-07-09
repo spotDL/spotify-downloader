@@ -312,7 +312,11 @@ class CanonicalMerger:
         return await self._albums.create(name="")
 
     # ---------------------------------------------------------------- artist
-    async def merge_artist(self, snapshots: Sequence[ProviderSnapshot]) -> Artist:
+    async def merge_artist(
+        self,
+        snapshots: Sequence[ProviderSnapshot],
+        track_snapshots_by_pos: Mapping[int, Sequence[ProviderSnapshot]] | None = None,
+    ) -> Artist:
         snaps = _sorted(snapshots)
         name = _first_not_none(snaps, _name) or ""
         # Canonical identity is the normalized name (name-only provenance).
@@ -324,9 +328,21 @@ class CanonicalMerger:
             genres=_first_non_empty(snaps, _genres),
             image_url=_first_not_none(snaps, _image_url),
         )
+        # Merge the artist's top-track listing so ``artist.tracks`` is populated:
+        # each merged track credits this artist via ``track_artists`` (set_artists),
+        # so it joins the artist's M2M listing. Mirrors ``merge_album`` per-position.
+        by_pos = track_snapshots_by_pos or {}
+        for position in sorted(by_pos):
+            await self.merge_track(list(by_pos[position]))
         await self._link_all(EntityType.ARTIST, artist.id, snaps)
         await self.session.flush()
-        return artist
+        # Reload with ``tracks`` + nested ``artists`` force-loaded in the greenlet:
+        # ``artist_view`` iterates ``artist.tracks`` and each track's ``artists``, so
+        # returning the bare row would lazy-load them on attribute access outside the
+        # await context (MissingGreenlet). ``ArtistRepository.get`` states the chain.
+        reloaded = await self._artists.get(artist.id)
+        assert reloaded is not None
+        return reloaded
 
     # -------------------------------------------------------------- playlist
     async def merge_playlist(

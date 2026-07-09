@@ -251,7 +251,11 @@ class ResolveService:
             return ResolveResult(entity_type=EntityType.ALBUM.value, album=views.album_view(album))
         if resolved.entity_type is EntityType.ARTIST:
             artist_snap = await self._persist_artist_snapshot(resolved)
-            artist = await self._merger.merge_artist([artist_snap])
+            by_pos = {
+                index: [await self._persist_track_snapshot_from(resolved, index, track)]
+                for index, track in enumerate(resolved.tracks)
+            }
+            artist = await self._merger.merge_artist([artist_snap], by_pos)
             return ResolveResult(
                 entity_type=EntityType.ARTIST.value, artist=views.artist_view(artist)
             )

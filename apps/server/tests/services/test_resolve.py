@@ -251,6 +251,53 @@ async def test_resolve_album_url_merges_container_and_lists_tracks(
     assert again.album.id == result.album.id
 
 
+async def test_resolve_artist_lists_top_tracks_across_fresh_sessions(
+    download_sessionmaker: Any,
+) -> None:
+    """Resolving an artist must return its top-track listing and never MissingGreenlet.
+
+    Regression (found live via ``deezer:artist:288166``): ``merge_artist`` returned
+    the bare artist row without loading ``artist.tracks``, and ``artist_view``
+    iterated that relationship (plus each track's ``artists``) on attribute access
+    outside the await context. The container path also dropped the resolved
+    top-tracks entirely. A fresh session per resolve (empty identity map) is what
+    exposes the lazy-load — a single session keeps the relationships warm.
+    """
+    from spotdl_core.model import ArtistRef
+    from spotdl_core.providers import ResolvedEntity
+
+    artist_entity = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="artist123",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Daft Punk"),
+        tracks=(
+            _track("One More Time", "Daft Punk", isrc="USONE0000011"),
+            _track("Harder Better", "Daft Punk", isrc="USTWO0000022"),
+        ),
+    )
+    resolver = FakeResolver(id=ProviderId.SPOTIFY, entity=artist_entity)
+    registry = build_fake_registry(resolver)
+
+    result_id: Any = None
+    for _ in range(2):  # cold then warm, each in a fresh session
+        async with download_sessionmaker() as session:
+            service = ResolveService(session=session, registry=registry)
+            result = await service.resolve("https://open.spotify.com/artist/artist123")
+            await session.commit()
+            assert result.entity_type == EntityType.ARTIST.value
+            assert result.artist is not None
+            assert result.artist.name == "Daft Punk"
+            assert {t.name for t in result.artist.tracks} == {"One More Time", "Harder Better"}
+            # Nested listing tracks carry their artists but no album sub-object.
+            assert all(t.artists == ("Daft Punk",) for t in result.artist.tracks)
+            assert all(t.album is None for t in result.artist.tracks)
+            if result_id is None:
+                result_id = result.artist.id
+            else:  # warm re-resolve reuses the same canonical row (no dup)
+                assert result.artist.id == result_id
+
+
 def _uuid(value: str) -> Any:
     import uuid
 
