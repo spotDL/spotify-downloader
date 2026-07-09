@@ -4,6 +4,7 @@ import typer
 
 from spotdl_cli import __version__
 from spotdl_cli.client import embedded_client
+from spotdl_cli.commands import read as read_cmd
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
 
@@ -25,6 +26,9 @@ def status() -> None:
             return str(resp.json()["status"])
 
     typer.echo(f"server: {asyncio.run(_check())} (embedded)")
+
+
+read_cmd.register(app)
 
 
 def main() -> None:
