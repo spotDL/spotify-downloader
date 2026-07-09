@@ -105,12 +105,12 @@ def _is_authenticated(token: str | None, settings: Settings, clock: Clock) -> bo
 def _rate_limited_response(limit: int, window_s: int, retry_after: int) -> JSONResponse:
     """The Plan 5 ``rate_limited`` envelope + a ``Retry-After`` header (429)."""
     envelope = ErrorEnvelope(
-        code=ErrorCode.RATE_LIMITED.value,
+        code=ErrorCode.RATE_LIMITED,
         message="rate limit exceeded",
         detail={"limit": limit, "window": window_s, "retry_after": retry_after},
     )
     return JSONResponse(
         status_code=429,
-        content=envelope.model_dump(),
+        content=envelope.model_dump(mode="json"),  # StrEnum ``code`` -> its wire value
         headers={"Retry-After": str(retry_after)},
     )

@@ -292,7 +292,7 @@
         "type": "object"
       },
       "ConfigResponse": {
-        "description": "``GET /config`` body: deployment mode, feature flags, matcher version.",
+        "description": "``GET /config`` body: deployment mode, feature flags, matcher version.\n\n``oauth_providers`` lists the OAuth providers a client may offer as sign-in\nbuttons (e.g. ``[\"github\", \"discord\"]``); it is empty when auth is inactive or\nno provider credentials are configured.",
         "properties": {
           "features": {
             "$ref": "#/components/schemas/FeatureFlags"
@@ -303,11 +303,19 @@
           },
           "mode": {
             "$ref": "#/components/schemas/DeploymentMode"
+          },
+          "oauth_providers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Oauth Providers",
+            "type": "array"
           }
         },
         "required": [
           "mode",
           "features",
+          "oauth_providers",
           "matcher_version"
         ],
         "title": "ConfigResponse",
@@ -467,12 +475,36 @@
         "title": "EntityType",
         "type": "string"
       },
+      "ErrorCode": {
+        "description": "The stable vocabulary of machine-readable error codes.",
+        "enum": [
+          "unsupported_url",
+          "not_found",
+          "no_match_found",
+          "provider_unavailable",
+          "provider_auth_error",
+          "rate_limited",
+          "validation_error",
+          "downloads_disabled",
+          "download_failed",
+          "authentication_required",
+          "invalid_credentials",
+          "invalid_token",
+          "token_expired",
+          "forbidden",
+          "email_taken",
+          "oauth_email_required",
+          "not_an_audio_target",
+          "internal_error"
+        ],
+        "title": "ErrorCode",
+        "type": "string"
+      },
       "ErrorEnvelope": {
-        "description": "The single wire shape for every error response body.",
+        "description": "The single wire shape for every error response body.\n\n``code`` is typed as the closed :class:`ErrorCode` vocabulary (not a bare\n``str``) so the exported OpenAPI documents the full enum and Plan 8's generated\nclients surface every code as a typed error (spec §10). It still serializes to\nits plain string value (``ErrorCode`` is a :class:`~enum.StrEnum`).",
         "properties": {
           "code": {
-            "title": "Code",
-            "type": "string"
+            "$ref": "#/components/schemas/ErrorCode"
           },
           "detail": {
             "anyOf": [
@@ -2738,6 +2770,306 @@
         "summary": "Me",
         "tags": [
           "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/oauth/{provider}/authorize": {
+      "get": {
+        "description": "Start the flow: 307 to the provider, or the URL as JSON (``?json=true``).",
+        "operationId": "authorize_api_v1_auth_oauth__provider__authorize_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "provider",
+            "required": true,
+            "schema": {
+              "title": "Provider",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "json",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Json",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          }
+        },
+        "summary": "Authorize",
+        "tags": [
+          "oauth"
+        ]
+      }
+    },
+    "/api/v1/auth/oauth/{provider}/callback": {
+      "get": {
+        "description": "Finish the flow per the dual-mode contract (JSON body vs browser handoff).\n\n``code``/``state``/``error`` are all optional because a provider consent\ndenial is a standard OAuth2 redirect (``?error=access_denied&state=...`` with\n*no* ``code``): requiring ``code`` would 422 that real browser navigation\nbefore the dual-mode logic runs, stranding the user with a raw JSON body. A\nprovider-supplied ``error`` (or a callback missing ``code``/``state``) is\nrouted through the same ``_handoff_error``/JSON-envelope path as every other\ndomain failure, as a ``provider_auth_error``.",
+        "operationId": "callback_api_v1_auth_oauth__provider__callback_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "provider",
+            "required": true,
+            "schema": {
+              "title": "Provider",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "code",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Code"
+            }
+          },
+          {
+            "in": "query",
+            "name": "state",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "State"
+            }
+          },
+          {
+            "in": "query",
+            "name": "error",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Error"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          }
+        },
+        "summary": "Callback",
+        "tags": [
+          "oauth"
         ]
       }
     },

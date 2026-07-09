@@ -32,9 +32,11 @@ allow_indirect_imports = True
 # --------------------------------------------------------------------------
 # Intra-server layering (Plan 5 §6, Task 12). Routers are a thin HTTP shell;
 # services orchestrate DTOs; repositories are the sole ORM holders; db defines
-# the schema. ``api.deps``/``api.errors``/``api.schemas`` are HTTP glue that sit
-# *outside* these four layers by design — they may import both FastAPI and
-# services and are therefore not named as layers.
+# the schema. ``api.deps``/``api.errors``/``api.schemas``/``api.middleware`` are
+# HTTP glue that sit *outside* these four layers by design — they may import both
+# FastAPI and services (``api.middleware`` also imports ``ratelimit``/``auth``
+# helpers) and are therefore not named as layers. ``auth``/``ratelimit``/
+# ``policies`` are leaf utility packages *below* services (see the leaf contract).
 # --------------------------------------------------------------------------
 
 [importlinter:contract:server_layers]
@@ -70,3 +72,21 @@ source_modules =
     spotdl_server.services
 forbidden_modules =
     fastapi
+
+[importlinter:contract:leaf_utils_are_leaves]
+name = Leaf utility packages (auth/ratelimit/policies) import no framework/service/repo layer
+type = forbidden
+source_modules =
+    spotdl_server.auth
+    spotdl_server.ratelimit
+    spotdl_server.policies
+forbidden_modules =
+    fastapi
+    spotdl_server.services
+    spotdl_server.repositories
+# ``auth``/``ratelimit``/``policies`` sit *below* services and are importable by
+# both ``services`` and ``api`` without a layering violation. They speak only pure
+# Python + narrow external deps: ``ratelimit.redis`` importing ``redis`` and
+# ``auth.oauth_providers`` importing ``httpx`` are both fine (not named here).
+# The source-level AST guard in ``tests/test_layering.py`` additionally forbids a
+# direct ``sqlalchemy`` import from any leaf-package file.

@@ -571,28 +571,42 @@ class FeatureFlags(BaseModel):
 
 
 class ConfigResponse(BaseModel):
-    """``GET /config`` body: deployment mode, feature flags, matcher version."""
+    """``GET /config`` body: deployment mode, feature flags, matcher version.
+
+    ``oauth_providers`` lists the OAuth providers a client may offer as sign-in
+    buttons (e.g. ``["github", "discord"]``); it is empty when auth is inactive or
+    no provider credentials are configured.
+    """
 
     mode: DeploymentMode
     features: FeatureFlags
+    oauth_providers: list[str]
     matcher_version: str
 
     @classmethod
     def from_settings(cls, settings: Settings) -> ConfigResponse:
-        """Compute the config view from ``settings.mode`` (a startup-fixed value).
+        """Compute the config view from ``settings`` (all values startup-fixed).
 
-        ``downloads`` / ``library`` follow the mode (off only for HOSTED);
-        ``auth`` / ``voting`` are hardcoded ``False`` until Plan 6 flips them per
-        mode. ``matcher_version`` comes from the default scoring config.
+        ``downloads`` / ``library`` follow the mode (off only for HOSTED). ``auth``
+        derives from :meth:`Settings.auth_active` (off in EMBEDDED / loopback mode by
+        default — spec §4). ``voting`` additionally requires the voting switch, since
+        voting needs accounts. ``oauth_providers`` reflects the configured provider
+        credentials, but only while auth is active. ``matcher_version`` comes from
+        the default scoring config.
         """
         downloads = settings.mode is not DeploymentMode.HOSTED
+        auth = settings.auth_active()
+        oauth_providers = (
+            [provider.value for provider in settings.enabled_oauth_providers()] if auth else []
+        )
         return cls(
             mode=settings.mode,
             features=FeatureFlags(
                 downloads=downloads,
                 library=downloads,
-                auth=False,
-                voting=False,
+                auth=auth,
+                voting=settings.voting_enabled and auth,
             ),
+            oauth_providers=oauth_providers,
             matcher_version=MATCHER_V5_DEFAULT.matcher_version,
         )

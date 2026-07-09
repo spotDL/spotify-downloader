@@ -79,9 +79,15 @@ class ErrorCode(StrEnum):
 
 
 class ErrorEnvelope(BaseModel):
-    """The single wire shape for every error response body."""
+    """The single wire shape for every error response body.
 
-    code: str
+    ``code`` is typed as the closed :class:`ErrorCode` vocabulary (not a bare
+    ``str``) so the exported OpenAPI documents the full enum and Plan 8's generated
+    clients surface every code as a typed error (spec §10). It still serializes to
+    its plain string value (``ErrorCode`` is a :class:`~enum.StrEnum`).
+    """
+
+    code: ErrorCode
     message: str
     detail: dict[str, Any] | None = None
 
@@ -161,7 +167,7 @@ def _envelope_response(
     *,
     headers: dict[str, str] | None = None,
 ) -> JSONResponse:
-    envelope = ErrorEnvelope(code=code.value, message=message, detail=detail)
+    envelope = ErrorEnvelope(code=code, message=message, detail=detail)
     return JSONResponse(
         status_code=status_code,
         content=jsonable_encoder(envelope),

@@ -5,8 +5,11 @@
 suffices (the process-scoped ``clock``/``rate_limiter`` the HOSTED rate-limit
 middleware reads are set directly on ``app.state`` in lieu of the lifespan).
 Downloads + library are on for selfhost/embedded, off for hosted; auth
-+ voting are hardcoded ``False`` until Plan 6; ``matcher_version`` is always
-present.
++ voting are now *computed* (Plan 6): active for hosted/selfhost, off in embedded
+by default (spec §4: embedded auth = "none (loopback only)"). ``oauth_providers``
+lists the configured providers (empty when auth is inactive or none are set) and
+``matcher_version`` is always present. The auth-active override + oauth-provider
+cases live in ``test_config_community.py``.
 """
 
 from __future__ import annotations
@@ -43,19 +46,23 @@ async def test_config_selfhost() -> None:
     assert body["features"] == {
         "downloads": True,
         "library": True,
-        "auth": False,
-        "voting": False,
+        "auth": True,
+        "voting": True,
     }
+    # No OAuth creds configured → empty list even though auth is active.
+    assert body["oauth_providers"] == []
     assert body["matcher_version"] == MATCHER_V5_DEFAULT.matcher_version
 
 
 async def test_config_hosted() -> None:
     body = await _config(DeploymentMode.HOSTED)
     assert body["mode"] == "hosted"
+    # Hosted disables local downloads/library but keeps auth + voting on.
     assert body["features"]["downloads"] is False
     assert body["features"]["library"] is False
-    assert body["features"]["auth"] is False
-    assert body["features"]["voting"] is False
+    assert body["features"]["auth"] is True
+    assert body["features"]["voting"] is True
+    assert body["oauth_providers"] == []
     assert body["matcher_version"] == MATCHER_V5_DEFAULT.matcher_version
 
 
@@ -64,5 +71,7 @@ async def test_config_embedded() -> None:
     assert body["mode"] == "embedded"
     assert body["features"]["downloads"] is True
     assert body["features"]["library"] is True
+    # Embedded (loopback) has no auth surface by default → voting off, no OAuth.
     assert body["features"]["auth"] is False
     assert body["features"]["voting"] is False
+    assert body["oauth_providers"] == []

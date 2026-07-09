@@ -13,6 +13,11 @@ The guards asserted here:
   stays ≤200 lines (the single home for the line-count rule).
 * **Services hold no HTTP types.** No file under ``services/`` may import
   ``fastapi`` directly (``services_no_fastapi``).
+* **Leaf utility packages stay leaves.** No file under ``auth/``, ``ratelimit/``
+  or ``policies/`` may import ``fastapi``, the ``services``/``repositories``
+  layers, or SQLAlchemy — they sit *below* services and are importable by both
+  services and ``api`` without a layering violation (external deps such as
+  ``redis``/``httpx``/``jwt`` are fine).
 * **Layer direction holds.** Repositories never import services or routers;
   services never import routers; the ``db`` layer imports none of the above
   (``server_layers``).
@@ -28,7 +33,10 @@ import ast
 from pathlib import Path
 
 import spotdl_server.api.routers as routers_pkg
+import spotdl_server.auth as auth_pkg
 import spotdl_server.db as db_pkg
+import spotdl_server.policies as policies_pkg
+import spotdl_server.ratelimit as ratelimit_pkg
 import spotdl_server.repositories as repositories_pkg
 import spotdl_server.services as services_pkg
 
@@ -36,6 +44,11 @@ _ROUTERS_DIR = Path(routers_pkg.__file__).parent
 _SERVICES_DIR = Path(services_pkg.__file__).parent
 _REPOSITORIES_DIR = Path(repositories_pkg.__file__).parent
 _DB_DIR = Path(db_pkg.__file__).parent
+_LEAF_UTIL_DIRS = (
+    Path(auth_pkg.__file__).parent,
+    Path(ratelimit_pkg.__file__).parent,
+    Path(policies_pkg.__file__).parent,
+)
 
 
 def _imported_modules(path: Path) -> set[str]:
@@ -100,6 +113,27 @@ def test_services_do_not_import_fastapi() -> None:
     for path in _py_files(_SERVICES_DIR):
         offenders = _imports_any(_imported_modules(path), "fastapi")
         assert not offenders, f"{path.name} imports FastAPI: {sorted(offenders)}"
+
+
+# --------------------------------------------------------------------------
+# Leaf utility packages: auth / ratelimit / policies stay leaves
+# --------------------------------------------------------------------------
+
+
+def test_leaf_utility_packages_import_no_framework_or_upper_layers() -> None:
+    """No ``auth``/``ratelimit``/``policies`` file imports FastAPI, the
+    ``services``/``repositories`` layers, or SQLAlchemy — they are leaves below
+    ``services`` (external deps like ``redis``/``httpx``/``jwt`` are allowed)."""
+    for directory in _LEAF_UTIL_DIRS:
+        for path in _py_files(directory):
+            offenders = _imports_any(
+                _imported_modules(path),
+                "fastapi",
+                "spotdl_server.services",
+                "spotdl_server.repositories",
+                "sqlalchemy",
+            )
+            assert not offenders, f"{path.name} imports a forbidden module: {sorted(offenders)}"
 
 
 # --------------------------------------------------------------------------
