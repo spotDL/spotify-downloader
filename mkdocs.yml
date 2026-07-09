@@ -1,0 +1,86 @@
+# spotDL v5 documentation site (Plan 11 Task 7, CONTRACT F).
+#
+# The community instance and docs live under spotdl.dev (api.spotdl.dev for the
+# API) per the resolved domain decision; `mkdocs gh-deploy` publishes to
+# GitHub Pages, which the spotdl.dev CNAME fronts.
+#
+# Generated content (migration guide + OpenAPI reference) is produced at build
+# time by the pinned scripts under `gen-files` and is ALSO committed and
+# drift-checked in CI (`make docs-check`).
+site_name: spotDL
+site_description: >-
+  spotDL v5 — a self-hostable music metadata/matching server with a CLI, TUI and
+  web UI. Downloads from Spotify metadata via YouTube and other providers.
+site_url: https://spotdl.dev
+repo_url: https://github.com/spotDL/spotify-downloader
+repo_name: spotDL/spotify-downloader
+edit_uri: edit/v5/docs/
+copyright: spotDL is released under the MIT license.
+
+# Internal SDD planning docs and specs live under docs/superpowers/ but are not
+# part of the published site.
+exclude_docs: |
+  superpowers/
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - content.code.annotate
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: green
+      accent: green
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: green
+      accent: green
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+plugins:
+  - search
+  - gen-files:
+      scripts:
+        - scripts/docs/gen_migration_guide.py
+        - scripts/docs/copy_openapi.py
+  - swagger-ui-tag
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - toc:
+      permalink: true
+  - pymdownx.superfences
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Quickstart:
+      - CLI: quickstart/cli.md
+      - Web UI: quickstart/web.md
+      - Self-hosting: quickstart/selfhost.md
+  - Community server:
+      - Usage: community/usage.md
+      - Etiquette & fair use: community/etiquette.md
+  - Self-hosting:
+      - Docker & Compose: self-hosting/docker.md
+      - Caddy / reverse proxy: self-hosting/reverse-proxy.md
+      - Railway: self-hosting/railway.md
+      - Backups & restore: self-hosting/backups.md
+  - Migrating from v4: migration/v4-to-v5.md
+  - API reference: api/index.md
+  - Contributing: contributing.md

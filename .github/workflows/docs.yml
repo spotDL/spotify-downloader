@@ -1,0 +1,53 @@
+name: Docs
+
+# Build and deploy the mkdocs-material site to GitHub Pages (CONTRACT E4).
+# The build regenerates the migration guide from the CLI shim table and copies
+# Plan 5's committed apps/server/openapi.json into the API reference. A drift
+# check fails if the committed migration guide is stale (the OpenAPI artifact is
+# already drift-guarded by the server's in-sync test in the `python` CI job).
+on:
+  push:
+    branches: [v5]
+    paths:
+      - docs/**
+      - mkdocs.yml
+      - scripts/docs/**
+      - apps/server/openapi.json
+      - .github/workflows/docs.yml
+  workflow_dispatch:
+
+# Serialize deploys; never cancel an in-flight publish.
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write # mkdocs gh-deploy pushes to the gh-pages branch
+
+jobs:
+  drift-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+      - run: uv sync --all-packages --group docs
+      # Fail if the committed migration guide drifted from the shim table.
+      - run: make docs-check
+
+  deploy:
+    needs: drift-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # gh-deploy needs full history for the gh-pages branch
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+      - run: uv sync --all-packages --group docs
+      # Regenerate the migration guide, then publish. --strict is enforced by the
+      # `make docs` build; gh-deploy re-runs the build and pushes gh-pages.
+      - run: uv run --group docs python scripts/docs/gen_migration_guide.py
+      - run: uv run --group docs mkdocs gh-deploy --force

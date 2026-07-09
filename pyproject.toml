@@ -24,6 +24,15 @@ dev = [
     "respx>=0.22",
     "types-python-slugify>=8.0.2.20240310,<9",
 ]
+# Docs site toolchain (Plan 11 Task 7). mkdocs-material renders the site;
+# mkdocs-gen-files runs the pinned generators (migration guide + OpenAPI copy)
+# at build time; mkdocs-swagger-ui-tag renders the API reference from the
+# copied openapi.json with no runtime CDN fetch (self-contained bundle).
+docs = [
+    "mkdocs-material>=9.5",
+    "mkdocs-gen-files>=0.5",
+    "mkdocs-swagger-ui-tag>=0.6",
+]
 
 [tool.ruff]
 target-version = "py313"
@@ -83,6 +92,7 @@ testpaths = [
     "apps/server/tests",
     "apps/cli/tests",
     "scripts/corpus/tests",
+    "scripts/docs/tests",
 ]
 markers = [
     "network: test hits a real provider API over the network; excluded from default runs and CI",

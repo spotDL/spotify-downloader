@@ -9,6 +9,8 @@ build/
 *.egg-info/
 node_modules/
 apps/web/dist/
+# mkdocs build output
+site/
 .coverage
 coverage.xml
 .env
