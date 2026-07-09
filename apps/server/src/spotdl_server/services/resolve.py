@@ -23,7 +23,6 @@ boundary). The unit of work is the caller's: repositories flush, and the FastAPI
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from datetime import UTC, datetime
 from typing import Any
 
@@ -49,15 +48,6 @@ from spotdl_core.providers import (
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl_server.db.models import (
-    Album as AlbumModel,
-)
-from spotdl_server.db.models import (
-    Artist as ArtistModel,
-)
-from spotdl_server.db.models import (
-    Playlist as PlaylistModel,
-)
-from spotdl_server.db.models import (
     ProviderSnapshot,
 )
 from spotdl_server.db.models import (
@@ -73,15 +63,8 @@ from spotdl_server.repositories.lyrics import LyricsRepository
 from spotdl_server.repositories.matches import MatchRepository
 from spotdl_server.repositories.merge import CanonicalMerger
 from spotdl_server.repositories.snapshots import SnapshotRepository
-from spotdl_server.services.dto import (
-    AlbumView,
-    ArtistView,
-    LyricsView,
-    MatchView,
-    PlaylistView,
-    ResolveResult,
-    TrackView,
-)
+from spotdl_server.services import views
+from spotdl_server.services.dto import ResolveResult
 from spotdl_server.services.provider_search import provider_search
 
 
@@ -159,9 +142,7 @@ class ResolveService:
 
         match_rows = await self._matches.list_for_track(track.id)
         lyrics_rows = await self._lyrics.list_for_track(track.id)
-        view = self._build_track_view(
-            track, matches=match_rows, lyrics=lyrics_rows, include_album=True
-        )
+        view = views.track_view(track, matches=match_rows, lyrics=lyrics_rows, include_album=True)
         return ResolveResult(entity_type=EntityType.TRACK.value, track=view)
 
     async def _fetch_primary(self, ref: PlatformRef) -> ResolvedEntity:
@@ -253,14 +234,12 @@ class ResolveService:
                 for index, track in enumerate(resolved.tracks)
             }
             album = await self._merger.merge_album([album_snap], by_pos)
-            return ResolveResult(
-                entity_type=EntityType.ALBUM.value, album=self._build_album_view(album)
-            )
+            return ResolveResult(entity_type=EntityType.ALBUM.value, album=views.album_view(album))
         if resolved.entity_type is EntityType.ARTIST:
             artist_snap = await self._persist_artist_snapshot(resolved)
             artist = await self._merger.merge_artist([artist_snap])
             return ResolveResult(
-                entity_type=EntityType.ARTIST.value, artist=self._build_artist_view(artist)
+                entity_type=EntityType.ARTIST.value, artist=views.artist_view(artist)
             )
         # PLAYLIST
         playlist_snap = await self._persist_playlist_snapshot(resolved)
@@ -270,7 +249,7 @@ class ResolveService:
         ]
         playlist = await self._merger.merge_playlist([playlist_snap], ordered)
         return ResolveResult(
-            entity_type=EntityType.PLAYLIST.value, playlist=self._build_playlist_view(playlist)
+            entity_type=EntityType.PLAYLIST.value, playlist=views.playlist_view(playlist)
         )
 
     async def _existing_container(self, fresh: ProviderSnapshot) -> ResolveResult | None:
@@ -282,20 +261,18 @@ class ResolveService:
         if entity_type is EntityType.ALBUM:
             album = await self._albums.get(entity_id)
             if album is not None:
-                return ResolveResult(
-                    entity_type=entity_type.value, album=self._build_album_view(album)
-                )
+                return ResolveResult(entity_type=entity_type.value, album=views.album_view(album))
         elif entity_type is EntityType.ARTIST:
             artist = await self._artists.get(entity_id)
             if artist is not None:
                 return ResolveResult(
-                    entity_type=entity_type.value, artist=self._build_artist_view(artist)
+                    entity_type=entity_type.value, artist=views.artist_view(artist)
                 )
         elif entity_type is EntityType.PLAYLIST:
             playlist = await self._playlists.get(entity_id)
             if playlist is not None:
                 return ResolveResult(
-                    entity_type=entity_type.value, playlist=self._build_playlist_view(playlist)
+                    entity_type=entity_type.value, playlist=views.playlist_view(playlist)
                 )
         return None
 
@@ -406,110 +383,6 @@ class ResolveService:
                 if album is not None
                 else None
             ),
-        )
-
-    def _build_track_view(
-        self,
-        track: TrackModel,
-        *,
-        matches: Sequence[Any] = (),
-        lyrics: Sequence[Any] = (),
-        include_album: bool = False,
-    ) -> TrackView:
-        """Map a canonical track row to a :class:`TrackView`.
-
-        ``matches``/``lyrics`` are passed in (fetched via their repositories in
-        the caller's async context) rather than read off the ORM relationship,
-        so no lazy load fires from this synchronous mapper. Nested listing tracks
-        omit both and the album to keep the graph bounded.
-        """
-        album = track.album
-        return TrackView(
-            id=str(track.id),
-            name=track.name,
-            artists=tuple(a.name for a in track.artists),
-            duration_ms=track.duration_ms,
-            isrc=track.isrc,
-            explicit=track.explicit,
-            track_number=track.track_number,
-            disc_number=track.disc_number,
-            year=track.year,
-            genres=tuple(track.genres),
-            popularity=track.popularity,
-            album=(self._album_meta(album) if (include_album and album is not None) else None),
-            matches=tuple(self._match_view(m) for m in matches),
-            lyrics=tuple(self._lyrics_view(row) for row in lyrics),
-        )
-
-    @staticmethod
-    def _album_meta(album: AlbumModel) -> AlbumView:
-        return AlbumView(
-            id=str(album.id),
-            name=album.name,
-            album_artist=album.album_artist,
-            year=album.year,
-            track_count=album.track_count,
-            cover_url=album.cover_url,
-        )
-
-    def _build_album_view(self, album: AlbumModel) -> AlbumView:
-        return AlbumView(
-            id=str(album.id),
-            name=album.name,
-            album_artist=album.album_artist,
-            year=album.year,
-            track_count=album.track_count,
-            cover_url=album.cover_url,
-            tracks=tuple(self._build_track_view(t) for t in album.tracks),
-        )
-
-    def _build_artist_view(self, artist: ArtistModel) -> ArtistView:
-        return ArtistView(
-            id=str(artist.id),
-            name=artist.name,
-            genres=tuple(artist.genres),
-            image_url=artist.image_url,
-            tracks=tuple(self._build_track_view(t) for t in artist.tracks),
-        )
-
-    def _build_playlist_view(self, playlist: PlaylistModel) -> PlaylistView:
-        return PlaylistView(
-            id=str(playlist.id),
-            name=playlist.name,
-            description=playlist.description,
-            owner=playlist.owner,
-            cover_url=playlist.cover_url,
-            tracks=tuple(self._build_track_view(t) for t in playlist.tracks),
-        )
-
-    @staticmethod
-    def _match_view(row: Any) -> MatchView:
-        return MatchView(
-            id=str(row.id),
-            target_provider=row.target_provider.value,
-            target_id=row.target_id,
-            target_url=row.target_url,
-            score=row.score,
-            matcher_version=row.matcher_version,
-            status=row.status.value,
-            upvotes=row.upvotes,
-            downvotes=row.downvotes,
-            net_score=row.net_score,
-            candidate_name=row.candidate_name,
-            candidate_artists=tuple(row.candidate_artists or ()),
-            candidate_duration_ms=row.candidate_duration_ms,
-        )
-
-    @staticmethod
-    def _lyrics_view(row: Any) -> LyricsView:
-        return LyricsView(
-            id=str(row.id),
-            source=row.source.value,
-            kind=row.kind.value,
-            text=row.text,
-            upvotes=row.upvotes,
-            downvotes=row.downvotes,
-            net_score=row.net_score,
         )
 
     # ------------------------------------------------------------- helpers

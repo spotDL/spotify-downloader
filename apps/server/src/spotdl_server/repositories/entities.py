@@ -14,6 +14,7 @@ from typing import Any
 
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from spotdl_server.db.models import (
     Album,
@@ -106,7 +107,17 @@ class AlbumRepository:
         self.session = session
 
     async def get(self, id: uuid.UUID) -> Album | None:
-        return await self.session.get(Album, id)
+        # Eager-load the listing tracks *and their artists*: model-level selectin
+        # does not reliably cascade to the nested level, so the chain is stated
+        # explicitly. ``populate_existing`` forces the nested load even when the
+        # track rows are already warm in the identity map (a fresh per-request
+        # session has none — this only matters for a session that also wrote them).
+        return await self.session.get(
+            Album,
+            id,
+            options=[selectinload(Album.tracks).selectinload(Track.artists)],
+            populate_existing=True,
+        )
 
     async def create(self, **fields: Any) -> Album:
         album = Album(**fields)
@@ -126,7 +137,15 @@ class ArtistRepository:
         self.session = session
 
     async def get(self, id: uuid.UUID) -> Artist | None:
-        return await self.session.get(Artist, id)
+        # Nested selectin does not cascade through the M2M ``tracks`` relationship,
+        # so the track→artists chain is stated explicitly; ``populate_existing``
+        # forces it even for identity-map-warm track rows (see AlbumRepository.get).
+        return await self.session.get(
+            Artist,
+            id,
+            options=[selectinload(Artist.tracks).selectinload(Track.artists)],
+            populate_existing=True,
+        )
 
     async def create(self, **fields: Any) -> Artist:
         artist = Artist(**fields)
@@ -163,7 +182,15 @@ class PlaylistRepository:
         self.session = session
 
     async def get(self, id: uuid.UUID) -> Playlist | None:
-        return await self.session.get(Playlist, id)
+        # Nested selectin does not cascade through the M2M ``tracks`` relationship,
+        # so the track→artists chain is stated explicitly; ``populate_existing``
+        # forces it even for identity-map-warm track rows (see AlbumRepository.get).
+        return await self.session.get(
+            Playlist,
+            id,
+            options=[selectinload(Playlist.tracks).selectinload(Track.artists)],
+            populate_existing=True,
+        )
 
     async def create(self, **fields: Any) -> Playlist:
         playlist = Playlist(**fields)
