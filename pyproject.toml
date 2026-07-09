@@ -36,6 +36,15 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 strict = true
 python_version = "3.13"
 
+# mutagen ships ``py.typed`` but leaves most of its frame/atom constructors and
+# I/O methods unannotated, which trips ``disallow_untyped_calls`` under strict.
+# Skipping its imports makes the tag-embedding layer (spotdl_core.download.tags)
+# type-check against ``Any``, matching how the untyped yt-dlp seam is handled.
+[[tool.mypy.overrides]]
+module = "mutagen.*"
+follow_imports = "skip"
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 addopts = "--import-mode=importlib -m 'not network'"
