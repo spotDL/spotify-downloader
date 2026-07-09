@@ -30,7 +30,8 @@ from spotdl_server.settings import Settings
 config = context.config
 
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    if not config.attributes.get("skip_logging_config", False):
+        fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata
 

@@ -14,6 +14,7 @@ on Windows), not an in-process ``threading`` primitive, so it serializes across
 
 from __future__ import annotations
 
+import logging
 import sys
 import time
 from collections.abc import Iterator
@@ -112,5 +113,9 @@ def migrate(settings: Settings) -> None:
     already-migrated DB and returns without changes.
     """
     settings.data_dir.mkdir(parents=True, exist_ok=True)
+    # Alembic's env config re-INFOs its migration context on every boot; that is
+    # noise on stderr for an interactive CLI (`spotdl status --offline`). Errors
+    # still surface as exceptions.
+    logging.getLogger("alembic").setLevel(logging.WARNING)
     with _file_lock(_lock_path(settings), timeout=_LOCK_TIMEOUT_S):
-        upgrade_to_head(settings)
+        upgrade_to_head(settings, quiet=True)

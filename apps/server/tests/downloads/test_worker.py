@@ -330,7 +330,11 @@ async def test_cancel_running_job(
     await pool.start()
     running = await _wait_status(download_sessionmaker, job_id, {DownloadStatus.RUNNING})
     partial = running.output_path  # not set yet; grab planned path from engine instead
+    # The DB flips to RUNNING before the worker calls engine.download(); wait for
+    # the call (and its partial file) to land rather than racing it (CI flake).
+    await _wait_until(lambda: bool(engine.requests))
     planned = engine.planned_path(engine.requests[0])
+    await _wait_until(planned.is_file)
     assert planned.is_file()
 
     assert await pool.request_cancel(job_id) is True

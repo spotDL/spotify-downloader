@@ -35,10 +35,10 @@ COPY apps/cli/pyproject.toml ./apps/cli/pyproject.toml
 # upgrade_to_head works from the installed venv, never the CWD.
 COPY --from=web-builder /w/apps/web/dist ./apps/server/src/spotdl_server/webui/
 # --no-editable installs a BUILT wheel (webui + alembic packaged) into the venv,
-# so stage 3 needs only the venv — no fragile source overlay. --extra redis bakes
+# so stage 3 needs only the venv — no fragile source overlay. --extra redis/sentry bake
 # in the optional Redis rate-limit backend for the hosted image (CONTRACT D).
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --no-editable --package spotdl-server --extra redis
+    uv sync --frozen --no-dev --no-editable --package spotdl-server --extra redis --extra sentry
 
 # ---- Stage 3: runtime ----
 FROM python:3.13-slim

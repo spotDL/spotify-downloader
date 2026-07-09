@@ -2,7 +2,7 @@ from enum import StrEnum
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from pydantic import SecretStr
+from pydantic import SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from spotdl_core.download import OutputFormat, RestrictMode
 
@@ -111,6 +111,16 @@ class Settings(BaseSettings):
     log_level: str = "INFO"  # root log level for the JSON handler
     metrics_enabled: bool = True  # mount /metrics (Prometheus exposition)
     sentry_dsn: SecretStr | None = None  # None -> Sentry disabled (no import)
+
+    @field_validator("sentry_dsn", mode="before")
+    @classmethod
+    def _empty_dsn_is_none(cls, value: object) -> object:
+        """Compose injects ``SPOTDL_SENTRY_DSN: ${SPOTDL_SENTRY_DSN:-}`` — an empty
+        string when unset. Treat blank as disabled instead of a truthy SecretStr."""
+        if isinstance(value, str) and value.strip() == "":
+            return None
+        return value
+
     sentry_traces_sample_rate: float = 0.0  # fraction of transactions traced
 
     def effective_database_url(self) -> str:

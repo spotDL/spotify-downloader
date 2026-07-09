@@ -110,6 +110,10 @@ jobs:
   # the slower image build).
   compose-smoke:
     runs-on: ubuntu-latest
+    # Job-level so the diagnostic `logs` and `down` steps can interpolate the
+    # compose file's required variables even when boot fails.
+    env:
+      SPOTDL_AUTH_SECRET_KEY: ci-smoke-secret-not-for-production
     steps:
       - uses: actions/checkout@v4
       # Build the image locally under the same tag the compose file pulls, so
@@ -117,8 +121,6 @@ jobs:
       - name: Build image
         run: docker build -f deploy/Dockerfile -t ghcr.io/spotdl/spotify-downloader:edge .
       - name: Boot self-host stack
-        env:
-          SPOTDL_AUTH_SECRET_KEY: ci-smoke-secret-not-for-production
         run: docker compose -f deploy/docker-compose.selfhost.yml up -d
       - name: Wait for health
         run: |

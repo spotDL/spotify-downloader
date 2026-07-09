@@ -55,7 +55,7 @@ def _build_config(settings: Settings) -> Config:
     return cfg
 
 
-def upgrade_to_head(settings: Settings) -> None:
+def upgrade_to_head(settings: Settings, *, quiet: bool = False) -> None:
     """Run Alembic ``upgrade head`` programmatically against
     ``settings.effective_database_url()``.
 
@@ -66,4 +66,9 @@ def upgrade_to_head(settings: Settings) -> None:
     # opens the file (Postgres/explicit URLs need no local directory).
     if settings.database_url is None:
         settings.data_dir.mkdir(parents=True, exist_ok=True)
-    command.upgrade(_build_config(settings), "head")
+    cfg = _build_config(settings)
+    if quiet:
+        # An interactive CLI (embedded mode) suppresses alembic's fileConfig
+        # re-configuration (env.py honours this attribute); errors still raise.
+        cfg.attributes["skip_logging_config"] = True
+    command.upgrade(cfg, "head")
