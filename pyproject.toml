@@ -62,6 +62,9 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 # defaults; B008 (no function calls in argument defaults) is the framework's
 # intended usage in the api layer (dependency providers + routers).
 "apps/server/src/spotdl_server/api/**" = ["B008"]
+# Typer's option/argument idiom puts ``typer.Option(...)`` / ``typer.Argument(...)``
+# in parameter defaults — the framework's intended usage in the CLI commands.
+"apps/cli/src/spotdl_cli/commands/**" = ["B008"]
 
 [tool.mypy]
 strict = true

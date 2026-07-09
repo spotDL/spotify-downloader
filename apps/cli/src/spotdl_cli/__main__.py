@@ -4,6 +4,10 @@ import typer
 
 from spotdl_cli import __version__
 from spotdl_cli.client import embedded_client
+from spotdl_cli.commands import ffmpeg as ffmpeg_cmd
+from spotdl_cli.commands import read as read_cmd
+from spotdl_cli.commands import server as server_cmd
+from spotdl_cli.commands import web as web_cmd
 from spotdl_cli.commands.auth import auth_app
 from spotdl_cli.commands.config_cmd import config_app
 
@@ -29,6 +33,12 @@ def status() -> None:
             return str(resp.json()["status"])
 
     typer.echo(f"server: {asyncio.run(_check())} (embedded)")
+
+
+read_cmd.register(app)
+web_cmd.register(app)
+server_cmd.register(app)
+ffmpeg_cmd.register(app)
 
 
 def main() -> None:

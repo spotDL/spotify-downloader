@@ -228,3 +228,19 @@ def test_logout_when_not_logged_in(cfg_home: Path) -> None:
     result = runner.invoke(auth_app, ["logout", "--api-url", BASE])
     assert result.exit_code == 0
     assert "not logged in" in result.output
+
+
+def test_rule5_copy_matches_fallback_constants() -> None:
+    """auth.py's inline rule-5 copy must render byte-identically to fallback.py's.
+
+    Two sources exist deliberately (auth avoids from_config so no embedded SQLite
+    side effects); this lock makes any divergence fail loudly.
+    """
+    from spotdl_cli import fallback
+    from spotdl_cli.commands import auth as auth_cmd
+
+    assert "error: " + auth_cmd._OFFLINE_COPY == fallback.OFFLINE_AUTH_ERROR
+    rendered = "error: " + auth_cmd._unreachable_copy("https://api.spotdl.dev", "boom")
+    assert rendered == fallback.UNREACHABLE_AUTH_ERROR.format(
+        api_url="https://api.spotdl.dev", reason="boom"
+    )
