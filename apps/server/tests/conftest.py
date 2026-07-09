@@ -1,5 +1,6 @@
 import os
 from collections.abc import AsyncIterator
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import pytest
@@ -16,6 +17,38 @@ from sqlalchemy.pool import StaticPool
 # so the Postgres DSN survives the SPOTDL_-prefix scrub. Unset locally (Postgres
 # tests skip); CI's `python` job exports it so the dual-dialect migration tests run.
 _POSTGRES_URL = os.environ.get("SPOTDL_TEST_POSTGRES_URL")
+
+
+class FakeClock:
+    """A controllable :class:`~spotdl_server.auth.clock.Clock` for tests.
+
+    Holds a mutable tz-aware UTC ``datetime`` that only moves when a test calls
+    :meth:`advance`. It is the single time-control seam for the whole community
+    layer: token ``iat``/``exp``, refresh-token rotation/expiry, PAT expiry, and
+    rate-limit windows all read time through an injected ``Clock``, so a test
+    can make any of them expire deterministically without ``sleep`` or patching
+    :func:`datetime.now`.
+    """
+
+    def __init__(self, start: datetime | None = None) -> None:
+        if start is None:
+            start = datetime(2026, 1, 1, tzinfo=UTC)
+        if start.tzinfo is None:
+            raise ValueError("FakeClock requires a tz-aware datetime")
+        self._now = start.astimezone(UTC)
+
+    def now(self) -> datetime:
+        return self._now
+
+    def advance(self, seconds: float) -> None:
+        """Move the clock forward by ``seconds`` (may be fractional)."""
+        self._now += timedelta(seconds=seconds)
+
+
+@pytest.fixture
+def clock() -> FakeClock:
+    """A fresh :class:`FakeClock` anchored at 2026-01-01T00:00:00Z."""
+    return FakeClock()
 
 
 @pytest.fixture(autouse=True)
