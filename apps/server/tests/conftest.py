@@ -174,6 +174,11 @@ async def download_sessionmaker(tmp_path: Path) -> AsyncIterator[async_sessionma
     def _sqlite_pragmas(dbapi_conn: Any, _record: Any) -> None:
         dbapi_conn.execute("PRAGMA foreign_keys=ON")
         dbapi_conn.execute("PRAGMA busy_timeout=5000")
+        # WAL mirrors the production ``build_engine`` config: readers never block
+        # the writer and a read→write upgrade never deadlocks, so the pool's
+        # concurrent terminal transitions / finalize cannot trip an un-retryable
+        # "database is locked" under load (matches the real single-container app).
+        dbapi_conn.execute("PRAGMA journal_mode=WAL")
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

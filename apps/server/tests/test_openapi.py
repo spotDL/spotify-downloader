@@ -54,6 +54,32 @@ def test_error_envelope_documented() -> None:
     assert "ErrorEnvelope" in json.dumps(resolve_responses)
 
 
+def test_download_routes_documented() -> None:
+    """The Plan 7 download HTTP surface appears in the exported schema; WS does not.
+
+    The fully-enabled export builds in SELFHOST, so the download router is mounted
+    and its routes are documented. FastAPI does not emit WebSocket routes into
+    OpenAPI, so ``/ws/progress`` must be absent (the WS contract lives in the
+    committed ``ws-protocol.json`` artifact instead). The new ``unsupported_entity``
+    error code is documented in the closed vocabulary.
+    """
+    export = _load_export_module()
+    schema = export.build_openapi()
+    paths = schema["paths"]
+
+    assert "post" in paths["/api/v1/downloads"]
+    assert "get" in paths["/api/v1/downloads"]
+    assert "get" in paths["/api/v1/downloads/{job_id}/file"]
+    assert "delete" in paths["/api/v1/downloads/{job_id}"]
+    assert "get" in paths["/api/v1/downloads/batches/{batch_id}/save-file"]
+
+    # WebSocket routes are never emitted into OpenAPI (HTTP surface only).
+    assert "/ws/progress" not in paths
+
+    error_codes = set(schema["components"]["schemas"]["ErrorCode"]["enum"])
+    assert "unsupported_entity" in error_codes
+
+
 def test_community_routes_documented() -> None:
     """Every Plan 6 community surface is present in the fully-enabled export.
 
