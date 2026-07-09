@@ -15,7 +15,7 @@ from typing import Any
 
 from spotdl_core.model import EntityType, ProviderId
 from spotdl_server.db.base import Base
-from spotdl_server.db.models import Artist, EntityLink, ProviderSnapshot, Track
+from spotdl_server.db.models import Album, Artist, EntityLink, ProviderSnapshot, Track
 from spotdl_server.repositories.merge import SOURCE_PRIORITY, CanonicalMerger
 from spotdl_server.repositories.snapshots import SnapshotRepository
 from sqlalchemy import event, func, select
@@ -403,6 +403,63 @@ async def test_merge_album_builds_ordered_tracks(session: AsyncSession) -> None:
     assert fetched is not None
     assert {t.name for t in fetched.tracks} == {"One More Time", "Aerodynamic"}
     assert all(t.album_id == album.id for t in fetched.tracks)
+
+
+async def test_merge_album_rerunnable_when_tracks_embed_album(session: AsyncSession) -> None:
+    # Member tracks carry their own (sparser) embedded ``album`` sub-object — a
+    # real provider shape. ``merge_album`` must position them into the explicitly
+    # merged album without the per-track embedded-album side channel creating
+    # orphan Album rows or clobbering the merged album's fields on re-run.
+    album_snap = await SnapshotRepository(session).upsert(
+        provider=ProviderId.SPOTIFY,
+        provider_entity_id="alb1",
+        entity_type=EntityType.ALBUM,
+        raw_payload={
+            "name": "Discovery",
+            "album_artist": "Daft Punk",
+            "year": 2001,
+            "track_count": 2,
+            "cover_url": "https://img/disc.jpg",
+        },
+        name="Discovery",
+    )
+    embedded = {"name": "Discovery (track view)"}
+    t0 = await _track_snapshot(
+        session,
+        ProviderId.SPOTIFY,
+        "t0",
+        name="One More Time",
+        artists=["Daft Punk"],
+        album=embedded,
+    )
+    t1 = await _track_snapshot(
+        session,
+        ProviderId.SPOTIFY,
+        "t1",
+        name="Aerodynamic",
+        artists=["Daft Punk"],
+        album=embedded,
+    )
+
+    merger = CanonicalMerger(session)
+
+    def _album_fields(album: Any) -> tuple[Any, ...]:
+        return (album.name, album.album_artist, album.year, album.track_count)
+
+    first = await merger.merge_album([album_snap], {0: [t0], 1: [t1]})
+    assert _album_fields(first) == ("Discovery", "Daft Punk", 2001, 2)
+    # Exactly one Album row — no orphan created by the tracks' embedded album.
+    assert await _count(session, Album) == 1
+
+    second = await merger.merge_album([album_snap], {0: [t0], 1: [t1]})
+    assert second.id == first.id
+    # Identical inputs => identical fields (no clobber from the track's album view).
+    assert _album_fields(second) == ("Discovery", "Daft Punk", 2001, 2)
+    assert await _count(session, Album) == 1
+    fetched = await merger._albums.get(second.id)
+    assert fetched is not None
+    assert {t.name for t in fetched.tracks} == {"One More Time", "Aerodynamic"}
+    assert all(t.album_id == second.id for t in fetched.tracks)
 
 
 async def test_merge_playlist_orders_tracks(session: AsyncSession) -> None:

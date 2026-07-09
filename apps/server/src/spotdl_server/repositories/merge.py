@@ -185,12 +185,20 @@ class CanonicalMerger:
         self._playlists = PlaylistRepository(session)
 
     # ----------------------------------------------------------------- track
-    async def merge_track(self, snapshots: Sequence[ProviderSnapshot]) -> Track:
+    async def merge_track(
+        self, snapshots: Sequence[ProviderSnapshot], *, merge_embedded_album: bool = True
+    ) -> Track:
         snaps = _sorted(snapshots)
         merged_isrc = _first_not_none(snaps, _isrc)
         track = await self._resolve_track(snaps, merged_isrc)
 
-        album_id = await self._merge_track_album(track, snaps)
+        # ``merge_embedded_album=False`` when the caller (``merge_album``) will
+        # assign ``album_id`` itself: the per-track embedded ``album`` sub-object
+        # must not create an orphan Album row (first run) nor overwrite the
+        # already-merged album's fields (re-run). Preserve the current binding.
+        album_id = (
+            await self._merge_track_album(track, snaps) if merge_embedded_album else track.album_id
+        )
         await self._tracks.update(
             track,
             name=_first_not_none(snaps, _name) or "",
@@ -282,7 +290,9 @@ class CanonicalMerger:
             cover_url=_first_not_none(snaps, _cover_url),
         )
         for position in sorted(track_snapshots_by_pos):
-            track = await self.merge_track(list(track_snapshots_by_pos[position]))
+            track = await self.merge_track(
+                list(track_snapshots_by_pos[position]), merge_embedded_album=False
+            )
             await self._tracks.update(track, album_id=album.id)
 
         await self._link_all(EntityType.ALBUM, album.id, snaps)
