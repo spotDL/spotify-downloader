@@ -16,9 +16,10 @@ from spotdl_cli._generated.api.models.error_code import ErrorCode
 from spotdl_cli.errors import ApiError
 from spotdl_cli.tui.app import SpotdlApp
 from spotdl_cli.tui.screens.home import HomeSearchScreen
+from spotdl_cli.tui.widgets.nav_rail import NavRail
 from spotdl_cli.viewmodels.factory import ViewModelFactory
 from spotdl_cli.views import AlbumRefView, EntityView
-from textual.widgets import DataTable, Input
+from textual.widgets import DataTable, Input, Static
 
 from .conftest import FakeConfigStore, FakeCredentialStore
 from .fakes import FakeSpotdlClient, make_track
@@ -61,11 +62,12 @@ async def test_query_enter_renders_result_rows() -> None:
         table = app.screen.query_one("#search-results", DataTable)
         assert table.row_count == 1
         cells = [str(c) for c in table.get_row_at(0)]
+        # Columns: # · Title · Artists · Duration · Source (CONTRACT §4).
         assert cells[0] == "1"
-        assert "Daft Punk, Romanthony" in cells[1]
-        assert "One More Time" in cells[1]
-        assert cells[2] == "Discovery"
+        assert cells[1] == "One More Time"
+        assert cells[2] == "Daft Punk, Romanthony"
         assert cells[3] == "3:05"
+        assert cells[4] == "—"  # search rows carry no source provider
         assert client.called("search")
 
 
@@ -129,6 +131,26 @@ async def test_search_error_toasts_and_leaves_table_empty() -> None:
         table = app.screen.query_one("#search-results", DataTable)
         assert table.row_count == 0
         assert app._notifications  # the failure surfaced as a toast
+
+
+async def test_degraded_search_surfaces_banner_and_yellow_dot() -> None:
+    """§5 flow 5: a degraded search shows the in-panel banner + turns the nav dot yellow."""
+    client = FakeSpotdlClient()
+    client.search_results = [make_track(name="One More Time")]
+    client.search_degraded = ["spotify"]
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        app.screen.query_one("#search-input", Input).focus()
+        await pilot.press("x", "enter")
+        await app.workers.wait_for_complete()
+        await pilot.pause()
+
+        banner = app.screen.query_one("#degraded-banner", Static)
+        assert "hidden" not in banner.classes
+        assert "spotify" in str(banner.render())
+        # The shell's nav-rail dot folds the session-degraded flag over transport.
+        assert app.screen.query_one(NavRail).dot_state == "degraded"
 
 
 async def test_slash_focuses_the_search_input() -> None:

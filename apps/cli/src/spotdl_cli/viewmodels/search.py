@@ -16,7 +16,8 @@ class SearchViewModel:
         async def _run() -> SearchResult:
             result = await self._client.search(query, limit=limit)
             rows = tuple(track_row(track) for track in result.tracks)
-            return SearchResult(rows=rows, degraded=bool(result.degraded_sources))
+            sources = tuple(result.degraded_sources)
+            return SearchResult(rows=rows, degraded=bool(sources), degraded_sources=sources)
 
         return await guard(_run())
 

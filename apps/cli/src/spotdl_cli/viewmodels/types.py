@@ -43,10 +43,13 @@ class SearchResult:
     ``degraded`` is ``True`` when the resolution layer reported one or more fallen-
     back metadata providers (``degraded_sources`` non-empty); the app folds it into
     the session so the status bar's degraded badge fires (CONTRACT F, spec §10).
+    ``degraded_sources`` names them so the Search screen's banner can list which
+    sources are unavailable ("some sources unavailable: spotify").
     """
 
     rows: tuple[TrackRow, ...]
     degraded: bool
+    degraded_sources: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
