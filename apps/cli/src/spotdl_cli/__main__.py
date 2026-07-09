@@ -203,7 +203,7 @@ def main(argv: list[str] | None = None) -> None:
             typer.echo(line, err=True)
         args = result.argv
 
-    app(args=_dispatch(args))
+    app(args=_dispatch(args), prog_name="spotdl")
 
 
 __all__ = ["app", "main"]

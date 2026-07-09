@@ -108,7 +108,7 @@ class _FakeStdout:
 
 def test_bare_spotdl_in_a_tty_launches_the_tui(monkeypatch) -> None:
     calls: list[list[str]] = []
-    monkeypatch.setattr(main_mod, "app", lambda args: calls.append(list(args)))
+    monkeypatch.setattr(main_mod, "app", lambda args, **_kw: calls.append(list(args)))
     monkeypatch.setattr(main_mod.sys, "stdout", _FakeStdout(True))
 
     main_mod.main([])
@@ -118,7 +118,7 @@ def test_bare_spotdl_in_a_tty_launches_the_tui(monkeypatch) -> None:
 
 def test_bare_spotdl_without_a_tty_shows_help(monkeypatch) -> None:
     calls: list[list[str]] = []
-    monkeypatch.setattr(main_mod, "app", lambda args: calls.append(list(args)))
+    monkeypatch.setattr(main_mod, "app", lambda args, **_kw: calls.append(list(args)))
     monkeypatch.setattr(main_mod.sys, "stdout", _FakeStdout(False))
 
     main_mod.main([])
@@ -129,7 +129,7 @@ def test_bare_spotdl_without_a_tty_shows_help(monkeypatch) -> None:
 def test_bare_query_still_sugars_to_download_in_a_tty(monkeypatch) -> None:
     """The TTY launch only fires for *no* arguments; a bare query still downloads."""
     calls: list[list[str]] = []
-    monkeypatch.setattr(main_mod, "app", lambda args: calls.append(list(args)))
+    monkeypatch.setattr(main_mod, "app", lambda args, **_kw: calls.append(list(args)))
     monkeypatch.setattr(main_mod.sys, "stdout", _FakeStdout(True))
 
     main_mod.main(["https://open.spotify.com/track/x"])

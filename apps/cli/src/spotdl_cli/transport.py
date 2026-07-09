@@ -55,6 +55,14 @@ _SQLITE_BUSY_TIMEOUT_MS = 5000
 _LOOPBACK_START_TIMEOUT_S = 10.0
 
 
+# The embedded server resolves + matches metadata SYNCHRONOUSLY inside POST
+# /downloads (and other endpoints do real provider I/O), which for a live query
+# routinely exceeds httpx's default 5s read timeout. Give the in-process client a
+# generous read budget (connect stays short — it is loopback/ASGI) so a real
+# submit never spuriously times out, while a genuinely hung server still surfaces.
+_EMBEDDED_TIMEOUT = httpx.Timeout(300.0, connect=10.0)
+
+
 class Transport(Protocol):
     """The seam ``SpotdlClient`` sits on.
 
@@ -229,7 +237,9 @@ class EmbeddedTransport:
         await self._lifespan_cm.__aenter__()
         self._http_base = "http://embedded"
         transport = httpx.ASGITransport(app=app, raise_app_exceptions=False)
-        self._client = httpx.AsyncClient(transport=transport, base_url=self._http_base)
+        self._client = httpx.AsyncClient(
+            transport=transport, base_url=self._http_base, timeout=_EMBEDDED_TIMEOUT
+        )
 
     async def _start_loopback(self, app: FastAPI) -> None:
         # Bind our own ephemeral loopback socket so the port is known before the
@@ -264,7 +274,7 @@ class EmbeddedTransport:
             await asyncio.sleep(0.02)
 
         self._http_base = f"http://127.0.0.1:{port}"
-        self._client = httpx.AsyncClient(base_url=self._http_base)
+        self._client = httpx.AsyncClient(base_url=self._http_base, timeout=_EMBEDDED_TIMEOUT)
 
     @property
     def http_base(self) -> str:

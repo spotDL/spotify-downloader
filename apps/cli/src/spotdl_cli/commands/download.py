@@ -449,7 +449,25 @@ def download(  # noqa: PLR0913 - the full Plan 4 option surface (spec §7)
         code = asyncio.run(_run(resolved, console))
     except ApiError as exc:
         code = render_api_error(exc)
+    except (Exception, BaseExceptionGroup) as exc:  # noqa: BLE001
+        # Never dump a raw traceback: unwrap a TaskGroup ExceptionGroup, render
+        # the underlying transport/timeout error as one clean line, and exit
+        # TRANSPORT. (A completed download whose progress read timed out still
+        # landed server-side; the message says so.)
+        code = _render_unexpected(exc, console)
     raise typer.Exit(int(code))
+
+
+def _render_unexpected(exc: BaseException, console: Console) -> ExitCode:
+    """Render a non-ApiError failure as a single stderr line (no traceback)."""
+    inner: BaseException = exc
+    if isinstance(exc, BaseExceptionGroup) and exc.exceptions:
+        inner = exc.exceptions[0]
+    name = type(inner).__name__
+    detail = str(inner).strip()
+    msg = f"error: download failed ({name}{': ' + detail if detail else ''})"
+    console.print(msg, style="red", highlight=False, markup=False)
+    return ExitCode.TRANSPORT
 
 
 def _maybe_load_config() -> Any:

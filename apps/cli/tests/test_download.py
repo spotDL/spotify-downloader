@@ -274,3 +274,34 @@ def test_split_output_template() -> None:
     )
     assert dl.split_output_template("{title}.{output-ext}") == (None, "{title}.{output-ext}")
     assert dl.split_output_template("/abs/dir/{title}.mp3") == ("/abs/dir", "{title}.mp3")
+
+
+def test_transport_error_renders_clean_no_traceback(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A ReadTimeout wrapped in a TaskGroup ExceptionGroup must render as one
+    line and exit TRANSPORT — never dump a raw traceback (live-download bug)."""
+    import httpx
+
+    @asynccontextmanager
+    async def _boom(*, offline: bool, settings_env: dict[str, str]) -> AsyncIterator[Any]:
+        class _C:
+            async def submit_download(self, *a: Any, **k: Any) -> Any:
+                # The real crash: submit's synchronous server-side resolve outran
+                # the client read timeout, surfacing inside a TaskGroup.
+                raise BaseExceptionGroup("unhandled errors in a TaskGroup", [httpx.ReadTimeout("")])
+
+            @asynccontextmanager
+            async def progress(self, *a: Any, **k: Any) -> AsyncIterator[Any]:
+                async def _empty() -> AsyncIterator[Any]:
+                    return
+                    yield  # pragma: no cover
+
+                yield _empty()
+
+        yield _C()
+
+    monkeypatch.setattr(dl, "_open_client", _boom)
+    result = runner.invoke(app, ["download", "https://open.spotify.com/track/x"])
+    assert result.exit_code == int(ExitCode.TRANSPORT)
+    assert "Traceback" not in result.output
+    assert "download failed" in result.output
+    assert "ReadTimeout" in result.output
