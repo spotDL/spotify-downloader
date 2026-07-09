@@ -44,6 +44,13 @@ EXPECTED_TABLES = {
     "lyrics",
     "download_batches",
     "download_jobs",
+    # Plan 6 community layer (additive; NEVER an ALTER of the tables above).
+    "users",
+    "oauth_identities",
+    "refresh_tokens",
+    "api_tokens",
+    "votes",
+    "reports",
 }
 
 

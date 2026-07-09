@@ -13,7 +13,13 @@ dependencies = [
     "alembic>=1.14",
     "aiosqlite>=0.20",
     "asyncpg>=0.30",
+    "pyjwt>=2.10",
+    "argon2-cffi>=23.1",
+    "httpx>=0.28",
 ]
+
+[project.optional-dependencies]
+redis = ["redis>=5.2"]
 
 [build-system]
 requires = ["hatchling"]

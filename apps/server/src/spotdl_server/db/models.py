@@ -25,6 +25,7 @@ from typing import Any
 import sqlalchemy as sa
 from spotdl_core.model import EntityType, LyricsKind, MatchStatus, ProviderId
 from sqlalchemy import (
+    CheckConstraint,
     Column,
     ForeignKey,
     Index,
@@ -34,7 +35,14 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from spotdl_server.db.base import Base, TimestampMixin
-from spotdl_server.db.enums import BatchKind, DownloadStatus, LinkStatus
+from spotdl_server.db.enums import (
+    BatchKind,
+    DownloadStatus,
+    LinkStatus,
+    OAuthProvider,
+    ReportStatus,
+    VotableType,
+)
 
 
 def _uuid_pk() -> Mapped[uuid.UUID]:
@@ -415,3 +423,195 @@ class DownloadJob(Base, TimestampMixin):
     requested_by: Mapped[uuid.UUID | None] = mapped_column(sa.Uuid(as_uuid=True), nullable=True)
     started_at: Mapped[datetime | None] = mapped_column(sa.DateTime(timezone=True), nullable=True)
     finished_at: Mapped[datetime | None] = mapped_column(sa.DateTime(timezone=True), nullable=True)
+
+
+# =========================================================================== #
+# Plan 6 — community layer (auth / voting / reports). ALL tables below are NEW;
+# none of them ALTERs a Plan-5 table. `votes.user_id` is a real FK into the new
+# `users` table (additive). `votes.votable_id` / `reports.subject_id` are
+# bounded polymorphic references with NO cross-table FK (disambiguated by
+# `votable_type` / `subject_type`).
+# =========================================================================== #
+
+
+# --------------------------------------------------------------------------- #
+# users — email+password identity; OAuth-only accounts have NULL password_hash
+# --------------------------------------------------------------------------- #
+class User(Base, TimestampMixin):
+    __tablename__ = "users"
+    __table_args__ = (UniqueConstraint("email", name="uq_users_email"),)
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    email: Mapped[str] = mapped_column(sa.String(320), nullable=False)
+    password_hash: Mapped[str | None] = mapped_column(sa.String(255), nullable=True)
+    display_name: Mapped[str | None] = mapped_column(sa.String(255), nullable=True)
+    is_admin: Mapped[bool] = mapped_column(sa.Boolean, nullable=False, default=False)
+    is_active: Mapped[bool] = mapped_column(sa.Boolean, nullable=False, default=True)
+
+    oauth_identities: Mapped[list[OAuthIdentity]] = relationship(
+        "OAuthIdentity",
+        back_populates="user",
+        lazy="selectin",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    api_tokens: Mapped[list[ApiToken]] = relationship(
+        "ApiToken",
+        back_populates="user",
+        lazy="selectin",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+
+# --------------------------------------------------------------------------- #
+# oauth_identities — provider-linked login; at most one per provider per user
+# --------------------------------------------------------------------------- #
+class OAuthIdentity(Base, TimestampMixin):
+    __tablename__ = "oauth_identities"
+    __table_args__ = (
+        UniqueConstraint(
+            "provider",
+            "provider_account_id",
+            name="uq_oauth_identities_provider_provider_account_id",
+        ),
+        UniqueConstraint(
+            "user_id",
+            "provider",
+            name="uq_oauth_identities_user_id_provider",
+        ),
+        Index("ix_oauth_identities_user_id", "user_id"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        sa.Uuid(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    provider: Mapped[OAuthProvider] = mapped_column(_enum(OAuthProvider), nullable=False)
+    provider_account_id: Mapped[str] = mapped_column(sa.String(255), nullable=False)
+    provider_username: Mapped[str | None] = mapped_column(sa.String(255), nullable=True)
+
+    user: Mapped[User] = relationship("User", back_populates="oauth_identities")
+
+
+# --------------------------------------------------------------------------- #
+# refresh_tokens — rotating, reuse-detecting; opaque tokens stored sha256-hashed
+# --------------------------------------------------------------------------- #
+class RefreshToken(Base, TimestampMixin):
+    __tablename__ = "refresh_tokens"
+    __table_args__ = (
+        UniqueConstraint("token_hash", name="uq_refresh_tokens_token_hash"),
+        Index("ix_refresh_tokens_user_id", "user_id"),
+        Index("ix_refresh_tokens_family_id", "family_id"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        sa.Uuid(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    token_hash: Mapped[str] = mapped_column(sa.String(64), nullable=False)
+    family_id: Mapped[uuid.UUID] = mapped_column(sa.Uuid(as_uuid=True), nullable=False)
+    issued_at: Mapped[datetime] = mapped_column(
+        sa.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(UTC),
+    )
+    expires_at: Mapped[datetime] = mapped_column(sa.DateTime(timezone=True), nullable=False)
+    rotated_at: Mapped[datetime | None] = mapped_column(sa.DateTime(timezone=True), nullable=True)
+    revoked_at: Mapped[datetime | None] = mapped_column(sa.DateTime(timezone=True), nullable=True)
+    # Audit-only successor pointer; NO FK to keep a single insert path (contract).
+    replaced_by: Mapped[uuid.UUID | None] = mapped_column(sa.Uuid(as_uuid=True), nullable=True)
+
+
+# --------------------------------------------------------------------------- #
+# api_tokens — personal access tokens (PATs) for the CLI; stored sha256-hashed
+# --------------------------------------------------------------------------- #
+class ApiToken(Base, TimestampMixin):
+    __tablename__ = "api_tokens"
+    __table_args__ = (
+        UniqueConstraint("token_hash", name="uq_api_tokens_token_hash"),
+        Index("ix_api_tokens_user_id", "user_id"),
+        Index("ix_api_tokens_token_prefix", "token_prefix"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        sa.Uuid(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    name: Mapped[str] = mapped_column(sa.String(255), nullable=False)
+    token_prefix: Mapped[str] = mapped_column(sa.String(24), nullable=False)
+    token_hash: Mapped[str] = mapped_column(sa.String(64), nullable=False)
+    last_used_at: Mapped[datetime | None] = mapped_column(sa.DateTime(timezone=True), nullable=True)
+    expires_at: Mapped[datetime | None] = mapped_column(sa.DateTime(timezone=True), nullable=True)
+    revoked_at: Mapped[datetime | None] = mapped_column(sa.DateTime(timezone=True), nullable=True)
+
+    user: Mapped[User] = relationship("User", back_populates="api_tokens")
+
+
+# --------------------------------------------------------------------------- #
+# votes — one row per (user, votable); polymorphic votable_id, NO cross-table FK
+# --------------------------------------------------------------------------- #
+class Vote(Base, TimestampMixin):
+    __tablename__ = "votes"
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "votable_type",
+            "votable_id",
+            name="uq_votes_user_id_votable_type_votable_id",
+        ),
+        CheckConstraint("value IN (-1, 1)", name="value_in_range"),
+        Index("ix_votes_votable_type_votable_id", "votable_type", "votable_id"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        sa.Uuid(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    votable_type: Mapped[VotableType] = mapped_column(_enum(VotableType), nullable=False)
+    # Polymorphic id into matches/lyrics/entity_links; NO cross-table FK (contract).
+    votable_id: Mapped[uuid.UUID] = mapped_column(sa.Uuid(as_uuid=True), nullable=False)
+    value: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+
+
+# --------------------------------------------------------------------------- #
+# reports — metadata-correction reports + minimal review state
+# --------------------------------------------------------------------------- #
+class Report(Base, TimestampMixin):
+    __tablename__ = "reports"
+    __table_args__ = (
+        Index("ix_reports_status", "status"),
+        Index("ix_reports_subject_type_subject_id", "subject_type", "subject_id"),
+        Index("ix_reports_reporter_id", "reporter_id"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    reporter_id: Mapped[uuid.UUID | None] = mapped_column(
+        sa.Uuid(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    subject_type: Mapped[EntityType] = mapped_column(_enum(EntityType), nullable=False)
+    # Canonical entity id (polymorphic; NO cross-table FK, contract).
+    subject_id: Mapped[uuid.UUID] = mapped_column(sa.Uuid(as_uuid=True), nullable=False)
+    field: Mapped[str | None] = mapped_column(sa.String(64), nullable=True)
+    proposed_value: Mapped[str | None] = mapped_column(sa.Text, nullable=True)
+    reason: Mapped[str | None] = mapped_column(sa.Text, nullable=True)
+    status: Mapped[ReportStatus] = mapped_column(
+        _enum(ReportStatus), nullable=False, default=ReportStatus.PENDING
+    )
+    reviewed_by: Mapped[uuid.UUID | None] = mapped_column(
+        sa.Uuid(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    reviewed_at: Mapped[datetime | None] = mapped_column(sa.DateTime(timezone=True), nullable=True)
+    review_note: Mapped[str | None] = mapped_column(sa.Text, nullable=True)

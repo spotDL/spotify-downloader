@@ -31,3 +31,34 @@ class BatchKind(StrEnum):
     SINGLE = "single"  # one submitted track/url
     ALBUM = "album"  # album url expanded to N tracks
     PLAYLIST = "playlist"  # playlist url expanded to N tracks
+
+
+# --------------------------------------------------------------------------- #
+# Plan 6 community layer (auth / voting / reports)
+# --------------------------------------------------------------------------- #
+class OAuthProvider(StrEnum):
+    """Third-party OAuth identity provider for ``oauth_identities.provider``."""
+
+    GITHUB = "github"
+    DISCORD = "discord"
+
+
+class VotableType(StrEnum):
+    """Polymorphic discriminator for ``votes.votable_type``.
+
+    Values are the string form of the target table: ``votable_id`` points into
+    ``matches.id`` / ``lyrics.id`` / ``entity_links.id`` respectively (no
+    cross-table FK).
+    """
+
+    MATCH = "match"
+    LYRICS = "lyrics"
+    ENTITY_LINK = "entity_link"
+
+
+class ReportStatus(StrEnum):
+    """Minimal review state of a metadata-correction ``reports`` row."""
+
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
