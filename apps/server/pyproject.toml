@@ -21,3 +21,10 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/spotdl_server"]
+
+# Ship the Alembic scripts inside the wheel, force-included under the package so
+# bootstrap.upgrade_to_head() can locate alembic.ini/scripts relative to the
+# installed spotdl_server package (never the CWD) from a wheel install.
+[tool.hatch.build.targets.wheel.force-include]
+"alembic" = "spotdl_server/alembic"
+"alembic.ini" = "spotdl_server/alembic.ini"
