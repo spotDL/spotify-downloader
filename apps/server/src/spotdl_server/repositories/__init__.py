@@ -17,17 +17,23 @@ from spotdl_server.repositories.lyrics import LyricsRepository
 from spotdl_server.repositories.matches import MatchRepository
 from spotdl_server.repositories.merge import SOURCE_PRIORITY, CanonicalMerger
 from spotdl_server.repositories.snapshots import SnapshotRepository
+from spotdl_server.repositories.tokens import ApiTokenRepository, RefreshTokenRepository
+from spotdl_server.repositories.users import OAuthIdentityRepository, UserRepository
 
 __all__ = [
     "SOURCE_PRIORITY",
     "AlbumRepository",
+    "ApiTokenRepository",
     "ArtistRepository",
     "CanonicalMerger",
     "EntityLinkRepository",
     "LyricsRepository",
     "MatchRepository",
+    "OAuthIdentityRepository",
     "PlaylistRepository",
+    "RefreshTokenRepository",
     "SnapshotRepository",
     "TrackRepository",
+    "UserRepository",
     "normalize_artist_name",
 ]
