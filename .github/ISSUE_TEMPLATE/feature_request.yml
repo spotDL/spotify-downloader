@@ -1,0 +1,51 @@
+name: Feature request
+description: Suggest a new capability or an improvement to spotDL.
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        Have an idea? Great. For open-ended discussion, the
+        [Discord](https://discord.gg/xCa23pwJWH) is often a better fit; use this
+        form for a concrete, actionable request.
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before you start
+      options:
+        - label: I searched existing issues and this has not already been requested.
+          required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / motivation
+      description: What are you trying to do, and what makes it hard or impossible today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What would you like spotDL to do? Include example commands or UI if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches or workarounds you have tried or thought about.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of spotDL?
+      options:
+        - CLI
+        - TUI
+        - Web UI
+        - Server / API
+        - Matching / providers
+        - Self-hosting / deployment
+        - Other / not sure
+    validations:
+      required: true
