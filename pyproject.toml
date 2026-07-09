@@ -39,7 +39,13 @@ python_version = "3.13"
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 addopts = "--import-mode=importlib -m 'not network'"
-testpaths = ["packages/core/tests", "apps/server/tests", "apps/cli/tests"]
+pythonpath = ["."]
+testpaths = [
+    "packages/core/tests",
+    "apps/server/tests",
+    "apps/cli/tests",
+    "scripts/corpus/tests",
+]
 markers = [
     "network: test hits a real provider API over the network; excluded from default runs and CI",
 ]

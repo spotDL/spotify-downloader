@@ -9,7 +9,7 @@ lint:
 	uv run lint-imports
 
 typecheck:
-	uv run mypy packages/core/src apps/server/src apps/cli/src
+	uv run mypy packages/core/src apps/server/src apps/cli/src scripts
 
 test:
 	uv run pytest
