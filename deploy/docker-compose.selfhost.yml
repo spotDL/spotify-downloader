@@ -1,0 +1,22 @@
+# deploy/docker-compose.selfhost.yml
+# Usage: docker compose -f deploy/docker-compose.selfhost.yml up -d
+# Postgres instead of SQLite: add -f deploy/docker-compose.postgres.yml
+name: spotdl
+services:
+  spotdl:
+    image: ghcr.io/spotdl/spotify-downloader:${SPOTDL_IMAGE_TAG:-edge}
+    # build: { context: .., dockerfile: deploy/Dockerfile }   # uncomment to build locally
+    ports:
+      - "${SPOTDL_PORT:-8000}:8000"
+    environment:
+      SPOTDL_MODE: selfhost
+      SPOTDL_DATA_DIR: /app/data
+      SPOTDL_DATABASE_URL: ${SPOTDL_DATABASE_URL:-sqlite+aiosqlite:////app/data/spotdl.db}
+      SPOTDL_AUTH_SECRET_KEY: ${SPOTDL_AUTH_SECRET_KEY:?set a random secret in .env}
+      SPOTDL_SENTRY_DSN: ${SPOTDL_SENTRY_DSN:-}
+      SPOTDL_LOG_LEVEL: ${SPOTDL_LOG_LEVEL:-INFO}
+    volumes:
+      - spotdl_data:/app/data
+    restart: unless-stopped
+volumes:
+  spotdl_data:

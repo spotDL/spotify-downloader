@@ -1,0 +1,16 @@
+# deploy/Caddyfile.example
+# Reverse proxy with automatic HTTPS in front of the self-host container (spec §9).
+# The removed v4 `--enable-tls`/`--cert-file`/`--key-file` flags terminate here now:
+# Caddy fetches and renews certificates for you. Copy to `Caddyfile`, replace the
+# hostname, and run `caddy run` (or the official caddy container) alongside the app.
+#
+# For the community-hosted instance TLS is terminated at Cloudflare -> Railway
+# instead; this file is the self-host alternative (see docs/self-hosting/railway.md).
+spotdl.example.com {
+    encode zstd gzip
+    reverse_proxy localhost:8000
+    # Optional: efficient large-file delivery for the downloads library.
+    # Set SPOTDL_DOWNLOAD_X_ACCEL_PREFIX (Plan 7) and add a matching
+    # `handle @internal { root * /app/data; file_server }` block; documented in
+    # docs/self-hosting/reverse-proxy.md.
+}
