@@ -69,10 +69,11 @@ If this step is not green, **stop** — do not cut GA against a dead community s
 
 ## Step 2 — Retag the current v4 Docker image as `legacy-v4` (RM) — BEFORE the GA tag
 
-> **ORDERING IS LOAD-BEARING.** Publishing the GA GitHub Release (Step 3) triggers
-> `release-docker.yml`, whose `dockerhub` job **moves `:latest` to the v5 image**. So
-> the v4 `:latest` must be preserved under a stable `legacy-v4` tag *first*, while
-> `:latest` still points at v4. Do this step, verify it, then proceed to Step 3.
+> **ORDERING IS LOAD-BEARING.** Pushing the GA tag (`git push origin v5 --tags`,
+> Step 3) triggers `release-docker.yml` (it fires on tag push, not on the Release),
+> whose `dockerhub` job **moves `:latest` to the v5 image**. So the v4 `:latest`
+> must be preserved under a stable `legacy-v4` tag *first*, while `:latest` still
+> points at v4. Do this step, verify it, then proceed to Step 3.
 
 ```sh
 # Preserve today's v4 :latest under legacy-v4 (no rebuild; copies the manifest list,
@@ -119,17 +120,19 @@ git push origin v5 --tags
 gh release create v5.0.0 --title "spotDL 5.0.0" --notes-file <release-notes.md>
 ```
 
-Publishing the Release triggers, in parallel:
+Two distinct triggers fire here — know which command does what:
 
-1. **`release-pypi.yml`** — builds & publishes **in dependency order**
-   `spotdl-core` → `spotdl-server` → `spotdl` (each pinned `spotdl-server==5.0.0`
-   etc.), via OIDC Trusted Publishing (no token).
-2. **`release-docker.yml`** — GHCR gets `5.0.0`, `5.0`, `sha-<short>`, and (GA only)
-   `latest`; the `dockerhub` job (final-tag-gated) pushes
-   `spotdl/spotify-downloader` including `:latest`. **This is the moment `:latest`
-   flips to v5** — hence Step 2 ran first.
-3. **`release-binaries.yml`** — PyInstaller matrix (linux/macos/windows + aarch64),
-   uploaded to the GitHub Release.
+1. **The tag push** (`git push origin v5 --tags`, above) triggers
+   **`release-docker.yml`** — GHCR gets `5.0.0`, `5.0`, `sha-<short>`, and (GA
+   only) `latest`; the `dockerhub` job (final-tag-gated) pushes
+   `spotdl/spotify-downloader` including `:latest`. **This is the moment
+   `:latest` flips to v5** — hence Step 2 ran first.
+2. **Publishing the GitHub Release** triggers, in parallel:
+   - **`release-pypi.yml`** — builds & publishes **in dependency order**
+     `spotdl-core` → `spotdl-server` → `spotdl` (each pinned
+     `spotdl-server==5.0.0` etc.), via OIDC Trusted Publishing (no token).
+   - **`release-binaries.yml`** — PyInstaller matrix (linux/macos/windows +
+     aarch64), uploaded to the GitHub Release.
 
 - [ ] All three workflows go green (watch the Actions tab; do not proceed on a red
       publish).

@@ -26,15 +26,15 @@ FILE="spotdl-${STAMP}.sql.gz"
 TMP="/tmp/${FILE}"
 
 # libpq URL (no +asyncpg). pg_dump | gzip → local temp, then upload.
+trap 'rm -f "${TMP}"' EXIT
 pg_dump "${SPOTDL_DATABASE_URL_PSQL:?SPOTDL_DATABASE_URL_PSQL is required}" \
   | gzip >"${TMP}"
 
 rclone copyto "${TMP}" "${SPOTDL_BACKUP_REMOTE:?SPOTDL_BACKUP_REMOTE is required}/${FILE}"
 
-# Retention: drop dumps older than the configured age.
-rclone delete --min-age "${SPOTDL_BACKUP_RETENTION:-30d}" "${SPOTDL_BACKUP_REMOTE}"
-
-# Free the local temp; the durable copy is in object storage.
-rm -f "${TMP}"
+# Retention: drop dumps older than the configured age (only our dump files —
+# never prune unrelated objects on a shared remote path).
+rclone delete --min-age "${SPOTDL_BACKUP_RETENTION:-30d}" \
+  --include 'spotdl-*.sql.gz' "${SPOTDL_BACKUP_REMOTE}"
 
 echo "backup ok: ${SPOTDL_BACKUP_REMOTE}/${FILE}"
