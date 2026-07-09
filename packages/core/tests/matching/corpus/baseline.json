@@ -1,0 +1,10 @@
+{
+  "total": 107,
+  "v4_correct": 100,
+  "v4_accuracy": 0.9345794392523364,
+  "generated_from": [
+    "recorded.json",
+    "handcrafted.json"
+  ],
+  "note": "v4 accuracy vs expected_pick_index across the whole corpus; regenerate only when corpus changes"
+}

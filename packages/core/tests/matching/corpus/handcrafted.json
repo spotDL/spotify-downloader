@@ -1,0 +1,2451 @@
+[
+  {
+    "case_id": "remix-trap-levitating",
+    "source": "hand-verified",
+    "description": "remix vs original: pick studio original",
+    "track": {
+      "name": "Levitating",
+      "artists": [
+        "Dua Lipa"
+      ],
+      "duration_ms": 203000,
+      "album": {
+        "name": "Future Nostalgia"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "a1",
+        "url": "https://music.youtube.com/watch?v=a1",
+        "name": "Levitating",
+        "artists": [
+          "Dua Lipa"
+        ],
+        "duration_ms": 203000,
+        "album": "Future Nostalgia",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "a2",
+        "url": "https://music.youtube.com/watch?v=a2",
+        "name": "Levitating (The Blessed Madonna Remix)",
+        "artists": [
+          "Dua Lipa"
+        ],
+        "duration_ms": 230000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "a3",
+        "url": "https://music.youtube.com/watch?v=a3",
+        "name": "Levitating (Club Remix)",
+        "artists": [
+          "Dua Lipa"
+        ],
+        "duration_ms": 245000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 0,
+    "v4_pick_index": 0,
+    "notes": ""
+  },
+  {
+    "case_id": "remix-trap-titanium",
+    "source": "hand-verified",
+    "description": "remix vs original",
+    "track": {
+      "name": "Titanium",
+      "artists": [
+        "David Guetta",
+        "Sia"
+      ],
+      "duration_ms": 245000,
+      "album": {
+        "name": "Nothing but the Beat"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "b1",
+        "url": "https://music.youtube.com/watch?v=b1",
+        "name": "Titanium (Nicky Romero Remix)",
+        "artists": [
+          "David Guetta",
+          "Sia"
+        ],
+        "duration_ms": 300000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "b2",
+        "url": "https://music.youtube.com/watch?v=b2",
+        "name": "Titanium",
+        "artists": [
+          "David Guetta",
+          "Sia"
+        ],
+        "duration_ms": 245000,
+        "album": "Nothing but the Beat",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "b3",
+        "url": "https://music.youtube.com/watch?v=b3",
+        "name": "Titanium (Alesso Remix)",
+        "artists": [
+          "David Guetta",
+          "Sia"
+        ],
+        "duration_ms": 288000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 1,
+    "v4_pick_index": 1,
+    "notes": ""
+  },
+  {
+    "case_id": "remix-trap-closer",
+    "source": "hand-verified",
+    "description": "remix vs original with two remixes",
+    "track": {
+      "name": "Closer",
+      "artists": [
+        "The Chainsmokers",
+        "Halsey"
+      ],
+      "duration_ms": 244000,
+      "album": {
+        "name": "Collage"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "c1",
+        "url": "https://music.youtube.com/watch?v=c1",
+        "name": "Closer",
+        "artists": [
+          "The Chainsmokers",
+          "Halsey"
+        ],
+        "duration_ms": 244000,
+        "album": "Collage",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "c2",
+        "url": "https://music.youtube.com/watch?v=c2",
+        "name": "Closer (T-Mass Remix)",
+        "artists": [
+          "The Chainsmokers"
+        ],
+        "duration_ms": 271000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "c3",
+        "url": "https://music.youtube.com/watch?v=c3",
+        "name": "Closer - Remix",
+        "artists": [
+          "The Chainsmokers",
+          "Halsey"
+        ],
+        "duration_ms": 259000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 0,
+    "v4_pick_index": 0,
+    "notes": ""
+  },
+  {
+    "case_id": "remix-trap-faded",
+    "source": "hand-verified",
+    "description": "remix vs original",
+    "track": {
+      "name": "Faded",
+      "artists": [
+        "Alan Walker"
+      ],
+      "duration_ms": 212000,
+      "album": {
+        "name": "Faded"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "d1",
+        "url": "https://music.youtube.com/watch?v=d1",
+        "name": "Faded (Restrung)",
+        "artists": [
+          "Alan Walker"
+        ],
+        "duration_ms": 205000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "d2",
+        "url": "https://music.youtube.com/watch?v=d2",
+        "name": "Faded (Tiësto Remix)",
+        "artists": [
+          "Alan Walker"
+        ],
+        "duration_ms": 240000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "d3",
+        "url": "https://music.youtube.com/watch?v=d3",
+        "name": "Faded",
+        "artists": [
+          "Alan Walker"
+        ],
+        "duration_ms": 212000,
+        "album": "Faded",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 2,
+    "v4_pick_index": 2,
+    "notes": ""
+  },
+  {
+    "case_id": "live-trap-bohemian",
+    "source": "hand-verified",
+    "description": "live vs studio: pick studio",
+    "track": {
+      "name": "Bohemian Rhapsody",
+      "artists": [
+        "Queen"
+      ],
+      "duration_ms": 355000,
+      "album": {
+        "name": "A Night at the Opera"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "e1",
+        "url": "https://music.youtube.com/watch?v=e1",
+        "name": "Bohemian Rhapsody",
+        "artists": [
+          "Queen"
+        ],
+        "duration_ms": 355000,
+        "album": "A Night at the Opera",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "e2",
+        "url": "https://music.youtube.com/watch?v=e2",
+        "name": "Bohemian Rhapsody (Live Aid 1985)",
+        "artists": [
+          "Queen"
+        ],
+        "duration_ms": 366000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "e3",
+        "url": "https://music.youtube.com/watch?v=e3",
+        "name": "Bohemian Rhapsody (Live at Wembley)",
+        "artists": [
+          "Queen"
+        ],
+        "duration_ms": 372000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 0,
+    "v4_pick_index": 0,
+    "notes": ""
+  },
+  {
+    "case_id": "live-trap-wonderwall",
+    "source": "hand-verified",
+    "description": "live vs studio",
+    "track": {
+      "name": "Wonderwall",
+      "artists": [
+        "Oasis"
+      ],
+      "duration_ms": 258000,
+      "album": {
+        "name": "(What's the Story) Morning Glory?"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "f1",
+        "url": "https://music.youtube.com/watch?v=f1",
+        "name": "Wonderwall (Live at Knebworth)",
+        "artists": [
+          "Oasis"
+        ],
+        "duration_ms": 270000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "f2",
+        "url": "https://music.youtube.com/watch?v=f2",
+        "name": "Wonderwall",
+        "artists": [
+          "Oasis"
+        ],
+        "duration_ms": 258000,
+        "album": "(What's the Story) Morning Glory?",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "f3",
+        "url": "https://music.youtube.com/watch?v=f3",
+        "name": "Wonderwall (MTV Unplugged Live)",
+        "artists": [
+          "Oasis"
+        ],
+        "duration_ms": 264000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 1,
+    "v4_pick_index": 1,
+    "notes": ""
+  },
+  {
+    "case_id": "live-trap-hotel",
+    "source": "hand-verified",
+    "description": "live vs studio",
+    "track": {
+      "name": "Hotel California",
+      "artists": [
+        "Eagles"
+      ],
+      "duration_ms": 391000,
+      "album": {
+        "name": "Hotel California"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "g1",
+        "url": "https://music.youtube.com/watch?v=g1",
+        "name": "Hotel California (Live 1994)",
+        "artists": [
+          "Eagles"
+        ],
+        "duration_ms": 428000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "g2",
+        "url": "https://music.youtube.com/watch?v=g2",
+        "name": "Hotel California (Live on MTV)",
+        "artists": [
+          "Eagles"
+        ],
+        "duration_ms": 440000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "g3",
+        "url": "https://music.youtube.com/watch?v=g3",
+        "name": "Hotel California",
+        "artists": [
+          "Eagles"
+        ],
+        "duration_ms": 391000,
+        "album": "Hotel California",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 2,
+    "v4_pick_index": 2,
+    "notes": ""
+  },
+  {
+    "case_id": "cover-trap-hallelujah",
+    "source": "hand-verified",
+    "description": "cover vs original: pick the original artist",
+    "track": {
+      "name": "Hallelujah",
+      "artists": [
+        "Jeff Buckley"
+      ],
+      "duration_ms": 413000,
+      "album": {
+        "name": "Grace"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "h1",
+        "url": "https://music.youtube.com/watch?v=h1",
+        "name": "Hallelujah",
+        "artists": [
+          "Jeff Buckley"
+        ],
+        "duration_ms": 413000,
+        "album": "Grace",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "h2",
+        "url": "https://music.youtube.com/watch?v=h2",
+        "name": "Hallelujah (Cover)",
+        "artists": [
+          "Pentatonix"
+        ],
+        "duration_ms": 240000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "h3",
+        "url": "https://music.youtube.com/watch?v=h3",
+        "name": "Hallelujah - Acoustic Cover",
+        "artists": [
+          "Boyce Avenue"
+        ],
+        "duration_ms": 300000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 0,
+    "v4_pick_index": 0,
+    "notes": ""
+  },
+  {
+    "case_id": "cover-trap-creep",
+    "source": "hand-verified",
+    "description": "cover vs original",
+    "track": {
+      "name": "Creep",
+      "artists": [
+        "Radiohead"
+      ],
+      "duration_ms": 238000,
+      "album": {
+        "name": "Pablo Honey"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "i1",
+        "url": "https://music.youtube.com/watch?v=i1",
+        "name": "Creep (Acoustic Cover)",
+        "artists": [
+          "Postmodern Jukebox"
+        ],
+        "duration_ms": 250000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "i2",
+        "url": "https://music.youtube.com/watch?v=i2",
+        "name": "Creep",
+        "artists": [
+          "Radiohead"
+        ],
+        "duration_ms": 238000,
+        "album": "Pablo Honey",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "i3",
+        "url": "https://music.youtube.com/watch?v=i3",
+        "name": "Creep (Cover)",
+        "artists": [
+          "Vintage Vibes"
+        ],
+        "duration_ms": 210000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 1,
+    "v4_pick_index": 1,
+    "notes": ""
+  },
+  {
+    "case_id": "cover-trap-sweet-dreams",
+    "source": "hand-verified",
+    "description": "cover vs original",
+    "track": {
+      "name": "Sweet Dreams (Are Made of This)",
+      "artists": [
+        "Eurythmics"
+      ],
+      "duration_ms": 216000,
+      "album": {
+        "name": "Sweet Dreams"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "j1",
+        "url": "https://music.youtube.com/watch?v=j1",
+        "name": "Sweet Dreams (Marilyn Manson Cover)",
+        "artists": [
+          "Marilyn Manson"
+        ],
+        "duration_ms": 288000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "j2",
+        "url": "https://music.youtube.com/watch?v=j2",
+        "name": "Sweet Dreams (Are Made of This) (Cover)",
+        "artists": [
+          "Someone Else"
+        ],
+        "duration_ms": 200000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "j3",
+        "url": "https://music.youtube.com/watch?v=j3",
+        "name": "Sweet Dreams (Are Made of This)",
+        "artists": [
+          "Eurythmics"
+        ],
+        "duration_ms": 216000,
+        "album": "Sweet Dreams",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 2,
+    "v4_pick_index": 2,
+    "notes": ""
+  },
+  {
+    "case_id": "slowed-trap-sunflower",
+    "source": "hand-verified",
+    "description": "slowed+reverb/8d vs original",
+    "track": {
+      "name": "Sunflower",
+      "artists": [
+        "Post Malone",
+        "Swae Lee"
+      ],
+      "duration_ms": 158000,
+      "album": {
+        "name": "Spider-Man: Into the Spider-Verse"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "k1",
+        "url": "https://music.youtube.com/watch?v=k1",
+        "name": "Sunflower",
+        "artists": [
+          "Post Malone",
+          "Swae Lee"
+        ],
+        "duration_ms": 158000,
+        "album": "Spider-Man: Into the Spider-Verse",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "k2",
+        "url": "https://music.youtube.com/watch?v=k2",
+        "name": "Sunflower (Slowed + Reverb)",
+        "artists": [
+          "Post Malone",
+          "Swae Lee"
+        ],
+        "duration_ms": 180000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "k3",
+        "url": "https://music.youtube.com/watch?v=k3",
+        "name": "Sunflower (8D Audio)",
+        "artists": [
+          "Post Malone",
+          "Swae Lee"
+        ],
+        "duration_ms": 158000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 0,
+    "v4_pick_index": 0,
+    "notes": ""
+  },
+  {
+    "case_id": "slowed-trap-blinding",
+    "source": "hand-verified",
+    "description": "slowed/reverb vs original",
+    "track": {
+      "name": "Blinding Lights",
+      "artists": [
+        "The Weeknd"
+      ],
+      "duration_ms": 200000,
+      "album": {
+        "name": "After Hours"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "l1",
+        "url": "https://music.youtube.com/watch?v=l1",
+        "name": "Blinding Lights (Slowed)",
+        "artists": [
+          "The Weeknd"
+        ],
+        "duration_ms": 240000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "l2",
+        "url": "https://music.youtube.com/watch?v=l2",
+        "name": "Blinding Lights (Reverb)",
+        "artists": [
+          "The Weeknd"
+        ],
+        "duration_ms": 230000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "l3",
+        "url": "https://music.youtube.com/watch?v=l3",
+        "name": "Blinding Lights",
+        "artists": [
+          "The Weeknd"
+        ],
+        "duration_ms": 200000,
+        "album": "After Hours",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 2,
+    "v4_pick_index": 2,
+    "notes": ""
+  },
+  {
+    "case_id": "slowed-trap-heat-waves",
+    "source": "hand-verified",
+    "description": "8d audio vs original",
+    "track": {
+      "name": "Heat Waves",
+      "artists": [
+        "Glass Animals"
+      ],
+      "duration_ms": 238000,
+      "album": {
+        "name": "Dreamland"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "m1",
+        "url": "https://music.youtube.com/watch?v=m1",
+        "name": "Heat Waves",
+        "artists": [
+          "Glass Animals"
+        ],
+        "duration_ms": 238000,
+        "album": "Dreamland",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "m2",
+        "url": "https://music.youtube.com/watch?v=m2",
+        "name": "Heat Waves (8D Audio)",
+        "artists": [
+          "Glass Animals"
+        ],
+        "duration_ms": 238000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "m3",
+        "url": "https://music.youtube.com/watch?v=m3",
+        "name": "Heat Waves (Slowed + Reverb)",
+        "artists": [
+          "Glass Animals"
+        ],
+        "duration_ms": 262000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 0,
+    "v4_pick_index": 0,
+    "notes": ""
+  },
+  {
+    "case_id": "instrumental-trap-shape",
+    "source": "hand-verified",
+    "description": "instrumental vs vocal: pick the vocal original",
+    "track": {
+      "name": "Shape of You",
+      "artists": [
+        "Ed Sheeran"
+      ],
+      "duration_ms": 234000,
+      "album": {
+        "name": "÷"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "n1",
+        "url": "https://music.youtube.com/watch?v=n1",
+        "name": "Shape of You (Instrumental)",
+        "artists": [
+          "Ed Sheeran"
+        ],
+        "duration_ms": 234000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "n2",
+        "url": "https://music.youtube.com/watch?v=n2",
+        "name": "Shape of You",
+        "artists": [
+          "Ed Sheeran"
+        ],
+        "duration_ms": 234000,
+        "album": "÷",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "n3",
+        "url": "https://music.youtube.com/watch?v=n3",
+        "name": "Shape of You (Karaoke Version)",
+        "artists": [
+          "Sing King"
+        ],
+        "duration_ms": 233000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 1,
+    "v4_pick_index": 1,
+    "notes": ""
+  },
+  {
+    "case_id": "instrumental-trap-perfect",
+    "source": "hand-verified",
+    "description": "instrumental vs vocal",
+    "track": {
+      "name": "Perfect",
+      "artists": [
+        "Ed Sheeran"
+      ],
+      "duration_ms": 263000,
+      "album": {
+        "name": "÷"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "o1",
+        "url": "https://music.youtube.com/watch?v=o1",
+        "name": "Perfect",
+        "artists": [
+          "Ed Sheeran"
+        ],
+        "duration_ms": 263000,
+        "album": "÷",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "o2",
+        "url": "https://music.youtube.com/watch?v=o2",
+        "name": "Perfect (Instrumental)",
+        "artists": [
+          "Ed Sheeran"
+        ],
+        "duration_ms": 263000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "o3",
+        "url": "https://music.youtube.com/watch?v=o3",
+        "name": "Perfect (Piano Instrumental)",
+        "artists": [
+          "Piano Covers"
+        ],
+        "duration_ms": 250000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 0,
+    "v4_pick_index": 0,
+    "notes": ""
+  },
+  {
+    "case_id": "instrumental-trap-thinking",
+    "source": "hand-verified",
+    "description": "instrumental/karaoke vs vocal",
+    "track": {
+      "name": "Thinking Out Loud",
+      "artists": [
+        "Ed Sheeran"
+      ],
+      "duration_ms": 281000,
+      "album": {
+        "name": "x"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "p1",
+        "url": "https://music.youtube.com/watch?v=p1",
+        "name": "Thinking Out Loud (Karaoke)",
+        "artists": [
+          "Karaoke Hits"
+        ],
+        "duration_ms": 280000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "p2",
+        "url": "https://music.youtube.com/watch?v=p2",
+        "name": "Thinking Out Loud (Instrumental)",
+        "artists": [
+          "Ed Sheeran"
+        ],
+        "duration_ms": 281000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "p3",
+        "url": "https://music.youtube.com/watch?v=p3",
+        "name": "Thinking Out Loud",
+        "artists": [
+          "Ed Sheeran"
+        ],
+        "duration_ms": 281000,
+        "album": "x",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 2,
+    "v4_pick_index": 2,
+    "notes": ""
+  },
+  {
+    "case_id": "cjk-trap-kaioku",
+    "source": "hand-verified",
+    "description": "CJK title romaji matching (Ai kamano - 解憶)",
+    "track": {
+      "name": "解憶",
+      "artists": [
+        "Ai kamano"
+      ],
+      "duration_ms": 210000,
+      "album": null,
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "q1",
+        "url": "https://music.youtube.com/watch?v=q1",
+        "name": "解憶",
+        "artists": [
+          "Ai kamano"
+        ],
+        "duration_ms": 210000,
+        "album": null,
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "q2",
+        "url": "https://music.youtube.com/watch?v=q2",
+        "name": "螺旋の塔",
+        "artists": [
+          "Ai kamano"
+        ],
+        "duration_ms": 230000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "q3",
+        "url": "https://music.youtube.com/watch?v=q3",
+        "name": "解憶 (Instrumental)",
+        "artists": [
+          "Ai kamano"
+        ],
+        "duration_ms": 210000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 0,
+    "v4_pick_index": 0,
+    "notes": ""
+  },
+  {
+    "case_id": "cjk-trap-hikari",
+    "source": "hand-verified",
+    "description": "CJK single-kanji title (Ai kamano - 光)",
+    "track": {
+      "name": "光",
+      "artists": [
+        "Ai kamano"
+      ],
+      "duration_ms": 195000,
+      "album": null,
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "r1",
+        "url": "https://music.youtube.com/watch?v=r1",
+        "name": "POPCORN",
+        "artists": [
+          "Ai kamano"
+        ],
+        "duration_ms": 200000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "r2",
+        "url": "https://music.youtube.com/watch?v=r2",
+        "name": "光",
+        "artists": [
+          "Ai kamano"
+        ],
+        "duration_ms": 195000,
+        "album": null,
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "r3",
+        "url": "https://music.youtube.com/watch?v=r3",
+        "name": "光 (Remix)",
+        "artists": [
+          "Ai kamano"
+        ],
+        "duration_ms": 220000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 1,
+    "v4_pick_index": 1,
+    "notes": ""
+  },
+  {
+    "case_id": "cjk-trap-lemon",
+    "source": "hand-verified",
+    "description": "CJK title with romaji candidate variant",
+    "track": {
+      "name": "Lemon",
+      "artists": [
+        "Kenshi Yonezu"
+      ],
+      "duration_ms": 256000,
+      "album": {
+        "name": "Lemon"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "s1",
+        "url": "https://music.youtube.com/watch?v=s1",
+        "name": "Lemon (Live)",
+        "artists": [
+          "Kenshi Yonezu"
+        ],
+        "duration_ms": 270000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "s2",
+        "url": "https://music.youtube.com/watch?v=s2",
+        "name": "Lemon",
+        "artists": [
+          "Kenshi Yonezu"
+        ],
+        "duration_ms": 256000,
+        "album": "Lemon",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "s3",
+        "url": "https://music.youtube.com/watch?v=s3",
+        "name": "Lemon (Cover)",
+        "artists": [
+          "Someone"
+        ],
+        "duration_ms": 240000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 1,
+    "v4_pick_index": 1,
+    "notes": ""
+  },
+  {
+    "case_id": "cjk-trap-popcorn",
+    "source": "hand-verified",
+    "description": "CJK multi-artist romaji (Ai kamano, 庫太郎 - POPCORN)",
+    "track": {
+      "name": "POPCORN",
+      "artists": [
+        "Ai kamano",
+        "庫太郎"
+      ],
+      "duration_ms": 200000,
+      "album": null,
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "t1",
+        "url": "https://music.youtube.com/watch?v=t1",
+        "name": "POPCORN",
+        "artists": [
+          "Ai kamano",
+          "庫太郎"
+        ],
+        "duration_ms": 200000,
+        "album": null,
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "t2",
+        "url": "https://music.youtube.com/watch?v=t2",
+        "name": "ポップコーン",
+        "artists": [
+          "Ai kamano"
+        ],
+        "duration_ms": 205000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 0,
+    "v4_pick_index": 0,
+    "notes": ""
+  },
+  {
+    "case_id": "multiartist-collapsed-one-dance",
+    "source": "hand-verified",
+    "description": "multi-artist collapsed into one channel string",
+    "track": {
+      "name": "One Dance",
+      "artists": [
+        "Drake",
+        "Wizkid",
+        "Kyla"
+      ],
+      "duration_ms": 173000,
+      "album": {
+        "name": "Views"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "u1",
+        "url": "https://music.youtube.com/watch?v=u1",
+        "name": "One Dance",
+        "artists": [
+          "Drake Wizkid Kyla"
+        ],
+        "duration_ms": 173000,
+        "album": "Views",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "u2",
+        "url": "https://music.youtube.com/watch?v=u2",
+        "name": "One Dance (Remix)",
+        "artists": [
+          "Drake"
+        ],
+        "duration_ms": 190000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 0,
+    "v4_pick_index": null,
+    "notes": "collapsed multi-artist string: v4 and v5 both fail the artist gate (shared limitation)"
+  },
+  {
+    "case_id": "multiartist-collapsed-jackboys",
+    "source": "hand-verified",
+    "description": "multi-artist collapsed",
+    "track": {
+      "name": "OUT WEST",
+      "artists": [
+        "JACKBOYS",
+        "Travis Scott",
+        "Young Thug"
+      ],
+      "duration_ms": 205000,
+      "album": {
+        "name": "JACKBOYS"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "v1",
+        "url": "https://music.youtube.com/watch?v=v1",
+        "name": "OUT WEST (Slowed)",
+        "artists": [
+          "JACKBOYS"
+        ],
+        "duration_ms": 230000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "v2",
+        "url": "https://music.youtube.com/watch?v=v2",
+        "name": "OUT WEST",
+        "artists": [
+          "JACKBOYS Travis Scott Young Thug"
+        ],
+        "duration_ms": 205000,
+        "album": "JACKBOYS",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 1,
+    "v4_pick_index": 1,
+    "notes": "collapsed multi-artist string: v4 and v5 both fail the artist gate (shared limitation)"
+  },
+  {
+    "case_id": "multiartist-collapsed-sugar",
+    "source": "hand-verified",
+    "description": "multi-artist collapsed into single string",
+    "track": {
+      "name": "Sugar",
+      "artists": [
+        "Robin Schulz",
+        "Francesco Yates"
+      ],
+      "duration_ms": 220000,
+      "album": {
+        "name": "Sugar"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "w1",
+        "url": "https://music.youtube.com/watch?v=w1",
+        "name": "Sugar",
+        "artists": [
+          "Robin Schulz Francesco Yates"
+        ],
+        "duration_ms": 220000,
+        "album": "Sugar",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "w2",
+        "url": "https://music.youtube.com/watch?v=w2",
+        "name": "Sugar (Instrumental)",
+        "artists": [
+          "Robin Schulz"
+        ],
+        "duration_ms": 220000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 0,
+    "v4_pick_index": null,
+    "notes": "collapsed multi-artist string: v4 and v5 both fail the artist gate (shared limitation)"
+  },
+  {
+    "case_id": "feat-notation-open-arms",
+    "source": "hand-verified",
+    "description": "featured artist in artists list, not title",
+    "track": {
+      "name": "Open Arms",
+      "artists": [
+        "SZA",
+        "Travis Scott"
+      ],
+      "duration_ms": 199000,
+      "album": {
+        "name": "SOS"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "x1",
+        "url": "https://music.youtube.com/watch?v=x1",
+        "name": "Open Arms",
+        "artists": [
+          "SZA",
+          "Travis Scott"
+        ],
+        "duration_ms": 199000,
+        "album": "SOS",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "x2",
+        "url": "https://music.youtube.com/watch?v=x2",
+        "name": "Open Arms (feat. Travis Scott) [Sped Up]",
+        "artists": [
+          "SZA"
+        ],
+        "duration_ms": 168000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 0,
+    "v4_pick_index": 0,
+    "notes": ""
+  },
+  {
+    "case_id": "feat-notation-stay",
+    "source": "hand-verified",
+    "description": "feat notation only in a distractor's title",
+    "track": {
+      "name": "STAY",
+      "artists": [
+        "The Kid LAROI",
+        "Justin Bieber"
+      ],
+      "duration_ms": 141000,
+      "album": {
+        "name": "STAY"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "y1",
+        "url": "https://music.youtube.com/watch?v=y1",
+        "name": "STAY (feat. Justin Bieber) (Remix)",
+        "artists": [
+          "The Kid LAROI"
+        ],
+        "duration_ms": 150000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "y2",
+        "url": "https://music.youtube.com/watch?v=y2",
+        "name": "STAY",
+        "artists": [
+          "The Kid LAROI",
+          "Justin Bieber"
+        ],
+        "duration_ms": 141000,
+        "album": "STAY",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 1,
+    "v4_pick_index": 1,
+    "notes": ""
+  },
+  {
+    "case_id": "feat-notation-unholy",
+    "source": "hand-verified",
+    "description": "feat notation mismatch between track and distractor",
+    "track": {
+      "name": "Unholy",
+      "artists": [
+        "Sam Smith",
+        "Kim Petras"
+      ],
+      "duration_ms": 156000,
+      "album": {
+        "name": "Gloria"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "z1",
+        "url": "https://music.youtube.com/watch?v=z1",
+        "name": "Unholy",
+        "artists": [
+          "Sam Smith",
+          "Kim Petras"
+        ],
+        "duration_ms": 156000,
+        "album": "Gloria",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "z2",
+        "url": "https://music.youtube.com/watch?v=z2",
+        "name": "Unholy (feat. Kim Petras) - Sped Up Version",
+        "artists": [
+          "Sam Smith"
+        ],
+        "duration_ms": 138000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 0,
+    "v4_pick_index": 0,
+    "notes": ""
+  },
+  {
+    "case_id": "duration-outlier-extended",
+    "source": "hand-verified",
+    "description": "right title/artist, wrong length (extended mix)",
+    "track": {
+      "name": "Strobe",
+      "artists": [
+        "deadmau5"
+      ],
+      "duration_ms": 360000,
+      "album": {
+        "name": "For Lack of a Better Name"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "aa1",
+        "url": "https://music.youtube.com/watch?v=aa1",
+        "name": "Strobe (Extended Mix)",
+        "artists": [
+          "deadmau5"
+        ],
+        "duration_ms": 636000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "aa2",
+        "url": "https://music.youtube.com/watch?v=aa2",
+        "name": "Strobe",
+        "artists": [
+          "deadmau5"
+        ],
+        "duration_ms": 360000,
+        "album": "For Lack of a Better Name",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "aa3",
+        "url": "https://music.youtube.com/watch?v=aa3",
+        "name": "Strobe (Radio Edit)",
+        "artists": [
+          "deadmau5"
+        ],
+        "duration_ms": 195000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 1,
+    "v4_pick_index": 1,
+    "notes": ""
+  },
+  {
+    "case_id": "duration-outlier-album-single",
+    "source": "hand-verified",
+    "description": "album version vs single edit length",
+    "track": {
+      "name": "Take On Me",
+      "artists": [
+        "a-ha"
+      ],
+      "duration_ms": 225000,
+      "album": {
+        "name": "Hunting High and Low"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "ab1",
+        "url": "https://music.youtube.com/watch?v=ab1",
+        "name": "Take On Me",
+        "artists": [
+          "a-ha"
+        ],
+        "duration_ms": 225000,
+        "album": "Hunting High and Low",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "ab2",
+        "url": "https://music.youtube.com/watch?v=ab2",
+        "name": "Take On Me (Extended Version)",
+        "artists": [
+          "a-ha"
+        ],
+        "duration_ms": 292000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 0,
+    "v4_pick_index": 0,
+    "notes": ""
+  },
+  {
+    "case_id": "duration-outlier-strong",
+    "source": "hand-verified",
+    "description": "same title/artist very different duration",
+    "track": {
+      "name": "November Rain",
+      "artists": [
+        "Guns N' Roses"
+      ],
+      "duration_ms": 537000,
+      "album": {
+        "name": "Use Your Illusion I"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "ac1",
+        "url": "https://music.youtube.com/watch?v=ac1",
+        "name": "November Rain (Edit)",
+        "artists": [
+          "Guns N' Roses"
+        ],
+        "duration_ms": 240000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "ac2",
+        "url": "https://music.youtube.com/watch?v=ac2",
+        "name": "November Rain",
+        "artists": [
+          "Guns N' Roses"
+        ],
+        "duration_ms": 537000,
+        "album": "Use Your Illusion I",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 1,
+    "v4_pick_index": 1,
+    "notes": ""
+  },
+  {
+    "case_id": "isrc-equal-wrong-name",
+    "source": "hand-verified",
+    "description": "single verified ISRC-equal candidate with garbled name (rule A)",
+    "track": {
+      "name": "Anti-Hero",
+      "artists": [
+        "Taylor Swift"
+      ],
+      "duration_ms": 200000,
+      "album": {
+        "name": "Midnights"
+      },
+      "isrc": "USUG12209515",
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "ad1",
+        "url": "https://music.youtube.com/watch?v=ad1",
+        "name": "official audio provided by distributor xyz",
+        "artists": [
+          "Various"
+        ],
+        "duration_ms": 200000,
+        "album": null,
+        "isrc": "US-UG1-22-09515",
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "ad2",
+        "url": "https://music.youtube.com/watch?v=ad2",
+        "name": "Anti-Hero",
+        "artists": [
+          "Taylor Swift"
+        ],
+        "duration_ms": 200000,
+        "album": "Midnights",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 0,
+    "v4_pick_index": 1,
+    "notes": "ISRC rule A returns the single verified ISRC match unconditionally"
+  },
+  {
+    "case_id": "isrc-equal-hyphen-normalize",
+    "source": "hand-verified",
+    "description": "ISRC equality with hyphen normalization",
+    "track": {
+      "name": "As It Was",
+      "artists": [
+        "Harry Styles"
+      ],
+      "duration_ms": 167000,
+      "album": {
+        "name": "Harry's House"
+      },
+      "isrc": "USSM12200612",
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "ae1",
+        "url": "https://music.youtube.com/watch?v=ae1",
+        "name": "As It Was",
+        "artists": [
+          "Harry Styles"
+        ],
+        "duration_ms": 167000,
+        "album": "Harry's House",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "ae2",
+        "url": "https://music.youtube.com/watch?v=ae2",
+        "name": "AS-IT-WAS-topic-upload",
+        "artists": [
+          "topic"
+        ],
+        "duration_ms": 167000,
+        "album": null,
+        "isrc": "ussm1-2200612",
+        "verified": true,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 1,
+    "v4_pick_index": 0,
+    "notes": "exactly one ISRC-equal verified candidate -> rule A"
+  },
+  {
+    "case_id": "isrc-equal-not-verified",
+    "source": "hand-verified",
+    "description": "ISRC-equal but NOT verified: rule A must NOT fire",
+    "track": {
+      "name": "Flowers",
+      "artists": [
+        "Miley Cyrus"
+      ],
+      "duration_ms": 200000,
+      "album": {
+        "name": "Endless Summer Vacation"
+      },
+      "isrc": "USSM12212345",
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "af1",
+        "url": "https://music.youtube.com/watch?v=af1",
+        "name": "weird mismatch title zzz",
+        "artists": [
+          "nobody"
+        ],
+        "duration_ms": 200000,
+        "album": null,
+        "isrc": "USSM12212345",
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "af2",
+        "url": "https://music.youtube.com/watch?v=af2",
+        "name": "Flowers",
+        "artists": [
+          "Miley Cyrus"
+        ],
+        "duration_ms": 200000,
+        "album": "Endless Summer Vacation",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 1,
+    "v4_pick_index": 1,
+    "notes": "unverified ISRC match does not short-circuit; normal scoring picks the real track"
+  },
+  {
+    "case_id": "no-answer-all-remix",
+    "source": "hand-verified",
+    "description": "every candidate is a fan-channel trap: no acceptable match",
+    "track": {
+      "name": "Midnight City",
+      "artists": [
+        "M83"
+      ],
+      "duration_ms": 244000,
+      "album": {
+        "name": "Hurry Up, We're Dreaming"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "ag1",
+        "url": "https://music.youtube.com/watch?v=ag1",
+        "name": "Midnight City (Slowed + Reverb)",
+        "artists": [
+          "Slowed Reverb Nation"
+        ],
+        "duration_ms": 300000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "ag2",
+        "url": "https://music.youtube.com/watch?v=ag2",
+        "name": "Midnight City (8D Audio)",
+        "artists": [
+          "8D Tunes"
+        ],
+        "duration_ms": 244000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "ag3",
+        "url": "https://music.youtube.com/watch?v=ag3",
+        "name": "Midnight City (Cover)",
+        "artists": [
+          "Some Band"
+        ],
+        "duration_ms": 220000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": null,
+    "v4_pick_index": null,
+    "notes": "all candidates are fan-channel reworks (wrong artist / forbidden words); correct answer is no match"
+  },
+  {
+    "case_id": "no-answer-wrong-artist",
+    "source": "hand-verified",
+    "description": "all candidates wrong artist",
+    "track": {
+      "name": "Genesis",
+      "artists": [
+        "Grimes"
+      ],
+      "duration_ms": 254000,
+      "album": {
+        "name": "Visions"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "ah1",
+        "url": "https://music.youtube.com/watch?v=ah1",
+        "name": "Genesis",
+        "artists": [
+          "Justice"
+        ],
+        "duration_ms": 220000,
+        "album": null,
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "ah2",
+        "url": "https://music.youtube.com/watch?v=ah2",
+        "name": "Genesis (Live)",
+        "artists": [
+          "Deftones"
+        ],
+        "duration_ms": 300000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "ah3",
+        "url": "https://music.youtube.com/watch?v=ah3",
+        "name": "Genesis",
+        "artists": [
+          "Random DJ"
+        ],
+        "duration_ms": 200000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": null,
+    "v4_pick_index": null,
+    "notes": "no candidate is the right recording"
+  },
+  {
+    "case_id": "no-answer-all-covers",
+    "source": "hand-verified",
+    "description": "all covers/karaoke, no original present",
+    "track": {
+      "name": "Africa",
+      "artists": [
+        "TOTO"
+      ],
+      "duration_ms": 295000,
+      "album": {
+        "name": "Toto IV"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "ai1",
+        "url": "https://music.youtube.com/watch?v=ai1",
+        "name": "Africa (Cover)",
+        "artists": [
+          "Weezer"
+        ],
+        "duration_ms": 275000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "ai2",
+        "url": "https://music.youtube.com/watch?v=ai2",
+        "name": "Africa (Karaoke)",
+        "artists": [
+          "Karaoke Band"
+        ],
+        "duration_ms": 290000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "ai3",
+        "url": "https://music.youtube.com/watch?v=ai3",
+        "name": "Africa (Acoustic Cover)",
+        "artists": [
+          "Boyce Avenue"
+        ],
+        "duration_ms": 260000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": null,
+    "v4_pick_index": null,
+    "notes": "expected null: every candidate is a trap"
+  },
+  {
+    "case_id": "dup-near-tie-canonical",
+    "source": "hand-verified",
+    "description": "two identical official uploads: canonical first (v4 last-iterated bug)",
+    "track": {
+      "name": "Sicko Mode",
+      "artists": [
+        "Travis Scott"
+      ],
+      "duration_ms": 312000,
+      "album": {
+        "name": "Astroworld"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "aj1",
+        "url": "https://music.youtube.com/watch?v=aj1",
+        "name": "SICKO MODE",
+        "artists": [
+          "Travis Scott"
+        ],
+        "duration_ms": 312000,
+        "album": "Astroworld",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "aj2",
+        "url": "https://music.youtube.com/watch?v=aj2",
+        "name": "SICKO MODE",
+        "artists": [
+          "Travis Scott"
+        ],
+        "duration_ms": 312000,
+        "album": "Astroworld",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 0,
+    "v4_pick_index": 1,
+    "notes": "identical-scoring duplicate uploads; v5 keeps score/order (top), v4 returns last-iterated"
+  },
+  {
+    "case_id": "dup-near-tie-humble",
+    "source": "hand-verified",
+    "description": "duplicate near-tie, canonical first",
+    "track": {
+      "name": "HUMBLE.",
+      "artists": [
+        "Kendrick Lamar"
+      ],
+      "duration_ms": 177000,
+      "album": {
+        "name": "DAMN."
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "ak1",
+        "url": "https://music.youtube.com/watch?v=ak1",
+        "name": "HUMBLE.",
+        "artists": [
+          "Kendrick Lamar"
+        ],
+        "duration_ms": 177000,
+        "album": "DAMN.",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "ak2",
+        "url": "https://music.youtube.com/watch?v=ak2",
+        "name": "HUMBLE.",
+        "artists": [
+          "Kendrick Lamar"
+        ],
+        "duration_ms": 178000,
+        "album": "DAMN.",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 0,
+    "v4_pick_index": 1,
+    "notes": "v5 deterministic top pick vs v4 shadowed last-iterated pick"
+  },
+  {
+    "case_id": "dup-near-tie-gods-plan",
+    "source": "hand-verified",
+    "description": "duplicate near-tie",
+    "track": {
+      "name": "God's Plan",
+      "artists": [
+        "Drake"
+      ],
+      "duration_ms": 198000,
+      "album": {
+        "name": "Scorpion"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "al1",
+        "url": "https://music.youtube.com/watch?v=al1",
+        "name": "God's Plan",
+        "artists": [
+          "Drake"
+        ],
+        "duration_ms": 198000,
+        "album": "Scorpion",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "al2",
+        "url": "https://music.youtube.com/watch?v=al2",
+        "name": "God's Plan",
+        "artists": [
+          "Drake"
+        ],
+        "duration_ms": 199000,
+        "album": "Scorpion",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 0,
+    "v4_pick_index": 1,
+    "notes": "near-identical duplicate uploads"
+  },
+  {
+    "case_id": "exact-match-control-1",
+    "source": "hand-verified",
+    "description": "clean exact match control",
+    "track": {
+      "name": "bad guy",
+      "artists": [
+        "Billie Eilish"
+      ],
+      "duration_ms": 194000,
+      "album": {
+        "name": "WHEN WE ALL FALL ASLEEP"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "am1",
+        "url": "https://music.youtube.com/watch?v=am1",
+        "name": "bad guy",
+        "artists": [
+          "Billie Eilish"
+        ],
+        "duration_ms": 194000,
+        "album": "WHEN WE ALL FALL ASLEEP",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "am2",
+        "url": "https://music.youtube.com/watch?v=am2",
+        "name": "bad guy (with Justin Bieber)",
+        "artists": [
+          "Billie Eilish",
+          "Justin Bieber"
+        ],
+        "duration_ms": 194000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "am3",
+        "url": "https://music.youtube.com/watch?v=am3",
+        "name": "bad guy (Remix)",
+        "artists": [
+          "Billie Eilish"
+        ],
+        "duration_ms": 210000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 0,
+    "v4_pick_index": 0,
+    "notes": ""
+  },
+  {
+    "case_id": "exact-match-control-2",
+    "source": "hand-verified",
+    "description": "clean exact match with distractors",
+    "track": {
+      "name": "Believer",
+      "artists": [
+        "Imagine Dragons"
+      ],
+      "duration_ms": 204000,
+      "album": {
+        "name": "Evolve"
+      },
+      "isrc": null,
+      "explicit": null,
+      "provider": "spotify",
+      "provider_id": null
+    },
+    "candidates": [
+      {
+        "provider": "ytmusic",
+        "provider_id": "an1",
+        "url": "https://music.youtube.com/watch?v=an1",
+        "name": "Believer (Kaskade Remix)",
+        "artists": [
+          "Imagine Dragons"
+        ],
+        "duration_ms": 230000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "an2",
+        "url": "https://music.youtube.com/watch?v=an2",
+        "name": "Believer",
+        "artists": [
+          "Imagine Dragons"
+        ],
+        "duration_ms": 204000,
+        "album": "Evolve",
+        "isrc": null,
+        "verified": true,
+        "popularity": null
+      },
+      {
+        "provider": "ytmusic",
+        "provider_id": "an3",
+        "url": "https://music.youtube.com/watch?v=an3",
+        "name": "Believer (Acoustic)",
+        "artists": [
+          "Imagine Dragons"
+        ],
+        "duration_ms": 215000,
+        "album": null,
+        "isrc": null,
+        "verified": false,
+        "popularity": null
+      }
+    ],
+    "expected_pick_index": 1,
+    "v4_pick_index": 1,
+    "notes": ""
+  }
+]
