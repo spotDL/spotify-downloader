@@ -17,11 +17,13 @@ from spotdl_core.providers.base import (
     Searches,
 )
 from spotdl_core.providers.errors import (
+    AudioFetchFailed,
     ConversionFailed,
     DownloadFailed,
     EntityNotFound,
     MetadataEmbedFailed,
     NoMatchFound,
+    PostProcessingFailed,
     ProviderAuthError,
     ProviderError,
     ProviderUnavailable,
@@ -47,6 +49,7 @@ from spotdl_core.providers.urls import PlatformRef, parse, resolve_shortlink, st
 __all__ = [
     "DEFAULT_USER_AGENT",
     "PROVIDER_ORDER",
+    "AudioFetchFailed",
     "ConversionFailed",
     "DownloadFailed",
     "Enriches",
@@ -55,6 +58,7 @@ __all__ = [
     "MetadataEmbedFailed",
     "NoMatchFound",
     "PlatformRef",
+    "PostProcessingFailed",
     "Provider",
     "ProviderAuthError",
     "ProviderContext",

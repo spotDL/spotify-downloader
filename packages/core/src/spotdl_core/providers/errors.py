@@ -83,3 +83,17 @@ class MetadataEmbedFailed(DownloadFailed):
 
     def __init__(self, message: str = "") -> None:
         super().__init__(message, step="embed")
+
+
+class AudioFetchFailed(DownloadFailed):
+    """yt-dlp failed to fetch/download the chosen audio candidate."""
+
+    def __init__(self, message: str = "") -> None:
+        super().__init__(message, step="fetch")
+
+
+class PostProcessingFailed(DownloadFailed):
+    """A post-processing step (lrc/m3u/archive/SponsorBlock) failed."""
+
+    def __init__(self, message: str = "") -> None:
+        super().__init__(message, step="post")

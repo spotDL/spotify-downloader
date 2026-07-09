@@ -466,6 +466,15 @@ wheels = [
 ]
 
 [[package]]
+name = "mutagen"
+version = "1.48.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/df/70/1675da133ea92227da41bf5b24e1c66be597ff736a1533ade41da986852f/mutagen-1.48.1.tar.gz", hash = "sha256:8f95637ab9f6f305cec6bd1294e197debe207998e3e068596563c74f86b0a173", size = 1276978, upload-time = "2026-06-25T09:47:32.443Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/47/d8/a29e4e3991765e7ce4ed1f7e4074fe1ba9da03e0048639734de60f9cadb9/mutagen-1.48.1-py3-none-any.whl", hash = "sha256:4f077fe87d3fc7fba259aa63d8c026b18382ca6a42ef37c61e16f1b1b5b82fe7", size = 195706, upload-time = "2026-06-25T09:47:30.296Z" },
+]
+
+[[package]]
 name = "mypy"
 version = "2.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -871,6 +880,7 @@ dependencies = [
     { name = "beautifulsoup4" },
     { name = "httpx" },
     { name = "lxml" },
+    { name = "mutagen" },
     { name = "pydantic" },
     { name = "pykakasi" },
     { name = "pyotp" },
@@ -881,20 +891,28 @@ dependencies = [
     { name = "ytmusicapi" },
 ]
 
+[package.optional-dependencies]
+lrc = [
+    { name = "syncedlyrics" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.12" },
     { name = "httpx", specifier = ">=0.28" },
     { name = "lxml", specifier = ">=5.3" },
+    { name = "mutagen", specifier = ">=1.47.0,<2" },
     { name = "pydantic", specifier = ">=2.9,<3" },
     { name = "pykakasi", specifier = ">=2.3.0,<3" },
     { name = "pyotp", specifier = ">=2.9" },
     { name = "python-slugify", extras = ["unidecode"], specifier = ">=8.0.4,<9" },
     { name = "rapidfuzz", specifier = ">=3.10.1,<4" },
+    { name = "syncedlyrics", marker = "extra == 'lrc'", specifier = ">=1.0.1,<2" },
     { name = "tenacity", specifier = ">=9.0" },
-    { name = "yt-dlp", specifier = ">=2025.1.0" },
+    { name = "yt-dlp", specifier = ">=2025.9.26,<2027" },
     { name = "ytmusicapi", specifier = ">=1.8" },
 ]
+provides-extras = ["lrc"]
 
 [[package]]
 name = "spotdl-server"
@@ -956,6 +974,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/eb/e3/7c1dc7381d9f8ab7d854328ebfa884e62cb3f3d8549ddfd37c7814f42afa/starlette-1.3.1.tar.gz", hash = "sha256:05d0213193f2fbaae60e2ecb593b4add4262ad4e46536b54abe36f11a71724e0", size = 2703240, upload-time = "2026-06-12T09:23:11.602Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ec/bb/2799cc2ede3ed41131f8975621e7213dfc7ef4acbbaadfa440f32500c370/starlette-1.3.1-py3-none-any.whl", hash = "sha256:c7372aae11c3c3f26a42df7bd626cec2f47d03483d261d369516a615a53714c6", size = 73632, upload-time = "2026-06-12T09:23:10.017Z" },
+]
+
+[[package]]
+name = "syncedlyrics"
+version = "1.0.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "beautifulsoup4" },
+    { name = "rapidfuzz" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f1/7d/8b1d838a4c1a9fd9ed2dfd5296592e1090f935748cb3b4996e4efe531d5d/syncedlyrics-1.0.1.tar.gz", hash = "sha256:3db32469ed5a6dd5d96bb4eb16df44ba749121529b462efe0eb8b3df790f66b0", size = 13210, upload-time = "2024-07-28T09:42:14.582Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7f/ad/62d2a1cd2a251ea2d43185f2b98badb8acf97a42278ce424ea8a97d8f911/syncedlyrics-1.0.1-py3-none-any.whl", hash = "sha256:31ca4322311b454f969e837c7350ecbef241f705f2122ea0183a2902a1a3791a", size = 17971, upload-time = "2024-07-28T09:42:13.198Z" },
 ]
 
 [[package]]

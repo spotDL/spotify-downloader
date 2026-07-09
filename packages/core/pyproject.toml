@@ -10,13 +10,17 @@ dependencies = [
     "tenacity>=9.0",
     "pyotp>=2.9",
     "ytmusicapi>=1.8",
-    "yt-dlp>=2025.1.0",
+    "yt-dlp>=2025.09.26,<2027",
+    "mutagen>=1.47.0,<2",
     "beautifulsoup4>=4.12",
     "lxml>=5.3",
     "rapidfuzz>=3.10.1,<4",
     "python-slugify[unidecode]>=8.0.4,<9",
     "pykakasi>=2.3.0,<3",
 ]
+
+[project.optional-dependencies]
+lrc = ["syncedlyrics>=1.0.1,<2"]
 
 [build-system]
 requires = ["hatchling"]
