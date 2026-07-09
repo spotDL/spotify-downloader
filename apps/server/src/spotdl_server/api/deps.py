@@ -26,6 +26,9 @@ from spotdl_server.auth.context import ANONYMOUS, AuthContext
 from spotdl_server.auth.oauth_providers import OAuthProviderClient, build_oauth_client
 from spotdl_server.auth.tokens import TokenService, is_pat, sha256_hex
 from spotdl_server.db.enums import OAuthProvider
+from spotdl_server.repositories.entities import TrackRepository
+from spotdl_server.repositories.matches import MatchRepository
+from spotdl_server.repositories.reports import ReportRepository
 from spotdl_server.repositories.tokens import ApiTokenRepository, RefreshTokenRepository
 from spotdl_server.repositories.users import OAuthIdentityRepository, UserRepository
 from spotdl_server.repositories.votes import VoteRepository
@@ -34,8 +37,10 @@ from spotdl_server.services.entities import EntityService
 from spotdl_server.services.errors import AuthRequired, Forbidden
 from spotdl_server.services.oauth import OAuthService
 from spotdl_server.services.pat import PatService
+from spotdl_server.services.reports import ReportService
 from spotdl_server.services.resolve import ResolveService
 from spotdl_server.services.search import SearchService
+from spotdl_server.services.submissions import SubmissionService
 from spotdl_server.services.voting import VoteService
 from spotdl_server.settings import Settings
 
@@ -260,6 +265,33 @@ def get_vote_service(
     it here. No clock is needed — votes carry their own timestamps.
     """
     return VoteService(session=session, votes=VoteRepository(session))
+
+
+def get_submission_service(
+    session: AsyncSession = Depends(get_session),
+) -> SubmissionService:
+    """Compose the :class:`SubmissionService` from the request's session.
+
+    No clock is needed — a submission carries no expiry; its timestamps come from
+    the ``TimestampMixin`` defaults on the ``matches`` row.
+    """
+    return SubmissionService(
+        session=session,
+        tracks=TrackRepository(session),
+        matches=MatchRepository(session),
+    )
+
+
+def get_report_service(
+    session: AsyncSession = Depends(get_session),
+    clock: Clock = Depends(get_clock),
+) -> ReportService:
+    """Compose the :class:`ReportService` from the request's session + shared clock."""
+    return ReportService(
+        session=session,
+        clock=clock,
+        reports=ReportRepository(session),
+    )
 
 
 # --------------------------------------------------------------------------

@@ -111,6 +111,56 @@ class MatchRepository:
     async def get(self, match_id: uuid.UUID) -> MatchModel | None:
         return await self.session.get(MatchModel, match_id)
 
+    async def get_by_target(
+        self, track_id: uuid.UUID, target_provider: ProviderId, target_id: str
+    ) -> MatchModel | None:
+        """The match for the Plan 5 unique ``(track_id, target_provider, target_id)``.
+
+        The idempotency key for a community submission: an existing row (whether
+        algorithmic or a prior submission) is returned unchanged so ``submit_match``
+        never creates a duplicate or clobbers provenance.
+        """
+        result = await self.session.execute(
+            select(MatchModel).where(
+                MatchModel.track_id == track_id,
+                MatchModel.target_provider == target_provider,
+                MatchModel.target_id == target_id,
+            )
+        )
+        return result.scalar_one_or_none()
+
+    async def create_submission(
+        self,
+        *,
+        track_id: uuid.UUID,
+        target_provider: ProviderId,
+        target_id: str,
+        target_url: str,
+        matcher_version: str,
+        submitted_by: uuid.UUID | None,
+    ) -> MatchModel:
+        """Insert a community-submitted audio target (Plan 6 Task 9).
+
+        Fixed submission invariants: ``score=0.0`` (no synchronous provider fetch,
+        so there is nothing to score) and ``status=AUTO`` — a submission becomes
+        ``community_verified`` only through voting (Task 8). ``submitted_by`` set
+        marks it as user-provided (algorithmic matches have ``submitted_by IS NULL``);
+        the denormalized ``candidate_*`` fields stay NULL for a later enrichment job.
+        """
+        row = MatchModel(
+            track_id=track_id,
+            target_provider=target_provider,
+            target_id=target_id,
+            target_url=target_url,
+            score=0.0,
+            matcher_version=matcher_version,
+            status=MatchStatus.AUTO,
+            submitted_by=submitted_by,
+        )
+        self.session.add(row)
+        await self.session.flush()
+        return row
+
     async def _all_for_track(self, track_id: uuid.UUID) -> list[MatchModel]:
         result = await self.session.execute(
             select(MatchModel).where(MatchModel.track_id == track_id)

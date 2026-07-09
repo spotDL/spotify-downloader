@@ -30,8 +30,10 @@ from spotdl_server.api.routers import (
     entities,
     meta,
     oauth,
+    reports,
     resolve,
     search,
+    submissions,
     tokens,
     votes,
 )
@@ -114,6 +116,8 @@ def create_app(
         app.include_router(auth.router)
         app.include_router(tokens.router)
         app.include_router(votes.router)
+        app.include_router(submissions.router)
+        app.include_router(reports.router)
         # The OAuth router additionally requires at least one configured provider
         # (id + secret). Mount-time gate — never a per-request conditional.
         if settings.enabled_oauth_providers():

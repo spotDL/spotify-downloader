@@ -33,7 +33,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from spotdl_core.matching import MATCHER_V5_DEFAULT
 from spotdl_core.model import EntityType, LyricsKind, MatchStatus, ProviderId
 
-from spotdl_server.db.enums import VotableType
+from spotdl_server.db.enums import ReportStatus, VotableType
 from spotdl_server.services.dto import (
     AlbumView,
     ArtistView,
@@ -100,6 +100,58 @@ class CreatePatRequest(BaseModel):
 
     name: str = Field(min_length=1, max_length=255)
     expires_in_days: int | None = Field(default=None, gt=0, le=3650)
+
+
+# --------------------------------------------------------------------------
+# Community submissions + reports (spec §6.2)
+# --------------------------------------------------------------------------
+
+
+class SubmitMatchRequest(BaseModel):
+    """Body of ``POST /tracks/{id}/matches``: the audio-target URL to submit.
+
+    A single non-blank URL string; core's ``parse`` validates its shape and the
+    submission service enforces that it names an audio-provider *track* (a 400
+    ``unsupported_url`` / ``not_an_audio_target`` otherwise).
+    """
+
+    url: str = Field(min_length=1)
+
+
+class CreateReportRequest(BaseModel):
+    """Body of ``POST /reports``: a metadata correction against a canonical entity.
+
+    ``subject_type`` is a real :class:`~spotdl_core.model.EntityType` (an unknown
+    value is a 422 before the service runs); ``field`` / ``proposed_value`` /
+    ``reason`` are all optional (a free-form report just carries a ``reason``).
+    """
+
+    subject_type: EntityType
+    subject_id: UUID
+    field: str | None = Field(default=None, max_length=64)
+    proposed_value: str | None = None
+    reason: str | None = None
+
+
+class ReportResponse(BaseModel):
+    """A metadata-correction report as returned by ``POST /reports`` / ``GET /reports/me``.
+
+    Built straight from the ``Report`` ORM row via ``from_attributes`` — the router
+    hands the service's ``Report`` to :meth:`model_validate`; it never names the
+    ORM type. The admin-only review fields (``reviewed_by`` / ``reviewed_at`` /
+    ``review_note``) are intentionally absent from the reporter-facing shape.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    subject_type: EntityType
+    subject_id: UUID
+    field: str | None = None
+    proposed_value: str | None = None
+    reason: str | None = None
+    status: ReportStatus
+    created_at: datetime
 
 
 # --------------------------------------------------------------------------
