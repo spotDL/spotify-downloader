@@ -1,4 +1,4 @@
-.PHONY: sync lint typecheck test check web-install web-check openapi
+.PHONY: sync lint typecheck test check web-install web-check openapi ws-schema
 
 sync:
 	uv sync --all-packages
@@ -23,5 +23,8 @@ web-check:
 
 openapi:
 	uv run python apps/server/scripts/export_openapi.py
+
+ws-schema:
+	uv run python apps/server/scripts/export_ws_schema.py
 
 check: lint typecheck test web-check

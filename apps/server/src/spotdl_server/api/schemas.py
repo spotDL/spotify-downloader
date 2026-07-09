@@ -26,14 +26,15 @@ is fixed by the path, so no envelope is needed.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal
+from typing import Annotated, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from spotdl_core.download import OutputFormat, OverwriteMode
 from spotdl_core.matching import MATCHER_V5_DEFAULT
 from spotdl_core.model import EntityType, LyricsKind, MatchStatus, ProviderId
 
-from spotdl_server.db.enums import ReportStatus, VotableType
+from spotdl_server.db.enums import BatchKind, DownloadStatus, ReportStatus, VotableType
 from spotdl_server.services.dto import (
     AlbumView,
     ArtistView,
@@ -661,3 +662,186 @@ class ConfigResponse(BaseModel):
                 DownloadDefaults.from_settings(settings) if settings.downloads_enabled() else None
             ),
         )
+
+
+# --------------------------------------------------------------------------
+# Downloads — request/response (CONTRACT 4)
+# --------------------------------------------------------------------------
+
+
+class DownloadSubmitRequest(BaseModel):
+    """Body of ``POST /downloads``: what and how to download.
+
+    ``query`` is a URL, ``provider:type:id`` ref, or free text (a single track);
+    an album/playlist URL is expanded server-side into N jobs. The ``None``
+    engine fields fall back to the server's configured defaults at submit time.
+    """
+
+    query: str
+    output_format: OutputFormat | None = None  # None -> settings.default_output_format
+    bitrate: str | None = None  # None -> settings.default_bitrate
+    output_template: str | None = None  # None -> settings.default_output_template
+    overwrite: OverwriteMode | None = None  # None -> OverwriteMode.SKIP
+    embed_lyrics: bool = True
+    generate_lrc: bool = False
+    sponsor_block: bool = False
+    generate_m3u: bool = False
+    m3u_template: str | None = None  # {list}/{list[0]} supported (Plan 4 post)
+    generate_save_file: bool = False
+    update_archive: bool = False
+
+
+class DownloadJobOut(BaseModel):
+    """One download job (queue row) as returned across the download surface."""
+
+    id: UUID
+    batch_id: UUID | None
+    status: DownloadStatus
+    track_id: UUID | None
+    track_name: str | None
+    artists: list[str]
+    output_format: str | None
+    bitrate: str | None
+    output_template: str | None
+    output_path: str | None
+    progress: float  # 0.0-1.0
+    skip_reason: str | None
+    error_step: str | None
+    error_message: str | None
+    list_position: int | None
+    created_at: datetime
+    started_at: datetime | None
+    finished_at: datetime | None
+
+
+class DownloadBatchOut(BaseModel):
+    """A submission (batch) with its per-status tally and job listing."""
+
+    batch_id: UUID
+    kind: BatchKind
+    name: str | None
+    total_jobs: int
+    counts: dict[str, int]  # {"queued":n,"running":n,"completed":n,"failed":n,"cancelled":n}
+    finalized: bool
+    jobs: list[DownloadJobOut]
+
+
+class DownloadSubmitResponse(BaseModel):
+    """``POST /downloads`` (201) body: the created batch + its jobs."""
+
+    batch: DownloadBatchOut
+
+
+class DownloadListResponse(BaseModel):
+    """``GET /downloads`` body: a page of jobs + pagination metadata."""
+
+    jobs: list[DownloadJobOut]
+    total: int
+    limit: int
+    offset: int
+
+
+# --------------------------------------------------------------------------
+# WebSocket progress protocol (CONTRACT 3) — a single fan-out of all job events.
+# Messages are Pydantic models serialized with ``model_dump_json()`` and
+# discriminated on ``type``; the committed ``ws-protocol.json`` artifact exports
+# this union for Plan 8 codegen.
+# --------------------------------------------------------------------------
+
+WS_PROTOCOL_VERSION = 1
+
+
+class WsHello(BaseModel):
+    """First frame sent to every client immediately after accept — the protocol
+    version envelope. Clients reject a version they don't support."""
+
+    model_config = ConfigDict(frozen=True)
+
+    type: Literal["hello"] = "hello"
+    protocol_version: int = WS_PROTOCOL_VERSION
+
+
+class WsJobQueued(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    type: Literal["job_queued"] = "job_queued"
+    job_id: UUID
+    batch_id: UUID | None
+    track_name: str | None
+    list_position: int | None
+    list_length: int | None
+
+
+class WsJobStarted(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    type: Literal["job_started"] = "job_started"
+    job_id: UUID
+    batch_id: UUID | None
+
+
+class WsProgress(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    type: Literal["progress"] = "progress"
+    job_id: UUID
+    batch_id: UUID | None
+    phase: str  # ProgressPhase value ("fetch"|"convert"|"embed"|"post"|...)
+    percent: int | None  # 0-100 within the phase, when known
+    overall: float  # 0.0-1.0 whole-job progress (CONTRACT 5)
+
+
+class WsJobFinished(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    type: Literal["job_finished"] = "job_finished"
+    job_id: UUID
+    batch_id: UUID | None
+    status: Literal["completed"]
+    skipped: bool
+    skip_reason: str | None
+    output_path: str | None
+
+
+class WsJobFailed(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    type: Literal["job_failed"] = "job_failed"
+    job_id: UUID
+    batch_id: UUID | None
+    step: str | None
+    error: str | None
+
+
+class WsJobCancelled(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    type: Literal["job_cancelled"] = "job_cancelled"
+    job_id: UUID
+    batch_id: UUID | None
+
+
+class WsBatchFinished(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    type: Literal["batch_finished"] = "batch_finished"
+    batch_id: UUID
+    completed: int
+    failed: int
+    skipped: int
+    cancelled: int
+    m3u_paths: list[str]
+    save_file_path: str | None
+
+
+WsMessage = Annotated[
+    WsHello
+    | WsJobQueued
+    | WsJobStarted
+    | WsProgress
+    | WsJobFinished
+    | WsJobFailed
+    | WsJobCancelled
+    | WsBatchFinished,
+    Field(discriminator="type"),
+]

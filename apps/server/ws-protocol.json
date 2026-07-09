@@ -1,0 +1,439 @@
+{
+  "message": {
+    "$defs": {
+      "WsBatchFinished": {
+        "properties": {
+          "batch_id": {
+            "format": "uuid",
+            "title": "Batch Id",
+            "type": "string"
+          },
+          "cancelled": {
+            "title": "Cancelled",
+            "type": "integer"
+          },
+          "completed": {
+            "title": "Completed",
+            "type": "integer"
+          },
+          "failed": {
+            "title": "Failed",
+            "type": "integer"
+          },
+          "m3u_paths": {
+            "items": {
+              "type": "string"
+            },
+            "title": "M3U Paths",
+            "type": "array"
+          },
+          "save_file_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Save File Path"
+          },
+          "skipped": {
+            "title": "Skipped",
+            "type": "integer"
+          },
+          "type": {
+            "const": "batch_finished",
+            "default": "batch_finished",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "batch_id",
+          "completed",
+          "failed",
+          "skipped",
+          "cancelled",
+          "m3u_paths",
+          "save_file_path"
+        ],
+        "title": "WsBatchFinished",
+        "type": "object"
+      },
+      "WsHello": {
+        "description": "First frame sent to every client immediately after accept — the protocol\nversion envelope. Clients reject a version they don't support.",
+        "properties": {
+          "protocol_version": {
+            "default": 1,
+            "title": "Protocol Version",
+            "type": "integer"
+          },
+          "type": {
+            "const": "hello",
+            "default": "hello",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "title": "WsHello",
+        "type": "object"
+      },
+      "WsJobCancelled": {
+        "properties": {
+          "batch_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batch Id"
+          },
+          "job_id": {
+            "format": "uuid",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "type": {
+            "const": "job_cancelled",
+            "default": "job_cancelled",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id",
+          "batch_id"
+        ],
+        "title": "WsJobCancelled",
+        "type": "object"
+      },
+      "WsJobFailed": {
+        "properties": {
+          "batch_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batch Id"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "job_id": {
+            "format": "uuid",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "step": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Step"
+          },
+          "type": {
+            "const": "job_failed",
+            "default": "job_failed",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id",
+          "batch_id",
+          "step",
+          "error"
+        ],
+        "title": "WsJobFailed",
+        "type": "object"
+      },
+      "WsJobFinished": {
+        "properties": {
+          "batch_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batch Id"
+          },
+          "job_id": {
+            "format": "uuid",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "output_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Path"
+          },
+          "skip_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skip Reason"
+          },
+          "skipped": {
+            "title": "Skipped",
+            "type": "boolean"
+          },
+          "status": {
+            "const": "completed",
+            "title": "Status",
+            "type": "string"
+          },
+          "type": {
+            "const": "job_finished",
+            "default": "job_finished",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id",
+          "batch_id",
+          "status",
+          "skipped",
+          "skip_reason",
+          "output_path"
+        ],
+        "title": "WsJobFinished",
+        "type": "object"
+      },
+      "WsJobQueued": {
+        "properties": {
+          "batch_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batch Id"
+          },
+          "job_id": {
+            "format": "uuid",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "list_length": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "List Length"
+          },
+          "list_position": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "List Position"
+          },
+          "track_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Track Name"
+          },
+          "type": {
+            "const": "job_queued",
+            "default": "job_queued",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id",
+          "batch_id",
+          "track_name",
+          "list_position",
+          "list_length"
+        ],
+        "title": "WsJobQueued",
+        "type": "object"
+      },
+      "WsJobStarted": {
+        "properties": {
+          "batch_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batch Id"
+          },
+          "job_id": {
+            "format": "uuid",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "type": {
+            "const": "job_started",
+            "default": "job_started",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id",
+          "batch_id"
+        ],
+        "title": "WsJobStarted",
+        "type": "object"
+      },
+      "WsProgress": {
+        "properties": {
+          "batch_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batch Id"
+          },
+          "job_id": {
+            "format": "uuid",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "overall": {
+            "title": "Overall",
+            "type": "number"
+          },
+          "percent": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percent"
+          },
+          "phase": {
+            "title": "Phase",
+            "type": "string"
+          },
+          "type": {
+            "const": "progress",
+            "default": "progress",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id",
+          "batch_id",
+          "phase",
+          "percent",
+          "overall"
+        ],
+        "title": "WsProgress",
+        "type": "object"
+      }
+    },
+    "discriminator": {
+      "mapping": {
+        "batch_finished": "#/$defs/WsBatchFinished",
+        "hello": "#/$defs/WsHello",
+        "job_cancelled": "#/$defs/WsJobCancelled",
+        "job_failed": "#/$defs/WsJobFailed",
+        "job_finished": "#/$defs/WsJobFinished",
+        "job_queued": "#/$defs/WsJobQueued",
+        "job_started": "#/$defs/WsJobStarted",
+        "progress": "#/$defs/WsProgress"
+      },
+      "propertyName": "type"
+    },
+    "oneOf": [
+      {
+        "$ref": "#/$defs/WsHello"
+      },
+      {
+        "$ref": "#/$defs/WsJobQueued"
+      },
+      {
+        "$ref": "#/$defs/WsJobStarted"
+      },
+      {
+        "$ref": "#/$defs/WsProgress"
+      },
+      {
+        "$ref": "#/$defs/WsJobFinished"
+      },
+      {
+        "$ref": "#/$defs/WsJobFailed"
+      },
+      {
+        "$ref": "#/$defs/WsJobCancelled"
+      },
+      {
+        "$ref": "#/$defs/WsBatchFinished"
+      }
+    ]
+  },
+  "ws_protocol_version": 1
+}
