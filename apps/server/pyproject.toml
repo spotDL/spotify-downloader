@@ -9,6 +9,10 @@ dependencies = [
     "fastapi>=0.115,<1",
     "uvicorn>=0.34",
     "pydantic-settings>=2.7",
+    "sqlalchemy[asyncio]>=2.0.36",
+    "alembic>=1.14",
+    "aiosqlite>=0.20",
+    "asyncpg>=0.30",
 ]
 
 [build-system]
