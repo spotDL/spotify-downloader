@@ -33,7 +33,7 @@ Pydantic DTOs the router returns verbatim (no ORM/HTTP coupling).
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 from uuid import UUID
 
 from spotdl_core.model import EntityType
@@ -46,11 +46,20 @@ from spotdl_server.api.schemas import (
     DownloadSubmitRequest,
 )
 from spotdl_server.db.enums import BatchKind, DownloadStatus
-from spotdl_server.downloads.savefile import SaveFileV2, build_save_file
+from spotdl_server.downloads.savefile import (
+    SaveFileV2,
+    TrackProvenance,
+    build_save_file,
+    pick_track_provenance,
+)
+from spotdl_server.repositories.merge import SOURCE_PRIORITY
+from spotdl_server.repositories.snapshots import SnapshotRepository
 from spotdl_server.services.dto import ResolveResult, TrackView
 from spotdl_server.services.errors import NotFoundError, UnsupportedBatchEntity
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from sqlalchemy.ext.asyncio import AsyncSession
 
     from spotdl_server.auth.clock import Clock
@@ -243,7 +252,8 @@ class DownloadQueueService:
                 match = await self._matches.get(job.match_id)
                 if match is not None:
                     matches_by_id[job.match_id] = match
-        return build_save_file(batch, jobs, tracks_by_id, matches_by_id)
+        provenance_by_id = await _track_provenance_map(self._session, tracks_by_id)
+        return build_save_file(batch, jobs, tracks_by_id, matches_by_id, provenance_by_id)
 
     # ------------------------------------------------------------ mapping
     async def _batch_out(self, batch_id: UUID) -> DownloadBatchOut:
@@ -289,3 +299,23 @@ class DownloadQueueService:
             started_at=job.started_at,
             finished_at=job.finished_at,
         )
+
+
+async def _track_provenance_map(
+    session: AsyncSession, tracks_by_id: Mapping[UUID, Any]
+) -> dict[UUID, TrackProvenance]:
+    """Load each track's linked snapshots and pick its save-file provenance.
+
+    Shared by the on-demand save-file endpoint and the batch finalizer so both
+    emit identical ``provider``/``provider_id``/``track_url`` fields. One
+    ``list_for_entity`` query per distinct track — save files are small enough
+    that this beats a bespoke join.
+    """
+    snapshots = SnapshotRepository(session)
+    provenance: dict[UUID, TrackProvenance] = {}
+    for track_id in tracks_by_id:
+        linked = await snapshots.list_for_entity(EntityType.TRACK, track_id)
+        picked = pick_track_provenance(linked, SOURCE_PRIORITY)
+        if picked is not None:
+            provenance[track_id] = picked
+    return provenance

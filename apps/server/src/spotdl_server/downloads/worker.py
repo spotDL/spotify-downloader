@@ -379,7 +379,16 @@ class DownloadWorkerPool:
         batch_id: UUID | None,
         outcome: DownloadOutcome,
     ) -> None:
-        """Map an engine outcome onto the job's terminal state + final WS frames."""
+        """Map an engine outcome onto the job's terminal state + final WS frames.
+
+        Unlike ``_on_cancelled`` (fresh session + ``_commit_with_locked_retry``),
+        these terminal commits reuse the ``_run_job`` session and are NOT
+        lock-retried: by the time ``_finish`` runs the job's progress pump has
+        been stopped and its shielded flush awaited, so this session has no
+        competing in-flight writer; remaining cross-job writers ride WAL (prod)
+        where ``busy_timeout`` suffices. Only the cancel path races its own
+        teardown, which is why only it needs the fresh-session retry.
+        """
         repo = DownloadJobRepository(session)
         if outcome.status is OutcomeStatus.DOWNLOADED:
             output_path = str(outcome.path) if outcome.path is not None else None

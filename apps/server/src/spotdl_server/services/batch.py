@@ -33,10 +33,11 @@ from spotdl_core.download.post import M3uEntry, archive_update, gen_m3u_files
 from spotdl_core.model import AlbumRef, Track
 
 from spotdl_server.db.enums import DownloadStatus
-from spotdl_server.downloads.savefile import build_save_file, dump_save_file
+from spotdl_server.downloads.savefile import TrackProvenance, build_save_file, dump_save_file
 from spotdl_server.repositories.batches import DownloadBatchRepository
 from spotdl_server.repositories.entities import TrackRepository
 from spotdl_server.repositories.matches import MatchRepository
+from spotdl_server.services.downloads import _track_provenance_map
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -76,6 +77,7 @@ class BatchFinalizer:
                 return BatchFinalizeResult()
             jobs = await DownloadBatchRepository(session).jobs(batch_id)
             tracks_by_id, matches_by_id = await self._load_related(session, jobs)
+            provenance_by_id = await _track_provenance_map(session, tracks_by_id)
 
         library = self._settings.effective_library_path()
         output_format = OutputFormat(
@@ -95,7 +97,7 @@ class BatchFinalizer:
         save_file_path: Path | None = None
         if batch.generate_save_file:
             save_file_path = await self._write_save_file(
-                batch_id, batch, jobs, tracks_by_id, matches_by_id, library
+                batch_id, batch, jobs, tracks_by_id, matches_by_id, provenance_by_id, library
             )
 
         return BatchFinalizeResult(
@@ -181,9 +183,10 @@ class BatchFinalizer:
         jobs: list[DownloadJob],
         tracks_by_id: dict[UUID, TrackModel],
         matches_by_id: dict[UUID, MatchModel],
+        provenance_by_id: dict[UUID, TrackProvenance],
         library: Path,
     ) -> Path:
-        model = build_save_file(batch, jobs, tracks_by_id, matches_by_id)
+        model = build_save_file(batch, jobs, tracks_by_id, matches_by_id, provenance_by_id)
         save_file_path = self._resolve_save_path(batch, library)
         save_file_path.parent.mkdir(parents=True, exist_ok=True)
         save_file_path.write_text(dump_save_file(model), encoding="utf-8")

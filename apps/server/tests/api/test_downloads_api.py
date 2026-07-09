@@ -198,7 +198,10 @@ async def test_cancel_in_flight_job_transitions_to_cancelled(tmp_path: Path) -> 
 
             resp = await client.delete(f"/api/v1/downloads/{job['id']}")
             assert resp.status_code == 200
-            final = await _poll_job(client, job["id"])
+            # Generous deadline: in-flight cancellation must unwind the engine task,
+            # run _on_cancelled's fresh-session commit, and broadcast — under a
+            # loaded machine (parallel suites) 5s has proven flaky.
+            final = await _poll_job(client, job["id"], timeout=20.0)
             assert final["status"] == "cancelled"
     finally:
         release.set()
