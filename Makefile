@@ -1,4 +1,4 @@
-.PHONY: sync lint typecheck test check web-install web-check web-clients web-clients-check web-build web-embed dist openapi ws-schema clients docs docs-check
+.PHONY: sync lint typecheck test check web-install web-check web-clients web-clients-check web-build web-embed web-e2e dist openapi ws-schema clients docs docs-check
 
 sync:
 	uv sync --all-packages --all-groups
@@ -46,6 +46,13 @@ web-embed:
 	rm -rf apps/server/src/spotdl_server/webui
 	mkdir -p apps/server/src/spotdl_server/webui
 	cp -R apps/web/dist/. apps/server/src/spotdl_server/webui/
+
+# Playwright e2e: build + embed the SPA, then drive it against the seeded server
+# (playwright.config.ts boots apps/server/scripts/serve_e2e.py). Kept OUT of
+# web-check / check — it needs a built server + a browser (CI runs it as its own
+# job; run `pnpm -C apps/web exec playwright install chromium` first locally).
+web-e2e: web-build web-embed
+	pnpm -C apps/web exec playwright test
 
 # Build the spotdl-server wheel with the SPA embedded: build → embed → wheel.
 dist: web-build web-embed

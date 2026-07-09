@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "type-check": "tsr generate && tsc -b --noEmit",
     "test": "tsr generate && vitest run",
+    "test:e2e": "playwright test",
     "lint": "oxlint",
     "generate:api": "openapi-ts && node scripts/stamp-generated-banner.mjs",
     "generate:ws": "node scripts/gen-ws-types.mjs"

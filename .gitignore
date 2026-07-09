@@ -20,3 +20,9 @@ coverage.xml
 
 # agent scratch (reports, briefs, review diffs)
 .superpowers/
+
+# Playwright e2e artifacts
+apps/web/test-results/
+apps/web/playwright-report/
+apps/web/blob-report/
+apps/web/.playwright/
