@@ -1,4 +1,4 @@
-.PHONY: sync lint typecheck test check web-install web-check web-clients web-clients-check openapi ws-schema clients docs docs-check
+.PHONY: sync lint typecheck test check web-install web-check web-clients web-clients-check web-build web-embed dist openapi ws-schema clients docs docs-check
 
 sync:
 	uv sync --all-packages --all-groups
@@ -35,6 +35,21 @@ web-clients:
 web-clients-check: web-clients
 	git diff --exit-code apps/web/src/api/generated apps/web/src/api/ws-types.gen.ts apps/web/src/api/ws-protocol.gen.ts \
 		|| (echo 'generated TS client is stale — run `make web-clients` and commit'; exit 1)
+
+# Build the production SPA bundle (apps/web/dist).
+web-build:
+	pnpm -C apps/web run build
+
+# Copy the built SPA into the server package so the wheel can ship it (Plan 10).
+# The target dir is git-ignored and force-included by apps/server/pyproject.toml.
+web-embed:
+	rm -rf apps/server/src/spotdl_server/webui
+	mkdir -p apps/server/src/spotdl_server/webui
+	cp -R apps/web/dist/. apps/server/src/spotdl_server/webui/
+
+# Build the spotdl-server wheel with the SPA embedded: build → embed → wheel.
+dist: web-build web-embed
+	uv build --wheel --package spotdl-server
 
 openapi:
 	uv run python apps/server/scripts/export_openapi.py

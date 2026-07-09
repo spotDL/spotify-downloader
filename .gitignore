@@ -9,6 +9,8 @@ build/
 *.egg-info/
 node_modules/
 apps/web/dist/
+# Bundled web UI copied in by `make web-embed` (Plan 10); rebuilt, never committed.
+apps/server/src/spotdl_server/webui/
 # mkdocs build output
 site/
 .coverage

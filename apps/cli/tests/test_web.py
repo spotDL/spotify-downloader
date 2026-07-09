@@ -1,19 +1,19 @@
-"""``spotdl web`` — embedded boot + browser handoff + SPA stub.
+"""``spotdl web`` — embedded boot + browser handoff (Plan 10 flip).
 
 ``uvicorn.run`` / ``webbrowser.open`` / migrations are patched so nothing binds a
-socket; a separate ASGI check asserts ``/`` serves the Plan 10 stub (not a real
-SPA) and that the download-capable embedded API is what boots.
+socket. ``web`` now boots the real embedded app (which serves the bundled SPA via
+``spotdl_server.webui.mount_webui``) instead of a stub; the SPA-serving behavior
+itself is covered by the server suite (``test_webui_mount``).
 """
 
 from __future__ import annotations
 
 from typing import Any
 
-import httpx
 import pytest
 from spotdl_cli.__main__ import app
 from spotdl_cli.commands import web as web_cmd
-from spotdl_server.settings import DeploymentMode, Settings
+from spotdl_server.settings import DeploymentMode
 from typer.testing import CliRunner
 
 runner = CliRunner()
@@ -41,8 +41,7 @@ def test_web_boots_embedded_and_opens_browser(patched: dict[str, Any]) -> None:
     result = runner.invoke(app, ["web", "--port", "9123"])
 
     assert result.exit_code == 0
-    assert "the web UI ships in a later release" in result.output
-    assert "http://127.0.0.1:9123/api/v1" in result.output
+    assert "serving the spotDL web UI at http://127.0.0.1:9123/" in result.output
     # migrations ran on an embedded, download-capable server
     assert patched["migrated"][0].mode is DeploymentMode.EMBEDDED
     assert patched["migrated"][0].downloads_enabled() is True
@@ -59,16 +58,3 @@ def test_web_no_open_skips_browser(patched: dict[str, Any]) -> None:
     assert patched["opened"] is None
     _app, kwargs = patched["run"]
     assert kwargs["host"] == "0.0.0.0"
-
-
-async def test_stub_root_serves_notice_not_spa() -> None:
-    web_app = web_cmd.build_web_app(
-        Settings(mode=DeploymentMode.EMBEDDED), api_url="http://127.0.0.1:8800/api/v1"
-    )
-    transport = httpx.ASGITransport(app=web_app)
-    async with httpx.AsyncClient(transport=transport, base_url="http://web") as client:
-        resp = await client.get("/")
-
-    assert resp.status_code == 200
-    assert "web UI ships in a later release" in resp.text
-    assert "http://127.0.0.1:8800/api/v1" in resp.text
