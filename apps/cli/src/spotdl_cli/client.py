@@ -7,17 +7,21 @@ typed :class:`~spotdl_cli.errors.ApiError` and every success into a hand-written
 ``*View`` (see :mod:`spotdl_cli.views`).
 
 Task 2 scope: the request/response methods that only need the HTTP transport
-(config, resolve, search, entities, matches, lyrics, and the auth calls). The
-connectivity/fallback wiring (``from_config``), the embedded download methods,
-and the WebSocket ``progress`` stream are deferred to Plan 8 Tasks 4-7 and raise
+(config, resolve, search, entities, matches, lyrics, and the auth calls). Task 5
+adds ``RemoteTransport``'s ``wss`` half and ``from_config``'s CONTRACT C
+resolution-transport selection (probe + embedded fallback + ``--offline``), which
+depends on the embedded transport built by Task 4 (resolved through the
+``_embedded_factory`` seam). The embedded download methods and the WebSocket
+``progress`` stream remain deferred to Plan 8 Task 7 and raise
 ``NotImplementedError`` here so the method surface (the seam Plan 9 builds on) is
 already fixed.
 """
 
 from __future__ import annotations
 
+import importlib
 import json
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
 from typing import Any, Literal
 from uuid import UUID
@@ -67,6 +71,7 @@ from spotdl_cli._generated.api.models.track_out import TrackOut
 from spotdl_cli._generated.api.models.user_response import UserResponse
 from spotdl_cli._generated.api.types import Response
 from spotdl_cli.errors import ApiError
+from spotdl_cli.fallback import select_resolution_transport
 from spotdl_cli.transport import EmbeddedTransport, RemoteTransport, Transport
 from spotdl_cli.views import (
     AlbumView,
@@ -151,6 +156,24 @@ def _embedded_settings(cfg: Any) -> Settings:
     return Settings(mode=DeploymentMode.EMBEDDED)
 
 
+def _load_credential_token(api_url: str) -> str | None:
+    """Best-effort PAT lookup for ``api_url`` from the credentials store (CONTRACT D).
+
+    The store lives in a sibling module (``spotdl_cli.credentials``, Plan 8 Task 3),
+    keyed by server origin. Resolved lazily so this module doesn't hard-depend on it;
+    when absent, no token is injected (anonymous access).
+    """
+    try:
+        credentials = importlib.import_module("spotdl_cli.credentials")
+    except ModuleNotFoundError:
+        return None
+    getter = getattr(credentials, "get_token", None)
+    if getter is None:
+        return None
+    token = getter(api_url)
+    return token if isinstance(token, str) else None
+
+
 class SpotdlClient:
     """The single client object the CLI and TUI drive.
 
@@ -173,22 +196,56 @@ class SpotdlClient:
         offline: bool = False,
         need_downloads: bool = False,
         require_remote: bool = False,
+        _embedded_factory: Callable[[bool], Transport] | None = None,
     ) -> AsyncIterator[SpotdlClient]:
         """Wire transports from config and apply the fallback policy (CONTRACT C).
 
-        Task 4 wires the **fully-embedded** path: one in-process
-        :class:`~spotdl_cli.transport.EmbeddedTransport` (loopback when
-        ``need_downloads`` so WS progress works, ASGI fast path otherwise) drives
-        both the resolution and the always-embedded download surface. The remote
-        metadata path (``RemoteTransport`` + PAT) and the remote-vs-embedded
-        selection/probe/fallback (``offline`` / ``require_remote``) land in Task 5.
+        The resolution transport is chosen by :func:`select_resolution_transport`
+        (remote-when-reachable, else the offline embedded server; ``require_remote``
+        forbids the fallback). The downloads transport is ALWAYS embedded (rule 3).
+
+        The embedded transport itself is built by ``EmbeddedTransport`` (Plan 8
+        Task 4); it is resolved through the ``_embedded_factory`` seam so this
+        selection layer stays independent of that construction (tests inject a
+        fake; the default resolves the sibling module lazily).
         """
-        if require_remote:
-            raise NotImplementedError(
-                "Remote selection + fallback (CONTRACT C) is wired in Plan 8 Task 5"
-            )
-        async with cls._embedded(cfg, need_downloads=need_downloads) as client:
-            yield client
+        api_url = str(getattr(cfg, "api_url", None) or DEFAULT_API_URL)
+        is_offline = offline or bool(getattr(cfg, "offline", False))
+        token = _load_credential_token(api_url)
+
+        def _real_embedded_factory(enable_downloads: bool) -> Transport:
+            return EmbeddedTransport(_embedded_settings(cfg), enable_downloads=enable_downloads)
+
+        build_embedded = (
+            _embedded_factory if _embedded_factory is not None else _real_embedded_factory
+        )
+
+        embedded: Transport | None = None
+
+        def make_embedded() -> Transport:
+            nonlocal embedded
+            if embedded is None:
+                embedded = build_embedded(need_downloads)
+            return embedded
+
+        resolution = await select_resolution_transport(
+            offline=is_offline,
+            api_url=api_url,
+            require_remote=require_remote,
+            make_remote=lambda: RemoteTransport(api_url, token=token),
+            make_embedded=make_embedded,
+        )
+        downloads = make_embedded()  # CONTRACT C rule 3: downloads are always embedded
+        # EmbeddedTransport construction is sync; its server boots here (fakes
+        # injected by tests have no ``start`` and are skipped).
+        if embedded is not None and hasattr(embedded, "start"):
+            await embedded.start()
+        try:
+            yield cls(resolution=resolution, downloads=downloads)
+        finally:
+            await resolution.aclose()
+            if embedded is not None and embedded is not resolution:
+                await embedded.aclose()
 
     @classmethod
     @asynccontextmanager

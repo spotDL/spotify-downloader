@@ -111,8 +111,15 @@ class RemoteTransport:
 
     @asynccontextmanager
     async def ws_connect(self, path: str) -> AsyncIterator[AsyncWebSocketSession]:
-        raise NotImplementedError("RemoteTransport WebSockets are wired in Plan 8 Task 5")
-        yield  # pragma: no cover  (marks this an async generator for asynccontextmanager)
+        """Open a ``wss`` session on ``self._client`` (httpx-ws over the same client).
+
+        Reusing the transport's ``httpx.AsyncClient`` means the optional Bearer PAT
+        set in ``__init__`` rides the WebSocket handshake headers too — the CLI
+        (unlike a browser) can send ``Authorization`` on the upgrade request.
+        """
+        session: AsyncWebSocketSession
+        async with aconnect_ws(self.ws_base + path, self._client) as session:
+            yield session
 
     async def aclose(self) -> None:
         await self._client.aclose()
