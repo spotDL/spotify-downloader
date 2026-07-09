@@ -1,6 +1,7 @@
 import os
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -8,6 +9,16 @@ import pytest
 # Import registers every §6.1 table on ``Base.metadata`` so the in-memory
 # ``session`` fixture below can ``create_all`` the full schema.
 import spotdl_server.db.models  # noqa: F401
+from spotdl_core.download import (
+    DownloadConfig,
+    DownloadOutcome,
+    DownloadRequest,
+    ProgressCallback,
+    ProgressEvent,
+    ProgressPhase,
+    SkipReason,
+)
+from spotdl_core.download.paths import build_output_path
 from spotdl_server.db.base import Base
 from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -119,3 +130,101 @@ async def session() -> AsyncIterator[AsyncSession]:
         finally:
             await db_session.rollback()
     await engine.dispose()
+
+
+# --------------------------------------------------------------------------
+# Plan 7 download-queue seams (Task 6): a file-backed sessionmaker (so the
+# worker pool's own sessions get independent connections + real isolation, as a
+# single-container SQLite deployment does) and the ``FakeDownloadEngine`` — the
+# offline seam that duck-types ``spotdl_core.download.DownloadEngine.download``.
+# --------------------------------------------------------------------------
+
+
+@pytest.fixture
+async def download_sessionmaker(tmp_path: Path) -> AsyncIterator[async_sessionmaker[AsyncSession]]:
+    """A file-SQLite ``async_sessionmaker`` with the full schema created.
+
+    Unlike the in-memory ``session`` fixture (one shared connection via
+    ``StaticPool``), this is file-backed so the worker pool, its progress pump,
+    and the finalizer each open their **own** connection — the concurrency shape
+    of the real single-container deployment. FK enforcement + a busy timeout keep
+    cascade behaviour and brief write-contention robust across those connections.
+    """
+    db_path = tmp_path / "queue.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{db_path}")
+
+    @event.listens_for(engine.sync_engine, "connect")
+    def _sqlite_pragmas(dbapi_conn: Any, _record: Any) -> None:
+        dbapi_conn.execute("PRAGMA foreign_keys=ON")
+        dbapi_conn.execute("PRAGMA busy_timeout=5000")
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    maker = async_sessionmaker(engine, expire_on_commit=False)
+    try:
+        yield maker
+    finally:
+        await engine.dispose()
+
+
+DownloadScript = Callable[
+    ["FakeDownloadEngine", DownloadRequest, ProgressCallback | None],
+    "Any",
+]
+
+
+class FakeDownloadEngine:
+    """Offline stand-in for ``spotdl_core.download.DownloadEngine`` (the plan seam).
+
+    Duck-types ``async download(request, on_progress=None) -> DownloadOutcome``.
+    With no ``script`` it runs the happy path: emit fetch/convert/embed/done
+    progress, write a real file into ``config.output_dir`` at the planned output
+    path, and return a ``DOWNLOADED`` outcome. A ``script`` (an async callable
+    ``(engine, request, on_progress) -> DownloadOutcome``) overrides that — the
+    hook tests use to emit scripted progress, await an ``asyncio.Event`` to open a
+    cancellation/drain window, or return ``SKIPPED`` / ``FAILED``. Every request is
+    recorded on :attr:`requests` so a test can assert the built request's fields.
+    """
+
+    def __init__(self, *, config: DownloadConfig, script: DownloadScript | None = None) -> None:
+        self._config = config
+        self._script = script
+        self.requests: list[DownloadRequest] = []
+
+    async def download(
+        self, request: DownloadRequest, on_progress: ProgressCallback | None = None
+    ) -> DownloadOutcome:
+        self.requests.append(request)
+        if self._script is not None:
+            return await self._script(self, request, on_progress)
+        self.emit(on_progress, ProgressPhase.FETCH, 100)
+        self.emit(on_progress, ProgressPhase.CONVERT, 100)
+        self.emit(on_progress, ProgressPhase.EMBED, 100)
+        path = self.write_output(request)
+        self.emit(on_progress, ProgressPhase.DONE, 100)
+        return DownloadOutcome.downloaded(request.track, path)
+
+    # --- helpers scripts reuse -------------------------------------------
+    @staticmethod
+    def emit(
+        on_progress: ProgressCallback | None,
+        phase: ProgressPhase,
+        percent: int | None = None,
+        message: str | None = None,
+    ) -> None:
+        if on_progress is not None:
+            on_progress(ProgressEvent(phase=phase, percent=percent, message=message))
+
+    def planned_path(self, request: DownloadRequest) -> Path:
+        return build_output_path(request, self._config)
+
+    def write_output(self, request: DownloadRequest) -> Path:
+        path = self.planned_path(request)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"fake-audio-bytes")
+        return path
+
+
+# Re-export the skip reason so worker tests can script a specific skip.
+__all__ = ["FakeDownloadEngine", "SkipReason"]

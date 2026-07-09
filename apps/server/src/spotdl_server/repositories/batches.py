@@ -107,6 +107,32 @@ class DownloadBatchRepository:
         )
         return int(total or 0)
 
+    async def finalizable_ids(self) -> list[UUID]:
+        """Ids of batches whose jobs are all terminal but were never finalized.
+
+        A batch qualifies when ``finalized_at IS NULL``, it has at least one job
+        (``total_jobs > 0``), and no job is still ``queued``/``running``. The pool
+        finalizes these at boot to recover from a crash between the last job's
+        terminal write and its finalize (idempotency still guarded by
+        :meth:`mark_finalized`).
+        """
+        pending = (
+            select(DownloadJob.batch_id)
+            .where(
+                DownloadJob.status.in_((DownloadStatus.QUEUED, DownloadStatus.RUNNING)),
+                DownloadJob.batch_id.is_not(None),
+            )
+            .distinct()
+        )
+        result = await self.session.execute(
+            select(DownloadBatch.id).where(
+                DownloadBatch.finalized_at.is_(None),
+                DownloadBatch.total_jobs > 0,
+                DownloadBatch.id.not_in(pending),
+            )
+        )
+        return list(result.scalars().all())
+
     async def mark_finalized(self, batch_id: UUID, *, now: datetime) -> bool:
         """Stamp ``finalized_at`` exactly once (idempotent finalization race guard).
 
