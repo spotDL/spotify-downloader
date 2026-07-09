@@ -45,6 +45,15 @@ module = "mutagen.*"
 follow_imports = "skip"
 ignore_missing_imports = true
 
+# ``syncedlyrics`` is an optional runtime extra (the ``lrc`` group) and is not
+# installed in the default/CI environment, so it has no importable stub. It is
+# lazily imported behind the SyncedLyricsSearch seam; ignoring its imports keeps
+# spotdl_core.download.post type-checkable whether or not the extra is present.
+[[tool.mypy.overrides]]
+module = "syncedlyrics.*"
+follow_imports = "skip"
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 addopts = "--import-mode=importlib -m 'not network'"
