@@ -1,10 +1,47 @@
+@import "tailwindcss";
+
+/* Dark mode is driven by the `data-theme` attribute stamped by ThemeProvider
+   (CONTRACT H), not the OS media query directly. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  --color-brand-50: oklch(0.97 0.02 150);
+  --color-brand-100: oklch(0.93 0.05 150);
+  --color-brand-500: oklch(0.72 0.17 150);
+  --color-brand-600: oklch(0.64 0.16 150);
+  --color-brand-700: oklch(0.55 0.14 150);
+
+  --color-bg: oklch(0.99 0 0);
+  --color-surface: oklch(0.97 0 0);
+  --color-fg: oklch(0.2 0 0);
+  --color-muted: oklch(0.55 0 0);
+  --color-accent: var(--color-brand-500);
+  --color-danger: oklch(0.62 0.2 25);
+  --color-warn: oklch(0.75 0.15 80);
+
+  --font-sans: system-ui, "Segoe UI", Roboto, sans-serif;
+
+  --radius-card: 0.75rem;
+
+  --shadow-card: 0 1px 2px oklch(0 0 0 / 0.06), 0 4px 12px oklch(0 0 0 / 0.05);
+}
+
+/* Dark-theme token overrides. */
+[data-theme="dark"] {
+  --color-bg: oklch(0.17 0 0);
+  --color-surface: oklch(0.22 0 0);
+  --color-fg: oklch(0.96 0 0);
+  --color-muted: oklch(0.68 0 0);
+}
+
 :root {
-  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
-  line-height: 1.5;
   color-scheme: light dark;
 }
 
 body {
   margin: 0;
   min-height: 100svh;
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-fg);
 }
