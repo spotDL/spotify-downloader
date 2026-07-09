@@ -14,13 +14,17 @@ from typing import TYPE_CHECKING
 from uuid import UUID
 
 from spotdl_cli.tui.screens.base import PlaceholderScreen, SpotdlScreen
+from spotdl_cli.tui.screens.track import TrackScreen
 from spotdl_cli.viewmodels.types import EntityRef
 
 if TYPE_CHECKING:
     from spotdl_cli.tui.app import SpotdlApp
 
-# entity_type -> (id -> screen). Later tasks register real screens here.
-ENTITY_SCREENS: dict[str, Callable[[UUID], SpotdlScreen]] = {}
+# entity_type -> (id -> screen). Later tasks register the album/artist/playlist
+# screens (Task 7); the track screen lands here in Task 6.
+ENTITY_SCREENS: dict[str, Callable[[UUID], SpotdlScreen]] = {
+    "track": TrackScreen,
+}
 
 
 def entity_screen(ref: EntityRef) -> SpotdlScreen:

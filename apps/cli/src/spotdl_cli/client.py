@@ -91,6 +91,12 @@ from spotdl_cli._generated.api.api.tokens import create_token_api_v1_auth_tokens
 from spotdl_cli._generated.api.api.tokens import (
     revoke_token_api_v1_auth_tokens_token_id_delete as _revoke_ep,
 )
+from spotdl_cli._generated.api.api.votes import (
+    vote_lyrics_api_v1_lyrics_lyrics_id_vote_post as _vote_lyrics_ep,
+)
+from spotdl_cli._generated.api.api.votes import (
+    vote_match_api_v1_matches_match_id_vote_post as _vote_match_ep,
+)
 from spotdl_cli._generated.api.client import Client
 from spotdl_cli._generated.api.models.admin_review_request import AdminReviewRequest
 from spotdl_cli._generated.api.models.admin_stats_response import AdminStatsResponse
@@ -125,6 +131,9 @@ from spotdl_cli._generated.api.models.submit_match_request import SubmitMatchReq
 from spotdl_cli._generated.api.models.token_response import TokenResponse
 from spotdl_cli._generated.api.models.track_out import TrackOut
 from spotdl_cli._generated.api.models.user_response import UserResponse
+from spotdl_cli._generated.api.models.vote_request import VoteRequest
+from spotdl_cli._generated.api.models.vote_request_value import VoteRequestValue
+from spotdl_cli._generated.api.models.vote_response import VoteResponse
 from spotdl_cli._generated.api.types import UNSET, Response, Unset
 from spotdl_cli._generated.ws_models import WsHello, WsMessage
 from spotdl_cli.errors import ApiError
@@ -245,6 +254,40 @@ def _unwrap(resp: Response[Any]) -> Any:
         message=envelope.message,
         detail=_detail_dict(envelope),
         status=status,
+    )
+
+
+def _vote_status(vote: VoteResponse) -> str:
+    """The votable's derived status (``""`` for lyrics, which have no status)."""
+    return vote.status if isinstance(vote.status, str) else ""
+
+
+def _match_from_vote(vote: VoteResponse) -> MatchView:
+    """A tallies-only :class:`MatchView` from a vote outcome (structural fields blank)."""
+    return MatchView(
+        id=str(vote.votable_id),
+        status=_vote_status(vote),
+        score=0.0,
+        net_score=vote.net_score,
+        upvotes=vote.upvotes,
+        downvotes=vote.downvotes,
+        matcher_version="",
+        target_provider="",
+        target_id="",
+        target_url="",
+    )
+
+
+def _lyrics_from_vote(vote: VoteResponse) -> LyricsView:
+    """A tallies-only :class:`LyricsView` from a vote outcome (text/source blank)."""
+    return LyricsView(
+        id=str(vote.votable_id),
+        kind="",
+        source="",
+        text="",
+        upvotes=vote.upvotes,
+        downvotes=vote.downvotes,
+        net_score=vote.net_score,
     )
 
 
@@ -466,9 +509,18 @@ class SpotdlClient:
         return MatchView.from_generated(result)
 
     async def vote_match(self, id: UUID, value: Literal["up", "down", "retract"]) -> MatchView:
-        # The vote endpoint returns a VoteResponse (tallies), not a MatchOut, so
-        # the CONTRACT B return type needs reconciling; deferred to the voting task.
-        raise NotImplementedError("vote_match is wired in a later Plan 8 task")
+        # The endpoint returns a VoteResponse (fresh tallies + derived status), not a
+        # MatchOut: the vote never restates the match's structural fields (provider,
+        # url, score). We map those tallies onto a MatchView so the CONTRACT B return
+        # type holds; callers merge them onto the match they already hold.
+        resp = await _vote_match_ep.asyncio_detailed(
+            match_id=id,
+            client=self._client(self._resolution),
+            body=VoteRequest(value=VoteRequestValue(value)),
+        )
+        result = _unwrap(resp)
+        assert isinstance(result, VoteResponse)
+        return _match_from_vote(result)
 
     async def lyrics(self, track_id: UUID) -> list[LyricsView]:
         resp = await _lyrics_ep.asyncio_detailed(id=track_id, client=self._client(self._resolution))
@@ -477,8 +529,17 @@ class SpotdlClient:
         return [LyricsView.from_generated(lyric) for lyric in result.lyrics]
 
     async def vote_lyrics(self, id: UUID, value: Literal["up", "down", "retract"]) -> LyricsView:
-        # See vote_match: the endpoint returns a VoteResponse, not a LyricsOut.
-        raise NotImplementedError("vote_lyrics is wired in a later Plan 8 task")
+        # See vote_match: the endpoint returns a VoteResponse (tallies only), so the
+        # returned LyricsView carries the fresh tallies and callers merge them onto
+        # the variant they already hold (lyrics have no status column).
+        resp = await _vote_lyrics_ep.asyncio_detailed(
+            lyrics_id=id,
+            client=self._client(self._resolution),
+            body=VoteRequest(value=VoteRequestValue(value)),
+        )
+        result = _unwrap(resp)
+        assert isinstance(result, VoteResponse)
+        return _lyrics_from_vote(result)
 
     # ---- auth (resolution/community transport) ------------------------------
 

@@ -7,6 +7,7 @@ into a typed :class:`ApiError` carrying the code + HTTP status.
 
 from __future__ import annotations
 
+import json
 from collections.abc import AsyncIterator
 from uuid import UUID
 
@@ -16,7 +17,7 @@ import respx
 from spotdl_cli._generated.api.models.error_code import ErrorCode
 from spotdl_cli.client import RemoteTransport, SpotdlClient
 from spotdl_cli.errors import ApiError
-from spotdl_cli.views import ConfigView, EntityView, TrackView
+from spotdl_cli.views import ConfigView, EntityView, LyricsView, MatchView, TrackView
 
 BASE = "https://api.test"
 TRACK_ID = UUID("11111111-1111-1111-1111-111111111111")
@@ -107,3 +108,64 @@ async def test_config_error_body_without_documented_schema(client: SpotdlClient)
 
     assert excinfo.value.code is ErrorCode.INTERNAL_ERROR
     assert excinfo.value.status == 500
+
+
+async def test_vote_match_maps_tallies_from_vote_response(client: SpotdlClient) -> None:
+    """The vote endpoint returns a VoteResponse; the façade maps its tallies onto a MatchView."""
+    match_id = UUID("22222222-2222-2222-2222-222222222222")
+    body = {
+        "downvotes": 1,
+        "net_score": 7,
+        "upvotes": 8,
+        "votable_id": str(match_id),
+        "votable_type": "match",
+        "status": "community_verified",
+        "your_vote": 1,
+    }
+    with respx.mock(base_url=BASE, assert_all_called=True) as router:
+        route = router.post(f"/api/v1/matches/{match_id}/vote").mock(
+            return_value=httpx.Response(200, json=body)
+        )
+        view = await client.vote_match(match_id, "up")
+
+    assert json.loads(route.calls.last.request.content) == {"value": "up"}
+    assert isinstance(view, MatchView)
+    assert view.id == str(match_id)
+    assert view.status == "community_verified"
+    assert (view.upvotes, view.downvotes, view.net_score) == (8, 1, 7)
+
+
+async def test_vote_lyrics_maps_tallies_from_vote_response(client: SpotdlClient) -> None:
+    """Lyrics votes carry no status; the façade maps only the tallies."""
+    lyrics_id = UUID("33333333-3333-3333-3333-333333333333")
+    body = {
+        "downvotes": 0,
+        "net_score": 5,
+        "upvotes": 5,
+        "votable_id": str(lyrics_id),
+        "votable_type": "lyrics",
+        "status": None,
+        "your_vote": 1,
+    }
+    with respx.mock(base_url=BASE, assert_all_called=True) as router:
+        router.post(f"/api/v1/lyrics/{lyrics_id}/vote").mock(
+            return_value=httpx.Response(200, json=body)
+        )
+        view = await client.vote_lyrics(lyrics_id, "up")
+
+    assert isinstance(view, LyricsView)
+    assert view.id == str(lyrics_id)
+    assert (view.upvotes, view.downvotes, view.net_score) == (5, 0, 5)
+
+
+async def test_vote_match_surfaces_api_error(client: SpotdlClient) -> None:
+    match_id = UUID("44444444-4444-4444-4444-444444444444")
+    envelope = {"code": "forbidden", "message": "sign in to vote"}
+    with respx.mock(base_url=BASE, assert_all_called=False) as router:
+        router.post(f"/api/v1/matches/{match_id}/vote").mock(
+            return_value=httpx.Response(403, json=envelope)
+        )
+        with pytest.raises(ApiError) as excinfo:
+            await client.vote_match(match_id, "up")
+
+    assert excinfo.value.status == 403

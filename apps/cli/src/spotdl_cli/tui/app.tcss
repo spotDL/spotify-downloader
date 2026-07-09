@@ -51,3 +51,28 @@ DataTable > .datatable--cursor {
 .gauge--full {
     color: $success;
 }
+
+/* Track screen (Task 6): the header card, the match column, and the lyrics pane. */
+.hidden {
+    display: none;
+}
+
+EntityCard {
+    padding: 1 1 0 1;
+    color: $text;
+}
+
+MatchGauge {
+    height: auto;
+    padding: 0 1;
+}
+
+MatchGauge:focus {
+    background: $boost;
+}
+
+LyricsPane {
+    height: auto;
+    padding: 1;
+    color: $text-muted;
+}
