@@ -16,6 +16,7 @@ import uuid
 import pytest
 from spotdl_core.model import MatchStatus, ProviderId
 from spotdl_core.providers import UnsupportedURL
+from spotdl_server.db.models import Match as MatchModel
 from spotdl_server.repositories.entities import TrackRepository
 from spotdl_server.repositories.matches import MatchRepository
 from spotdl_server.services.errors import NotAnAudioTarget, NotFoundError
@@ -126,3 +127,59 @@ async def test_submitting_an_existing_algorithmic_match_does_not_clobber_provena
     assert returned.submitted_by is None
     assert returned.matcher_version == "v5.0"
     assert returned.score == 87.5
+
+
+class _RacingMatchRepository(MatchRepository):
+    """A repo that simulates a concurrent submitter winning the unique-target race.
+
+    On the *first* ``get_by_target`` (the service's check-then-act read) it returns
+    ``None`` — as if our SELECT ran before the rival's commit — but actually inserts
+    the conflicting row so the service's subsequent ``create_submission`` flush trips
+    the ``(track_id, target_provider, target_id)`` IntegrityError. Later reads
+    (the post-IntegrityError retry) behave normally and see the rival's row.
+    """
+
+    def __init__(self, session: AsyncSession, rival_submitter: uuid.UUID) -> None:
+        super().__init__(session)
+        self._rival_submitter = rival_submitter
+        self._raced = False
+        self.rival_id: uuid.UUID | None = None
+
+    async def get_by_target(
+        self, track_id: uuid.UUID, target_provider: ProviderId, target_id: str
+    ) -> MatchModel | None:
+        if not self._raced:
+            self._raced = True
+            rival = MatchModel(
+                track_id=track_id,
+                target_provider=target_provider,
+                target_id=target_id,
+                target_url=_YT_URL,
+                score=0.0,
+                matcher_version=COMMUNITY_MATCHER_VERSION,
+                status=MatchStatus.AUTO,
+                submitted_by=self._rival_submitter,
+            )
+            self.session.add(rival)
+            await self.session.flush()
+            self.rival_id = rival.id
+            return None  # Our SELECT ran before the rival became visible.
+        return await super().get_by_target(track_id, target_provider, target_id)
+
+
+async def test_concurrent_duplicate_insert_returns_rival_row(session: AsyncSession) -> None:
+    """A concurrent submitter losing the unique-constraint race is idempotent, not a 500."""
+    track_id = await _make_track(session)
+    rival_submitter = uuid.uuid4()
+    matches = _RacingMatchRepository(session, rival_submitter)
+    svc = SubmissionService(session=session, tracks=TrackRepository(session), matches=matches)
+
+    returned = await svc.submit_match(track_id=track_id, url=_YT_URL, submitted_by=uuid.uuid4())
+
+    # The IntegrityError from our insert is swallowed; we return the rival's row.
+    assert returned.id == matches.rival_id
+    assert returned.submitted_by == rival_submitter
+
+    # Exactly one row for the target survives — our losing insert was rolled back.
+    rows = await MatchRepository(session).list_for_track(track_id)
+    assert len([r for r in rows if r.target_id == "dQw4w9WgXcQ"]) == 1

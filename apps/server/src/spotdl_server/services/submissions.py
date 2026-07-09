@@ -30,6 +30,7 @@ from uuid import UUID
 
 from spotdl_core.model import EntityType, ProviderId
 from spotdl_core.providers import parse
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl_server.db.models import Match as MatchModel
@@ -85,11 +86,25 @@ class SubmissionService:
             # (an algorithmic match keeps ``submitted_by IS NULL`` and its scoring).
             return existing
 
-        return await self._matches.create_submission(
-            track_id=track_id,
-            target_provider=ref.provider,
-            target_id=ref.entity_id,
-            target_url=ref.url or url,
-            matcher_version=COMMUNITY_MATCHER_VERSION,
-            submitted_by=submitted_by,
-        )
+        # The check-then-act above races the unique ``(track_id, target_provider,
+        # target_id)`` constraint: a concurrent submitter (or an algorithmic match
+        # landing) can insert the same target in the window after our SELECT. Guard
+        # the insert with a savepoint — on the resulting IntegrityError roll back
+        # just the failed insert, re-read, and return the now-existing row so the
+        # submit stays idempotent instead of surfacing a 500. Mirrors
+        # ``VoteService._persist_ledger``'s concurrent-insert handling.
+        try:
+            async with self._session.begin_nested():
+                return await self._matches.create_submission(
+                    track_id=track_id,
+                    target_provider=ref.provider,
+                    target_id=ref.entity_id,
+                    target_url=ref.url or url,
+                    matcher_version=COMMUNITY_MATCHER_VERSION,
+                    submitted_by=submitted_by,
+                )
+        except IntegrityError:
+            conflicting = await self._matches.get_by_target(track_id, ref.provider, ref.entity_id)
+            if conflicting is None:
+                raise  # Not the target-uniqueness race we handle — propagate.
+            return conflicting
