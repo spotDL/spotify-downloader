@@ -24,9 +24,10 @@ from spotdl_core.providers import ProviderRegistry, build_default_registry
 from spotdl_server import __version__
 from spotdl_server.api.deps import provider_context
 from spotdl_server.api.errors import register_exception_handlers
-from spotdl_server.api.routers import entities, meta, resolve, search
+from spotdl_server.api.routers import auth, entities, meta, resolve, search
+from spotdl_server.auth.clock import SystemClock
 from spotdl_server.db.engine import build_engine, build_sessionmaker
-from spotdl_server.settings import Settings
+from spotdl_server.settings import DeploymentMode, Settings
 
 
 @asynccontextmanager
@@ -37,6 +38,19 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     (``app.state.injected_registry``) is left open for its owner.
     """
     settings: Settings = app.state.settings
+
+    # The injectable time seam for the community layer (token expiry, refresh
+    # rotation, PAT expiry). Built once here per the no-module-level-singletons
+    # rule; tests swap a FakeClock onto ``app.state.clock`` after startup.
+    app.state.clock = SystemClock()
+
+    # Fail fast in HOSTED: a hosted server with auth active but no signing secret
+    # would mint junk tokens, so refuse to start. Self-host/embedded stay lenient
+    # (a self-hoster only needs a secret if they actually enable accounts), and
+    # the per-request ``get_token_service`` still raises if a secret is missing.
+    if settings.mode is DeploymentMode.HOSTED and settings.auth_active():
+        settings.require_auth_secret()
+
     engine = build_engine(settings)
     app.state.engine = engine
     app.state.sessionmaker = build_sessionmaker(engine)
@@ -77,6 +91,11 @@ def create_app(
     app.include_router(resolve.router)
     app.include_router(search.router)
     app.include_router(entities.router)
+
+    # Community routers mount only when auth is active (spec §4: never in EMBEDDED
+    # / loopback mode). Mount-time gate — not a per-request conditional.
+    if settings.auth_active():
+        app.include_router(auth.router)
     # if settings.mode is not DeploymentMode.HOSTED:
     #     app.include_router(downloads_router)  # Plan 7
 

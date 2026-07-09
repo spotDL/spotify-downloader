@@ -15,6 +15,7 @@ dependencies = [
     "asyncpg>=0.30",
     "pyjwt>=2.10",
     "argon2-cffi>=23.1",
+    "email-validator>=2.2",
     "httpx>=0.28",
 ]
 

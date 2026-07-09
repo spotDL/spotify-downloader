@@ -25,7 +25,10 @@ is fixed by the path, so no envelope is needed.
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict
+from datetime import datetime
+from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from spotdl_core.matching import MATCHER_V5_DEFAULT
 from spotdl_core.model import EntityType, LyricsKind, MatchStatus, ProviderId
 
@@ -50,6 +53,37 @@ class ResolveRequest(BaseModel):
     """Body of ``POST /resolve``: a URL, ``provider:type:id`` ref, or free text."""
 
     query: str
+
+
+# --------------------------------------------------------------------------
+# Auth requests (spec §6.2)
+# --------------------------------------------------------------------------
+
+
+class RegisterRequest(BaseModel):
+    """Body of ``POST /auth/register``.
+
+    ``password`` policy (argon2id, so bcrypt's 72-byte trap does not apply — the
+    max only bounds hashing cost): 8–128 characters, enforced here so a weak or
+    abusively long password is rejected before it reaches the service.
+    """
+
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=128)
+    display_name: str | None = None
+
+
+class LoginRequest(BaseModel):
+    """Body of ``POST /auth/login`` (no length policy — only register enforces it)."""
+
+    email: EmailStr
+    password: str
+
+
+class RefreshRequest(BaseModel):
+    """Body of ``POST /auth/refresh`` and ``POST /auth/logout``: the opaque token."""
+
+    refresh_token: str
 
 
 # --------------------------------------------------------------------------
@@ -251,6 +285,43 @@ class LyricsResponse(BaseModel):
 
     track_id: str
     lyrics: list[LyricsOut]
+
+
+# --------------------------------------------------------------------------
+# Auth responses (spec §6.2)
+# --------------------------------------------------------------------------
+
+
+class UserResponse(BaseModel):
+    """The authenticated profile (``GET /auth/me`` body; nested in tokens).
+
+    Built straight from the ``User`` ORM row via ``from_attributes`` — the router
+    hands the service's ``User`` to :meth:`model_validate`; it never touches ORM
+    types by name. The password hash is intentionally absent.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    email: str
+    display_name: str | None = None
+    is_admin: bool
+    created_at: datetime
+
+
+class TokenResponse(BaseModel):
+    """A minted session: the access JWT, the rotating refresh token, and profile.
+
+    ``token_type`` is always ``"bearer"`` and ``expires_in`` is the access
+    token's remaining lifetime in seconds (``settings.access_token_ttl_seconds``),
+    so a client knows when to refresh without decoding the JWT.
+    """
+
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+    expires_in: int
+    user: UserResponse
 
 
 # --------------------------------------------------------------------------

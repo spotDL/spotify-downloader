@@ -35,7 +35,17 @@ from spotdl_core.providers import (
     UnsupportedURL,
 )
 
-from spotdl_server.services.errors import NotFoundError
+from spotdl_server.services.errors import (
+    AuthRequired,
+    EmailTaken,
+    Forbidden,
+    InvalidCredentials,
+    InvalidToken,
+    NotAnAudioTarget,
+    NotFoundError,
+    OAuthEmailRequired,
+    TokenExpired,
+)
 
 logger = logging.getLogger("spotdl_server.api")
 
@@ -54,6 +64,16 @@ class ErrorCode(StrEnum):
     VALIDATION_ERROR = "validation_error"
     DOWNLOADS_DISABLED = "downloads_disabled"  # defined now; raised in Plan 7
     DOWNLOAD_FAILED = "download_failed"  # defined now; raised in Plan 7
+    # Plan 6 community layer (auth / voting / submissions). All eight are declared
+    # here (single home); Tasks 6 and 9 raise OAUTH_EMAIL_REQUIRED / NOT_AN_AUDIO_TARGET.
+    AUTH_REQUIRED = "authentication_required"
+    INVALID_CREDENTIALS = "invalid_credentials"
+    INVALID_TOKEN = "invalid_token"
+    TOKEN_EXPIRED = "token_expired"
+    FORBIDDEN = "forbidden"
+    EMAIL_TAKEN = "email_taken"
+    OAUTH_EMAIL_REQUIRED = "oauth_email_required"
+    NOT_AN_AUDIO_TARGET = "not_an_audio_target"
     INTERNAL_ERROR = "internal_error"
 
 
@@ -63,6 +83,21 @@ class ErrorEnvelope(BaseModel):
     code: str
     message: str
     detail: dict[str, Any] | None = None
+
+
+# Plan 6 message-only errors → (HTTP status, ErrorCode). Exact-type keyed (none
+# of these subclass one another), consulted after the richer provider/entity
+# mappings above so a future subclass with its own detail can slot in earlier.
+_COMMUNITY_ERROR_MAP: dict[type[Exception], tuple[int, ErrorCode]] = {
+    AuthRequired: (401, ErrorCode.AUTH_REQUIRED),
+    InvalidCredentials: (401, ErrorCode.INVALID_CREDENTIALS),
+    InvalidToken: (401, ErrorCode.INVALID_TOKEN),
+    TokenExpired: (401, ErrorCode.TOKEN_EXPIRED),
+    Forbidden: (403, ErrorCode.FORBIDDEN),
+    EmailTaken: (409, ErrorCode.EMAIL_TAKEN),
+    OAuthEmailRequired: (400, ErrorCode.OAUTH_EMAIL_REQUIRED),
+    NotAnAudioTarget: (400, ErrorCode.NOT_AN_AUDIO_TARGET),
+}
 
 
 def _provider_detail(exc: Any) -> dict[str, Any]:
@@ -106,6 +141,13 @@ def _status_and_code(exc: Exception) -> tuple[int, ErrorCode, dict[str, Any] | N
         # Covers ConversionFailed/MetadataEmbedFailed/AudioFetchFailed/... which
         # all set ``step``. Raised in Plan 7; mapped now to lock the code.
         return 500, ErrorCode.DOWNLOAD_FAILED, {"step": exc.step}
+    # Plan 6 community-layer errors: each carries only a (safe) message, so the
+    # detail is ``None`` and the message flows straight into the envelope. A flat
+    # type→(status, code) table keeps the mapping declarative and one-line-per-row.
+    community = _COMMUNITY_ERROR_MAP.get(type(exc))
+    if community is not None:
+        status, code = community
+        return status, code, None
     return 500, ErrorCode.INTERNAL_ERROR, None
 
 

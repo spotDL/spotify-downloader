@@ -20,7 +20,14 @@ from fastapi import Depends, Request
 from spotdl_core.providers import ProviderContext, ProviderRegistry, SpotifyConfig
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from spotdl_server.auth.clock import Clock, ensure_utc
+from spotdl_server.auth.context import ANONYMOUS, AuthContext
+from spotdl_server.auth.tokens import TokenService, is_pat, sha256_hex
+from spotdl_server.repositories.tokens import ApiTokenRepository, RefreshTokenRepository
+from spotdl_server.repositories.users import UserRepository
+from spotdl_server.services.auth import AuthService
 from spotdl_server.services.entities import EntityService
+from spotdl_server.services.errors import AuthRequired, Forbidden
 from spotdl_server.services.resolve import ResolveService
 from spotdl_server.services.search import SearchService
 from spotdl_server.settings import Settings
@@ -97,3 +104,128 @@ def get_entity_service(
 ) -> EntityService:
     """Compose a read-only :class:`EntityService` from the request's session."""
     return EntityService(session=session)
+
+
+# --------------------------------------------------------------------------
+# Auth wiring (Plan 6). ``clock`` + secret are process-scoped: the ``Clock`` is
+# built once in the lifespan and stored on ``app.state``; the signing secret and
+# TTLs come from ``Settings``. The auth context is resolved per request and
+# *never raises* — gating is the job of ``require_user`` / ``require_admin``.
+# --------------------------------------------------------------------------
+
+
+def get_clock(request: Request) -> Clock:
+    """The lifespan-built :class:`Clock` on ``app.state`` (a ``FakeClock`` in tests)."""
+    clock: Clock = request.app.state.clock
+    return clock
+
+
+def get_token_service(
+    request: Request,
+    clock: Clock = Depends(get_clock),
+) -> TokenService:
+    """Build the request's :class:`TokenService` from settings + the shared clock.
+
+    The signing secret comes from ``settings.require_auth_secret()`` (never
+    hardcoded); it raises if auth is active but unconfigured, so a misconfigured
+    server fails loudly at the first auth request instead of minting junk tokens.
+    """
+    settings = get_settings(request)
+    return TokenService(
+        secret=settings.require_auth_secret(),
+        clock=clock,
+        access_ttl_s=settings.access_token_ttl_seconds,
+        refresh_ttl_s=settings.refresh_token_ttl_seconds,
+    )
+
+
+def _bearer_token(request: Request) -> str | None:
+    """Extract the ``Authorization: Bearer <token>`` value, or ``None``."""
+    header = request.headers.get("Authorization")
+    if header is None:
+        return None
+    scheme, _, token = header.partition(" ")
+    if scheme.lower() != "bearer":
+        return None
+    token = token.strip()
+    return token or None
+
+
+async def get_auth_context(
+    request: Request,
+    session: AsyncSession = Depends(get_session),
+    token_service: TokenService = Depends(get_token_service),
+    clock: Clock = Depends(get_clock),
+) -> AuthContext:
+    """Resolve the caller's identity from the ``Authorization`` header.
+
+    Three branches, and it **never raises** (any failure degrades to
+    ``ANONYMOUS`` so the public read surface is unaffected):
+
+    * a ``spdl_pat_`` PAT → hash-lookup, reject revoked/expired/disabled, load the
+      owner, best-effort ``last_used_at`` touch → a ``pat`` context;
+    * otherwise a JWT → ``verify_access`` (bad/expired/malformed all yield
+      ``None``) → a ``user`` context whose ``is_admin`` mirrors the claim;
+    * no header (or an unusable one) → ``ANONYMOUS``.
+    """
+    token = _bearer_token(request)
+    if token is None:
+        return ANONYMOUS
+
+    if is_pat(token):
+        api_tokens = ApiTokenRepository(session)
+        row = await api_tokens.get_by_hash(sha256_hex(token))
+        if row is None or row.revoked_at is not None:
+            return ANONYMOUS
+        now = clock.now()
+        if row.expires_at is not None and ensure_utc(row.expires_at) <= now:
+            return ANONYMOUS
+        user = await UserRepository(session).get(row.user_id)
+        if user is None or not user.is_active:
+            return ANONYMOUS
+        await api_tokens.touch_last_used(row, now=now)
+        return AuthContext(kind="pat", user_id=user.id, is_admin=user.is_admin, token_id=row.id)
+
+    claims = token_service.verify_access(token)
+    if claims is None:
+        return ANONYMOUS
+    return AuthContext(kind="user", user_id=claims.user_id, is_admin=claims.is_admin)
+
+
+def require_user(ctx: AuthContext = Depends(get_auth_context)) -> AuthContext:
+    """Require any authenticated caller (user or PAT); 401 ``AUTH_REQUIRED`` else."""
+    if not ctx.authenticated:
+        raise AuthRequired()
+    return ctx
+
+
+async def require_admin(
+    ctx: AuthContext = Depends(require_user),
+    session: AsyncSession = Depends(get_session),
+) -> AuthContext:
+    """Require an active admin, re-loading the user so a stale claim cannot act.
+
+    The access token embeds ``is_admin``, but a demoted or disabled admin whose
+    ≤15-min token has not yet expired must still be blocked — so admin routes
+    verify against the live row (403 ``FORBIDDEN`` unless ``is_admin`` and
+    ``is_active``).
+    """
+    user = await UserRepository(session).get(ctx.user_id) if ctx.user_id else None
+    if user is None or not (user.is_admin and user.is_active):
+        raise Forbidden()
+    return ctx
+
+
+def get_auth_service(
+    session: AsyncSession = Depends(get_session),
+    token_service: TokenService = Depends(get_token_service),
+    clock: Clock = Depends(get_clock),
+) -> AuthService:
+    """Compose the :class:`AuthService` from the request's session + auth wiring."""
+    return AuthService(
+        session=session,
+        token_service=token_service,
+        clock=clock,
+        users=UserRepository(session),
+        refresh_tokens=RefreshTokenRepository(session),
+    )

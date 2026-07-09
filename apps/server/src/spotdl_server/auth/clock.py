@@ -36,3 +36,19 @@ class SystemClock:
 
     def now(self) -> datetime:
         return datetime.now(UTC)
+
+
+def ensure_utc(value: datetime) -> datetime:
+    """Return ``value`` as a tz-aware UTC datetime.
+
+    Timestamps written as tz-aware UTC round-trip through SQLite as *naive*
+    datetimes (SQLite has no native ``timestamptz``; the offset is dropped and the
+    value re-read without a ``tzinfo``), while Postgres returns them tz-aware. So
+    a stored ``expires_at`` compared against :meth:`Clock.now` may be naive on
+    SQLite — this attaches UTC to a naive value (it is known to be UTC) and
+    normalizes an aware value to UTC, making ``expires_at <= now`` unambiguous on
+    both dialects.
+    """
+    if value.tzinfo is None:
+        return value.replace(tzinfo=UTC)
+    return value.astimezone(UTC)

@@ -32,7 +32,17 @@ from spotdl_server.api.errors import (
     _status_and_code,
     register_exception_handlers,
 )
-from spotdl_server.services.errors import NotFoundError
+from spotdl_server.services.errors import (
+    AuthRequired,
+    EmailTaken,
+    Forbidden,
+    InvalidCredentials,
+    InvalidToken,
+    NotAnAudioTarget,
+    NotFoundError,
+    OAuthEmailRequired,
+    TokenExpired,
+)
 
 # --------------------------------------------------------------------------
 # NotFoundError (server-side rich 404)
@@ -159,6 +169,50 @@ def test_not_found_error_beats_entity_not_found_dispatch() -> None:
     assert code is ErrorCode.NOT_FOUND
     assert detail == {"entity_type": "artist", "id": str(eid)}
     assert "provider" not in detail
+
+
+# --------------------------------------------------------------------------
+# Plan 6 auth/community error codes — one assertion per CONTRACT table row,
+# each exception constructed exactly as ``services/errors.py`` defines it.
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "exc, status, code",
+    [
+        (AuthRequired(), 401, ErrorCode.AUTH_REQUIRED),
+        (InvalidCredentials(), 401, ErrorCode.INVALID_CREDENTIALS),
+        (InvalidToken(), 401, ErrorCode.INVALID_TOKEN),
+        (TokenExpired(), 401, ErrorCode.TOKEN_EXPIRED),
+        (Forbidden(), 403, ErrorCode.FORBIDDEN),
+        (EmailTaken(), 409, ErrorCode.EMAIL_TAKEN),
+        (OAuthEmailRequired(), 400, ErrorCode.OAUTH_EMAIL_REQUIRED),
+        (NotAnAudioTarget(), 400, ErrorCode.NOT_AN_AUDIO_TARGET),
+    ],
+)
+def test_new_error_codes_mapped(exc: SpotdlError, status: int, code: ErrorCode) -> None:
+    mapped_status, mapped_code, detail = _status_and_code(exc)
+    assert mapped_status == status
+    assert mapped_code is code
+    assert detail is None
+    assert isinstance(exc, SpotdlError)  # routed through the SpotdlError handler
+
+
+@pytest.mark.parametrize(
+    "member, value",
+    [
+        (ErrorCode.AUTH_REQUIRED, "authentication_required"),
+        (ErrorCode.INVALID_CREDENTIALS, "invalid_credentials"),
+        (ErrorCode.INVALID_TOKEN, "invalid_token"),
+        (ErrorCode.TOKEN_EXPIRED, "token_expired"),
+        (ErrorCode.FORBIDDEN, "forbidden"),
+        (ErrorCode.EMAIL_TAKEN, "email_taken"),
+        (ErrorCode.OAUTH_EMAIL_REQUIRED, "oauth_email_required"),
+        (ErrorCode.NOT_AN_AUDIO_TARGET, "not_an_audio_target"),
+    ],
+)
+def test_new_error_code_vocabulary_is_stable(member: ErrorCode, value: str) -> None:
+    assert member.value == value
 
 
 # --------------------------------------------------------------------------

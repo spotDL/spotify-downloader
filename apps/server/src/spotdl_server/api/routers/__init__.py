@@ -19,7 +19,10 @@ from spotdl_server.api.errors import ErrorEnvelope
 # Mapped onto every router so the OpenAPI error responses reference the envelope.
 ERROR_RESPONSES: dict[int | str, dict[str, Any]] = {
     400: {"model": ErrorEnvelope},
+    401: {"model": ErrorEnvelope},
+    403: {"model": ErrorEnvelope},
     404: {"model": ErrorEnvelope},
+    409: {"model": ErrorEnvelope},
     422: {"model": ErrorEnvelope},
     429: {"model": ErrorEnvelope},
     500: {"model": ErrorEnvelope},
