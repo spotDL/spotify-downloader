@@ -105,6 +105,14 @@ class Settings(BaseSettings):
     # scan effective_library_path() -> DownloadRequest.known_paths.
     download_scan_existing: bool = False
 
+    # ------------------------------------------------------------------ #
+    # Plan 11 — observability (structlog / Prometheus / Sentry)
+    # ------------------------------------------------------------------ #
+    log_level: str = "INFO"  # root log level for the JSON handler
+    metrics_enabled: bool = True  # mount /metrics (Prometheus exposition)
+    sentry_dsn: SecretStr | None = None  # None -> Sentry disabled (no import)
+    sentry_traces_sample_rate: float = 0.0  # fraction of transactions traced
+
     def effective_database_url(self) -> str:
         """Resolve the async database URL used to build the engine.
 

@@ -55,6 +55,7 @@ from spotdl_server.api.schemas import (
 )
 from spotdl_server.db.enums import BatchKind, DownloadStatus
 from spotdl_server.downloads.progress import ProgressThrottle, overall_progress
+from spotdl_server.observability import set_download_queue_depth
 from spotdl_server.repositories.batches import DownloadBatchRepository
 from spotdl_server.repositories.downloads import DownloadJobRepository
 from spotdl_server.repositories.entities import TrackRepository
@@ -190,6 +191,7 @@ class DownloadWorkerPool:
             queued_ids = await DownloadJobRepository(session).ids_by_status(DownloadStatus.QUEUED)
         for job_id in queued_ids:
             self._queue.put_nowait(job_id)
+        set_download_queue_depth(self._queue.qsize())
 
         # 3. spawn the worker tasks.
         for _ in range(max(1, self._settings.download_concurrency)):
@@ -203,6 +205,7 @@ class DownloadWorkerPool:
         """Push freshly-committed job ids onto the queue so idle workers wake."""
         for job_id in job_ids:
             self._queue.put_nowait(job_id)
+        set_download_queue_depth(self._queue.qsize())
 
     async def request_cancel(self, job_id: UUID) -> bool:
         """Cancel a running task, or conditionally cancel a still-queued job."""
@@ -268,6 +271,7 @@ class DownloadWorkerPool:
                 job_id = await self._queue.get()
             except asyncio.CancelledError:
                 return
+            set_download_queue_depth(self._queue.qsize())
             # Stop pulling once a drain has begun: a job popped here would be a
             # *fresh* claim the shutdown snapshot has already passed, so it would
             # run detached past shutdown. Leave it ``queued`` for the next boot.

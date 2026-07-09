@@ -20,7 +20,7 @@ from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, cast
 
 import httpx
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from spotdl_core.providers import ProviderRegistry, build_default_registry
 
 from spotdl_server import __version__
@@ -46,6 +46,12 @@ from spotdl_server.api.routers import (
 from spotdl_server.auth.clock import SystemClock
 from spotdl_server.db.engine import build_engine, build_sessionmaker
 from spotdl_server.downloads.worker import DownloadWorkerPool
+from spotdl_server.observability import (
+    RequestObservabilityMiddleware,
+    configure_logging,
+    init_sentry,
+    render_latest,
+)
 from spotdl_server.ratelimit import build_rate_limiter
 from spotdl_server.services.batch import BatchFinalizer
 from spotdl_server.settings import DeploymentMode, Settings
@@ -156,6 +162,11 @@ def create_app(
     # ``downloads_require_auth`` while auth is inactive would get a silently-open
     # download surface, so refuse to build the app at all.
     settings.require_download_auth_consistency()
+    # Observability (CONTRACT A5): configure JSON logging and optional Sentry
+    # before anything else so startup/registration itself logs in the one format.
+    configure_logging(settings)
+    init_sentry(settings)
+
     app = FastAPI(title="spotdl-server", version=__version__, lifespan=lifespan)
     app.state.settings = settings
     app.state.injected_registry = registry
@@ -169,6 +180,22 @@ def create_app(
     # backend + clock it reads live on ``app.state`` (built in the lifespan).
     if settings.rate_limit_active():
         app.add_middleware(RateLimitMiddleware)
+
+    # The correlation-id / access-log / HTTP-metrics middleware is added last so
+    # it is the outermost layer: it assigns the request id and measures latency
+    # around every other middleware (including rate-limit rejections). CONTRACT A3.
+    app.add_middleware(RequestObservabilityMiddleware)
+
+    # Prometheus exposition (CONTRACT A2). A mount-time decision like every other
+    # surface: served when ``metrics_enabled`` (the default), absent (404) when
+    # not. Kept out of the OpenAPI schema so the committed openapi.json is stable.
+    if settings.metrics_enabled:
+
+        async def metrics_endpoint(_request: Request) -> Response:
+            body, content_type = render_latest()
+            return Response(body, media_type=content_type)
+
+        app.add_route("/metrics", metrics_endpoint, include_in_schema=False)
 
     # The Plan 5 surface is entirely read-only and available in every deployment
     # mode, so these routers mount unconditionally. Mode gating is a *mount-time*

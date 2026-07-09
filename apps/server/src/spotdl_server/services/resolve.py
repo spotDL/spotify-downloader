@@ -53,6 +53,12 @@ from spotdl_server.db.models import (
 from spotdl_server.db.models import (
     Track as TrackModel,
 )
+from spotdl_server.observability import (
+    record_cache_hit,
+    record_cache_miss,
+    record_match_served,
+    record_provider_error,
+)
 from spotdl_server.repositories.entities import (
     AlbumRepository,
     ArtistRepository,
@@ -130,11 +136,14 @@ class ResolveService:
         now = datetime.now(UTC)
         primary = await self._snapshots.get_fresh(ref.provider, ref.entity_id, now)
         if primary is None:  # cache miss → fetch + snapshot
+            record_cache_miss("snapshot")
             resolved = await self._fetch_primary(ref)
             assert resolved.track is not None  # _fetch_primary guarantees a track
             primary = await self._persist_track_snapshot(
                 resolved.provider, resolved.provider_id, resolved.track
             )
+        else:
+            record_cache_hit("snapshot")
 
         merge_set = await self._merge_set(primary)
         track = await self._merger.merge_track(merge_set)
@@ -188,10 +197,12 @@ class ResolveService:
                 candidates.extend(await provider.audio_candidates(core))
             except ProviderError:
                 degraded.add(provider.id)
+                record_provider_error(provider.id.value)
         ranked = match(core, candidates, self._matcher_config)
         await self._matches.replace_for_track(
             track.id, ranked, self._matcher_config.matcher_version
         )
+        record_match_served(self._matcher_config.matcher_version)
 
     # ------------------------------------------------------------- container
     async def _resolve_container(
@@ -208,8 +219,10 @@ class ResolveService:
         if fresh is not None:
             existing = await self._existing_container(fresh)
             if existing is not None:
+                record_cache_hit("snapshot")
                 return existing
 
+        record_cache_miss("snapshot")
         resolved = await self._fetch_container(ref)
         return await self._merge_container(resolved)
 
