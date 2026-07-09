@@ -374,6 +374,52 @@ async def test_cancel_during_active_progress_flush_reaches_terminal(
     await _assert_no_running(download_sessionmaker, [job_id])
 
 
+async def test_uninterruptible_drives_write_commit_through_cancel(
+    download_sessionmaker: Any,
+) -> None:
+    # Pins the invariant behind the mid-claim-cancel fix. ``_run_job`` claims the job
+    # (``UPDATE ... status='running'`` + commit) through ``_uninterruptible``; a user
+    # DELETE / shutdown drain can cancel the task mid-claim. If the cancel is allowed
+    # to interrupt the in-flight write+commit, aiosqlite's worker thread finishes the
+    # statement after SQLAlchemy has invalidated the connection, orphaning the open
+    # transaction — SQLite's write lock is never released and every later writer fails
+    # "database is locked". ``_uninterruptible`` must instead drain the write+commit to
+    # completion before the cancel propagates, leaving the row persisted and the DB
+    # writable. (A naive ``await coro`` leaves the row un-written; a bare
+    # ``asyncio.shield`` lets the commit race the awaiter's unwind.)
+    _batch_id, job_id = await _seed(download_sessionmaker)
+    started = asyncio.Event()
+    release = asyncio.Event()
+
+    async def write_running() -> None:
+        started.set()
+        await release.wait()  # park so the cancel lands while this is shielded, pre-write
+        async with download_sessionmaker() as session:
+            job = await session.get(DownloadJob, job_id)
+            job.status = DownloadStatus.RUNNING
+            await session.commit()
+
+    async def runner() -> None:
+        await DownloadWorkerPool._uninterruptible(write_running())
+
+    task = asyncio.create_task(runner())
+    await started.wait()
+    task.cancel()  # cancel before the wrapped write has run
+    await asyncio.sleep(0)  # let the cancel reach the shield
+    release.set()  # now let the shielded write+commit proceed
+    with pytest.raises(asyncio.CancelledError):
+        await task
+
+    # The shielded write ran to completion despite the cancel...
+    job = await _get_job(download_sessionmaker, job_id)
+    assert job.status is DownloadStatus.RUNNING
+    # ...and left no orphaned transaction: a fresh writer commits without blocking.
+    async with download_sessionmaker() as session:
+        job = await session.get(DownloadJob, job_id)
+        job.progress = 0.5
+        await session.commit()
+
+
 async def test_cancel_queued_job_never_calls_engine(
     download_sessionmaker: Any, download_settings: Settings, make_pool: Any
 ) -> None:

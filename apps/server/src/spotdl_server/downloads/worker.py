@@ -28,7 +28,7 @@ import asyncio
 import contextlib
 import logging
 from datetime import datetime
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Protocol, TypeVar
 from uuid import UUID
 
 from spotdl_core.download import (
@@ -76,6 +76,24 @@ logger = logging.getLogger("spotdl_server.downloads.worker")
 _ARCHIVE_FILENAME = ".spotdl-archive.txt"
 _TERMINAL_PHASES = frozenset({ProgressPhase.DONE, ProgressPhase.SKIPPED, ProgressPhase.ERROR})
 _AUDIO_SUFFIXES = frozenset(f".{fmt.value}" for fmt in OutputFormat)
+
+_T = TypeVar("_T")
+
+
+class _JobPrep:
+    """Mutable carrier for a job's claimed ``batch_id`` and built ``request``.
+
+    ``_prepare`` fills these in as it runs so that, even when a cancellation is
+    drained through :meth:`DownloadWorkerPool._uninterruptible`, the ``_run_job``
+    teardown (``_on_cancelled`` cleanup, ``_maybe_finalize``) still sees whatever
+    the shielded prepare established before the cancel is re-raised.
+    """
+
+    __slots__ = ("batch_id", "request")
+
+    def __init__(self) -> None:
+        self.batch_id: UUID | None = None
+        self.request: DownloadRequest | None = None
 
 
 class Engine(Protocol):
@@ -264,35 +282,79 @@ class DownloadWorkerPool:
             self._queue.task_done()
 
     async def _run_job(self, job_id: UUID) -> None:
-        batch_id: UUID | None = None
-        request: DownloadRequest | None = None
+        prep = _JobPrep()
         try:
             async with self._sessionmaker() as session:
-                async with self._lock:
-                    job = await DownloadJobRepository(session).claim(job_id, now=self._now())
-                    await session.commit()
-                if job is None:  # cancelled / already claimed / gone
-                    return
-                batch_id = job.batch_id
-                await self._hub.broadcast(WsJobStarted(job_id=job_id, batch_id=batch_id))
-
-                request = await self._build_request(session, job)
-                if request is None:  # no viable match -> fail fast, never call the engine
-                    await self._mark_failed(
-                        session, job_id, batch_id, step="fetch", error="no viable match"
-                    )
-                    return
-
-                outcome = await self._run_engine(job_id, batch_id, request)
-                await self._finish(session, job_id, batch_id, outcome)
+                # Claim + build the request as one cancellation-shielded step. A
+                # cancel (user DELETE / shutdown drain) can otherwise land *inside*
+                # ``claim`` — after its ``UPDATE ... status='running'`` has taken
+                # SQLite's write lock but before the commit — which invalidates the
+                # aiosqlite connection while its BEGIN..UPDATE is still open, orphaning
+                # the write transaction: the WAL write lock is never released and every
+                # later writer (including this job's own ``_on_cancelled`` terminal
+                # write, and unrelated jobs recycling the poisoned connection) then
+                # fails "database is locked". ``_uninterruptible`` drains the in-flight
+                # DB round-trip to a clean commit/close before the cancellation
+                # proceeds, so the engine download is the only interruptible await.
+                should_run = await self._uninterruptible(self._prepare(session, job_id, prep))
+                if should_run:
+                    assert prep.request is not None  # set iff _prepare returned True
+                    outcome = await self._run_engine(job_id, prep.batch_id, prep.request)
+                    await self._finish(session, job_id, prep.batch_id, outcome)
         except asyncio.CancelledError:
-            await self._on_cancelled(job_id, batch_id, request)
+            await self._on_cancelled(job_id, prep.batch_id, prep.request)
             if self._shutting_down:
                 raise  # let the worker task exit
         finally:
             self._running.pop(job_id, None)
-            if batch_id is not None and not self._shutting_down:
-                await self._maybe_finalize(batch_id)
+            if prep.batch_id is not None and not self._shutting_down:
+                await self._maybe_finalize(prep.batch_id)
+
+    async def _prepare(self, session: AsyncSession, job_id: UUID, prep: _JobPrep) -> bool:
+        """Claim the job and assemble its request (the shielded pre-engine step).
+
+        Records the claimed ``batch_id`` / built ``request`` on ``prep`` so that a
+        cancellation drained through :meth:`_uninterruptible` still exposes them to
+        ``_on_cancelled`` / ``_maybe_finalize``. Returns ``True`` when the engine
+        should run, ``False`` when the job was no longer claimable (cancelled /
+        already claimed / gone) or carried no viable match (failed fast here).
+        """
+        async with self._lock:
+            job = await DownloadJobRepository(session).claim(job_id, now=self._now())
+            await session.commit()
+        if job is None:  # cancelled / already claimed / gone
+            return False
+        prep.batch_id = job.batch_id
+        await self._hub.broadcast(WsJobStarted(job_id=job_id, batch_id=prep.batch_id))
+
+        request = await self._build_request(session, job)
+        if request is None:  # no viable match -> fail fast, never call the engine
+            await self._mark_failed(
+                session, job_id, prep.batch_id, step="fetch", error="no viable match"
+            )
+            return False
+        prep.request = request
+        return True
+
+    @staticmethod
+    async def _uninterruptible(coro: Awaitable[_T]) -> _T:
+        """Await ``coro`` to completion even if this task is cancelled meanwhile.
+
+        A bare ``await asyncio.shield(coro)`` is not enough: on cancel the awaiter
+        unwinds immediately while ``coro`` keeps running detached. That is fatal for
+        an in-flight SQLite write — the aiosqlite worker thread finishes the
+        statement (holding the write lock) after SQLAlchemy has already invalidated
+        the connection, leaking the lock. So hold a reference and, on cancel, await
+        the shielded future to completion *before* re-raising, so the DB round-trip
+        reaches a clean commit/rollback (lock released, connection reusable).
+        """
+        fut = asyncio.ensure_future(coro)
+        try:
+            return await asyncio.shield(fut)
+        except asyncio.CancelledError:
+            with contextlib.suppress(Exception):
+                await fut
+            raise
 
     async def _run_engine(
         self, job_id: UUID, batch_id: UUID | None, request: DownloadRequest
@@ -333,22 +395,12 @@ class DownloadWorkerPool:
                     # job teardown (completion *and* cancellation), and a cancel landing
                     # mid-commit aborts the transaction with the connection still holding
                     # the SQLite write lock — the job's terminal write (``_finish`` /
-                    # ``_on_cancelled``) then fails with "database is locked". A bare
-                    # ``await asyncio.shield(coro)`` does *not* keep the flush from racing:
-                    # on cancel the awaiter unwinds immediately while the flush runs
-                    # detached on ``session``, which this ``async with`` is now closing —
-                    # a concurrent-session-use race. So hold a reference and, on cancel,
-                    # await the in-flight flush to completion *before* re-raising, so the
-                    # write+commit finishes (releasing the lock) before the session closes.
-                    flush = asyncio.ensure_future(
+                    # ``_on_cancelled``) then fails with "database is locked". See
+                    # ``_uninterruptible`` for why draining the in-flight flush (rather
+                    # than a bare ``asyncio.shield``) is what actually releases the lock.
+                    await self._uninterruptible(
                         self._flush_progress(session, repo, job_id, overall)
                     )
-                    try:
-                        await asyncio.shield(flush)
-                    except asyncio.CancelledError:
-                        with contextlib.suppress(Exception):
-                            await flush
-                        raise
                     await self._hub.broadcast(
                         WsProgress(
                             job_id=job_id,
