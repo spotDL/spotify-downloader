@@ -12,6 +12,7 @@ import io
 import json
 import logging
 
+import pytest
 import structlog
 from spotdl_server.observability.logging import configure_logging
 from spotdl_server.settings import DeploymentMode, Settings
@@ -66,6 +67,75 @@ def test_secret_values_never_appear_in_output() -> None:
     assert "super-secret-value" not in raw
     # The masked SecretStr placeholder is what should be rendered instead.
     assert "**********" in raw
+
+
+def test_no_access_log_suppression_is_respected() -> None:
+    # `uvicorn --no-access-log` clears the access logger's handlers and stops its
+    # propagation before our factory runs; configure_logging must not revive it
+    # (which would defeat the flag and double every request log, since our
+    # middleware already emits the authoritative spotdl_server.access line).
+    access = logging.getLogger("uvicorn.access")
+    saved_propagate, saved_handlers = access.propagate, list(access.handlers)
+    access.handlers = []
+    access.propagate = False
+    try:
+        stream = io.StringIO()
+        configure_logging(Settings(), stream=stream)
+
+        assert access.propagate is False  # operator's suppression left intact
+
+        # Our middleware's access line is authoritative and still emits...
+        structlog.get_logger("spotdl_server.access").info(
+            "request",
+            request_id="r1",
+            method="GET",
+            path="/api/v1/health",
+            status_code=200,
+            duration_ms=1.0,
+        )
+        # ...while uvicorn's own access record stays suppressed (no double line).
+        logging.getLogger("uvicorn.access").info("native uvicorn access line")
+
+        records = _lines(stream)
+        access_lines = [r for r in records if r.get("logger") == "spotdl_server.access"]
+        uvicorn_lines = [r for r in records if r.get("logger") == "uvicorn.access"]
+        assert len(access_lines) == 1, records
+        assert uvicorn_lines == [], records
+    finally:
+        access.propagate, access.handlers = saved_propagate, saved_handlers
+
+
+def test_embedded_mode_defaults_to_warning_console_not_json() -> None:
+    # CONTRACT A1: embedded (CLI) mode wants quiet, human-readable output — a
+    # WARNING default and the structlog ConsoleRenderer, not INFO JSON noise.
+    stream = io.StringIO()
+    configure_logging(Settings(mode=DeploymentMode.EMBEDDED), stream=stream)
+
+    log = structlog.get_logger("spotdl_server.test")
+    log.info("info noise")  # dropped by the WARNING default
+    log.warning("kept warning")
+
+    out = stream.getvalue()
+    assert "info noise" not in out
+    assert "kept warning" in out
+    # Human console output, not JSON.
+    first = next(line for line in out.splitlines() if line.strip())
+    with pytest.raises(json.JSONDecodeError):
+        json.loads(first)
+
+
+def test_embedded_mode_honours_explicit_log_level_as_json() -> None:
+    # An explicit log_level opts back into the JSON pipeline at that level, even
+    # in embedded mode (the quiet default only applies when it was left unset).
+    stream = io.StringIO()
+    configure_logging(Settings(mode=DeploymentMode.EMBEDDED, log_level="INFO"), stream=stream)
+
+    structlog.get_logger("spotdl_server.test").info("shown", k=1)
+
+    records = _lines(stream)
+    assert len(records) == 1
+    assert records[0]["event"] == "shown"
+    assert records[0]["k"] == 1
 
 
 def test_reconfigure_does_not_duplicate_handlers() -> None:

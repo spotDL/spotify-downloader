@@ -57,6 +57,7 @@ from spotdl_server.observability import (
     record_cache_hit,
     record_cache_miss,
     record_match_served,
+    record_provider_degraded,
     record_provider_error,
 )
 from spotdl_server.repositories.entities import (
@@ -402,6 +403,8 @@ class ResolveService:
     @staticmethod
     def _with_degraded(result: ResolveResult, degraded: set[ProviderId]) -> ResolveResult:
         sources = tuple(sorted(pid.value for pid in degraded))
+        for provider in sources:
+            record_provider_degraded(provider)
         return ResolveResult(
             entity_type=result.entity_type,
             track=result.track,

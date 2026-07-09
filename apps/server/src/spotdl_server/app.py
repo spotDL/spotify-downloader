@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING, cast
 
 import httpx
 from fastapi import FastAPI, Request, Response
+from fastapi.responses import JSONResponse
 from spotdl_core.providers import ProviderRegistry, build_default_registry
 
 from spotdl_server import __version__
@@ -196,6 +197,16 @@ def create_app(
             return Response(body, media_type=content_type)
 
         app.add_route("/metrics", metrics_endpoint, include_in_schema=False)
+    else:
+        # Register an explicit 404 for /metrics when metrics are disabled. Without
+        # a claimed route the SPA root mount (``mount_webui``, added last) would
+        # shadow the *unmounted* path and serve index.html — so a disabled metrics
+        # surface would look 200/scrapeable whenever the UI is embedded. This route
+        # claims /metrics first so it stays a true Not Found, SPA present or not.
+        async def metrics_disabled(_request: Request) -> Response:
+            return JSONResponse({"detail": "Not Found"}, status_code=404)
+
+        app.add_route("/metrics", metrics_disabled, include_in_schema=False)
 
     # The Plan 5 surface is entirely read-only and available in every deployment
     # mode, so these routers mount unconditionally. Mode gating is a *mount-time*

@@ -57,6 +57,20 @@ def test_cache_provider_and_match_helpers_move_their_metrics() -> None:
     assert _value("spotdl_matches_served_total", {"matcher_version": "v5"}) == served + 1
 
 
+def test_provider_degraded_counter_increments() -> None:
+    labels = {"provider": "soundcloud"}
+    before = _value("spotdl_provider_degraded_total", labels)
+
+    metrics.record_provider_degraded("soundcloud")
+
+    assert _value("spotdl_provider_degraded_total", labels) == before + 1
+
+
+def test_provider_degraded_metric_is_exposed() -> None:
+    text = metrics.render_latest()[0].decode()
+    assert "spotdl_provider_degraded_total" in text
+
+
 def test_queue_depth_gauges_default_to_zero_and_are_settable() -> None:
     assert _value("spotdl_resolve_queue_depth") == 0
     assert _value("spotdl_download_queue_depth") == 0

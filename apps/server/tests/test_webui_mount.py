@@ -80,6 +80,18 @@ async def test_unknown_api_path_is_404_not_spa(webui_dir: Path) -> None:
     assert _INDEX_MARKER not in resp.text
 
 
+async def test_metrics_disabled_is_404_even_with_spa_mounted(webui_dir: Path) -> None:
+    # Regression: with the SPA embedded, the root mount used to shadow the
+    # *unmounted* /metrics and serve index.html (200) instead of a true 404, so
+    # metrics_enabled=False silently kept a scrapeable-looking surface. Assert the
+    # disabled surface is a real Not Found even when the bundled UI is present.
+    app = create_app(Settings(mode=DeploymentMode.EMBEDDED, metrics_enabled=False))
+    async with _client(app) as client:
+        resp = await client.get("/metrics")
+    assert resp.status_code == 404
+    assert _INDEX_MARKER not in resp.text
+
+
 async def test_absent_dir_is_a_noop(monkeypatch: pytest.MonkeyPatch) -> None:
     # No embedded UI: `/` is a plain 404 and the API is untouched.
     monkeypatch.setattr(webui, "_webui_dir", lambda: None)

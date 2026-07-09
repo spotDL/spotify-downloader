@@ -27,6 +27,7 @@ from spotdl_core.model import EntityType, Track
 from spotdl_core.providers import ProviderRegistry
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from spotdl_server.observability import record_provider_degraded
 from spotdl_server.repositories.snapshots import SnapshotRepository
 from spotdl_server.services.dto import SearchResult, TrackView
 from spotdl_server.services.provider_search import provider_search
@@ -50,6 +51,8 @@ class SearchService:
 
         degraded = failed | set(self._registry.unavailable.keys())
         sources = tuple(sorted(pid.value for pid in degraded))
+        for provider in sources:
+            record_provider_degraded(provider)
         return SearchResult(tracks=tuple(views), degraded_sources=sources)
 
     async def _snapshot_and_view(self, track: Track) -> TrackView:

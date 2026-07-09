@@ -42,13 +42,16 @@ CANDIDATES = (
 
 
 @asynccontextmanager
-async def _client(data_dir: Path) -> AsyncIterator[httpx.AsyncClient]:
+async def _client(
+    data_dir: Path, *, failing: tuple[ProviderId, ...] = ()
+) -> AsyncIterator[httpx.AsyncClient]:
     settings = Settings(mode=DeploymentMode.SELFHOST, data_dir=data_dir)
     await asyncio.to_thread(upgrade_to_head, settings)
     registry = build_fake_registry(
         FakeResolver(id=ProviderId.SPOTIFY, track=TRACK),
         FakeAudioProvider(id=ProviderId.YOUTUBE, candidates=list(CANDIDATES)),
         FakeLyricsProvider(id=ProviderId.GENIUS, text="la la la"),
+        failing=failing,
     )
     app = create_app(settings, registry=registry)
     async with app.router.lifespan_context(app):
@@ -78,3 +81,17 @@ async def test_resolve_moves_cache_and_matcher_metrics(tmp_path: Path) -> None:
         assert second.status_code == 200, second.text
         # Re-resolving the same URL is served from the snapshot cache.
         assert _sample("spotdl_cache_hits_total", snap) == hits + 1
+
+
+async def test_resolve_records_degraded_provider(tmp_path: Path) -> None:
+    label = {"provider": "soundcloud"}
+    before = _sample("spotdl_provider_degraded_total", label)
+
+    async with _client(tmp_path, failing=(ProviderId.SOUNDCLOUD,)) as client:
+        resp = await client.post("/api/v1/resolve", json={"query": SPOTIFY_URL})
+        assert resp.status_code == 200, resp.text
+        # The unavailable provider surfaces in degraded_sources...
+        assert "soundcloud" in resp.json()["degraded_sources"]
+
+    # ...and the degradation is counted for observability (outcome="degraded").
+    assert _sample("spotdl_provider_degraded_total", label) >= before + 1

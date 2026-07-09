@@ -108,6 +108,12 @@ def set_download_queue_depth(status: str, n: int) -> None: ...
 def record_match_served(matcher_version: str) -> None: ...
 ```
 
+> **Shipped-name reconciliation (deliberate deviations — the names above are illustrative; the shipped names are authoritative and are NOT renamed, since renaming a live metric breaks every dashboard/alert scraping it).** The metric objects in `spotdl_server/observability/metrics.py` deviate from the illustrative table above; the module docstring carries the same rationale:
+> - **`spotdl_cache_hits_total{cache}` + `spotdl_cache_misses_total{cache}`** instead of a single `spotdl_cache_events_total{entity_type,result}`. Two counters keep the hit-ratio query trivial (`hits / (hits + misses)`) and match the two discrete call sites; the label is `cache` (e.g. `"snapshot"`), not `entity_type`.
+> - **`spotdl_provider_errors_total{provider}`** instead of `spotdl_provider_requests_total{provider,capability,outcome}`. We count only the actionable failure, not every request, so there is no `capability`/`outcome` fan-out. The `outcome="degraded"` slice A2 wanted is provided separately by **`spotdl_provider_degraded_total{provider}`** (added in the Plan 11 fable-fix pass), incremented wherever a resolve/search records a `degraded_sources` entry — so degradation stays observable without instrumenting (and paying the cardinality of) every provider request.
+> - **`spotdl_download_queue_depth`** carries **no `{status}` label**: it is a single queue gauge (jobs awaiting a worker), so a `status="queued"|"running"` breakdown would always be a constant single series.
+> - Helper names follow the shipped metrics: `record_cache_hit(cache)` / `record_cache_miss(cache)`, `record_provider_error(provider)`, `record_provider_degraded(provider)`, `set_download_queue_depth(n)` (no `status` arg).
+
 Instrumentation call sites (this plan adds the calls at existing seams; it does NOT restructure services):
 - `record_cache_event` — in the resolve service around the `provider_snapshots` cache-hit / cache-miss branch (Plan 5).
 - `record_provider_call` — in the provider registry / `HttpProvider` wrapper (Plan 2), keyed by the `degraded_sources` outcome (spec §10).

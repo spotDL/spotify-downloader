@@ -18,10 +18,30 @@ spotdl_http_request_duration...  Histogram   method, path           request rate
 spotdl_cache_hits_total          Counter     cache                  cache hit ratio
 spotdl_cache_misses_total        Counter     cache                  cache hit ratio
 spotdl_provider_errors_total     Counter     provider               provider error rates
+spotdl_provider_degraded_total   Counter     provider               provider outcome="degraded"
 spotdl_resolve_queue_depth       Gauge       —                      resolve queue depth
 spotdl_download_queue_depth      Gauge       —                      download queue depth (extra)
 spotdl_matches_served_total      Counter     matcher_version        matcher version distribution
 ===============================  ==========  =====================  ================================
+
+Deliberate naming deviations from CONTRACT A2's illustrative table (the shipped
+names are authoritative and are NOT renamed — renaming a shipped metric breaks
+every dashboard/alert already scraping it):
+
+* ``cache_hits_total`` / ``cache_misses_total`` instead of a single
+  ``cache_events{outcome}``: two counters (rather than one labelled counter) keep
+  the hit-ratio query trivial (``hits / (hits + misses)``) and match the two
+  discrete call sites.
+* ``provider_errors_total{provider}`` instead of
+  ``provider_requests_total{provider,capability,outcome}``: we count only the
+  actionable failure, not every request, so there is no ``capability``/``outcome``
+  fan-out. The ``outcome="degraded"`` slice CONTRACT A2 wanted is provided
+  separately by ``provider_degraded_total{provider}`` below — incremented wherever
+  a resolve/search records a degraded source — so degradation is observable
+  without instrumenting (and paying the cardinality of) every provider request.
+* ``download_queue_depth`` carries no ``{status}`` label: it is a single queue
+  gauge (jobs awaiting a worker), so a status breakdown would always be a
+  constant single series.
 """
 
 from __future__ import annotations
@@ -43,6 +63,7 @@ __all__ = [
     "record_cache_hit",
     "record_cache_miss",
     "record_match_served",
+    "record_provider_degraded",
     "record_provider_error",
     "render_latest",
     "set_download_queue_depth",
@@ -72,6 +93,11 @@ CACHE_MISSES = Counter(
 PROVIDER_ERRORS = Counter(
     "spotdl_provider_errors_total",
     "Provider calls that failed, by provider id.",
+    ["provider"],
+)
+PROVIDER_DEGRADED = Counter(
+    "spotdl_provider_degraded_total",
+    "Resolve/search responses that degraded a provider (unavailable or errored), by provider id.",
     ["provider"],
 )
 RESOLVE_QUEUE_DEPTH = Gauge(
@@ -129,6 +155,15 @@ def record_cache_miss(cache: str) -> None:
 def record_provider_error(provider: str) -> None:
     """Count a failed provider call, keyed by provider id."""
     PROVIDER_ERRORS.labels(provider=provider).inc()
+
+
+def record_provider_degraded(provider: str) -> None:
+    """Count a resolve/search response that degraded a provider (spec §10).
+
+    The ``outcome="degraded"`` slice CONTRACT A2 asked for: incremented once per
+    degraded source recorded in a response's ``degraded_sources``.
+    """
+    PROVIDER_DEGRADED.labels(provider=provider).inc()
 
 
 def record_match_served(matcher_version: str) -> None:

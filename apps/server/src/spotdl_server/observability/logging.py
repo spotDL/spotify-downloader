@@ -19,12 +19,21 @@ from typing import TYPE_CHECKING, Any, TextIO
 
 import structlog
 
+from spotdl_server.settings import DeploymentMode
+
 if TYPE_CHECKING:
     from spotdl_server.settings import Settings
 
 # Marks the handler this module installs so re-configuring replaces only our own
 # handler and never touches, e.g., pytest's caplog handler on the root logger.
 _HANDLER_TAG = "_spotdl_observability"
+
+# The operator's access-log toggle. ``uvicorn --no-access-log`` clears this
+# logger's handlers and sets ``propagate=False``; our middleware already emits the
+# authoritative ``spotdl_server.access`` line, so we must NEVER re-enable or
+# force-propagate this logger — doing so defeats ``--no-access-log`` and doubles
+# every request log. It is deliberately excluded from both loops below.
+_UVICORN_ACCESS = "uvicorn.access"
 
 EventDict = MutableMapping[str, Any]
 
@@ -45,6 +54,21 @@ def configure_logging(settings: Settings, *, stream: TextIO | None = None) -> No
     ``stream`` overrides the destination (defaults to ``sys.stdout``); tests pass
     a ``StringIO`` to capture and parse the emitted lines.
     """
+    # CONTRACT A1 embedded default: the embedded server backs the CLI, where INFO
+    # JSON lines are noise on the user's terminal. Unless ``log_level`` was set
+    # explicitly, embedded mode logs at WARNING through the human-readable
+    # ConsoleRenderer; every other mode (and any explicit level) keeps the JSON
+    # pipeline at the configured level.
+    embedded_quiet = (
+        settings.mode is DeploymentMode.EMBEDDED and "log_level" not in settings.model_fields_set
+    )
+    effective_level = "WARNING" if embedded_quiet else settings.log_level.upper()
+    renderer: Any = (
+        structlog.dev.ConsoleRenderer(colors=False)
+        if embedded_quiet
+        else structlog.processors.JSONRenderer(default=str)
+    )
+
     mode_field = _static_field("mode", settings.mode.value)
     timestamper = structlog.processors.TimeStamper(fmt="iso", key="ts")
 
@@ -75,9 +99,11 @@ def configure_logging(settings: Settings, *, stream: TextIO | None = None) -> No
         foreign_pre_chain=shared_processors,
         processors=[
             structlog.stdlib.ProcessorFormatter.remove_processors_meta,
-            # ``default=str`` masks SecretStr (and any non-JSON object) instead of
-            # raising, so secrets are rendered as their placeholder, never leaked.
-            structlog.processors.JSONRenderer(default=str),
+            # JSONRenderer's ``default=str`` masks SecretStr (and any non-JSON
+            # object) instead of raising, so secrets render as their placeholder,
+            # never leaked. ConsoleRenderer (embedded) likewise repr/str-s values,
+            # so SecretStr stays masked there too.
+            renderer,
         ],
     )
 
@@ -90,21 +116,25 @@ def configure_logging(settings: Settings, *, stream: TextIO | None = None) -> No
         if existing.get_name() == _HANDLER_TAG:
             root.removeHandler(existing)
     root.addHandler(handler)
-    root.setLevel(settings.log_level.upper())
+    root.setLevel(effective_level)
 
     # Undo any prior ``disable_existing_loggers=True`` (Alembic's ``fileConfig``
     # on migrate, or a stray ``dictConfig``): a disabled logger silently drops
     # every record, which would black-hole our JSON access log and any library
     # logs. Re-enabling here makes ``configure_logging`` authoritative whenever it
     # is called, regardless of what touched ``logging`` before it.
+    # ``uvicorn.access`` is excluded: re-enabling it would revive an access log an
+    # operator suppressed with ``--no-access-log`` (see ``_UVICORN_ACCESS``).
     for logger in root.manager.loggerDict.values():
-        if isinstance(logger, logging.Logger):
+        if isinstance(logger, logging.Logger) and logger.name != _UVICORN_ACCESS:
             logger.disabled = False
 
     # Framework loggers ship their own handlers/formatters; strip them so records
     # flow through the single root JSON handler (no double lines, one format) and
-    # propagate to the root level.
-    for name in ("uvicorn", "uvicorn.error", "uvicorn.access"):
+    # propagate to the root level. ``uvicorn.access`` is deliberately absent — we
+    # leave it in whatever state uvicorn set so ``--no-access-log`` is honoured and
+    # our middleware's ``spotdl_server.access`` line is the sole access log.
+    for name in ("uvicorn", "uvicorn.error"):
         logger = logging.getLogger(name)
         logger.handlers.clear()
         logger.setLevel(logging.NOTSET)
