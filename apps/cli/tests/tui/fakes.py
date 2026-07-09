@@ -15,6 +15,7 @@ from contextlib import asynccontextmanager
 from uuid import UUID, uuid4
 
 from spotdl_cli.errors import ApiError
+from spotdl_cli.viewmodels.app_state import SessionSnapshot
 from spotdl_cli.views import (
     AlbumRefView,
     AlbumView,
@@ -151,6 +152,41 @@ def make_lyrics(
     )
 
 
+def make_album(
+    *, id: UUID | None = None, name: str = "Discovery", tracks: list[TrackView] | None = None
+) -> AlbumView:
+    return AlbumView(
+        id=str(id or uuid4()),
+        name=name,
+        album_artist="Daft Punk",
+        track_count=len(tracks) if tracks is not None else 1,
+        year=2001,
+        tracks=tracks if tracks is not None else [make_track()],
+    )
+
+
+def make_artist(
+    *, id: UUID | None = None, name: str = "Daft Punk", tracks: list[TrackView] | None = None
+) -> ArtistView:
+    return ArtistView(
+        id=str(id or uuid4()),
+        name=name,
+        genres=["french house"],
+        tracks=tracks if tracks is not None else [make_track()],
+    )
+
+
+def make_playlist(
+    *, id: UUID | None = None, name: str = "Mix", tracks: list[TrackView] | None = None
+) -> PlaylistView:
+    return PlaylistView(
+        id=str(id or uuid4()),
+        name=name,
+        owner="curator",
+        tracks=tracks if tracks is not None else [make_track()],
+    )
+
+
 def make_user(*, email: str = "user@example.com", is_admin: bool = False) -> UserView:
     return UserView(id=str(uuid4()), email=email, is_admin=is_admin, created_at=_EPOCH)
 
@@ -216,6 +252,33 @@ def make_report(
         status=status,
         created_at=_EPOCH,
         reason=reason,
+    )
+
+
+def make_session(
+    *,
+    mode: str = "self_host",
+    can_download: bool = True,
+    can_auth: bool = True,
+    can_vote: bool = True,
+    is_admin: bool = False,
+    user_email: str | None = None,
+    server_origin: str = "https://api.example.test",
+    transport_label: str = "remote · api.example.test",
+    matcher_version: str = "m1",
+    degraded: bool = False,
+) -> SessionSnapshot:
+    return SessionSnapshot(
+        mode=mode,
+        can_download=can_download,
+        can_auth=can_auth,
+        can_vote=can_vote,
+        is_admin=is_admin,
+        user_email=user_email,
+        server_origin=server_origin,
+        transport_label=transport_label,
+        matcher_version=matcher_version,
+        degraded=degraded,
     )
 
 

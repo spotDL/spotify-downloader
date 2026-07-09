@@ -10,11 +10,14 @@ root :class:`AppStateViewModel` and the session it produces.
 from __future__ import annotations
 
 from spotdl_cli.viewmodels.app_state import AppStateViewModel, SessionSnapshot
+from spotdl_cli.viewmodels.collection import CollectionViewModel
 from spotdl_cli.viewmodels.protocol import (
     ConfigStore,
     CredentialStore,
     SpotdlClientProtocol,
 )
+from spotdl_cli.viewmodels.search import SearchViewModel
+from spotdl_cli.viewmodels.track import TrackViewModel
 
 
 class ViewModelFactory:
@@ -55,3 +58,12 @@ class ViewModelFactory:
             server_origin=self._server_origin,
             transport_label=self._transport_label,
         )
+
+    def search(self) -> SearchViewModel:
+        return SearchViewModel(self._client)
+
+    def track(self) -> TrackViewModel:
+        return TrackViewModel(self._client, self.session)
+
+    def collection(self) -> CollectionViewModel:
+        return CollectionViewModel(self._client, self.session)
