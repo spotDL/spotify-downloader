@@ -9,6 +9,11 @@ Loads each matched file as a JSON array of :class:`CorpusCase`, asserts
 (enforced by the model on load), prints a one-line summary, and exits non-zero
 on any error. Reused by CI (Task 10) as a cheap structural pre-check before the
 (more expensive) accuracy gate runs.
+
+Derived-metadata siblings that share the corpus dir but are not arrays of cases
+(``schema.NON_CORPUS_FILENAMES``, e.g. ``baseline.json``) are skipped during
+glob expansion, so ``corpus/*.json`` validates cleanly (exit 0) without naming
+each case file explicitly.
 """
 
 import glob as globmod
@@ -21,7 +26,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from scripts.corpus.schema import CorpusCase
+from scripts.corpus.schema import NON_CORPUS_FILENAMES, CorpusCase
 
 
 @dataclass(frozen=True)
@@ -86,7 +91,14 @@ def _expand(patterns: Sequence[str]) -> list[Path]:
         matched = sorted(globmod.glob(pattern, recursive=True))
         if not matched and Path(pattern).exists():
             matched = [pattern]
-        paths.extend(Path(p) for p in matched)
+        for p in matched:
+            path = Path(p)
+            # Skip derived-metadata siblings (e.g. baseline.json) that share the
+            # corpus dir but are not JSON arrays of cases, so the plain
+            # ``corpus/*.json`` glob keeps validating cleanly (exit 0).
+            if path.name in NON_CORPUS_FILENAMES:
+                continue
+            paths.append(path)
     return paths
 
 

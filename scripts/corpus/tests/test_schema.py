@@ -25,8 +25,10 @@ from scripts.corpus.schema import (
 )
 from scripts.corpus.validate import (
     Summary,
+    _expand,
     duplicate_case_ids,
     load_cases,
+    run,
     summarize,
     validate_paths,
 )
@@ -343,3 +345,33 @@ def test_validate_paths_reports_bad_index(tmp_path: Path) -> None:
     _cases, errors = validate_paths([tmp_path / "bad.json"])
     assert errors
     assert any("bad.json" in e for e in errors)
+
+
+def test_expand_skips_baseline_json(tmp_path: Path) -> None:
+    """The ``corpus/*.json`` glob must not surface the derived baseline sibling."""
+    _write_corpus(tmp_path / "recorded.json", [_case_dict(case_id="one")])
+    (tmp_path / "baseline.json").write_text(
+        json.dumps({"total": 1, "v4_accuracy": 1.0}), encoding="utf-8"
+    )
+    matched = _expand([str(tmp_path / "*.json")])
+    names = {p.name for p in matched}
+    assert names == {"recorded.json"}
+    assert "baseline.json" not in names
+
+
+def test_run_glob_ignores_baseline_json_and_exits_zero(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Regression: `validate "<corpus>/*.json"` returns 0 despite a sibling
+    ``baseline.json`` (a JSON object, not an array of cases) in the same dir."""
+    _write_corpus(tmp_path / "recorded.json", [_case_dict(case_id="one")])
+    _write_corpus(tmp_path / "handcrafted.json", [_case_dict(case_id="two")])
+    (tmp_path / "baseline.json").write_text(
+        json.dumps({"total": 2, "v4_correct": 2, "v4_accuracy": 1.0}),
+        encoding="utf-8",
+    )
+    code = run([str(tmp_path / "*.json")])
+    captured = capsys.readouterr()
+    assert code == 0, captured.err
+    assert "baseline.json" not in captured.err
+    assert "2 cases" in captured.out

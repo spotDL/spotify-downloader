@@ -112,3 +112,10 @@ python -m scripts.corpus.validate "packages/core/tests/matching/corpus/*.json"
 Prints `N cases, K hand-verified, M v4-recorded` and exits non-zero on any
 structural error (bad JSON, unknown key, out-of-range index, duplicate
 `case_id`).
+
+The `*.json` glob also matches `baseline.json`, which is **derived metadata**
+(a JSON object, not an array of cases). Corpus-file discovery deliberately skips
+it — the skip list is `scripts.corpus.schema.NON_CORPUS_FILENAMES`, honored by
+both the validator and the recorder — so this exact command (as wired into CI in
+Task 10) stays exit 0. `baseline.json`'s own consistency is checked separately by
+`uv run python -m scripts.corpus.make_baseline --check`.

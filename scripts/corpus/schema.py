@@ -20,6 +20,12 @@ from spotdl_core.model import AlbumRef, AudioCandidate, ProviderId, Track
 ALLOWED_SOURCES: Final[frozenset[str]] = frozenset({"v4-recorded", "hand-verified"})
 _KEBAB_RE: Final[re.Pattern[str]] = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
+# Sibling JSON files that live in the corpus dir but are NOT corpus case arrays
+# (they are derived metadata, e.g. the v4 accuracy baseline). Corpus-file
+# discovery must skip these so the plain ``corpus/*.json`` glob used by the
+# validator and recorder keeps working without listing every case file by hand.
+NON_CORPUS_FILENAMES: Final[frozenset[str]] = frozenset({"baseline.json"})
+
 
 class _M(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")

@@ -248,11 +248,21 @@ def record_file(path: Path, *, dry_run: bool = False) -> tuple[int, int]:
     return len(data), changed
 
 
+# Derived-metadata siblings in the corpus dir that are not JSON arrays of cases;
+# skip them when a glob (e.g. ``corpus/*.json``) expands over the dir. Kept local
+# so this PEP-723 script stays import-free of ``scripts.corpus`` (its isolated
+# ``uv`` env only ships v4's deps). Mirror of schema.NON_CORPUS_FILENAMES.
+_NON_CORPUS_FILENAMES = frozenset({"baseline.json"})
+
+
 def _iter_paths(patterns: Iterable[str]) -> list[Path]:
     paths: list[Path] = []
     for pattern in patterns:
         matched = sorted(Path().glob(pattern)) if _is_glob(pattern) else [Path(pattern)]
-        paths.extend(matched or [Path(pattern)])
+        for path in matched or [Path(pattern)]:
+            if _is_glob(pattern) and path.name in _NON_CORPUS_FILENAMES:
+                continue
+            paths.append(path)
     return paths
 
 
