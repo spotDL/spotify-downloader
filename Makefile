@@ -1,4 +1,4 @@
-.PHONY: sync lint typecheck test check web-install web-check web-clients web-clients-check web-build web-embed web-e2e dist openapi ws-schema clients docs docs-check
+.PHONY: sync lint typecheck test check web-install web-check web-clients web-clients-check web-build web-embed bundle-spa web-e2e dist openapi ws-schema clients docs docs-check
 
 sync:
 	uv sync --all-packages --all-groups
@@ -46,6 +46,12 @@ web-embed:
 	rm -rf apps/server/src/spotdl_server/webui
 	mkdir -p apps/server/src/spotdl_server/webui
 	cp -R apps/web/dist/. apps/server/src/spotdl_server/webui/
+
+# Build the SPA and embed it into the server package in one step (build + embed).
+# Named entry point the release workflows call (release-pypi E1, release-binaries
+# E3) and the shorthand the deploy docs reference; a thin alias over web-build +
+# web-embed so there is a single embed recipe (populates spotdl_server/webui/).
+bundle-spa: web-build web-embed
 
 # Playwright e2e: build + embed the SPA, then drive it against the seeded server
 # (playwright.config.ts boots apps/server/scripts/serve_e2e.py). Kept OUT of

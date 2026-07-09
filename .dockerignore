@@ -1,0 +1,31 @@
+# Keep the build context small and host-independent. Anything the image needs is
+# built INSIDE the stages (web-builder runs its own `pnpm install`; py-builder
+# runs `uv sync`), so host build outputs must never leak in — a host node_modules
+# copied over the container's clean install would clobber it with the wrong
+# platform's binaries and break `pnpm build`.
+
+# Dependency + build outputs (rebuilt in-image)
+**/node_modules
+**/.venv
+.venv
+**/dist
+# The embedded SPA is rebuilt fresh from web-builder and copied in; never ship a
+# stale host copy (it is git-ignored too).
+apps/server/src/spotdl_server/webui
+
+# VCS + local tooling
+.git
+.github
+.gitignore
+
+# Python / test caches
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+
+# Local runtime data + docs/site (not needed to build the image)
+data
+site
+.superpowers*
