@@ -24,6 +24,7 @@ from spotdl_cli.tui.screens.admin import AdminScreen
 from spotdl_cli.tui.screens.auth import AuthScreen
 from spotdl_cli.tui.screens.base import PlaceholderScreen, SpotdlScreen
 from spotdl_cli.tui.screens.help import HelpScreen
+from spotdl_cli.tui.screens.home import HomeSearchScreen
 from spotdl_cli.tui.screens.settings import SettingsScreen
 from spotdl_cli.tui.widgets.status_bar import StatusBar
 from spotdl_cli.viewmodels.app_state import SessionSnapshot
@@ -54,9 +55,9 @@ _SECTIONS: tuple[Section, ...] = (
     Section("5", "admin", "Admin", "is_admin"),
 )
 
-# section name -> screen class. Later tasks register real screens (Task 5 home,
-# Task 8 queue); until then, placeholders.
+# section name -> screen class. Task 8 registers the queue screen; the rest are real.
 SECTION_SCREENS: dict[str, type[SpotdlScreen]] = {
+    "home": HomeSearchScreen,
     "settings": SettingsScreen,
     "auth": AuthScreen,
     "admin": AdminScreen,
