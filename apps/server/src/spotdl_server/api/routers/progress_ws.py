@@ -96,8 +96,14 @@ async def progress_ws(websocket: WebSocket) -> None:
     try:
         await websocket.send_text(WsHello().model_dump_json())
         await hub.snapshot_to(websocket, await _snapshot(websocket))
-        while True:  # server→client only: drain inbound frames to detect disconnect
-            await websocket.receive()
+        # Server→client only: drain inbound frames purely to detect disconnect. The
+        # low-level ``receive()`` returns a ``websocket.disconnect`` message on close
+        # (it does not raise), so break on it; ``receive_text``/``receive_json`` would
+        # raise ``WebSocketDisconnect`` instead — caught for older Starlette paths.
+        while True:
+            message = await websocket.receive()
+            if message["type"] == "websocket.disconnect":
+                break
     except WebSocketDisconnect:
         pass
     finally:
