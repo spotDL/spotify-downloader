@@ -271,26 +271,60 @@ HelpScreen {
     color: $text-muted;
 }
 
-/* Auth: identity line + login form. */
-#auth-status {
-    padding: 1 1 0 1;
+/* Account: a single centred card, ≤70 cols, that swaps signed-in / signed-out. */
+#auth-slot {
+    width: 100%;
+    height: 1fr;
+    align: center middle;
+}
+
+.auth-card {
+    width: 70;
+    max-width: 100%;
+    height: auto;
+    padding: 1 2;
+}
+
+.auth-blurb {
+    height: auto;
     color: $text-muted;
+    padding: 0 0 1 0;
+}
+
+.auth-note {
+    height: auto;
+    color: $text-muted;
+    text-style: italic;
+    padding: 1 0 0 0;
+}
+
+#auth-status {
+    height: auto;
+    padding: 0 0 1 0;
+    text-style: bold;
+}
+
+.auth-pat {
+    height: auto;
+    color: $text-muted;
+    padding: 0 0 1 0;
 }
 
 .auth-offline {
-    width: 100%;
-    height: 1fr;
+    width: 70;
+    max-width: 100%;
+    height: auto;
+    border: round $primary 30%;
+    padding: 2 2;
     content-align: center middle;
+    text-align: center;
     color: $text-muted;
 }
 
-#auth-buttons {
+#auth-buttons,
+#auth-pat-actions {
     height: auto;
-    padding: 1 1;
-}
-
-#auth-buttons Button {
-    margin: 0 1 0 0;
+    padding: 0 0 1 0;
 }
 
 /* Admin: stats summary line above the reports table. */
