@@ -104,6 +104,38 @@ def _iso(value: Any) -> str:
     return str(value)
 
 
+def _provider_value(value: Any) -> str | None:
+    """Render a ``ProviderId`` (or plain string) as its string value, or ``None``."""
+    if value is None:
+        return None
+    return getattr(value, "value", None) or str(value)
+
+
+def _status_value(value: Any) -> str:
+    """Render a ``DownloadStatus`` / ``BatchKind`` (StrEnum) as its plain value."""
+    if value is None:
+        return ""
+    return getattr(value, "value", None) or str(value)
+
+
+def _save_match(match: Any) -> SaveFileMatch | None:
+    """Map a ``matches`` row onto the save-file's chosen audio target."""
+    if match is None:
+        return None
+    verified = _status_value(getattr(match, "status", None)) == "community_verified"
+    return SaveFileMatch(
+        provider=_provider_value(getattr(match, "target_provider", None)) or "",
+        provider_id=str(getattr(match, "target_id", "") or ""),
+        url=str(getattr(match, "target_url", "") or ""),
+        name=getattr(match, "candidate_name", None),
+        artists=list(getattr(match, "candidate_artists", None) or []),
+        duration_ms=getattr(match, "candidate_duration_ms", None),
+        verified=verified,
+        score=getattr(match, "score", None),
+        matcher_version=getattr(match, "matcher_version", None),
+    )
+
+
 def build_save_file(
     batch: Any,
     jobs: Sequence[Any],
@@ -113,12 +145,14 @@ def build_save_file(
     """Map a batch + its jobs (with resolved tracks/matches) to a :class:`SaveFileV2`.
 
     Pure mapper — no I/O. One :class:`SaveFileSong` per job, in the jobs' given
-    order, so a failed job still appears (v4 parity). The exhaustive field mapping
-    (optional tags, list context, match provenance) is filled out and covered by
-    the ``BatchFinalizer`` in Task 7; this body populates the fields available on
-    the canonical rows and leaves the DB-unbacked optionals as ``None``.
+    order, so a failed job still appears (v4 parity). Populates the full track
+    metadata available on the canonical rows, the chosen ``match`` provenance, and
+    the ``download`` settings/result. DB-unbacked optional tags (``date`` /
+    ``publisher`` / ``copyright_text`` / ``cover_url``) serialize as ``null`` — an
+    additive-safe, documented limitation of the v5 canonical ``tracks`` table.
     """
     songs: list[SaveFileSong] = []
+    matcher_version: str | None = None
     for job in jobs:
         track_id: Any = getattr(job, "track_id", None)
         match_id: Any = getattr(job, "match_id", None)
@@ -130,7 +164,7 @@ def build_save_file(
             bitrate=getattr(job, "bitrate", None) or "",
             output_template=getattr(job, "output_template", None) or "",
             output_path=getattr(job, "output_path", None),
-            status=str(getattr(job, "status", "")),
+            status=_status_value(getattr(job, "status", None)),
             skip_reason=getattr(job, "skip_reason", None),
             error_step=getattr(job, "error_step", None),
         )
@@ -138,35 +172,38 @@ def build_save_file(
         artists: list[str] = []
         name = ""
         duration_ms = 0
+        album = None
         if track is not None:
             artists = [str(a.name) for a in getattr(track, "artists", [])]
             name = str(getattr(track, "name", "") or "")
             duration_ms = int(getattr(track, "duration_ms", 0) or 0)
+            album = getattr(track, "album", None)
 
-        save_match: SaveFileMatch | None = None
-        if match is not None:
-            save_match = SaveFileMatch(
-                provider=str(getattr(match, "target_provider", "")),
-                provider_id=str(getattr(match, "target_id", "")),
-                url=str(getattr(match, "target_url", "")),
-                score=getattr(match, "score", None),
-                matcher_version=getattr(match, "matcher_version", None),
-            )
+        save_match = _save_match(match)
+        if matcher_version is None and save_match is not None:
+            matcher_version = save_match.matcher_version
 
         songs.append(
             SaveFileSong(
                 name=name,
                 artists=artists,
+                artist=artists[0] if artists else None,
+                album_name=getattr(album, "name", None) if album is not None else None,
+                album_artist=getattr(album, "album_artist", None) if album is not None else None,
                 duration_ms=duration_ms,
                 isrc=getattr(track, "isrc", None) if track is not None else None,
                 explicit=getattr(track, "explicit", None) if track is not None else None,
                 track_number=getattr(track, "track_number", None) if track is not None else None,
                 disc_number=getattr(track, "disc_number", None) if track is not None else None,
+                track_count=getattr(album, "track_count", None) if album is not None else None,
                 year=getattr(track, "year", None) if track is not None else None,
                 genres=list(getattr(track, "genres", []) or []) if track is not None else [],
                 popularity=getattr(track, "popularity", None) if track is not None else None,
-                list_position=getattr(job, "list_position", None),
+                provider=(
+                    _provider_value(getattr(track, "provider", None)) if track is not None else None
+                ),
                 list_name=getattr(batch, "name", None),
+                list_position=getattr(job, "list_position", None),
                 list_length=getattr(batch, "total_jobs", None),
                 match=save_match,
                 download=download,
@@ -174,10 +211,11 @@ def build_save_file(
         )
 
     return SaveFileV2(
-        kind=str(getattr(batch, "kind", "")),
+        kind=_status_value(getattr(batch, "kind", None)),
         name=getattr(batch, "name", None),
         source=getattr(batch, "source", None),
         created_at=_iso(getattr(batch, "created_at", None)),
+        matcher_version=matcher_version,
         songs=songs,
     )
 
