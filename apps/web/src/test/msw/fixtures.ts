@@ -5,12 +5,17 @@
 // generated-client discipline). Builders take a shallow `overrides` partial.
 import type {
   AdminStatsResponse,
+  AdminUserResponse,
   ConfigResponse,
   DeploymentMode,
+  DownloadDefaults,
   DownloadListResponse,
   LyricsResponse,
   MatchesResponse,
   MatchOut,
+  PagedReports,
+  PagedUsers,
+  ReportResponse,
   TokenResponse,
   TrackOut,
   UserResponse,
@@ -35,6 +40,29 @@ export function makeConfig(
     matcher_version: "1.0.0",
     oauth_providers: [],
     download_defaults: null,
+    ...overrides,
+  };
+}
+
+export function makeDownloadDefaults(
+  overrides: Overrides<DownloadDefaults> = {},
+): DownloadDefaults {
+  return {
+    add_unavailable: false,
+    bitrate: "auto",
+    concurrency: 4,
+    create_skip_file: false,
+    detect_formats: ["mp3"],
+    id3_separator: "/",
+    max_filename_length: null,
+    output_format: "mp3",
+    output_template: "{artists} - {title}.{output-ext}",
+    playlist_numbering: false,
+    respect_skip_file: true,
+    restrict: "none",
+    retain_track_cover: false,
+    scan_existing: true,
+    skip_explicit: false,
     ...overrides,
   };
 }
@@ -151,6 +179,54 @@ export function makeAdminStats(
     votes_total: 512,
     reports_total: 9,
     reports_pending: 2,
+    ...overrides,
+  };
+}
+
+export function makeAdminUser(
+  overrides: Overrides<AdminUserResponse> = {},
+): AdminUserResponse {
+  return {
+    id: "user-1",
+    email: "user@example.com",
+    display_name: "Test User",
+    is_admin: false,
+    is_active: true,
+    created_at: "2026-01-01T00:00:00Z",
+    ...overrides,
+  };
+}
+
+export function makePagedUsers(overrides: Overrides<PagedUsers> = {}): PagedUsers {
+  return {
+    items: [makeAdminUser()],
+    total: 1,
+    ...overrides,
+  };
+}
+
+export function makeReport(
+  overrides: Overrides<ReportResponse> = {},
+): ReportResponse {
+  return {
+    id: "report-1",
+    subject_type: "track",
+    subject_id: "track-1",
+    field: "title",
+    proposed_value: "Get Lucky (Radio Edit)",
+    reason: "Wrong title",
+    status: "pending",
+    created_at: "2026-01-01T00:00:00Z",
+    ...overrides,
+  };
+}
+
+export function makePagedReports(
+  overrides: Overrides<PagedReports> = {},
+): PagedReports {
+  return {
+    items: [makeReport()],
+    total: 1,
     ...overrides,
   };
 }
