@@ -25,8 +25,6 @@ import re
 from pathlib import Path
 from unicodedata import normalize
 
-from yt_dlp.utils import sanitize_filename  # type: ignore[import-untyped]
-
 from spotdl_core.download.context import (
     DownloadConfig,
     DownloadRequest,
@@ -206,6 +204,12 @@ def restrict_filename(path: Path, mode: RestrictMode) -> Path:
         return path
 
     if mode is RestrictMode.STRICT:
+        # Deferred import: yt_dlp is a heavy dependency (it transitively pulls in
+        # mutagen). Keeping it out of module import time means ``import
+        # spotdl_core.download`` stays cheap and offline — only a STRICT-mode
+        # render actually loads yt_dlp. (Matches the fetch/tags deferral policy.)
+        from yt_dlp.utils import sanitize_filename  # type: ignore[import-untyped]
+
         result = sanitize_filename(path.name, True, False).replace("_-_", "-")
     else:  # RestrictMode.ASCII
         result = normalize("NFKD", path.name).encode("ascii", "ignore").decode("utf-8")

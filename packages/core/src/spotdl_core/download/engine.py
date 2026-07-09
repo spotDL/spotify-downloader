@@ -54,9 +54,46 @@ from spotdl_core.download.post import (
 from spotdl_core.download.tags import CoverDownloader, EmbedStep
 from spotdl_core.providers.errors import DownloadFailed, PostProcessingFailed
 
-__all__ = ["DownloadEngine"]
+__all__ = ["DownloadEngine", "build_default_engine"]
 
 logger = logging.getLogger(__name__)
+
+
+# --- default wiring -------------------------------------------------------
+
+
+def build_default_engine(config: DownloadConfig) -> DownloadEngine:
+    """Wire a :class:`DownloadEngine` with the real production collaborators.
+
+    This is the single call the server worker (Plan 7) uses to obtain a
+    fully-functional engine from a :class:`DownloadConfig`. The heavy, blocking
+    collaborators are constructed here — and *only* here — from config:
+
+    - :class:`~spotdl_core.download.fetch.YtDlpFetcher` (yt-dlp audio fetch),
+    - :class:`~spotdl_core.download.tags.HttpCoverDownloader` (cover art over the
+      config proxy),
+    - :class:`~spotdl_core.download.post.SyncedLyricsLibrary` (``.lrc`` search via
+      the optional ``syncedlyrics`` extra),
+    - :class:`~spotdl_core.download.post.YtDlpSponsorBlock` (SponsorBlock trimming).
+
+    The collaborator imports are deferred to call time so that merely importing
+    ``spotdl_core.download`` (or this function) never pulls in ``yt_dlp`` /
+    ``mutagen`` or touches the network. Constructing the collaborators is inert:
+    each only stores its config; no network or ffmpeg work happens until a
+    ``download()`` actually runs. Tests inject fakes directly into
+    :class:`DownloadEngine` instead of calling this helper.
+    """
+    from spotdl_core.download.fetch import YtDlpFetcher
+    from spotdl_core.download.post import SyncedLyricsLibrary, YtDlpSponsorBlock
+    from spotdl_core.download.tags import HttpCoverDownloader
+
+    return DownloadEngine(
+        config,
+        fetcher=YtDlpFetcher(config),
+        cover=HttpCoverDownloader(proxy=config.proxy),
+        lyrics_search=SyncedLyricsLibrary(),
+        sponsor_block=YtDlpSponsorBlock(),
+    )
 
 
 # --- null collaborators ---------------------------------------------------

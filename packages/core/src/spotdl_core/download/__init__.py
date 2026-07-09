@@ -35,7 +35,7 @@ from spotdl_core.download.convert import (
     resolve_bitrate,
     should_move,
 )
-from spotdl_core.download.engine import DownloadEngine
+from spotdl_core.download.engine import DownloadEngine, build_default_engine
 from spotdl_core.download.fetch import (
     Fetcher,
     FetchResult,
@@ -74,14 +74,9 @@ from spotdl_core.providers.errors import (
 )
 
 __all__ = [
+    "AudioFetchFailed",
     "BITRATE_AUTO",
     "BITRATE_DISABLE",
-    "FFMPEG_CODECS",
-    "LRC_REGEX",
-    "M4A_TAG_PRESET",
-    "MP3_TAG_PRESET",
-    "SPONSOR_BLOCK_CATEGORIES",
-    "AudioFetchFailed",
     "Bitrate",
     "ConversionFailed",
     "ConvertStep",
@@ -93,11 +88,15 @@ __all__ = [
     "DownloadOutcome",
     "DownloadRequest",
     "EmbedStep",
+    "FFMPEG_CODECS",
     "FetchResult",
     "FetchStep",
     "Fetcher",
     "HttpCoverDownloader",
+    "LRC_REGEX",
     "M3uEntry",
+    "M4A_TAG_PRESET",
+    "MP3_TAG_PRESET",
     "MetadataEmbedFailed",
     "OutcomeStatus",
     "OutputFormat",
@@ -107,6 +106,7 @@ __all__ = [
     "ProgressEvent",
     "ProgressPhase",
     "RestrictMode",
+    "SPONSOR_BLOCK_CATEGORIES",
     "SkipReason",
     "SponsorBlock",
     "SponsorBlockStep",
@@ -116,6 +116,7 @@ __all__ = [
     "YtDlpFetcher",
     "YtDlpSponsorBlock",
     "archive_update",
+    "build_default_engine",
     "build_ffmpeg_command",
     "create_m3u_content",
     "embed_metadata",
