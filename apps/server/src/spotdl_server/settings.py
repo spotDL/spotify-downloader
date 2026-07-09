@@ -189,7 +189,7 @@ class Settings(BaseSettings):
             return self.download_temp_dir
         return self.data_dir / "temp"
 
-    def download_config(self) -> DownloadConfig:
+    def download_config(self) -> "DownloadConfig":
         """Build the process-level :class:`~spotdl_core.download.DownloadConfig`.
 
         Creates the library + temp dirs (``parents=True, exist_ok=True``) and
