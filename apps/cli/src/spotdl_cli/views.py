@@ -537,6 +537,8 @@ class DownloadSubmit:
     overwrite: str | None = None
     embed_lyrics: bool = True
     generate_lrc: bool = False
+    generate_m3u: bool = False
+    m3u_template: str | None = None
     generate_save_file: bool = False
     sponsor_block: bool = False
     update_archive: bool = False

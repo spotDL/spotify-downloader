@@ -4,8 +4,12 @@ import typer
 
 from spotdl_cli import __version__
 from spotdl_cli.client import embedded_client
+from spotdl_cli.commands import download as _download_cmd
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
+
+# Additive command registration (Task 13 finalizes bare-query/TTY dispatch).
+_download_cmd.register(app)
 
 
 @app.command()

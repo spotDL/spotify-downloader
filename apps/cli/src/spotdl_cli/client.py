@@ -23,12 +23,31 @@ from typing import Any, Literal, Protocol
 from uuid import UUID
 
 import httpx
-from httpx_ws import AsyncWebSocketSession
+from httpx_ws import AsyncWebSocketSession, WebSocketDisconnect
 from spotdl_server.app import create_app
+from spotdl_server.downloads.savefile import SaveFileV2
 from spotdl_server.settings import DeploymentMode, Settings
 
 from spotdl_cli._generated.api.api.auth import login_api_v1_auth_login_post as _login_ep
 from spotdl_cli._generated.api.api.auth import me_api_v1_auth_me_get as _me_ep
+from spotdl_cli._generated.api.api.downloads import (
+    cancel_download_api_v1_downloads_job_id_delete as _cancel_dl_ep,
+)
+from spotdl_cli._generated.api.api.downloads import (
+    get_batch_api_v1_downloads_batches_batch_id_get as _get_batch_ep,
+)
+from spotdl_cli._generated.api.api.downloads import (
+    get_batch_save_file_api_v1_downloads_batches_batch_id_save_file_get as _save_file_ep,
+)
+from spotdl_cli._generated.api.api.downloads import (
+    get_download_api_v1_downloads_job_id_get as _get_dl_ep,
+)
+from spotdl_cli._generated.api.api.downloads import (
+    list_downloads_api_v1_downloads_get as _list_dl_ep,
+)
+from spotdl_cli._generated.api.api.downloads import (
+    submit_download_api_v1_downloads_post as _submit_dl_ep,
+)
 from spotdl_cli._generated.api.api.entities import get_album_api_v1_albums_id_get as _album_ep
 from spotdl_cli._generated.api.api.entities import get_artist_api_v1_artists_id_get as _artist_ep
 from spotdl_cli._generated.api.api.entities import (
@@ -51,6 +70,12 @@ from spotdl_cli._generated.api.api.tokens import create_token_api_v1_auth_tokens
 from spotdl_cli._generated.api.client import Client
 from spotdl_cli._generated.api.models.config_response import ConfigResponse
 from spotdl_cli._generated.api.models.create_pat_request import CreatePatRequest
+from spotdl_cli._generated.api.models.download_batch_out import DownloadBatchOut
+from spotdl_cli._generated.api.models.download_job_out import DownloadJobOut
+from spotdl_cli._generated.api.models.download_list_response import DownloadListResponse
+from spotdl_cli._generated.api.models.download_status import DownloadStatus
+from spotdl_cli._generated.api.models.download_submit_request import DownloadSubmitRequest
+from spotdl_cli._generated.api.models.download_submit_response import DownloadSubmitResponse
 from spotdl_cli._generated.api.models.error_code import ErrorCode
 from spotdl_cli._generated.api.models.error_envelope import ErrorEnvelope
 from spotdl_cli._generated.api.models.error_envelope_detail_type_0 import ErrorEnvelopeDetailType0
@@ -58,6 +83,8 @@ from spotdl_cli._generated.api.models.login_request import LoginRequest
 from spotdl_cli._generated.api.models.lyrics_response import LyricsResponse
 from spotdl_cli._generated.api.models.match_out import MatchOut
 from spotdl_cli._generated.api.models.matches_response import MatchesResponse
+from spotdl_cli._generated.api.models.output_format import OutputFormat
+from spotdl_cli._generated.api.models.overwrite_mode import OverwriteMode
 from spotdl_cli._generated.api.models.pat_created_response import PatCreatedResponse
 from spotdl_cli._generated.api.models.resolve_request import ResolveRequest
 from spotdl_cli._generated.api.models.resolve_response import ResolveResponse
@@ -66,7 +93,8 @@ from spotdl_cli._generated.api.models.submit_match_request import SubmitMatchReq
 from spotdl_cli._generated.api.models.token_response import TokenResponse
 from spotdl_cli._generated.api.models.track_out import TrackOut
 from spotdl_cli._generated.api.models.user_response import UserResponse
-from spotdl_cli._generated.api.types import Response
+from spotdl_cli._generated.api.types import UNSET, Response, Unset
+from spotdl_cli._generated.ws_models import WsHello, WsMessage
 from spotdl_cli.errors import ApiError
 from spotdl_cli.views import (
     AlbumView,
@@ -92,6 +120,26 @@ DEFAULT_API_URL = "https://api.spotdl.dev"
 OVERRIDABLE via config / ``SPOTDL_API_URL`` / ``--api-url``. Never a localhost
 stub, and localhost is never the shipped default.
 """
+
+WS_PROTOCOL_VERSION = 1
+"""The download-progress WebSocket protocol version this client speaks.
+
+Mirrors the server's ``WS_PROTOCOL_VERSION`` (``apps/server/ws-protocol.json`` →
+``ws_protocol_version``); ``progress()`` rejects a server ``WsHello`` whose
+``protocol_version`` differs. The generated ``ws_models`` carry the union shape
+but no version constant, so it is pinned here alongside the check that uses it.
+"""
+
+
+class UnsupportedProtocol(Exception):
+    """The server's WS ``protocol_version`` does not match ``WS_PROTOCOL_VERSION``."""
+
+    def __init__(self, server_version: int) -> None:
+        self.server_version = server_version
+        super().__init__(
+            f"server speaks WS progress protocol v{server_version}, "
+            f"this client speaks v{WS_PROTOCOL_VERSION}; upgrade spotdl"
+        )
 
 
 class Transport(Protocol):
@@ -162,6 +210,16 @@ def _detail_dict(envelope: ErrorEnvelope) -> dict[str, Any] | None:
     if isinstance(detail, ErrorEnvelopeDetailType0):
         return detail.to_dict()
     return None
+
+
+def _or_unset(value: str | None) -> str | Unset:
+    """Map ``None`` (an unset flag/config value) to the generator's ``UNSET``.
+
+    A ``None`` request field means "fall back to the server's configured default"
+    (CONTRACT: ``DownloadSubmitRequest`` engine fields), which the wire format
+    expresses by omission, i.e. ``UNSET``.
+    """
+    return UNSET if value is None else value
 
 
 def _unwrap(resp: Response[Any]) -> Any:
@@ -345,36 +403,105 @@ class SpotdlClient:
         return UserView.from_generated(result)
 
     # ---- downloads (ALWAYS the embedded transport) --------------------------
-    # Deferred to Plan 8 Task 7 (embedded transport + WS progress).
 
     async def submit_download(self, req: DownloadSubmit) -> BatchView:
-        raise NotImplementedError("submit_download is wired in Plan 8 Task 7")
+        body = DownloadSubmitRequest(
+            query=req.query,
+            bitrate=_or_unset(req.bitrate),
+            embed_lyrics=req.embed_lyrics,
+            generate_lrc=req.generate_lrc,
+            generate_m3u=req.generate_m3u,
+            generate_save_file=req.generate_save_file,
+            m3u_template=_or_unset(req.m3u_template),
+            output_format=OutputFormat(req.output_format) if req.output_format else UNSET,
+            output_template=_or_unset(req.output_template),
+            overwrite=OverwriteMode(req.overwrite) if req.overwrite else UNSET,
+            sponsor_block=req.sponsor_block,
+            update_archive=req.update_archive,
+        )
+        resp = await _submit_dl_ep.asyncio_detailed(client=self._client(self._downloads), body=body)
+        result = _unwrap(resp)
+        assert isinstance(result, DownloadSubmitResponse)
+        return BatchView.from_generated(result.batch)
 
-    async def list_downloads(self, **filters: Any) -> DownloadPage:
-        raise NotImplementedError("list_downloads is wired in Plan 8 Task 7")
+    async def list_downloads(
+        self,
+        *,
+        status: str | None = None,
+        batch_id: UUID | None = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> DownloadPage:
+        resp = await _list_dl_ep.asyncio_detailed(
+            client=self._client(self._downloads),
+            status=DownloadStatus(status) if status is not None else UNSET,
+            batch_id=batch_id if batch_id is not None else UNSET,
+            limit=limit,
+            offset=offset,
+        )
+        result = _unwrap(resp)
+        assert isinstance(result, DownloadListResponse)
+        return DownloadPage.from_generated(result)
 
     async def get_download(self, job_id: UUID) -> JobView:
-        raise NotImplementedError("get_download is wired in Plan 8 Task 7")
+        resp = await _get_dl_ep.asyncio_detailed(
+            job_id=job_id, client=self._client(self._downloads)
+        )
+        result = _unwrap(resp)
+        assert isinstance(result, DownloadJobOut)
+        return JobView.from_generated(result)
 
     async def cancel_download(self, job_id: UUID) -> JobView:
-        raise NotImplementedError("cancel_download is wired in Plan 8 Task 7")
+        resp = await _cancel_dl_ep.asyncio_detailed(
+            job_id=job_id, client=self._client(self._downloads)
+        )
+        result = _unwrap(resp)
+        assert isinstance(result, DownloadJobOut)
+        return JobView.from_generated(result)
 
     async def get_batch(self, batch_id: UUID) -> BatchView:
-        raise NotImplementedError("get_batch is wired in Plan 8 Task 7")
+        resp = await _get_batch_ep.asyncio_detailed(
+            batch_id=batch_id, client=self._client(self._downloads)
+        )
+        result = _unwrap(resp)
+        assert isinstance(result, DownloadBatchOut)
+        return BatchView.from_generated(result)
 
-    async def fetch_save_file(self, batch_id: UUID) -> dict[str, Any]:
-        # Task 7 models the response as SaveFileV2 (no generated model — the
-        # save-file endpoint returns raw JSON).
-        raise NotImplementedError("fetch_save_file is wired in Plan 8 Task 7")
+    async def fetch_save_file(self, batch_id: UUID) -> SaveFileV2:
+        """Fetch a batch's ``.spotdl`` v2 document (raw JSON → typed ``SaveFileV2``)."""
+        resp = await _save_file_ep.asyncio_detailed(
+            batch_id=batch_id, client=self._client(self._downloads)
+        )
+        result = _unwrap(resp)
+        return SaveFileV2.model_validate(result)
 
     @asynccontextmanager
-    async def progress(self) -> AsyncIterator[AsyncIterator[Any]]:
+    async def progress(self) -> AsyncIterator[AsyncIterator[WsMessage]]:
         """Stream WS progress frames (parsed into ``ws_models.WsMessage``).
 
-        Deferred to Plan 8 Task 7 (one WS code path for local and remote).
+        One code path for local and remote. Consumes the opening ``WsHello`` and
+        raises :class:`UnsupportedProtocol` if the server's ``protocol_version``
+        differs from :data:`WS_PROTOCOL_VERSION`; the handshake frame is not
+        yielded, so callers see only job events until the socket closes.
         """
-        raise NotImplementedError("SpotdlClient.progress is wired in Plan 8 Task 7")
-        yield  # pragma: no cover  (marks this an async generator for asynccontextmanager)
+        async with self._downloads.ws_connect("/ws/progress") as session:
+
+            async def _frames() -> AsyncIterator[WsMessage]:
+                while True:
+                    try:
+                        raw = await session.receive_text()
+                    except WebSocketDisconnect:
+                        return
+                    message = WsMessage.model_validate_json(raw)
+                    inner = message.root
+                    if isinstance(inner, WsHello):
+                        version = inner.protocol_version or WS_PROTOCOL_VERSION
+                        if version != WS_PROTOCOL_VERSION:
+                            raise UnsupportedProtocol(version)
+                        continue
+                    yield message
+
+            yield _frames()
 
 
 @asynccontextmanager
