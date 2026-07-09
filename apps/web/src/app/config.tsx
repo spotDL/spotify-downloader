@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { type AnyRouter, RouterProvider } from "@tanstack/react-router";
 import type { FeatureFlags } from "../api/generated/types.gen";
 import { useConfig } from "../api/queries";
+import { bootstrapAuth } from "../api/client";
 import { useSessionStore } from "../stores/session";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
@@ -21,15 +22,10 @@ export function useFeature(flag: FeatureFlag): boolean {
   return data?.features[flag] ?? false;
 }
 
-/**
- * Boot-time auth bootstrap (CONTRACT C): if a refresh token exists but there is
- * no access token, mint one via `POST /auth/refresh` before authed UI renders.
- * Task 4 implements the refresh; this stub resolves immediately so the boot flow
- * and the ConfigGate `await` seam already exist.
- */
-export async function bootstrapAuth(): Promise<void> {
-  return;
-}
+// `bootstrapAuth` (CONTRACT C boot-time refresh) lives with the interceptors in
+// `src/api/client.ts`; re-exported here so config-flow consumers keep one import
+// site (ConfigGate awaits it below).
+export { bootstrapAuth };
 
 function FullPageSpinner() {
   return (

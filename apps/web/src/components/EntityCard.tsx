@@ -1,47 +1,56 @@
-import type { ReactNode } from "react";
+import type { EntityType } from "../api/generated/types.gen";
+import { Badge } from "./Badge";
 
-// MERGE: replace with the design-system <EntityCard> (CONTRACT H / Plan 10
-// Task 5, sibling track). This minimal placeholder is presentational only — a
-// cover/leading slot, a title, an optional subtitle, and a trailing meta slot —
-// so callers wrap it in a typed <Link> for navigation.
+// CONTRACT H — EntityCard. Cover art, title, subtitle (artists/owner), and a
+// type badge, linking to the entity route. Used across search results and the
+// album/artist/playlist track lists.
+
+const ROUTE_SEGMENT: Record<EntityType, string> = {
+  track: "tracks",
+  album: "albums",
+  artist: "artists",
+  playlist: "playlists",
+};
+
 export function EntityCard({
-  title,
+  type,
+  id,
+  name,
   subtitle,
-  meta,
-  coverUrl,
-  leading,
+  imageUrl,
   className = "",
 }: {
-  title: ReactNode;
-  subtitle?: ReactNode;
-  meta?: ReactNode;
-  coverUrl?: string | null;
-  leading?: ReactNode;
+  type: EntityType;
+  id: string;
+  name: string;
+  subtitle?: string;
+  imageUrl?: string | null;
   className?: string;
 }) {
   return (
-    <div
-      className={`flex items-center gap-3 rounded-card border border-black/10 bg-surface px-3 py-2 dark:border-white/10 ${className}`}
+    <a
+      href={`/${ROUTE_SEGMENT[type]}/${id}`}
+      className={`flex items-center gap-3 rounded-card border border-black/10 bg-surface p-3 transition-colors hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/5 ${className}`}
     >
-      {coverUrl ? (
+      {imageUrl != null && imageUrl !== "" ? (
         <img
-          src={coverUrl}
+          src={imageUrl}
           alt=""
           className="size-12 shrink-0 rounded object-cover"
           loading="lazy"
         />
-      ) : leading ? (
-        <div className="flex size-12 shrink-0 items-center justify-center rounded bg-black/5 text-muted dark:bg-white/10">
-          {leading}
-        </div>
-      ) : null}
-      <div className="min-w-0 flex-1">
-        <p className="truncate font-medium text-fg">{title}</p>
-        {subtitle ? <p className="truncate text-sm text-muted">{subtitle}</p> : null}
+      ) : (
+        <div className="size-12 shrink-0 rounded bg-black/10 dark:bg-white/10" />
+      )}
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="truncate text-sm font-medium text-fg">{name}</span>
+        {subtitle !== undefined && subtitle !== "" ? (
+          <span className="truncate text-xs text-muted">{subtitle}</span>
+        ) : null}
       </div>
-      {meta != null ? (
-        <div className="shrink-0 text-sm tabular-nums text-muted">{meta}</div>
-      ) : null}
-    </div>
+      <Badge tone="muted" className="capitalize">
+        {type}
+      </Badge>
+    </a>
   );
 }

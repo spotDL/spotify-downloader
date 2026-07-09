@@ -6,6 +6,11 @@ import { queryClient } from "./app/query-client";
 import { router } from "./app/router";
 import { ConfigGate } from "./app/config";
 import { ThemeProvider } from "./app/theme";
+import { installApiInterceptors } from "./api/boot";
+
+// Wire the CONTRACT C refresh-once auth interceptors onto the generated client
+// before the first request (the config fetch) goes out.
+installApiInterceptors();
 
 // Provider composition (CONTRACT — structure diagram): QueryClient wraps the
 // theme + config gate; ConfigGate fetches /config, awaits bootstrapAuth, then
