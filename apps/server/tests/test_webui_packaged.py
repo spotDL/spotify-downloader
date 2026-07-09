@@ -48,9 +48,7 @@ def test_webui_is_force_included_in_wheel(tmp_path: Path) -> None:
         with zipfile.ZipFile(wheels[0]) as wheel:
             names = set(wheel.namelist())
             assert "spotdl_server/webui/index.html" in names
-            assert (
-                wheel.read("spotdl_server/webui/index.html").decode() == marker
-            )
+            assert wheel.read("spotdl_server/webui/index.html").decode() == marker
     finally:
         # Restore the tree: the embed dir is a build artifact, never committed.
         if preexisting:

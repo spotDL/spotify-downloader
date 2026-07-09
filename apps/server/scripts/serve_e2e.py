@@ -32,6 +32,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+import httpx  # noqa: E402
 import uvicorn  # noqa: E402
 from pydantic import SecretStr  # noqa: E402
 from spotdl_core.model import AudioCandidate, ProviderId, Track  # noqa: E402
@@ -42,7 +43,6 @@ from spotdl_server.db.models import DownloadBatch, DownloadJob  # noqa: E402
 from spotdl_server.services.auth import normalize_email  # noqa: E402
 from spotdl_server.settings import DeploymentMode, Settings  # noqa: E402
 
-import httpx  # noqa: E402
 from apps.server.tests.conftest import FakeDownloadEngine  # noqa: E402
 from apps.server.tests.fakes import (  # noqa: E402
     FakeAudioProvider,
@@ -150,9 +150,7 @@ async def _seed(app: object, settings: Settings) -> None:
 
             # Resolve the track (creates the canonical entity) and submit a match
             # on it as the listener, so the track page has something to vote on.
-            resolved = await client.post(
-                "/api/v1/resolve", json={"query": SPOTIFY_TRACK_URL}
-            )
+            resolved = await client.post("/api/v1/resolve", json={"query": SPOTIFY_TRACK_URL})
             resolved.raise_for_status()
             track_id = resolved.json()["entity"]["track"]["id"]
 

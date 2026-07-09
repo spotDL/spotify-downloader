@@ -33,9 +33,7 @@ def _embedded_app() -> object:
 def webui_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     root = tmp_path / "webui"
     (root / "assets").mkdir(parents=True)
-    (root / "index.html").write_text(
-        f"<!doctype html><title>spotDL</title>{_INDEX_MARKER}"
-    )
+    (root / "index.html").write_text(f"<!doctype html><title>spotDL</title>{_INDEX_MARKER}")
     (root / "assets" / "app-abc123.js").write_text("console.log('spa')")
     (root / "favicon.ico").write_bytes(b"\x00icon")
     monkeypatch.setattr(webui, "_webui_dir", lambda: root)
