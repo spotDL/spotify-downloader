@@ -19,6 +19,8 @@ fail-fast, ``create_app``).
 
 from __future__ import annotations
 
+import asyncio
+
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from spotdl_server.api.deps import auth_context_from_token
@@ -87,7 +89,16 @@ async def _snapshot(websocket: WebSocket) -> list[WsMessage]:
 @router.websocket("/ws/progress")
 async def progress_ws(websocket: WebSocket) -> None:
     """Register the client, greet it, snapshot, then stream broadcasts until gone."""
-    if not await _authorized(websocket):
+    # The on-connect DB reads (``_authorized`` PAT touch + ``_snapshot``) run inside
+    # ``asyncio.shield``: a client routinely reads the ``hello`` frame and disconnects
+    # immediately, cancelling this handler *mid-query*. A bare cancel there aborts the
+    # aiosqlite operation with the connection still checked out — SQLAlchemy can no
+    # longer return it, so it leaks and its worker thread later fails a
+    # ``call_soon_threadsafe`` on the torn-down loop ("Event loop is closed"), which
+    # deadlocks the event-loop shutdown (``_cancel_all_tasks`` waits on a future that
+    # is never set). Shielding lets each read finish and release its connection before
+    # the cancellation unwinds the handler.
+    if not await asyncio.shield(_authorized(websocket)):
         await websocket.close(code=_WS_AUTH_FAILED)
         return
 
@@ -95,7 +106,7 @@ async def progress_ws(websocket: WebSocket) -> None:
     await hub.register(websocket)  # accepts the connection
     try:
         await websocket.send_text(WsHello().model_dump_json())
-        await hub.snapshot_to(websocket, await _snapshot(websocket))
+        await hub.snapshot_to(websocket, await asyncio.shield(_snapshot(websocket)))
         # Server→client only: drain inbound frames purely to detect disconnect. The
         # low-level ``receive()`` returns a ``websocket.disconnect`` message on close
         # (it does not raise), so break on it; ``receive_text``/``receive_json`` would

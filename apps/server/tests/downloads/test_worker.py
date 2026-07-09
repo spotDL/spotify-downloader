@@ -544,8 +544,12 @@ async def test_batch_finalized_exactly_once(
     await pool.start()
     await _wait_status(download_sessionmaker, job1, {DownloadStatus.COMPLETED})
     await _wait_status(download_sessionmaker, job2, {DownloadStatus.COMPLETED})
-    # the finalize runs in the last job's finally (guaranteed once by the lock)
-    await _wait_until(lambda: bool(spy.calls))
+    # The finalize runs in the last job's finally (guaranteed once by the lock).
+    # Wait for the ``batch_finished`` broadcast itself, not merely the finalizer
+    # call: the finalizer records ``spy.calls`` and only *then* reads WS counts and
+    # broadcasts, so waiting on ``spy.calls`` races the broadcast under slow
+    # scheduling (the assertions below are on ``hub.messages``).
+    await _wait_until(lambda: any(m.type == "batch_finished" for m in hub.messages))
 
     assert spy.calls == [batch_id]
     finished = [m for m in hub.messages if m.type == "batch_finished"]

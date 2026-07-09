@@ -42,6 +42,7 @@ from spotdl_core.download import (
 )
 from spotdl_core.download.paths import build_output_path, load_archive
 from spotdl_core.model import AlbumRef, AudioCandidate, Track
+from sqlalchemy.exc import OperationalError
 
 from spotdl_server.api.schemas import (
     WsBatchFinished,
@@ -60,7 +61,7 @@ from spotdl_server.repositories.entities import TrackRepository
 from spotdl_server.repositories.matches import MatchRepository
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Awaitable, Callable, Sequence
     from pathlib import Path
 
     from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -311,8 +312,13 @@ class DownloadWorkerPool:
                 if throttle.should_flush(
                     now=loop.time(), phase=event.phase, overall=overall, is_terminal=is_terminal
                 ):
-                    await repo.update_progress(job_id, progress=overall)
-                    await session.commit()
+                    # Shield the write+commit: ``_stop_pump`` cancels this task on every
+                    # job teardown (completion *and* cancellation), and a cancel landing
+                    # mid-commit aborts the transaction with the connection still holding
+                    # the SQLite write lock — the job's terminal write (``_finish`` /
+                    # ``_on_cancelled``) then fails with "database is locked". Letting the
+                    # flush finish before the cancel unwinds keeps the lock released.
+                    await asyncio.shield(self._flush_progress(session, repo, job_id, overall))
                     await self._hub.broadcast(
                         WsProgress(
                             job_id=job_id,
@@ -322,6 +328,12 @@ class DownloadWorkerPool:
                             overall=overall,
                         )
                     )
+
+    async def _flush_progress(
+        self, session: AsyncSession, repo: DownloadJobRepository, job_id: UUID, overall: float
+    ) -> None:
+        await repo.update_progress(job_id, progress=overall)
+        await session.commit()
 
     @staticmethod
     async def _stop_pump(pump: asyncio.Task[None]) -> None:
@@ -416,17 +428,44 @@ class DownloadWorkerPool:
 
         Uses a *fresh* session — the ``_run_job`` session has already unwound.
         """
-        async with self._sessionmaker() as session:
-            repo = DownloadJobRepository(session)
-            if self._shutting_down:
-                # Graceful shutdown: put the job back so the next boot resumes it.
-                await repo.requeue(job_id, now=self._now())
-                await session.commit()
-                return
-            await repo.mark_cancelled(job_id, now=self._now())
-            await session.commit()
+        if self._shutting_down:
+            # Graceful shutdown: put the job back so the next boot resumes it.
+            await self._commit_with_locked_retry(
+                lambda session: DownloadJobRepository(session).requeue(job_id, now=self._now())
+            )
+            return
+        await self._commit_with_locked_retry(
+            lambda session: DownloadJobRepository(session).mark_cancelled(job_id, now=self._now())
+        )
         self._delete_partial(request)
         await self._hub.broadcast(WsJobCancelled(job_id=job_id, batch_id=batch_id))
+
+    async def _commit_with_locked_retry(
+        self,
+        work: Callable[[AsyncSession], Awaitable[object]],
+        *,
+        attempts: int = 6,
+        base_delay_s: float = 0.03,
+    ) -> None:
+        """Run ``work`` + commit on a fresh session, retrying "database is locked".
+
+        The terminal cancel write races the just-cancelled job's own connection
+        teardown (its read snapshot) and any concurrent writer, so under SQLite it
+        can hit ``SQLITE_BUSY``/``SQLITE_BUSY_SNAPSHOT`` — which ``busy_timeout`` does
+        not cover for a read→write upgrade. Rolling back and re-running on a fresh
+        snapshot clears it; without this the cancel is silently lost and the job is
+        stranded non-terminal. Non-lock errors and the last attempt propagate.
+        """
+        for attempt in range(attempts):
+            try:
+                async with self._sessionmaker() as session:
+                    await work(session)
+                    await session.commit()
+                return
+            except OperationalError as exc:
+                if "locked" not in str(exc).lower() or attempt == attempts - 1:
+                    raise
+                await asyncio.sleep(base_delay_s * (attempt + 1))
 
     # ------------------------------------------------------------ finalize
     async def _maybe_finalize(self, batch_id: UUID) -> None:
