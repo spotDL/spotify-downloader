@@ -288,3 +288,21 @@ def test_main_exits_usage_on_drop(capsys: pytest.CaptureFixture[str]) -> None:
 
 def test_drop_message_format() -> None:
     assert drop_message("--audio", "gone.") == "error: `--audio` was removed in spotdl v5. gone."
+
+
+class TestBareValueDefaults:
+    """v4 allowed bare `--m3u` / `--restrict`; the shim injects their defaults."""
+
+    def test_bare_m3u_gets_default_template(self) -> None:
+        result = translate_v4_argv(["download", "URL", "--m3u"])
+        assert isinstance(result, Rewritten)
+        assert result.argv == ["download", "URL", "--m3u", "{list[0]}.m3u8"]
+
+    def test_bare_restrict_gets_strict(self) -> None:
+        result = translate_v4_argv(["download", "URL", "--restrict", "--m3u", "x.m3u8"])
+        assert isinstance(result, Rewritten)
+        assert result.argv == ["download", "URL", "--restrict", "strict", "--m3u", "x.m3u8"]
+
+    def test_valued_forms_pass_through(self) -> None:
+        result = translate_v4_argv(["download", "URL", "--restrict", "ascii", "--m3u", "p.m3u8"])
+        assert isinstance(result, Unchanged)

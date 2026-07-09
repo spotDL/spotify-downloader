@@ -81,6 +81,9 @@ class FlagSpec:
     rename_to: tuple[str, ...] = ()
     pointer: str = ""
     operation: bool = False
+    bare_default: str | None = None
+    """v4 allowed this flag bare; when the next token is a flag (or end), inject
+    this value so the v5 required-value option still parses (v4 parity)."""
 
 
 @dataclass(frozen=True)
@@ -127,8 +130,17 @@ V4_FLAG_TABLE: tuple[FlagSpec, ...] = (
         "SAME",
         "`--restrict` (`--restrict` with no value → `--restrict strict`)",
         ("--restrict",),
+        takes_value=True,
+        bare_default="strict",
     ),
-    FlagSpec("--m3u", "SAME", "`--m3u` (optional value; default `{list[0]}.m3u8`)", ("--m3u",)),
+    FlagSpec(
+        "--m3u",
+        "SAME",
+        "`--m3u` (optional value; default `{list[0]}.m3u8`)",
+        ("--m3u",),
+        takes_value=True,
+        bare_default="{list[0]}.m3u8",
+    ),
     FlagSpec("--save-file", "SAME", "`--save-file`", ("--save-file",), takes_value=True),
     FlagSpec("--archive", "SAME", "`--archive`", ("--archive",), takes_value=True),
     FlagSpec("--cookie-file", "SAME", "`--cookie-file`", ("--cookie-file",), takes_value=True),
@@ -558,9 +570,15 @@ def translate_v4_argv(argv: list[str]) -> ShimResult:
         body.append(token)
         i += 1
         has_inline_value = token.startswith("--") and "=" in token
-        if spec.takes_value and not has_inline_value and i < n:
-            body.append(tokens[i])
-            i += 1
+        if spec.takes_value and not has_inline_value:
+            value_missing = i >= n or _is_flag(tokens[i])
+            if value_missing and spec.bare_default is not None:
+                # v4 allowed the bare form; keep it working (v4 parity).
+                body.append(spec.bare_default)
+                emit_note = True
+            elif i < n:
+                body.append(tokens[i])
+                i += 1
 
     # Resolve the leading operation.
     if op_from_flag is not None:
