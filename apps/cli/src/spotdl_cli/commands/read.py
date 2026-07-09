@@ -92,7 +92,8 @@ async def _top_target_url(client: SpotdlClient, track: TrackView) -> str | None:
 async def _save(url: str, *, offline: bool) -> dict[str, Any]:
     async with _support.open_client(offline=offline, need_downloads=True) as client:
         batch = await client.submit_download(DownloadSubmit(query=url, generate_save_file=True))
-        return await client.fetch_save_file(UUID(batch.batch_id))
+        model = await client.fetch_save_file(UUID(batch.batch_id))
+        return model.model_dump()
 
 
 async def _meta(

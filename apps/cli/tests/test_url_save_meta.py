@@ -17,6 +17,7 @@ import pytest
 from spotdl_cli.__main__ import app
 from spotdl_cli.commands import _support
 from spotdl_cli.views import BatchView, DownloadSubmit, EntityView, MatchView, TrackView
+from spotdl_server.downloads.savefile import SaveFileV2
 from typer.testing import CliRunner
 
 runner = CliRunner()
@@ -76,9 +77,15 @@ class FakeClient:
     async def get_batch(self, batch_id: UUID) -> BatchView:
         return self._batch(finalized=True)
 
-    async def fetch_save_file(self, batch_id: UUID) -> dict[str, object]:
+    async def fetch_save_file(self, batch_id: UUID) -> SaveFileV2:
         self.fetched.append(batch_id)
-        return self._save_file
+        payload = {
+            "kind": "single",
+            "created_at": "2026-01-01T00:00:00Z",
+            "songs": [],
+            **self._save_file,
+        }
+        return SaveFileV2.model_validate(payload)
 
     def _batch(self, *, finalized: bool) -> BatchView:
         return BatchView(
@@ -132,7 +139,24 @@ def test_url_warns_when_unmatched(install_client: Callable[[object], None]) -> N
 
 
 def test_save_writes_file(install_client: Callable[[object], None], tmp_path) -> None:
-    client = FakeClient(save_file={"version": 2, "songs": [{"name": "t"}]})
+    client = FakeClient(
+        save_file={
+            "version": 2,
+            "songs": [
+                {
+                    "name": "t",
+                    "artists": ["a"],
+                    "duration_ms": 1000,
+                    "download": {
+                        "output_format": "mp3",
+                        "bitrate": "auto",
+                        "output_template": "{artists} - {title}.{output-ext}",
+                        "status": "completed",
+                    },
+                }
+            ],
+        }
+    )
     install_client(client)
     out = tmp_path / "list.spotdl"
 

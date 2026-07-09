@@ -4,9 +4,11 @@ import typer
 
 from spotdl_cli import __version__
 from spotdl_cli.client import embedded_client
+from spotdl_cli.commands import download as _download_cmd
 from spotdl_cli.commands import ffmpeg as ffmpeg_cmd
 from spotdl_cli.commands import read as read_cmd
 from spotdl_cli.commands import server as server_cmd
+from spotdl_cli.commands import sync as _sync_cmd
 from spotdl_cli.commands import web as web_cmd
 from spotdl_cli.commands.auth import auth_app
 from spotdl_cli.commands.config_cmd import config_app
@@ -14,6 +16,10 @@ from spotdl_cli.commands.config_cmd import config_app
 app = typer.Typer(no_args_is_help=True, add_completion=False)
 app.add_typer(config_app, name="config")
 app.add_typer(auth_app, name="auth")
+
+# Additive command registration (Task 13 finalizes bare-query/TTY dispatch).
+_download_cmd.register(app)
+_sync_cmd.register(app)
 
 
 @app.command()
