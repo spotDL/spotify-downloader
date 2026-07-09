@@ -27,11 +27,16 @@ export function renderApp(initialPath = "/") {
       config: undefined as unknown as ConfigResponse,
     },
   });
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <ConfigGate router={router} />
-      </ThemeProvider>
-    </QueryClientProvider>,
-  );
+  return {
+    ...render(
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <ConfigGate router={router} />
+        </ThemeProvider>
+      </QueryClientProvider>,
+    ),
+    // Exposed so auth tests can assert CONTRACT D invalidations (the `["me"]`
+    // query is not mounted by the shell yet, so its refetch isn't observable).
+    queryClient,
+  };
 }
