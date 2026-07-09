@@ -49,7 +49,7 @@ function NavSearch() {
         e.preventDefault();
         const query = q.trim();
         if (query.length > 0) {
-          void navigate({ to: "/", search: { q: query } });
+          void navigate({ to: "/search", search: { q: query } });
         }
       }}
     >
