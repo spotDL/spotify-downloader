@@ -21,7 +21,7 @@ from spotdl_cli.viewmodels.base import (
     as_connection_error,
     guard,
 )
-from spotdl_cli.viewmodels.mappers import batch_ref, job_row
+from spotdl_cli.viewmodels.mappers import batch_ref, job_row, save_file_url
 from spotdl_cli.viewmodels.protocol import SpotdlClientProtocol
 from spotdl_cli.viewmodels.types import BatchRef, JobRow, QueueSnapshot
 from spotdl_cli.views import (
@@ -96,6 +96,15 @@ class QueueViewModel:
             rows[index] = row
         self._snapshot = _recount(snap, tuple(rows))
         return self._snapshot
+
+    @property
+    def is_server_queue(self) -> bool:
+        """True on a self-hosted server: jobs run server-side, paths are server paths."""
+        return self._session.mode == "selfhost"
+
+    def save_file_url(self, batch_id: UUID) -> str:
+        """The server URL that serves a batch's ``.spotdl`` file (web/library parity)."""
+        return save_file_url(self._session.server_origin, batch_id)
 
     async def enqueue(self, query: str) -> Loadable[BatchRef]:
         if not self._session.can_download:

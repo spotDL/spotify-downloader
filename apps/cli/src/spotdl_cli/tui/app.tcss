@@ -285,6 +285,28 @@ HelpScreen {
     color: $success;
 }
 
+/* Queue screen: enqueue input, a bordered summary strip (overall bar + chips),
+ * the batch-grouped jobs table, and a one-row footer of key actions (§4). */
+#enqueue-input {
+    margin: 0 0 1 0;
+}
+
+#queue-summary {
+    height: auto;
+    color: $text;
+    margin: 0 0 1 0;
+}
+
+#queue-table {
+    height: 1fr;
+}
+
+#queue-actions {
+    height: 1;
+    color: $text-muted;
+    padding: 0 1;
+}
+
 /* Track screen: the header card, the match column, and the lyrics pane. */
 .hidden {
     display: none;
