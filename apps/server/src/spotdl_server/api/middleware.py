@@ -7,10 +7,12 @@ design: it may import FastAPI/Starlette, ``spotdl_server.ratelimit``, and the
 off the middleware is not even mounted and requests behave exactly as if it did
 not exist (a startup decision, never a per-request ``if``).
 
-Per request it: (1) computes ``authenticated`` locally — a ``spdl_pat_`` prefix
-is trusted (PATs can only be verified against the DB, which is off-limits in the
-hot path), and a JWT has its signature verified against the configured secret;
-(2) classifies the request into a ``(tier, key)`` via
+Per request it: (1) computes ``authenticated`` locally — only a JWT whose
+signature+expiry verify against the configured secret counts; a bare
+``spdl_pat_`` prefix is NOT trusted (PATs can only be verified against the DB,
+which is off-limits in the hot path, so a forged prefix would otherwise let any
+client self-elevate to an authed tier), so an unverifiable PAT is treated as
+anonymous; (2) classifies the request into a ``(tier, key)`` via
 :func:`~spotdl_server.ratelimit.tiers.classify`; (3) records one ``hit`` against
 the process-scoped limiter on ``app.state.rate_limiter``. A blocked request gets
 the Plan 5 ``rate_limited`` envelope + a ``Retry-After`` header; an allowed one
@@ -74,16 +76,21 @@ def _bearer_token(request: Request) -> str | None:
 def _is_authenticated(token: str | None, settings: Settings, clock: Clock) -> bool:
     """Whether ``token`` is a credential the caller may treat as authenticated.
 
-    A PAT is trusted by its ``spdl_pat_`` prefix (full verification needs the DB,
-    which the hot path avoids); a JWT must pass local signature+expiry
-    verification against the configured secret. When no secret is configured
-    (rate limiting can be active without auth), a JWT cannot be verified and is
-    treated as anonymous.
+    Only a JWT that passes local signature+expiry verification against the
+    configured secret counts as authenticated. A PAT is deliberately NOT trusted
+    here: it can only be verified against the DB (off-limits in the hot path), so
+    a bare ``spdl_pat_`` prefix is attacker-forgeable. Trusting it would let any
+    client self-elevate to an authed tier — and, because PATs were keyed on a
+    hash of the token text, mint a fresh uncapped bucket per forged token. An
+    unverifiable PAT is therefore treated exactly like an anonymous request
+    (IP-scoped, anon tier); a genuine PAT is fully verified downstream in the
+    auth dependency. When no secret is configured (rate limiting can be active
+    without auth), a JWT cannot be verified and is treated as anonymous.
     """
     if token is None:
         return False
     if is_pat(token):
-        return True
+        return False
     if settings.auth_secret_key is None:
         return False
     service = TokenService(

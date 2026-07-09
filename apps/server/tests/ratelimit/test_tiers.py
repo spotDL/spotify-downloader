@@ -83,17 +83,35 @@ def test_oauth_callback_is_anon_auth() -> None:
     assert tier is Tier.ANON_AUTH
 
 
-def test_pat_post_vote_is_authed_write() -> None:
+def test_unverifiable_pat_is_treated_as_anonymous_ip_keyed() -> None:
+    # The hot path cannot verify a PAT (needs the DB), so the middleware passes
+    # authenticated=False for it. A bare ``spdl_pat_`` prefix must therefore land
+    # in the anonymous tier keyed by IP — never an authed tier.
     tier, key = classify(
         _request(
             "POST",
             f"/api/v1/matches/{uuid.uuid4()}/vote",
             headers={"Authorization": "Bearer spdl_pat_abcdef0123456789"},
         ),
-        authenticated=True,
+        authenticated=False,
     )
-    assert tier is Tier.AUTHED_WRITE
-    assert key.startswith("pat:")
+    assert tier is Tier.ANON_READ
+    assert key == "ip:9.9.9.9"
+
+
+def test_distinct_pats_from_one_ip_share_a_single_bucket() -> None:
+    # Varying the forged PAT per request must NOT mint a fresh bucket: two
+    # different PATs from the same IP must derive the same (IP-scoped) key, so an
+    # attacker cannot amplify their effective rate by rotating token text.
+    _, key_a = classify(
+        _request("GET", "/api/v1/config", headers={"Authorization": "Bearer spdl_pat_aaaa"}),
+        authenticated=False,
+    )
+    _, key_b = classify(
+        _request("GET", "/api/v1/config", headers={"Authorization": "Bearer spdl_pat_bbbb"}),
+        authenticated=False,
+    )
+    assert key_a == key_b == "ip:9.9.9.9"
 
 
 def test_user_get_is_authed_read() -> None:

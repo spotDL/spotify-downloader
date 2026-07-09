@@ -5,12 +5,14 @@ dependencies, so classification is a pure function of the request's method, path
 and ``Authorization`` header plus a boolean the caller computes (``authenticated``
 — whether the credential locally verifies). No DB is touched in the hot path:
 
-* PAT (``spdl_pat_`` prefix) → key ``"pat:" + sha256(secret)[:16]``;
 * a *verified* JWT → key ``"user:" + sub`` (decoded here WITHOUT signature
   verification — the caller already verified the signature; this only reads the
   claim for keying);
-* everything else (anonymous, or an unverifiable credential) → key
-  ``"ip:" + client_ip``.
+* everything else (anonymous, a bare-prefix PAT the hot path cannot verify, or
+  any other unverifiable credential) → key ``"ip:" + client_ip``. A PAT is never
+  keyed on its own text: doing so let a client mint a fresh, uncapped bucket per
+  forged token, so PATs are treated as anonymous here (a genuine PAT is verified
+  downstream in the auth dependency, which does touch the DB).
 
 Tier decision order (spec §6.4): (1) authenticated + safe method → ``authed_read``;
 (2) authenticated + mutating method → ``authed_write``; (3) anonymous + an
@@ -31,8 +33,6 @@ from enum import StrEnum
 from typing import TYPE_CHECKING
 
 import jwt
-
-from spotdl_server.auth.tokens import is_pat, sha256_hex
 
 if TYPE_CHECKING:
     from starlette.requests import Request
@@ -72,7 +72,6 @@ AUTH_PATHS: frozenset[str] = frozenset(
 )
 
 _SAFE_METHODS: frozenset[str] = frozenset({"GET", "HEAD", "OPTIONS"})
-_PAT_KEY_CHARS = 16
 
 
 def _bearer_token(request: Request) -> str | None:
@@ -131,10 +130,14 @@ def client_ip(request: Request, header: str | None) -> str:
 
 
 def _derive_key(request: Request, *, authenticated: bool, client_ip_header: str | None) -> str:
-    """Compute the rate-limit key (no DB): PAT hash, verified-user sub, or IP."""
+    """Compute the rate-limit key (no DB): verified-user sub, or IP.
+
+    Only a caller-verified JWT is keyed to its identity (``user:`` + sub).
+    Everything else — anonymous, an unverifiable JWT, or a bare-prefix PAT the
+    hot path cannot verify — is keyed by IP, so no attacker-supplied token text
+    can mint a fresh, uncapped bucket by varying per request.
+    """
     token = _bearer_token(request)
-    if token is not None and is_pat(token):
-        return "pat:" + sha256_hex(token)[:_PAT_KEY_CHARS]
     if authenticated and token is not None:
         sub = _jwt_sub(token)
         if sub:

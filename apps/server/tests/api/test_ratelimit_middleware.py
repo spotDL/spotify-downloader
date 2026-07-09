@@ -123,6 +123,26 @@ async def test_authenticated_caller_gets_authed_read_budget(
         assert int(resp.headers["X-RateLimit-Remaining"]) == 600 - 121
 
 
+async def test_forged_pats_do_not_amplify_rate(tmp_path: Path, clock: FakeClock) -> None:
+    # A bare ``spdl_pat_`` prefix is attacker-forgeable and unverifiable in the
+    # hot path. Presenting a DIFFERENT forged PAT each request from one IP must
+    # NOT (a) elevate to an authed tier, nor (b) mint a fresh per-token bucket:
+    # all such requests must share the single anon_read IP budget (120/min).
+    async with _rl_app(data_dir=tmp_path, clock=clock) as (client, _app):
+        for i in range(120):
+            resp = await client.get(
+                "/api/v1/config",
+                headers=_headers("7.7.7.7", bearer=f"spdl_pat_forged{i}"),
+            )
+            assert resp.status_code == 200
+        blocked = await client.get(
+            "/api/v1/config",
+            headers=_headers("7.7.7.7", bearer="spdl_pat_forged_final"),
+        )
+        assert blocked.status_code == 429
+        assert blocked.json()["detail"] == {"limit": 120, "window": 60, "retry_after": 60}
+
+
 async def test_login_throttled_at_anon_auth(tmp_path: Path, clock: FakeClock) -> None:
     async with _rl_app(data_dir=tmp_path, clock=clock) as (client, _app):
         body = {"email": "nobody@example.com", "password": "wrongpassword"}
