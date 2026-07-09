@@ -2,7 +2,6 @@ from pathlib import Path
 
 import httpx
 import pytest
-import spotdl_server.api.routers as routers_pkg
 from spotdl_core.model import ProviderId, Track
 from spotdl_server.app import create_app
 from spotdl_server.settings import DeploymentMode, Settings
@@ -119,12 +118,5 @@ def test_no_download_routes_mounted_in_any_mode(mode: DeploymentMode) -> None:
     assert not any(path.startswith("/api/v1/downloads") for path in paths)
 
 
-def test_routers_under_200_lines() -> None:
-    """Cheap mechanical guard for the layering rule: each router file stays a
-    thin HTTP shell (≤200 lines, no business logic)."""
-    routers_dir = Path(routers_pkg.__file__).parent
-    router_files = sorted(routers_dir.glob("*.py"))
-    assert router_files  # sanity: the package has router modules
-    for path in router_files:
-        line_count = len(path.read_text(encoding="utf-8").splitlines())
-        assert line_count <= 200, f"{path.name} is {line_count} lines (>200)"
+# The router ≤200-line guard and the source-level ORM/FastAPI import checks now
+# live in ``tests/test_layering.py`` (the single home for the layering guards).

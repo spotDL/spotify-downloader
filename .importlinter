@@ -3,6 +3,9 @@ root_packages =
     spotdl_core
     spotdl_server
     spotdl_cli
+# Required so the forbidden contracts below can name external packages
+# (``sqlalchemy``, ``fastapi``) as forbidden import targets.
+include_external_packages = True
 
 [importlinter:contract:layers]
 name = Dependency direction: core <- server <- cli
@@ -25,3 +28,45 @@ forbidden_modules =
 # imports (the CLI using core types itself), matching its name ("directly") and
 # spec §3 (apps/server is the sole direct consumer of packages/core).
 allow_indirect_imports = True
+
+# --------------------------------------------------------------------------
+# Intra-server layering (Plan 5 §6, Task 12). Routers are a thin HTTP shell;
+# services orchestrate DTOs; repositories are the sole ORM holders; db defines
+# the schema. ``api.deps``/``api.errors``/``api.schemas`` are HTTP glue that sit
+# *outside* these four layers by design — they may import both FastAPI and
+# services and are therefore not named as layers.
+# --------------------------------------------------------------------------
+
+[importlinter:contract:server_layers]
+name = Server layering: routers -> services -> repositories -> db
+type = layers
+containers =
+    spotdl_server
+layers =
+    api.routers
+    services
+    repositories
+    db
+
+[importlinter:contract:routers_no_orm]
+name = Routers must not import SQLAlchemy/ORM
+type = forbidden
+source_modules =
+    spotdl_server.api.routers
+forbidden_modules =
+    sqlalchemy
+    spotdl_server.db.models
+# Routers reach services only through ``api.deps`` (HTTP glue), and ``deps.py``
+# legitimately imports SQLAlchemy to compose the request-scoped session. That is
+# an *indirect* routers -> deps -> sqlalchemy edge; this contract forbids only a
+# *direct* ORM import from a router (the real layering violation). ``ast``-level
+# direct-import enforcement lives in ``tests/test_layering.py``.
+allow_indirect_imports = True
+
+[importlinter:contract:services_no_fastapi]
+name = Services must not import FastAPI
+type = forbidden
+source_modules =
+    spotdl_server.services
+forbidden_modules =
+    fastapi
