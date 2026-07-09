@@ -19,9 +19,13 @@ class FakeCredentialStore:
     def __init__(self) -> None:
         self.tokens: dict[str, str] = {}
         self.emails: dict[str, str] = {}
+        self.token_ids: dict[str, str] = {}
 
     def get_token(self, origin: str) -> str | None:
         return self.tokens.get(origin)
+
+    def get_token_id(self, origin: str) -> str | None:
+        return self.token_ids.get(origin)
 
     def store_token(self, origin: str, token: str, email: str) -> None:
         self.tokens[origin] = token
@@ -30,6 +34,7 @@ class FakeCredentialStore:
     def delete_token(self, origin: str) -> None:
         self.tokens.pop(origin, None)
         self.emails.pop(origin, None)
+        self.token_ids.pop(origin, None)
 
 
 class FakeConfigStore:

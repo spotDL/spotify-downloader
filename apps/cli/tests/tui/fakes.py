@@ -561,6 +561,10 @@ class FakeSpotdlClient:
         return self.vote_lyrics_result
 
     # -- auth --
+    async def revoke_pat(self, token_id: object, *, access_token: str) -> None:
+        self.calls.append(("revoke_pat", token_id, access_token))
+        self._maybe_raise("revoke_pat")
+
     async def me(self, *, token: str) -> UserView:
         self._record("me", token=token)
         self._maybe_raise("me")

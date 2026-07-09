@@ -36,6 +36,10 @@ from spotdl_cli.viewmodels.factory import ViewModelFactory
 class _CredentialStoreAdapter:
     """A ``CredentialStore`` over Plan 8's origin-keyed ``credentials.toml``."""
 
+    def get_token_id(self, origin: str) -> str | None:
+        cred = _config.get_token(origin)
+        return cred.token_id if cred is not None else None
+
     def get_token(self, origin: str) -> str | None:
         cred = _config.get_token(origin)
         return cred.token if cred is not None else None

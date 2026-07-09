@@ -102,3 +102,48 @@ async def test_offline_short_circuits_with_exact_message(action: str) -> None:
     assert result.error is not None
     assert result.error.message == OFFLINE_AUTH_MESSAGE
     assert client.calls == []  # no client call made
+
+
+async def test_revoke_calls_server_when_token_id_stored() -> None:
+    from uuid import uuid4
+
+    client = FakeSpotdlClient()
+    creds = FakeCredentialStore()
+    creds.store_token(ORIGIN, "spdl_pat_x", "a@b.c")
+    creds.token_ids[ORIGIN] = str(uuid4())
+
+    result = await _vm(client, creds).revoke()
+
+    assert result.state is LoadState.READY
+    assert result.data is not None and result.data.logged_in is False
+    assert client.called("revoke_pat")
+    assert creds.get_token(ORIGIN) is None
+
+
+async def test_revoke_without_token_id_stays_local() -> None:
+    client = FakeSpotdlClient()
+    creds = FakeCredentialStore()
+    creds.store_token(ORIGIN, "spdl_pat_x", "a@b.c")
+
+    result = await _vm(client, creds).revoke()
+
+    assert result.state is LoadState.READY
+    assert result.data is not None and result.data.logged_in is False
+    assert not client.called("revoke_pat")
+    assert creds.get_token(ORIGIN) is None
+
+
+async def test_revoke_survives_server_failure() -> None:
+    from uuid import uuid4
+
+    client = FakeSpotdlClient()
+    client.errors["revoke_pat"] = RuntimeError("boom")
+    creds = FakeCredentialStore()
+    creds.store_token(ORIGIN, "spdl_pat_x", "a@b.c")
+    creds.token_ids[ORIGIN] = str(uuid4())
+
+    result = await _vm(client, creds).revoke()
+
+    assert result.state is LoadState.READY
+    assert result.data is not None and result.data.logged_in is False
+    assert creds.get_token(ORIGIN) is None

@@ -5,14 +5,16 @@ short-circuits to the copy-locked ``OFFLINE_AUTH_MESSAGE`` with **no** client ca
 Login/register run the ``login/register → create_pat → store → me`` flow, minting a
 named PAT and persisting it in the credential store keyed by server origin. ``rotate``
 mints a fresh PAT authenticated by the current one and replaces it; ``revoke`` forgets
-the local PAT (the store keeps no ``token_id``, so this is a local revoke — the same
+the local PAT (server-side revoke when the stored ``token_id`` allows — the same
 signed-out effect as ``logout``, framed as dropping the token).
 """
 
 from __future__ import annotations
 
+import contextlib
 import socket
 from collections.abc import Awaitable
+from uuid import UUID
 
 from spotdl_cli.viewmodels.app_state import SessionSnapshot
 from spotdl_cli.viewmodels.base import ErrorDisplay, Loadable, guard
@@ -74,10 +76,18 @@ class AuthViewModel:
         return await guard(self._rotate(token))
 
     async def revoke(self) -> Loadable[AuthSnapshot]:
-        """Forget the local PAT — a local revoke (no ``token_id`` is stored to
-        reach the server), leaving the same signed-out state as ``logout``."""
+        """Revoke the PAT server-side when its id is stored, then forget it locally.
+
+        The server call is best-effort: any failure (offline server, stale token)
+        still ends in the signed-out local state — identical to ``logout``.
+        """
         if not self._session.can_auth:
             return self._offline()
+        token = self._creds.get_token(self._origin)
+        token_id = self._creds.get_token_id(self._origin)
+        if token is not None and token_id is not None:
+            with contextlib.suppress(Exception):
+                await self._client.revoke_pat(UUID(token_id), access_token=token)
         self._creds.delete_token(self._origin)
         return Loadable.ready(self._guest())
 
