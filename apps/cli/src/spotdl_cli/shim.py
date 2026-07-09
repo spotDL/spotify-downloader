@@ -44,6 +44,16 @@ from dataclasses import dataclass, field
 # v4 operations that survive verbatim as v5 subcommands (``web`` → ``spotdl web``).
 V4_OPERATIONS: frozenset[str] = frozenset({"download", "save", "sync", "meta", "url", "web"})
 
+# The full v5 leading-command surface: the v4 operations above plus the v5-only
+# subcommands (which have no v4 equivalent). A bare first positional that names one
+# of these *is* the command, so bare-query sugar must never wrap it in ``download``
+# (``spotdl config get`` must stay ``config get``, not become ``download config get``).
+# Kept in lockstep with the commands registered in ``__main__`` (which imports this
+# set to make the same routing decision for a v5-native argv).
+V5_COMMANDS: frozenset[str] = V4_OPERATIONS | frozenset(
+    {"search", "server", "config", "auth", "ffmpeg", "version", "status", "tui"}
+)
+
 
 @dataclass(frozen=True)
 class FlagSpec:
@@ -517,8 +527,8 @@ def translate_v4_argv(argv: list[str]) -> ShimResult:
                 body.append(token)
                 i += 1
                 continue
-            # A bare positional. The first one may be the operation.
-            if not positional_started and name in V4_OPERATIONS:
+            # A bare positional. The first one may be the operation/command.
+            if not positional_started and name in V5_COMMANDS:
                 explicit_op = True
             positional_started = True
             body.append(token)

@@ -221,19 +221,26 @@ def _embedded_settings(cfg: Any) -> Settings:
 def _load_credential_token(api_url: str) -> str | None:
     """Best-effort PAT lookup for ``api_url`` from the credentials store (CONTRACT D).
 
-    The store lives in a sibling module (``spotdl_cli.credentials``, Plan 8 Task 3),
-    keyed by server origin. Resolved lazily so this module doesn't hard-depend on it;
-    when absent, no token is injected (anonymous access).
+    The store lives in :mod:`spotdl_cli.config` (``credentials.toml``, Plan 8
+    Task 3), keyed by server **origin** (``scheme://host[:port]``) — the same key
+    ``spotdl auth login`` writes under (``commands.auth._origin`` +
+    ``config.store_token``). Resolved lazily so this module keeps no import-time
+    dependency on the config layer; when no credential is stored (or the config
+    module is absent), no token is injected and access is anonymous.
     """
+    from urllib.parse import urlsplit
+
     try:
-        credentials = importlib.import_module("spotdl_cli.credentials")
+        config = importlib.import_module("spotdl_cli.config")
     except ModuleNotFoundError:
         return None
-    getter = getattr(credentials, "get_token", None)
+    getter = getattr(config, "get_token", None)
     if getter is None:
         return None
-    token = getter(api_url)
-    return token if isinstance(token, str) else None
+    parts = urlsplit(api_url)
+    origin = f"{parts.scheme}://{parts.netloc}"
+    cred = getter(origin)
+    return cred.token if cred is not None else None
 
 
 class SpotdlClient:
