@@ -123,7 +123,7 @@ def _status_and_code(exc: Exception) -> tuple[int, ErrorCode, dict[str, Any] | N
         return (
             404,
             ErrorCode.NOT_FOUND,
-            {"entity_type": exc.entity_type.value, "id": str(exc.entity_id)},
+            {"entity_type": exc.entity_type_label, "id": str(exc.entity_id)},
         )
     if isinstance(exc, EntityNotFound):
         return 404, ErrorCode.NOT_FOUND, _provider_detail(exc)

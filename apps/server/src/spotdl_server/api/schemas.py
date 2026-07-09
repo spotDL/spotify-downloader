@@ -155,6 +155,72 @@ class ReportResponse(BaseModel):
 
 
 # --------------------------------------------------------------------------
+# Minimal admin (spec §6.2 "Admin (minimal)")
+# --------------------------------------------------------------------------
+
+
+class AdminReviewRequest(BaseModel):
+    """Body of ``POST /admin/reports/{id}/approve`` and ``.../reject``.
+
+    A single optional reviewer ``note`` (audit trail); the verb (approve vs
+    reject) is the route, not a mutable field, so the queue stays append-only.
+    """
+
+    note: str | None = Field(default=None, max_length=2000)
+
+
+class AdminUserResponse(BaseModel):
+    """A user as it appears in the admin user list (``GET /admin/users`` element).
+
+    Built straight from the ``User`` ORM row via ``from_attributes``; the router
+    never names the ORM type. Unlike the auth-facing :class:`UserResponse` this
+    exposes the moderation-relevant ``is_active`` flag. The password hash is
+    intentionally absent.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    email: str
+    display_name: str | None = None
+    is_admin: bool
+    is_active: bool
+    created_at: datetime
+
+
+class PagedUsers(BaseModel):
+    """``GET /admin/users`` body: a page of users plus the full ``total`` count."""
+
+    items: list[AdminUserResponse]
+    total: int
+
+
+class PagedReports(BaseModel):
+    """``GET /admin/reports`` body: a page of reports plus the in-status ``total``."""
+
+    items: list[ReportResponse]
+    total: int
+
+
+class AdminStatsResponse(BaseModel):
+    """``GET /admin/stats`` body: aggregate community-health counts.
+
+    Mirrors the service's :class:`~spotdl_server.services.admin.AdminStats`
+    dataclass field-for-field (built via ``from_attributes``).
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    users_total: int
+    matches_total: int
+    community_verified_matches: int
+    rejected_matches: int
+    votes_total: int
+    reports_pending: int
+    reports_total: int
+
+
+# --------------------------------------------------------------------------
 # Entity response models
 # --------------------------------------------------------------------------
 

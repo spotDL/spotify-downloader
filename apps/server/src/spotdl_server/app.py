@@ -26,6 +26,7 @@ from spotdl_server import __version__
 from spotdl_server.api.deps import provider_context
 from spotdl_server.api.errors import register_exception_handlers
 from spotdl_server.api.routers import (
+    admin,
     auth,
     entities,
     meta,
@@ -118,6 +119,7 @@ def create_app(
         app.include_router(votes.router)
         app.include_router(submissions.router)
         app.include_router(reports.router)
+        app.include_router(admin.router)
         # The OAuth router additionally requires at least one configured provider
         # (id + secret). Mount-time gate — never a per-request conditional.
         if settings.enabled_oauth_providers():

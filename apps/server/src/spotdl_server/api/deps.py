@@ -32,6 +32,7 @@ from spotdl_server.repositories.reports import ReportRepository
 from spotdl_server.repositories.tokens import ApiTokenRepository, RefreshTokenRepository
 from spotdl_server.repositories.users import OAuthIdentityRepository, UserRepository
 from spotdl_server.repositories.votes import VoteRepository
+from spotdl_server.services.admin import AdminService
 from spotdl_server.services.auth import AuthService
 from spotdl_server.services.entities import EntityService
 from spotdl_server.services.errors import AuthRequired, Forbidden
@@ -290,6 +291,23 @@ def get_report_service(
     return ReportService(
         session=session,
         clock=clock,
+        reports=ReportRepository(session),
+    )
+
+
+def get_admin_service(
+    session: AsyncSession = Depends(get_session),
+    clock: Clock = Depends(get_clock),
+) -> AdminService:
+    """Compose the :class:`AdminService` from the request's session + shared clock.
+
+    Only mounted behind ``require_admin`` (the admin router), so this is never
+    built for a non-admin caller.
+    """
+    return AdminService(
+        session=session,
+        clock=clock,
+        users=UserRepository(session),
         reports=ReportRepository(session),
     )
 
