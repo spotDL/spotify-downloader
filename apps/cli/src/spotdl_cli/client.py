@@ -18,12 +18,11 @@ from __future__ import annotations
 
 import json
 from collections.abc import AsyncIterator
-from contextlib import AbstractAsyncContextManager, asynccontextmanager
-from typing import Any, Literal, Protocol
+from contextlib import asynccontextmanager
+from typing import Any, Literal
 from uuid import UUID
 
 import httpx
-from httpx_ws import AsyncWebSocketSession
 from spotdl_server.app import create_app
 from spotdl_server.settings import DeploymentMode, Settings
 
@@ -68,6 +67,7 @@ from spotdl_cli._generated.api.models.track_out import TrackOut
 from spotdl_cli._generated.api.models.user_response import UserResponse
 from spotdl_cli._generated.api.types import Response
 from spotdl_cli.errors import ApiError
+from spotdl_cli.transport import EmbeddedTransport, RemoteTransport, Transport
 from spotdl_cli.views import (
     AlbumView,
     ArtistView,
@@ -93,68 +93,17 @@ OVERRIDABLE via config / ``SPOTDL_API_URL`` / ``--api-url``. Never a localhost
 stub, and localhost is never the shipped default.
 """
 
-
-class Transport(Protocol):
-    """The seam ``SpotdlClient`` sits on.
-
-    Yields an ``httpx.AsyncClient`` for request/response and a ``ws_connect`` for
-    progress. The TUI and view-models (Plan 9) depend on ``SpotdlClient``, not on
-    this protocol. ``EmbeddedTransport`` (Plan 8 Task 4) is the other implementor.
-    """
-
-    @property
-    def http_base(self) -> str: ...
-
-    @property
-    def ws_base(self) -> str: ...
-
-    def http_client(self) -> httpx.AsyncClient: ...
-
-    def ws_connect(self, path: str) -> AbstractAsyncContextManager[AsyncWebSocketSession]: ...
-
-    async def aclose(self) -> None: ...
-
-
-def _http_to_ws(base_url: str) -> str:
-    if base_url.startswith("https://"):
-        return "wss://" + base_url[len("https://") :]
-    if base_url.startswith("http://"):
-        return "ws://" + base_url[len("http://") :]
-    return base_url
-
-
-class RemoteTransport:
-    """A remote HTTPS server: an ``httpx.AsyncClient`` + an optional Bearer PAT.
-
-    Task 2 implements the request/response half. The WebSocket half
-    (``ws_connect`` over ``wss`` via httpx-ws) is wired in Plan 8 Task 5; this
-    class and :class:`Transport` move to ``transport.py`` alongside
-    ``EmbeddedTransport`` there.
-    """
-
-    def __init__(self, base_url: str, *, token: str | None = None, timeout: float = 30.0) -> None:
-        self._http_base = base_url.rstrip("/")
-        headers = {"Authorization": f"Bearer {token}"} if token else {}
-        self._client = httpx.AsyncClient(base_url=self._http_base, headers=headers, timeout=timeout)
-
-    @property
-    def http_base(self) -> str:
-        return self._http_base
-
-    @property
-    def ws_base(self) -> str:
-        return _http_to_ws(self._http_base)
-
-    def http_client(self) -> httpx.AsyncClient:
-        return self._client
-
-    @asynccontextmanager
-    async def ws_connect(self, path: str) -> AsyncIterator[AsyncWebSocketSession]:
-        raise NotImplementedError("RemoteTransport WebSockets are wired in Plan 8 Task 5")
-        yield  # pragma: no cover  (marks this an async generator for asynccontextmanager)
-
-    async def aclose(self) -> None:
-        await self._client.aclose()
+# The ``Transport`` seam and its implementors (``RemoteTransport``,
+# ``EmbeddedTransport``) live in :mod:`spotdl_cli.transport`; they are re-exported
+# here so ``spotdl_cli.client.RemoteTransport`` (and ``Transport``) stay importable.
+__all__ = [
+    "DEFAULT_API_URL",
+    "EmbeddedTransport",
+    "RemoteTransport",
+    "SpotdlClient",
+    "Transport",
+    "embedded_client",
+]
 
 
 def _detail_dict(envelope: ErrorEnvelope) -> dict[str, Any] | None:
@@ -189,6 +138,19 @@ def _unwrap(resp: Response[Any]) -> Any:
     )
 
 
+def _embedded_settings(cfg: Any) -> Settings:
+    """Derive the embedded-server ``Settings`` from the CLI config.
+
+    Honours a ``data_dir`` from the config (so the shared ``spotdl.db`` lives
+    where the user configured it); everything else follows the EMBEDDED-mode
+    defaults (no auth, downloads on — spec §4).
+    """
+    data_dir = getattr(cfg, "data_dir", None)
+    if data_dir is not None:
+        return Settings(mode=DeploymentMode.EMBEDDED, data_dir=data_dir)
+    return Settings(mode=DeploymentMode.EMBEDDED)
+
+
 class SpotdlClient:
     """The single client object the CLI and TUI drive.
 
@@ -214,10 +176,36 @@ class SpotdlClient:
     ) -> AsyncIterator[SpotdlClient]:
         """Wire transports from config and apply the fallback policy (CONTRACT C).
 
-        Deferred to Plan 8 Tasks 4-5 (needs ``CliConfig`` and ``EmbeddedTransport``).
+        Task 4 wires the **fully-embedded** path: one in-process
+        :class:`~spotdl_cli.transport.EmbeddedTransport` (loopback when
+        ``need_downloads`` so WS progress works, ASGI fast path otherwise) drives
+        both the resolution and the always-embedded download surface. The remote
+        metadata path (``RemoteTransport`` + PAT) and the remote-vs-embedded
+        selection/probe/fallback (``offline`` / ``require_remote``) land in Task 5.
         """
-        raise NotImplementedError("SpotdlClient.from_config is wired in Plan 8 Tasks 4-5")
-        yield  # pragma: no cover  (marks this an async generator for asynccontextmanager)
+        if require_remote:
+            raise NotImplementedError(
+                "Remote selection + fallback (CONTRACT C) is wired in Plan 8 Task 5"
+            )
+        async with cls._embedded(cfg, need_downloads=need_downloads) as client:
+            yield client
+
+    @classmethod
+    @asynccontextmanager
+    async def _embedded(cls, cfg: Any, *, need_downloads: bool) -> AsyncIterator[SpotdlClient]:
+        """Yield a client backed by a single shared :class:`EmbeddedTransport`.
+
+        The one transport fills both the resolution and download slots: the
+        metadata and download surfaces are the same in-process server, so they
+        share the app, lifespan, and (single-process-owned) download pool.
+        """
+        settings = _embedded_settings(cfg)
+        transport = EmbeddedTransport(settings, enable_downloads=need_downloads)
+        await transport.start()
+        try:
+            yield cls(resolution=transport, downloads=transport)
+        finally:
+            await transport.aclose()
 
     def _client(self, transport: Transport, *, token: str | None = None) -> Client:
         """Wrap a transport's ``AsyncClient`` in a generated ``Client``.
