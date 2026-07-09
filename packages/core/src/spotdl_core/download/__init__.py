@@ -28,6 +28,13 @@ from spotdl_core.download.context import (
     SkipReason,
     Step,
 )
+from spotdl_core.download.fetch import (
+    Fetcher,
+    FetchResult,
+    FetchStep,
+    YtDlpFetcher,
+    ytdl_format_for,
+)
 from spotdl_core.providers.errors import (
     AudioFetchFailed,
     ConversionFailed,
@@ -47,6 +54,9 @@ __all__ = [
     "DownloadFailed",
     "DownloadOutcome",
     "DownloadRequest",
+    "FetchResult",
+    "FetchStep",
+    "Fetcher",
     "MetadataEmbedFailed",
     "OutcomeStatus",
     "OutputFormat",
@@ -58,4 +68,6 @@ __all__ = [
     "RestrictMode",
     "SkipReason",
     "Step",
+    "YtDlpFetcher",
+    "ytdl_format_for",
 ]
