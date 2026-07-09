@@ -79,9 +79,8 @@ class AdminScreen(SpotdlScreen):
     def compose_content(self) -> ComposeResult:
         self._vm: AdminViewModel = self.vm_factory.admin()
         with TabbedContent(id="admin-tabs"):
-            with TabPane("Stats", id="tab-stats"):
-                with Horizontal(id="admin-stats-grid"):
-                    yield LoadingPane("Loading stats…")
+            with TabPane("Stats", id="tab-stats"), Horizontal(id="admin-stats-grid"):
+                yield LoadingPane("Loading stats…")
             with TabPane("Reports", id="tab-reports"):
                 yield DataTable(id="admin-reports", cursor_type="row", zebra_stripes=True)
             with TabPane("Users", id="tab-users"):
