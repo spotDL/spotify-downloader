@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import AsyncExitStack, asynccontextmanager
 from urllib.parse import urlsplit
 
 import typer
@@ -109,15 +109,51 @@ async def _open_client(cfg: CliConfig, *, offline: bool) -> AsyncIterator[Spotdl
         yield client
 
 
-async def _run_app(factory: ViewModelFactory) -> None:
+class _TuiRuntime:
+    """Owns the live client so the app can switch connection targets at runtime (§3).
+
+    :meth:`build` is handed to ``SpotdlApp`` as its ``rebuild`` seam: it closes the
+    current client, re-runs the ``from_config`` policy for the new ``(api_url,
+    offline)``, and returns a fresh :class:`ViewModelFactory`. The client lifecycle
+    is held in an :class:`AsyncExitStack` (not a single ``async with``) so a mid-run
+    switch can tear down and reopen without unwinding the app.
+    """
+
+    def __init__(self, cfg: CliConfig) -> None:
+        self._cfg = cfg
+        self._stack = AsyncExitStack()
+
+    async def build(self, api_url: str, offline: bool) -> ViewModelFactory:
+        await self._stack.aclose()
+        self._stack = AsyncExitStack()
+        cfg = self._cfg.model_copy(update={"api_url": api_url, "offline": offline})
+        client = await self._stack.enter_async_context(_open_client(cfg, offline=offline))
+        self._cfg = cfg
+        return build_factory(client, cfg, offline=offline)
+
+    async def aclose(self) -> None:
+        await self._stack.aclose()
+
+
+async def _run_app(
+    factory: ViewModelFactory,
+    *,
+    rebuild: object | None = None,
+    first_run: bool = False,
+) -> None:
     """Run ``SpotdlApp`` to completion (seam: patched to skip the real terminal)."""
-    await SpotdlApp(factory).run_async()
+    await SpotdlApp(factory, rebuild=rebuild, first_run=first_run).run_async()  # type: ignore[arg-type]
 
 
-async def _run(cfg: CliConfig, *, offline: bool) -> None:
-    """Open the client, build the factory, and run the app to completion."""
-    async with _open_client(cfg, offline=offline) as client:
-        await _run_app(build_factory(client, cfg, offline=offline))
+async def _run(cfg: CliConfig, *, offline: bool, first_run: bool) -> None:
+    """Open the client via the runtime, build the factory, and run the app."""
+    runtime = _TuiRuntime(cfg)
+    api_url = str(getattr(cfg, "api_url", None) or DEFAULT_API_URL)
+    factory = await runtime.build(api_url, offline)
+    try:
+        await _run_app(factory, rebuild=runtime.build, first_run=first_run)
+    finally:
+        await runtime.aclose()
 
 
 def tui(
@@ -127,9 +163,10 @@ def tui(
 ) -> None:
     """Launch the interactive terminal UI."""
     cfg = _config.load_config()
+    first_run = not _config.config_path().exists()
     effective_offline = bool(offline or getattr(cfg, "offline", False))
     try:
-        asyncio.run(_run(cfg, offline=effective_offline))
+        asyncio.run(_run(cfg, offline=effective_offline, first_run=first_run))
     except ApiError as exc:
         # A dead server / rejected startup call exits with the CONTRACT E code
         # instead of dumping a Textual traceback.

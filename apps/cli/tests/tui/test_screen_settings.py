@@ -35,7 +35,7 @@ def _factory(store: FakeConfigStore) -> ViewModelFactory:
 
 async def _goto_settings(pilot: object, app: SpotdlApp) -> None:
     await pilot.pause()  # type: ignore[attr-defined]
-    await pilot.press("3")  # type: ignore[attr-defined]
+    await pilot.press("4")  # type: ignore[attr-defined]
     assert app.current_mode == "settings"
     await pilot.pause()  # type: ignore[attr-defined]
 

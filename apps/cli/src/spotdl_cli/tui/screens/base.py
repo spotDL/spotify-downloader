@@ -1,10 +1,11 @@
-"""``SpotdlScreen`` — the base every screen extends (CONTRACT C).
+"""``SpotdlScreen`` — the base every screen extends (CONTRACT §1).
 
-It nails down the frame shared by all screens (a :class:`StatusBar` on top, a
-``Footer`` below, content in between), the global ``escape`` back-binding, a typed
-``vm_factory`` accessor, and a ``show_error`` shortcut onto the app's toast. Screens
-therefore hold no wiring of their own — they implement :meth:`compose_content` and
-delegate everything else to a view-model.
+It nails down the frame shared by all screens — a :class:`NavRail` sidebar left of a
+``#content-region`` that fills, with a :class:`StatusBar` + ``Footer`` docked below
+(nothing floats) — plus the global ``escape`` back-binding, a typed ``vm_factory``
+accessor, and a ``show_error`` shortcut onto the app's toast. Screens therefore hold
+no wiring of their own — they implement :meth:`compose_content` (which fills the
+content region) and delegate everything else to a view-model.
 """
 
 from __future__ import annotations
@@ -13,9 +14,11 @@ from typing import TYPE_CHECKING, cast
 
 from textual.app import ComposeResult
 from textual.binding import Binding
+from textual.containers import Horizontal, Vertical
 from textual.screen import Screen
 from textual.widgets import Footer, Static
 
+from spotdl_cli.tui.widgets.nav_rail import NavRail
 from spotdl_cli.tui.widgets.status_bar import StatusBar
 from spotdl_cli.viewmodels.base import ErrorDisplay
 
@@ -32,12 +35,15 @@ class SpotdlScreen(Screen[None]):
     ]
 
     def compose(self) -> ComposeResult:
+        with Horizontal(id="app-body"):
+            yield NavRail(id="nav-rail")
+            with Vertical(id="content-region"):
+                yield from self.compose_content()
         yield StatusBar(id="status-bar")
-        yield from self.compose_content()
         yield Footer()
 
     def compose_content(self) -> ComposeResult:
-        """Screen body between the status bar and footer (subclasses override)."""
+        """Screen body inside ``#content-region`` (subclasses override)."""
         return iter(())
 
     def on_mount(self) -> None:

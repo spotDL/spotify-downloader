@@ -47,3 +47,31 @@ class DegradedChanged(Message):
     def __init__(self, degraded: bool) -> None:
         self.degraded = degraded
         super().__init__()
+
+
+class NavSelected(Message):
+    """A nav-rail entry was clicked — switch to that section (§1).
+
+    Posted by :class:`~spotdl_cli.tui.widgets.nav_rail.NavRail` entries so the rail
+    stays presentation-only; the app routes it to ``action_switch_section``.
+    """
+
+    def __init__(self, section: str) -> None:
+        self.section = section
+        super().__init__()
+
+
+class ConnectionChanged(Message):
+    """Apply a new connection target and rebuild the client (§3).
+
+    Posted by :class:`~spotdl_cli.tui.screens.connect.ConnectScreen` when the user
+    switches server/offline. Carries only primitives (never a ``CliConfig`` — the
+    ``tui`` layer may not import ``spotdl_cli.config``); the app hands them to its
+    injected ``rebuild_client`` seam, which re-runs ``SpotdlClient.from_config`` and
+    swaps in a fresh :class:`~spotdl_cli.viewmodels.factory.ViewModelFactory`.
+    """
+
+    def __init__(self, *, api_url: str, offline: bool) -> None:
+        self.api_url = api_url
+        self.offline = offline
+        super().__init__()

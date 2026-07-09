@@ -60,7 +60,7 @@ def test_tui_command_builds_factory_runs_app_and_closes_client(monkeypatch) -> N
         finally:
             state["closed"] = True
 
-    async def fake_run_app(factory):
+    async def fake_run_app(factory, **kwargs):
         state["factory"] = factory
 
     monkeypatch.setattr(tui_cmd, "_open_client", fake_open)
@@ -83,7 +83,7 @@ def test_tui_command_offline_flag_reaches_from_config(monkeypatch) -> None:
         seen["offline"] = offline
         yield FakeSpotdlClient()
 
-    async def fake_run_app(factory):
+    async def fake_run_app(factory, **kwargs):
         return None
 
     monkeypatch.setattr(tui_cmd, "_open_client", fake_open)
@@ -204,7 +204,7 @@ async def test_end_to_end_pilot_crosses_every_section() -> None:
         assert app.screen.query_one(QueueTable).row_count == 1
 
         # 6) open settings
-        await pilot.press("3")
+        await pilot.press("4")
         await pilot.pause()
         assert isinstance(app.screen, SettingsScreen)
 

@@ -41,7 +41,7 @@ async def test_shows_guest_status_and_login_form() -> None:
     app = SpotdlApp(_factory())
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("4")
+        await pilot.press("5")
         assert app.current_mode == "auth"
         await pilot.pause()
         assert "Guest" in str(app.screen.query_one("#auth-status", Static).render())
@@ -58,7 +58,7 @@ async def test_login_mints_pat_and_repaints_status_bar() -> None:
     app = SpotdlApp(_factory(client, creds))
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("4")
+        await pilot.press("5")
         await pilot.pause()
         app.screen.query_one("#auth-email", Input).value = "user@example.com"
         app.screen.query_one("#auth-password", Input).value = "hunter2hunter2"
@@ -78,7 +78,7 @@ async def test_register_mints_pat_and_stores() -> None:
     app = SpotdlApp(_factory(client, creds))
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("4")
+        await pilot.press("5")
         await pilot.pause()
         app.screen.query_one("#auth-email", Input).value = "new@example.com"
         app.screen.query_one("#auth-password", Input).value = "hunter2hunter2"
@@ -97,7 +97,7 @@ async def test_logout_clears_identity_and_status_bar() -> None:
     app = SpotdlApp(_factory(client, creds))
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("4")
+        await pilot.press("5")
         await pilot.pause()
         assert "user@example.com" in str(app.screen.query_one("#auth-status", Static).render())
         await pilot.click("#auth-logout")
@@ -112,7 +112,7 @@ async def test_offline_shows_locked_message_and_no_form() -> None:
     app = SpotdlApp(_factory(client))
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("4")  # section gated off when auth is unavailable
+        await pilot.press("5")  # section gated off when auth is unavailable
         assert app.current_mode == "home"
         await app.push_screen(AuthScreen())  # exercise the screen's offline state directly
         await pilot.pause()

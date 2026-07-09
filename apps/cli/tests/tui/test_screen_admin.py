@@ -49,7 +49,7 @@ async def test_lists_pending_reports_and_stats() -> None:
     app = SpotdlApp(_factory(client, creds))
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("5")
+        await pilot.press("6")
         assert app.current_mode == "admin"
         await pilot.pause()
         assert app.screen.query_one("#admin-reports", DataTable).row_count == 1
@@ -64,7 +64,7 @@ async def test_approve_updates_focused_row() -> None:
     app = SpotdlApp(_factory(client, creds))
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("5")
+        await pilot.press("6")
         await pilot.pause()
         await pilot.press("a")
         await pilot.pause()
@@ -81,7 +81,7 @@ async def test_reject_updates_focused_row() -> None:
     app = SpotdlApp(_factory(client, creds))
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("5")
+        await pilot.press("6")
         await pilot.pause()
         await pilot.press("x")
         await pilot.pause()
@@ -94,5 +94,5 @@ async def test_admin_section_unreachable_for_non_admin() -> None:
     app = SpotdlApp(_factory())  # guest session: is_admin False
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("5")  # gated off — no-op (CONTRACT F, re-asserted)
+        await pilot.press("6")  # gated off — no-op (CONTRACT F, re-asserted)
         assert app.current_mode == "home"

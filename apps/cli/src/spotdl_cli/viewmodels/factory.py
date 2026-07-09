@@ -13,6 +13,7 @@ from spotdl_cli.viewmodels.admin import AdminViewModel
 from spotdl_cli.viewmodels.app_state import AppStateViewModel, SessionSnapshot
 from spotdl_cli.viewmodels.auth import AuthViewModel
 from spotdl_cli.viewmodels.collection import CollectionViewModel
+from spotdl_cli.viewmodels.connection import ConnectionViewModel
 from spotdl_cli.viewmodels.library import LibraryViewModel
 from spotdl_cli.viewmodels.protocol import (
     ConfigStore,
@@ -60,6 +61,14 @@ class ViewModelFactory:
         return AppStateViewModel(
             self._client,
             self._creds,
+            server_origin=self._server_origin,
+            transport_label=self._transport_label,
+        )
+
+    def connection(self) -> ConnectionViewModel:
+        return ConnectionViewModel(
+            self._client,
+            self._store,
             server_origin=self._server_origin,
             transport_label=self._transport_label,
         )

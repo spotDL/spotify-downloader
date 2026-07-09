@@ -1,16 +1,31 @@
-/* spotDL TUI — the one stylesheet (CONTRACT B: a single .tcss).
+/* spotDL TUI — the one stylesheet (CONTRACT §2: a single .tcss token system).
  *
- * Theme-neutral: colours come from Textual's design tokens ($panel, $accent,
- * $boost, $text-muted) so the app follows the active light/dark theme instead of
- * hard-coding a palette. Layout tokens + shared accents (status bar, footer,
- * gauges, tables) live here; screens add only their own structural rules. */
+ * Theme-neutral: colours come from Textual's design tokens ($panel, $surface,
+ * $accent, $primary, $boost, $text-muted, $success, $warning, $error) so the app
+ * follows the active light/dark theme. This sheet is the shared vocabulary — the
+ * app shell layout, the nav rail, bordered panels with titles, zebra tables,
+ * buttons, and the reusable empty/loading/error/stat patterns — that every screen
+ * composes on. Screens add only their own structural rules below the shared block.
+ */
+
+/* ------------------------------------------------------------------ shell §1 */
 
 Screen {
     layout: vertical;
 }
 
+#app-body {
+    width: 100%;
+    height: 1fr;
+}
+
+#content-region {
+    width: 1fr;
+    height: 100%;
+    padding: 0 1;
+}
+
 StatusBar {
-    dock: top;
     height: 1;
     width: 100%;
     padding: 0 1;
@@ -23,16 +38,196 @@ Footer {
     background: $panel;
 }
 
-/* Section/entity content sits between the docked status bar and footer. */
+/* ---------------------------------------------------------------- nav rail §1 */
+
+NavRail {
+    width: 22;
+    height: 100%;
+    layout: vertical;
+    background: $panel;
+    padding: 1 1;
+}
+
+.nav-title {
+    text-style: bold;
+    color: $accent;
+    padding: 0 1 1 1;
+}
+
+.nav-entry {
+    height: 1;
+    padding: 0 1;
+    color: $text-muted;
+}
+
+.nav-entry:hover {
+    background: $boost;
+    color: $text;
+}
+
+.nav-entry--active {
+    background: $boost;
+    color: $accent;
+    text-style: bold;
+}
+
+.nav-spacer {
+    height: 1fr;
+}
+
+.nav-conn {
+    height: auto;
+    padding: 0 1;
+    color: $text-muted;
+}
+
+/* --------------------------------------------------------------- panels §2 */
+
+.panel {
+    border: round $primary 30%;
+    border-title-color: $text-muted;
+    border-title-style: bold;
+    padding: 0 1;
+}
+
+.panel:focus-within {
+    border: round $accent;
+    border-title-color: $accent;
+}
+
+/* Every table fills its pane, stripes, and shows an accent cursor row. */
+DataTable {
+    height: 1fr;
+}
+
+DataTable > .datatable--header {
+    text-style: bold;
+    color: $text-muted;
+}
+
+DataTable > .datatable--cursor {
+    background: $accent;
+}
+
+/* Consistent button spacing; primary leftmost is a compose-order convention. */
+Button {
+    margin: 0 1 0 0;
+}
+
+/* ------------------------------------------------- reusable pane patterns §2 */
+
+.empty-state {
+    width: 100%;
+    height: 1fr;
+    content-align: center middle;
+    text-align: center;
+    color: $text-muted;
+}
+
+.loading-pane {
+    width: 100%;
+    height: 1fr;
+    align: center middle;
+}
+
+.loading-label {
+    color: $text-muted;
+    padding: 1 0 0 0;
+}
+
+.error-pane {
+    height: auto;
+    padding: 1 1;
+    color: $error;
+}
+
+.stat-card {
+    border: round $primary 30%;
+    border-title-color: $text-muted;
+    width: 1fr;
+    min-width: 16;
+    height: auto;
+    padding: 1 1;
+    text-style: bold;
+    content-align: center middle;
+}
+
+/* ---------------------------------------------------------- connect screen §3 */
+
+.connect-status {
+    height: auto;
+    border: round $primary 30%;
+    border-title-color: $text-muted;
+    padding: 1 1;
+    margin: 0 0 1 0;
+}
+
+#connect-cards {
+    height: 1fr;
+    layout: horizontal;
+}
+
+.connect-card {
+    width: 1fr;
+    height: auto;
+    border: round $primary 30%;
+    border-title-color: $text-muted;
+    border-title-style: bold;
+    padding: 1 1;
+    margin: 0 1 0 0;
+}
+
+.connect-card:focus-within {
+    border: round $accent;
+    border-title-color: $accent;
+}
+
+.card-blurb {
+    height: auto;
+    color: $text-muted;
+    padding: 0 0 1 0;
+}
+
+.card-error {
+    height: auto;
+    color: $error;
+}
+
+#connect-actions {
+    height: auto;
+    padding: 1 0 0 0;
+}
+
+/* ------------------------------------------------------------- help modal §4 */
+
+HelpScreen {
+    align: center middle;
+}
+
+#help-panel {
+    width: 72;
+    max-width: 90%;
+    height: auto;
+    max-height: 80%;
+    border: round $accent;
+    border-title-color: $accent;
+    border-title-style: bold;
+    background: $surface;
+    padding: 1 2;
+}
+
+.help-body {
+    height: auto;
+}
+
+/* ------------------------------------------------ per-screen structural rules */
+
+/* Placeholder stand-in (unbuilt section/entity). */
 .placeholder {
     width: 100%;
     height: 1fr;
     content-align: center middle;
     color: $text-muted;
-}
-
-.help-body {
-    padding: 1 2;
 }
 
 /* Settings: a scrolling stack of labelled controls + an inline validation line. */
@@ -81,15 +276,7 @@ Footer {
     color: $text-muted;
 }
 
-/* Shared accents later screens lean on (Task 6 gauges, Task 7/8 tables). */
-DataTable {
-    height: 1fr;
-}
-
-DataTable > .datatable--cursor {
-    background: $accent;
-}
-
+/* Shared gauge accents (track matches, queue progress). */
 .gauge--bar {
     color: $accent;
 }
@@ -98,7 +285,7 @@ DataTable > .datatable--cursor {
     color: $success;
 }
 
-/* Track screen (Task 6): the header card, the match column, and the lyrics pane. */
+/* Track screen: the header card, the match column, and the lyrics pane. */
 .hidden {
     display: none;
 }

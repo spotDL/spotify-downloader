@@ -69,7 +69,7 @@ async def test_number_keys_switch_available_sections() -> None:
         await pilot.pause()
         await pilot.press("2")  # queue — can_download True by default
         assert app.current_mode == "queue"
-        await pilot.press("3")  # settings — always on
+        await pilot.press("4")  # settings — always on
         assert app.current_mode == "settings"
         await pilot.press("1")  # back to search
         assert app.current_mode == "home"
@@ -88,7 +88,7 @@ async def test_admin_section_hidden_for_non_admin() -> None:
     app = SpotdlApp(_factory())
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("5")  # admin gated off for a guest — no-op
+        await pilot.press("6")  # admin gated off for a guest — no-op
         assert app.current_mode == "home"
 
 
@@ -99,7 +99,7 @@ async def test_admin_section_reachable_for_admin() -> None:
         await pilot.pause()
         bar = app.screen.query_one(StatusBar)
         assert "admin@example.com" in bar.summary  # signed-in identity shown
-        await pilot.press("5")
+        await pilot.press("6")
         assert app.current_mode == "admin"
 
 

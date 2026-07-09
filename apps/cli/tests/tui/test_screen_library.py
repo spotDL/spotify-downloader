@@ -44,7 +44,7 @@ async def test_library_section_lists_completed_downloads() -> None:
     app = SpotdlApp(_factory(client))
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("6")
+        await pilot.press("3")
         assert app.current_mode == "library"
         assert isinstance(app.screen, LibraryScreen)
         await pilot.pause()
@@ -65,7 +65,7 @@ async def test_library_empty_state() -> None:
     app = SpotdlApp(_factory(client))
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("6")
+        await pilot.press("3")
         await pilot.pause()
         body = " ".join(str(node.render()) for node in app.screen.query(Static))
         assert "Nothing downloaded yet" in body
@@ -76,5 +76,5 @@ async def test_library_section_hidden_when_feature_off() -> None:
     app = SpotdlApp(_factory(client))
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("6")  # gated off — no-op
+        await pilot.press("3")  # gated off — no-op
         assert app.current_mode == "home"
