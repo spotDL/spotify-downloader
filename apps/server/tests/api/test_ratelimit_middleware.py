@@ -31,7 +31,7 @@ from spotdl_server.db.base import Base
 from spotdl_server.ratelimit.memory import InMemoryRateLimiter
 from spotdl_server.settings import DeploymentMode, Settings
 
-from apps.server.tests.conftest import FakeClock
+from apps.server.tests.conftest import FakeClock, precreate_schema
 from apps.server.tests.fakes import build_fake_registry
 
 _SECRET = "ratelimit-test-secret-key-0123456789-abcdef"
@@ -53,6 +53,7 @@ async def _rl_app(
         rate_limit_enabled=rate_limit_enabled,
         client_ip_header=_IP_HEADER,
     )
+    await precreate_schema(settings)
     app = create_app(settings, registry=build_fake_registry())
     async with app.router.lifespan_context(app):
         # Deterministic time + an in-memory limiter bound to the same clock.

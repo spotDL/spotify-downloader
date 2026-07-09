@@ -291,6 +291,16 @@
         "title": "ArtistOut",
         "type": "object"
       },
+      "BatchKind": {
+        "description": "Shape of a ``download_batches`` submission (Plan 7).",
+        "enum": [
+          "single",
+          "album",
+          "playlist"
+        ],
+        "title": "BatchKind",
+        "type": "string"
+      },
       "ConfigResponse": {
         "description": "``GET /config`` body: deployment mode, feature flags, matcher version.\n\n``oauth_providers`` lists the OAuth providers a client may offer as sign-in\nbuttons (e.g. ``[\"github\", \"discord\"]``); it is empty when auth is inactive or\nno provider credentials are configured. ``download_defaults`` carries the\nserver's effective download configuration (``null`` when downloads are off).",
         "properties": {
@@ -422,6 +432,63 @@
         "title": "DeploymentMode",
         "type": "string"
       },
+      "DownloadBatchOut": {
+        "description": "A submission (batch) with its per-status tally and job listing.",
+        "properties": {
+          "batch_id": {
+            "format": "uuid",
+            "title": "Batch Id",
+            "type": "string"
+          },
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Counts",
+            "type": "object"
+          },
+          "finalized": {
+            "title": "Finalized",
+            "type": "boolean"
+          },
+          "jobs": {
+            "items": {
+              "$ref": "#/components/schemas/DownloadJobOut"
+            },
+            "title": "Jobs",
+            "type": "array"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/BatchKind"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "total_jobs": {
+            "title": "Total Jobs",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "batch_id",
+          "kind",
+          "name",
+          "total_jobs",
+          "counts",
+          "finalized",
+          "jobs"
+        ],
+        "title": "DownloadBatchOut",
+        "type": "object"
+      },
       "DownloadDefaults": {
         "description": "The server's effective download configuration (``/config`` block).\n\nCONTRACT — read-only visibility so clients (web/TUI/Plan 8) pre-fill their\nsubmit forms and codegen against the server's operator defaults. Present only\nwhen :meth:`Settings.downloads_enabled` (``null`` in HOSTED).",
         "properties": {
@@ -514,6 +581,358 @@
           "scan_existing"
         ],
         "title": "DownloadDefaults",
+        "type": "object"
+      },
+      "DownloadJobOut": {
+        "description": "One download job (queue row) as returned across the download surface.",
+        "properties": {
+          "artists": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Artists",
+            "type": "array"
+          },
+          "batch_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batch Id"
+          },
+          "bitrate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bitrate"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "error_step": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Step"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "list_position": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "List Position"
+          },
+          "output_format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Format"
+          },
+          "output_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Path"
+          },
+          "output_template": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Template"
+          },
+          "progress": {
+            "title": "Progress",
+            "type": "number"
+          },
+          "skip_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skip Reason"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DownloadStatus"
+          },
+          "track_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Track Id"
+          },
+          "track_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Track Name"
+          }
+        },
+        "required": [
+          "id",
+          "batch_id",
+          "status",
+          "track_id",
+          "track_name",
+          "artists",
+          "output_format",
+          "bitrate",
+          "output_template",
+          "output_path",
+          "progress",
+          "skip_reason",
+          "error_step",
+          "error_message",
+          "list_position",
+          "created_at",
+          "started_at",
+          "finished_at"
+        ],
+        "title": "DownloadJobOut",
+        "type": "object"
+      },
+      "DownloadListResponse": {
+        "description": "``GET /downloads`` body: a page of jobs + pagination metadata.",
+        "properties": {
+          "jobs": {
+            "items": {
+              "$ref": "#/components/schemas/DownloadJobOut"
+            },
+            "title": "Jobs",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "jobs",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "DownloadListResponse",
+        "type": "object"
+      },
+      "DownloadStatus": {
+        "description": "Lifecycle state of a ``download_jobs`` row (Plan 7 queue).",
+        "enum": [
+          "queued",
+          "running",
+          "completed",
+          "failed",
+          "cancelled"
+        ],
+        "title": "DownloadStatus",
+        "type": "string"
+      },
+      "DownloadSubmitRequest": {
+        "description": "Body of ``POST /downloads``: what and how to download.\n\n``query`` is a URL, ``provider:type:id`` ref, or free text (a single track);\nan album/playlist URL is expanded server-side into N jobs. The ``None``\nengine fields fall back to the server's configured defaults at submit time.",
+        "properties": {
+          "bitrate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bitrate"
+          },
+          "embed_lyrics": {
+            "default": true,
+            "title": "Embed Lyrics",
+            "type": "boolean"
+          },
+          "generate_lrc": {
+            "default": false,
+            "title": "Generate Lrc",
+            "type": "boolean"
+          },
+          "generate_m3u": {
+            "default": false,
+            "title": "Generate M3U",
+            "type": "boolean"
+          },
+          "generate_save_file": {
+            "default": false,
+            "title": "Generate Save File",
+            "type": "boolean"
+          },
+          "m3u_template": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "M3U Template"
+          },
+          "output_format": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OutputFormat"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "output_template": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Template"
+          },
+          "overwrite": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OverwriteMode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "query": {
+            "title": "Query",
+            "type": "string"
+          },
+          "sponsor_block": {
+            "default": false,
+            "title": "Sponsor Block",
+            "type": "boolean"
+          },
+          "update_archive": {
+            "default": false,
+            "title": "Update Archive",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "title": "DownloadSubmitRequest",
+        "type": "object"
+      },
+      "DownloadSubmitResponse": {
+        "description": "``POST /downloads`` (201) body: the created batch + its jobs.",
+        "properties": {
+          "batch": {
+            "$ref": "#/components/schemas/DownloadBatchOut"
+          }
+        },
+        "required": [
+          "batch"
+        ],
+        "title": "DownloadSubmitResponse",
         "type": "object"
       },
       "EntityEnvelope": {
@@ -662,6 +1081,19 @@
           "library"
         ],
         "title": "FeatureFlags",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
         "type": "object"
       },
       "HealthResponse": {
@@ -887,6 +1319,27 @@
         ],
         "title": "MatchesResponse",
         "type": "object"
+      },
+      "OutputFormat": {
+        "enum": [
+          "mp3",
+          "m4a",
+          "flac",
+          "ogg",
+          "opus",
+          "wav"
+        ],
+        "title": "OutputFormat",
+        "type": "string"
+      },
+      "OverwriteMode": {
+        "enum": [
+          "skip",
+          "force",
+          "metadata"
+        ],
+        "title": "OverwriteMode",
+        "type": "string"
       },
       "PagedReports": {
         "description": "``GET /admin/reports`` body: a page of reports plus the in-status ``total``.",
@@ -1515,6 +1968,46 @@
           "created_at"
         ],
         "title": "UserResponse",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
         "type": "object"
       },
       "VotableType": {
@@ -3794,6 +4287,347 @@
         "summary": "Config",
         "tags": [
           "meta"
+        ]
+      }
+    },
+    "/api/v1/downloads": {
+      "get": {
+        "description": "A newest-first page of jobs with optional ``status`` / ``batch_id`` filters.",
+        "operationId": "list_downloads_api_v1_downloads_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/DownloadStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "batch_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Batch Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownloadListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Downloads",
+        "tags": [
+          "downloads"
+        ]
+      },
+      "post": {
+        "description": "Resolve + expand a submission into a queued batch, then enqueue + announce.\n\n``NoMatchFound`` (track with no viable match) → 404; ``UnsupportedBatchEntity``\n(e.g. an artist url) → 400 — both via the global handlers. The pool receives\nthe ids and ``job_queued`` frames go out only after the service committed.",
+        "operationId": "submit_download_api_v1_downloads_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DownloadSubmitRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownloadSubmitResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Submit Download",
+        "tags": [
+          "downloads"
+        ]
+      }
+    },
+    "/api/v1/downloads/batches/{batch_id}": {
+      "get": {
+        "description": "The batch's per-status tally + job listing (404 if unknown).",
+        "operationId": "get_batch_api_v1_downloads_batches__batch_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "batch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Batch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownloadBatchOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Batch",
+        "tags": [
+          "downloads"
+        ]
+      }
+    },
+    "/api/v1/downloads/batches/{batch_id}/save-file": {
+      "get": {
+        "description": "Serve the batch's ``.spotdl`` v2 JSON as an attachment (CONTRACT 7).",
+        "operationId": "get_batch_save_file_api_v1_downloads_batches__batch_id__save_file_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "batch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Batch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Batch Save File",
+        "tags": [
+          "downloads"
+        ]
+      }
+    },
+    "/api/v1/downloads/{job_id}": {
+      "delete": {
+        "description": "Cancel a queued/running job; 409 if it is already terminal, 404 if unknown.",
+        "operationId": "cancel_download_api_v1_downloads__job_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownloadJobOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Cancel Download",
+        "tags": [
+          "downloads"
+        ]
+      },
+      "get": {
+        "description": "One job (the WS-less polling fallback); 404 if unknown.",
+        "operationId": "get_download_api_v1_downloads__job_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownloadJobOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Download",
+        "tags": [
+          "downloads"
+        ]
+      }
+    },
+    "/api/v1/downloads/{job_id}/file": {
+      "get": {
+        "description": "Deliver a completed job's audio file (CONTRACT 6).\n\n409 unless the job is a completed *real* download with an ``output_path``; a\npath outside the library root or a missing file → 404 (never leaked). Serves\nvia Starlette ``FileResponse`` by default, or an ``X-Accel-Redirect`` internal\nredirect when ``download_x_accel_prefix`` delegates streaming to a proxy.",
+        "operationId": "download_file_api_v1_downloads__job_id__file_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Download File",
+        "tags": [
+          "downloads"
         ]
       }
     },

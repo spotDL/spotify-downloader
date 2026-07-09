@@ -62,6 +62,23 @@ def clock() -> FakeClock:
     return FakeClock()
 
 
+async def precreate_schema(settings: Any) -> None:
+    """Create the full schema on ``settings``' DB *before* the app's lifespan runs.
+
+    Plan 7's download pool runs a crash-recovery query (``SELECT ... FROM
+    download_jobs``) the instant the lifespan starts, so — for the selfhost/
+    embedded apps the offline harnesses build — the tables must already exist,
+    exactly as a real deployment migrates before boot. The community harnesses
+    that previously created the schema *inside* the lifespan call this first.
+    """
+    from spotdl_server.db.engine import build_engine
+
+    engine = build_engine(settings)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    await engine.dispose()
+
+
 @pytest.fixture(autouse=True)
 def _isolate_spotdl_env(monkeypatch: pytest.MonkeyPatch) -> None:
     """Strip SPOTDL_-prefixed env vars so tests relying on Settings() defaults

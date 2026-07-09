@@ -25,7 +25,7 @@ from spotdl_server.app import create_app
 from spotdl_server.db.base import Base
 from spotdl_server.settings import DeploymentMode, Settings
 
-from apps.server.tests.conftest import FakeClock
+from apps.server.tests.conftest import FakeClock, precreate_schema
 from apps.server.tests.fakes import build_fake_registry
 
 _ACCESS_TTL = 900
@@ -41,6 +41,7 @@ async def _auth_app(
         auth_secret_key=SecretStr("pat-test-secret-key-0123456789-abcdef"),
         access_token_ttl_seconds=_ACCESS_TTL,
     )
+    await precreate_schema(settings)
     app = create_app(settings, registry=build_fake_registry())
     async with app.router.lifespan_context(app):
         app.state.clock = clock  # deterministic PAT expiry, replacing the SystemClock

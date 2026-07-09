@@ -5,10 +5,21 @@ import pytest
 from spotdl_core.model import ProviderId, Track
 from spotdl_server.app import create_app
 from spotdl_server.auth.clock import SystemClock
+from spotdl_server.db.base import Base
+from spotdl_server.db.engine import build_engine
 from spotdl_server.ratelimit.memory import InMemoryRateLimiter
 from spotdl_server.settings import DeploymentMode, Settings
 
 from apps.server.tests.fakes import FakeResolver, build_fake_registry
+from tests.conftest import FakeDownloadEngine
+
+
+async def _precreate_schema(settings: Settings) -> None:
+    """Create the schema before the lifespan starts (Plan 7 pool boots a query)."""
+    engine = build_engine(settings)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    await engine.dispose()
 
 
 def make_client(settings: Settings | None = None) -> httpx.AsyncClient:
@@ -69,7 +80,10 @@ async def test_create_app_uses_injected_registry_and_does_not_close_it(tmp_path:
 
     fake.aclose = recording_aclose  # type: ignore[method-assign]
 
-    app = create_app(_sqlite_settings(tmp_path), registry=fake)
+    settings = _sqlite_settings(tmp_path)
+    await _precreate_schema(settings)
+    engine = FakeDownloadEngine(config=settings.download_config())
+    app = create_app(settings, registry=fake, download_engine=engine)
     async with app.router.lifespan_context(app):
         assert app.state.registry is fake
         transport = httpx.ASGITransport(app=app)
@@ -103,7 +117,10 @@ async def test_create_app_builds_and_closes_its_own_registry(
 
     monkeypatch.setattr(app_module, "build_default_registry", lambda _ctx: fake)
 
-    app = create_app(_sqlite_settings(tmp_path))
+    settings = _sqlite_settings(tmp_path)
+    await _precreate_schema(settings)
+    engine = FakeDownloadEngine(config=settings.download_config())
+    app = create_app(settings, download_engine=engine)
     async with app.router.lifespan_context(app):
         assert app.state.registry is fake
 
@@ -115,15 +132,40 @@ async def test_create_app_builds_and_closes_its_own_registry(
 # --------------------------------------------------------------------------
 
 
+def _mounted_paths(app: object) -> set[str]:
+    """Every mounted route path, resolving FastAPI's lazy ``_IncludedRouter`` wrappers."""
+    paths: set[str] = set()
+
+    def _walk(routes: object) -> None:
+        for route in routes:  # type: ignore[attr-defined]
+            path = getattr(route, "path", None)
+            if path:
+                paths.add(path)
+            original = getattr(route, "original_router", None)
+            if original is not None:
+                _walk(original.routes)
+
+    _walk(app.router.routes)  # type: ignore[attr-defined]
+    return paths
+
+
 @pytest.mark.parametrize(
-    "mode", [DeploymentMode.HOSTED, DeploymentMode.SELFHOST, DeploymentMode.EMBEDDED]
+    ("mode", "downloads_mounted"),
+    [
+        (DeploymentMode.HOSTED, False),
+        (DeploymentMode.SELFHOST, True),
+        (DeploymentMode.EMBEDDED, True),
+    ],
 )
-def test_no_download_routes_mounted_in_any_mode(mode: DeploymentMode) -> None:
-    """The download router is a Plan 7 concern: no ``/api/v1/downloads*`` route
-    exists in any deployment mode (guards against Plan 7 always-mounting it)."""
-    app = create_app(Settings(mode=mode))
-    paths = {getattr(route, "path", "") for route in app.routes}
-    assert not any(path.startswith("/api/v1/downloads") for path in paths)
+def test_download_routes_mounted_only_outside_hosted(
+    mode: DeploymentMode, downloads_mounted: bool
+) -> None:
+    """Plan 7 mode gating: ``/api/v1/downloads*`` + ``/ws/progress`` mount in
+    selfhost/embedded, never in hosted (spec §4)."""
+    paths = _mounted_paths(create_app(Settings(mode=mode)))
+    has_downloads = any(path.startswith("/api/v1/downloads") for path in paths)
+    assert has_downloads is downloads_mounted
+    assert ("/ws/progress" in paths) is downloads_mounted
 
 
 # The router ≤200-line guard and the source-level ORM/FastAPI import checks now

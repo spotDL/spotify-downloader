@@ -130,6 +130,23 @@ class NotAnAudioTarget(SpotdlError):
         super().__init__(message)
 
 
+class DownloadConflict(SpotdlError):
+    """A download action conflicts with the job's current state → 409 (Plan 7).
+
+    Raised by the ``/downloads`` router when a request cannot proceed against a
+    job's lifecycle state: cancelling an already-terminal job
+    (``reason="already_terminal"``) or requesting the file of a job that is not a
+    completed real download (``reason="not_ready"``). Maps to
+    :data:`ErrorCode.DOWNLOAD_FAILED` with ``detail={"reason": <reason>}`` — a 409
+    (state conflict), distinct from core's :class:`DownloadFailed` (a 500 pipeline
+    error). Carries the machine-readable ``reason`` for the envelope detail.
+    """
+
+    def __init__(self, reason: str) -> None:
+        super().__init__(f"download conflict: {reason}")
+        self.reason = reason
+
+
 class UnsupportedBatchEntity(SpotdlError):
     """A resolvable entity kind cannot be batch-downloaded → 400 (Plan 7 Task 4).
 

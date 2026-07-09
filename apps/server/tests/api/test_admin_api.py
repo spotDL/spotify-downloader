@@ -27,7 +27,7 @@ from spotdl_server.db.base import Base
 from spotdl_server.db.models import User
 from spotdl_server.settings import DeploymentMode, Settings
 
-from apps.server.tests.conftest import FakeClock
+from apps.server.tests.conftest import FakeClock, precreate_schema
 from apps.server.tests.fakes import build_fake_registry
 
 
@@ -40,6 +40,7 @@ async def _auth_app(
         data_dir=data_dir,
         auth_secret_key=SecretStr("admin-test-secret-key-0123456789-abcdef"),
     )
+    await precreate_schema(settings)
     app = create_app(settings, registry=build_fake_registry())
     async with app.router.lifespan_context(app):
         app.state.clock = clock

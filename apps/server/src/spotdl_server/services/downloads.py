@@ -46,6 +46,7 @@ from spotdl_server.api.schemas import (
     DownloadSubmitRequest,
 )
 from spotdl_server.db.enums import BatchKind, DownloadStatus
+from spotdl_server.downloads.savefile import SaveFileV2, build_save_file
 from spotdl_server.services.dto import ResolveResult, TrackView
 from spotdl_server.services.errors import NotFoundError, UnsupportedBatchEntity
 
@@ -53,7 +54,7 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
     from spotdl_server.auth.clock import Clock
-    from spotdl_server.db.models import DownloadJob, Match
+    from spotdl_server.db.models import DownloadJob, Match, Track
     from spotdl_server.repositories.batches import DownloadBatchRepository
     from spotdl_server.repositories.downloads import DownloadJobRepository
     from spotdl_server.repositories.entities import TrackRepository
@@ -216,6 +217,32 @@ class DownloadQueueService:
         if batch is None:
             raise NotFoundError(entity_type="download_batch", entity_id=batch_id)
         return await self._batch_out(batch_id)
+
+    async def build_batch_save_file(self, batch_id: UUID) -> SaveFileV2:
+        """Build the ``.spotdl`` v2 model for a batch (the ``save-file`` GET body).
+
+        Read-only: loads the batch, its jobs, and the tracks/matches they
+        reference, then delegates to the pure :func:`build_save_file` mapper — the
+        same model the finalizer writes to disk, served on demand for
+        ``spotdl save``/``sync`` (CONTRACT 7). ``NotFoundError`` if the batch is
+        unknown.
+        """
+        batch = await self._batches.get(batch_id)
+        if batch is None:
+            raise NotFoundError(entity_type="download_batch", entity_id=batch_id)
+        jobs = await self._batches.jobs(batch_id)
+        tracks_by_id: dict[UUID, Track] = {}
+        matches_by_id: dict[UUID, Match] = {}
+        for job in jobs:
+            if job.track_id is not None and job.track_id not in tracks_by_id:
+                track = await self._tracks.get(job.track_id)
+                if track is not None:
+                    tracks_by_id[job.track_id] = track
+            if job.match_id is not None and job.match_id not in matches_by_id:
+                match = await self._matches.get(job.match_id)
+                if match is not None:
+                    matches_by_id[job.match_id] = match
+        return build_save_file(batch, jobs, tracks_by_id, matches_by_id)
 
     # ------------------------------------------------------------ mapping
     async def _batch_out(self, batch_id: UUID) -> DownloadBatchOut:

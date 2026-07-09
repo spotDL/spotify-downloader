@@ -28,7 +28,7 @@ from spotdl_server.db.base import Base
 from spotdl_server.db.enums import OAuthProvider
 from spotdl_server.settings import DeploymentMode, Settings
 
-from apps.server.tests.conftest import FakeClock
+from apps.server.tests.conftest import FakeClock, precreate_schema
 from apps.server.tests.fakes import build_fake_registry
 
 _ACCESS_TTL = 900
@@ -77,6 +77,7 @@ async def _oauth_app(
         web_auth_redirect_enabled=web_auth_redirect_enabled,
         rate_limit_enabled=False,
     )
+    await precreate_schema(settings)
     app = create_app(settings, registry=build_fake_registry())
     app.dependency_overrides[build_oauth_clients] = lambda: {
         OAuthProvider.GITHUB: _FakeGitHub(info)

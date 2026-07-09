@@ -17,6 +17,7 @@ from __future__ import annotations
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from typing import TYPE_CHECKING, cast
 
 import httpx
 from fastapi import FastAPI
@@ -26,12 +27,15 @@ from spotdl_server import __version__
 from spotdl_server.api.deps import provider_context
 from spotdl_server.api.errors import register_exception_handlers
 from spotdl_server.api.middleware import RateLimitMiddleware
+from spotdl_server.api.progress_hub import ProgressHub
 from spotdl_server.api.routers import (
     admin,
     auth,
+    downloads,
     entities,
     meta,
     oauth,
+    progress_ws,
     reports,
     resolve,
     search,
@@ -41,8 +45,13 @@ from spotdl_server.api.routers import (
 )
 from spotdl_server.auth.clock import SystemClock
 from spotdl_server.db.engine import build_engine, build_sessionmaker
+from spotdl_server.downloads.worker import DownloadWorkerPool
 from spotdl_server.ratelimit import build_rate_limiter
+from spotdl_server.services.batch import BatchFinalizer
 from spotdl_server.settings import DeploymentMode, Settings
+
+if TYPE_CHECKING:
+    from spotdl_server.downloads.worker import Engine, Finalizer
 
 
 @asynccontextmanager
@@ -84,9 +93,41 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     injected: ProviderRegistry | None = app.state.injected_registry
     app.state.registry = injected or build_default_registry(provider_context(settings))
+
+    # The download queue's runtime collaborators (Plan 7): the progress hub, the
+    # asyncio worker pool, and the batch finalizer — built once here (no
+    # module-level singletons) and drained/closed on shutdown. Mounted only in
+    # selfhost/embedded (hosted never runs a local engine — spec §4). The engine
+    # is either an injected fake (the offline test seam) or the real Plan 4 engine
+    # built lazily from the download config. ``pool.start()`` recovers orphaned
+    # jobs and spawns the workers.
+    downloads_on = settings.downloads_enabled()
+    if downloads_on:
+        from spotdl_core.download import build_default_engine
+
+        download_engine = app.state.injected_download_engine
+        engine_impl = download_engine or build_default_engine(settings.download_config())
+        hub = ProgressHub()
+        finalizer = BatchFinalizer(sessionmaker=app.state.sessionmaker, settings=settings)
+        # The engine (real or injected fake) and the finalizer satisfy the pool's
+        # structural ``Engine`` / ``Finalizer`` Protocols at runtime (duck-typed);
+        # cast at this wiring seam so the nominal check is happy.
+        pool = DownloadWorkerPool(
+            sessionmaker=app.state.sessionmaker,
+            engine=cast("Engine", engine_impl),
+            hub=hub,
+            settings=settings,
+            finalizer=cast("Finalizer", finalizer),
+            clock=app.state.clock,
+        )
+        app.state.download_hub = hub
+        app.state.download_pool = pool
+        await pool.start()
     try:
         yield
     finally:
+        if downloads_on:  # graceful drain before the DB engine is disposed
+            await app.state.download_pool.shutdown()
         if injected is None:  # caller-owned registries are NOT closed by the app
             await app.state.registry.aclose()
         await app.state.http.aclose()
@@ -98,17 +139,26 @@ def create_app(
     settings: Settings | None = None,
     *,
     registry: ProviderRegistry | None = None,
+    download_engine: object | None = None,
 ) -> FastAPI:
     """Create the spotDL server app.
 
     ``registry`` is the injection seam (Plan 8): pass a registry to have the app
     use it without owning its lifetime; omit it to have the app build and close
-    the default registry.
+    the default registry. ``download_engine`` is the parallel seam for the Plan 7
+    download engine (a ``FakeDownloadEngine`` in the offline suite); omit it and
+    the lifespan builds the real Plan 4 engine when downloads are enabled.
     """
     settings = settings or Settings()
+    # Fail fast on a nonsensical download-auth configuration (mirrors Plan 6's
+    # ``require_auth_secret``): a selfhost operator who sets
+    # ``downloads_require_auth`` while auth is inactive would get a silently-open
+    # download surface, so refuse to build the app at all.
+    settings.require_download_auth_consistency()
     app = FastAPI(title="spotdl-server", version=__version__, lifespan=lifespan)
     app.state.settings = settings
     app.state.injected_registry = registry
+    app.state.injected_download_engine = download_engine
     register_exception_handlers(app)
 
     # Rate limiting is a *mount-time* decision (spec §6.4): the middleware is added
@@ -142,7 +192,12 @@ def create_app(
         # (id + secret). Mount-time gate — never a per-request conditional.
         if settings.enabled_oauth_providers():
             app.include_router(oauth.router)
-    # if settings.mode is not DeploymentMode.HOSTED:
-    #     app.include_router(downloads_router)  # Plan 7
+
+    # Download surface (Plan 7): mounted only in selfhost/embedded — hosted never
+    # mounts the router (nor builds the pool/hub/engine in the lifespan). Mount-
+    # time mode gate (spec §4), not a per-request conditional.
+    if settings.downloads_enabled():
+        app.include_router(downloads.router)
+        app.include_router(progress_ws.router)
 
     return app

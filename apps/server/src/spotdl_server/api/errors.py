@@ -37,6 +37,7 @@ from spotdl_core.providers import (
 
 from spotdl_server.services.errors import (
     AuthRequired,
+    DownloadConflict,
     EmailTaken,
     Forbidden,
     InvalidCredentials,
@@ -139,6 +140,10 @@ def _status_and_code(exc: Exception) -> tuple[int, ErrorCode, dict[str, Any] | N
         return 404, ErrorCode.NO_MATCH_FOUND, None
     if isinstance(exc, UnsupportedBatchEntity):
         return 400, ErrorCode.UNSUPPORTED_ENTITY, {"entity_type": exc.entity_type_value}
+    if isinstance(exc, DownloadConflict):
+        # A 409 lifecycle conflict (already-terminal cancel / not-ready file),
+        # distinct from core's ``DownloadFailed`` 500 below (a pipeline error).
+        return 409, ErrorCode.DOWNLOAD_FAILED, {"reason": exc.reason}
     if isinstance(exc, RateLimited):
         return (
             429,

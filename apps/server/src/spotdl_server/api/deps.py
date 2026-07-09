@@ -15,9 +15,10 @@ credentials from the environment via the core config helpers.
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
+from typing import Any
 
 import httpx
-from fastapi import Depends, Request
+from fastapi import Depends, HTTPException, Request
 from spotdl_core.providers import ProviderContext, ProviderRegistry, SpotifyConfig
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -26,6 +27,8 @@ from spotdl_server.auth.context import ANONYMOUS, AuthContext
 from spotdl_server.auth.oauth_providers import OAuthProviderClient, build_oauth_client
 from spotdl_server.auth.tokens import TokenService, is_pat, sha256_hex
 from spotdl_server.db.enums import OAuthProvider
+from spotdl_server.repositories.batches import DownloadBatchRepository
+from spotdl_server.repositories.downloads import DownloadJobRepository
 from spotdl_server.repositories.entities import TrackRepository
 from spotdl_server.repositories.matches import MatchRepository
 from spotdl_server.repositories.reports import ReportRepository
@@ -34,6 +37,7 @@ from spotdl_server.repositories.users import OAuthIdentityRepository, UserReposi
 from spotdl_server.repositories.votes import VoteRepository
 from spotdl_server.services.admin import AdminService
 from spotdl_server.services.auth import AuthService
+from spotdl_server.services.downloads import DownloadQueueService
 from spotdl_server.services.entities import EntityService
 from spotdl_server.services.errors import AuthRequired, Forbidden
 from spotdl_server.services.oauth import OAuthService
@@ -164,24 +168,26 @@ def _bearer_token(request: Request) -> str | None:
     return token or None
 
 
-async def get_auth_context(
-    request: Request,
-    session: AsyncSession = Depends(get_session),
-    token_service: TokenService = Depends(get_token_service),
-    clock: Clock = Depends(get_clock),
+async def auth_context_from_token(
+    token: str | None,
+    *,
+    session: AsyncSession,
+    token_service: TokenService,
+    clock: Clock,
 ) -> AuthContext:
-    """Resolve the caller's identity from the ``Authorization`` header.
+    """Resolve an :class:`AuthContext` from a bearer/PAT token string.
 
-    Three branches, and it **never raises** (any failure degrades to
-    ``ANONYMOUS`` so the public read surface is unaffected):
+    The shared identity-resolution core used by both the HTTP ``Authorization``
+    header path (:func:`get_auth_context`) and the WebSocket ``?token=`` query
+    param path (Plan 7 ``WS /ws/progress``, where browsers cannot set the header).
+    It **never raises** — any failure degrades to ``ANONYMOUS``:
 
     * a ``spdl_pat_`` PAT → hash-lookup, reject revoked/expired/disabled, load the
       owner, best-effort ``last_used_at`` touch → a ``pat`` context;
     * otherwise a JWT → ``verify_access`` (bad/expired/malformed all yield
       ``None``) → a ``user`` context whose ``is_admin`` mirrors the claim;
-    * no header (or an unusable one) → ``ANONYMOUS``.
+    * ``None`` / an unusable token → ``ANONYMOUS``.
     """
-    token = _bearer_token(request)
     if token is None:
         return ANONYMOUS
 
@@ -203,6 +209,26 @@ async def get_auth_context(
     if claims is None:
         return ANONYMOUS
     return AuthContext(kind="user", user_id=claims.user_id, is_admin=claims.is_admin)
+
+
+async def get_auth_context(
+    request: Request,
+    session: AsyncSession = Depends(get_session),
+    token_service: TokenService = Depends(get_token_service),
+    clock: Clock = Depends(get_clock),
+) -> AuthContext:
+    """Resolve the caller's identity from the ``Authorization`` header.
+
+    Delegates to :func:`auth_context_from_token` with the bearer token extracted
+    from the header (or ``None``); it **never raises** — gating is the job of
+    ``require_user`` / ``require_admin`` / ``require_download_access``.
+    """
+    return await auth_context_from_token(
+        _bearer_token(request),
+        session=session,
+        token_service=token_service,
+        clock=clock,
+    )
 
 
 def require_user(ctx: AuthContext = Depends(get_auth_context)) -> AuthContext:
@@ -376,4 +402,72 @@ def get_oauth_service(
         clients=clients,
         auth_secret=settings.require_auth_secret(),
         redirect_base_url=settings.oauth_redirect_base_url or "",
+    )
+
+
+# --------------------------------------------------------------------------
+# Downloads wiring (Plan 7). The worker pool + progress hub are built once in the
+# lifespan and stored on ``app.state`` (drained/closed on shutdown); these
+# dependencies read them per request. ``require_download_access`` is the mode/auth
+# matrix gate (spec §4): embedded is always open (loopback; auth inactive by
+# default), selfhost requires an authenticated caller only when
+# ``downloads_require_auth`` AND the *derived* ``auth_active()`` both hold, and
+# hosted never reaches here (the router is not mounted). The inconsistent
+# require-auth-without-active-auth combination is impossible — ``create_app`` fails
+# fast at startup (:meth:`Settings.require_download_auth_consistency`).
+# --------------------------------------------------------------------------
+
+
+def require_download_access(
+    request: Request,
+    auth: AuthContext = Depends(get_auth_context),
+) -> AuthContext:
+    """Gate the download surface per the mode/auth matrix (CONTRACT, spec §4)."""
+    settings = get_settings(request)
+    if settings.downloads_require_auth and settings.auth_active() and not auth.authenticated:
+        raise AuthRequired()
+    return auth
+
+
+def get_download_pool(request: Request) -> Any:
+    """The lifespan-built :class:`DownloadWorkerPool` on ``app.state``.
+
+    Defensive 503 if downloads are disabled — in practice unreachable because the
+    router is not mounted in that case (mode gating at ``create_app``).
+    """
+    pool = getattr(request.app.state, "download_pool", None)
+    if pool is None:
+        raise HTTPException(status_code=503, detail="downloads are disabled")
+    return pool
+
+
+def get_download_hub(request: Request) -> Any:
+    """The lifespan-built :class:`ProgressHub` on ``app.state`` (503 if disabled)."""
+    hub = getattr(request.app.state, "download_hub", None)
+    if hub is None:
+        raise HTTPException(status_code=503, detail="downloads are disabled")
+    return hub
+
+
+def get_download_queue_service(
+    request: Request,
+    session: AsyncSession = Depends(get_session),
+    resolve_service: ResolveService = Depends(get_resolve_service),
+    entity_service: EntityService = Depends(get_entity_service),
+    clock: Clock = Depends(get_clock),
+    auth: AuthContext = Depends(get_auth_context),
+) -> DownloadQueueService:
+    """Compose the :class:`DownloadQueueService`, attributing jobs to the caller."""
+    settings = get_settings(request)
+    return DownloadQueueService(
+        session=session,
+        resolve_service=resolve_service,
+        entity_service=entity_service,
+        match_repo=MatchRepository(session),
+        track_repo=TrackRepository(session),
+        job_repo=DownloadJobRepository(session),
+        batch_repo=DownloadBatchRepository(session),
+        settings=settings,
+        requested_by=auth.user_id,
+        clock=clock,
     )
