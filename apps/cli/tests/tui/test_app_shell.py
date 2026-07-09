@@ -130,8 +130,9 @@ async def test_navigate_to_pushes_entity_screen() -> None:
     app = SpotdlApp(_factory())
     async with app.run_test() as pilot:
         await pilot.pause()
-        # an unregistered kind (album lands in Task 7) still routes to a placeholder
-        ref = EntityRef(entity_type="album", id=uuid4(), title="Discovery")
+        # an unregistered kind still routes to a placeholder (all four real kinds
+        # are registered now, so use a synthetic one)
+        ref = EntityRef(entity_type="mixtape", id=uuid4(), title="Discovery")
         app.post_message(NavigateTo(ref))
         await pilot.pause()
         assert isinstance(app.screen, PlaceholderScreen)

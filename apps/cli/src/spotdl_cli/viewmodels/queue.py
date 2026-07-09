@@ -82,6 +82,21 @@ class QueueViewModel:
 
         return await guard(_run())
 
+    def apply_job(self, snap: QueueSnapshot, row: JobRow) -> QueueSnapshot:
+        """Fold a single ``JobRow`` (e.g. a ``cancel`` outcome) into ``snap``.
+
+        Reuses the reduce path's ``_recount`` so a command result reconciles counts
+        the same way a WS frame would — the screen never recomputes totals itself.
+        """
+        rows = list(snap.jobs)
+        index = next((i for i, existing in enumerate(rows) if existing.job_id == row.job_id), None)
+        if index is None:
+            rows.append(row)
+        else:
+            rows[index] = row
+        self._snapshot = _recount(snap, tuple(rows))
+        return self._snapshot
+
     async def enqueue(self, query: str) -> Loadable[BatchRef]:
         if not self._session.can_download:
             return Loadable.failed(
@@ -143,6 +158,12 @@ class QueueViewModel:
                         yield Loadable.ready(self._snapshot)
                 return
             except Exception as exc:  # noqa: BLE001 — narrowed to transport failures
+                if _is_protocol_mismatch(exc):
+                    # The real client consumes the hello and raises this instead of
+                    # yielding it (the fake yields it and the in-stream check above
+                    # catches it) — surface the same typed error for both shapes.
+                    yield Loadable.failed(_PROTOCOL_MISMATCH)
+                    return
                 connection_error = as_connection_error(exc)
                 if connection_error is None:
                     raise
@@ -151,6 +172,17 @@ class QueueViewModel:
                     yield Loadable.failed(connection_error)
                     return
                 await asyncio.sleep(_backoff(attempts))
+
+
+def _is_protocol_mismatch(exc: BaseException) -> bool:
+    """Recognise the client's ``UnsupportedProtocol`` structurally (CONTRACT I).
+
+    The framework-free view-model layer must not import ``spotdl_cli.client``, so —
+    exactly like ``as_connection_error`` recognises transport failures by module —
+    the WS worker matches the raised handshake error by its module + class name.
+    """
+    cls = type(exc)
+    return cls.__module__ == "spotdl_cli.client" and cls.__name__ == "UnsupportedProtocol"
 
 
 def _backoff(attempt: int) -> float:

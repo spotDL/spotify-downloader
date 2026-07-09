@@ -426,7 +426,9 @@ class FakeSpotdlClient:
         self.register_result: Tokens | None = None
         self.pat_result: PatCreated | None = None
         self.submit_download_result: BatchView | None = None
-        self.download_page: DownloadPage | None = None
+        # An empty queue by default so any section screen loads without setup;
+        # tests seed a specific page by assigning this.
+        self.download_page: DownloadPage = make_download_page(jobs=[])
         self.jobs: dict[str, JobView] = {}
         self.batches: dict[str, BatchView] = {}
         self.report_result: ReportView | None = None
@@ -565,7 +567,6 @@ class FakeSpotdlClient:
     async def list_downloads(self, **filters: object) -> DownloadPage:
         self._record("list_downloads", **filters)
         self._maybe_raise("list_downloads")
-        assert self.download_page is not None
         return self.download_page
 
     async def get_download(self, job_id: UUID) -> JobView:

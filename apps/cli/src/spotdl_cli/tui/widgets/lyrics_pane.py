@@ -83,7 +83,6 @@ def _render(choice: LyricsChoice | None, *, active: int | None, follow: bool) ->
     follow_flag = "  ⟳ follow" if follow else ""
     header = f"{choice.source} · {choice.kind}{follow_flag}"
     body = [
-        f"{'▶ ' if index == active else '  '}{line.text}"
-        for index, line in enumerate(choice.lines)
+        f"{'▶ ' if index == active else '  '}{line.text}" for index, line in enumerate(choice.lines)
     ]
     return "\n".join([header, "", *body])
