@@ -61,15 +61,29 @@ class AudioCandidate(_Frozen):
 
 
 class FeatureVector(_Frozen):
+    """Raw per-(track, candidate) signals. All *_similarity in 0..100.
+
+    These are pure signals only. Penalty *magnitudes*, blend thresholds, and
+    weights live in matching.scoring.ScoringConfig so they are versioned and
+    recalibratable without touching the model.
+    """
+
     title_similarity: float
-    artist_similarity: float
-    album_similarity: float | None
-    duration_delta_s: float
+    main_artist_similarity: float
+    other_artist_similarity: float
+    artist_similarity: float  # composed (main+other averaged, then v4 fixups)
+    album_similarity: float | None  # None when candidate has no album
+    duration_delta_s: float  # abs(track - candidate) seconds
+    duration_similarity: float  # 0..100, exp-decay transform of duration_delta_s
     isrc_equal: bool
     verified_source: bool
-    forbidden_word_penalty: float
+    common_word_overlap: bool  # at least one shared title word (v4 check_common_word)
+    # forbidden_words: one element per matched FORBIDDEN_WORDS *entry* (duplicates kept:
+    # v4's list holds remix/reverb/live twice and penalizes per entry, so a "remix" hit
+    # appears twice here).
+    forbidden_words: tuple[str, ...]
     explicit_mismatch: bool
-    popularity_prior: float
+    popularity_prior: float  # 0..1, normalized candidate popularity (0.0 when unknown)
 
 
 class Match(_Frozen):
