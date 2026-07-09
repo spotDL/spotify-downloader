@@ -1,0 +1,23 @@
+# openapi-python-client generator config (Plan 8 Task 1, CONTRACT A).
+#
+# Consumed by `make clients` to turn apps/server/openapi.json into the checked-in
+# typed httpx client under apps/cli/src/spotdl_cli/_generated/api. Pinned so the
+# output is byte-stable; the in-sync test regenerates and byte-compares.
+#
+# - package_name_override: the generated top-level package is `spotdl_api_client`
+#   (referenced by the _generated re-export shim + the SpotdlClient façade).
+# - use_path_prefixes_for_title_model_names: keep model names as their schema
+#   titles (TrackOut, AlbumOut, ...) rather than path-prefixed, so the façade's
+#   `from_generated` mappers name the same types the server defines.
+package_name_override: spotdl_api_client
+use_path_prefixes_for_title_model_names: false
+# Disable openapi-python-client's built-in post-generation hooks. Its default
+# runs ``ruff check . --fix`` (which exits non-zero on the residual SIM/UP nits
+# the generator legitimately emits, aborting the build) plus ``ruff format .``
+# whose config discovery depends on CWD (wrong line-length in a temp dir). We do
+# the *whole* deterministic normalization ourselves in the ``clients`` Makefile
+# target — ``ruff check --select I --fix`` (stable import order; the generator's
+# TYPE_CHECKING import emission is otherwise unordered) then ``ruff format`` with
+# the repo config — so the checked-in tree is byte-stable and the in-sync test
+# reproduces it exactly. Generated code is ruff/mypy-excluded otherwise.
+post_hooks: []

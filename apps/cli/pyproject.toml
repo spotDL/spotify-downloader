@@ -9,6 +9,15 @@ dependencies = [
     "typer>=0.15",
     "httpx>=0.28",
     "rich>=13.9",
+    "httpx-ws>=0.7",
+    "platformdirs>=4.3",
+    "tomlkit>=0.13",
+    "uvicorn>=0.34",
+    # Runtime deps of the checked-in generated client (Plan 8 Task 1, CONTRACT A:
+    # "the generated code imports only httpx/attrs/pydantic"). openapi-python-client
+    # emits attrs-based models and parses date-times with python-dateutil.
+    "attrs>=24.1",
+    "python-dateutil>=2.9",
 ]
 
 [project.scripts]
