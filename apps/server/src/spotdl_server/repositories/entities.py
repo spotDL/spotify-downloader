@@ -55,6 +55,22 @@ class TrackRepository:
     async def get(self, id: uuid.UUID) -> Track | None:
         return await self.session.get(Track, id)
 
+    async def get_for_matching(self, id: uuid.UUID) -> Track | None:
+        """Fetch a track with ``artists`` + ``album`` force-loaded in the greenlet.
+
+        ``session.refresh(track, ["album"])`` only *expires* a ``selectin``
+        relationship, so a warm-cache re-resolve then lazy-loads ``album`` on
+        attribute access — outside the await context — raising ``MissingGreenlet``.
+        ``populate_existing`` re-runs the loaders even for an identity-mapped row,
+        mirroring ``AlbumRepository.get``.
+        """
+        return await self.session.get(
+            Track,
+            id,
+            options=[selectinload(Track.album), selectinload(Track.artists)],
+            populate_existing=True,
+        )
+
     async def create(self, **fields: Any) -> Track:
         track = Track(**fields)
         self.session.add(track)

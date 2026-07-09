@@ -218,10 +218,13 @@ class CanonicalMerger:
 
         await self._link_all(EntityType.TRACK, track.id, snaps)
         await self.session.flush()
-        # Load the ``album`` relationship on the (identity-mapped) instance so the
-        # returned track is fully usable without a lazy emit outside an await.
-        await self.session.refresh(track, attribute_names=["album"])
-        return track
+        # Return the track with ``artists`` + ``album`` force-loaded in the
+        # greenlet: a plain ``refresh([...])`` only expires a selectin relationship,
+        # so a warm-cache re-resolve would lazy-load ``album`` on access outside the
+        # await context (MissingGreenlet). ``get_for_matching`` reloads both.
+        reloaded = await self._tracks.get_for_matching(track.id)
+        assert reloaded is not None
+        return reloaded
 
     async def _resolve_track(
         self, snapshots: Sequence[ProviderSnapshot], merged_isrc: str | None

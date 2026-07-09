@@ -255,3 +255,41 @@ def _uuid(value: str) -> Any:
     import uuid
 
     return uuid.UUID(value)
+
+
+async def test_warm_cache_reresolve_in_fresh_session_loads_relationships(
+    download_sessionmaker: Any,
+) -> None:
+    """Re-resolving in a SEPARATE session must not MissingGreenlet.
+
+    Regression (found by a live re-download): after the first resolve the
+    canonical track exists; a second resolve in a fresh session (empty identity
+    map) reached matching, accessed ``track.album`` — a selectin relationship the
+    merge only *expired* via ``refresh`` — and lazy-loaded it outside the await
+    context. The single-session cache-hit test above never exercised this because
+    its identity map kept the relationships loaded.
+    """
+    from spotdl_core.model import AlbumRef
+
+    # The track MUST carry an album: `track.album` is the selectin relationship
+    # that lazy-loaded on the warm path. A None album never triggers the bug.
+    track = Track(
+        name="Warm",
+        artists=("Cache Artist",),
+        duration_ms=200_000,
+        isrc="USWARM000001",
+        album=AlbumRef(name="Warm Album", year=2021, track_count=1),
+    )
+    resolver = FakeResolver(id=ProviderId.SPOTIFY, track=track)
+    registry = build_fake_registry(resolver)
+
+    for _ in range(2):
+        async with download_sessionmaker() as session:
+            service = ResolveService(session=session, registry=registry)
+            result = await service.resolve(SPOTIFY_URL)
+            await session.commit()
+            assert result.track is not None
+            assert result.track.name == "Warm"
+            assert result.track.artists == ("Cache Artist",)
+            assert result.track.album is not None
+            assert result.track.album.name == "Warm Album"
