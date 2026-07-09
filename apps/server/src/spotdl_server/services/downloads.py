@@ -111,7 +111,7 @@ class DownloadQueueService:
     # ------------------------------------------------------------ submit
     async def submit(self, req: DownloadSubmitRequest) -> tuple[DownloadBatchOut, list[UUID]]:
         """Resolve, expand, and enqueue ``req`` as one committed batch of jobs."""
-        result = await self._resolve.resolve(req.query)
+        result = await self._resolve_or_lookup(req.query)
         kind, name, pairs = await self._expand(result)
 
         output_format = req.output_format or self._settings.default_output_format
@@ -154,6 +154,45 @@ class DownloadQueueService:
 
         await self._session.commit()
         return await self._batch_out(batch.id), job_ids
+
+    async def _resolve_or_lookup(self, query: str) -> ResolveResult:
+        """Resolve ``query``; a bare canonical UUID short-circuits to the local DB.
+
+        The web UI's enqueue-all posts the canonical entity id it is already
+        looking at — re-resolving that through the provider stack would be both
+        wasteful and lossy (bare UUIDs fall through URL parsing into free-text
+        search). Try each canonical table; an artist id still lands in
+        ``_expand``'s ``UnsupportedBatchEntity``. Unknown UUIDs are a 404.
+        """
+        try:
+            entity_id = UUID(query.strip())
+        except ValueError:
+            return await self._resolve.resolve(query)
+        try:
+            track = await self._entities.get_track(entity_id)
+        except NotFoundError:
+            pass
+        else:
+            return ResolveResult(entity_type=EntityType.TRACK.value, track=track)
+        try:
+            album = await self._entities.get_album(entity_id)
+        except NotFoundError:
+            pass
+        else:
+            return ResolveResult(entity_type=EntityType.ALBUM.value, album=album)
+        try:
+            playlist = await self._entities.get_playlist(entity_id)
+        except NotFoundError:
+            pass
+        else:
+            return ResolveResult(entity_type=EntityType.PLAYLIST.value, playlist=playlist)
+        try:
+            artist = await self._entities.get_artist(entity_id)
+        except NotFoundError:
+            pass
+        else:
+            return ResolveResult(entity_type=EntityType.ARTIST.value, artist=artist)
+        raise NotFoundError(entity_type="entity", entity_id=entity_id)
 
     async def _expand(
         self, result: ResolveResult
