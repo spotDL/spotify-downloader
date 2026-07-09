@@ -118,8 +118,3 @@ v4's `.spotdl` save file was a bare JSON array of `Song.asdict`. v5 uses the str
 | (file mtime) | `SaveFileV2.created_at` | v4 files carry no timestamp; the loader uses the file mtime (ISO-8601). |
 | (none) | `SaveFileV2.matcher_version` | `null` for migrated v4 files (no matcher provenance existed). |
 | (none) | `SaveFileV2.source` | `null` — v4 files record no originating URL. |
-
-<!-- NOTE: rendered from the PLACEHOLDER tables baked into
-     scripts/docs/gen_migration_guide.py because spotdl_cli.shim.V4_FLAG_TABLE
-     (Plan 8) is not importable yet. When Plan 8 lands, `make docs` regenerates
-     this file from the real table and the placeholder note disappears. -->
