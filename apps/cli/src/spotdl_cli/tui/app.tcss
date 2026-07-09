@@ -230,21 +230,45 @@ HelpScreen {
     color: $text-muted;
 }
 
-/* Settings: a scrolling stack of labelled controls + an inline validation line. */
+/* Settings: bordered sections of aligned label+control rows + a dirty-state footer. */
 #settings-form {
     height: 1fr;
     padding: 0 1;
 }
 
-.settings-label {
-    color: $text-muted;
-    padding: 1 0 0 0;
+.form-section {
+    height: auto;
+    margin: 0 0 1 0;
+    padding: 1 1;
 }
 
-.settings-error {
+.form-row {
     height: auto;
-    padding: 0 1;
+    align: left middle;
+}
+
+.form-label {
+    width: 22;
+    color: $text-muted;
+    padding: 0 1 0 0;
+    content-align: left middle;
+}
+
+.form-row Input,
+.form-row Select {
+    width: 1fr;
+}
+
+.field-error {
+    height: auto;
+    padding: 0 0 0 22;
     color: $error;
+}
+
+.settings-footer {
+    height: auto;
+    padding: 1 1;
+    color: $text-muted;
 }
 
 /* Auth: identity line + login form. */
