@@ -10,6 +10,7 @@ from spotdl_cli.commands import ffmpeg as ffmpeg_cmd
 from spotdl_cli.commands import read as read_cmd
 from spotdl_cli.commands import server as server_cmd
 from spotdl_cli.commands import sync as _sync_cmd
+from spotdl_cli.commands import tui as tui_cmd
 from spotdl_cli.commands import web as web_cmd
 from spotdl_cli.commands.auth import auth_app
 from spotdl_cli.commands.config_cmd import config_app
@@ -48,6 +49,20 @@ read_cmd.register(app)
 web_cmd.register(app)
 server_cmd.register(app)
 ffmpeg_cmd.register(app)
+tui_cmd.register(app)
+
+
+def _dispatch(argv: list[str]) -> None:
+    """Hand ``argv`` to Typer, launching the TUI for a bare ``spotdl`` in a TTY.
+
+    A bare invocation with no arguments opens the interactive UI when stdout is a
+    terminal; piped/redirected (non-TTY) it keeps Typer's ``no_args_is_help``
+    behaviour so scripting still sees the help text.
+    """
+    if not argv and sys.stdout.isatty():
+        app(args=["tui"])
+        return
+    app(args=argv)
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -62,10 +77,10 @@ def main(argv: list[str] | None = None) -> None:
     if isinstance(result, Rewritten):
         for line in result.notices:
             typer.echo(line, err=True)
-        app(args=result.argv)
+        _dispatch(result.argv)
         return
 
-    app(args=args)
+    _dispatch(args)
 
 
 if __name__ == "__main__":

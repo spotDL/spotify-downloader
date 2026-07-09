@@ -38,6 +38,7 @@ __all__ = [
     "config_path",
     "credentials_path",
     "load_config",
+    "save_config",
     "merge_flag",
     "default_config_template",
     "store_token",
@@ -123,6 +124,28 @@ def load_config(path: Path | None = None) -> CliConfig:
         data.update(tomlkit.parse(path.read_text()).unwrap())
     data.update(_env_overrides())
     return CliConfig(**data)
+
+
+def save_config(cfg: CliConfig, *, path: Path | None = None) -> Path:
+    """Persist a whole :class:`CliConfig` to ``config.toml``, preserving comments.
+
+    The load/save pair backing the settings ``ConfigStore`` (the TUI edits a whole
+    config, not one key at a time like ``config set``). Fields left at ``None`` have
+    no TOML representation, so their key is removed and the built-in default applies
+    again on the next :func:`load_config`.
+    """
+    path = path if path is not None else config_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    doc = _load_or_template_doc(path)
+    for name in CliConfig.model_fields:
+        value = getattr(cfg, name)
+        if value is None:
+            if name in doc:
+                del doc[name]
+        else:
+            doc[name] = _to_toml_value(value)
+    path.write_text(tomlkit.dumps(doc))
+    return path
 
 
 def merge_flag(value: Any, *, config_default: Any) -> Any:

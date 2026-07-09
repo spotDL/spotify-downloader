@@ -92,3 +92,20 @@ def test_tui_imports_only_viewmodels_within_cli() -> None:
     assert not violations, (
         "the TUI may reach the app only through spotdl_cli.viewmodels:\n" + "\n".join(violations)
     )
+
+
+def test_tui_command_is_the_sole_client_construction_site() -> None:
+    """``commands/tui.py`` is where the TUI's ``SpotdlClient`` is built (the bridge).
+
+    The presentation package (``tui/``) never imports the client — that is the
+    negative half, enforced by :func:`test_tui_imports_only_viewmodels_within_cli`
+    and the import-linter ``tui_presentation`` contract. This pins the positive
+    half: the wiring lives in exactly one command module, importing both the client
+    it constructs and the ``SpotdlApp`` it hands the factory to.
+    """
+    from spotdl_cli.commands import tui as tui_cmd
+
+    modules = _imported_modules(Path(tui_cmd.__file__))
+    assert "spotdl_cli.client" in modules
+    assert "spotdl_cli.tui.app" in modules
+    assert "spotdl_cli.viewmodels.factory" in modules

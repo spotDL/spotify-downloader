@@ -44,6 +44,17 @@ from dataclasses import dataclass, field
 # v4 operations that survive verbatim as v5 subcommands (``web`` → ``spotdl web``).
 V4_OPERATIONS: frozenset[str] = frozenset({"download", "save", "sync", "meta", "url", "web"})
 
+# v5-native subcommands with no v4 operation of their own. A leading positional in
+# this set is a real command invocation (``spotdl tui``, ``spotdl auth login``), so
+# the bare-query sugar must NOT wrap it in ``download`` — only genuine free-text /
+# URL queries are sugared. Kept alongside ``V4_OPERATIONS`` for the passthrough test.
+V5_SUBCOMMANDS: frozenset[str] = frozenset(
+    {"auth", "config", "ffmpeg", "read", "server", "status", "tui", "version"}
+)
+
+# Every leading token the shim treats as an explicit subcommand (no download sugar).
+_PASSTHROUGH_COMMANDS: frozenset[str] = V4_OPERATIONS | V5_SUBCOMMANDS
+
 
 @dataclass(frozen=True)
 class FlagSpec:
@@ -517,8 +528,8 @@ def translate_v4_argv(argv: list[str]) -> ShimResult:
                 body.append(token)
                 i += 1
                 continue
-            # A bare positional. The first one may be the operation.
-            if not positional_started and name in V4_OPERATIONS:
+            # A bare positional. The first one may be a known subcommand.
+            if not positional_started and name in _PASSTHROUGH_COMMANDS:
                 explicit_op = True
             positional_started = True
             body.append(token)

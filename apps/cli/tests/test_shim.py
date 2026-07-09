@@ -215,6 +215,13 @@ def test_bare_query_gets_download_without_note() -> None:
     assert result.notices == []  # sugar, not a translation
 
 
+def test_v5_native_subcommands_pass_through_unsugared() -> None:
+    # A leading v5-native subcommand is a real invocation, not a download query, so
+    # it must survive the shim untouched (`spotdl tui`, `spotdl auth login`, ...).
+    for argv in (["tui"], ["tui", "--offline"], ["auth", "login"], ["config", "set", "k", "v"]):
+        assert isinstance(translate_v4_argv(argv), Unchanged), argv
+
+
 def test_download_ffmpeg_becomes_subcommand() -> None:
     result = translate_v4_argv(["--download-ffmpeg"])
     assert isinstance(result, Rewritten)
