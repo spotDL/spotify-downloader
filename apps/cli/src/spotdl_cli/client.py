@@ -51,6 +51,9 @@ from spotdl_cli._generated.api.api.submissions import (
     submit_match_api_v1_tracks_id_matches_post as _submit_match_ep,
 )
 from spotdl_cli._generated.api.api.tokens import create_token_api_v1_auth_tokens_post as _pat_ep
+from spotdl_cli._generated.api.api.tokens import (
+    revoke_token_api_v1_auth_tokens_token_id_delete as _revoke_ep,
+)
 from spotdl_cli._generated.api.client import Client
 from spotdl_cli._generated.api.models.config_response import ConfigResponse
 from spotdl_cli._generated.api.models.create_pat_request import CreatePatRequest
@@ -388,6 +391,19 @@ class SpotdlClient:
         result = _unwrap(resp)
         assert isinstance(result, UserResponse)
         return UserView.from_generated(result)
+
+    async def revoke_pat(self, token_id: UUID, *, access_token: str) -> None:
+        """Revoke one of the caller's PATs (``DELETE /auth/tokens/{id}``).
+
+        ADDITIVE facade helper (not in the CONTRACT B method list): the ``auth
+        logout`` command (Plan 8 Task 6) uses it for the best-effort server-side
+        revoke of a token it minted. Raises :class:`ApiError` on a non-2xx
+        envelope; the caller treats failure as non-fatal.
+        """
+        resp = await _revoke_ep.asyncio_detailed(
+            token_id=token_id, client=self._client(self._resolution, token=access_token)
+        )
+        _unwrap(resp)
 
     # ---- downloads (ALWAYS the embedded transport) --------------------------
     # Deferred to Plan 8 Task 7 (embedded transport + WS progress).

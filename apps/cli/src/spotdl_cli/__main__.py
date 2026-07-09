@@ -4,8 +4,12 @@ import typer
 
 from spotdl_cli import __version__
 from spotdl_cli.client import embedded_client
+from spotdl_cli.commands.auth import auth_app
+from spotdl_cli.commands.config_cmd import config_app
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
+app.add_typer(config_app, name="config")
+app.add_typer(auth_app, name="auth")
 
 
 @app.command()
