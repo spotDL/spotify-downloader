@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router";
 import type { RouterContext } from "../app/router";
 import { useUiStore } from "../stores/ui";
+import { useMe } from "../api/queries";
 import { Feature } from "../components/Feature";
 import { Input } from "../components/Input";
 import { EmptyState } from "../components/EmptyState";
@@ -35,6 +36,18 @@ function ThemeToggle() {
     >
       {isDark ? "Light" : "Dark"}
     </button>
+  );
+}
+
+// Admin is a privileged surface — the link only appears once the ["me"] query
+// confirms `is_admin` (the /admin route re-checks the same flag in its guard).
+function AdminNavLink() {
+  const me = useMe();
+  if (!me.data?.is_admin) return null;
+  return (
+    <Link to="/admin" className={NAV_LINK_CLASS}>
+      Admin
+    </Link>
   );
 }
 
@@ -90,6 +103,9 @@ function RootLayout() {
             <Link to="/settings" className={NAV_LINK_CLASS}>
               Settings
             </Link>
+            <Feature flag="auth">
+              <AdminNavLink />
+            </Feature>
             <Feature flag="auth">
               <Link to="/login" className={NAV_LINK_CLASS}>
                 Sign in
