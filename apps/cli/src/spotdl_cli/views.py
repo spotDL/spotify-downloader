@@ -19,6 +19,7 @@ from dataclasses import dataclass, field
 from typing import TypeVar
 
 from spotdl_cli._generated.api.models.admin_stats_response import AdminStatsResponse
+from spotdl_cli._generated.api.models.admin_user_response import AdminUserResponse
 from spotdl_cli._generated.api.models.album_out import AlbumOut
 from spotdl_cli._generated.api.models.album_ref_out import AlbumRefOut
 from spotdl_cli._generated.api.models.artist_out import ArtistOut
@@ -31,6 +32,7 @@ from spotdl_cli._generated.api.models.entity_envelope import EntityEnvelope
 from spotdl_cli._generated.api.models.feature_flags import FeatureFlags
 from spotdl_cli._generated.api.models.lyrics_out import LyricsOut
 from spotdl_cli._generated.api.models.match_out import MatchOut
+from spotdl_cli._generated.api.models.paged_users import PagedUsers
 from spotdl_cli._generated.api.models.pat_created_response import PatCreatedResponse
 from spotdl_cli._generated.api.models.playlist_out import PlaylistOut
 from spotdl_cli._generated.api.models.report_response import ReportResponse
@@ -638,4 +640,42 @@ class StatsView:
             reports_total=stats.reports_total,
             reports_pending=stats.reports_pending,
             votes_total=stats.votes_total,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class AdminUserView:
+    """One row of the admin user roster (``GET /admin/users``) — CONTRACT H."""
+
+    id: str
+    email: str
+    is_admin: bool
+    is_active: bool
+    created_at: datetime.datetime
+    display_name: str | None = None
+
+    @classmethod
+    def from_generated(cls, user: AdminUserResponse) -> AdminUserView:
+        return cls(
+            id=str(user.id),
+            email=user.email,
+            is_admin=user.is_admin,
+            is_active=user.is_active,
+            created_at=user.created_at,
+            display_name=_opt(user.display_name),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class PagedUsersView:
+    """A page of admin users plus the full ``total`` for pagination (``GET /admin/users``)."""
+
+    items: tuple[AdminUserView, ...]
+    total: int
+
+    @classmethod
+    def from_generated(cls, paged: PagedUsers) -> PagedUsersView:
+        return cls(
+            items=tuple(AdminUserView.from_generated(user) for user in paged.items),
+            total=paged.total,
         )

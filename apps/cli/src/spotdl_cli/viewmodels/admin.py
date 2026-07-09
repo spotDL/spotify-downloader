@@ -11,9 +11,9 @@ from uuid import UUID
 
 from spotdl_cli.viewmodels.app_state import SessionSnapshot
 from spotdl_cli.viewmodels.base import ErrorDisplay, Loadable, guard
-from spotdl_cli.viewmodels.mappers import report_row
+from spotdl_cli.viewmodels.mappers import report_row, user_row
 from spotdl_cli.viewmodels.protocol import SpotdlClientProtocol
-from spotdl_cli.viewmodels.types import ReportRow, StatsRow
+from spotdl_cli.viewmodels.types import ReportRow, StatsRow, UsersPage
 from spotdl_cli.views import StatsView
 
 _NOT_ADMIN = ErrorDisplay("admin access required", code=None, severity="error")
@@ -49,6 +49,21 @@ class AdminViewModel:
 
         async def _run() -> ReportRow:
             return report_row(await self._client.reject_report(report_id, note=note))
+
+        return await guard(_run())
+
+    async def list_users(self, *, limit: int = 20, offset: int = 0) -> Loadable[UsersPage]:
+        if not self._session.is_admin:
+            return Loadable.failed(_NOT_ADMIN)
+
+        async def _run() -> UsersPage:
+            page = await self._client.admin_users(limit=limit, offset=offset)
+            return UsersPage(
+                rows=tuple(user_row(user) for user in page.items),
+                total=page.total,
+                limit=limit,
+                offset=offset,
+            )
 
         return await guard(_run())
 

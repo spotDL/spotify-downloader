@@ -17,6 +17,7 @@ from uuid import UUID, uuid4
 from spotdl_cli.errors import ApiError
 from spotdl_cli.viewmodels.app_state import SessionSnapshot
 from spotdl_cli.views import (
+    AdminUserView,
     AlbumRefView,
     AlbumView,
     ArtistView,
@@ -30,6 +31,7 @@ from spotdl_cli.views import (
     JobView,
     LyricsView,
     MatchView,
+    PagedUsersView,
     PatCreated,
     PlaylistView,
     ReportView,
@@ -198,6 +200,23 @@ def make_playlist(
 
 def make_user(*, email: str = "user@example.com", is_admin: bool = False) -> UserView:
     return UserView(id=str(uuid4()), email=email, is_admin=is_admin, created_at=_EPOCH)
+
+
+def make_admin_user(
+    *,
+    email: str = "user@example.com",
+    display_name: str | None = None,
+    is_admin: bool = False,
+    is_active: bool = True,
+) -> AdminUserView:
+    return AdminUserView(
+        id=str(uuid4()),
+        email=email,
+        is_admin=is_admin,
+        is_active=is_active,
+        created_at=_EPOCH,
+        display_name=display_name,
+    )
 
 
 def make_tokens(*, access_token: str = "access-jwt", user: UserView | None = None) -> Tokens:
@@ -444,6 +463,7 @@ class FakeSpotdlClient:
         self.report_result: ReportView | None = None
         self.my_reports_list: list[ReportView] = []
         self.admin_reports_list: list[ReportView] = []
+        self.admin_users_list: list[AdminUserView] = []
         self.stats_result: StatsView | None = None
         # inject a raise: method-name -> exception
         self.errors: dict[str, ApiError] = {}
@@ -643,6 +663,12 @@ class FakeSpotdlClient:
         self._maybe_raise("admin_stats")
         assert self.stats_result is not None
         return self.stats_result
+
+    async def admin_users(self, *, limit: int = 50, offset: int = 0) -> PagedUsersView:
+        self._record("admin_users", limit=limit, offset=offset)
+        self._maybe_raise("admin_users")
+        page = self.admin_users_list[offset : offset + limit]
+        return PagedUsersView(items=tuple(page), total=len(self.admin_users_list))
 
     # -- WebSocket --
     @asynccontextmanager

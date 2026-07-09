@@ -30,6 +30,7 @@ from spotdl_cli.views import (
     JobView,
     LyricsView,
     MatchView,
+    PagedUsersView,
     PatCreated,
     PlaylistView,
     ReportView,
@@ -90,6 +91,7 @@ class SpotdlClientProtocol(Protocol):
     async def approve_report(self, id: UUID, *, note: str | None = None) -> ReportView: ...
     async def reject_report(self, id: UUID, *, note: str | None = None) -> ReportView: ...
     async def admin_stats(self) -> StatsView: ...
+    async def admin_users(self, *, limit: int = 50, offset: int = 0) -> PagedUsersView: ...
 
     def progress(self) -> AbstractAsyncContextManager[AsyncIterator[WsMessage]]:
         """Open the ``/ws/progress`` stream (an async context manager over frames)."""

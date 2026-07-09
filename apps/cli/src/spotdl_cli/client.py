@@ -35,6 +35,7 @@ from spotdl_server.settings import DeploymentMode, Settings
 from spotdl_cli._generated.api.api.admin import (
     approve_report_api_v1_admin_reports_report_id_approve_post as _approve_report_ep,
 )
+from spotdl_cli._generated.api.api.admin import list_users_api_v1_admin_users_get as _admin_users_ep
 from spotdl_cli._generated.api.api.admin import (
     reject_report_api_v1_admin_reports_report_id_reject_post as _reject_report_ep,
 )
@@ -120,6 +121,7 @@ from spotdl_cli._generated.api.models.matches_response import MatchesResponse
 from spotdl_cli._generated.api.models.output_format import OutputFormat
 from spotdl_cli._generated.api.models.overwrite_mode import OverwriteMode
 from spotdl_cli._generated.api.models.paged_reports import PagedReports
+from spotdl_cli._generated.api.models.paged_users import PagedUsers
 from spotdl_cli._generated.api.models.pat_created_response import PatCreatedResponse
 from spotdl_cli._generated.api.models.register_request import RegisterRequest
 from spotdl_cli._generated.api.models.report_response import ReportResponse
@@ -150,6 +152,7 @@ from spotdl_cli.views import (
     JobView,
     LyricsView,
     MatchView,
+    PagedUsersView,
     PatCreated,
     PlaylistView,
     ReportView,
@@ -706,6 +709,15 @@ class SpotdlClient:
         result = _unwrap(resp)
         assert isinstance(result, AdminStatsResponse)
         return StatsView.from_generated(result)
+
+    async def admin_users(self, *, limit: int = 50, offset: int = 0) -> PagedUsersView:
+        """``GET /admin/users`` (CONTRACT H) — a page of the user roster + total."""
+        resp = await _admin_users_ep.asyncio_detailed(
+            client=self._client(self._resolution), limit=limit, offset=offset
+        )
+        result = _unwrap(resp)
+        assert isinstance(result, PagedUsers)
+        return PagedUsersView.from_generated(result)
 
     # ---- downloads (ALWAYS the embedded transport) --------------------------
 

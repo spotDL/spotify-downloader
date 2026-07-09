@@ -327,11 +327,52 @@ HelpScreen {
     padding: 0 0 1 0;
 }
 
-/* Admin: stats summary line above the reports table. */
-.admin-stats {
+/* Admin: a tabbed console — the stat-card grid, reports queue, and user roster. */
+#admin-stats-grid {
     height: auto;
-    padding: 1 1;
+    padding: 1 0;
+}
+
+#admin-stats-grid .stat-card {
+    margin: 0 1 0 0;
+}
+
+#admin-users-nav {
+    height: auto;
+    align: left middle;
+    padding: 1 0 0 0;
+}
+
+.users-count {
+    width: 1fr;
     color: $text-muted;
+    content-align: center middle;
+}
+
+/* The optional-note prompt modal for approving / rejecting a report. */
+NotePromptModal {
+    align: center middle;
+}
+
+#note-panel {
+    width: 60;
+    max-width: 90%;
+    height: auto;
+    border: round $accent;
+    border-title-color: $accent;
+    border-title-style: bold;
+    background: $surface;
+    padding: 1 2;
+}
+
+.note-prompt {
+    height: auto;
+    padding: 0 0 1 0;
+}
+
+#note-actions {
+    height: auto;
+    padding: 1 0 0 0;
 }
 
 /* Shared gauge accents (track matches, queue progress). */
