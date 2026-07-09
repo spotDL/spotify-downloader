@@ -25,7 +25,7 @@ from spotdl_core.providers import ProviderRegistry, build_default_registry
 from spotdl_server import __version__
 from spotdl_server.api.deps import provider_context
 from spotdl_server.api.errors import register_exception_handlers
-from spotdl_server.api.routers import auth, entities, meta, oauth, resolve, search
+from spotdl_server.api.routers import auth, entities, meta, oauth, resolve, search, tokens
 from spotdl_server.auth.clock import SystemClock
 from spotdl_server.db.engine import build_engine, build_sessionmaker
 from spotdl_server.settings import DeploymentMode, Settings
@@ -103,6 +103,7 @@ def create_app(
     # / loopback mode). Mount-time gate — not a per-request conditional.
     if settings.auth_active():
         app.include_router(auth.router)
+        app.include_router(tokens.router)
         # The OAuth router additionally requires at least one configured provider
         # (id + secret). Mount-time gate — never a per-request conditional.
         if settings.enabled_oauth_providers():

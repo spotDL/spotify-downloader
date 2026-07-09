@@ -87,6 +87,21 @@ class EmailTaken(SpotdlError):
         super().__init__(message)
 
 
+class TokenNotFound(SpotdlError):
+    """A PAT addressed by id was not found for the caller → 404 (Task 7).
+
+    Raised by :class:`~spotdl_server.services.pat.PatService.revoke` when the
+    ownership-scoped lookup returns nothing — either the token id does not exist
+    or it belongs to another user. The two are deliberately indistinguishable
+    (both surface the same ``not_found``) so a caller can never probe another
+    user's token ids. Maps to the existing :data:`ErrorCode.NOT_FOUND` — no new
+    code in the stable error vocabulary.
+    """
+
+    def __init__(self, message: str = "token not found") -> None:
+        super().__init__(message)
+
+
 class OAuthEmailRequired(SpotdlError):
     """An OAuth provider returned no usable email for the account → 400 (Task 6)."""
 

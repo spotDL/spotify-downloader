@@ -32,6 +32,7 @@ from spotdl_server.services.auth import AuthService
 from spotdl_server.services.entities import EntityService
 from spotdl_server.services.errors import AuthRequired, Forbidden
 from spotdl_server.services.oauth import OAuthService
+from spotdl_server.services.pat import PatService
 from spotdl_server.services.resolve import ResolveService
 from spotdl_server.services.search import SearchService
 from spotdl_server.settings import Settings
@@ -232,6 +233,18 @@ def get_auth_service(
         clock=clock,
         users=UserRepository(session),
         refresh_tokens=RefreshTokenRepository(session),
+    )
+
+
+def get_pat_service(
+    session: AsyncSession = Depends(get_session),
+    clock: Clock = Depends(get_clock),
+) -> PatService:
+    """Compose the :class:`PatService` from the request's session + shared clock."""
+    return PatService(
+        session=session,
+        clock=clock,
+        api_tokens=ApiTokenRepository(session),
     )
 
 

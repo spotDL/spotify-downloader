@@ -86,6 +86,19 @@ class RefreshRequest(BaseModel):
     refresh_token: str
 
 
+class CreatePatRequest(BaseModel):
+    """Body of ``POST /auth/tokens``: mint a personal access token for the CLI.
+
+    ``name`` is a required non-blank label (1–255 chars, matching the column
+    width). ``expires_in_days`` is optional — when omitted the PAT never expires
+    (``expires_at = NULL``); when given it must be a positive integer and the
+    router converts it to an absolute ``expires_at`` via the shared clock.
+    """
+
+    name: str = Field(min_length=1, max_length=255)
+    expires_in_days: int | None = Field(default=None, gt=0, le=3650)
+
+
 # --------------------------------------------------------------------------
 # Entity response models
 # --------------------------------------------------------------------------
@@ -307,6 +320,43 @@ class UserResponse(BaseModel):
     display_name: str | None = None
     is_admin: bool
     created_at: datetime
+
+
+class PatResponse(BaseModel):
+    """A personal access token as it appears in listings (``GET /auth/tokens``).
+
+    Built straight from the ``ApiToken`` ORM row via ``from_attributes``; the
+    router never names the ORM type. The secret and its ``token_hash`` are
+    intentionally absent — only the display ``token_prefix`` and metadata are
+    ever listable (the full token is shown once, on create).
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    name: str
+    token_prefix: str
+    last_used_at: datetime | None = None
+    expires_at: datetime | None = None
+    revoked_at: datetime | None = None
+    created_at: datetime
+
+
+class PatCreatedResponse(BaseModel):
+    """``POST /auth/tokens`` body: the newly minted PAT, **including the secret**.
+
+    This is the only response that carries ``token`` (the full ``spdl_pat_``
+    secret); it is shown exactly once and never returned again — thereafter a
+    client sees only :class:`PatResponse` (prefix + metadata). The client must
+    store ``token`` now (e.g. the CLI writes it to its config).
+    """
+
+    id: UUID
+    name: str
+    token_prefix: str
+    token: str
+    created_at: datetime
+    expires_at: datetime | None = None
 
 
 class AuthorizeUrlResponse(BaseModel):

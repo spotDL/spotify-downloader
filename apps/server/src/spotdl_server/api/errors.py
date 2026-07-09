@@ -45,6 +45,7 @@ from spotdl_server.services.errors import (
     NotFoundError,
     OAuthEmailRequired,
     TokenExpired,
+    TokenNotFound,
 )
 
 logger = logging.getLogger("spotdl_server.api")
@@ -94,6 +95,7 @@ _COMMUNITY_ERROR_MAP: dict[type[Exception], tuple[int, ErrorCode]] = {
     InvalidToken: (401, ErrorCode.INVALID_TOKEN),
     TokenExpired: (401, ErrorCode.TOKEN_EXPIRED),
     Forbidden: (403, ErrorCode.FORBIDDEN),
+    TokenNotFound: (404, ErrorCode.NOT_FOUND),
     EmailTaken: (409, ErrorCode.EMAIL_TAKEN),
     OAuthEmailRequired: (400, ErrorCode.OAUTH_EMAIL_REQUIRED),
     NotAnAudioTarget: (400, ErrorCode.NOT_AN_AUDIO_TARGET),
