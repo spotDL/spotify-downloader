@@ -22,12 +22,9 @@ import { Input } from "../components/Input";
 import { Spinner } from "../components/Spinner";
 import { SyncedLyricsViewer } from "../components/SyncedLyricsViewer";
 import { toast } from "../components/Toasts";
-import {
-  MatchStatusBadge,
-  ScoreGauge,
-  type VoteValue,
-  VoteButtons,
-} from "../components/placeholders";
+import { MatchStatusBadge } from "../components/MatchStatusBadge";
+import { ScoreGauge } from "../components/ScoreGauge";
+import { VoteButtons, type VoteValue } from "../components/VoteButtons";
 
 export const Route = createFileRoute("/tracks/$trackId")({
   component: TrackPage,
@@ -37,6 +34,17 @@ const ANON_VOTE_TOOLTIP = "Sign in to vote.";
 
 function useAnonymous(): boolean {
   return useAuthStore((s) => s.accessToken === null);
+}
+
+// The design-system VoteButtons speaks numeric votes (1/0/-1); the server's
+// VoteRequest speaks the verbs `up`/`down`/`retract`. Convert at the boundary so
+// the component stays UI-only and the wire contract is unchanged.
+function voteVerb(next: VoteValue): "up" | "down" | "retract" {
+  return next === 1 ? "up" : next === -1 ? "down" : "retract";
+}
+
+function toVoteValue(vote: number | null | undefined): VoteValue {
+  return vote === 1 ? 1 : vote === -1 ? -1 : 0;
 }
 
 function TrackPage() {
@@ -118,9 +126,9 @@ function MatchList({ trackId }: { trackId: string }) {
   // (seeded from each vote's response); tallies still come from the server.
   const [myVotes, setMyVotes] = useState<Record<string, number | null>>({});
 
-  const castVote = (match: MatchOut, value: VoteValue) =>
+  const castVote = (match: MatchOut, next: VoteValue) =>
     vote.mutate(
-      { path: { match_id: match.id }, body: { value } },
+      { path: { match_id: match.id }, body: { value: voteVerb(next) } },
       {
         onSuccess: (res) =>
           setMyVotes((prev) => ({ ...prev, [match.id]: res.your_vote ?? null })),
@@ -182,10 +190,9 @@ function MatchList({ trackId }: { trackId: string }) {
               <Feature flag="voting">
                 <VoteButtons
                   netScore={match.net_score}
-                  yourVote={myVotes[match.id]}
-                  disabled={anonymous}
-                  disabledReason={ANON_VOTE_TOOLTIP}
-                  onVote={(value) => castVote(match, value)}
+                  value={toVoteValue(myVotes[match.id])}
+                  canVote={!anonymous}
+                  onVote={(next) => castVote(match, next)}
                 />
               </Feature>
             </li>
@@ -284,12 +291,11 @@ function LyricsSection({ trackId }: { trackId: string }) {
     ? (lyric: LyricsOut) => (
         <VoteButtons
           netScore={lyric.net_score}
-          yourVote={myVotes[lyric.id]}
-          disabled={anonymous}
-          disabledReason={ANON_VOTE_TOOLTIP}
-          onVote={(value) =>
+          value={toVoteValue(myVotes[lyric.id])}
+          canVote={!anonymous}
+          onVote={(next) =>
             vote.mutate(
-              { path: { lyrics_id: lyric.id }, body: { value } },
+              { path: { lyrics_id: lyric.id }, body: { value: voteVerb(next) } },
               {
                 onSuccess: (res) =>
                   setMyVotes((prev) => ({

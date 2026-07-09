@@ -7,7 +7,6 @@ import { useSubmitDownload } from "../api/downloads";
 import { formatDuration } from "../lib/format";
 import { Button } from "./Button";
 import { EmptyState } from "./EmptyState";
-import { EntityCard } from "./EntityCard";
 import { ErrorState } from "./ErrorState";
 import { Feature } from "./Feature";
 import { Spinner } from "./Spinner";
@@ -105,13 +104,19 @@ export function CollectionView<T, E = unknown>({
               <Link
                 to="/tracks/$trackId"
                 params={{ trackId: track.id }}
-                className="block rounded-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                className="flex items-center gap-3 rounded-card border border-black/10 bg-surface px-3 py-2 transition-colors hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-white/10 dark:hover:bg-white/5"
               >
-                <EntityCard
-                  title={track.name}
-                  subtitle={track.artists.join(", ")}
-                  meta={formatDuration(track.duration_ms)}
-                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-fg">{track.name}</p>
+                  {track.artists.length > 0 ? (
+                    <p className="truncate text-sm text-muted">
+                      {track.artists.join(", ")}
+                    </p>
+                  ) : null}
+                </div>
+                <span className="shrink-0 text-sm tabular-nums text-muted">
+                  {formatDuration(track.duration_ms)}
+                </span>
               </Link>
             </li>
           ))}

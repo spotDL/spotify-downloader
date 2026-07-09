@@ -1,11 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useSearch as useSearchQuery } from "../api/queries";
 import { DegradedBanner } from "../components/DegradedBanner";
 import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
-import { EntityCard } from "../components/placeholders";
+import { EntityCard } from "../components/EntityCard";
 import { Spinner } from "../components/Spinner";
-import { formatDuration, joinArtists } from "../lib/format";
+import { joinArtists } from "../lib/format";
 
 export const Route = createFileRoute("/search")({
   validateSearch: (search: Record<string, unknown>): { q?: string } => {
@@ -70,22 +70,13 @@ function SearchResults() {
         <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {results.map((track) => (
             <li key={track.id}>
-              <Link
-                to="/tracks/$trackId"
-                params={{ trackId: track.id }}
-                className="block h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-card"
-              >
-                <EntityCard
-                  title={track.name}
-                  subtitle={joinArtists(track.artists)}
-                  imageUrl={track.album?.cover_url}
-                  badge={
-                    <span className="text-xs text-muted tabular-nums">
-                      {formatDuration(track.duration_ms)}
-                    </span>
-                  }
-                />
-              </Link>
+              <EntityCard
+                type="track"
+                id={track.id}
+                name={track.name}
+                subtitle={joinArtists(track.artists)}
+                imageUrl={track.album?.cover_url}
+              />
             </li>
           ))}
         </ul>

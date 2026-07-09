@@ -10,10 +10,6 @@ import { Button } from "./Button";
 import { ProgressBar } from "./ProgressBar";
 import { toast } from "./Toasts";
 
-// MERGE: this is the finalized queue table but its atoms (Badge, ProgressBar,
-// Button) are local placeholders pending the design-system versions (CONTRACT
-// H / Plan 10 Task 5, sibling track).
-
 type Tone = "neutral" | "brand" | "warn" | "danger" | "muted";
 
 const STATUS_META: Record<DownloadStatus, { label: string; tone: Tone }> = {
@@ -144,12 +140,7 @@ function JobRow({ job }: { job: DownloadJobOut }) {
           </Button>
         ) : null}
       </div>
-      {showProgress ? (
-        <ProgressBar
-          value={job.progress}
-          label={`${job.track_name ?? "Track"} progress`}
-        />
-      ) : null}
+      {showProgress ? <ProgressBar percent={job.progress} /> : null}
       {job.status === "failed" && job.error_message ? (
         <p className="text-sm text-danger">{job.error_message}</p>
       ) : null}

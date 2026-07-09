@@ -1,7 +1,6 @@
 import {
   type QueryClient,
   useMutation,
-  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 // The generated TanStack Query mutation/query factories are the ONLY write/read
@@ -9,7 +8,6 @@ import {
 // directly (import-boundary guard, Task 5).
 import {
   loginApiV1AuthLoginPostMutation,
-  meApiV1AuthMeGetOptions,
   meApiV1AuthMeGetQueryKey,
   registerApiV1AuthRegisterPostMutation,
 } from "./generated/@tanstack/react-query.gen";
@@ -43,19 +41,6 @@ export function invalidateMe(queryClient: QueryClient): Promise<void> {
 function storeTokens(token: TokenResponse): void {
   useAuthStore.getState().setAccessToken(token.access_token);
   useSessionStore.getState().setRefreshToken(token.refresh_token);
-}
-
-/**
- * `GET /auth/me` (CONTRACT D `["me"]`). Disabled while anonymous (no access
- * token), so `is_admin` gating and the account menu read server state, never a
- * hand-maintained store copy.
- */
-export function useMe() {
-  const accessToken = useAuthStore((s) => s.accessToken);
-  return useQuery({
-    ...meApiV1AuthMeGetOptions(),
-    enabled: accessToken !== null,
-  });
 }
 
 /** `POST /auth/login` — store the token pair, then invalidate `["me"]`. */
