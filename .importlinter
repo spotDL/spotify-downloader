@@ -30,6 +30,48 @@ forbidden_modules =
 allow_indirect_imports = True
 
 # --------------------------------------------------------------------------
+# Plan 9 (TUI) CONTRACT I. Two forbidden contracts keep the presentation layers
+# honest: Textual screens/widgets reach the server only through the view-models,
+# and the view-models are framework-free (no ``textual``) and never touch the
+# concrete client/transport/generated code. ``allow_indirect_imports`` mirrors the
+# ``no_cli_core`` rationale: ``config.py`` legitimately imports ``client`` for
+# ``DEFAULT_API_URL``, so a ``viewmodels -> config -> client`` chain is an
+# unavoidable *indirect* edge; these contracts forbid only *direct* imports (the
+# real layering violation), with the AST guard in ``tests/tui/test_import_guards.py``
+# enforcing the same at source level.
+# --------------------------------------------------------------------------
+
+[importlinter:contract:tui_presentation]
+name = TUI imports only textual/rich/viewmodels (never client/generated/transport)
+type = forbidden
+source_modules =
+    spotdl_cli.tui
+forbidden_modules =
+    spotdl_cli._generated
+    spotdl_cli.client
+    spotdl_cli.transport
+    httpx
+    httpx_ws
+    spotdl_server
+    uvicorn
+allow_indirect_imports = True
+
+[importlinter:contract:viewmodels_framework_free]
+name = View-models are framework-free (no textual/client/generated/transport)
+type = forbidden
+source_modules =
+    spotdl_cli.viewmodels
+forbidden_modules =
+    textual
+    spotdl_cli._generated
+    spotdl_cli.client
+    spotdl_cli.transport
+    httpx
+    httpx_ws
+    spotdl_server
+allow_indirect_imports = True
+
+# --------------------------------------------------------------------------
 # Intra-server layering (Plan 5 §6, Task 12). Routers are a thin HTTP shell;
 # services orchestrate DTOs; repositories are the sole ORM holders; db defines
 # the schema. ``api.deps``/``api.errors``/``api.schemas``/``api.middleware`` are

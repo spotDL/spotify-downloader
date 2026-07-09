@@ -32,7 +32,6 @@ from spotdl_cli.commands import tui as tui_cmd
 from spotdl_cli.commands import web as web_cmd
 from spotdl_cli.commands.auth import auth_app
 from spotdl_cli.commands.config_cmd import config_app
-from spotdl_cli.commands.tui import TUI_STUB_MESSAGE
 from spotdl_cli.errors import ExitCode
 from spotdl_cli.shim import V5_COMMANDS, Dropped, Rewritten, drop_message, translate_v4_argv
 
@@ -171,7 +170,7 @@ async def _probe_status(offline: bool) -> str:
 def _dispatch(argv: list[str]) -> list[str]:
     """Route a post-shim argv into a concrete command (spec §7).
 
-    * bare ``spotdl`` in a TTY → the interactive ``tui`` (its stub for now); in a
+    * bare ``spotdl`` in a TTY → the interactive ``tui``; in a
       non-TTY the empty argv falls through to Typer's ``no_args_is_help`` so pipes
       and CI see the help text.
     * a first token that is neither a registered command nor an option, but looks
@@ -207,9 +206,7 @@ def main(argv: list[str] | None = None) -> None:
     app(args=_dispatch(args))
 
 
-# Re-exported so ``from spotdl_cli.__main__ import TUI_STUB_MESSAGE`` (and tests)
-# have the pinned stub copy alongside the app/dispatch it drives.
-__all__ = ["TUI_STUB_MESSAGE", "app", "main"]
+__all__ = ["app", "main"]
 
 
 if __name__ == "__main__":

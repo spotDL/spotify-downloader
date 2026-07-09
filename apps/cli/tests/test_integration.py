@@ -25,7 +25,6 @@ from spotdl_cli.__main__ import _dispatch, app
 from spotdl_cli.client import SpotdlClient
 from spotdl_cli.commands import _support
 from spotdl_cli.commands import download as dl
-from spotdl_cli.commands.tui import TUI_STUB_MESSAGE
 from spotdl_cli.errors import ExitCode
 from spotdl_cli.transport import EmbeddedTransport
 from spotdl_core.model import AudioCandidate, ProviderId, Track
@@ -180,10 +179,11 @@ def test_dispatch_known_command_passes_through() -> None:
     assert _dispatch(["--version"]) == ["--version"]
 
 
-def test_tui_command_prints_stub() -> None:
-    result = runner.invoke(app, ["tui"])
+def test_tui_command_registered() -> None:
+    # The real TUI (Plan 9) replaced the stub; smoke the registration via --help.
+    result = runner.invoke(app, ["tui", "--help"])
     assert result.exit_code == 0, result.output
-    assert TUI_STUB_MESSAGE in result.output
+    assert "interactive terminal" in result.output.lower()
 
 
 # --- global --api-url / --offline (CONTRACT C rule 4 / spec §7) ---------------

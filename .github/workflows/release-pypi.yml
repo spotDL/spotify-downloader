@@ -50,7 +50,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
-      # The SPA (Plan 10) must be embedded into spotdl_server/static BEFORE the wheel
+      # The SPA (Plan 10) must be embedded into spotdl_server/webui BEFORE the wheel
       # is built so the published server wheel serves the UI with no runtime fetch
       # (spec §8). `make bundle-spa` builds apps/web and copies dist into the package.
       - uses: pnpm/action-setup@v4

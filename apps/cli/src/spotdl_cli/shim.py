@@ -51,7 +51,7 @@ V4_OPERATIONS: frozenset[str] = frozenset({"download", "save", "sync", "meta", "
 # Kept in lockstep with the commands registered in ``__main__`` (which imports this
 # set to make the same routing decision for a v5-native argv).
 V5_COMMANDS: frozenset[str] = V4_OPERATIONS | frozenset(
-    {"search", "server", "config", "auth", "ffmpeg", "version", "status", "tui"}
+    {"search", "server", "config", "auth", "ffmpeg", "read", "version", "status", "tui"}
 )
 
 

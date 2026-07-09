@@ -18,6 +18,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 from typing import TypeVar
 
+from spotdl_cli._generated.api.models.admin_stats_response import AdminStatsResponse
 from spotdl_cli._generated.api.models.album_out import AlbumOut
 from spotdl_cli._generated.api.models.album_ref_out import AlbumRefOut
 from spotdl_cli._generated.api.models.artist_out import ArtistOut
@@ -32,10 +33,25 @@ from spotdl_cli._generated.api.models.lyrics_out import LyricsOut
 from spotdl_cli._generated.api.models.match_out import MatchOut
 from spotdl_cli._generated.api.models.pat_created_response import PatCreatedResponse
 from spotdl_cli._generated.api.models.playlist_out import PlaylistOut
+from spotdl_cli._generated.api.models.report_response import ReportResponse
 from spotdl_cli._generated.api.models.token_response import TokenResponse
 from spotdl_cli._generated.api.models.track_out import TrackOut
 from spotdl_cli._generated.api.models.user_response import UserResponse
 from spotdl_cli._generated.api.types import Unset
+
+# Re-export the generated WebSocket frame union so the framework-free view-models
+# (which must not import ``spotdl_cli._generated``, CONTRACT I) can name it through
+# ``spotdl_cli.views`` — the single presentation-facing surface. The ``as X`` alias
+# form marks these as intentional re-exports (ruff keeps them, no F401).
+from spotdl_cli._generated.ws_models import WsBatchFinished as WsBatchFinished
+from spotdl_cli._generated.ws_models import WsHello as WsHello
+from spotdl_cli._generated.ws_models import WsJobCancelled as WsJobCancelled
+from spotdl_cli._generated.ws_models import WsJobFailed as WsJobFailed
+from spotdl_cli._generated.ws_models import WsJobFinished as WsJobFinished
+from spotdl_cli._generated.ws_models import WsJobQueued as WsJobQueued
+from spotdl_cli._generated.ws_models import WsJobStarted as WsJobStarted
+from spotdl_cli._generated.ws_models import WsMessage as WsMessage
+from spotdl_cli._generated.ws_models import WsProgress as WsProgress
 
 _T = TypeVar("_T")
 
@@ -542,3 +558,66 @@ class DownloadSubmit:
     generate_save_file: bool = False
     sponsor_block: bool = False
     update_archive: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class ReportView:
+    """A metadata-correction report (``POST /reports`` / the admin queue) — CONTRACT H.
+
+    ``subject_type`` is the plain string value of the server's ``EntityType`` (a
+    view-facing ``str``, never the generated enum). The reporter-facing response
+    shape omits the reporter identity, so ``reporter`` is always ``None`` here.
+    """
+
+    id: str
+    subject_type: str
+    subject_id: str
+    status: str
+    created_at: datetime.datetime
+    field: str | None = None
+    proposed_value: str | None = None
+    reason: str | None = None
+    reporter: str | None = None
+
+    @classmethod
+    def from_generated(cls, report: ReportResponse) -> ReportView:
+        return cls(
+            id=str(report.id),
+            subject_type=report.subject_type.value,
+            subject_id=str(report.subject_id),
+            status=report.status.value,
+            created_at=report.created_at,
+            field=_opt(report.field),
+            proposed_value=_opt(report.proposed_value),
+            reason=_opt(report.reason),
+            reporter=None,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class StatsView:
+    """Aggregate community-health counts (``GET /admin/stats``) — CONTRACT H.
+
+    Mirrors the server ``AdminStatsResponse`` field-for-field; the admin
+    view-model projects the subset its ``StatsRow`` display type needs.
+    """
+
+    users_total: int
+    matches_total: int
+    community_verified_matches: int
+    rejected_matches: int
+    reports_total: int
+    reports_pending: int
+    votes_total: int
+
+    @classmethod
+    def from_generated(cls, stats: AdminStatsResponse) -> StatsView:
+        return cls(
+            users_total=stats.users_total,
+            matches_total=stats.matches_total,
+            community_verified_matches=stats.community_verified_matches,
+            rejected_matches=stats.rejected_matches,
+            reports_total=stats.reports_total,
+            reports_pending=stats.reports_pending,
+            votes_total=stats.votes_total,
+        )
