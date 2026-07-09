@@ -44,9 +44,7 @@ async def test_all_flags_true_when_admin_logged_in() -> None:
 
 async def test_offline_hosted_flags_false() -> None:
     client = FakeSpotdlClient(
-        config=make_config(
-            mode="hosted", features=make_features(auth=False, voting=False)
-        ),
+        config=make_config(mode="hosted", features=make_features(auth=False, voting=False)),
         download_config=make_config(features=make_features(downloads=False)),
     )
     creds = FakeCredentialStore()  # no token → guest

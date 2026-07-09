@@ -89,9 +89,17 @@ def _is_transport_error(exc: BaseException) -> bool:
 
 def _connection_display(exc: BaseException) -> ErrorDisplay:
     reason = str(exc).strip() or type(exc).__name__
-    return ErrorDisplay(
-        message=f"couldn't reach the server: {reason}", code=None, severity="error"
-    )
+    return ErrorDisplay(message=f"couldn't reach the server: {reason}", code=None, severity="error")
+
+
+def as_connection_error(exc: BaseException) -> ErrorDisplay | None:
+    """Return a connection ``ErrorDisplay`` if ``exc`` is a transport failure, else ``None``.
+
+    Used by the queue's WS ``stream`` (which drives a raw ``async with``/``async for``
+    rather than a single coroutine) to recognise a reconnectable transport error
+    without importing the transport stack (CONTRACT I).
+    """
+    return _connection_display(exc) if _is_transport_error(exc) else None
 
 
 async def guard(coro: Awaitable[T]) -> Loadable[T]:

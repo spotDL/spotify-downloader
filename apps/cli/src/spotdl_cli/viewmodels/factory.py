@@ -9,14 +9,18 @@ root :class:`AppStateViewModel` and the session it produces.
 
 from __future__ import annotations
 
+from spotdl_cli.viewmodels.admin import AdminViewModel
 from spotdl_cli.viewmodels.app_state import AppStateViewModel, SessionSnapshot
+from spotdl_cli.viewmodels.auth import AuthViewModel
 from spotdl_cli.viewmodels.collection import CollectionViewModel
 from spotdl_cli.viewmodels.protocol import (
     ConfigStore,
     CredentialStore,
     SpotdlClientProtocol,
 )
+from spotdl_cli.viewmodels.queue import QueueViewModel
 from spotdl_cli.viewmodels.search import SearchViewModel
+from spotdl_cli.viewmodels.settings import SettingsViewModel
 from spotdl_cli.viewmodels.track import TrackViewModel
 
 
@@ -67,3 +71,17 @@ class ViewModelFactory:
 
     def collection(self) -> CollectionViewModel:
         return CollectionViewModel(self._client, self.session)
+
+    def queue(self) -> QueueViewModel:
+        return QueueViewModel(self._client, self.session)
+
+    def settings(self) -> SettingsViewModel:
+        return SettingsViewModel(self._store)
+
+    def auth(self) -> AuthViewModel:
+        return AuthViewModel(
+            self._client, self._creds, origin=self._server_origin, session=self.session
+        )
+
+    def admin(self) -> AdminViewModel:
+        return AdminViewModel(self._client, self.session)

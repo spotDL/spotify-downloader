@@ -28,7 +28,10 @@ class SearchViewModel:
         ref = entity_ref(resolved.data)
         if ref is None:
             return Loadable.failed(
-                ErrorDisplay("couldn't resolve that link to a track, album, artist, or playlist",
-                             code=None, severity="error")
+                ErrorDisplay(
+                    "couldn't resolve that link to a track, album, artist, or playlist",
+                    code=None,
+                    severity="error",
+                )
             )
         return Loadable.ready(ref)

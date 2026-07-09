@@ -185,9 +185,7 @@ def describe_api_error(err: ApiError) -> ErrorRendering:
     """
     row = _TABLE.get(err.code)
     if row is None:
-        return ErrorRendering(
-            f"server error ({err.code.value}): {err.message}", ExitCode.TRANSPORT
-        )
+        return ErrorRendering(f"server error ({err.code.value}): {err.message}", ExitCode.TRANSPORT)
     builder, exit_code = row
     return ErrorRendering(builder(err), exit_code)
 

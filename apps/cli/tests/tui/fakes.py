@@ -37,7 +37,15 @@ from spotdl_cli.views import (
     Tokens,
     TrackView,
     UserView,
+    WsBatchFinished,
+    WsHello,
+    WsJobCancelled,
+    WsJobFailed,
+    WsJobFinished,
+    WsJobQueued,
+    WsJobStarted,
     WsMessage,
+    WsProgress,
 )
 
 _EPOCH = datetime.datetime(2024, 1, 1, tzinfo=datetime.UTC)
@@ -224,9 +232,7 @@ def make_job(
     )
 
 
-def make_batch(
-    *, batch_id: UUID | None = None, jobs: list[JobView] | None = None
-) -> BatchView:
+def make_batch(*, batch_id: UUID | None = None, jobs: list[JobView] | None = None) -> BatchView:
     job_list = jobs if jobs is not None else [make_job()]
     return BatchView(
         batch_id=str(batch_id or uuid4()),
@@ -236,6 +242,11 @@ def make_batch(
         counts={},
         jobs=job_list,
     )
+
+
+def make_download_page(*, jobs: list[JobView] | None = None) -> DownloadPage:
+    job_list = jobs if jobs is not None else []
+    return DownloadPage(jobs=job_list, total=len(job_list), limit=50, offset=0)
 
 
 def make_report(
@@ -291,6 +302,93 @@ def make_stats() -> StatsView:
         reports_total=7,
         reports_pending=3,
         votes_total=42,
+    )
+
+
+# --- WebSocket frame builders ------------------------------------------------
+
+
+def ws_hello(*, protocol_version: int = 1) -> WsMessage:
+    return WsMessage(WsHello(protocol_version=protocol_version))
+
+
+def ws_queued(job_id: UUID, batch_id: UUID, *, track_name: str = "Song") -> WsMessage:
+    return WsMessage(
+        WsJobQueued(
+            job_id=job_id,
+            batch_id=batch_id,
+            track_name=track_name,
+            list_length=1,
+            list_position=0,
+        )
+    )
+
+
+def ws_started(job_id: UUID, batch_id: UUID) -> WsMessage:
+    return WsMessage(WsJobStarted(job_id=job_id, batch_id=batch_id))
+
+
+def ws_progress(
+    job_id: UUID,
+    batch_id: UUID,
+    *,
+    phase: str = "download",
+    percent: int = 50,
+    overall: float = 0.5,
+) -> WsMessage:
+    return WsMessage(
+        WsProgress(job_id=job_id, batch_id=batch_id, phase=phase, percent=percent, overall=overall)
+    )
+
+
+def ws_finished(
+    job_id: UUID,
+    batch_id: UUID,
+    *,
+    output_path: str = "/music/song.mp3",
+    skipped: bool = False,
+    skip_reason: str | None = None,
+) -> WsMessage:
+    return WsMessage(
+        WsJobFinished(
+            job_id=job_id,
+            batch_id=batch_id,
+            status="completed",
+            output_path=output_path,
+            skipped=skipped,
+            skip_reason=skip_reason,
+        )
+    )
+
+
+def ws_failed(
+    job_id: UUID, batch_id: UUID, *, step: str = "download", error: str = "boom"
+) -> WsMessage:
+    return WsMessage(WsJobFailed(job_id=job_id, batch_id=batch_id, step=step, error=error))
+
+
+def ws_cancelled(job_id: UUID, batch_id: UUID) -> WsMessage:
+    return WsMessage(WsJobCancelled(job_id=job_id, batch_id=batch_id))
+
+
+def ws_batch_finished(
+    batch_id: UUID,
+    *,
+    completed: int = 1,
+    failed: int = 0,
+    skipped: int = 0,
+    cancelled: int = 0,
+) -> WsMessage:
+    return WsMessage(
+        WsBatchFinished(
+            batch_id=batch_id,
+            completed=completed,
+            failed=failed,
+            skipped=skipped,
+            cancelled=cancelled,
+            m3u_paths=[],
+            save_file_path=None,
+        )
     )
 
 

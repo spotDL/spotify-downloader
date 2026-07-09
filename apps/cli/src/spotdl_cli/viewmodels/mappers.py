@@ -15,6 +15,7 @@ from spotdl_cli.viewmodels.types import (
     BatchRef,
     EntityHeader,
     EntityRef,
+    JobRow,
     LyricsChoice,
     LyricsLine,
     MatchRow,
@@ -26,12 +27,17 @@ from spotdl_cli.views import (
     ArtistView,
     BatchView,
     EntityView,
+    JobView,
     LyricsView,
     MatchView,
     PlaylistView,
     ReportView,
     TrackView,
 )
+
+# A download job always belongs to a batch; this sentinel stands in only if a WS
+# frame or list row omits ``batch_id`` (defensive — should not happen in practice).
+_UNBATCHED = UUID(int=0)
 
 # A canonical track carries no single "provider" (it is provider-agnostic
 # metadata; provider identity lives on a MatchRow). The field is kept on TrackRow
@@ -183,6 +189,20 @@ def playlist_header(playlist: PlaylistView) -> EntityHeader:
 
 def batch_ref(batch: BatchView) -> BatchRef:
     return BatchRef(batch_id=UUID(batch.batch_id), job_count=batch.total_jobs)
+
+
+def job_row(job: JobView) -> JobRow:
+    return JobRow(
+        job_id=UUID(job.id),
+        batch_id=UUID(job.batch_id) if job.batch_id else _UNBATCHED,
+        title=job.track_name or "",
+        phase=job.status,
+        percent=max(0, min(100, round(job.progress * 100))),
+        status=job.status,
+        error=job.error_message,
+        output_path=job.output_path,
+        skip_reason=job.skip_reason,
+    )
 
 
 def report_row(report: ReportView) -> ReportRow:

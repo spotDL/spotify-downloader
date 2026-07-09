@@ -31,9 +31,7 @@ from spotdl_cli.viewmodels.types import (
 )
 from spotdl_cli.views import DownloadSubmit
 
-_VOTE_BLOCKED = ErrorDisplay(
-    "voting isn't available on this server", code=None, severity="error"
-)
+_VOTE_BLOCKED = ErrorDisplay("voting isn't available on this server", code=None, severity="error")
 _DOWNLOAD_BLOCKED = ErrorDisplay(
     "downloads aren't available on this server", code=None, severity="error"
 )

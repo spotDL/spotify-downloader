@@ -143,9 +143,7 @@ async def test_submit_report_invalid_subject_type_surfaces_server_validation(
 
 async def test_my_reports_maps_list(client: SpotdlClient) -> None:
     with respx.mock(base_url=BASE, assert_all_called=False) as router:
-        router.get("/api/v1/reports/me").mock(
-            return_value=httpx.Response(200, json=[REPORT_JSON])
-        )
+        router.get("/api/v1/reports/me").mock(return_value=httpx.Response(200, json=[REPORT_JSON]))
         reports = await client.my_reports()
     assert [type(r) for r in reports] == [ReportView]
     assert reports[0].id == str(REPORT_ID)
@@ -179,9 +177,7 @@ async def test_approve_and_reject_report(client: SpotdlClient) -> None:
 
 async def test_admin_stats_maps_view(client: SpotdlClient) -> None:
     with respx.mock(base_url=BASE, assert_all_called=False) as router:
-        router.get("/api/v1/admin/stats").mock(
-            return_value=httpx.Response(200, json=STATS_JSON)
-        )
+        router.get("/api/v1/admin/stats").mock(return_value=httpx.Response(200, json=STATS_JSON))
         stats = await client.admin_stats()
     assert isinstance(stats, StatsView)
     assert stats.users_total == 10
