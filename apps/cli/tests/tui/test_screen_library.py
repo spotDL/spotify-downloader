@@ -68,7 +68,31 @@ async def test_library_empty_state() -> None:
         await pilot.press("3")
         await pilot.pause()
         body = " ".join(str(node.render()) for node in app.screen.query(Static))
-        assert "Nothing downloaded yet" in body
+        assert "No downloads yet" in body
+
+
+async def test_library_batch_list_and_save_file_action() -> None:
+    client = FakeSpotdlClient()
+    batch = uuid4()
+    client.download_page = make_download_page(
+        jobs=[make_job(status="completed", batch_id=batch, output_path="/music/one.mp3")]
+    )
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("3")
+        await pilot.pause()
+        from textual.widgets import ListView
+
+        batches = app.screen.query_one("#library-batches", ListView)
+        assert len(batches.children) == 1  # one batch in the left list
+        files = app.screen.query_one("#library-files", DataTable)
+        assert files.get_row_at(0)[0] == "/music/one.mp3"  # file path shown
+        await pilot.press("s")  # echo the batch save-file path
+        await pilot.pause()
+        assert any(
+            f"/api/v1/downloads/batches/{batch}/save-file" in n.message for n in app._notifications
+        )
 
 
 async def test_library_section_hidden_when_feature_off() -> None:

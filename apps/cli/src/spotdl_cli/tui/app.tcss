@@ -285,6 +285,50 @@ HelpScreen {
     color: $success;
 }
 
+/* Library screen: a batch list left, its files table + save-file heading right,
+ * collapsing to a stack under 110 cols (§4/§1). */
+#library-body {
+    height: 1fr;
+}
+
+#library-main {
+    height: 1fr;
+    layout: horizontal;
+}
+
+#library-main.narrow {
+    layout: vertical;
+}
+
+#library-batches {
+    width: 34;
+    height: 1fr;
+    margin: 1 1 0 0;
+    background: $panel;
+}
+
+#library-detail {
+    width: 1fr;
+    height: 1fr;
+    margin: 1 0 0 0;
+}
+
+#library-main.narrow #library-batches {
+    width: 1fr;
+    height: auto;
+    max-height: 40%;
+}
+
+#library-main.narrow #library-detail {
+    width: 1fr;
+}
+
+.library-batch-heading {
+    height: auto;
+    color: $text-muted;
+    padding: 0 1 1 1;
+}
+
 /* Queue screen: enqueue input, a bordered summary strip (overall bar + chips),
  * the batch-grouped jobs table, and a one-row footer of key actions (§4). */
 #enqueue-input {
