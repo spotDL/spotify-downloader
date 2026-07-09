@@ -128,3 +128,20 @@ class NotAnAudioTarget(SpotdlError):
 
     def __init__(self, message: str = "the submitted URL is not an audio target") -> None:
         super().__init__(message)
+
+
+class UnsupportedBatchEntity(SpotdlError):
+    """A resolvable entity kind cannot be batch-downloaded → 400 (Plan 7 Task 4).
+
+    Deliberately distinct from core's :class:`~spotdl_core.providers.UnsupportedURL`
+    (which means "the input could not be parsed at all"): here the URL parsed fine
+    and named a real entity, but its *kind* is out of scope for a download batch
+    (v1: ``artist``). Carries the offending :class:`~spotdl_core.model.EntityType`
+    so the API can surface ``detail={"entity_type": "<value>"}``.
+    """
+
+    def __init__(self, entity_type: EntityType | str) -> None:
+        value = entity_type if isinstance(entity_type, str) else entity_type.value
+        super().__init__(f"cannot batch-download a {value}")
+        self.entity_type = entity_type
+        self.entity_type_value = value

@@ -46,6 +46,7 @@ from spotdl_server.services.errors import (
     OAuthEmailRequired,
     TokenExpired,
     TokenNotFound,
+    UnsupportedBatchEntity,
 )
 
 logger = logging.getLogger("spotdl_server.api")
@@ -65,6 +66,7 @@ class ErrorCode(StrEnum):
     VALIDATION_ERROR = "validation_error"
     DOWNLOADS_DISABLED = "downloads_disabled"  # defined now; raised in Plan 7
     DOWNLOAD_FAILED = "download_failed"  # defined now; raised in Plan 7
+    UNSUPPORTED_ENTITY = "unsupported_entity"  # Plan 7: resolvable kind not batchable
     # Plan 6 community layer (auth / voting / submissions). All eight are declared
     # here (single home); Tasks 6 and 9 raise OAUTH_EMAIL_REQUIRED / NOT_AN_AUDIO_TARGET.
     AUTH_REQUIRED = "authentication_required"
@@ -135,6 +137,8 @@ def _status_and_code(exc: Exception) -> tuple[int, ErrorCode, dict[str, Any] | N
         return 404, ErrorCode.NOT_FOUND, _provider_detail(exc)
     if isinstance(exc, NoMatchFound):
         return 404, ErrorCode.NO_MATCH_FOUND, None
+    if isinstance(exc, UnsupportedBatchEntity):
+        return 400, ErrorCode.UNSUPPORTED_ENTITY, {"entity_type": exc.entity_type_value}
     if isinstance(exc, RateLimited):
         return (
             429,
