@@ -12,7 +12,7 @@ private fork.
 
 ## Config-as-code: `deploy/railway.toml`
 
-Build and deploy behavior is pinned in [`deploy/railway.toml`](../../deploy/railway.toml):
+Build and deploy behavior is pinned in `deploy/railway.toml` (in the repository):
 
 ```toml
 [build]
@@ -33,7 +33,7 @@ The `startCommand` is the same entrypoint the container ships with: it runs
 `upgrade_to_head` (the programmatic, idempotent Alembic upgrade — never raw
 `alembic`) and then launches `uvicorn --factory spotdl_server.app:create_app`.
 
-## Migrate-on-boot ⟷ `numReplicas = 1` (READ BEFORE SCALING)
+## Migrate-on-boot ⟷ `numReplicas = 1` (READ BEFORE SCALING) { #migrate-on-boot-and-scaling }
 
 Migrations run **on boot, inside the entrypoint** (CONTRACT B). That is only
 race-free with a **single instance**. `numReplicas = 1` is therefore a hard
