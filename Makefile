@@ -1,4 +1,4 @@
-.PHONY: sync lint typecheck test check web-install web-check
+.PHONY: sync lint typecheck test check web-install web-check openapi
 
 sync:
 	uv sync --all-packages
@@ -20,5 +20,8 @@ web-install:
 web-check:
 	pnpm -C apps/web run type-check
 	pnpm -C apps/web run test
+
+openapi:
+	uv run python apps/server/scripts/export_openapi.py
 
 check: lint typecheck test web-check
