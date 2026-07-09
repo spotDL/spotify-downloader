@@ -22,6 +22,7 @@ dev = [
     "import-linter>=2.1",
     "httpx>=0.28",
     "respx>=0.22",
+    "types-python-slugify>=8.0.2.20240310,<9",
 ]
 
 [tool.ruff]

@@ -13,6 +13,9 @@ dependencies = [
     "yt-dlp>=2025.1.0",
     "beautifulsoup4>=4.12",
     "lxml>=5.3",
+    "rapidfuzz>=3.10.1,<4",
+    "python-slugify[unidecode]>=8.0.4,<9",
+    "pykakasi>=2.3.0,<3",
 ]
 
 [build-system]
