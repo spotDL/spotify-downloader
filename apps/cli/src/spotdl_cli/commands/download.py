@@ -208,7 +208,16 @@ def _resolve(  # noqa: PLR0913 - a wide option surface is the contract here
 
 
 def _settings_env(*, cfg: Any, library_override: str | None, **flags: Any) -> dict[str, str]:
-    """Map engine/session knobs to the embedded server's ``SPOTDL_*`` env (Seam 1)."""
+    """Map engine/session knobs to the embedded server's ``SPOTDL_*`` env (Seam 1).
+
+    Note (documented, not a bug): a value that comes from the *config file's
+    defaults* (e.g. ``threads`` → ``SPOTDL_DOWNLOAD_CONCURRENCY``) still lands in
+    this dict, and ``_open_client`` writes it over any same-named ``SPOTDL_*`` the
+    caller already exported. That is the intended CONTRACT D precedence (CLI/config
+    outrank ambient env for the embedded engine), but it does mean a bare
+    ``SPOTDL_DOWNLOAD_CONCURRENCY`` in the environment is shadowed by the config
+    default rather than honored.
+    """
     env: dict[str, str] = {}
 
     def put(var: str, value: Any) -> None:
@@ -304,13 +313,27 @@ async def _drive(client: SpotdlClient, resolved: ResolvedDownload, console: Cons
 
 
 async def _write_save_file(client: SpotdlClient, batch_ids: set[str], path: Path) -> None:
-    """Fetch the batch's ``.spotdl`` v2 and write it client-side (``--save-file``)."""
+    """Fetch every batch's ``.spotdl`` v2 and write one merged file (``--save-file``).
+
+    Multiple queries (or a single ``.spotdl`` re-download, which fans out to one
+    batch per song) produce multiple batches. Writing only the first would
+    silently drop the rest, so all batches' songs are concatenated into a single
+    :class:`SaveFileV2`. The collection-level metadata (``kind`` / ``name`` /
+    ``source`` / ``created_at`` / ``matcher_version``) is taken from the first
+    batch by sorted id — the plan's CONTRACT keeps ``kind`` per batch, and there
+    is no single collection identity across independently-submitted batches.
+    """
     from uuid import UUID
 
+    merged: Any = None
     for batch_id in sorted(batch_ids):
         save = await client.fetch_save_file(UUID(batch_id))
-        path.write_text(dump_save_file(save), encoding="utf-8")
-        return  # one save file per invocation; first batch wins (single-query typical)
+        if merged is None:
+            merged = save
+        else:
+            merged.songs.extend(save.songs)
+    if merged is not None:
+        path.write_text(dump_save_file(merged), encoding="utf-8")
 
 
 def _format(exc: ApiError) -> tuple[str, ExitCode]:

@@ -233,6 +233,30 @@ def test_save_with_save_file_is_unchanged() -> None:
     assert isinstance(result, Unchanged)
 
 
+def test_leading_global_flag_before_command_is_not_wrapped() -> None:
+    """A leading v5 global flag (e.g. `--api-url`) must not trip bare-query sugar.
+
+    Reproduction: `spotdl --api-url http://h search q` must reach Typer as
+    `search q` (with the root `--api-url` consumed), NOT `download --api-url ...`
+    (which would die with "No such option").
+    """
+    result = translate_v4_argv(["--api-url", "http://h", "search", "q"])
+    assert isinstance(result, Unchanged)
+
+
+def test_leading_global_flag_before_bare_query_is_not_wrapped() -> None:
+    """A leading unknown flag is a global option; the argv passes through untouched."""
+    result = translate_v4_argv(["--offline", "search", "q"])
+    assert isinstance(result, Unchanged)
+
+
+def test_leading_known_download_flag_still_wraps_into_download() -> None:
+    """A leading flag the shim DOES own (a v4 download knob) keeps bare-query sugar."""
+    result = translate_v4_argv(["--threads", "4", "some song"])
+    assert isinstance(result, Rewritten)
+    assert result.argv == ["download", "--threads", "4", "some song"]
+
+
 def test_web_operation_passes_through() -> None:
     assert isinstance(translate_v4_argv(["web", "--host", "0.0.0.0"]), Unchanged)
 

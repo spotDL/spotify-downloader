@@ -97,6 +97,35 @@ async def test_404_envelope_becomes_api_error(client: SpotdlClient) -> None:
     assert err.message == "no such track"
 
 
+async def test_token_is_sent_per_request_not_persisted(client: SpotdlClient) -> None:
+    """An authenticated call carries the Bearer header, but never persists it.
+
+    The transport's shared httpx client serves both authenticated and anonymous
+    calls; mutating its default headers would leak the token onto every later
+    request. So the header must ride the authenticated request only, and the
+    shared client's defaults must stay clean.
+    """
+    user = {
+        "id": "11111111-1111-1111-1111-111111111111",
+        "email": "a@b.c",
+        "is_admin": False,
+        "created_at": "2020-01-01T00:00:00+00:00",
+    }
+    with respx.mock(base_url=BASE, assert_all_called=False) as router:
+        me = router.get("/api/v1/auth/me").mock(return_value=httpx.Response(200, json=user))
+        cfg = router.get("/api/v1/config").mock(return_value=httpx.Response(200, json=CONFIG_JSON))
+
+        await client.me(token="secret-pat")
+        assert me.calls.last.request.headers["Authorization"] == "Bearer secret-pat"
+
+        # A later anonymous call on the same transport must not inherit the token.
+        await client.config()
+        assert "Authorization" not in cfg.calls.last.request.headers
+
+    # The shared client's default headers were never mutated.
+    assert "Authorization" not in client._resolution.http_client().headers
+
+
 async def test_config_error_body_without_documented_schema(client: SpotdlClient) -> None:
     """GET /config only documents 200; an error body is still surfaced as ApiError."""
     envelope = {"code": "internal_error", "message": "boom"}

@@ -197,6 +197,49 @@ def test_spotdl_file_argument_loads_and_submits(patch_client: Any, tmp_path: Pat
     assert client.submitted[0].query == "https://open.spotify.com/track/omt"
 
 
+async def test_write_save_file_merges_all_batches(tmp_path: Path) -> None:
+    """``--save-file`` with multiple batches merges every batch's songs (no drop)."""
+    from spotdl_server.downloads.savefile import SaveFileDownload, SaveFileSong, SaveFileV2
+
+    b1 = UUID("22222222-2222-2222-2222-222222222222")
+    b2 = UUID("55555555-5555-5555-5555-555555555555")
+
+    def _song(name: str) -> SaveFileSong:
+        return SaveFileSong(
+            name=name,
+            artists=["A"],
+            duration_ms=1000,
+            download=SaveFileDownload(
+                output_format="mp3", bitrate="auto", output_template="t", status="completed"
+            ),
+        )
+
+    saves = {
+        b1: SaveFileV2(
+            kind="single", name="first", created_at="2020-01-01T00:00:00+00:00", songs=[_song("A")]
+        ),
+        b2: SaveFileV2(
+            kind="single", name="second", created_at="2021-01-01T00:00:00+00:00", songs=[_song("B")]
+        ),
+    }
+
+    class _Client:
+        def __init__(self) -> None:
+            self.fetched: list[UUID] = []
+
+        async def fetch_save_file(self, batch_id: UUID) -> Any:
+            self.fetched.append(batch_id)
+            return saves[batch_id]
+
+    out = tmp_path / "out.spotdl"
+    await dl._write_save_file(_Client(), {str(b1), str(b2)}, out)  # type: ignore[arg-type]
+
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert [s["name"] for s in data["songs"]] == ["A", "B"]  # both batches survive
+    # Collection metadata comes from the first batch (sorted by id).
+    assert data["name"] == "first"
+
+
 def test_resolve_maps_flags_to_request_and_env() -> None:
     resolved = dl._resolve(
         ["https://x/track"],

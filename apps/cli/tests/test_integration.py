@@ -15,7 +15,7 @@ touches the network, yt-dlp, or ffmpeg:
 from __future__ import annotations
 
 import sys
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Iterator
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -184,3 +184,87 @@ def test_tui_command_prints_stub() -> None:
     result = runner.invoke(app, ["tui"])
     assert result.exit_code == 0, result.output
     assert TUI_STUB_MESSAGE in result.output
+
+
+# --- global --api-url / --offline (CONTRACT C rule 4 / spec §7) ---------------
+
+
+@pytest.fixture(autouse=True)
+def _reset_invocation_overrides() -> Iterator[None]:
+    """Keep a test's global-flag state from leaking into the next test."""
+    from spotdl_cli.config import set_invocation_overrides
+
+    yield
+    set_invocation_overrides()
+
+
+class _FakeSearchClient:
+    """Records the effective config it was opened with; returns no search hits."""
+
+    async def search(self, q: str, *, limit: int = 10) -> list[object]:
+        return []
+
+
+def _capture_open(monkeypatch: pytest.MonkeyPatch, captured: dict[str, object]) -> None:
+    @asynccontextmanager
+    async def _open(
+        *, offline: bool = False, need_downloads: bool = False, require_remote: bool = False
+    ) -> AsyncIterator[object]:
+        from spotdl_cli.config import load_config
+
+        cfg = load_config()
+        captured["api_url"] = cfg.api_url
+        captured["offline"] = offline or cfg.offline
+        yield _FakeSearchClient()
+
+    monkeypatch.setattr(_support, "open_client", _open)
+
+
+def test_global_api_url_before_command_threads_through_main(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """`spotdl --api-url http://h search q` runs `search q` against http://h.
+
+    Exercises the real entry point (shim + dispatch + root callback), which
+    ``CliRunner`` bypasses — the reproduction that previously died with the
+    download command's "No such option: --api-url".
+    """
+    from spotdl_cli.__main__ import main
+
+    captured: dict[str, object] = {}
+    _capture_open(monkeypatch, captured)
+
+    with pytest.raises(SystemExit) as exc:
+        main(["--api-url", "http://h", "search", "q"])
+
+    assert exc.value.code in (0, None), exc.value.code
+    assert captured["api_url"] == "http://h"
+
+
+def test_global_offline_before_command_threads_through_main(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from spotdl_cli.__main__ import main
+
+    captured: dict[str, object] = {}
+    _capture_open(monkeypatch, captured)
+
+    with pytest.raises(SystemExit) as exc:
+        main(["--offline", "search", "q"])
+
+    assert exc.value.code in (0, None), exc.value.code
+    assert captured["offline"] is True
+
+
+def test_command_api_url_overrides_global(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A command's own flag wins over the global one (e.g. `auth --api-url`)."""
+    from spotdl_cli.config import load_config, set_invocation_overrides
+
+    set_invocation_overrides(api_url="http://global")
+    cfg = load_config()
+    assert cfg.api_url == "http://global"  # global overlays file/env
+    # auth's _resolve_target layers its own flag over that with merge_flag.
+    from spotdl_cli.commands.auth import _resolve_target
+
+    effective_url, _ = _resolve_target("http://command", offline=False)
+    assert effective_url == "http://command"

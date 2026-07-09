@@ -58,8 +58,27 @@ def _root(
             callback=_version_callback,
         ),
     ] = False,
+    api_url: Annotated[
+        str | None,
+        typer.Option("--api-url", help="Override the community server URL for this command."),
+    ] = None,
+    offline: Annotated[
+        bool,
+        typer.Option("--offline", help="Use the offline embedded server for this command."),
+    ] = False,
 ) -> None:
-    """spotdl — download music, with metadata, from the community server."""
+    """spotdl — download music, with metadata, from the community server.
+
+    ``--api-url`` / ``--offline`` are global: given before the subcommand they
+    apply to every command's server selection (CONTRACT C rule 4 / spec §7). They
+    are recorded here and overlaid at the top of ``load_config``'s precedence, so a
+    command with its own ``--api-url`` / ``--offline`` still overrides them.
+    """
+    from spotdl_cli.config import set_invocation_overrides
+
+    # Always record (even the defaults) so a prior invocation's globals never leak
+    # into this one within a long-lived process (e.g. tests / the TUI).
+    set_invocation_overrides(api_url=api_url, offline=offline)
 
 
 app.add_typer(config_app, name="config")

@@ -23,7 +23,7 @@ import importlib
 import json
 from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
-from typing import Any, Literal
+from typing import Any, Literal, cast
 from uuid import UUID
 
 import httpx
@@ -243,6 +243,29 @@ def _load_credential_token(api_url: str) -> str | None:
     return cred.token if cred is not None else None
 
 
+class _BearerClient:
+    """A thin ``httpx.AsyncClient`` shim that adds a per-request Bearer header.
+
+    The generated endpoints dispatch every call through
+    ``get_async_httpx_client().request(**kwargs)``; httpx merges a request-level
+    ``headers`` argument over the client's defaults **without mutating them**, so
+    routing the ``Authorization`` header here leaves the wrapped (shared) client's
+    default headers untouched. Only ``.request`` needs bespoke behavior; anything
+    else the generated code reaches for delegates to the wrapped client.
+    """
+
+    def __init__(self, inner: httpx.AsyncClient, token: str) -> None:
+        self._inner = inner
+        self._auth = {"Authorization": f"Bearer {token}"}
+
+    def request(self, *args: Any, headers: Any = None, **kwargs: Any) -> Any:
+        merged = {**self._auth, **(dict(headers) if headers else {})}
+        return self._inner.request(*args, headers=merged, **kwargs)
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._inner, name)
+
+
 class SpotdlClient:
     """The single client object the CLI and TUI drive.
 
@@ -305,11 +328,14 @@ class SpotdlClient:
             make_embedded=make_embedded,
         )
         downloads = make_embedded()  # CONTRACT C rule 3: downloads are always embedded
-        # EmbeddedTransport construction is sync; its server boots here (fakes
-        # injected by tests have no ``start`` and are skipped).
-        if embedded is not None and hasattr(embedded, "start"):
-            await embedded.start()
         try:
+            # EmbeddedTransport construction is sync; its server boots here (fakes
+            # injected by tests have no ``start`` and are skipped). Kept INSIDE the
+            # try so a ``start()`` failure still runs the ``finally`` that closes the
+            # already-built resolution transport — otherwise its httpx client leaks
+            # (the embedded resolution/remote client was opened before this point).
+            if embedded is not None and hasattr(embedded, "start"):
+                await embedded.start()
             yield cls(resolution=resolution, downloads=downloads)
         finally:
             await resolution.aclose()
@@ -338,12 +364,19 @@ class SpotdlClient:
 
         Injecting the transport's client keeps the same generated code driving
         both the remote (real ``AsyncClient``) and embedded (ASGI transport) paths.
-        A per-call ``token`` sets the Bearer header for authenticated endpoints.
+        A per-call ``token`` sends the Bearer header **per request** via
+        :class:`_BearerClient` rather than mutating the shared client's default
+        headers — the same transport client serves anonymous and authenticated
+        calls, so a persisted ``Authorization`` header would leak the token onto
+        every later request on that client.
         """
         ac = transport.http_client()
-        if token is not None:
-            ac.headers["Authorization"] = f"Bearer {token}"
-        return Client(base_url=transport.http_base).set_async_httpx_client(ac)
+        client = Client(base_url=transport.http_base)
+        if token is None:
+            return client.set_async_httpx_client(ac)
+        # ``_BearerClient`` mimics the ``httpx.AsyncClient`` surface the generated
+        # code touches (``.request``); cast keeps the generated signature honest.
+        return client.set_async_httpx_client(cast("httpx.AsyncClient", _BearerClient(ac, token)))
 
     # ---- metadata (resolution transport) ------------------------------------
 

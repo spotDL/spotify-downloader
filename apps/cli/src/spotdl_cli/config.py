@@ -40,6 +40,7 @@ __all__ = [
     "load_config",
     "merge_flag",
     "default_config_template",
+    "set_invocation_overrides",
     "store_token",
     "get_token",
     "delete_token",
@@ -47,6 +48,29 @@ __all__ = [
 
 _APP = "spotdl"
 _ENV_PREFIX = "SPOTDL_"
+
+
+# ---- global (root-callback) invocation overrides ----------------------------
+# The ``spotdl`` root callback records its eager ``--api-url`` / ``--offline``
+# global options here so that *every* command's ``load_config`` picks them up at
+# the top of the CONTRACT D precedence chain (CLI > env > file), without each
+# command having to thread the flags through. A command that also defines its own
+# ``--api-url`` / ``--offline`` still wins: it layers its explicit flag over the
+# already-overlaid config value (``merge_flag`` / the ``offline`` OR in
+# ``from_config``).
+@dataclass
+class _InvocationOverrides:
+    api_url: str | None = None
+    offline: bool = False
+
+
+_INVOCATION = _InvocationOverrides()
+
+
+def set_invocation_overrides(*, api_url: str | None = None, offline: bool = False) -> None:
+    """Record the process-global ``--api-url`` / ``--offline`` from the root callback."""
+    _INVOCATION.api_url = api_url
+    _INVOCATION.offline = offline
 
 
 class CliConfig(BaseModel):
@@ -122,6 +146,13 @@ def load_config(path: Path | None = None) -> CliConfig:
     if path.exists():
         data.update(tomlkit.parse(path.read_text()).unwrap())
     data.update(_env_overrides())
+    # Global CLI options win over env + file (CONTRACT D precedence). ``--offline``
+    # is a bare flag with no "unset" form, so it only overlays when set (True); it
+    # can never turn OFF an env/file ``offline = true``.
+    if _INVOCATION.api_url is not None:
+        data["api_url"] = _INVOCATION.api_url
+    if _INVOCATION.offline:
+        data["offline"] = True
     return CliConfig(**data)
 
 

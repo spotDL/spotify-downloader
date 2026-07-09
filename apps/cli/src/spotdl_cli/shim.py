@@ -518,6 +518,12 @@ def translate_v4_argv(argv: list[str]) -> ShimResult:
     positional_started = False
     emit_note = False
 
+    # Known obscurity (documented, not handled): this loop does NOT treat a bare
+    # ``--`` as click's "end of options" separator. A DROP flag written *after* a
+    # ``--`` (``spotdl download q -- --audio``) is still matched by name and fails
+    # fast, even though click would have taken it as a positional. ``--`` is rare
+    # in real spotdl lines (queries/URLs don't start with ``-``), so the shim keeps
+    # the single-pass table lookup rather than tracking separator state.
     i = 0
     n = len(tokens)
     while i < n:
@@ -584,6 +590,13 @@ def translate_v4_argv(argv: list[str]) -> ShimResult:
     if op_from_flag is not None:
         new_argv = op_from_flag + body
     elif explicit_op:
+        new_argv = body
+    elif body and _is_flag(body[0]) and _FLAG_LOOKUP.get(_flag_name(body[0])) is None:
+        # A LEADING flag the shim doesn't own is a v5 global option (e.g.
+        # `--api-url` / `--offline`), not a download knob. Wrapping into `download`
+        # would hand that flag to a command that doesn't accept it ("No such
+        # option"); leave the argv for Typer's root callback + command resolution.
+        # `spotdl --api-url http://h search q` → runs `search q`, not `download`.
         new_argv = body
     elif any(not _is_flag(tok) for tok in body):
         # Bare-query sugar (`spotdl <query>` → `spotdl download <query>`): no note.

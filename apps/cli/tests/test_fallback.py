@@ -349,6 +349,43 @@ async def test_from_config_offline_skips_probe() -> None:
     assert embedded.closed is True
 
 
+async def test_from_config_closes_resolution_when_embedded_start_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A failing embedded ``start()`` must not leak the already-built resolution.
+
+    With a reachable remote, ``from_config`` builds the remote resolution client
+    first, then boots the embedded downloads transport. If that boot raises, the
+    remote httpx client is already open — the ``finally`` has to close it.
+    """
+    closed: list[Any] = []
+
+    class SpyRemote(RemoteTransport):
+        async def aclose(self) -> None:
+            closed.append(self)
+            await super().aclose()
+
+    monkeypatch.setattr("spotdl_cli.client.RemoteTransport", SpyRemote)
+
+    class FailingEmbedded(FakeTransport):
+        async def start(self) -> None:
+            raise RuntimeError("embedded boot failed")
+
+    embedded = FailingEmbedded("embedded")
+    cfg = _FakeConfig(api_url=BASE, offline=False)
+    with respx.mock(base_url=BASE, assert_all_called=True) as router:
+        router.get("/api/v1/health").mock(return_value=httpx.Response(200))
+        with pytest.raises(RuntimeError, match="embedded boot failed"):
+            async with SpotdlClient.from_config(
+                cfg, need_downloads=True, _embedded_factory=lambda _enable: embedded
+            ):
+                pass  # pragma: no cover - start() raises before the body runs
+
+    assert closed, "resolution transport was leaked when embedded start() failed"
+    assert closed[0].http_client().is_closed
+    assert embedded.closed is True
+
+
 class _FakeConfig:
     """Duck-typed stand-in for the sibling ``CliConfig`` (Task 3)."""
 
