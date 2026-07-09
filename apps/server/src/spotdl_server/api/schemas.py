@@ -26,12 +26,14 @@ is fixed by the path, so no envelope is needed.
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from spotdl_core.matching import MATCHER_V5_DEFAULT
 from spotdl_core.model import EntityType, LyricsKind, MatchStatus, ProviderId
 
+from spotdl_server.db.enums import VotableType
 from spotdl_server.services.dto import (
     AlbumView,
     ArtistView,
@@ -42,6 +44,7 @@ from spotdl_server.services.dto import (
     SearchResult,
     TrackView,
 )
+from spotdl_server.services.voting import VoteOutcome
 from spotdl_server.settings import DeploymentMode, Settings
 
 # --------------------------------------------------------------------------
@@ -298,6 +301,50 @@ class LyricsResponse(BaseModel):
 
     track_id: str
     lyrics: list[LyricsOut]
+
+
+# --------------------------------------------------------------------------
+# Voting (spec §6.2)
+# --------------------------------------------------------------------------
+
+
+class VoteRequest(BaseModel):
+    """Body of the vote endpoints: ``up`` (+1), ``down`` (-1), or ``retract``.
+
+    A closed ``Literal`` so anything else is a 422 before the service runs — the
+    only three verbs the state machine accepts.
+    """
+
+    value: Literal["up", "down", "retract"]
+
+
+class VoteResponse(BaseModel):
+    """The vote outcome: the votable's fresh tallies, derived status, and the
+    caller's own vote (``+1`` / ``-1`` / ``null`` after a retract).
+
+    Mirrors the service's :class:`~spotdl_server.services.voting.VoteOutcome`;
+    ``status`` is ``null`` for lyrics (which have no status column).
+    """
+
+    votable_type: VotableType
+    votable_id: UUID
+    upvotes: int
+    downvotes: int
+    net_score: int
+    status: str | None = None
+    your_vote: int | None = None
+
+    @classmethod
+    def from_outcome(cls, outcome: VoteOutcome) -> VoteResponse:
+        return cls(
+            votable_type=outcome.votable_type,
+            votable_id=outcome.votable_id,
+            upvotes=outcome.upvotes,
+            downvotes=outcome.downvotes,
+            net_score=outcome.net_score,
+            status=outcome.status,
+            your_vote=outcome.your_vote,
+        )
 
 
 # --------------------------------------------------------------------------

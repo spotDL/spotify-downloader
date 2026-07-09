@@ -18,11 +18,20 @@ from uuid import UUID
 from spotdl_core.model import EntityType
 from spotdl_core.providers import SpotdlError
 
+from spotdl_server.db.enums import VotableType
+
 
 class NotFoundError(SpotdlError):
-    """A canonical entity was not found in the server DB."""
+    """A canonical entity or votable was not found in the server DB.
 
-    def __init__(self, *, entity_type: EntityType, entity_id: UUID | str) -> None:
+    ``entity_type`` is an :class:`~spotdl_core.model.EntityType` for canonical
+    entity GETs (track / album / …) or a :class:`~spotdl_server.db.enums.VotableType`
+    for a votable (match / lyrics / entity_link) — both are ``StrEnum`` so the
+    ``.value`` used in the message and the error-envelope ``detail`` is uniform.
+    Either way the API maps it to ``404 not_found``.
+    """
+
+    def __init__(self, *, entity_type: EntityType | VotableType, entity_id: UUID | str) -> None:
         super().__init__(f"{entity_type.value} {entity_id} not found")
         self.entity_type = entity_type
         self.entity_id = entity_id

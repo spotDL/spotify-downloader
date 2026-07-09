@@ -28,6 +28,7 @@ from spotdl_server.auth.tokens import TokenService, is_pat, sha256_hex
 from spotdl_server.db.enums import OAuthProvider
 from spotdl_server.repositories.tokens import ApiTokenRepository, RefreshTokenRepository
 from spotdl_server.repositories.users import OAuthIdentityRepository, UserRepository
+from spotdl_server.repositories.votes import VoteRepository
 from spotdl_server.services.auth import AuthService
 from spotdl_server.services.entities import EntityService
 from spotdl_server.services.errors import AuthRequired, Forbidden
@@ -35,6 +36,7 @@ from spotdl_server.services.oauth import OAuthService
 from spotdl_server.services.pat import PatService
 from spotdl_server.services.resolve import ResolveService
 from spotdl_server.services.search import SearchService
+from spotdl_server.services.voting import VoteService
 from spotdl_server.settings import Settings
 
 
@@ -246,6 +248,18 @@ def get_pat_service(
         clock=clock,
         api_tokens=ApiTokenRepository(session),
     )
+
+
+def get_vote_service(
+    session: AsyncSession = Depends(get_session),
+) -> VoteService:
+    """Compose the :class:`VoteService` from the request's session.
+
+    The active vote policy defaults to ``VOTE_POLICY_V1`` (the service's own
+    default); a hosted operator wanting a different ``policy_version`` would inject
+    it here. No clock is needed — votes carry their own timestamps.
+    """
+    return VoteService(session=session, votes=VoteRepository(session))
 
 
 # --------------------------------------------------------------------------
