@@ -19,6 +19,12 @@ jobs:
       - run: uv run ruff format --check .
       - run: uv run lint-imports
       - run: uv run mypy packages/core/src apps/server/src apps/cli/src
+      # Golden-corpus structural pre-check (cheap, offline): validates every case
+      # file before the accuracy gate runs inside pytest below.
+      - run: uv run python -m scripts.corpus.validate "packages/core/tests/matching/corpus/*.json"
+      # Focused, labeled run for log visibility: prints the per-matcher-version
+      # accuracy report (spec §11) so CI logs show it even when the gate is green.
+      - run: uv run pytest packages/core/tests/matching/test_corpus.py -v -s
       - run: uv run pytest
 
   web:
