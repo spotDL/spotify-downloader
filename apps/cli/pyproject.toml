@@ -1,11 +1,11 @@
 [project]
 name = "spotdl"
-version = "5.0.0a0"
+version = "5.0.0a1"
 description = "spotDL command-line interface"
 requires-python = ">=3.13"
 license = "MIT"
 dependencies = [
-    "spotdl-server",
+    "spotdl-server==5.0.0a1",
     "typer>=0.15",
     "httpx>=0.28",
     "rich>=13.9",

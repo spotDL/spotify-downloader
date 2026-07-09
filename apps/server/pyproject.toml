@@ -1,11 +1,11 @@
 [project]
 name = "spotdl-server"
-version = "5.0.0a0"
+version = "5.0.0a1"
 description = "spotDL server"
 requires-python = ">=3.13"
 license = "MIT"
 dependencies = [
-    "spotdl-core",
+    "spotdl-core==5.0.0a1",
     "fastapi>=0.115,<1",
     "uvicorn>=0.34",
     "pydantic-settings>=2.7",
