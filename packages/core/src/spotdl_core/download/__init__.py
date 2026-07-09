@@ -35,6 +35,7 @@ from spotdl_core.download.convert import (
     resolve_bitrate,
     should_move,
 )
+from spotdl_core.download.engine import DownloadEngine
 from spotdl_core.download.fetch import (
     Fetcher,
     FetchResult,
@@ -87,6 +88,7 @@ __all__ = [
     "CoverDownloader",
     "DownloadConfig",
     "DownloadContext",
+    "DownloadEngine",
     "DownloadFailed",
     "DownloadOutcome",
     "DownloadRequest",
