@@ -28,6 +28,11 @@ dev = [
     # in-sync test regenerates with these exact versions and byte-compares.
     "openapi-python-client==0.24.*",
     "datamodel-code-generator>=0.28",
+    # Plan 9 TUI dev/test toolchain (CONTRACT I floors). ``textual-dev`` is the
+    # devtools + ``run`` harness; ``pytest-textual-snapshot`` drives the optional
+    # pinned SVG snapshot regression (Task 11). The default suite stays offline.
+    "textual-dev>=1.7",
+    "pytest-textual-snapshot>=1.0",
 ]
 # Docs site toolchain (Plan 11 Task 7). mkdocs-material renders the site;
 # mkdocs-gen-files runs the pinned generators (migration guide + OpenAPI copy)

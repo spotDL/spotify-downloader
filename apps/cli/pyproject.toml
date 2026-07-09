@@ -14,6 +14,9 @@ dependencies = [
     "platformdirs>=4.3",
     "tomlkit>=0.13",
     "uvicorn>=0.34",
+    # Plan 9 TUI runtime (CONTRACT I dependency floor). The Textual app + widgets
+    # live under ``spotdl_cli.tui``; the framework-free view-models never import it.
+    "textual>=1.0",
     # Runtime deps of the checked-in generated client (Plan 8 Task 1, CONTRACT A:
     # "the generated code imports only httpx/attrs/pydantic"). openapi-python-client
     # emits attrs-based models and parses date-times with python-dateutil.

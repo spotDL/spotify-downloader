@@ -23,7 +23,7 @@ import importlib
 import json
 from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
-from typing import Any, Literal
+from typing import Any, Literal, cast
 from uuid import UUID
 
 import httpx
@@ -32,8 +32,19 @@ from spotdl_server.app import create_app
 from spotdl_server.downloads.savefile import SaveFileV2
 from spotdl_server.settings import DeploymentMode, Settings
 
+from spotdl_cli._generated.api.api.admin import (
+    approve_report_api_v1_admin_reports_report_id_approve_post as _approve_report_ep,
+)
+from spotdl_cli._generated.api.api.admin import (
+    reject_report_api_v1_admin_reports_report_id_reject_post as _reject_report_ep,
+)
+from spotdl_cli._generated.api.api.admin import (
+    reports_queue_api_v1_admin_reports_get as _admin_reports_ep,
+)
+from spotdl_cli._generated.api.api.admin import stats_api_v1_admin_stats_get as _admin_stats_ep
 from spotdl_cli._generated.api.api.auth import login_api_v1_auth_login_post as _login_ep
 from spotdl_cli._generated.api.api.auth import me_api_v1_auth_me_get as _me_ep
+from spotdl_cli._generated.api.api.auth import register_api_v1_auth_register_post as _register_ep
 from spotdl_cli._generated.api.api.downloads import (
     cancel_download_api_v1_downloads_job_id_delete as _cancel_dl_ep,
 )
@@ -65,6 +76,12 @@ from spotdl_cli._generated.api.api.entities import (
     get_track_matches_api_v1_tracks_id_matches_get as _matches_ep,
 )
 from spotdl_cli._generated.api.api.meta import config_api_v1_config_get as _config_ep
+from spotdl_cli._generated.api.api.reports import (
+    create_report_api_v1_reports_post as _create_report_ep,
+)
+from spotdl_cli._generated.api.api.reports import (
+    list_my_reports_api_v1_reports_me_get as _my_reports_ep,
+)
 from spotdl_cli._generated.api.api.resolve import resolve_api_v1_resolve_post as _resolve_ep
 from spotdl_cli._generated.api.api.search import search_api_v1_search_get as _search_ep
 from spotdl_cli._generated.api.api.submissions import (
@@ -75,14 +92,18 @@ from spotdl_cli._generated.api.api.tokens import (
     revoke_token_api_v1_auth_tokens_token_id_delete as _revoke_ep,
 )
 from spotdl_cli._generated.api.client import Client
+from spotdl_cli._generated.api.models.admin_review_request import AdminReviewRequest
+from spotdl_cli._generated.api.models.admin_stats_response import AdminStatsResponse
 from spotdl_cli._generated.api.models.config_response import ConfigResponse
 from spotdl_cli._generated.api.models.create_pat_request import CreatePatRequest
+from spotdl_cli._generated.api.models.create_report_request import CreateReportRequest
 from spotdl_cli._generated.api.models.download_batch_out import DownloadBatchOut
 from spotdl_cli._generated.api.models.download_job_out import DownloadJobOut
 from spotdl_cli._generated.api.models.download_list_response import DownloadListResponse
 from spotdl_cli._generated.api.models.download_status import DownloadStatus
 from spotdl_cli._generated.api.models.download_submit_request import DownloadSubmitRequest
 from spotdl_cli._generated.api.models.download_submit_response import DownloadSubmitResponse
+from spotdl_cli._generated.api.models.entity_type import EntityType
 from spotdl_cli._generated.api.models.error_code import ErrorCode
 from spotdl_cli._generated.api.models.error_envelope import ErrorEnvelope
 from spotdl_cli._generated.api.models.error_envelope_detail_type_0 import ErrorEnvelopeDetailType0
@@ -92,7 +113,11 @@ from spotdl_cli._generated.api.models.match_out import MatchOut
 from spotdl_cli._generated.api.models.matches_response import MatchesResponse
 from spotdl_cli._generated.api.models.output_format import OutputFormat
 from spotdl_cli._generated.api.models.overwrite_mode import OverwriteMode
+from spotdl_cli._generated.api.models.paged_reports import PagedReports
 from spotdl_cli._generated.api.models.pat_created_response import PatCreatedResponse
+from spotdl_cli._generated.api.models.register_request import RegisterRequest
+from spotdl_cli._generated.api.models.report_response import ReportResponse
+from spotdl_cli._generated.api.models.report_status import ReportStatus
 from spotdl_cli._generated.api.models.resolve_request import ResolveRequest
 from spotdl_cli._generated.api.models.resolve_response import ResolveResponse
 from spotdl_cli._generated.api.models.search_response import SearchResponse
@@ -118,6 +143,8 @@ from spotdl_cli.views import (
     MatchView,
     PatCreated,
     PlaylistView,
+    ReportView,
+    StatsView,
     Tokens,
     TrackView,
     UserView,
@@ -178,6 +205,22 @@ def _or_unset(value: str | None) -> str | Unset:
     expresses by omission, i.e. ``UNSET``.
     """
     return UNSET if value is None else value
+
+
+class _RawEntityType:
+    """A ``.value``-carrying stand-in for ``EntityType`` (CONTRACT H ``submit_report``).
+
+    The view boundary passes ``subject_type`` as a plain ``str`` (rule A.3). The
+    generated ``CreateReportRequest.to_dict`` only reads ``subject_type.value``, so
+    wrapping the raw string here lets an unknown value travel to the server and
+    surface as its ``validation_error`` (422) instead of crashing on a client-side
+    ``EntityType(...)`` ``ValueError``.
+    """
+
+    __slots__ = ("value",)
+
+    def __init__(self, value: str) -> None:
+        self.value = value
 
 
 def _unwrap(resp: Response[Any]) -> Any:
@@ -346,6 +389,18 @@ class SpotdlClient:
         assert isinstance(result, ConfigResponse)
         return ConfigView.from_generated(result)
 
+    async def download_config(self) -> ConfigView:
+        """``GET /config`` on the **download (embedded)** transport (CONTRACT H).
+
+        Sibling of :meth:`config`: the TUI gates the queue on the download
+        engine's ``features.downloads``, which is the always-embedded transport's
+        view of the world, not the (possibly remote) resolution server's.
+        """
+        resp = await _config_ep.asyncio_detailed(client=self._client(self._downloads))
+        result = _unwrap(resp)
+        assert isinstance(result, ConfigResponse)
+        return ConfigView.from_generated(result)
+
     async def resolve(self, query: str) -> EntityView:
         resp = await _resolve_ep.asyncio_detailed(
             client=self._client(self._resolution), body=ResolveRequest(query=query)
@@ -436,6 +491,16 @@ class SpotdlClient:
         assert isinstance(result, TokenResponse)
         return Tokens.from_generated(result)
 
+    async def register(self, email: str, password: str) -> Tokens:
+        """``POST /auth/register`` (CONTRACT H) — sibling of :meth:`login_password`."""
+        resp = await _register_ep.asyncio_detailed(
+            client=self._client(self._resolution),
+            body=RegisterRequest(email=email, password=password),
+        )
+        result = _unwrap(resp)
+        assert isinstance(result, TokenResponse)
+        return Tokens.from_generated(result)
+
     async def create_pat(self, name: str, *, access_token: str) -> PatCreated:
         resp = await _pat_ep.asyncio_detailed(
             client=self._client(self._resolution, token=access_token),
@@ -463,6 +528,82 @@ class SpotdlClient:
             token_id=token_id, client=self._client(self._resolution, token=access_token)
         )
         _unwrap(resp)
+
+    # ---- reports + admin (resolution/community transport) — CONTRACT H ------
+
+    async def submit_report(
+        self,
+        subject_type: str,
+        subject_id: UUID,
+        *,
+        field: str | None = None,
+        proposed_value: str | None = None,
+        reason: str | None = None,
+    ) -> ReportView:
+        """``POST /reports`` (CONTRACT H). ``subject_type`` is a view-facing ``str``.
+
+        The raw string is wrapped (:class:`_RawEntityType`) rather than coerced to
+        the generated ``EntityType`` so an unknown value surfaces as the server's
+        ``validation_error`` instead of a client-side ``ValueError``.
+        """
+        body = CreateReportRequest(
+            subject_id=subject_id,
+            subject_type=cast(EntityType, _RawEntityType(subject_type)),
+            field=_or_unset(field),
+            proposed_value=_or_unset(proposed_value),
+            reason=_or_unset(reason),
+        )
+        resp = await _create_report_ep.asyncio_detailed(
+            client=self._client(self._resolution), body=body
+        )
+        result = _unwrap(resp)
+        assert isinstance(result, ReportResponse)
+        return ReportView.from_generated(result)
+
+    async def my_reports(self) -> list[ReportView]:
+        """``GET /reports/me`` (CONTRACT H)."""
+        resp = await _my_reports_ep.asyncio_detailed(client=self._client(self._resolution))
+        result = _unwrap(resp)
+        assert isinstance(result, list)
+        return [ReportView.from_generated(r) for r in result]
+
+    async def admin_reports(self, *, status: str = "pending") -> list[ReportView]:
+        """``GET /admin/reports`` (CONTRACT H) — the pending-review queue."""
+        resp = await _admin_reports_ep.asyncio_detailed(
+            client=self._client(self._resolution), status=ReportStatus(status)
+        )
+        result = _unwrap(resp)
+        assert isinstance(result, PagedReports)
+        return [ReportView.from_generated(r) for r in result.items]
+
+    async def approve_report(self, id: UUID, *, note: str | None = None) -> ReportView:
+        """``POST /admin/reports/{id}/approve`` (CONTRACT H)."""
+        resp = await _approve_report_ep.asyncio_detailed(
+            report_id=id,
+            client=self._client(self._resolution),
+            body=AdminReviewRequest(note=_or_unset(note)),
+        )
+        result = _unwrap(resp)
+        assert isinstance(result, ReportResponse)
+        return ReportView.from_generated(result)
+
+    async def reject_report(self, id: UUID, *, note: str | None = None) -> ReportView:
+        """``POST /admin/reports/{id}/reject`` (CONTRACT H)."""
+        resp = await _reject_report_ep.asyncio_detailed(
+            report_id=id,
+            client=self._client(self._resolution),
+            body=AdminReviewRequest(note=_or_unset(note)),
+        )
+        result = _unwrap(resp)
+        assert isinstance(result, ReportResponse)
+        return ReportView.from_generated(result)
+
+    async def admin_stats(self) -> StatsView:
+        """``GET /admin/stats`` (CONTRACT H)."""
+        resp = await _admin_stats_ep.asyncio_detailed(client=self._client(self._resolution))
+        result = _unwrap(resp)
+        assert isinstance(result, AdminStatsResponse)
+        return StatsView.from_generated(result)
 
     # ---- downloads (ALWAYS the embedded transport) --------------------------
 

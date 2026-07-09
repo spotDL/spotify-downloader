@@ -12,6 +12,7 @@ new server error code can never ship without CLI copy for it.
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping
+from dataclasses import dataclass
 from enum import IntEnum
 from typing import Any
 
@@ -159,18 +160,46 @@ _TABLE: dict[ErrorCode, tuple[Callable[[ApiError], str], ExitCode]] = {
 }
 
 
-def format_api_error(err: ApiError) -> tuple[str, ExitCode]:
-    """Return the ``(human message, exit code)`` for ``err`` per CONTRACT E.
+@dataclass(frozen=True, slots=True)
+class ErrorRendering:
+    """The pure result of mapping an :class:`ApiError` through the CONTRACT E table.
+
+    ``message`` is the human copy (identical to what ``render_api_error`` prints,
+    sans the ``error: `` prefix); ``exit_code`` is the process status. Both the
+    CLI handler (``render_api_error``) and the TUI error toast (CONTRACT G) build
+    on this single source of truth so their wording can never drift.
+    """
+
+    message: str
+    exit_code: ExitCode
+
+
+def describe_api_error(err: ApiError) -> ErrorRendering:
+    """Map ``err`` to its CONTRACT E ``(message, exit code)`` — pure, no I/O.
 
     An unknown/future code (a server ahead of this client) degrades gracefully to
     ``server error ({code}): {message}`` with exit ``TRANSPORT`` rather than
-    crashing.
+    crashing. This is the shared describe half of the former ``format_api_error``;
+    ``render_api_error`` prints it and the view-model layer wraps it into an
+    ``ErrorDisplay`` toast.
     """
     row = _TABLE.get(err.code)
     if row is None:
-        return f"server error ({err.code.value}): {err.message}", ExitCode.TRANSPORT
+        return ErrorRendering(
+            f"server error ({err.code.value}): {err.message}", ExitCode.TRANSPORT
+        )
     builder, exit_code = row
-    return builder(err), exit_code
+    return ErrorRendering(builder(err), exit_code)
+
+
+def format_api_error(err: ApiError) -> tuple[str, ExitCode]:
+    """Return the ``(human message, exit code)`` for ``err`` per CONTRACT E.
+
+    Thin tuple-shaped wrapper over :func:`describe_api_error`, kept for the CLI
+    call sites (``download.py``) that predate the refactor.
+    """
+    rendering = describe_api_error(err)
+    return rendering.message, rendering.exit_code
 
 
 def render_api_error(err: ApiError, *, console: Console | None = None) -> ExitCode:
