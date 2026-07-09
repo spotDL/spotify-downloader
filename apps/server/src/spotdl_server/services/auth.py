@@ -15,10 +15,15 @@ logout / me. Two invariants define its security posture:
 
 Time flows exclusively through the injected :class:`Clock`, so expiry and
 rotation are deterministic in tests. Following Plan 5's unit-of-work rule the
-service **never commits**: it flushes through its repositories and the caller
-(the ``get_session`` dependency, or a test's session fixture) owns commit /
-rollback. Nothing here imports FastAPI, and the only ORM type it returns is the
-``User`` row named in the CONTRACT, which the router maps to a response schema.
+service normally **never commits**: it flushes through its repositories and the
+caller (the ``get_session`` dependency, or a test's session fixture) owns commit
+/ rollback. The one deliberate exception is :meth:`refresh`'s security branches
+(reuse detected / expired / owner disabled): those revoke a token or family and
+then **raise**, but ``get_session`` rolls back on any exception — so they commit
+the revocation before raising, otherwise a stolen-token replay would be rolled
+back to life and the rotated successor would keep working. Nothing here imports
+FastAPI, and the only ORM type it returns is the ``User`` row named in the
+CONTRACT, which the router maps to a response schema.
 """
 
 from __future__ import annotations
@@ -135,9 +140,14 @@ class AuthService:
         if row.revoked_at is not None or row.rotated_at is not None:
             # A legitimate client never re-presents a spent token — this is reuse.
             await self._refresh_tokens.revoke_family(row.family_id, now=now)
+            # Persist the revocation *before* raising: ``get_session`` rolls back on
+            # any exception, so without this commit the family (and the rotated
+            # successor) would survive a stolen-token replay, defeating eviction.
+            await self._session.commit()
             raise InvalidToken()
         if ensure_utc(row.expires_at) <= now:
             await self._refresh_tokens.revoke(row, now=now)
+            await self._session.commit()  # survive the error-path rollback (see above)
             raise TokenExpired()
 
         user = await self._users.get(row.user_id)
@@ -145,6 +155,7 @@ class AuthService:
             # The account was deleted or disabled after this token was issued —
             # kill the family so no successor can be minted for it.
             await self._refresh_tokens.revoke_family(row.family_id, now=now)
+            await self._session.commit()  # survive the error-path rollback (see above)
             raise InvalidToken()
 
         successor = await self._refresh_tokens.create(

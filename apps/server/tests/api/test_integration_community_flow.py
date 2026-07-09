@@ -27,8 +27,10 @@ The flow, one unit of work per HTTP call:
    consistent (``net_score == upvotes - downvotes``).
 6. ``POST /reports`` → pending; a seeded admin approves it; ``GET /admin/stats``
    reflects the counts.
-7. ``POST /auth/refresh`` rotates; replaying the spent refresh token → 401
-   (family revoked); after ``POST /auth/logout`` a subsequent refresh → 401.
+7. ``POST /auth/refresh`` rotates; replaying the spent refresh token → 401 and
+   revokes the whole family, so the rotated successor also refreshes → 401 (the
+   revocation is persisted, not rolled back); after ``POST /auth/logout`` a
+   subsequent refresh → 401 too.
 """
 
 from __future__ import annotations
@@ -269,6 +271,15 @@ async def test_community_flow_end_to_end(tmp_path: Path, clock: FakeClock) -> No
         replay = await client.post("/api/v1/auth/refresh", json={"refresh_token": refresh_original})
         assert replay.status_code == 401
         assert replay.json()["code"] == "invalid_token"
+
+        # Reuse revokes the *whole family*, so the rotated successor is already dead
+        # — refreshing with it is 401 before any logout. (Regression guard: the
+        # revocation must be persisted, not rolled back by ``get_session``.)
+        successor_after_reuse = await client.post(
+            "/api/v1/auth/refresh", json={"refresh_token": refresh_rotated}
+        )
+        assert successor_after_reuse.status_code == 401
+        assert successor_after_reuse.json()["code"] == "invalid_token"
 
         logout = await client.post(
             "/api/v1/auth/logout",

@@ -171,12 +171,21 @@ async def test_refresh_reuse_is_invalid_token(tmp_path: Path, clock: FakeClock) 
             "/api/v1/auth/refresh", json={"refresh_token": body["refresh_token"]}
         )
         assert first.status_code == 200
+        successor = first.json()["refresh_token"]
         # Re-presenting the now-spent original refresh token is reuse -> 401.
         reuse = await client.post(
             "/api/v1/auth/refresh", json={"refresh_token": body["refresh_token"]}
         )
-    assert reuse.status_code == 401
-    assert reuse.json()["code"] == "invalid_token"
+        assert reuse.status_code == 401
+        assert reuse.json()["code"] == "invalid_token"
+        # Reuse must revoke the *whole family*: the rotated successor is now dead
+        # too. Without persisting the revocation, ``get_session``'s rollback would
+        # resurrect it and this refresh would 200 — the stolen-token defect.
+        successor_after = await client.post(
+            "/api/v1/auth/refresh", json={"refresh_token": successor}
+        )
+    assert successor_after.status_code == 401
+    assert successor_after.json()["code"] == "invalid_token"
 
 
 async def test_logout_revokes_refresh_and_requires_auth(tmp_path: Path, clock: FakeClock) -> None:
