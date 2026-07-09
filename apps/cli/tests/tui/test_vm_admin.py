@@ -8,7 +8,7 @@ import pytest
 from spotdl_cli.viewmodels.admin import AdminViewModel
 from spotdl_cli.viewmodels.base import LoadState
 
-from .fakes import FakeSpotdlClient, make_report, make_session, make_stats
+from .fakes import FakeSpotdlClient, make_admin_user, make_report, make_session, make_stats
 
 
 def _admin(client: FakeSpotdlClient) -> AdminViewModel:
@@ -58,7 +58,29 @@ async def test_stats_maps_row() -> None:
     assert result.data.matcher_version == "m9"
 
 
-@pytest.mark.parametrize("action", ["load_reports", "approve", "reject", "stats"])
+async def test_list_users_paginates_and_maps_rows() -> None:
+    client = FakeSpotdlClient()
+    client.admin_users_list = [
+        make_admin_user(email="a@e.co", display_name="Al", is_admin=True, is_active=False),
+        *[make_admin_user(email=f"u{i}@e.co") for i in range(24)],
+    ]
+    result = await _admin(client).list_users(limit=20, offset=0)
+
+    assert result.state is LoadState.READY
+    assert result.data is not None
+    page = result.data
+    assert len(page.rows) == 20
+    assert page.total == 25
+    assert page.offset == 0
+    assert client.calls[-1] == ("admin_users", (), {"limit": 20, "offset": 0})
+    first = page.rows[0]
+    assert first.email == "a@e.co"
+    assert first.name == "Al"
+    assert first.is_admin is True
+    assert first.is_active is False
+
+
+@pytest.mark.parametrize("action", ["load_reports", "approve", "reject", "stats", "list_users"])
 async def test_non_admin_refuses_without_client_call(action: str) -> None:
     client = FakeSpotdlClient()
     vm = AdminViewModel(client, make_session(is_admin=False))
@@ -69,6 +91,8 @@ async def test_non_admin_refuses_without_client_call(action: str) -> None:
         result = await vm.approve(uuid4(), None)
     elif action == "reject":
         result = await vm.reject(uuid4(), None)
+    elif action == "list_users":
+        result = await vm.list_users()
     else:
         result = await vm.stats()
 

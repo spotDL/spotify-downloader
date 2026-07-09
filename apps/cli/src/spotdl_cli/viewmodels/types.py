@@ -181,6 +181,9 @@ class AuthSnapshot:
     logged_in: bool
     email: str | None
     server_origin: str
+    is_admin: bool = False
+    # The stored PAT, masked for display (``pat-se••••••``); ``None`` when signed out.
+    masked_token: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -203,3 +206,28 @@ class StatsRow:
     matches: int
     pending_reports: int
     matcher_version: str
+
+
+@dataclass(frozen=True, slots=True)
+class UserRow:
+    """One row of the admin user roster (``GET /admin/users``, read-only)."""
+
+    id: UUID
+    name: str
+    email: str
+    is_admin: bool
+    is_active: bool
+
+
+@dataclass(frozen=True, slots=True)
+class UsersPage:
+    """A page of admin users plus the paging cursor the screen renders + steps.
+
+    ``total`` is the full count; ``limit``/``offset`` locate this page so the screen
+    can render "start–end of total" and disable prev/next at the ends.
+    """
+
+    rows: tuple[UserRow, ...]
+    total: int
+    limit: int
+    offset: int

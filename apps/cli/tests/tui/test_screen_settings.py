@@ -1,12 +1,13 @@
-"""Pilot tests for the data-driven settings screen (Plan 9 Task 9).
+"""Pilot tests for the data-driven settings screen (Plan 9 Task 9, redesign §4).
 
 The abandoned rewrite's settings screen was **1,605 lines**; this one renders
-``SettingsViewModel.fields()`` through a dumb ``SettingsForm`` and delegates every
-edit + save to the view-model. Runs headless via ``App.run_test`` over the fake
-``ConfigStore`` — no real config file, client, server, or terminal. The contract:
-one control per field kind, an inline validation error that does not persist, a
-valid edit + save that reaches the store, and a reconnect notice when ``api_url``
-changes (the client is rebuilt on next launch — documented, no live reconnect in v1).
+``SettingsViewModel.fields()`` — grouped into bordered Connection / Downloads
+sections — through a dumb ``SettingsForm`` and delegates every edit + apply to the
+view-model. Runs headless via ``App.run_test`` over the fake ``ConfigStore`` — no real
+config file, client, server, or terminal. The contract: one control per field kind,
+an inline error under the row that does not persist, a dirty-state footer, a valid
+edit + Apply that reaches the store, Discard that reloads a clean copy, and a
+reconnect notice when ``api_url`` changes (documented, no live reconnect in v1).
 """
 
 from __future__ import annotations
@@ -40,7 +41,7 @@ async def _goto_settings(pilot: object, app: SpotdlApp) -> None:
     await pilot.pause()  # type: ignore[attr-defined]
 
 
-async def test_renders_one_control_per_field_kind() -> None:
+async def test_renders_one_control_per_field_kind_in_sections() -> None:
     app = SpotdlApp(_factory(FakeConfigStore()))
     async with app.run_test() as pilot:
         await _goto_settings(pilot, app)
@@ -55,6 +56,9 @@ async def test_renders_one_control_per_field_kind() -> None:
         app.screen.query_one("#threads", Input)  # int -> Input
         app.screen.query_one("#format", Select)  # choice -> Select
         app.screen.query_one("#offline", Switch)  # bool -> Switch
+        # grouped into the two bordered sections
+        app.screen.query_one("#form-section-0")
+        app.screen.query_one("#form-section-1")
 
 
 async def test_invalid_threads_shows_inline_error_and_does_not_persist() -> None:
@@ -64,25 +68,47 @@ async def test_invalid_threads_shows_inline_error_and_does_not_persist() -> None
         await _goto_settings(pilot, app)
         app.screen.query_one("#threads", Input).value = "not-a-number"
         await pilot.pause()
-        # inline validation line names the field; nothing was written to the store
-        assert "threads" in str(app.screen.query_one("#settings-error", Static).render())
+        # the inline error sits under the threads row and names the field
+        error = app.screen.query_one("#settings-error-threads", Static)
+        assert "threads" in str(error.render())
+        assert not error.has_class("hidden")
         assert store.saves == []
 
 
-async def test_valid_edit_and_save_persists() -> None:
+async def test_dirty_footer_then_valid_apply_persists() -> None:
     store = FakeConfigStore()
     app = SpotdlApp(_factory(store))
     async with app.run_test() as pilot:
         await _goto_settings(pilot, app)
         app.screen.query_one("#threads", Input).value = "8"
         await pilot.pause()
+        footer = app.screen.query_one("#settings-footer", Static)
+        assert "Unsaved changes" in str(footer.render())
         await pilot.press("ctrl+s")
         await pilot.pause()
         assert len(store.saves) == 1
         assert store.saves[-1].threads == 8
+        assert "Unsaved changes" not in str(footer.render())
 
 
-async def test_changing_api_url_and_saving_notifies_reconnect() -> None:
+async def test_discard_reverts_edits() -> None:
+    store = FakeConfigStore()
+    app = SpotdlApp(_factory(store))
+    async with app.run_test() as pilot:
+        await _goto_settings(pilot, app)
+        app.screen.query_one("#threads", Input).value = "8"
+        await pilot.pause()
+        await pilot.press("escape")
+        await pilot.pause()
+        # the form was reloaded clean from the store: control back to the default
+        assert app.screen.query_one("#threads", Input).value == "4"
+        assert store.saves == []
+        assert "Unsaved changes" not in str(
+            app.screen.query_one("#settings-footer", Static).render()
+        )
+
+
+async def test_changing_api_url_and_applying_notifies_reconnect() -> None:
     store = FakeConfigStore()
     app = SpotdlApp(_factory(store))
     async with app.run_test() as pilot:

@@ -22,8 +22,10 @@ from spotdl_cli.viewmodels.types import (
     MatchRow,
     ReportRow,
     TrackRow,
+    UserRow,
 )
 from spotdl_cli.views import (
+    AdminUserView,
     AlbumView,
     ArtistView,
     BatchView,
@@ -232,6 +234,16 @@ def report_row(report: ReportView) -> ReportRow:
         status=report.status,
         reporter=report.reporter,
         created_at=report.created_at.isoformat(),
+    )
+
+
+def user_row(user: AdminUserView) -> UserRow:
+    return UserRow(
+        id=UUID(user.id),
+        name=user.display_name or "—",
+        email=user.email,
+        is_admin=user.is_admin,
+        is_active=user.is_active,
     )
 
 
