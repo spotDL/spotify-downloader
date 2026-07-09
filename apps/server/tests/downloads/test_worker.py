@@ -167,6 +167,17 @@ async def _assert_no_running(maker: async_sessionmaker[AsyncSession], job_ids: l
         assert job.status is not DownloadStatus.RUNNING, f"job {job_id} left running"
 
 
+async def _wait_until(predicate: Any, *, timeout: float = 3.0) -> None:
+    """Poll ``predicate()`` (a 0-arg bool callable) until true or the timeout."""
+    loop = asyncio.get_running_loop()
+    deadline = loop.time() + timeout
+    while loop.time() < deadline:
+        if predicate():
+            return
+        await asyncio.sleep(0.01)
+    raise AssertionError("condition never became true")
+
+
 # ------------------------------------------------------------ pool fixture
 @pytest.fixture
 def make_pool(download_settings: Settings, clock: Any) -> Any:
@@ -533,11 +544,8 @@ async def test_batch_finalized_exactly_once(
     await pool.start()
     await _wait_status(download_sessionmaker, job1, {DownloadStatus.COMPLETED})
     await _wait_status(download_sessionmaker, job2, {DownloadStatus.COMPLETED})
-    # allow the finalize (runs in the last job's finally) to settle
-    for _ in range(50):
-        if spy.calls:
-            break
-        await asyncio.sleep(0.01)
+    # the finalize runs in the last job's finally (guaranteed once by the lock)
+    await _wait_until(lambda: bool(spy.calls))
 
     assert spy.calls == [batch_id]
     finished = [m for m in hub.messages if m.type == "batch_finished"]
@@ -568,10 +576,7 @@ async def test_start_finalizes_presettled_batch(
     engine = FakeDownloadEngine(config=download_settings.download_config())
     pool, _, spy = make_pool(download_sessionmaker, engine)
     await pool.start()
-    for _ in range(50):
-        if spy.calls:
-            break
-        await asyncio.sleep(0.01)
+    await _wait_until(lambda: bool(spy.calls))
 
     assert spy.calls == [batch_id]
 
