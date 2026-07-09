@@ -30,7 +30,7 @@ from typing import Any, Protocol, runtime_checkable
 from urllib.parse import urlencode
 
 import httpx
-from spotdl_core.providers import ProviderAuthError
+from spotdl_core.providers import ProviderAuthError, ProviderUnavailable
 
 from spotdl_server.db.enums import OAuthProvider
 
@@ -68,6 +68,25 @@ class OAuthProviderClient(Protocol):
     async def fetch_user_info(self, *, access_token: str) -> OAuthUserInfo:
         """Read the authenticated account into an :class:`OAuthUserInfo`."""
         ...
+
+
+def _raise_for_status(resp: httpx.Response, provider: OAuthProvider, *, auth: bool) -> None:
+    """Map a non-2xx provider response to a :class:`SpotdlError` subclass.
+
+    Every other httpx call site in the codebase wraps ``raise_for_status()`` so a
+    provider's non-2xx answer surfaces as a mapped ``SpotdlError`` (rendered as a
+    502 envelope / graceful browser handoff) rather than an unmapped
+    ``httpx.HTTPStatusError`` that escapes the router as a raw 500. A failed token
+    exchange (e.g. Discord's ``invalid_grant`` 400 on a reused code) is an auth
+    failure (``ProviderAuthError``); a failed profile read is treated as the
+    provider being unavailable (``ProviderUnavailable``), matching the GET pattern
+    in the core lyrics/audio providers.
+    """
+    try:
+        resp.raise_for_status()
+    except httpx.HTTPError as exc:
+        error_cls = ProviderAuthError if auth else ProviderUnavailable
+        raise error_cls(f"{provider.value} request failed: {exc}") from exc
 
 
 def _require_token(payload: dict[str, Any], provider: OAuthProvider) -> str:
@@ -120,7 +139,7 @@ class GitHubOAuth:
             },
             headers={"Accept": "application/json"},
         )
-        resp.raise_for_status()
+        _raise_for_status(resp, self.provider, auth=True)
         return _require_token(resp.json(), self.provider)
 
     async def fetch_user_info(self, *, access_token: str) -> OAuthUserInfo:
@@ -129,7 +148,7 @@ class GitHubOAuth:
             "Accept": "application/vnd.github+json",
         }
         resp = await self._http.get(self._USER, headers=headers)
-        resp.raise_for_status()
+        _raise_for_status(resp, self.provider, auth=False)
         profile = resp.json()
         email = profile.get("email")
         if not email:
@@ -148,7 +167,7 @@ class GitHubOAuth:
         first verified address, else ``None`` (→ ``oauth_email_required``).
         """
         resp = await self._http.get(self._EMAILS, headers=headers)
-        resp.raise_for_status()
+        _raise_for_status(resp, self.provider, auth=False)
         emails = [e for e in resp.json() if e.get("verified")]
         for entry in emails:
             if entry.get("primary"):
@@ -194,12 +213,12 @@ class DiscordOAuth:
             },
             headers={"Accept": "application/json"},
         )
-        resp.raise_for_status()
+        _raise_for_status(resp, self.provider, auth=True)
         return _require_token(resp.json(), self.provider)
 
     async def fetch_user_info(self, *, access_token: str) -> OAuthUserInfo:
         resp = await self._http.get(self._USER, headers={"Authorization": f"Bearer {access_token}"})
-        resp.raise_for_status()
+        _raise_for_status(resp, self.provider, auth=False)
         profile = resp.json()
         return OAuthUserInfo(
             provider_account_id=str(profile["id"]),

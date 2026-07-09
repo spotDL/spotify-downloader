@@ -16,7 +16,7 @@ from urllib.parse import parse_qs, urlparse
 import httpx
 import pytest
 import respx
-from spotdl_core.providers import ProviderAuthError
+from spotdl_core.providers import ProviderAuthError, ProviderUnavailable
 from spotdl_server.auth.oauth_providers import (
     DiscordOAuth,
     GitHubOAuth,
@@ -147,6 +147,46 @@ async def test_github_exchange_code_without_token_raises(respx_mock: respx.MockR
             await client.exchange_code(code="bad", redirect_uri=_REDIRECT)
 
 
+@respx.mock(assert_all_mocked=True)
+async def test_github_exchange_code_non_2xx_raises_provider_auth_error(
+    respx_mock: respx.MockRouter,
+) -> None:
+    # A non-2xx from the token endpoint (e.g. a reused/expired code) must become a
+    # mapped SpotdlError, not an unmapped httpx.HTTPStatusError leaking as a 500.
+    respx_mock.post("https://github.com/login/oauth/access_token").mock(
+        return_value=httpx.Response(400, json={"error": "bad_verification_code"})
+    )
+    async with httpx.AsyncClient() as http:
+        client = GitHubOAuth(client_id="gh-id", client_secret="gh-secret", http=http)
+        with pytest.raises(ProviderAuthError):
+            await client.exchange_code(code="bad", redirect_uri=_REDIRECT)
+
+
+@respx.mock(assert_all_mocked=True)
+async def test_github_fetch_user_info_non_2xx_raises_provider_unavailable(
+    respx_mock: respx.MockRouter,
+) -> None:
+    respx_mock.get("https://api.github.com/user").mock(return_value=httpx.Response(503))
+    async with httpx.AsyncClient() as http:
+        client = GitHubOAuth(client_id="gh-id", client_secret="gh-secret", http=http)
+        with pytest.raises(ProviderUnavailable):
+            await client.fetch_user_info(access_token="gho_abc")
+
+
+@respx.mock(assert_all_mocked=True)
+async def test_github_emails_endpoint_non_2xx_raises_provider_unavailable(
+    respx_mock: respx.MockRouter,
+) -> None:
+    respx_mock.get("https://api.github.com/user").mock(
+        return_value=httpx.Response(200, json={"id": 7, "login": "ghost", "email": None})
+    )
+    respx_mock.get("https://api.github.com/user/emails").mock(return_value=httpx.Response(500))
+    async with httpx.AsyncClient() as http:
+        client = GitHubOAuth(client_id="gh-id", client_secret="gh-secret", http=http)
+        with pytest.raises(ProviderUnavailable):
+            await client.fetch_user_info(access_token="gho_abc")
+
+
 # --------------------------------------------------------------------------
 # Discord
 # --------------------------------------------------------------------------
@@ -192,3 +232,29 @@ async def test_discord_fetch_user_info(respx_mock: respx.MockRouter) -> None:
     assert info == OAuthUserInfo(
         provider_account_id="1234567890", email="nick@example.com", username="nick"
     )
+
+
+@respx.mock(assert_all_mocked=True)
+async def test_discord_exchange_code_non_2xx_raises_provider_auth_error(
+    respx_mock: respx.MockRouter,
+) -> None:
+    # Discord answers a reused/expired code with a 400 invalid_grant — must map to
+    # ProviderAuthError, not leak as an unmapped httpx.HTTPStatusError.
+    respx_mock.post("https://discord.com/api/oauth2/token").mock(
+        return_value=httpx.Response(400, json={"error": "invalid_grant"})
+    )
+    async with httpx.AsyncClient() as http:
+        client = DiscordOAuth(client_id="d-id", client_secret="d-secret", http=http)
+        with pytest.raises(ProviderAuthError):
+            await client.exchange_code(code="bad", redirect_uri="https://api.spotdl.example/cb")
+
+
+@respx.mock(assert_all_mocked=True)
+async def test_discord_fetch_user_info_non_2xx_raises_provider_unavailable(
+    respx_mock: respx.MockRouter,
+) -> None:
+    respx_mock.get("https://discord.com/api/users/@me").mock(return_value=httpx.Response(503))
+    async with httpx.AsyncClient() as http:
+        client = DiscordOAuth(client_id="d-id", client_secret="d-secret", http=http)
+        with pytest.raises(ProviderUnavailable):
+            await client.fetch_user_info(access_token="disc_tok")

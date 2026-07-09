@@ -251,6 +251,45 @@ async def test_callback_browser_handoff_email_required(tmp_path: Path, clock: Fa
     assert frag == {"error": ["oauth_email_required"]}
 
 
+async def test_callback_browser_handoff_provider_denied(tmp_path: Path, clock: FakeClock) -> None:
+    # A consent denial is a standard OAuth2 redirect: ?error=access_denied&state=...
+    # with NO code. The browser must still be handed off to the SPA, never 422'd.
+    async with _oauth_app(data_dir=tmp_path, clock=clock) as (client, _app):
+        resp = await client.get(
+            "/api/v1/auth/oauth/github/callback?error=access_denied&state=whatever",
+            headers={"Accept": _HTML_ACCEPT},
+        )
+    assert resp.status_code == 302
+    location = resp.headers["location"]
+    assert location.startswith("/auth/callback/github#")
+    frag = parse_qs(urlparse(location).fragment)
+    assert frag == {"error": ["provider_auth_error"]}
+    assert "access_token" not in frag
+
+
+async def test_callback_json_mode_provider_denied(tmp_path: Path, clock: FakeClock) -> None:
+    async with _oauth_app(data_dir=tmp_path, clock=clock) as (client, _app):
+        resp = await client.get(
+            "/api/v1/auth/oauth/github/callback?error=access_denied&state=whatever",
+            headers={"Accept": _JSON_ACCEPT},
+        )
+    assert resp.status_code == 502
+    assert resp.json()["code"] == "provider_auth_error"
+
+
+async def test_callback_missing_code_handed_off_not_422(tmp_path: Path, clock: FakeClock) -> None:
+    # A browser hitting the callback with neither code nor error must not get a
+    # raw 422 validation body; it is routed through the graceful handoff.
+    async with _oauth_app(data_dir=tmp_path, clock=clock) as (client, _app):
+        resp = await client.get(
+            "/api/v1/auth/oauth/github/callback",
+            headers={"Accept": _HTML_ACCEPT},
+        )
+    assert resp.status_code == 302
+    frag = parse_qs(urlparse(resp.headers["location"]).fragment)
+    assert frag == {"error": ["provider_auth_error"]}
+
+
 async def test_web_auth_redirect_disabled_forces_json_for_browser(
     tmp_path: Path, clock: FakeClock
 ) -> None:

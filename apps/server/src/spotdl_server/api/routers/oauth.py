@@ -25,7 +25,7 @@ from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse, RedirectResponse, Response
-from spotdl_core.providers import SpotdlError
+from spotdl_core.providers import ProviderAuthError, SpotdlError
 
 from spotdl_server.api.deps import build_oauth_clients, get_oauth_service, get_settings
 from spotdl_server.api.errors import _status_and_code
@@ -153,17 +153,31 @@ async def authorize(
 @router.get("/{provider}/callback", response_model=None)
 async def callback(
     provider: str,
-    code: str,
-    state: str,
     request: Request,
+    code: str | None = None,
+    state: str | None = None,
+    error: str | None = None,
     service: OAuthService = Depends(get_oauth_service),
     settings: Settings = Depends(get_settings),
     clients: dict[OAuthProvider, OAuthProviderClient] = Depends(build_oauth_clients),
 ) -> Response:
-    """Finish the flow per the dual-mode contract (JSON body vs browser handoff)."""
+    """Finish the flow per the dual-mode contract (JSON body vs browser handoff).
+
+    ``code``/``state``/``error`` are all optional because a provider consent
+    denial is a standard OAuth2 redirect (``?error=access_denied&state=...`` with
+    *no* ``code``): requiring ``code`` would 422 that real browser navigation
+    before the dual-mode logic runs, stranding the user with a raw JSON body. A
+    provider-supplied ``error`` (or a callback missing ``code``/``state``) is
+    routed through the same ``_handoff_error``/JSON-envelope path as every other
+    domain failure, as a ``provider_auth_error``.
+    """
     resolved = _enabled_provider(provider, clients)
     json_mode = _json_mode(request, settings)
     try:
+        if error is not None:
+            raise ProviderAuthError(f"{resolved.value} authorization denied: {error}")
+        if code is None or state is None:
+            raise ProviderAuthError(f"{resolved.value} callback missing code/state")
         pair = await service.complete(resolved, code=code, state=state)
     except SpotdlError as exc:
         if json_mode:
