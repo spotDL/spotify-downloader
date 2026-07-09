@@ -1,19 +1,25 @@
 import type { QueryClient } from "@tanstack/react-query";
 import type { DownloadJobOut, DownloadListResponse } from "./generated/types.gen";
-import type { WsMessage } from "./ws-types.gen";
+import type { Severity } from "./errors";
+import type { WsMessage, WsBatchFinished } from "./ws-types.gen";
 import { WS_PROTOCOL_VERSION } from "./ws-protocol";
 import { DOWNLOADS_QUERY_ID, invalidateDownloads } from "./downloads";
 
 // The batch detail query's stable `_id` tag (generated createQueryKey).
 const BATCH_QUERY_ID = "getBatchApiV1DownloadsBatchesBatchIdGet";
 
+/** A toast the socket layer should raise as a side effect of a pure fold. */
+export type WsToastSignal = { message: string; severity: Severity };
+
 /**
  * The result of folding one WS frame into the cache. A `hello` frame reports
  * protocol compatibility (the hook tears the socket down on a mismatch); every
- * other frame is `applied` to the cache.
+ * other frame is `applied` to the cache. `applied` may carry a `toast` the
+ * transport layer should surface (the reducer stays pure — CONTRACT E — so it
+ * *describes* the toast rather than calling the toast store itself).
  */
 export type WsApplyResult =
-  | { type: "applied" }
+  | { type: "applied"; toast?: WsToastSignal }
   | { type: "hello"; compatible: boolean; version: number | undefined };
 
 /**
@@ -79,11 +85,34 @@ export function applyWsMessage(
     case "batch_finished":
       invalidateBatch(queryClient, msg.batch_id);
       void invalidateDownloads(queryClient);
-      return { type: "applied" };
+      return { type: "applied", toast: batchFinishedToast(msg) };
 
     default:
       return { type: "applied" };
   }
+}
+
+/**
+ * The CONTRACT E batch-complete toast: the done/failed/skipped tally plus a note
+ * on which playlist artifacts (save file, m3u playlists) landed on disk. Warns
+ * when anything failed, otherwise informational.
+ */
+function batchFinishedToast(msg: WsBatchFinished): WsToastSignal {
+  const artifacts: string[] = [];
+  if (msg.save_file_path) artifacts.push("save file");
+  if (msg.m3u_paths.length > 0) {
+    artifacts.push(
+      msg.m3u_paths.length === 1
+        ? "M3U playlist"
+        : `${msg.m3u_paths.length} M3U playlists`,
+    );
+  }
+  const tally = `${msg.completed} done, ${msg.failed} failed, ${msg.skipped} skipped`;
+  const suffix = artifacts.length > 0 ? ` — ${artifacts.join(" + ")} saved` : "";
+  return {
+    message: `Batch complete: ${tally}${suffix}`,
+    severity: msg.failed > 0 ? "warn" : "info",
+  };
 }
 
 /** Patch one job (by id) across every cached downloads-list page, in place. */

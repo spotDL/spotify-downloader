@@ -31,10 +31,11 @@ afterEach(() => {
 
 describe("backoffDelay", () => {
   it("grows exponentially with equal jitter and caps at 30s", () => {
-    expect(backoffDelay(0, () => 0)).toBe(250); // ½ × 500
-    expect(backoffDelay(0, () => 1)).toBe(500); // 1 × 500
-    expect(backoffDelay(1, () => 0)).toBe(500); // ½ × 1000
-    expect(backoffDelay(1, () => 1)).toBe(1000); // 1 × 1000
+    // CONTRACT E: base 1000ms → delays 1s, 2s, 4s… with ½..1× equal jitter.
+    expect(backoffDelay(0, () => 0)).toBe(500); // ½ × 1000
+    expect(backoffDelay(0, () => 1)).toBe(1000); // 1 × 1000
+    expect(backoffDelay(1, () => 0)).toBe(1000); // ½ × 2000
+    expect(backoffDelay(1, () => 1)).toBe(2000); // 1 × 2000
     // A large attempt is clamped to the 30s cap for any jitter value.
     expect(backoffDelay(20, () => 0)).toBe(BACKOFF_CAP_MS);
     expect(backoffDelay(20, () => 1)).toBe(BACKOFF_CAP_MS);
@@ -109,5 +110,70 @@ describe("useProgressSocket", () => {
 
     renderHook(() => useProgressSocket(), { wrapper: makeWrapper() });
     expect(MockWebSocket.instances[0].url).toContain("token=secret-access");
+  });
+
+  it("resumes a parked socket once a token appears after a tokenless 4401", () => {
+    useAuthStore.getState().reset(); // no token → tokenless URL
+    restoreSocket = installMockWebSocket();
+    vi.useFakeTimers();
+
+    renderHook(() => useProgressSocket(), { wrapper: makeWrapper() });
+    expect(MockWebSocket.instances[0].url).not.toContain("token=");
+
+    MockWebSocket.instances[0].emitClose(4401); // parked awaiting sign-in
+    vi.advanceTimersByTime(BACKOFF_CAP_MS * 2);
+    expect(MockWebSocket.instances).toHaveLength(1); // no blind reconnect
+
+    // Signing in (null→token) resumes the socket, now carrying the token.
+    useAuthStore.getState().setAccessToken("fresh-token");
+    expect(MockWebSocket.instances).toHaveLength(2);
+    expect(MockWebSocket.instances[1].url).toContain("token=fresh-token");
+  });
+
+  it("tears down and toasts when the first frame isn't a hello", () => {
+    restoreSocket = installMockWebSocket();
+    const errorSpy = vi.spyOn(toast, "error").mockReturnValue("t");
+    vi.useFakeTimers();
+
+    renderHook(() => useProgressSocket(), { wrapper: makeWrapper() });
+    const socket = MockWebSocket.instances[0];
+    // A progress frame with no preceding hello is a protocol violation.
+    socket.emitMessage({
+      type: "progress",
+      job_id: "job-1",
+      batch_id: "batch-1",
+      overall: 0.1,
+      percent: 10,
+      phase: "fetch",
+    });
+
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    // A protocol violation is fatal — mirror the version-mismatch path (no reconnect).
+    vi.advanceTimersByTime(BACKOFF_CAP_MS * 2);
+    expect(MockWebSocket.instances).toHaveLength(1);
+  });
+
+  it("raises the batch-complete toast from the reducer signal", () => {
+    restoreSocket = installMockWebSocket();
+    const pushSpy = vi.spyOn(toast, "push").mockReturnValue("t");
+
+    renderHook(() => useProgressSocket(), { wrapper: makeWrapper() });
+    const socket = MockWebSocket.instances[0];
+    socket.emitMessage({ type: "hello", protocol_version: WS_PROTOCOL_VERSION });
+    socket.emitMessage({
+      type: "batch_finished",
+      batch_id: "batch-1",
+      completed: 2,
+      failed: 0,
+      skipped: 1,
+      cancelled: 0,
+      m3u_paths: ["/library/mix.m3u8"],
+      save_file_path: "/library/mix.spotdl",
+    });
+
+    expect(pushSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Batch complete: 2 done, 0 failed, 1 skipped"),
+      "info",
+    );
   });
 });

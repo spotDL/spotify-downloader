@@ -12,7 +12,7 @@ import { applyWsMessage } from "./ws-reducer";
 // (no `/api/v1` prefix) and authenticates it with a `?token=` query param
 // (Plan 7 browser-WS auth). Missing/invalid token → the server closes 4401.
 export const WS_PATH = "/ws/progress";
-export const BACKOFF_BASE_MS = 500;
+export const BACKOFF_BASE_MS = 1000;
 export const BACKOFF_CAP_MS = 30_000;
 const WS_AUTH_FAILED = 4401;
 
@@ -50,12 +50,18 @@ export function useProgressSocket(): void {
     timer: null as ReturnType<typeof setTimeout> | null,
     attempt: 0,
     stopped: false,
+    // The current connection has not yet seen its mandatory `hello` first frame.
+    helloSeen: false,
+    // A tokenless 4401 parked us until the user signs in; a token appearing
+    // (null→value) resumes the socket without remounting (CONTRACT E).
+    awaitingToken: false,
   });
 
   useEffect(() => {
     const state = stateRef.current;
     state.stopped = false;
     state.attempt = 0;
+    state.awaitingToken = false;
 
     function stop(): void {
       state.stopped = true;
@@ -85,8 +91,16 @@ export function useProgressSocket(): void {
       state.timer = setTimeout(connect, delay);
     }
 
+    function restart(): void {
+      state.stopped = false;
+      state.awaitingToken = false;
+      state.attempt = 0;
+      connect();
+    }
+
     function connect(): void {
       if (state.stopped) return;
+      state.helloSeen = false;
       let socket: WebSocket;
       try {
         socket = new WebSocket(progressSocketUrl());
@@ -103,8 +117,19 @@ export function useProgressSocket(): void {
         } catch {
           return; // ignore non-JSON frames
         }
+        // Hello-first (CONTRACT E): the very first frame MUST be a `hello`. Any
+        // other opener is a protocol violation, handled like a version mismatch
+        // — tear down, stop reconnecting, toast.
+        if (!state.helloSeen && msg.type !== "hello") {
+          toast.error(
+            "The server broke the live-progress protocol (no hello handshake). Reload after updating.",
+          );
+          stop();
+          return;
+        }
         const result = applyWsMessage(queryClient, msg);
         if (result.type === "hello") {
+          state.helloSeen = true;
           if (result.compatible) {
             state.attempt = 0; // healthy connection → reset backoff
           } else {
@@ -113,6 +138,8 @@ export function useProgressSocket(): void {
             );
             stop();
           }
+        } else if (result.toast) {
+          toast.push(result.toast.message, result.toast.severity);
         }
       };
 
@@ -120,8 +147,14 @@ export function useProgressSocket(): void {
         state.socket = null;
         if (state.stopped) return;
         if (event.code === WS_AUTH_FAILED) {
-          toast.warn("Sign in to see live download progress.");
           stop();
+          // A tokenless 4401 means "sign in first" — park until a token appears
+          // (the auth subscription below resumes us). A 4401 while a token *is*
+          // present is a rejected credential the refresh flow handles elsewhere.
+          if (useAuthStore.getState().accessToken == null) {
+            state.awaitingToken = true;
+            toast.warn("Sign in to see live download progress.");
+          }
           return;
         }
         scheduleReconnect();
@@ -133,8 +166,20 @@ export function useProgressSocket(): void {
       };
     }
 
+    // Resume a socket parked by a tokenless 4401 the moment a token appears
+    // (null→value). Signing out (value→null) is left alone: the server will
+    // 4401 that connection on its own and we re-park.
+    const unsubscribeAuth = useAuthStore.subscribe((next, prev) => {
+      if (state.awaitingToken && prev.accessToken == null && next.accessToken != null) {
+        restart();
+      }
+    });
+
     connect();
-    return stop;
+    return () => {
+      unsubscribeAuth();
+      stop();
+    };
     // Mount-once: the socket lifecycle is self-managed through `stateRef`, and
     // `queryClient` is stable for the app's lifetime.
   }, [queryClient]);

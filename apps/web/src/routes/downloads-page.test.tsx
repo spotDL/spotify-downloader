@@ -8,7 +8,14 @@ import {
   makeDownloadList,
 } from "../test/msw/fixtures";
 import { MockWebSocket, installMockWebSocket } from "../test/mock-websocket";
+import { WS_PROTOCOL_VERSION } from "../api/ws-protocol";
 import { renderApp } from "../test/render-app";
+
+// The server's first frame is always the protocol `hello` (CONTRACT E hello-first);
+// send it before any lifecycle frame so the hook accepts the connection.
+function emitHello(socket: MockWebSocket) {
+  socket.emitMessage({ type: "hello", protocol_version: WS_PROTOCOL_VERSION });
+}
 
 // The queue mounts the live socket (useProgressSocket); mock it so a test can
 // push WS frames and watch the cache-driven UI update — no real server.
@@ -44,6 +51,7 @@ describe("Downloads page", () => {
 
     const socket = MockWebSocket.instances[0];
     act(() => {
+      emitHello(socket);
       socket.emitMessage({
         type: "progress",
         job_id: "job-1",
@@ -70,6 +78,7 @@ describe("Downloads page", () => {
 
     const socket = MockWebSocket.instances[0];
     act(() => {
+      emitHello(socket);
       socket.emitMessage({
         type: "job_finished",
         job_id: "job-1",
