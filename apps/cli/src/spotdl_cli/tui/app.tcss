@@ -290,9 +290,69 @@ HelpScreen {
     display: none;
 }
 
+/* Header card for entity screens (track + collection): a bordered card with an
+ * accent left bar and the kind in its border title (contract §4). */
 EntityCard {
-    padding: 1 1 0 1;
+    height: auto;
+    border: round $primary 30%;
+    border-left: thick $accent;
+    border-title-color: $text-muted;
+    border-title-style: bold;
+    padding: 0 1;
     color: $text;
+}
+
+/* Collection screen: header card over a tracks table + a fixed side panel that
+ * collapses under the top card when the terminal narrows (contract §4/§1). */
+#collection-body {
+    height: 1fr;
+}
+
+#collection-main {
+    height: 1fr;
+    layout: horizontal;
+}
+
+#collection-main.narrow {
+    layout: vertical;
+}
+
+#track-table {
+    width: 1fr;
+    height: 1fr;
+    margin: 1 1 0 0;
+}
+
+#collection-side {
+    width: 32;
+    height: 1fr;
+    margin: 1 0 0 0;
+}
+
+#collection-main.narrow #track-table {
+    width: 1fr;
+    height: 1fr;
+}
+
+#collection-main.narrow #collection-side {
+    width: 1fr;
+    height: auto;
+}
+
+#collection-side Button {
+    width: 100%;
+    margin: 1 0 0 0;
+}
+
+.collection-meta {
+    height: auto;
+    color: $text;
+}
+
+.collection-note {
+    height: auto;
+    color: $text-muted;
+    margin: 1 0 0 0;
 }
 
 MatchGauge {
