@@ -292,8 +292,18 @@
         "type": "object"
       },
       "ConfigResponse": {
-        "description": "``GET /config`` body: deployment mode, feature flags, matcher version.\n\n``oauth_providers`` lists the OAuth providers a client may offer as sign-in\nbuttons (e.g. ``[\"github\", \"discord\"]``); it is empty when auth is inactive or\nno provider credentials are configured.",
+        "description": "``GET /config`` body: deployment mode, feature flags, matcher version.\n\n``oauth_providers`` lists the OAuth providers a client may offer as sign-in\nbuttons (e.g. ``[\"github\", \"discord\"]``); it is empty when auth is inactive or\nno provider credentials are configured. ``download_defaults`` carries the\nserver's effective download configuration (``null`` when downloads are off).",
         "properties": {
+          "download_defaults": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DownloadDefaults"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "features": {
             "$ref": "#/components/schemas/FeatureFlags"
           },
@@ -411,6 +421,100 @@
         ],
         "title": "DeploymentMode",
         "type": "string"
+      },
+      "DownloadDefaults": {
+        "description": "The server's effective download configuration (``/config`` block).\n\nCONTRACT — read-only visibility so clients (web/TUI/Plan 8) pre-fill their\nsubmit forms and codegen against the server's operator defaults. Present only\nwhen :meth:`Settings.downloads_enabled` (``null`` in HOSTED).",
+        "properties": {
+          "add_unavailable": {
+            "title": "Add Unavailable",
+            "type": "boolean"
+          },
+          "bitrate": {
+            "title": "Bitrate",
+            "type": "string"
+          },
+          "concurrency": {
+            "title": "Concurrency",
+            "type": "integer"
+          },
+          "create_skip_file": {
+            "title": "Create Skip File",
+            "type": "boolean"
+          },
+          "detect_formats": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Detect Formats",
+            "type": "array"
+          },
+          "id3_separator": {
+            "title": "Id3 Separator",
+            "type": "string"
+          },
+          "max_filename_length": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Filename Length"
+          },
+          "output_format": {
+            "title": "Output Format",
+            "type": "string"
+          },
+          "output_template": {
+            "title": "Output Template",
+            "type": "string"
+          },
+          "playlist_numbering": {
+            "title": "Playlist Numbering",
+            "type": "boolean"
+          },
+          "respect_skip_file": {
+            "title": "Respect Skip File",
+            "type": "boolean"
+          },
+          "restrict": {
+            "title": "Restrict",
+            "type": "string"
+          },
+          "retain_track_cover": {
+            "title": "Retain Track Cover",
+            "type": "boolean"
+          },
+          "scan_existing": {
+            "title": "Scan Existing",
+            "type": "boolean"
+          },
+          "skip_explicit": {
+            "title": "Skip Explicit",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "output_format",
+          "bitrate",
+          "output_template",
+          "concurrency",
+          "restrict",
+          "max_filename_length",
+          "id3_separator",
+          "detect_formats",
+          "skip_explicit",
+          "respect_skip_file",
+          "create_skip_file",
+          "playlist_numbering",
+          "retain_track_cover",
+          "add_unavailable",
+          "scan_existing"
+        ],
+        "title": "DownloadDefaults",
+        "type": "object"
       },
       "EntityEnvelope": {
         "description": "A resolved entity tagged by ``type``; exactly one payload field is set.",

@@ -1,10 +1,15 @@
 from enum import StrEnum
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from spotdl_core.download import OutputFormat, RestrictMode
 
 from spotdl_server.db.enums import OAuthProvider
+
+if TYPE_CHECKING:
+    from spotdl_core.download import DownloadConfig
 
 
 class DeploymentMode(StrEnum):
@@ -54,6 +59,51 @@ class Settings(BaseSettings):
     rate_limit_enabled: bool | None = None  # None -> True iff mode is HOSTED
     redis_url: str | None = None
     client_ip_header: str | None = None  # e.g. "cf-connecting-ip"
+
+    # ------------------------------------------------------------------ #
+    # Plan 7 — server downloads (queue + delivery). Mounted only in
+    # selfhost/embedded (hosted never mounts the download surface).
+    # ------------------------------------------------------------------ #
+    download_concurrency: int = 2
+    library_path: Path | None = None  # None -> data_dir / "music"
+    download_temp_dir: Path | None = None  # None -> data_dir / "temp"
+    default_output_format: OutputFormat = OutputFormat.MP3
+    default_bitrate: str = "auto"
+    default_output_template: str = "{artists} - {title}.{output-ext}"
+    ffmpeg_path: str = "ffmpeg"
+    download_cookie_file: Path | None = None
+    download_proxy: str | None = None
+    ytdlp_args: str = ""  # shlex-tokenized into DownloadConfig.ytdlp_args
+    ffmpeg_args: str = ""  # shlex-tokenized into DownloadConfig.ffmpeg_args
+    # selfhost: gate downloads behind require_user; only meaningful when
+    # settings.auth_active() (Plan 6).
+    downloads_require_auth: bool = False
+    progress_throttle_ms: int = 500
+    download_drain_timeout_s: float = 30.0
+    download_x_accel_prefix: str | None = None
+    # None -> derive: same as downloads_require_auth.
+    ws_progress_require_auth: bool | None = None
+
+    # --- engine/session knobs (Plan-8 required amendment, folded in here): the
+    # remaining Plan 4 DownloadRequest options that are server-wide configuration,
+    # not per-request API fields. The CLI's embedded server (Plan 8) sets these per
+    # invocation; a persistent selfhost server treats them as operator defaults —
+    # consistent with ffmpeg_path/cookie_file/proxy already living in Settings.
+    # Names/types/defaults match Plan 4's DownloadRequest fields (v4 parity).
+    download_restrict: RestrictMode = RestrictMode.NONE
+    download_max_filename_length: int | None = None
+    download_id3_separator: str = "/"
+    download_detect_formats: tuple[str, ...] = ()  # OutputFormat values
+    download_skip_explicit: bool = False
+    download_respect_skip_file: bool = False
+    download_create_skip_file: bool = False
+    # playlist batches: track_number := list_position, album name := playlist name
+    # (v4 parity; applied at worker request-build, Task 6).
+    download_playlist_numbering: bool = False
+    download_retain_track_cover: bool = False
+    download_add_unavailable: bool = False
+    # scan effective_library_path() -> DownloadRequest.known_paths.
+    download_scan_existing: bool = False
 
     def effective_database_url(self) -> str:
         """Resolve the async database URL used to build the engine.
@@ -107,3 +157,74 @@ class Settings(BaseSettings):
         if self.auth_secret_key is None:
             raise RuntimeError("auth secret key is not configured")
         return self.auth_secret_key.get_secret_value()
+
+    # ------------------------------------------------------------------ #
+    # Plan 7 — download helpers
+    # ------------------------------------------------------------------ #
+    def downloads_enabled(self) -> bool:
+        """Whether the download surface (queue/WS/delivery) is mounted.
+
+        Startup-time gating: on in selfhost/embedded, off in HOSTED (which never
+        runs a local download engine — spec §4).
+        """
+        return self.mode is not DeploymentMode.HOSTED
+
+    def effective_library_path(self) -> Path:
+        """The on-disk root every downloaded file lives under.
+
+        The explicit ``library_path`` override when set, else ``data_dir/music``.
+        Also the path-traversal root for file delivery (CONTRACT 6).
+        """
+        if self.library_path is not None:
+            return self.library_path
+        return self.data_dir / "music"
+
+    def effective_temp_dir(self) -> Path:
+        """The engine's exclusive scratch directory (fetch/convert artifacts).
+
+        The explicit ``download_temp_dir`` override when set, else
+        ``data_dir/temp``. Swept on pool start to clear crash-orphaned partials.
+        """
+        if self.download_temp_dir is not None:
+            return self.download_temp_dir
+        return self.data_dir / "temp"
+
+    def download_config(self) -> DownloadConfig:
+        """Build the process-level :class:`~spotdl_core.download.DownloadConfig`.
+
+        Creates the library + temp dirs (``parents=True, exist_ok=True``) and
+        tokenizes the ``ytdlp_args``/``ffmpeg_args`` passthrough strings via
+        ``shlex.split`` (the engine expects already-split argv tuples).
+        """
+        import shlex
+
+        from spotdl_core.download import DownloadConfig
+
+        output_dir = self.effective_library_path()
+        temp_dir = self.effective_temp_dir()
+        output_dir.mkdir(parents=True, exist_ok=True)
+        temp_dir.mkdir(parents=True, exist_ok=True)
+        return DownloadConfig(
+            output_dir=output_dir,
+            temp_dir=temp_dir,
+            ffmpeg_path=self.ffmpeg_path,
+            cookie_file=self.download_cookie_file,
+            proxy=self.download_proxy,
+            ytdlp_args=tuple(shlex.split(self.ytdlp_args)),
+            ffmpeg_args=tuple(shlex.split(self.ffmpeg_args)),
+        )
+
+    def require_download_auth_consistency(self) -> None:
+        """Fail fast at startup on a nonsensical download-auth configuration.
+
+        Mirrors :meth:`require_auth_secret`: if downloads are enabled and
+        ``downloads_require_auth`` is set but auth is inactive, the gate would
+        silently no-op (there is no identity to require). Keys on the derived
+        :meth:`auth_active` — never raw ``auth_enabled`` (whose ``None`` default
+        would make the gate a silent no-op in selfhost). Called from ``create_app``.
+        """
+        if self.downloads_enabled() and self.downloads_require_auth and not self.auth_active():
+            raise RuntimeError(
+                "downloads_require_auth=True but auth is inactive "
+                "(set SPOTDL_AUTH_ENABLED=true and an auth secret)"
+            )

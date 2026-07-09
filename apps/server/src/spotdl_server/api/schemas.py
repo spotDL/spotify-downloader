@@ -570,18 +570,66 @@ class FeatureFlags(BaseModel):
     library: bool
 
 
+class DownloadDefaults(BaseModel):
+    """The server's effective download configuration (``/config`` block).
+
+    CONTRACT — read-only visibility so clients (web/TUI/Plan 8) pre-fill their
+    submit forms and codegen against the server's operator defaults. Present only
+    when :meth:`Settings.downloads_enabled` (``null`` in HOSTED).
+    """
+
+    output_format: str
+    bitrate: str
+    output_template: str
+    concurrency: int
+    # engine/session knobs (Plan-8 amendment) — read-only visibility for clients
+    restrict: str  # RestrictMode value
+    max_filename_length: int | None
+    id3_separator: str
+    detect_formats: list[str]
+    skip_explicit: bool
+    respect_skip_file: bool
+    create_skip_file: bool
+    playlist_numbering: bool
+    retain_track_cover: bool
+    add_unavailable: bool
+    scan_existing: bool
+
+    @classmethod
+    def from_settings(cls, settings: Settings) -> DownloadDefaults:
+        return cls(
+            output_format=settings.default_output_format.value,
+            bitrate=settings.default_bitrate,
+            output_template=settings.default_output_template,
+            concurrency=settings.download_concurrency,
+            restrict=settings.download_restrict.value,
+            max_filename_length=settings.download_max_filename_length,
+            id3_separator=settings.download_id3_separator,
+            detect_formats=list(settings.download_detect_formats),
+            skip_explicit=settings.download_skip_explicit,
+            respect_skip_file=settings.download_respect_skip_file,
+            create_skip_file=settings.download_create_skip_file,
+            playlist_numbering=settings.download_playlist_numbering,
+            retain_track_cover=settings.download_retain_track_cover,
+            add_unavailable=settings.download_add_unavailable,
+            scan_existing=settings.download_scan_existing,
+        )
+
+
 class ConfigResponse(BaseModel):
     """``GET /config`` body: deployment mode, feature flags, matcher version.
 
     ``oauth_providers`` lists the OAuth providers a client may offer as sign-in
     buttons (e.g. ``["github", "discord"]``); it is empty when auth is inactive or
-    no provider credentials are configured.
+    no provider credentials are configured. ``download_defaults`` carries the
+    server's effective download configuration (``null`` when downloads are off).
     """
 
     mode: DeploymentMode
     features: FeatureFlags
     oauth_providers: list[str]
     matcher_version: str
+    download_defaults: DownloadDefaults | None = None
 
     @classmethod
     def from_settings(cls, settings: Settings) -> ConfigResponse:
@@ -609,4 +657,7 @@ class ConfigResponse(BaseModel):
             ),
             oauth_providers=oauth_providers,
             matcher_version=MATCHER_V5_DEFAULT.matcher_version,
+            download_defaults=(
+                DownloadDefaults.from_settings(settings) if settings.downloads_enabled() else None
+            ),
         )

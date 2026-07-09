@@ -61,6 +61,24 @@ def _isolate_spotdl_env(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.fixture
+def download_settings(tmp_path: Any) -> Any:
+    """A SELFHOST :class:`Settings` with library/temp dirs under ``tmp_path``.
+
+    The single seam for download tests that need real (throwaway) on-disk
+    ``effective_library_path()`` / ``effective_temp_dir()`` roots without
+    touching the developer's home directory.
+    """
+    from spotdl_server.settings import DeploymentMode, Settings
+
+    return Settings(
+        mode=DeploymentMode.SELFHOST,
+        data_dir=tmp_path,
+        library_path=tmp_path / "music",
+        download_temp_dir=tmp_path / "temp",
+    )
+
+
+@pytest.fixture
 def postgres_url() -> str | None:
     """Async Postgres DSN for dual-dialect DB tests, or ``None`` to skip.
 
