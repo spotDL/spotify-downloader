@@ -18,8 +18,10 @@ web-install:
 	pnpm -C apps/web install
 
 web-check:
+	pnpm -C apps/web run lint
 	pnpm -C apps/web run type-check
 	pnpm -C apps/web run test
+	pnpm -C apps/web run build
 
 openapi:
 	uv run python apps/server/scripts/export_openapi.py

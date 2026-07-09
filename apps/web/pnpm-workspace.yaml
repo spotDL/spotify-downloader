@@ -1,0 +1,4 @@
+allowBuilds:
+  # MSW is used only via `msw/node` (setupServer) in vitest; its browser
+  # service-worker build step is never needed, so we do not run it.
+  msw: false

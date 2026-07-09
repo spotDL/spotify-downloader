@@ -2,6 +2,8 @@
 
 The spotDL v5 web UI — a React + TypeScript app built with Vite.
 
+Requires Node ≥22 and pnpm 11.10.0.
+
 ## Scripts
 
 - `pnpm run dev` — start the Vite dev server
