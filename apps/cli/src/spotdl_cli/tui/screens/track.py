@@ -27,6 +27,7 @@ from spotdl_cli.tui.screens.base import SpotdlScreen
 from spotdl_cli.tui.widgets.entity_card import EntityCard
 from spotdl_cli.tui.widgets.lyrics_pane import LyricsPane
 from spotdl_cli.tui.widgets.match_gauge import MatchGauge
+from spotdl_cli.tui.widgets.patterns import LoadingPane
 from spotdl_cli.viewmodels.app_state import SessionSnapshot
 from spotdl_cli.viewmodels.base import LoadState
 from spotdl_cli.viewmodels.track import TrackViewModel
@@ -59,8 +60,10 @@ class TrackScreen(SpotdlScreen):
                 yield Button("Submit match", id="act-match")
                 yield Button("Open source", id="act-open")
         with Horizontal(id="track-body"):
-            yield VerticalScroll(id="matches", classes="panel")
-            yield Vertical(id="lyrics-slot")
+            with VerticalScroll(id="matches", classes="panel"):
+                yield LoadingPane("Loading matches…")
+            with Vertical(id="lyrics-slot"):
+                yield LoadingPane("Loading lyrics…")
 
     def on_mount(self) -> None:
         super().on_mount()
@@ -111,6 +114,8 @@ class TrackScreen(SpotdlScreen):
         can_vote = session.can_vote
         await self.query_one("#card-slot", Vertical).mount(EntityCard(detail.header))
         matches = self.query_one("#matches", VerticalScroll)
+        await matches.remove_children()
+        await self.query_one("#lyrics-slot", Vertical).remove_children()
         for row in detail.matches:
             await matches.mount(MatchGauge(row, can_vote=can_vote))
         lyrics = LyricsPane(detail.lyrics)

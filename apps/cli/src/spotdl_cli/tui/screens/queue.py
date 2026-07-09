@@ -21,6 +21,7 @@ from textual.reactive import reactive
 from textual.widgets import Input, Static
 
 from spotdl_cli.tui.screens.base import SpotdlScreen
+from spotdl_cli.tui.widgets.patterns import EmptyState
 from spotdl_cli.tui.widgets.queue_table import QueueTable
 from spotdl_cli.viewmodels.base import LoadState
 from spotdl_cli.viewmodels.types import JobRow, QueueSnapshot
@@ -44,7 +45,13 @@ class QueueScreen(SpotdlScreen):
     def compose_content(self) -> ComposeResult:
         yield Input(placeholder="paste a Spotify URL or search query…", id="enqueue-input")
         yield Static(_counts_line(_EMPTY), id="queue-summary", classes="panel")
-        yield QueueTable(id="queue-table")
+        yield EmptyState(
+            "♪",
+            "No downloads yet",
+            key_hint="press 1 to search, then d to download",
+            id="queue-empty",
+        )
+        yield QueueTable(id="queue-table", classes="hidden")
         yield Static("", id="queue-actions")
 
     def on_mount(self) -> None:
@@ -77,6 +84,9 @@ class QueueScreen(SpotdlScreen):
     def watch_snapshot(self, snapshot: QueueSnapshot) -> None:
         if not self.is_mounted:
             return
+        has_jobs = bool(snapshot.jobs)
+        self.query_one("#queue-empty", EmptyState).set_class(has_jobs, "hidden")
+        self.query_one(QueueTable).set_class(not has_jobs, "hidden")
         self.query_one(QueueTable).update_snapshot(snapshot)
         self.query_one("#queue-summary", Static).update(_counts_line(snapshot))
 

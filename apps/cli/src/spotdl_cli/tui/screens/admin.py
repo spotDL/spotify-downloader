@@ -22,7 +22,7 @@ from textual.widgets import Button, DataTable, Input, Static, TabbedContent, Tab
 from textual.widgets.data_table import ColumnKey
 
 from spotdl_cli.tui.screens.base import SpotdlScreen
-from spotdl_cli.tui.widgets.patterns import StatCard
+from spotdl_cli.tui.widgets.patterns import LoadingPane, StatCard
 from spotdl_cli.viewmodels.admin import AdminViewModel
 from spotdl_cli.viewmodels.base import Loadable, LoadState
 from spotdl_cli.viewmodels.types import ReportRow, StatsRow, UsersPage
@@ -80,7 +80,8 @@ class AdminScreen(SpotdlScreen):
         self._vm: AdminViewModel = self.vm_factory.admin()
         with TabbedContent(id="admin-tabs"):
             with TabPane("Stats", id="tab-stats"):
-                yield Horizontal(id="admin-stats-grid")
+                with Horizontal(id="admin-stats-grid"):
+                    yield LoadingPane("Loading stats…")
             with TabPane("Reports", id="tab-reports"):
                 yield DataTable(id="admin-reports", cursor_type="row", zebra_stripes=True)
             with TabPane("Users", id="tab-users"):
@@ -109,7 +110,9 @@ class AdminScreen(SpotdlScreen):
                 self.show_error(result.error)
             return
         assert result.data is not None
-        await self.query_one("#admin-stats-grid", Horizontal).mount(*_stat_cards(result.data))
+        grid = self.query_one("#admin-stats-grid", Horizontal)
+        await grid.remove_children()
+        await grid.mount(*_stat_cards(result.data))
 
     # -- Reports --------------------------------------------------------------
 

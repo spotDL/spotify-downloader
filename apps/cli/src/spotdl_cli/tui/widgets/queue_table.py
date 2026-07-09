@@ -28,8 +28,8 @@ _GLYPH = {"completed": "✓", "skipped": "»", "failed": "✗", "cancelled": "�
 class QueueTable(DataTable[Text]):
     """A framework-dumb table bound to the queue snapshot, grouped by batch."""
 
-    def __init__(self, *, id: str | None = None) -> None:
-        super().__init__(id=id)
+    def __init__(self, *, id: str | None = None, classes: str | None = None) -> None:
+        super().__init__(id=id, classes=classes)
         self._order: list[str] = []
 
     def on_mount(self) -> None:
