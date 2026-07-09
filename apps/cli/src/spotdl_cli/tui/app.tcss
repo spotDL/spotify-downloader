@@ -52,6 +52,35 @@ Footer {
     color: $error;
 }
 
+/* Auth: identity line + login form. */
+#auth-status {
+    padding: 1 1 0 1;
+    color: $text-muted;
+}
+
+.auth-offline {
+    width: 100%;
+    height: 1fr;
+    content-align: center middle;
+    color: $text-muted;
+}
+
+#auth-buttons {
+    height: auto;
+    padding: 1 1;
+}
+
+#auth-buttons Button {
+    margin: 0 1 0 0;
+}
+
+/* Admin: stats summary line above the reports table. */
+.admin-stats {
+    height: auto;
+    padding: 1 1;
+    color: $text-muted;
+}
+
 /* Shared accents later screens lean on (Task 6 gauges, Task 7/8 tables). */
 DataTable {
     height: 1fr;

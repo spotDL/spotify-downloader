@@ -22,7 +22,7 @@ from spotdl_cli.viewmodels.factory import ViewModelFactory
 from spotdl_cli.viewmodels.types import EntityRef
 
 from .conftest import FakeConfigStore, FakeCredentialStore
-from .fakes import FakeSpotdlClient, make_config, make_features, make_user
+from .fakes import FakeSpotdlClient, make_config, make_features, make_stats, make_user
 
 _ORIGIN = "https://api.example.test"
 _TRANSPORT = "remote · api.example.test"
@@ -46,6 +46,8 @@ def _admin_setup() -> tuple[FakeSpotdlClient, FakeCredentialStore]:
     creds = FakeCredentialStore()
     creds.store_token(_ORIGIN, "tok", "admin@example.com")
     client.users_by_token["tok"] = make_user(email="admin@example.com", is_admin=True)
+    # the admin section now mounts the real AdminScreen (Task 10), which loads stats.
+    client.stats_result = make_stats()
     return client, creds
 
 

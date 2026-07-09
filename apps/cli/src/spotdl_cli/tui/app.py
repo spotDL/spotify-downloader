@@ -20,6 +20,8 @@ from textual.reactive import reactive
 
 from spotdl_cli.tui.messages import AuthChanged, NavigateTo
 from spotdl_cli.tui.router import open_entity
+from spotdl_cli.tui.screens.admin import AdminScreen
+from spotdl_cli.tui.screens.auth import AuthScreen
 from spotdl_cli.tui.screens.base import PlaceholderScreen, SpotdlScreen
 from spotdl_cli.tui.screens.help import HelpScreen
 from spotdl_cli.tui.screens.settings import SettingsScreen
@@ -53,9 +55,11 @@ _SECTIONS: tuple[Section, ...] = (
 )
 
 # section name -> screen class. Later tasks register real screens (Task 5 home,
-# Task 8 queue, Task 10 auth/admin); until then, placeholders.
+# Task 8 queue); until then, placeholders.
 SECTION_SCREENS: dict[str, type[SpotdlScreen]] = {
     "settings": SettingsScreen,
+    "auth": AuthScreen,
+    "admin": AdminScreen,
 }
 
 
