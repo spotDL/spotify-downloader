@@ -75,6 +75,39 @@ def test_feature_vector_is_immutable() -> None:
         fv.title_similarity = 0.0  # type: ignore[misc]
 
 
+def test_track_carries_optional_download_fields() -> None:
+    track = Track(
+        name="Song Name",
+        artists=("Main Artist",),
+        duration_ms=200_000,
+        date="2020-05-01",
+        publisher="Label",
+        copyright_text="© 2020",
+        popularity=73,
+        cover_url="http://x/c.jpg",
+    )
+    assert track.date == "2020-05-01"
+    assert track.publisher == "Label"
+    assert track.copyright_text == "© 2020"
+    assert track.popularity == 73
+    assert track.cover_url == "http://x/c.jpg"
+
+
+def test_track_download_fields_default_to_none() -> None:
+    track = Track(name="x", artists=("A",), duration_ms=1000)
+    assert track.date is None
+    assert track.publisher is None
+    assert track.copyright_text is None
+    assert track.popularity is None
+    assert track.cover_url is None
+
+
+def test_album_ref_carries_disc_count() -> None:
+    album = AlbumRef(name="A", disc_count=2)
+    assert album.disc_count == 2
+    assert AlbumRef(name="A").disc_count is None
+
+
 def test_match_defaults_to_auto_status() -> None:
     candidate = AudioCandidate(
         provider=ProviderId.YTMUSIC,

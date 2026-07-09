@@ -18,6 +18,7 @@ class AlbumRef(_Frozen):
     album_artist: str | None = None
     year: int | None = None
     track_count: int | None = None
+    disc_count: int | None = None
     cover_url: str | None = None
 
 
@@ -32,6 +33,11 @@ class Track(_Frozen):
     disc_number: int | None = None
     genres: tuple[str, ...] = ()
     year: int | None = None
+    date: str | None = None  # original release date, ISO "YYYY-MM-DD" (v4 {original-date})
+    publisher: str | None = None  # label / encoded-by (v4 {publisher})
+    copyright_text: str | None = None  # album copyright line
+    popularity: int | None = None  # 0-100 popularity prior (POPM rating / m4a rtng source)
+    cover_url: str | None = None  # track-level cover (retain-track-cover); falls back to album
     provider: ProviderId | None = None
     provider_id: str | None = None
 
