@@ -1,0 +1,81 @@
+# CONTRACT E1 (Plan 11, Task 9): publish the three workspace packages to PyPI via
+# Trusted Publishing (OIDC, no API tokens), dependency-ordered core -> server -> cli.
+#
+# Each PyPI project (spotdl-core, spotdl-server, spotdl) is configured with THIS repo
+# + this workflow filename + environment `pypi` as a Trusted Publisher (in the PyPI
+# UI -- no secret stored anywhere; see docs/contributing.md "Releasing"). The
+# `id-token: write` permission mints the short-lived OIDC token the publish action
+# exchanges for an upload credential.
+#
+# Why sequential jobs: `spotdl` requires `spotdl-server==<ver>`, which requires
+# `spotdl-core==<ver>` (exact pins written by scripts/bump_version.py). Each job
+# still BUILDS its wheel from local workspace sources (`uv build` resolves the
+# {workspace = true} deps from the checkout), so no build ever waits on a
+# just-published package appearing on the index -- the core->server->cli ordering
+# only guarantees that by the time `spotdl` is installable, its ==-pinned deps
+# already exist on PyPI.
+#
+# Pre-release flow: tag v5.0.0a1 -> all three publish 5.0.0a1; `pip install spotdl`
+# keeps serving 4.x (PEP 440 excludes pre-releases) until the GA 5.0.0 tag.
+
+name: Release to PyPI
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  core:
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv build --package spotdl-core --out-dir dist
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist
+
+  server:
+    needs: core
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      # The SPA (Plan 10) must be embedded into spotdl_server/static BEFORE the wheel
+      # is built so the published server wheel serves the UI with no runtime fetch
+      # (spec §8). `make bundle-spa` builds apps/web and copies dist into the package.
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "11.10.0" # the one pnpm pin (apps/web packageManager + ci.yml)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: make bundle-spa
+      - run: uv build --package spotdl-server --out-dir dist
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist
+
+  cli:
+    needs: server
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv build --package spotdl --out-dir dist
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist

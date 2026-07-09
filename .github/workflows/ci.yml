@@ -37,6 +37,11 @@ jobs:
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run lint-imports
+      # Version single-source guard (Plan 11 / CONTRACT H): fail if the three
+      # published packages' [project].version, __version__, and cross-package == pins
+      # ever drift. Keep this before the heavier mypy/pytest steps so a version skew
+      # fails fast.
+      - run: uv run python scripts/bump_version.py --check
       - run: uv run mypy packages/core/src apps/server/src apps/cli/src
       # Golden-corpus structural pre-check (cheap, offline): validates every case
       # file before the accuracy gate runs inside pytest below.

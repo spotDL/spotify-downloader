@@ -1478,7 +1478,7 @@ wheels = [
 
 [[package]]
 name = "spotdl"
-version = "5.0.0a0"
+version = "5.0.0a1"
 source = { editable = "apps/cli" }
 dependencies = [
     { name = "httpx" },
@@ -1497,7 +1497,7 @@ requires-dist = [
 
 [[package]]
 name = "spotdl-core"
-version = "5.0.0a0"
+version = "5.0.0a1"
 source = { editable = "packages/core" }
 dependencies = [
     { name = "beautifulsoup4" },
@@ -1539,7 +1539,7 @@ provides-extras = ["lrc"]
 
 [[package]]
 name = "spotdl-server"
-version = "5.0.0a0"
+version = "5.0.0a1"
 source = { editable = "apps/server" }
 dependencies = [
     { name = "aiosqlite" },
