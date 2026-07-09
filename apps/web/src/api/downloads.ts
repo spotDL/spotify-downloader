@@ -18,7 +18,7 @@ import { resolveHttpBase } from "./client";
 // generated `createQueryKey`). Matching on it invalidates *all* filtered
 // downloads pages at once — the queue and the library share one server truth
 // (CONTRACT D/E: after a submit/cancel or a terminal WS event, refetch).
-const DOWNLOADS_QUERY_ID = "listDownloadsApiV1DownloadsGet";
+export const DOWNLOADS_QUERY_ID = "listDownloadsApiV1DownloadsGet";
 
 /** Invalidate every cached `GET /downloads` page regardless of its filters. */
 export function invalidateDownloads(queryClient: QueryClient): Promise<void> {
