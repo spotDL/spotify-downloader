@@ -19,3 +19,9 @@ source_modules =
     spotdl_cli
 forbidden_modules =
     spotdl_core
+# The CLI's embedded transport imports ``spotdl_server.app`` (an allowed
+# cli -> server edge per the layers contract), which in turn imports core — an
+# unavoidable *indirect* reach. This contract forbids only *direct* cli -> core
+# imports (the CLI using core types itself), matching its name ("directly") and
+# spec §3 (apps/server is the sole direct consumer of packages/core).
+allow_indirect_imports = True

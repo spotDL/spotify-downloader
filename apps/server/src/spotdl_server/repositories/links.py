@@ -65,6 +65,24 @@ class EntityLinkRepository:
         await self.session.flush()
         return link
 
+    async def entity_for_snapshot(
+        self, snapshot_id: uuid.UUID
+    ) -> tuple[EntityType, uuid.UUID] | None:
+        """The canonical ``(entity_type, entity_id)`` a snapshot is linked to.
+
+        The reverse of :meth:`for_entity`: given a provider snapshot, find the
+        canonical entity it contributes to (used cache-first to reload an
+        already-merged entity without touching the network). ``None`` when the
+        snapshot has not been merged yet.
+        """
+        result = await self.session.execute(
+            select(EntityLink.entity_type, EntityLink.entity_id)
+            .where(EntityLink.snapshot_id == snapshot_id)
+            .limit(1)
+        )
+        row = result.first()
+        return (row[0], row[1]) if row is not None else None
+
     async def _get(
         self, entity_type: EntityType, entity_id: uuid.UUID, snapshot_id: uuid.UUID
     ) -> EntityLink | None:

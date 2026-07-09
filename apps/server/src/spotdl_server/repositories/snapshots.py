@@ -8,6 +8,7 @@ Postgres alike.
 
 from __future__ import annotations
 
+import uuid
 from datetime import UTC, datetime
 from typing import Any
 
@@ -15,7 +16,7 @@ from spotdl_core.model import EntityType, ProviderId
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from spotdl_server.db.models import ProviderSnapshot
+from spotdl_server.db.models import EntityLink, ProviderSnapshot
 
 
 def _as_aware(value: datetime) -> datetime:
@@ -95,6 +96,22 @@ class SnapshotRepository:
     async def get_by_isrc(self, isrc: str) -> list[ProviderSnapshot]:
         result = await self.session.execute(
             select(ProviderSnapshot).where(ProviderSnapshot.isrc == isrc)
+        )
+        return list(result.scalars().all())
+
+    async def list_for_entity(
+        self, entity_type: EntityType, entity_id: uuid.UUID
+    ) -> list[ProviderSnapshot]:
+        """Every snapshot linked to the canonical ``(entity_type, entity_id)``.
+
+        The complete provenance set a re-resolve re-merges so the canonical
+        fields stay independent of which single provider triggered the refresh
+        (deterministic merge over the full contributor set).
+        """
+        result = await self.session.execute(
+            select(ProviderSnapshot)
+            .join(EntityLink, EntityLink.snapshot_id == ProviderSnapshot.id)
+            .where(EntityLink.entity_type == entity_type, EntityLink.entity_id == entity_id)
         )
         return list(result.scalars().all())
 

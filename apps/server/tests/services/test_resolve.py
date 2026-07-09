@@ -1,0 +1,257 @@
+"""Offline (in-memory SQLite + fake registry) tests for ResolveService.
+
+The service is cache-first: parse the query (URL / ``provider:type:id`` / free
+text), fetch+snapshot on a cache miss, deterministically merge snapshots into a
+canonical entity, and (tracks only) kick matching over the audio providers. No
+provider or matcher I/O is real — everything is faked at the registry seam.
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+import pytest
+from spotdl_core.model import AudioCandidate, EntityType, ProviderId, Track
+from spotdl_core.providers import ProviderUnavailable, UnsupportedURL
+from spotdl_server.repositories.matches import MatchRepository
+from spotdl_server.repositories.snapshots import SnapshotRepository
+from spotdl_server.services.dto import ResolveResult
+from spotdl_server.services.resolve import ResolveService
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from apps.server.tests.fakes import (
+    FakeAudioProvider,
+    FakeResolver,
+    FakeSearcher,
+    build_fake_registry,
+)
+
+SPOTIFY_URL = "https://open.spotify.com/track/track123"
+
+
+def _track(
+    name: str = "Song",
+    artist: str = "Artist",
+    *,
+    isrc: str | None = "USABC1234567",
+    provider: ProviderId | None = None,
+    provider_id: str | None = None,
+) -> Track:
+    return Track(
+        name=name,
+        artists=(artist,),
+        duration_ms=200_000,
+        isrc=isrc,
+        provider=provider,
+        provider_id=provider_id,
+    )
+
+
+def _candidate(provider: ProviderId, provider_id: str, name: str = "Song") -> AudioCandidate:
+    return AudioCandidate(
+        provider=provider,
+        provider_id=provider_id,
+        url=f"https://audio/{provider_id}",
+        name=name,
+        artists=("Artist",),
+        duration_ms=200_000,
+    )
+
+
+async def _count(session: AsyncSession, model: type[Any]) -> int:
+    result = await session.execute(select(func.count()).select_from(model))
+    return int(result.scalar_one())
+
+
+async def test_resolve_url_miss_fetches_snapshots_merges_and_returns_track(
+    session: AsyncSession,
+) -> None:
+    resolver = FakeResolver(id=ProviderId.SPOTIFY, track=_track("Hello", "Adele"))
+    registry = build_fake_registry(resolver)
+    service = ResolveService(session=session, registry=registry)
+
+    result = await service.resolve(SPOTIFY_URL)
+
+    assert isinstance(result, ResolveResult)
+    assert result.entity_type == EntityType.TRACK.value
+    assert result.track is not None
+    assert result.track.name == "Hello"
+    assert result.track.artists == ("Adele",)
+    assert result.degraded_sources == ()
+    assert len(resolver.calls) == 1
+    from spotdl_server.db.models import ProviderSnapshot
+
+    assert await _count(session, ProviderSnapshot) == 1
+
+
+async def test_resolve_cache_hit_skips_provider_call(session: AsyncSession) -> None:
+    # Seed a fresh (permanent) snapshot for the ref so the resolver is never hit.
+    await SnapshotRepository(session).upsert(
+        provider=ProviderId.SPOTIFY,
+        provider_entity_id="track123",
+        entity_type=EntityType.TRACK,
+        raw_payload={"name": "Cached", "artists": ["Cached Artist"], "duration_ms": 123_000},
+        name="Cached",
+        isrc="USCACHE00001",
+        duration_ms=123_000,
+        artist_names=["Cached Artist"],
+    )
+    resolver = FakeResolver(id=ProviderId.SPOTIFY, track=_track("Should Not Appear", "Nope"))
+    registry = build_fake_registry(resolver)
+    service = ResolveService(session=session, registry=registry)
+
+    result = await service.resolve(SPOTIFY_URL)
+
+    assert resolver.calls == []  # cache hit: no network fetch
+    assert result.track is not None
+    assert result.track.name == "Cached"
+
+
+async def test_resolve_records_degraded_source_on_provider_failure(
+    session: AsyncSession,
+) -> None:
+    resolver = FakeResolver(id=ProviderId.SPOTIFY, track=_track("Song", "Artist"))
+    # DEEZER's factory raises → recorded in registry.unavailable → degraded_sources.
+    registry = build_fake_registry(resolver, failing=[ProviderId.DEEZER])
+    service = ResolveService(session=session, registry=registry)
+
+    result = await service.resolve(SPOTIFY_URL)
+
+    assert result.track is not None  # still succeeds from Spotify
+    assert result.track.name == "Song"
+    assert ProviderId.DEEZER.value in result.degraded_sources
+
+
+async def test_resolve_records_degraded_source_on_resolve_time_failure(
+    session: AsyncSession,
+) -> None:
+    # Primary resolver succeeds; an audio provider fails mid-resolve → degraded.
+    resolver = FakeResolver(id=ProviderId.SPOTIFY, track=_track("Song", "Artist"))
+    audio = FakeAudioProvider(
+        id=ProviderId.YOUTUBE,
+        error=ProviderUnavailable("audio down", provider=ProviderId.YOUTUBE),
+    )
+    registry = build_fake_registry(resolver, audio)
+    service = ResolveService(session=session, registry=registry)
+
+    result = await service.resolve(SPOTIFY_URL)
+
+    assert result.track is not None
+    assert ProviderId.YOUTUBE.value in result.degraded_sources
+
+
+async def test_resolve_kicks_matching_and_persists_matches(session: AsyncSession) -> None:
+    resolver = FakeResolver(id=ProviderId.SPOTIFY, track=_track("Song", "Artist"))
+    audio = FakeAudioProvider(
+        id=ProviderId.YOUTUBE,
+        candidates=[_candidate(ProviderId.YOUTUBE, "yt1")],
+    )
+    registry = build_fake_registry(resolver, audio)
+    service = ResolveService(session=session, registry=registry)
+
+    result = await service.resolve(SPOTIFY_URL)
+
+    assert result.track is not None
+    assert len(result.track.matches) >= 1
+    matches = await MatchRepository(session).list_for_track(_uuid(result.track.id))
+    assert matches
+    assert matches[0].target_provider == ProviderId.YOUTUBE
+
+
+async def test_resolve_free_text_falls_back_to_search(session: AsyncSession) -> None:
+    # A searcher (Deezer) points at a Spotify track that a Spotify resolver serves.
+    found = _track("Found", "Artist", provider=ProviderId.SPOTIFY, provider_id="sp99")
+    searcher = FakeSearcher(id=ProviderId.DEEZER, tracks=[found])
+    resolver = FakeResolver(id=ProviderId.SPOTIFY, track=_track("Found", "Artist"))
+    registry = build_fake_registry(searcher, resolver)
+    service = ResolveService(session=session, registry=registry)
+
+    result = await service.resolve("adele hello free text")
+
+    assert result.track is not None
+    assert result.track.name == "Found"
+    assert searcher.calls == ["adele hello free text"]
+    # Resolved the searched track's ref via the Spotify resolver.
+    assert resolver.calls and resolver.calls[0].entity_id == "sp99"
+
+
+async def test_resolve_unsupported_and_no_result_raises(session: AsyncSession) -> None:
+    searcher = FakeSearcher(id=ProviderId.DEEZER, tracks=[])  # search finds nothing
+    registry = build_fake_registry(searcher)
+    service = ResolveService(session=session, registry=registry)
+
+    with pytest.raises(UnsupportedURL):
+        await service.resolve("not a url and no search hit")
+
+
+async def test_resolve_unregistered_provider_maps_keyerror_to_provider_unavailable(
+    session: AsyncSession,
+) -> None:
+    # The ref parses to SPOTIFY, but the registry has no Spotify provider at all.
+    registry = build_fake_registry(FakeResolver(id=ProviderId.DEEZER, track=_track()))
+    service = ResolveService(session=session, registry=registry)
+
+    with pytest.raises(ProviderUnavailable) as excinfo:
+        await service.resolve(SPOTIFY_URL)
+    assert excinfo.value.provider == ProviderId.SPOTIFY
+
+
+async def test_resolve_is_rerunnable(session: AsyncSession) -> None:
+    from spotdl_server.db.models import Match as MatchModel
+    from spotdl_server.db.models import Track as TrackModel
+
+    resolver = FakeResolver(id=ProviderId.SPOTIFY, track=_track("Song", "Artist"))
+    audio = FakeAudioProvider(
+        id=ProviderId.YOUTUBE,
+        candidates=[_candidate(ProviderId.YOUTUBE, "yt1")],
+    )
+    registry = build_fake_registry(resolver, audio)
+    service = ResolveService(session=session, registry=registry)
+
+    first = await service.resolve(SPOTIFY_URL)
+    second = await service.resolve(SPOTIFY_URL)
+
+    assert first.track is not None and second.track is not None
+    assert first.track.id == second.track.id
+    assert await _count(session, TrackModel) == 1
+    assert await _count(session, MatchModel) == 1  # replaced, not duplicated
+
+
+async def test_resolve_album_url_merges_container_and_lists_tracks(
+    session: AsyncSession,
+) -> None:
+    from spotdl_core.model import AlbumRef
+    from spotdl_core.providers import ResolvedEntity
+
+    album_entity = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="album123",
+        entity_type=EntityType.ALBUM,
+        album=AlbumRef(name="Greatest Hits", year=2020, track_count=2),
+        tracks=(
+            _track("One", "Adele", isrc="USONE0000001"),
+            _track("Two", "Adele", isrc="USTWO0000002"),
+        ),
+    )
+    resolver = FakeResolver(id=ProviderId.SPOTIFY, entity=album_entity)
+    registry = build_fake_registry(resolver)
+    service = ResolveService(session=session, registry=registry)
+
+    result = await service.resolve("https://open.spotify.com/album/album123")
+
+    assert result.entity_type == EntityType.ALBUM.value
+    assert result.album is not None
+    assert result.album.name == "Greatest Hits"
+    assert {t.name for t in result.album.tracks} == {"One", "Two"}
+
+    # Re-resolve hits the cache and returns the same canonical album (no dup).
+    again = await service.resolve("https://open.spotify.com/album/album123")
+    assert again.album is not None
+    assert again.album.id == result.album.id
+
+
+def _uuid(value: str) -> Any:
+    import uuid
+
+    return uuid.UUID(value)

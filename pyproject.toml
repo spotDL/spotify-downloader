@@ -36,6 +36,12 @@ extend-exclude = ["apps/server/alembic"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
+[tool.ruff.lint.per-file-ignores]
+# FastAPI's dependency-injection idiom puts ``Depends(...)`` in parameter
+# defaults; B008 (no function calls in argument defaults) is the framework's
+# intended usage in the api layer (dependency providers + routers).
+"apps/server/src/spotdl_server/api/**" = ["B008"]
+
 [tool.mypy]
 strict = true
 python_version = "3.13"
