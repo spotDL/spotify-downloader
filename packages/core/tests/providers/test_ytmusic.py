@@ -23,8 +23,10 @@ from spotdl_core.providers.audio.ytmusic import (
     map_search_tracks,
 )
 from spotdl_core.providers.base import ProvidesAudio, Resolves, Searches
+from spotdl_core.providers.errors import EntityNotFound
 from spotdl_core.providers.registry import ProviderContext
 from spotdl_core.providers.urls import PlatformRef
+from ytmusicapi.exceptions import YTMusicUserError
 
 _QUERY_TRACK = Track(
     name="Get Lucky",
@@ -45,12 +47,16 @@ class _FakeYTMusic:
         videos: list[dict[str, Any]] | None = None,
         song: dict[str, Any] | None = None,
         album: dict[str, Any] | None = None,
+        album_browse_id: str | None = "MPREb_fake",
     ) -> None:
         self._songs = songs or []
         self._videos = videos or []
         self._song = song
         self._album = album
+        self._album_browse_id = album_browse_id
         self.search_calls: list[tuple[str, str, int]] = []
+        self.browse_id_calls: list[str] = []
+        self.get_album_calls: list[str] = []
 
     def search(self, query: str, *, filter: str, limit: int) -> list[dict[str, Any]]:  # noqa: A002
         self.search_calls.append((query, filter, limit))
@@ -60,7 +66,16 @@ class _FakeYTMusic:
         assert self._song is not None
         return self._song
 
+    def get_album_browse_id(self, audio_playlist_id: str) -> str | None:
+        self.browse_id_calls.append(audio_playlist_id)
+        return self._album_browse_id
+
     def get_album(self, browse_id: str) -> dict[str, Any]:
+        # Mirror ytmusicapi: get_album rejects any id that is not an MPRE
+        # browseId. This locks in the OLAK5uy_ -> MPRE conversion in resolve().
+        if not browse_id.startswith("MPRE"):
+            raise YTMusicUserError("Invalid album browseId provided, must start with MPRE.")
+        self.get_album_calls.append(browse_id)
         assert self._album is not None
         return self._album
 
@@ -200,6 +215,41 @@ async def test_ytmusic_resolve_album_from_get_album(load_fixture: Any) -> None:
     assert resolved.album.track_count == album["trackCount"]
     assert len(resolved.tracks) == len(album["tracks"])
     assert resolved.tracks[0].album == resolved.album
+
+
+async def test_ytmusic_resolve_album_converts_audio_playlist_id(load_fixture: Any) -> None:
+    # CONTRACT: an OLAK5uy_ audioPlaylistId (from a playlist?list= album URL) is
+    # first converted to an MPRE browseId; get_album never sees the raw OLAK id.
+    album = load_fixture("ytmusic", "get_album")
+    client = _FakeYTMusic(album=album, album_browse_id="MPREb_converted")
+    ref = PlatformRef(ProviderId.YTMUSIC, EntityType.ALBUM, "OLAK5uy_realid")
+    resolved = await _provider(client).resolve(ref)
+    assert client.browse_id_calls == ["OLAK5uy_realid"]
+    assert client.get_album_calls == ["MPREb_converted"]
+    # the resolved entity keeps the original (OLAK) id the URL parsed to
+    assert resolved.provider_id == "OLAK5uy_realid"
+    assert resolved.album is not None
+    assert resolved.album.name == album["title"]
+
+
+async def test_ytmusic_resolve_album_mpre_id_passes_through(load_fixture: Any) -> None:
+    # An id that is already an MPRE browseId skips conversion entirely.
+    album = load_fixture("ytmusic", "get_album")
+    client = _FakeYTMusic(album=album)
+    ref = PlatformRef(ProviderId.YTMUSIC, EntityType.ALBUM, "MPREb_direct")
+    resolved = await _provider(client).resolve(ref)
+    assert client.browse_id_calls == []
+    assert client.get_album_calls == ["MPREb_direct"]
+    assert resolved.provider_id == "MPREb_direct"
+
+
+async def test_ytmusic_resolve_album_missing_browse_id_raises_not_found() -> None:
+    # A conversion that finds no MPRE id means the album does not exist.
+    client = _FakeYTMusic(album=None, album_browse_id=None)
+    ref = PlatformRef(ProviderId.YTMUSIC, EntityType.ALBUM, "OLAK5uy_missing")
+    with pytest.raises(EntityNotFound):
+        await _provider(client).resolve(ref)
+    assert client.get_album_calls == []
 
 
 # --- wiring / capabilities ------------------------------------------------

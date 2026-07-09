@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING, Any, ClassVar
 
 from spotdl_core.model import AlbumRef, AudioCandidate, EntityType, ProviderId, Track
 from spotdl_core.providers.base import ResolvedEntity
-from spotdl_core.providers.errors import EntityNotFound, UnsupportedURL
+from spotdl_core.providers.errors import EntityNotFound, ProviderUnavailable, UnsupportedURL
 
 if TYPE_CHECKING:
     from spotdl_core.providers.registry import ProviderContext
@@ -45,6 +45,40 @@ _WATCH_URL = "https://music.youtube.com/watch?v={video_id}"
 
 #: A ``resultType`` value of ``"song"`` denotes a catalogue track (verified).
 _SONG_RESULT_TYPE = "song"
+
+#: An album entity id with this prefix is an ``audioPlaylistId`` (from a
+#: ``music.youtube.com/playlist?list=...`` album URL). ``get_album`` rejects it
+#: and requires the ``MPRE``-prefixed browse id, so it must be converted first.
+_AUDIO_PLAYLIST_PREFIX = "OLAK5uy_"
+
+
+class _MissingYTMusicError(Exception):
+    """Fallback for ``YTMusicError`` when ``ytmusicapi`` is unavailable.
+
+    Never actually raised; it exists only so the ``except`` clauses that
+    translate library errors have distinct types to match against when the
+    real exception classes cannot be imported.
+    """
+
+
+class _MissingYTMusicUserError(_MissingYTMusicError):
+    """Fallback for ``YTMusicUserError`` when ``ytmusicapi`` is unavailable."""
+
+
+def _ytmusic_error_types() -> tuple[type[BaseException], type[BaseException]]:
+    """Return ``(YTMusicUserError, YTMusicError)`` for translating library errors.
+
+    Imported lazily (never at module top level) to preserve this provider's
+    isolation constraint. ``YTMusicUserError`` (bad/invalid id) maps to
+    :class:`EntityNotFound`; the broader ``YTMusicError`` maps to
+    :class:`ProviderUnavailable`. When the library is missing, distinct
+    never-raised fallbacks are returned so no unrelated exception is swallowed.
+    """
+    try:
+        from ytmusicapi.exceptions import YTMusicError, YTMusicUserError
+    except ImportError:
+        return _MissingYTMusicUserError, _MissingYTMusicError
+    return YTMusicUserError, YTMusicError
 
 
 def _duration_to_ms(text: str | None) -> int | None:
@@ -296,10 +330,38 @@ class YTMusicProvider:
         songs = await self._search(query, "songs", limit)
         return map_search_tracks(songs)
 
+    async def _album_browse_id(self, client: Any, entity_id: str) -> str:
+        """Resolve an ``OLAK5uy_`` audioPlaylistId to an ``MPRE`` album browseId.
+
+        ``get_album`` only accepts ``MPRE``-prefixed browse ids, but a
+        ``music.youtube.com/playlist?list=OLAK5uy_...`` album URL parses to the
+        audioPlaylistId. Convert it via ``get_album_browse_id`` first; ids that
+        are not audioPlaylistIds are already browse ids and pass through. A
+        conversion that yields nothing means the album does not exist
+        (:class:`EntityNotFound`); a library failure maps to
+        :class:`ProviderUnavailable`.
+        """
+        if not entity_id.startswith(_AUDIO_PLAYLIST_PREFIX):
+            return entity_id
+        _user_error, base_error = _ytmusic_error_types()
+        try:
+            browse_id = await asyncio.to_thread(client.get_album_browse_id, entity_id)
+        except base_error as exc:
+            raise ProviderUnavailable(str(exc), provider=ProviderId.YTMUSIC) from exc
+        if not browse_id:
+            raise EntityNotFound(provider=ProviderId.YTMUSIC)
+        return str(browse_id)
+
     async def resolve(self, ref: PlatformRef) -> ResolvedEntity:
         client = self._get_client()
+        user_error, base_error = _ytmusic_error_types()
         if ref.entity_type is EntityType.TRACK:
-            payload = await asyncio.to_thread(client.get_song, ref.entity_id)
+            try:
+                payload = await asyncio.to_thread(client.get_song, ref.entity_id)
+            except user_error as exc:
+                raise EntityNotFound(provider=ProviderId.YTMUSIC) from exc
+            except base_error as exc:
+                raise ProviderUnavailable(str(exc), provider=ProviderId.YTMUSIC) from exc
             return ResolvedEntity(
                 provider=ProviderId.YTMUSIC,
                 provider_id=ref.entity_id,
@@ -307,7 +369,13 @@ class YTMusicProvider:
                 track=map_song(payload),
             )
         if ref.entity_type is EntityType.ALBUM:
-            payload = await asyncio.to_thread(client.get_album, ref.entity_id)
+            browse_id = await self._album_browse_id(client, ref.entity_id)
+            try:
+                payload = await asyncio.to_thread(client.get_album, browse_id)
+            except user_error as exc:
+                raise EntityNotFound(provider=ProviderId.YTMUSIC) from exc
+            except base_error as exc:
+                raise ProviderUnavailable(str(exc), provider=ProviderId.YTMUSIC) from exc
             return map_album(payload, ref.entity_id)
         raise UnsupportedURL(f"ytmusic cannot resolve entity type {ref.entity_type}")
 
