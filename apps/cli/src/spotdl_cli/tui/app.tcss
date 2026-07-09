@@ -285,13 +285,105 @@ HelpScreen {
     color: $success;
 }
 
-/* Track screen: the header card, the match column, and the lyrics pane. */
 .hidden {
     display: none;
 }
 
+/* Search screen: bordered input, filter chips, results panel with banners. */
+#search-box {
+    height: auto;
+    margin: 0 0 1 0;
+}
+
+#search-box Input {
+    border: none;
+    background: $surface;
+}
+
+#filter-chips {
+    height: 1;
+    color: $text-muted;
+    padding: 0 1 1 1;
+}
+
+#results-panel {
+    height: 1fr;
+}
+
+#search-results {
+    height: 1fr;
+}
+
+.results-empty {
+    width: 100%;
+    height: 1fr;
+    color: $text-muted;
+    padding: 1 1;
+}
+
+.banner {
+    height: auto;
+    padding: 0 1;
+    margin: 0 0 1 0;
+    text-style: bold;
+}
+
+.banner--warn {
+    color: $error;
+}
+
+.banner--degraded {
+    color: $warning;
+}
+
+/* Track screen: the accent-bordered header card, matches column, lyrics pane. */
+#track-header {
+    height: auto;
+    border-left: thick $accent;
+    margin: 0 0 1 0;
+}
+
+#card-slot {
+    height: auto;
+}
+
+.vote-cta {
+    width: auto;
+    margin: 1 0 0 0;
+    background: $boost;
+    color: $warning;
+}
+
+#track-actions {
+    height: auto;
+    padding: 1 0 0 0;
+}
+
+#track-body {
+    layout: horizontal;
+    height: 1fr;
+}
+
+#track-body.stacked {
+    layout: vertical;
+}
+
+#matches {
+    width: 1fr;
+}
+
+#lyrics-slot {
+    width: 40;
+    height: 1fr;
+}
+
+#track-body.stacked #lyrics-slot {
+    width: 1fr;
+    height: 1fr;
+}
+
 EntityCard {
-    padding: 1 1 0 1;
+    padding: 0 1;
     color: $text;
 }
 
@@ -305,7 +397,15 @@ MatchGauge:focus {
 }
 
 LyricsPane {
-    height: auto;
-    padding: 1;
+    height: 1fr;
+    border: round $primary 30%;
+    border-title-color: $text-muted;
+    border-subtitle-color: $text-muted;
+    padding: 0 1;
     color: $text-muted;
+}
+
+LyricsPane:focus {
+    border: round $accent;
+    border-title-color: $accent;
 }

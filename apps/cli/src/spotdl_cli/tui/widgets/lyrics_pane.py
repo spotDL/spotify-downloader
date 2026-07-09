@@ -31,6 +31,7 @@ class LyricsPane(Static, can_focus=True):
         self._follow = False
         self._position_ms = 0
         self._active: int | None = None
+        self.border_title = "Lyrics"
         self._repaint()
 
     @property
@@ -74,15 +75,21 @@ class LyricsPane(Static, can_focus=True):
             self._active = None
 
     def _repaint(self) -> None:
-        self.update(_render(self.choice, active=self._active, follow=self._follow))
+        self.border_subtitle = _subtitle(self.choice, follow=self._follow)
+        self.update(_render(self.choice, active=self._active))
 
 
-def _render(choice: LyricsChoice | None, *, active: int | None, follow: bool) -> str:
+def _subtitle(choice: LyricsChoice | None, *, follow: bool) -> str:
+    """The source + vote line pinned in the pane's border subtitle (§4)."""
+    if choice is None:
+        return ""
+    follow_flag = "  ⟳ follow" if follow else ""
+    return f"{choice.source} · {choice.kind} · ▲{choice.net_score}{follow_flag}"
+
+
+def _render(choice: LyricsChoice | None, *, active: int | None) -> str:
     if choice is None:
         return "no lyrics available"
-    follow_flag = "  ⟳ follow" if follow else ""
-    header = f"{choice.source} · {choice.kind}{follow_flag}"
-    body = [
+    return "\n".join(
         f"{'▶ ' if index == active else '  '}{line.text}" for index, line in enumerate(choice.lines)
-    ]
-    return "\n".join([header, "", *body])
+    )

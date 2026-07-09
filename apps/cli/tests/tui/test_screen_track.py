@@ -3,9 +3,9 @@
 Headless ``App.run_test()`` over :class:`FakeSpotdlClient`. Contract (CONTRACT A/D):
 the screen projects a ``TrackDetail`` into an :class:`EntityCard`, a list of
 :class:`MatchGauge`, and a :class:`LyricsPane`; the widgets are dumb and emit
-messages. Voting (``u``) runs ``TrackViewModel.vote_match`` and merges the fresh
+messages. Voting (up arrow) runs ``TrackViewModel.vote_match`` and merges the fresh
 tallies onto the gauge; it is inert when ``can_vote`` is False. ``m`` submits a
-match URL, ``e`` enqueues (only when ``can_download``), ``[``/``]`` cycle lyrics
+match URL, ``d`` enqueues (only when ``can_download``), ``[``/``]`` cycle lyrics
 sources, and ``space`` follows synced lyrics. An ``ApiError`` on vote is a toast.
 """
 
@@ -29,7 +29,10 @@ from .fakes import (
     make_features,
     make_lyrics,
     make_match,
+    make_pat,
+    make_tokens,
     make_track,
+    make_user,
 )
 
 _ORIGIN = "https://api.example.test"
@@ -111,7 +114,7 @@ async def test_vote_up_merges_fresh_tallies_onto_gauge() -> None:
 
         gauge = app.screen.query_one(MatchGauge)
         gauge.focus()
-        await pilot.press("u")
+        await pilot.press("up")
         await app.workers.wait_for_complete()
         await pilot.pause()
 
@@ -137,7 +140,7 @@ async def test_gauge_has_no_vote_affordance_when_cannot_vote() -> None:
         gauge = app.screen.query_one(MatchGauge)
         assert gauge.can_vote is False
         gauge.focus()
-        await pilot.press("u")  # the vote binding is absent — a no-op
+        await pilot.press("up")  # the vote binding is absent — a no-op
         await app.workers.wait_for_complete()
         await pilot.pause()
         assert not client.called("vote_match")
@@ -179,7 +182,7 @@ async def test_e_enqueues_only_when_downloads_enabled() -> None:
         await _mount_track(app, track_id)
         await app.workers.wait_for_complete()
         await pilot.pause()
-        await pilot.press("e")
+        await pilot.press("d")
         await app.workers.wait_for_complete()
         await pilot.pause()
         assert client.called("submit_download")
@@ -194,7 +197,7 @@ async def test_e_is_inert_when_downloads_disabled() -> None:
         await _mount_track(app, track_id)
         await app.workers.wait_for_complete()
         await pilot.pause()
-        await pilot.press("e")
+        await pilot.press("d")
         await app.workers.wait_for_complete()
         await pilot.pause()
         assert not client.called("submit_download")
@@ -261,9 +264,71 @@ async def test_vote_api_error_toasts_without_crashing() -> None:
 
         gauge = app.screen.query_one(MatchGauge)
         gauge.focus()
-        await pilot.press("u")
+        await pilot.press("up")
         await app.workers.wait_for_complete()
         await pilot.pause()
 
         assert app._notifications  # surfaced as a toast, screen still alive
         assert isinstance(app.screen, TrackScreen)
+
+
+async def test_community_signin_enables_voting_from_cta() -> None:
+    """§5 flow 2: anonymous community shows a vote CTA + inert votes; a sign-in re-enables it."""
+    from textual.widgets import Button, Input
+
+    track_id = uuid4()
+    match_id = uuid4()
+    # Community, anonymous: the server reports voting off until the user authenticates.
+    client = _client_with_track(
+        track_id, matches=[make_match(id=match_id, provider="youtube")], voting=False
+    )
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await _mount_track(app, track_id)
+        await app.workers.wait_for_complete()
+        await pilot.pause()
+
+        # CTA shown; the up-vote binding is inert while anonymous.
+        cta = app.screen.query_one("#vote-cta", Button)
+        assert "hidden" not in cta.classes
+        gauge = app.screen.query_one(MatchGauge)
+        gauge.focus()
+        await pilot.press("up")
+        await app.workers.wait_for_complete()
+        await pilot.pause()
+        assert not client.called("vote_match")
+
+        # Sign in on the Account screen: the server now reports voting enabled.
+        client.config_view = make_config(features=make_features(voting=True))
+        client.download_config_view = client.config_view
+        client.login_result = make_tokens(user=make_user(email="fan@example.com"))
+        client.pat_result = make_pat(token="pat-secret")
+        client.users_by_token["pat-secret"] = make_user(email="fan@example.com")
+        client.vote_match_result = make_match(
+            id=match_id, provider="", url="", upvotes=9, downvotes=1, net_score=8
+        )
+
+        await app.switch_mode("auth")
+        await pilot.pause()
+        app.screen.query_one("#auth-email", Input).value = "fan@example.com"
+        app.screen.query_one("#auth-password", Input).value = "pw"
+        await pilot.click("#auth-login")
+        await app.workers.wait_for_complete()
+        await pilot.pause()
+        await pilot.pause()
+        assert app.session is not None and app.session.can_vote
+
+        # Back on the track: the CTA is gone and a vote now lands (§5 flow 2 complete).
+        await app.switch_mode("home")
+        await pilot.pause()
+        assert isinstance(app.screen, TrackScreen)
+        assert "hidden" in app.screen.query_one("#vote-cta", Button).classes
+        gauge = app.screen.query_one(MatchGauge)
+        gauge.focus()
+        await pilot.pause()
+        await pilot.press("up")
+        await app.workers.wait_for_complete()
+        await pilot.pause()
+        assert client.calls[-1] == ("vote_match", (match_id, "up"), {})
+        assert "9" in gauge.summary and "1" in gauge.summary

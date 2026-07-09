@@ -178,16 +178,16 @@ async def test_end_to_end_pilot_crosses_every_section() -> None:
         await pilot.pause()
         assert isinstance(app.screen, TrackScreen)
 
-        # 3) cast a vote — fresh tallies merge onto the gauge
+        # 3) cast a vote — fresh tallies merge onto the gauge (up arrow votes up)
         gauge = app.screen.query_one(MatchGauge)
         gauge.focus()
-        await pilot.press("u")
+        await pilot.press("up")
         await app.workers.wait_for_complete()
         await pilot.pause()
         assert client.called("vote_match")
 
-        # 4) enqueue the track
-        await pilot.press("e")
+        # 4) enqueue the track (d = Download)
+        await pilot.press("d")
         await app.workers.wait_for_complete()
         await pilot.pause()
         assert client.called("submit_download")

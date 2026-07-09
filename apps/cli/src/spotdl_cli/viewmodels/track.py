@@ -44,6 +44,10 @@ class TrackViewModel:
         self._session = session
         self._track_id: UUID | None = None
 
+    def update_session(self, session: SessionSnapshot) -> None:
+        """Adopt a fresh session (e.g. a mid-session sign-in) without refetching (§5 flow 2)."""
+        self._session = session
+
     async def load(self, track_id: UUID) -> Loadable[TrackDetail]:
         self._track_id = track_id
 

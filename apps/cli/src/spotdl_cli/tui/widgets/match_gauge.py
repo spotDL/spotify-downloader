@@ -1,11 +1,13 @@
-"""``MatchGauge`` — one audio match as a score bar + tallies (CONTRACT D, Task 6).
+"""``MatchGauge`` — one audio match as a score bar + tallies (CONTRACT D, §4).
 
-A dumb, focusable ``Static`` over a single :class:`MatchRow`: it renders the
-provider, a 0–100 score bar, the status, and the up/down/net tallies. It owns no
-voting logic — when ``can_vote`` it exposes ``u``/``d``/``r`` bindings that post a
-:class:`MatchGauge.VoteRequested` for the screen to service; when not, those
-bindings are disabled (``check_action``) so no affordance shows. The screen applies
-the fresh tallies via :meth:`update_row`.
+A dumb, focusable ``Static`` over a single :class:`MatchRow`: it renders a provider
+icon, a colourised 0–100 score bar, a ``★`` verified marker, and the up/down/net
+vote tallies as arrows. It owns no voting logic — when ``can_vote`` it exposes
+``up``/``down``/``r`` bindings that post a :class:`MatchGauge.VoteRequested` for the
+screen to service; when not, those bindings are disabled (``check_action``) so no
+affordance shows. The focused (selected) gauge expands to reveal its source URL. The
+screen applies fresh tallies via :meth:`update_row` and toggles voting availability
+after a sign-in via :meth:`set_can_vote`.
 """
 
 from __future__ import annotations
@@ -18,7 +20,16 @@ from textual.widgets import Static
 
 from spotdl_cli.viewmodels.types import MatchRow
 
-_BAR_CELLS = 10
+_BAR_CELLS = 12
+
+# provider → glyph; unknown providers fall back to a musical note.
+_PROVIDER_ICONS = {
+    "youtube": "▶",
+    "youtube_music": "▶",
+    "soundcloud": "☁",
+    "bandcamp": "◆",
+    "spotify": "♫",
+}
 
 
 class MatchGauge(Static, can_focus=True):
@@ -31,8 +42,8 @@ class MatchGauge(Static, can_focus=True):
             super().__init__()
 
     BINDINGS = [
-        Binding("u", "vote('up')", "Upvote"),
-        Binding("d", "vote('down')", "Downvote"),
+        Binding("up", "vote('up')", "Upvote"),
+        Binding("down", "vote('down')", "Downvote"),
         Binding("r", "vote('retract')", "Retract", show=False),
     ]
 
@@ -40,6 +51,7 @@ class MatchGauge(Static, can_focus=True):
         super().__init__("", id=id)
         self._row = row
         self._can_vote = can_vote
+        self._focused = False
         self._repaint()
 
     @property
@@ -60,6 +72,12 @@ class MatchGauge(Static, can_focus=True):
         self._row = row
         self._repaint()
 
+    def set_can_vote(self, can_vote: bool) -> None:
+        """Flip voting availability (e.g. after a community sign-in) and repaint."""
+        if can_vote != self._can_vote:
+            self._can_vote = can_vote
+            self._repaint()
+
     def action_vote(self, value: str) -> None:
         if self._can_vote:
             self.post_message(self.VoteRequested(self._row.id, value))
@@ -68,17 +86,48 @@ class MatchGauge(Static, can_focus=True):
         """Hide + disable the vote bindings on a read-only (non-voting) server."""
         return self._can_vote or action != "vote"
 
+    def on_focus(self) -> None:
+        self._focused = True
+        self._repaint()
+
+    def on_blur(self) -> None:
+        self._focused = False
+        self._repaint()
+
     def _repaint(self) -> None:
-        self._summary = _gauge(self._row, can_vote=self._can_vote)
-        self.update(self._summary)
+        plain, markup = _gauge(self._row, can_vote=self._can_vote, focused=self._focused)
+        self._summary = plain
+        self.update(markup)
 
 
-def _gauge(row: MatchRow, *, can_vote: bool) -> str:
+def _score_colour(score: int) -> str:
+    if score >= 85:
+        return "green"
+    if score >= 60:
+        return "yellow"
+    return "red"
+
+
+def _gauge(row: MatchRow, *, can_vote: bool, focused: bool) -> tuple[str, str]:
+    """Return ``(plain, markup)`` — plain for assertions, markup for the display."""
     filled = max(0, min(_BAR_CELLS, round(row.score / 100 * _BAR_CELLS)))
     bar = "█" * filled + "░" * (_BAR_CELLS - filled)
-    verified = "  ✓ verified" if row.verified else ""
+    colour = _score_colour(row.score)
+    icon = _PROVIDER_ICONS.get(row.provider, "♪")
+    verified = "  ★ verified" if row.verified else ""
     tallies = f"▲{row.upvotes} ▼{row.downvotes} ({row.net_score:+d})"
-    line = f"{row.provider:<12} {bar} {row.score:>3}%  {row.status}  {tallies}{verified}"
+    head = f"{icon} {row.provider:<12}"
+    score = f"{row.score:>3}%"
+    plain = f"{head} {bar} {score}  {row.status}  {tallies}{verified}"
+    markup_verified = "  [green]★ verified[/]" if row.verified else ""
+    markup = (
+        f"{head} [{colour}]{bar}[/] [{colour}]{score}[/]  "
+        f"{row.status}  [dim]{tallies}[/]{markup_verified}"
+    )
+    if focused and row.url:
+        plain += f"\n    {row.url}"
+        markup += f"\n    [dim]{row.url}[/]"
     if can_vote:
-        line += "   [u]p [d]own"
-    return line
+        plain += "   ↑ up · ↓ down"
+        markup += "   [dim]↑ up · ↓ down[/]"
+    return plain, markup
