@@ -42,7 +42,12 @@ export function resolveWsBase(): string {
   return http.replace(/^http/, "ws");
 }
 
+// The client's `baseUrl` is the ORIGIN only. The server's exported openapi.json
+// already carries the `/api/v1` prefix in every operation path (e.g.
+// `/api/v1/config`), so the generated SDK urls include it — appending `/api/v1`
+// here would double-prefix. Effective request URL = resolveHttpBase() +
+// "/api/v1/<op>", i.e. same-origin `/api/v1/...` by default (CONTRACT B intent).
 export const createClientConfig: CreateClientConfig = (config) => ({
   ...config,
-  baseUrl: `${resolveHttpBase()}/api/v1`,
+  baseUrl: resolveHttpBase(),
 });
