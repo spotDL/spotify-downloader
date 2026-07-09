@@ -15,12 +15,65 @@ from __future__ import annotations
 
 import json
 from collections.abc import Mapping, Sequence
-from typing import Any
+from typing import Any, NamedTuple
 from uuid import UUID
 
 from pydantic import BaseModel
 
 SAVE_FILE_VERSION = 2
+
+# Canonical public track-page URL per metadata provider (WOAS-style provenance).
+# Providers without a stable, guessable per-track URL scheme are absent — they
+# still yield provider/provider_id with track_url=None.
+_CANONICAL_TRACK_URL: dict[str, str] = {
+    "spotify": "https://open.spotify.com/track/{id}",
+    "deezer": "https://www.deezer.com/track/{id}",
+    "itunes": "https://music.apple.com/song/{id}",
+    "musicbrainz": "https://musicbrainz.org/recording/{id}",
+    "ytmusic": "https://music.youtube.com/watch?v={id}",
+}
+
+
+class TrackProvenance(NamedTuple):
+    """Source-provider identity for one canonical track (fills ``SaveFileSong``)."""
+
+    provider: str
+    provider_id: str
+    track_url: str | None
+
+
+def pick_track_provenance(
+    snapshots: Sequence[Any], priority: Sequence[Any]
+) -> TrackProvenance | None:
+    """Choose the highest-priority snapshot's identity as the track's provenance.
+
+    ``priority`` is the merge source-priority order (``SOURCE_PRIORITY``); a
+    snapshot whose provider is not listed ranks last. Pure — callers load the
+    snapshots (``SnapshotRepository.list_for_entity``) and pass them in.
+    """
+    best: Any | None = None
+    best_rank = len(priority) + 1
+    ordered = list(priority)
+    for snap in snapshots:
+        provider = getattr(snap, "provider", None)
+        if provider is None or not getattr(snap, "provider_entity_id", None):
+            continue
+        try:
+            rank = ordered.index(provider)
+        except ValueError:
+            rank = len(ordered)
+        if rank < best_rank:
+            best, best_rank = snap, rank
+    if best is None:
+        return None
+    provider_value = getattr(best.provider, "value", None) or str(best.provider)
+    provider_id = str(best.provider_entity_id)
+    template = _CANONICAL_TRACK_URL.get(provider_value)
+    return TrackProvenance(
+        provider=provider_value,
+        provider_id=provider_id,
+        track_url=template.format(id=provider_id) if template else None,
+    )
 
 
 class SaveFileMatch(BaseModel):
@@ -141,15 +194,20 @@ def build_save_file(
     jobs: Sequence[Any],
     tracks_by_id: Mapping[UUID, Any],
     matches_by_id: Mapping[UUID, Any],
+    provenance_by_id: Mapping[UUID, TrackProvenance] | None = None,
 ) -> SaveFileV2:
     """Map a batch + its jobs (with resolved tracks/matches) to a :class:`SaveFileV2`.
 
     Pure mapper — no I/O. One :class:`SaveFileSong` per job, in the jobs' given
     order, so a failed job still appears (v4 parity). Populates the full track
     metadata available on the canonical rows, the chosen ``match`` provenance, and
-    the ``download`` settings/result. DB-unbacked optional tags (``date`` /
-    ``publisher`` / ``copyright_text`` / ``cover_url``) serialize as ``null`` — an
-    additive-safe, documented limitation of the v5 canonical ``tracks`` table.
+    the ``download`` settings/result. ``provenance_by_id`` (built by callers via
+    :func:`pick_track_provenance` over each track's linked snapshots) fills
+    ``provider``/``provider_id``/``track_url``; without it they fall back to the
+    canonical row's ``provider`` attribute (usually absent → ``null``).
+    DB-unbacked optional tags (``date`` / ``publisher`` / ``copyright_text`` /
+    ``cover_url``) serialize as ``null`` — an additive-safe, documented limitation
+    of the v5 canonical ``tracks`` table.
     """
     songs: list[SaveFileSong] = []
     matcher_version: str | None = None
@@ -183,6 +241,10 @@ def build_save_file(
         if matcher_version is None and save_match is not None:
             matcher_version = save_match.matcher_version
 
+        provenance: TrackProvenance | None = None
+        if provenance_by_id is not None and track_id is not None:
+            provenance = provenance_by_id.get(track_id)
+
         songs.append(
             SaveFileSong(
                 name=name,
@@ -199,9 +261,17 @@ def build_save_file(
                 year=getattr(track, "year", None) if track is not None else None,
                 genres=list(getattr(track, "genres", []) or []) if track is not None else [],
                 popularity=getattr(track, "popularity", None) if track is not None else None,
+                track_url=provenance.track_url if provenance is not None else None,
                 provider=(
-                    _provider_value(getattr(track, "provider", None)) if track is not None else None
+                    provenance.provider
+                    if provenance is not None
+                    else (
+                        _provider_value(getattr(track, "provider", None))
+                        if track is not None
+                        else None
+                    )
                 ),
+                provider_id=provenance.provider_id if provenance is not None else None,
                 list_name=getattr(batch, "name", None),
                 list_position=getattr(job, "list_position", None),
                 list_length=getattr(batch, "total_jobs", None),

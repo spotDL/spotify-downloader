@@ -364,6 +364,10 @@ class DownloadBatch(Base, TimestampMixin):
     output_format: Mapped[str | None] = mapped_column(sa.String(16), nullable=True)
     bitrate: Mapped[str | None] = mapped_column(sa.String(16), nullable=True)
     output_template: Mapped[str | None] = mapped_column(sa.String(2048), nullable=True)
+    # Batch overwrite mode (``OverwriteMode`` value; NULL ⇒ SKIP). The worker
+    # honours this on first attempts (CONTRACT 1); recovered/re-queued jobs
+    # (attempts>0) still force FORCE regardless.
+    overwrite: Mapped[str | None] = mapped_column(sa.String(16), nullable=True)
     generate_m3u: Mapped[bool] = mapped_column(sa.Boolean, nullable=False, default=False)
     m3u_template: Mapped[str | None] = mapped_column(sa.String(2048), nullable=True)
     generate_save_file: Mapped[bool] = mapped_column(sa.Boolean, nullable=False, default=False)

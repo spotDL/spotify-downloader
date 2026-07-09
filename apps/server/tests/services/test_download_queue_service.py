@@ -219,7 +219,7 @@ async def test_submit_overrides_flow_to_batch_and_jobs(
     result = ResolveResult(entity_type="track", track=_track_view(track))
     svc = _service(session, result, download_settings, clock)
 
-    from spotdl_core.download import OutputFormat
+    from spotdl_core.download import OutputFormat, OverwriteMode
 
     batch, _ = await svc.submit(
         DownloadSubmitRequest(
@@ -232,6 +232,7 @@ async def test_submit_overrides_flow_to_batch_and_jobs(
             generate_save_file=True,
             update_archive=True,
             sponsor_block=True,
+            overwrite=OverwriteMode.FORCE,
         )
     )
     (job,) = batch.jobs
@@ -247,6 +248,7 @@ async def test_submit_overrides_flow_to_batch_and_jobs(
     assert stored.update_archive is True
     assert stored.sponsor_block is True
     assert stored.output_format == "flac"
+    assert stored.overwrite == "force"
 
 
 async def test_list_jobs_filters_and_paginates(

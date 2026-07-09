@@ -33,7 +33,7 @@ Pydantic DTOs the router returns verbatim (no ORM/HTTP coupling).
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 from uuid import UUID
 
 from spotdl_core.model import EntityType
@@ -46,11 +46,20 @@ from spotdl_server.api.schemas import (
     DownloadSubmitRequest,
 )
 from spotdl_server.db.enums import BatchKind, DownloadStatus
-from spotdl_server.downloads.savefile import SaveFileV2, build_save_file
+from spotdl_server.downloads.savefile import (
+    SaveFileV2,
+    TrackProvenance,
+    build_save_file,
+    pick_track_provenance,
+)
+from spotdl_server.repositories.merge import SOURCE_PRIORITY
+from spotdl_server.repositories.snapshots import SnapshotRepository
 from spotdl_server.services.dto import ResolveResult, TrackView
 from spotdl_server.services.errors import NotFoundError, UnsupportedBatchEntity
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from sqlalchemy.ext.asyncio import AsyncSession
 
     from spotdl_server.auth.clock import Clock
@@ -102,7 +111,7 @@ class DownloadQueueService:
     # ------------------------------------------------------------ submit
     async def submit(self, req: DownloadSubmitRequest) -> tuple[DownloadBatchOut, list[UUID]]:
         """Resolve, expand, and enqueue ``req`` as one committed batch of jobs."""
-        result = await self._resolve.resolve(req.query)
+        result = await self._resolve_or_lookup(req.query)
         kind, name, pairs = await self._expand(result)
 
         output_format = req.output_format or self._settings.default_output_format
@@ -116,6 +125,7 @@ class DownloadQueueService:
             output_format=output_format.value,
             bitrate=bitrate,
             output_template=output_template,
+            overwrite=req.overwrite.value if req.overwrite is not None else None,
             generate_m3u=req.generate_m3u,
             m3u_template=req.m3u_template,
             generate_save_file=req.generate_save_file,
@@ -144,6 +154,45 @@ class DownloadQueueService:
 
         await self._session.commit()
         return await self._batch_out(batch.id), job_ids
+
+    async def _resolve_or_lookup(self, query: str) -> ResolveResult:
+        """Resolve ``query``; a bare canonical UUID short-circuits to the local DB.
+
+        The web UI's enqueue-all posts the canonical entity id it is already
+        looking at — re-resolving that through the provider stack would be both
+        wasteful and lossy (bare UUIDs fall through URL parsing into free-text
+        search). Try each canonical table; an artist id still lands in
+        ``_expand``'s ``UnsupportedBatchEntity``. Unknown UUIDs are a 404.
+        """
+        try:
+            entity_id = UUID(query.strip())
+        except ValueError:
+            return await self._resolve.resolve(query)
+        try:
+            track = await self._entities.get_track(entity_id)
+        except NotFoundError:
+            pass
+        else:
+            return ResolveResult(entity_type=EntityType.TRACK.value, track=track)
+        try:
+            album = await self._entities.get_album(entity_id)
+        except NotFoundError:
+            pass
+        else:
+            return ResolveResult(entity_type=EntityType.ALBUM.value, album=album)
+        try:
+            playlist = await self._entities.get_playlist(entity_id)
+        except NotFoundError:
+            pass
+        else:
+            return ResolveResult(entity_type=EntityType.PLAYLIST.value, playlist=playlist)
+        try:
+            artist = await self._entities.get_artist(entity_id)
+        except NotFoundError:
+            pass
+        else:
+            return ResolveResult(entity_type=EntityType.ARTIST.value, artist=artist)
+        raise NotFoundError(entity_type="entity", entity_id=entity_id)
 
     async def _expand(
         self, result: ResolveResult
@@ -242,7 +291,8 @@ class DownloadQueueService:
                 match = await self._matches.get(job.match_id)
                 if match is not None:
                     matches_by_id[job.match_id] = match
-        return build_save_file(batch, jobs, tracks_by_id, matches_by_id)
+        provenance_by_id = await _track_provenance_map(self._session, tracks_by_id)
+        return build_save_file(batch, jobs, tracks_by_id, matches_by_id, provenance_by_id)
 
     # ------------------------------------------------------------ mapping
     async def _batch_out(self, batch_id: UUID) -> DownloadBatchOut:
@@ -288,3 +338,23 @@ class DownloadQueueService:
             started_at=job.started_at,
             finished_at=job.finished_at,
         )
+
+
+async def _track_provenance_map(
+    session: AsyncSession, tracks_by_id: Mapping[UUID, Any]
+) -> dict[UUID, TrackProvenance]:
+    """Load each track's linked snapshots and pick its save-file provenance.
+
+    Shared by the on-demand save-file endpoint and the batch finalizer so both
+    emit identical ``provider``/``provider_id``/``track_url`` fields. One
+    ``list_for_entity`` query per distinct track — save files are small enough
+    that this beats a bespoke join.
+    """
+    snapshots = SnapshotRepository(session)
+    provenance: dict[UUID, TrackProvenance] = {}
+    for track_id in tracks_by_id:
+        linked = await snapshots.list_for_entity(EntityType.TRACK, track_id)
+        picked = pick_track_provenance(linked, SOURCE_PRIORITY)
+        if picked is not None:
+            provenance[track_id] = picked
+    return provenance

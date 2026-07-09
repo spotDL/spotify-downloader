@@ -60,6 +60,7 @@ def upgrade() -> None:
     sa.Column('output_format', sa.String(length=16), nullable=True),
     sa.Column('bitrate', sa.String(length=16), nullable=True),
     sa.Column('output_template', sa.String(length=2048), nullable=True),
+    sa.Column('overwrite', sa.String(length=16), nullable=True),
     sa.Column('generate_m3u', sa.Boolean(), nullable=False),
     sa.Column('m3u_template', sa.String(length=2048), nullable=True),
     sa.Column('generate_save_file', sa.Boolean(), nullable=False),

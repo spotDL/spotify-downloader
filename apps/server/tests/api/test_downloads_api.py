@@ -198,7 +198,10 @@ async def test_cancel_in_flight_job_transitions_to_cancelled(tmp_path: Path) -> 
 
             resp = await client.delete(f"/api/v1/downloads/{job['id']}")
             assert resp.status_code == 200
-            final = await _poll_job(client, job["id"])
+            # Generous deadline: in-flight cancellation must unwind the engine task,
+            # run _on_cancelled's fresh-session commit, and broadcast — under a
+            # loaded machine (parallel suites) 5s has proven flaky.
+            final = await _poll_job(client, job["id"], timeout=20.0)
             assert final["status"] == "cancelled"
     finally:
         release.set()
@@ -248,3 +251,30 @@ async def test_hosted_has_no_downloads_endpoint(tmp_path: Path) -> None:
         async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
             resp = await client.post("/api/v1/downloads", json={"query": TRACK_URL})
     assert resp.status_code == 404
+
+
+async def test_submit_accepts_canonical_uuid_query(tmp_path: Path) -> None:
+    """The web UI's enqueue-all posts the canonical entity id (not a URL)."""
+    async with api_client(
+        _track_registry(), data_dir=tmp_path, mode=DeploymentMode.EMBEDDED
+    ) as client:
+        first = (await client.post("/api/v1/downloads", json={"query": TRACK_URL})).json()
+        track_id = first["batch"]["jobs"][0]["track_id"]
+        await _wait_all_settled(client)
+
+        again = await client.post("/api/v1/downloads", json={"query": track_id})
+        assert again.status_code == 201
+        body = again.json()
+        assert body["batch"]["kind"] == "single"
+        assert body["batch"]["jobs"][0]["track_id"] == track_id
+
+
+async def test_submit_unknown_uuid_is_not_found(tmp_path: Path) -> None:
+    async with api_client(
+        _track_registry(), data_dir=tmp_path, mode=DeploymentMode.EMBEDDED
+    ) as client:
+        resp = await client.post(
+            "/api/v1/downloads", json={"query": "00000000-0000-0000-0000-000000000042"}
+        )
+        assert resp.status_code == 404
+        assert resp.json()["code"] == "not_found"

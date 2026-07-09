@@ -78,3 +78,96 @@ def test_dump_is_deterministic_and_reparses() -> None:
     assert text == dump_save_file(model)  # deterministic across calls
     reparsed = SaveFileV2.model_validate_json(text)
     assert reparsed == model
+
+
+# ------------------------------------------------------------ provenance
+class _Snap:
+    """Bare snapshot stand-in: provider (StrEnum-like) + provider_entity_id."""
+
+    def __init__(self, provider: object, provider_entity_id: str) -> None:
+        self.provider = provider
+        self.provider_entity_id = provider_entity_id
+
+
+def test_pick_track_provenance_prefers_priority_order() -> None:
+    from spotdl_core.model import ProviderId
+    from spotdl_server.downloads.savefile import pick_track_provenance
+    from spotdl_server.repositories.merge import SOURCE_PRIORITY
+
+    snaps = [
+        _Snap(ProviderId.MUSICBRAINZ, "mb-1"),
+        _Snap(ProviderId.SPOTIFY, "sp-1"),
+        _Snap(ProviderId.DEEZER, "dz-1"),
+    ]
+    picked = pick_track_provenance(snaps, SOURCE_PRIORITY)
+    assert picked is not None
+    assert picked.provider == "spotify"
+    assert picked.provider_id == "sp-1"
+    assert picked.track_url == "https://open.spotify.com/track/sp-1"
+
+
+def test_pick_track_provenance_unknown_provider_has_no_url() -> None:
+    from spotdl_server.downloads.savefile import pick_track_provenance
+
+    picked = pick_track_provenance([_Snap("bandcamp", "bc-9")], [])
+    assert picked is not None
+    assert picked.provider == "bandcamp"
+    assert picked.track_url is None
+
+
+def test_pick_track_provenance_empty() -> None:
+    from spotdl_server.downloads.savefile import pick_track_provenance
+
+    assert pick_track_provenance([], []) is None
+
+
+def test_build_save_file_fills_provenance_fields() -> None:
+    from types import SimpleNamespace
+    from uuid import uuid4
+
+    from spotdl_server.downloads.savefile import TrackProvenance, build_save_file
+
+    track_id = uuid4()
+    job = SimpleNamespace(
+        track_id=track_id,
+        match_id=None,
+        output_format="mp3",
+        bitrate="auto",
+        output_template="{artists} - {title}.{output-ext}",
+        output_path=None,
+        status="completed",
+        skip_reason=None,
+        error_step=None,
+        list_position=1,
+    )
+    batch = SimpleNamespace(kind="single", name=None, source="q", created_at=None, total_jobs=1)
+    track = SimpleNamespace(
+        artists=[SimpleNamespace(name="A")],
+        name="Song",
+        duration_ms=1000,
+        album=None,
+        isrc=None,
+        explicit=None,
+        track_number=None,
+        disc_number=None,
+        year=None,
+        genres=[],
+        popularity=None,
+    )
+    provenance = {
+        track_id: TrackProvenance(
+            provider="spotify",
+            provider_id="sp-42",
+            track_url="https://open.spotify.com/track/sp-42",
+        )
+    }
+    model = build_save_file(batch, [job], {track_id: track}, {}, provenance)
+    song = model.songs[0]
+    assert song.provider == "spotify"
+    assert song.provider_id == "sp-42"
+    assert song.track_url == "https://open.spotify.com/track/sp-42"
+
+    # without provenance the same inputs keep the fields null
+    bare = build_save_file(batch, [job], {track_id: track}, {})
+    assert bare.songs[0].provider_id is None
+    assert bare.songs[0].track_url is None
