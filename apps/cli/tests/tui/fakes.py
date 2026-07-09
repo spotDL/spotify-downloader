@@ -108,6 +108,8 @@ def make_track(
     duration_ms: int = 185_000,
     explicit: bool | None = False,
     album: AlbumRefView | None = None,
+    provider: str | None = None,
+    provider_id: str | None = None,
 ) -> TrackView:
     return TrackView(
         id=str(id or uuid4()),
@@ -116,6 +118,8 @@ def make_track(
         duration_ms=duration_ms,
         album=album if album is not None else AlbumRefView(id=str(uuid4()), name="Album"),
         explicit=explicit,
+        provider=provider,
+        provider_id=provider_id,
     )
 
 

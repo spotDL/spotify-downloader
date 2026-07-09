@@ -34,6 +34,8 @@ class TrackRow:
     duration: str
     explicit: bool
     provider: str
+    # Provider ref for a search preview (empty for canonical collection rows).
+    provider_id: str = ""
 
 
 @dataclass(frozen=True, slots=True)

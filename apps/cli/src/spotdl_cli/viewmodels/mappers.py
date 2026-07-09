@@ -75,7 +75,8 @@ def track_row(track: TrackView) -> TrackRow:
         album=track.album.name if track.album is not None else "",
         duration=format_duration(track.duration_ms),
         explicit=bool(track.explicit),
-        provider=_NO_PROVIDER,
+        provider=track.provider or _NO_PROVIDER,
+        provider_id=track.provider_id or "",
     )
 
 

@@ -112,6 +112,10 @@ class TrackView:
     popularity: int | None = None
     track_number: int | None = None
     year: int | None = None
+    # Source-provider ref (search previews only): lets the client resolve a hit
+    # into its canonical entity before opening the track page.
+    provider: str | None = None
+    provider_id: str | None = None
 
     @classmethod
     def from_generated(cls, track: TrackOut) -> TrackView:
@@ -129,6 +133,8 @@ class TrackView:
             popularity=_opt(track.popularity),
             track_number=_opt(track.track_number),
             year=_opt(track.year),
+            provider=_opt(track.provider),
+            provider_id=_opt(track.provider_id),
         )
 
 

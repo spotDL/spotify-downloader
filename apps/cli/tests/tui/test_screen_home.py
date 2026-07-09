@@ -165,3 +165,42 @@ async def test_slash_focuses_the_search_input() -> None:
         await pilot.press("slash")
         await pilot.pause()
         assert app.focused is app.screen.query_one("#search-input", Input)
+
+
+async def test_search_hit_resolves_provider_ref_before_opening() -> None:
+    """A search hit is a snapshot preview, not a canonical entity. Selecting it
+    must resolve `{provider}:track:{id}` → the canonical track id (which the track
+    page loads), never navigate with the raw snapshot id (that 404s)."""
+    client = FakeSpotdlClient()
+    snapshot_id = uuid4()  # the search-row id (a provider snapshot)
+    canonical_id = uuid4()  # what resolve returns
+    client.search_results = [
+        make_track(id=snapshot_id, name="KAMIKAZE", provider="deezer", provider_id="d123")
+    ]
+    client.resolve_result = EntityView(
+        type="track", track=make_track(id=canonical_id, name="KAMIKAZE")
+    )
+    client.tracks[str(canonical_id)] = make_track(id=canonical_id, name="KAMIKAZE")
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        app.screen.query_one("#search-input", Input).focus()
+        await pilot.press("k", "enter")
+        await app.workers.wait_for_complete()
+        await pilot.pause()
+
+        # Source column shows the provider now (was "—" before).
+        table = app.screen.query_one("#search-results", DataTable)
+        assert str(table.get_row_at(0)[4]) == "deezer"
+
+        table.focus()
+        await pilot.press("enter")
+        await app.workers.wait_for_complete()
+        await pilot.pause()
+
+        # It resolved the provider ref (not a bare snapshot-id GET) and opened the track.
+        assert client.called("resolve")
+        resolve_calls = [c for c in client.calls if c[0] == "resolve"]
+        assert resolve_calls[0][1] == ("deezer:track:d123",)
+        assert len(app.screen_stack) == 2
+        assert not isinstance(app.screen, HomeSearchScreen)

@@ -89,7 +89,14 @@ class HomeSearchScreen(SpotdlScreen):
 
     def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
         row = self._row_for(event.row_key.value)
-        if row is not None:
+        if row is None:
+            return
+        if row.provider and row.provider_id:
+            # A search hit is a provider-snapshot preview, not a canonical entity;
+            # resolve `{provider}:track:{id}` into the canonical id the track page
+            # loads (the raw snapshot id 404s at GET /tracks/{id}).
+            self._open(f"{row.provider}:track:{row.provider_id}")
+        else:
             self.post_message(NavigateTo(EntityRef("track", row.id, row.title)))
 
     # -- download-from-search (the panel's "d download" hint) -----------------
