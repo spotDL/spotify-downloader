@@ -1,0 +1,53 @@
+/* spotDL TUI — the one stylesheet (CONTRACT B: a single .tcss).
+ *
+ * Theme-neutral: colours come from Textual's design tokens ($panel, $accent,
+ * $boost, $text-muted) so the app follows the active light/dark theme instead of
+ * hard-coding a palette. Layout tokens + shared accents (status bar, footer,
+ * gauges, tables) live here; screens add only their own structural rules. */
+
+Screen {
+    layout: vertical;
+}
+
+StatusBar {
+    dock: top;
+    height: 1;
+    width: 100%;
+    padding: 0 1;
+    color: $text-muted;
+    background: $panel;
+    content-align: left middle;
+}
+
+Footer {
+    background: $panel;
+}
+
+/* Section/entity content sits between the docked status bar and footer. */
+.placeholder {
+    width: 100%;
+    height: 1fr;
+    content-align: center middle;
+    color: $text-muted;
+}
+
+.help-body {
+    padding: 1 2;
+}
+
+/* Shared accents later screens lean on (Task 6 gauges, Task 7/8 tables). */
+DataTable {
+    height: 1fr;
+}
+
+DataTable > .datatable--cursor {
+    background: $accent;
+}
+
+.gauge--bar {
+    color: $accent;
+}
+
+.gauge--full {
+    color: $success;
+}

@@ -19,8 +19,19 @@ import spotdl_cli
 
 _SRC = Path(spotdl_cli.__file__).parent
 _VIEWMODELS = _SRC / "viewmodels"
+_TUI = _SRC / "tui"
 
 VIEWMODEL_CAP = 300
+# Per-tier ``tui/`` caps (§13): screens hold layout + message wiring only, widgets
+# are dumber still, and the app-row files (app/router/messages) are pure shell.
+SCREEN_CAP = 400
+WIDGET_CAP = 250
+APP_ROW_CAP = 300
+
+# Structural gates that become the guard for every later screen task: exactly one
+# stylesheet, and at most this many screen modules (screen sprawl was how the
+# abandoned rewrite reached 16k lines).
+MAX_SCREEN_MODULES = 12
 
 
 def _nonblank_lines(path: Path) -> int:
@@ -34,6 +45,15 @@ def _budget_message(path: Path, n: int, cap: int) -> str:
     )
 
 
+def _breaches(root: Path, cap: int) -> list[str]:
+    out: list[str] = []
+    for path in sorted(root.rglob("*.py")):
+        n = _nonblank_lines(path)
+        if n > cap:
+            out.append(_budget_message(path.relative_to(_SRC), n, cap))
+    return out
+
+
 def test_viewmodel_files_within_budget() -> None:
     breaches: list[str] = []
     for path in sorted(_VIEWMODELS.rglob("*.py")):
@@ -41,3 +61,29 @@ def test_viewmodel_files_within_budget() -> None:
         if n > VIEWMODEL_CAP:
             breaches.append(_budget_message(path.relative_to(_SRC), n, VIEWMODEL_CAP))
     assert not breaches, "\n".join(breaches)
+
+
+def test_tui_files_within_budget() -> None:
+    breaches: list[str] = []
+    breaches += _breaches(_TUI / "screens", SCREEN_CAP)
+    breaches += _breaches(_TUI / "widgets", WIDGET_CAP)
+    for path in sorted(_TUI.glob("*.py")):  # app-row: top-level tui/ modules
+        n = _nonblank_lines(path)
+        if n > APP_ROW_CAP:
+            breaches.append(_budget_message(path.relative_to(_SRC), n, APP_ROW_CAP))
+    assert not breaches, "\n".join(breaches)
+
+
+def test_single_stylesheet() -> None:
+    sheets = sorted(p.relative_to(_SRC) for p in _TUI.rglob("*.tcss"))
+    assert len(sheets) == 1, f"the TUI must ship exactly one stylesheet, found: {sheets}"
+
+
+def test_screen_module_count_bounded() -> None:
+    modules = sorted(
+        p.relative_to(_SRC) for p in (_TUI / "screens").glob("*.py") if p.name != "__init__.py"
+    )
+    assert len(modules) <= MAX_SCREEN_MODULES, (
+        f"{len(modules)} screen modules exceeds the {MAX_SCREEN_MODULES} cap "
+        f"(one screen per concept, no sprawl): {modules}"
+    )
