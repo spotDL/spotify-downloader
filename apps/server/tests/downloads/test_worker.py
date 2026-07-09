@@ -55,9 +55,10 @@ async def _seed(
     attempts: int = 0,
     total_jobs: int = 1,
     name: str | None = None,
+    overwrite: str | None = None,
 ) -> tuple[Any, Any]:
     async with maker() as session:
-        batch = DownloadBatch(kind=kind, name=name, total_jobs=total_jobs)
+        batch = DownloadBatch(kind=kind, name=name, total_jobs=total_jobs, overwrite=overwrite)
         session.add(batch)
         await session.flush()
         track = Track(name="Song", duration_ms=180_000, track_number=7)
@@ -341,6 +342,38 @@ async def test_cancel_running_job(
     assert partial is None
 
 
+async def test_cancel_during_active_progress_flush_reaches_terminal(
+    download_sessionmaker: Any, download_settings: Settings, make_pool: Any
+) -> None:
+    # The engine streams progress continuously so the pump is actively flushing
+    # (write+commit) when the cancel lands. The flush must finish before the pump's
+    # session closes (else a concurrent-session-use race strands the job ``running``);
+    # this pins that the job still reaches CANCELLED cleanly, no stuck state.
+    settings = download_settings.model_copy(update={"progress_throttle_ms": 1})
+    batch_id, job_id = await _seed(download_sessionmaker)
+
+    async def script(engine: FakeDownloadEngine, request: Any, on_progress: Any) -> DownloadOutcome:
+        percent = 0
+        while True:
+            percent = (percent + 5) % 100
+            engine.emit(on_progress, ProgressPhase.FETCH, percent)
+            await asyncio.sleep(0.001)
+
+    engine = FakeDownloadEngine(config=settings.download_config(), script=script)
+    pool, hub, _ = make_pool(download_sessionmaker, engine, settings=settings)
+
+    await pool.start()
+    await _wait_status(download_sessionmaker, job_id, {DownloadStatus.RUNNING})
+    # Let a few throttled flushes land while progress is streaming.
+    await _wait_until(lambda: any(m.type == "progress" for m in hub.messages))
+
+    assert await pool.request_cancel(job_id) is True
+    job = await _wait_status(download_sessionmaker, job_id, {DownloadStatus.CANCELLED})
+
+    assert job.status is DownloadStatus.CANCELLED
+    await _assert_no_running(download_sessionmaker, [job_id])
+
+
 async def test_cancel_queued_job_never_calls_engine(
     download_sessionmaker: Any, download_settings: Settings, make_pool: Any
 ) -> None:
@@ -413,6 +446,34 @@ async def test_fresh_job_keeps_skip_overwrite(
     await _wait_status(download_sessionmaker, job_id, {DownloadStatus.COMPLETED})
 
     assert engine.requests[0].overwrite is OverwriteMode.SKIP
+
+
+async def test_first_attempt_honours_batch_overwrite(
+    download_sessionmaker: Any, download_settings: Settings, make_pool: Any
+) -> None:
+    # A batch submitted with overwrite=force: the fresh (attempts==0) job's
+    # request must carry FORCE, not the default SKIP (CONTRACT 1 / CONTRACT 4).
+    batch_id, job_id = await _seed(download_sessionmaker, overwrite="force")
+    engine = FakeDownloadEngine(config=download_settings.download_config())
+    pool, _, _ = make_pool(download_sessionmaker, engine)
+
+    await pool.start()
+    await _wait_status(download_sessionmaker, job_id, {DownloadStatus.COMPLETED})
+
+    assert engine.requests[0].overwrite is OverwriteMode.FORCE
+
+
+async def test_first_attempt_honours_batch_overwrite_metadata(
+    download_sessionmaker: Any, download_settings: Settings, make_pool: Any
+) -> None:
+    batch_id, job_id = await _seed(download_sessionmaker, overwrite="metadata")
+    engine = FakeDownloadEngine(config=download_settings.download_config())
+    pool, _, _ = make_pool(download_sessionmaker, engine)
+
+    await pool.start()
+    await _wait_status(download_sessionmaker, job_id, {DownloadStatus.COMPLETED})
+
+    assert engine.requests[0].overwrite is OverwriteMode.METADATA
 
 
 # ------------------------------------------------------------ no viable match
@@ -490,6 +551,37 @@ async def test_graceful_drain_requeues_slow_job(
     assert job.status is DownloadStatus.QUEUED
     assert job.started_at is None
     assert job.attempts == 1
+
+
+async def test_graceful_drain_does_not_leak_queued_job(
+    download_sessionmaker: Any, download_settings: Settings, make_pool: Any
+) -> None:
+    # concurrency=1: job1 runs (a straggler cancelled at the drain timeout) while
+    # job2 waits in the queue. The worker must NOT pull+claim job2 during the
+    # drain (it would run detached past shutdown, stranded ``running`` while the
+    # engine is torn down). Both jobs must be non-running after shutdown, and the
+    # engine must only ever have seen job1's request.
+    settings = download_settings.model_copy(update={"download_concurrency": 1})
+    batch_id, job1 = await _seed(download_sessionmaker, total_jobs=2, name="Mix")
+    job2 = await _add_job(download_sessionmaker, batch_id, position=2)
+
+    async def slow(engine: FakeDownloadEngine, request: Any, on_progress: Any) -> DownloadOutcome:
+        await asyncio.sleep(5.0)
+        return DownloadOutcome.downloaded(request.track, engine.write_output(request))
+
+    engine = FakeDownloadEngine(config=settings.download_config(), script=slow)
+    pool, _, _ = make_pool(download_sessionmaker, engine, settings=settings)
+
+    await pool.start()
+    await _wait_status(download_sessionmaker, job1, {DownloadStatus.RUNNING})
+    await pool.shutdown(drain_timeout_s=0.01)
+
+    j1 = await _get_job(download_sessionmaker, job1)
+    j2 = await _get_job(download_sessionmaker, job2)
+    assert j1.status is DownloadStatus.QUEUED  # straggler re-queued
+    assert j2.status is DownloadStatus.QUEUED  # never claimed
+    await _assert_no_running(download_sessionmaker, [job1, job2])
+    assert len(engine.requests) == 1  # job2 never reached the engine
 
 
 async def test_fast_job_completes_within_drain_window(

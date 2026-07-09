@@ -116,6 +116,7 @@ class DownloadQueueService:
             output_format=output_format.value,
             bitrate=bitrate,
             output_template=output_template,
+            overwrite=req.overwrite.value if req.overwrite is not None else None,
             generate_m3u=req.generate_m3u,
             m3u_template=req.m3u_template,
             generate_save_file=req.generate_save_file,

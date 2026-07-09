@@ -281,6 +281,7 @@ def test_download_batches_columns() -> None:
         "output_format": ("String", 16, True, None),
         "bitrate": ("String", 16, True, None),
         "output_template": ("String", 2048, True, None),
+        "overwrite": ("String", 16, True, None),
         "generate_m3u": ("Boolean", None, False, False),
         "m3u_template": ("String", 2048, True, None),
         "generate_save_file": ("Boolean", None, False, False),

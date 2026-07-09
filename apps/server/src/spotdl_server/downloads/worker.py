@@ -230,6 +230,17 @@ class DownloadWorkerPool:
             worker.cancel()
         await asyncio.gather(*self._workers, return_exceptions=True)
         self._workers.clear()
+        # Belt-and-suspenders: a worker may have claimed a fresh job between the
+        # straggler snapshot above and its own cancellation (cancelling the worker
+        # task only unwinds its ``asyncio.wait`` waiter, never the spawned
+        # ``_run_job`` child). Cancel any such leaked job so none runs detached past
+        # shutdown — otherwise the lifespan disposes the DB engine underneath it and
+        # the row is left ``running`` until the next boot's recover_orphaned.
+        leaked = list(self._running.values())
+        for task in leaked:
+            task.cancel()
+        if leaked:
+            await asyncio.gather(*leaked, return_exceptions=True)
         self._closed = True
 
     # ------------------------------------------------------------ worker loop
@@ -238,6 +249,12 @@ class DownloadWorkerPool:
             try:
                 job_id = await self._queue.get()
             except asyncio.CancelledError:
+                return
+            # Stop pulling once a drain has begun: a job popped here would be a
+            # *fresh* claim the shutdown snapshot has already passed, so it would
+            # run detached past shutdown. Leave it ``queued`` for the next boot.
+            if self._shutting_down:
+                self._queue.task_done()
                 return
             task = asyncio.create_task(self._run_job(job_id))
             self._running[job_id] = task
@@ -316,9 +333,22 @@ class DownloadWorkerPool:
                     # job teardown (completion *and* cancellation), and a cancel landing
                     # mid-commit aborts the transaction with the connection still holding
                     # the SQLite write lock — the job's terminal write (``_finish`` /
-                    # ``_on_cancelled``) then fails with "database is locked". Letting the
-                    # flush finish before the cancel unwinds keeps the lock released.
-                    await asyncio.shield(self._flush_progress(session, repo, job_id, overall))
+                    # ``_on_cancelled``) then fails with "database is locked". A bare
+                    # ``await asyncio.shield(coro)`` does *not* keep the flush from racing:
+                    # on cancel the awaiter unwinds immediately while the flush runs
+                    # detached on ``session``, which this ``async with`` is now closing —
+                    # a concurrent-session-use race. So hold a reference and, on cancel,
+                    # await the in-flight flush to completion *before* re-raising, so the
+                    # write+commit finishes (releasing the lock) before the session closes.
+                    flush = asyncio.ensure_future(
+                        self._flush_progress(session, repo, job_id, overall)
+                    )
+                    try:
+                        await asyncio.shield(flush)
+                    except asyncio.CancelledError:
+                        with contextlib.suppress(Exception):
+                            await flush
+                        raise
                     await self._hub.broadcast(
                         WsProgress(
                             job_id=job_id,
@@ -556,8 +586,14 @@ class DownloadWorkerPool:
 
         # Recovery integrity (CONTRACT 1): a re-run job (attempts>0) may sit on a
         # converted-but-untagged file, so FORCE a full re-fetch/convert/embed
-        # rather than trusting file existence. First attempts honour SKIP.
-        overwrite = OverwriteMode.FORCE if job.attempts > 0 else OverwriteMode.SKIP
+        # rather than trusting file existence. First attempts honour the batch's
+        # overwrite mode (the client's ``overwrite=`` on submit; NULL ⇒ SKIP).
+        if job.attempts > 0:
+            overwrite = OverwriteMode.FORCE
+        elif batch is not None and batch.overwrite is not None:
+            overwrite = OverwriteMode(batch.overwrite)
+        else:
+            overwrite = OverwriteMode.SKIP
 
         archive: frozenset[str] = frozenset()
         if batch is not None and batch.update_archive:

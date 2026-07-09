@@ -27,6 +27,7 @@ async def _mk_batch(session: AsyncSession, **over: object) -> object:
         output_format="mp3",
         bitrate="auto",
         output_template="t",
+        overwrite=None,
         generate_m3u=False,
         m3u_template=None,
         generate_save_file=False,
