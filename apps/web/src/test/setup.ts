@@ -3,11 +3,11 @@ import { afterAll, afterEach, beforeAll } from "vitest";
 import { cleanup } from "@testing-library/react";
 import { server } from "./msw/server";
 import { client } from "../api/generated/client.gen";
-import { installAuthInterceptors } from "../api/client";
+import { installApiInterceptors } from "../api/boot";
 
 // Wire the CONTRACT C auth interceptors onto the singleton client for every test
 // (mirrors main.tsx). Idempotent — registers once across the test process.
-installAuthInterceptors(client);
+installApiInterceptors();
 
 // In a real browser the client's same-origin base ("") yields relative request
 // URLs the browser resolves against `document`. Under jsdom the runtime `fetch`

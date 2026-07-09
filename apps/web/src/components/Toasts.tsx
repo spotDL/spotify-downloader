@@ -23,6 +23,7 @@ type ToastStore = {
   toasts: ToastItem[];
   push: (message: string, severity: Severity) => string;
   dismiss: (id: string) => void;
+  clear: () => void;
 };
 
 let counter = 0;
@@ -37,6 +38,7 @@ const useToastStore = create<ToastStore>((set) => ({
   },
   dismiss: (id) =>
     set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
+  clear: () => set({ toasts: [] }),
 }));
 
 /** Imperative toast API — callable from anywhere (CONTRACT F/H). */
@@ -52,6 +54,8 @@ export const toast = {
       .getState()
       .push(messageForApiError(e), severityForApiError(e)),
   dismiss: (id: string) => useToastStore.getState().dismiss(id),
+  /** Drop every queued toast (used to reset between tests). */
+  clear: () => useToastStore.getState().clear(),
 };
 
 export function useToast() {
@@ -63,6 +67,14 @@ const SEVERITY_STYLES: Record<Severity, string> = {
   error: "border-danger/40 bg-danger/10 text-danger",
   warn: "border-warn/40 bg-warn/10 text-fg",
   info: "border-brand-500/40 bg-brand-50 text-fg dark:bg-brand-700/20",
+};
+
+// A leading glyph reinforces severity for colorblind users (color alone is not
+// an accessible signal).
+const SEVERITY_ICON: Record<Severity, string> = {
+  error: "⨯",
+  warn: "!",
+  info: "i",
 };
 
 const AUTO_DISMISS_MS = 6000;
@@ -81,10 +93,14 @@ function ToastRow({ item }: { item: ToastItem }) {
 
   return (
     <div
+      data-severity={item.severity}
       className={`pointer-events-auto flex items-start gap-3 rounded-card border px-4 py-3 text-sm shadow-card ${SEVERITY_STYLES[item.severity]}`}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
+      <span aria-hidden="true" className="font-semibold">
+        {SEVERITY_ICON[item.severity]}
+      </span>
       <span className="flex-1">{item.message}</span>
       <button
         type="button"
