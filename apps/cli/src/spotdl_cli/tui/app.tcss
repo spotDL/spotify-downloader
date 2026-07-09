@@ -35,6 +35,23 @@ Footer {
     padding: 1 2;
 }
 
+/* Settings: a scrolling stack of labelled controls + an inline validation line. */
+#settings-form {
+    height: 1fr;
+    padding: 0 1;
+}
+
+.settings-label {
+    color: $text-muted;
+    padding: 1 0 0 0;
+}
+
+.settings-error {
+    height: auto;
+    padding: 0 1;
+    color: $error;
+}
+
 /* Shared accents later screens lean on (Task 6 gauges, Task 7/8 tables). */
 DataTable {
     height: 1fr;
