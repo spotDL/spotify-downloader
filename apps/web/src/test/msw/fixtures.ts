@@ -5,12 +5,18 @@
 // generated-client discipline). Builders take a shallow `overrides` partial.
 import type {
   AdminStatsResponse,
+  AlbumOut,
+  ArtistOut,
   ConfigResponse,
   DeploymentMode,
+  DownloadBatchOut,
+  DownloadJobOut,
   DownloadListResponse,
+  DownloadSubmitResponse,
   LyricsResponse,
   MatchesResponse,
   MatchOut,
+  PlaylistOut,
   TokenResponse,
   TrackOut,
   UserResponse,
@@ -111,6 +117,101 @@ export function makeLyrics(
         downvotes: 0,
       },
     ],
+    ...overrides,
+  };
+}
+
+// -- Task 8 (collections) & Task 9 (queue/library) fixtures ------------------
+
+export function makeAlbum(overrides: Overrides<AlbumOut> = {}): AlbumOut {
+  return {
+    id: "album-1",
+    name: "Random Access Memories",
+    album_artist: "Daft Punk",
+    cover_url: "https://example.com/cover.jpg",
+    year: 2013,
+    track_count: 2,
+    tracks: [
+      makeTrack({ id: "track-1", name: "Get Lucky" }),
+      makeTrack({ id: "track-2", name: "Instant Crush" }),
+    ],
+    ...overrides,
+  };
+}
+
+export function makeArtist(overrides: Overrides<ArtistOut> = {}): ArtistOut {
+  return {
+    id: "artist-1",
+    name: "Daft Punk",
+    genres: ["french house", "electronic"],
+    image_url: "https://example.com/artist.jpg",
+    tracks: [makeTrack({ id: "track-1", name: "Get Lucky" })],
+    ...overrides,
+  };
+}
+
+export function makePlaylist(overrides: Overrides<PlaylistOut> = {}): PlaylistOut {
+  return {
+    id: "playlist-1",
+    name: "Summer Mix",
+    owner: "Test User",
+    description: "Warm-weather bangers",
+    cover_url: "https://example.com/playlist.jpg",
+    tracks: [
+      makeTrack({ id: "track-1", name: "Get Lucky" }),
+      makeTrack({ id: "track-3", name: "One More Time" }),
+    ],
+    ...overrides,
+  };
+}
+
+export function makeDownloadJob(
+  overrides: Overrides<DownloadJobOut> = {},
+): DownloadJobOut {
+  return {
+    id: "job-1",
+    batch_id: "batch-1",
+    track_id: "track-1",
+    track_name: "Get Lucky",
+    artists: ["Daft Punk"],
+    status: "queued",
+    progress: 0,
+    list_position: 1,
+    bitrate: null,
+    output_format: null,
+    output_path: null,
+    output_template: null,
+    skip_reason: null,
+    error_message: null,
+    error_step: null,
+    created_at: "2026-01-01T00:00:00Z",
+    started_at: null,
+    finished_at: null,
+    ...overrides,
+  };
+}
+
+export function makeDownloadBatch(
+  overrides: Overrides<DownloadBatchOut> = {},
+): DownloadBatchOut {
+  const jobs = overrides.jobs ?? [makeDownloadJob()];
+  return {
+    batch_id: "batch-1",
+    kind: "album",
+    name: "Random Access Memories",
+    finalized: false,
+    total_jobs: jobs.length,
+    counts: { queued: jobs.length },
+    jobs,
+    ...overrides,
+  };
+}
+
+export function makeDownloadSubmit(
+  overrides: Overrides<DownloadSubmitResponse> = {},
+): DownloadSubmitResponse {
+  return {
+    batch: overrides.batch ?? makeDownloadBatch(),
     ...overrides,
   };
 }
