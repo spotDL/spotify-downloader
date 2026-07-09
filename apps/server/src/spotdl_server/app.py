@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import httpx
 from fastapi import FastAPI, Request, Response
@@ -60,6 +60,29 @@ from spotdl_server.webui import mount_webui
 
 if TYPE_CHECKING:
     from spotdl_server.downloads.worker import Engine, Finalizer
+
+
+async def _require_migrated_schema(sessionmaker: Any) -> None:
+    """Fail with a clear message if the DB has not been migrated.
+
+    ``create_app`` is a pure factory and deliberately does NOT run Alembic
+    (migrations must be single-writer — see ``bootstrap.upgrade_to_head`` and the
+    ``numReplicas = 1`` coupling). Real serving paths (``spotdl server``, the
+    Docker entrypoint) migrate first. A naive ``uvicorn ...:create_app --factory``
+    on a fresh DB would otherwise crash deep in orphan-recovery with a raw
+    ``no such table: download_jobs``; turn that into an actionable error.
+    """
+    from sqlalchemy import text
+
+    async with sessionmaker() as session:
+        try:
+            await session.execute(text("SELECT 1 FROM download_jobs LIMIT 1"))
+        except Exception as exc:  # noqa: BLE001 - any dialect's missing-table error
+            raise RuntimeError(
+                "the database is not migrated. create_app() does not run migrations; "
+                "run them first: `spotdl server` and the Docker image do this for you, "
+                "or call spotdl_server.bootstrap.upgrade_to_head(settings) before serving."
+            ) from exc
 
 
 @asynccontextmanager
@@ -130,6 +153,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         )
         app.state.download_hub = hub
         app.state.download_pool = pool
+        await _require_migrated_schema(app.state.sessionmaker)
         await pool.start()
     try:
         yield
