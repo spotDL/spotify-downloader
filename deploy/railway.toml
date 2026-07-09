@@ -1,0 +1,27 @@
+# deploy/railway.toml  — community-hosted spotDL server
+#
+# Config-as-code for the community instance (`hosted` mode) on Railway. The
+# spotdl.dev zone is already provisioned in Railway with managed Postgres and
+# managed Redis plugins; the server binds to them via reference variables set in
+# the Railway dashboard (NOT committed here — this file only pins build/deploy
+# behavior). The image is built from the SAME deploy/Dockerfile self-hosters pull,
+# so the GHCR image and what Railway runs are byte-identical (spec §9).
+#
+# Service variables, the Cloudflare front, and the numReplicas coupling are
+# documented in docs/self-hosting/railway.md.
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "deploy/Dockerfile"
+watchPatterns = ["apps/server/**", "apps/web/**", "packages/**", "deploy/Dockerfile"]
+
+[deploy]
+startCommand = "/app/docker-entrypoint.sh"   # migrations (upgrade_to_head) then uvicorn --factory
+healthcheckPath = "/api/v1/health"
+healthcheckTimeout = 100
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+# SAFETY COUPLING: the entrypoint runs Alembic migrations on boot (CONTRACT B).
+# That is only race-free because numReplicas = 1. Do NOT raise replicas without
+# first moving migrations out of the entrypoint — see the note under CONTRACT D
+# and docs/self-hosting/railway.md (advisory-lock / release-phase migration).
+numReplicas = 1
