@@ -131,9 +131,9 @@ describe("applyWsMessage", () => {
     expect(queryClient.getQueryState(BATCH_KEY)?.isInvalidated).toBe(true);
   });
 
-  it("invalidates the batch and the list on batch_finished", () => {
+  it("invalidates the batch and the list on batch_finished, with a toast signal", () => {
     const queryClient = seed();
-    applyWsMessage(queryClient, {
+    const result = applyWsMessage(queryClient, {
       type: "batch_finished",
       batch_id: "batch-1",
       completed: 1,
@@ -145,6 +145,37 @@ describe("applyWsMessage", () => {
     });
     expect(queryClient.getQueryState(BATCH_KEY)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(LIST_KEY)?.isInvalidated).toBe(true);
+    // The reducer stays pure but describes the CONTRACT E toast for the socket
+    // layer, tallying counts and noting which playlist artifacts were written.
+    expect(result).toEqual({
+      type: "applied",
+      toast: {
+        message:
+          "Batch complete: 1 done, 0 failed, 0 skipped — save file + M3U playlist saved",
+        severity: "info",
+      },
+    });
+  });
+
+  it("warns and omits the artifact note when a batch had failures and no files", () => {
+    const queryClient = seed();
+    const result = applyWsMessage(queryClient, {
+      type: "batch_finished",
+      batch_id: "batch-1",
+      completed: 2,
+      failed: 1,
+      skipped: 0,
+      cancelled: 0,
+      m3u_paths: [],
+      save_file_path: null,
+    });
+    expect(result).toEqual({
+      type: "applied",
+      toast: {
+        message: "Batch complete: 2 done, 1 failed, 0 skipped",
+        severity: "warn",
+      },
+    });
   });
 
   it("flags a hello with an unsupported protocol version", () => {
