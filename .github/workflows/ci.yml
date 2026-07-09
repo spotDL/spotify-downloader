@@ -64,8 +64,45 @@ jobs:
           cache: pnpm
           cache-dependency-path: apps/web/pnpm-lock.yaml
       - run: pnpm -C apps/web install --frozen-lockfile
+      # Generated-client in-sync guard (CONTRACT A3): regenerate the TS API/WS
+      # client from the committed server artifacts and fail if the checked-in
+      # output drifted. Mirrors the Python client's test_clients_in_sync.
+      - run: make web-clients-check
       - run: pnpm -C apps/web run type-check
       - run: pnpm -C apps/web run test
+
+  # Playwright e2e: build + embed the SPA and drive it against the seeded
+  # selfhost server (apps/server/scripts/serve_e2e.py). Needs BOTH the Python
+  # server (uv) and the browser, so it is its own job — kept out of `web` for
+  # fast feedback. The Playwright HTML report is uploaded on failure.
+  web-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+      - run: uv sync --all-packages
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "11.10.0"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+      - run: pnpm -C apps/web install --frozen-lockfile
+      - run: pnpm -C apps/web exec playwright install --with-deps chromium
+      # `web-e2e` builds + embeds the SPA (its prerequisites) then runs Playwright,
+      # which boots the seeded server via its webServer config.
+      - run: make web-e2e
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report/
+          retention-days: 7
 
   # Self-host smoke: build the image and boot the self-host compose stack, then
   # assert the app is healthy and exports metrics. Kept as a SEPARATE job so it
