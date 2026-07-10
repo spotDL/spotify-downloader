@@ -7,7 +7,7 @@ WORKDIR /w
 # pnpm-workspace.yaml carries the `allowBuilds` policy (e.g. msw: false); without
 # it pnpm 11 fails the install with ERR_PNPM_IGNORED_BUILDS on unapproved scripts.
 COPY apps/web/package.json apps/web/pnpm-lock.yaml apps/web/pnpm-workspace.yaml ./apps/web/
-RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm -C apps/web install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store pnpm -C apps/web install --frozen-lockfile
 COPY apps/web/ ./apps/web/
 RUN pnpm -C apps/web build          # -> /w/apps/web/dist
 
@@ -37,7 +37,7 @@ COPY --from=web-builder /w/apps/web/dist ./apps/server/src/spotdl_server/webui/
 # --no-editable installs a BUILT wheel (webui + alembic packaged) into the venv,
 # so stage 3 needs only the venv — no fragile source overlay. --extra redis/sentry bake
 # in the optional Redis rate-limit backend for the hosted image (CONTRACT D).
-RUN --mount=type=cache,target=/root/.cache/uv \
+RUN --mount=type=cache,id=uv-cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-editable --package spotdl-server --extra redis --extra sentry
 
 # ---- Stage 3: runtime ----
@@ -57,7 +57,8 @@ ENV PATH="/app/.venv/bin:$PATH" \
     SPOTDL_DATABASE_URL="sqlite+aiosqlite:////app/data/spotdl.db"
 USER spotdl
 EXPOSE 8000
-VOLUME ["/app/data"]
+# No VOLUME hint: compose (docker-compose.selfhost.yml) declares the /app/data
+# mount itself, and Railway's builder rejects Dockerfile VOLUME outright.
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
   CMD curl -fsS "http://localhost:${PORT}/api/v1/health" || exit 1
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
