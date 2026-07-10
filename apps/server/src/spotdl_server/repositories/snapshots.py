@@ -18,10 +18,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl_server.db.models import EntityLink, ProviderSnapshot
 
-#: Payload marker set by preview writers on a LISTING-derived track snapshot that
-#: lacks its ISRC (search hits, playlist/album listings). ``ResolveService`` treats
-#: a partial snapshot as a cache miss so the first direct open fetches the full
-#: track (whose authoritative persist overwrites the payload, clearing the marker).
+#: Payload marker set by preview writers on a LISTING-derived track snapshot
+#: (search hits, album/playlist/top-tracks rows). ``ResolveService`` treats a
+#: partial snapshot as a cache miss, so a track's first direct open performs the
+#: authoritative provider fetch AND the cross-provider enrichment fan-out (whose
+#: persist overwrites the payload, clearing the marker) — a preview must never
+#: leave a track single-source or ISRC-less.
 PARTIAL_MARKER = "partial"
 
 

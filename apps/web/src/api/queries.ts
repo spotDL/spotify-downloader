@@ -7,10 +7,15 @@ import {
   createReportApiV1ReportsPostMutation,
   getAlbumApiV1AlbumsIdGetOptions,
   getAlbumSourcesApiV1AlbumsIdSourcesGetOptions,
+  getAlbumApiV1AlbumsIdGetQueryKey,
+  getAlbumSourcesApiV1AlbumsIdSourcesGetQueryKey,
   getArtistApiV1ArtistsIdGetOptions,
   getArtistApiV1ArtistsIdGetQueryKey,
   getArtistSourcesApiV1ArtistsIdSourcesGetOptions,
   getArtistSourcesApiV1ArtistsIdSourcesGetQueryKey,
+  getPlaylistApiV1PlaylistsIdGetQueryKey,
+  getPlaylistSourcesApiV1PlaylistsIdSourcesGetQueryKey,
+  getTrackSourcesApiV1TracksIdSourcesGetQueryKey,
   getPlaylistApiV1PlaylistsIdGetOptions,
   getPlaylistSourcesApiV1PlaylistsIdSourcesGetOptions,
   getTrackApiV1TracksIdGetOptions,
@@ -117,26 +122,35 @@ export function useEntitySources(entityType: EntityType, id: string) {
 }
 
 /**
- * Force-refresh a canonical artist from its providers.
+ * Force-refresh a canonical entity from its providers.
  *
- * A resolved artist's snapshots are permanent, so a plain refetch re-reads the
- * same DB row forever. This resolves the artist's Spotify-first source ref with
+ * A resolved entity's snapshots are permanent, so a plain refetch re-reads the
+ * same DB row forever. This resolves the entity's Spotify-first source ref with
  * `force: true` (bypassing the snapshot cache server-side), then invalidates the
- * artist + sources queries. Falls back to a plain invalidate when the sources
- * are not loaded yet (e.g. right after mount).
+ * entity + sources queries (tracks also re-pull matches/lyrics). Falls back to a
+ * plain invalidate when the sources are not loaded yet.
  */
-export function useForceRefreshArtist(artistId: string) {
+export function useForceRefreshEntity(entityType: EntityType, id: string) {
   const queryClient = useQueryClient();
-  const sources = useEntitySources("artist", artistId);
+  const sources = useEntitySources(entityType, id);
   const resolve = useResolve();
 
   const invalidate = () => {
-    void queryClient.invalidateQueries({
-      queryKey: getArtistApiV1ArtistsIdGetQueryKey({ path: { id: artistId } }),
-    });
-    void queryClient.invalidateQueries({
-      queryKey: getArtistSourcesApiV1ArtistsIdSourcesGetQueryKey({ path: { id: artistId } }),
-    });
+    const path = { path: { id } };
+    const keys =
+      entityType === "artist"
+        ? [getArtistApiV1ArtistsIdGetQueryKey(path), getArtistSourcesApiV1ArtistsIdSourcesGetQueryKey(path)]
+        : entityType === "album"
+          ? [getAlbumApiV1AlbumsIdGetQueryKey(path), getAlbumSourcesApiV1AlbumsIdSourcesGetQueryKey(path)]
+          : entityType === "playlist"
+            ? [getPlaylistApiV1PlaylistsIdGetQueryKey(path), getPlaylistSourcesApiV1PlaylistsIdSourcesGetQueryKey(path)]
+            : [
+                getTrackApiV1TracksIdGetQueryKey(path),
+                getTrackSourcesApiV1TracksIdSourcesGetQueryKey(path),
+                getTrackMatchesApiV1TracksIdMatchesGetQueryKey(path),
+                getTrackLyricsApiV1TracksIdLyricsGetQueryKey(path),
+              ];
+    for (const queryKey of keys) void queryClient.invalidateQueries({ queryKey });
   };
 
   const refresh = () => {
@@ -146,12 +160,22 @@ export function useForceRefreshArtist(artistId: string) {
       return;
     }
     resolve.mutate(
-      { body: { query: `${source.provider}:artist:${source.provider_entity_id}`, force: true } },
+      {
+        body: {
+          query: `${source.provider}:${entityType}:${source.provider_entity_id}`,
+          force: true,
+        },
+      },
       { onSuccess: invalidate, onError: invalidate },
     );
   };
 
   return { refresh, refreshing: resolve.isPending };
+}
+
+/** @deprecated shim — artist pages migrated to {@link useForceRefreshEntity}. */
+export function useForceRefreshArtist(artistId: string) {
+  return useForceRefreshEntity("artist", artistId);
 }
 
 /**

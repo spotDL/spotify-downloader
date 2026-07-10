@@ -8,6 +8,7 @@ provider or matcher I/O is real — everything is faked at the registry seam.
 
 from __future__ import annotations
 
+import contextlib
 from typing import Any
 
 import pytest
@@ -634,3 +635,37 @@ async def test_force_resolve_bypasses_snapshot_cache(session: AsyncSession) -> N
     assert len(resolver.calls) == 1  # bypassed the fresh snapshot
     assert forced.track is not None
     assert forced.track.name == "Fresh"
+
+
+async def test_not_configured_provider_is_not_a_degraded_source(session: AsyncSession) -> None:
+    """An optional provider the operator never configured must NOT show as degraded.
+
+    Regression (found live): the key-less Last.fm factory raises on construction,
+    which landed in ``registry.unavailable`` and pinned 'lastfm' into
+    ``degraded_sources`` on EVERY resolve — a permanent "sources unavailable"
+    banner for a provider the user never enabled.
+    """
+    from spotdl_core.providers import ProviderNotConfigured, ProviderSpec
+
+    resolver = FakeResolver(id=ProviderId.SPOTIFY, track=_track("Song", "Artist"))
+    registry = build_fake_registry(resolver)
+
+    def _not_configured() -> Any:
+        raise ProviderNotConfigured("no api key", provider=ProviderId.LASTFM)
+
+    registry.register(
+        ProviderSpec(
+            id=ProviderId.LASTFM,
+            capabilities=frozenset(),
+            factory=lambda ctx: _not_configured(),
+        )
+    )
+    # Touch the failing factory so it lands in registry.unavailable.
+    with contextlib.suppress(Exception):
+        registry.get(ProviderId.LASTFM)
+    assert ProviderId.LASTFM in registry.unavailable
+
+    service = ResolveService(session=session, registry=registry)
+    result = await service.resolve(SPOTIFY_URL)
+
+    assert "lastfm" not in result.degraded_sources  # deliberate absence, not an outage

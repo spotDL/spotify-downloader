@@ -506,3 +506,120 @@ async def test_artist_enrichment_unions_confirmed_secondary_discography(
         "spotify",
         "deezer",
     }
+
+
+async def test_listing_preview_does_not_starve_track_enrichment(session: AsyncSession) -> None:
+    """A track first seen via a container listing must still enrich on direct open.
+
+    Regression (found live via Runaway): the artist top-tracks listing persisted a
+    full-looking snapshot, so the track's later direct resolve cache-hit it and
+    skipped the cross-provider fan-out — leaving the track single-source forever.
+    Listing rows are previews (marked partial): the first direct open performs the
+    authoritative fetch AND the enrichment.
+    """
+    spotify_artist = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="artist123",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Kanye West"),
+        tracks=(
+            _track(
+                "Runaway",
+                "Kanye West",
+                isrc="USUM71027402",
+                provider=ProviderId.SPOTIFY,
+                provider_id="sp-run",
+            ),
+        ),
+    )
+    full_track = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="sp-run",
+        entity_type=EntityType.TRACK,
+        track=_track("Runaway", "Kanye West", isrc="USUM71027402"),
+    )
+    deezer_track = ResolvedEntity(
+        provider=ProviderId.DEEZER,
+        provider_id="dz-run",
+        entity_type=EntityType.TRACK,
+        track=_track(
+            "Runaway",
+            "Kanye West",
+            isrc="USUM71027402",
+            provider=ProviderId.DEEZER,
+            provider_id="dz-run",
+        ),
+    )
+
+    class _Spotify(FakeResolver):
+        async def resolve(self, ref):  # type: ignore[override]
+            self.calls.append(ref)
+            return spotify_artist if ref.entity_type is EntityType.ARTIST else full_track
+
+    spotify = _Spotify(id=ProviderId.SPOTIFY)
+    deezer = FakeMetadataProvider(
+        id=ProviderId.DEEZER,
+        tracks=[deezer_track.track],
+        resolved={EntityType.TRACK: deezer_track},
+    )
+    service = ResolveService(session=session, registry=build_fake_registry(spotify, deezer))
+
+    await service.resolve(SPOTIFY_ARTIST_URL)  # listing persists a preview snapshot
+    track_calls_before = sum(1 for c in spotify.calls if c.entity_type is EntityType.TRACK)
+
+    result = await service.resolve("spotify:track:sp-run")
+
+    track_calls_after = sum(1 for c in spotify.calls if c.entity_type is EntityType.TRACK)
+    assert track_calls_after == track_calls_before + 1  # preview did NOT satisfy the resolve
+    assert result.track is not None
+    assert await _linked_providers(session, EntityType.TRACK, result.track.id) == {
+        "spotify",
+        "deezer",
+    }
+
+
+async def test_artist_top_tracks_union_across_confirmed_sources(session: AsyncSession) -> None:
+    """A confirmed secondary's exclusive top tracks join the artist listing."""
+    spotify_artist = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="artist123",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Mata"),
+        tracks=(_track("KAMIKAZE", "Mata", isrc="USKAM0000001"),),
+    )
+    real_deezer = ResolvedEntity(
+        provider=ProviderId.DEEZER,
+        provider_id="dz-real",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Mata"),
+        tracks=(
+            _track("KAMIKAZE", "Mata", isrc="USKAM0000001"),  # shared → confirms + dedupes
+            _track(
+                "Deezer Only Song",
+                "Mata",
+                isrc="FRDZ00000001",
+                provider=ProviderId.DEEZER,
+                provider_id="dz-t2",
+            ),
+        ),
+    )
+    spotify = FakeResolver(id=ProviderId.SPOTIFY, entity=spotify_artist)
+    deezer = FakeMetadataProvider(
+        id=ProviderId.DEEZER,
+        hits=[
+            SearchHit(
+                entity_type=EntityType.ARTIST,
+                provider=ProviderId.DEEZER,
+                provider_id="dz-real",
+                name="Mata",
+            )
+        ],
+        resolved={EntityType.ARTIST: real_deezer},
+    )
+    service = ResolveService(session=session, registry=build_fake_registry(spotify, deezer))
+
+    result = await service.resolve(SPOTIFY_ARTIST_URL)
+
+    assert result.artist is not None
+    names = [t.name for t in result.artist.tracks]
+    assert names == ["KAMIKAZE", "Deezer Only Song"]  # union, deduped by ISRC/name

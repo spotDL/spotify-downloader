@@ -40,6 +40,7 @@ from spotdl_core.model import (
 from spotdl_core.providers import (
     PlatformRef,
     ProviderError,
+    ProviderNotConfigured,
     ProviderRegistry,
     ProviderUnavailable,
     ProvidesAudio,
@@ -106,6 +107,10 @@ _ENRICH_TIMEOUT_S: float = 6.0
 
 #: How many search hits a secondary provider is asked for per enrichment leg.
 _ENRICH_SEARCH_LIMIT: int = 5
+
+#: Artist top-track listing cap: the primary's top tracks (Spotify serves 10)
+#: unioned with confirmed secondaries' (Deezer serves up to 100), deduped.
+_ARTIST_TOP_TRACKS_CAP: int = 25
 
 #: Provider-snapshot ``raw_payload`` key → ``entity_stat`` metric name. Engagement
 #: metrics are lifted from the already-collected snapshots (no extra fetch):
@@ -192,7 +197,14 @@ class ResolveService:
         else:
             result = await self._resolve_container(ref, degraded, force=force)
 
-        degraded.update(self._registry.unavailable.keys())
+        degraded.update(
+            pid
+            for pid, error in self._registry.unavailable.items()
+            # A never-configured optional provider (no API key) is a deliberate
+            # absence, not an outage — surfacing it would pin a permanent
+            # "sources unavailable" banner on every result.
+            if not isinstance(error, ProviderNotConfigured)
+        )
         return self._with_degraded(result, degraded)
 
     # --------------------------------------------------------------- parsing
@@ -493,7 +505,9 @@ class ResolveService:
 
     async def _enrich_artist(
         self, resolved: ResolvedEntity, degraded: set[ProviderId]
-    ) -> tuple[list[ProviderSnapshot], tuple[AlbumRef, ...]]:
+    ) -> tuple[
+        list[ProviderSnapshot], tuple[AlbumRef, ...], tuple[tuple[ResolvedEntity, Track], ...]
+    ]:
         """Fan out to the other metadata sources for the same artist.
 
         Candidates are found by :func:`normalize_artist_name` equality, then
@@ -504,13 +518,14 @@ class ResolveService:
         ``SearchesEntities`` providers can search artists (Spotify/Deezer).
 
         Returns the confirmed snapshots plus the confirmed candidates' discography
-        refs, so the artist's discography is the UNION across all sources (a
-        provider-exclusive release still appears).
+        refs AND top tracks (each paired with its source entity for snapshot
+        keying), so both the discography and the top-track listing are the UNION
+        across all sources — a provider-exclusive release or track still appears.
         """
         artist = resolved.artist
         name = artist.name if artist is not None else resolved.name
         if not name:
-            return [], ()
+            return [], (), ()
         providers = self._enrichment_providers(resolved.provider, SearchesEntities)
 
         async def leg(provider: Any) -> ResolvedEntity | None:
@@ -519,15 +534,17 @@ class ResolveService:
         candidates = await self._gather_artist_candidates(providers, leg, degraded)
         snapshots: list[ProviderSnapshot] = []
         extra_albums: list[AlbumRef] = []
+        extra_tracks: list[tuple[ResolvedEntity, Track]] = []
         for candidate in candidates:
             if not _same_artist(resolved, candidate):
                 continue  # a same-named stranger — never trust its data
             snapshots.append(await self._persist_artist_snapshot(candidate))
             extra_albums.extend(candidate.albums)
+            extra_tracks.extend((candidate, track) for track in candidate.tracks)
         lastfm = await self._enrich_lastfm_artist(name, degraded)
         if lastfm is not None:
             snapshots.append(lastfm)
-        return snapshots, tuple(extra_albums)
+        return snapshots, tuple(extra_albums), tuple(extra_tracks)
 
     async def _artist_candidate_from(self, provider: Any, name: str) -> ResolvedEntity | None:
         """Search+resolve one secondary provider's candidate for ``name`` (no persist).
@@ -796,10 +813,23 @@ class ResolveService:
             return ResolveResult(entity_type=EntityType.ALBUM.value, album=views.album_view(album))
         if resolved.entity_type is EntityType.ARTIST:
             artist_snap = await self._persist_artist_snapshot(resolved)
-            enriched, extra_albums = await self._enrich_artist(resolved, degraded)
+            enriched, extra_albums, extra_tracks = await self._enrich_artist(resolved, degraded)
+            # The top-track listing is the UNION across sources: the primary's
+            # (Spotify serves 10) first, then confirmed secondaries' tracks the
+            # primary doesn't carry (ISRC-first dedupe, then case-folded name),
+            # capped so the page stays a "top tracks" list, not a full dump.
+            listing: list[tuple[ResolvedEntity, Track]] = [(resolved, t) for t in resolved.tracks]
+            seen_tracks = {t.isrc or t.name.casefold() for t in resolved.tracks}
+            for source_entity, track in extra_tracks:
+                key = track.isrc or track.name.casefold()
+                if key not in seen_tracks and track.name.casefold() not in seen_tracks:
+                    seen_tracks.add(key)
+                    seen_tracks.add(track.name.casefold())
+                    listing.append((source_entity, track))
+            listing = listing[:_ARTIST_TOP_TRACKS_CAP]
             by_pos = {
-                index: [await self._persist_track_snapshot_from(resolved, index, track)]
-                for index, track in enumerate(resolved.tracks)
+                index: [await self._persist_track_snapshot_from(container, index, track)]
+                for index, (container, track) in enumerate(listing)
             }
             # Snapshot each discography album (metadata-only, one source snapshot
             # each — no per-album enrichment fan-out) so the merge persists + links
@@ -890,12 +920,14 @@ class ResolveService:
         """Persist one track snapshot.
 
         ``preview=True`` is the container-listing mode (album/playlist/top-tracks
-        rows): it fills gaps without clobbering a richer existing snapshot, and an
-        ISRC-less listing row is marked :data:`PARTIAL_MARKER` so the first direct
-        open fetches the full track instead of cache-hitting the sparse listing.
+        rows): it fills gaps without clobbering a richer existing snapshot, and the
+        row is marked :data:`PARTIAL_MARKER` — a preview must never satisfy a
+        direct resolve, or the track's first open would skip the authoritative
+        fetch AND the cross-provider enrichment fan-out (a track first seen via an
+        artist/album listing stayed single-source forever).
         """
         payload = track.model_dump(mode="json")
-        if preview and track.isrc is None:
+        if preview:
             payload[PARTIAL_MARKER] = True
         return await self._snapshots.upsert(
             provider=provider,

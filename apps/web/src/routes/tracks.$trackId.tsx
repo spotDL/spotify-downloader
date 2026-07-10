@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type { LyricsOut, MatchOut, TrackOut } from "../api/generated/types.gen";
 import {
   useEnqueueDownload,
-  useRefreshTrack,
+  useForceRefreshEntity,
   useSubmitMatch,
   useSubmitReport,
   useTrack,
@@ -85,7 +85,9 @@ function TrackPage() {
 
 function TrackDetail({ trackId, t }: { trackId: string; t: TrackOut }) {
   const enqueue = useEnqueueDownload();
-  const refresh = useRefreshTrack(trackId);
+  // Force-refresh: re-resolves from providers (snapshots are permanent, so a
+  // plain invalidate would re-read the same row forever).
+  const { refresh, refreshing } = useForceRefreshEntity("track", trackId);
   const matches = useTrackMatches(trackId);
   const cover = t.cover_url ?? t.album?.cover_url ?? null;
   const matchList = matches.data?.matches ?? [];
@@ -169,12 +171,13 @@ function TrackDetail({ trackId, t }: { trackId: string; t: TrackOut }) {
                 <ActionButton
                   variant="ghost"
                   icon={<RefreshIcon className="size-4" />}
+                  disabled={refreshing}
                   onClick={() => {
                     refresh();
-                    toast.info("Refreshing metadata…");
+                    toast.info("Refreshing metadata from providers…");
                   }}
                 >
-                  Refresh metadata
+                  {refreshing ? "Refreshing…" : "Refresh metadata"}
                 </ActionButton>
                 <Feature flag="voting">
                   <ReportButton subjectId={t.id} />

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type { PlaylistOut } from "../api/generated/types.gen";
-import { usePlaylist } from "../api/queries";
+import { useForceRefreshEntity, usePlaylist } from "../api/queries";
 import { isApiError } from "../api/errors";
 import { ActionButton } from "../components/ActionButton";
 import { Badge } from "../components/Badge";
@@ -47,16 +47,12 @@ function PlaylistPage() {
     );
   }
 
-  return <PlaylistDetail playlist={query.data} onRefresh={() => void query.refetch()} />;
+  return <PlaylistDetail playlist={query.data} />;
 }
 
-function PlaylistDetail({
-  playlist,
-  onRefresh,
-}: {
-  playlist: PlaylistOut;
-  onRefresh: () => void;
-}) {
+function PlaylistDetail({ playlist }: { playlist: PlaylistOut }) {
+  // Force-refresh: re-resolves the playlist from its provider.
+  const { refresh: onRefresh, refreshing } = useForceRefreshEntity("playlist", playlist.id);
   const tracks = playlist.tracks ?? [];
 
   return (
@@ -100,13 +96,14 @@ function PlaylistDetail({
                 <ActionButton
                   variant="ghost"
                   icon={<RefreshIcon className="size-4" />}
+                  disabled={refreshing}
                   onClick={() => {
                     onRefresh();
-                    toast.info("Refreshing…");
+                    toast.info("Refreshing from providers…");
                   }}
-                >
-                  Refresh
-                </ActionButton>
+                  >
+                    {refreshing ? "Refreshing…" : "Refresh"}
+                  </ActionButton>
               </div>
             </div>
           </div>

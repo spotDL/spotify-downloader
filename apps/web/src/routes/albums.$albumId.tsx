@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type { AlbumOut } from "../api/generated/types.gen";
-import { useAlbum } from "../api/queries";
+import { useAlbum, useForceRefreshEntity } from "../api/queries";
 import { isApiError } from "../api/errors";
 import { joinMeta } from "../lib/format";
 import { ActionButton } from "../components/ActionButton";
@@ -56,16 +56,12 @@ function AlbumPage() {
   }
 
   const album = query.data;
-  return <AlbumDetail album={album} onRefresh={() => void query.refetch()} />;
+  return <AlbumDetail album={album} />;
 }
 
-function AlbumDetail({
-  album,
-  onRefresh,
-}: {
-  album: AlbumOut;
-  onRefresh: () => void;
-}) {
+function AlbumDetail({ album }: { album: AlbumOut }) {
+  // Force-refresh: re-resolves the album from its providers.
+  const { refresh: onRefresh, refreshing } = useForceRefreshEntity("album", album.id);
   const tracks = album.tracks ?? [];
   const genres = album.genres ?? [];
   const meta = joinMeta([
@@ -148,13 +144,14 @@ function AlbumDetail({
                 <ActionButton
                   variant="ghost"
                   icon={<RefreshIcon className="size-4" />}
+                  disabled={refreshing}
                   onClick={() => {
                     onRefresh();
-                    toast.info("Refreshing…");
+                    toast.info("Refreshing from providers…");
                   }}
-                >
-                  Refresh
-                </ActionButton>
+                  >
+                    {refreshing ? "Refreshing…" : "Refresh"}
+                  </ActionButton>
               </div>
             </div>
           </div>

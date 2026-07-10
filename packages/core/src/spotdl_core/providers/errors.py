@@ -30,6 +30,16 @@ class ProviderUnavailable(ProviderError):
     """Provider unreachable, down, dependency import failed, or repeated 5xx."""
 
 
+class ProviderNotConfigured(ProviderUnavailable):
+    """An OPTIONAL provider the operator never configured (e.g. no API key).
+
+    A deliberate absence, not an outage: consumers must NOT surface it as a
+    degraded source (a permanent "sources unavailable" banner for a provider the
+    user never enabled would be noise), while ``registry.get``/``capable`` still
+    treat it as unavailable.
+    """
+
+
 class ProviderAuthError(ProviderError):
     """Authentication/token acquisition failed (401/403, bad creds, TOTP failure)."""
 

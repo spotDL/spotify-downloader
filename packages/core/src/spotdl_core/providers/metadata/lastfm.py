@@ -237,11 +237,11 @@ def build_lastfm_provider(ctx: ProviderContext) -> LastfmProvider:
     skipped, degraded-at-most source) rather than constructing a provider that
     always fails — mirroring the Genius token gate.
     """
-    from spotdl_core.providers.errors import ProviderUnavailable
+    from spotdl_core.providers.errors import ProviderNotConfigured
 
     api_key = ctx.lastfm.api_key
     if not api_key:
-        raise ProviderUnavailable(
+        raise ProviderNotConfigured(
             "last.fm requires an api key (SPOTDL_LASTFM_API_KEY)", provider=ProviderId.LASTFM
         )
     client = create_client(user_agent=ctx.user_agent, base_url=_API_BASE)

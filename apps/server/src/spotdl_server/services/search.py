@@ -32,7 +32,7 @@ a test fixture owns commit/rollback).
 from __future__ import annotations
 
 from spotdl_core.model import EntityType, SearchHit, Track
-from spotdl_core.providers import ProviderRegistry
+from spotdl_core.providers import ProviderNotConfigured, ProviderRegistry
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl_server.observability import record_provider_degraded
@@ -67,7 +67,14 @@ class SearchService:
         artist_views = [await self._artist_view(hit) for hit in by_type.get(EntityType.ARTIST, [])]
         playlist_views = [self._playlist_view(hit) for hit in by_type.get(EntityType.PLAYLIST, [])]
 
-        degraded = track_failed | entity_failed | set(self._registry.unavailable.keys())
+        degraded = track_failed | entity_failed
+        degraded |= {
+            pid
+            for pid, error in self._registry.unavailable.items()
+            # Never-configured optional providers are a deliberate absence, not
+            # an outage (see ResolveService) — they are not degraded sources.
+            if not isinstance(error, ProviderNotConfigured)
+        }
         sources = tuple(sorted(pid.value for pid in degraded))
         for provider in sources:
             record_provider_degraded(provider)
@@ -169,11 +176,11 @@ class SearchService:
         snapshot_id: str | None = None
         if track.provider is not None and track.provider_id is not None:
             payload = track.model_dump(mode="json")
-            if track.isrc is None:
-                # Some searchers (Deezer, iTunes) return tracks without an ISRC;
-                # mark the preview partial so the first direct open fetches the
-                # full track instead of cache-hitting this ISRC-less listing.
-                payload[PARTIAL_MARKER] = True
+            # A search hit is a preview: mark it partial so the first direct open
+            # does the authoritative fetch + cross-provider enrichment instead of
+            # cache-hitting the hit (which would leave the track single-source
+            # and, for Deezer/iTunes hits, ISRC-less).
+            payload[PARTIAL_MARKER] = True
             snapshot = await self._snapshots.upsert(
                 provider=track.provider,
                 provider_entity_id=track.provider_id,
