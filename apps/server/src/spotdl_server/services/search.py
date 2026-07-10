@@ -29,7 +29,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl_server.observability import record_provider_degraded
 from spotdl_server.repositories.snapshots import SnapshotRepository
-from spotdl_server.services.dto import SearchResult, TrackView
+from spotdl_server.services.dto import AlbumView, SearchResult, TrackView
 from spotdl_server.services.provider_search import provider_search
 
 
@@ -85,10 +85,24 @@ class SearchService:
     def _track_view(track: Track, *, id: str) -> TrackView:
         """Map a core :class:`Track` (a search hit) to a preview ``TrackView``.
 
-        ``album`` is omitted and ``matches`` / ``lyrics`` are empty — a search hit
-        is a lightweight preview; the client resolves it for the full canonical
-        graph.
+        ``matches`` / ``lyrics`` are empty — a search hit is a lightweight preview;
+        the client resolves it for the full canonical graph. The provider hit's
+        ``album`` (metadata only, no listing) is carried through when present so the
+        result cards can render cover art without a per-hit resolve.
         """
+        album = track.album
+        album_meta = (
+            AlbumView(
+                id="",  # preview: not a canonical row yet (resolve mints the id)
+                name=album.name,
+                album_artist=album.album_artist,
+                year=album.year,
+                track_count=album.track_count,
+                cover_url=album.cover_url,
+            )
+            if album is not None
+            else None
+        )
         return TrackView(
             id=id,
             name=track.name,
@@ -101,6 +115,7 @@ class SearchService:
             year=track.year,
             genres=tuple(track.genres),
             popularity=track.popularity,
+            album=album_meta,
             provider=track.provider.value if track.provider is not None else None,
             provider_id=track.provider_id,
         )

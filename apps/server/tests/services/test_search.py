@@ -67,6 +67,33 @@ async def test_search_delegates_and_returns_track_views(session: AsyncSession) -
     assert result.degraded_sources == ()
 
 
+async def test_search_hit_carries_album_cover(session: AsyncSession) -> None:
+    """A search preview surfaces the provider hit's album cover for the result card.
+
+    Regression: the preview view dropped ``album`` entirely, so every result card
+    rendered a blank thumbnail. The hit's album (metadata only) now flows through.
+    """
+    from spotdl_core.model import AlbumRef
+
+    hit = Track(
+        name="One",
+        artists=("Artist",),
+        duration_ms=200_000,
+        provider=ProviderId.SPOTIFY,
+        provider_id="sp1",
+        album=AlbumRef(name="An Album", year=2020, cover_url="https://img/cover.jpg"),
+    )
+    searcher = FakeSearcher(id=ProviderId.SPOTIFY, tracks=[hit])
+    service = SearchService(session=session, registry=build_fake_registry(searcher))
+
+    result = await service.search("adele")
+
+    (view,) = result.tracks
+    assert view.album is not None
+    assert view.album.name == "An Album"
+    assert view.album.cover_url == "https://img/cover.jpg"
+
+
 async def test_search_snapshots_each_result(session: AsyncSession) -> None:
     searcher = FakeSearcher(
         id=ProviderId.SPOTIFY,

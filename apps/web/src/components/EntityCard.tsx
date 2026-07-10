@@ -51,7 +51,12 @@ export function EntityCard({
           loading="lazy"
         />
       ) : (
-        <div className="size-12 shrink-0 rounded bg-black/10 dark:bg-white/10" />
+        <div
+          aria-hidden
+          className="flex size-12 shrink-0 items-center justify-center rounded bg-black/10 text-muted dark:bg-white/10"
+        >
+          <span className="text-lg leading-none">♪</span>
+        </div>
       )}
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="truncate text-sm font-medium text-fg">{name}</span>

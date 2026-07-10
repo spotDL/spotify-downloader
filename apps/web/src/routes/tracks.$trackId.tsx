@@ -94,7 +94,11 @@ function TrackPage() {
               disabled={enqueue.isPending}
               onClick={() =>
                 enqueue.mutate(
-                  { body: { query: `spotify:track:${t.id}` } },
+                  // Post the bare canonical id: the server short-circuits a UUID
+                  // to the local DB (services/downloads _resolve_or_lookup).
+                  // Prefixing `spotify:track:` would route this canonical UUID to
+                  // Spotify's /v1/tracks/{id} endpoint → 400 + a degraded banner.
+                  { body: { query: t.id } },
                   {
                     onSuccess: () => toast.info("Added to the download queue."),
                     onError: (e) =>
@@ -163,7 +167,9 @@ function MatchList({ trackId }: { trackId: string }) {
               key={match.id}
               className="flex items-center gap-3 px-4 py-3"
             >
-              <ScoreGauge score={match.score} />
+              {/* Match.score is the matcher's 0–100 value (v4 parity); ScoreGauge's
+                  contract is 0–1, so normalize here rather than clamp to 100%. */}
+              <ScoreGauge score={match.score / 100} />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-fg">
                   {match.candidate_name ?? match.target_id}
