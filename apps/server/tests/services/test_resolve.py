@@ -228,7 +228,17 @@ async def test_resolve_album_url_merges_container_and_lists_tracks(
         provider=ProviderId.SPOTIFY,
         provider_id="album123",
         entity_type=EntityType.ALBUM,
-        album=AlbumRef(name="Greatest Hits", year=2020, track_count=2),
+        album=AlbumRef(
+            name="Greatest Hits",
+            year=2020,
+            track_count=2,
+            cover_url="https://img/gh-cover",
+            label="Big Label",
+            copyright_text="(C) 2020 Big Label",
+            album_type="album",
+            popularity=71,
+            genres=("rock",),
+        ),
         tracks=(
             _track("One", "Adele", isrc="USONE0000001"),
             _track("Two", "Adele", isrc="USTWO0000002"),
@@ -244,6 +254,15 @@ async def test_resolve_album_url_merges_container_and_lists_tracks(
     assert result.album is not None
     assert result.album.name == "Greatest Hits"
     assert {t.name for t in result.album.tracks} == {"One", "Two"}
+    # The captured album metadata flows snapshot → merge → view.
+    assert result.album.label == "Big Label"
+    assert result.album.copyright_text == "(C) 2020 Big Label"
+    assert result.album.album_type == "album"
+    assert result.album.popularity == 71
+    assert tuple(result.album.genres) == ("rock",)
+    # Nested listing rows carry the album cover thumbnail (no album sub-object).
+    assert all(t.album is None for t in result.album.tracks)
+    assert all(t.cover_url == "https://img/gh-cover" for t in result.album.tracks)
 
     # Re-resolve hits the cache and returns the same canonical album (no dup).
     again = await service.resolve("https://open.spotify.com/album/album123")
@@ -270,7 +289,13 @@ async def test_resolve_artist_lists_top_tracks_across_fresh_sessions(
         provider=ProviderId.SPOTIFY,
         provider_id="artist123",
         entity_type=EntityType.ARTIST,
-        artist=ArtistRef(name="Daft Punk"),
+        artist=ArtistRef(
+            name="Daft Punk",
+            image_url="https://img/dp-avatar",
+            genres=("french house", "electronic"),
+            followers=9_000_000,
+            popularity=88,
+        ),
         tracks=(
             _track("One More Time", "Daft Punk", isrc="USONE0000011"),
             _track("Harder Better", "Daft Punk", isrc="USTWO0000022"),
@@ -288,6 +313,11 @@ async def test_resolve_artist_lists_top_tracks_across_fresh_sessions(
             assert result.entity_type == EntityType.ARTIST.value
             assert result.artist is not None
             assert result.artist.name == "Daft Punk"
+            # The captured artist metadata flows snapshot → merge → view.
+            assert result.artist.image_url == "https://img/dp-avatar"
+            assert tuple(result.artist.genres) == ("french house", "electronic")
+            assert result.artist.followers == 9_000_000
+            assert result.artist.popularity == 88
             assert {t.name for t in result.artist.tracks} == {"One More Time", "Harder Better"}
             # Nested listing tracks carry their artists but no album sub-object.
             assert all(t.artists == ("Daft Punk",) for t in result.artist.tracks)

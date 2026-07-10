@@ -308,8 +308,14 @@ class CanonicalMerger:
 
         await self._link_all(EntityType.ALBUM, album.id, snaps)
         await self.session.flush()
-        await self.session.refresh(album, attribute_names=["tracks"])
-        return album
+        # Reload via the repository so ``tracks`` + each track's ``artists``/``album``
+        # are force-loaded in the greenlet: a bare ``refresh([...])`` keeps the stale
+        # ``track.album`` (loaded as ``None`` before ``album_id`` was assigned), so the
+        # nested cover thumbnail would be missing. ``AlbumRepository.get`` states the
+        # full chain (mirrors ``merge_artist``).
+        reloaded = await self._albums.get(album.id)
+        assert reloaded is not None
+        return reloaded
 
     async def _resolve_album(self, snapshots: Sequence[ProviderSnapshot]) -> Album:
         linked_id = await self._entity_id_via_links(EntityType.ALBUM, [s.id for s in snapshots])
@@ -380,7 +386,12 @@ class CanonicalMerger:
 
         await self._link_all(EntityType.PLAYLIST, playlist.id, snaps)
         await self.session.flush()
-        return playlist
+        # Reload via the repository so ``tracks`` + each track's ``artists``/``album``
+        # are force-loaded in the greenlet (nested cover thumbnails); mirrors
+        # ``merge_album``/``merge_artist``.
+        reloaded = await self._playlists.get(playlist.id)
+        assert reloaded is not None
+        return reloaded
 
     async def _resolve_playlist(self, snapshots: Sequence[ProviderSnapshot]) -> Playlist:
         linked_id = await self._entity_id_via_links(EntityType.PLAYLIST, [s.id for s in snapshots])

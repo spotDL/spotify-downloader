@@ -337,15 +337,32 @@ def _artist_names(payload: dict[str, Any]) -> tuple[str, ...]:
     return tuple(a["name"] for a in payload.get("artists", []) if a.get("name"))
 
 
+def _first_copyright(album_payload: dict[str, Any]) -> str | None:
+    """First copyright line from ``/v1/albums`` ``copyrights[]`` (absent on refs)."""
+    for entry in album_payload.get("copyrights") or []:
+        text = entry.get("text") if isinstance(entry, dict) else None
+        if isinstance(text, str) and text:
+            return text
+    return None
+
+
 def _album_ref(album_payload: dict[str, Any]) -> AlbumRef:
     artists = album_payload.get("artists") or []
     album_artist = artists[0]["name"] if artists and artists[0].get("name") else None
+    # ``label``/``copyrights``/``album_type``/``genres``/``popularity`` are present only
+    # on the full ``/v1/albums/{id}`` object, not on the simplified album embedded in a
+    # track/search item — they fall back to ``None``/``()`` there.
     return AlbumRef(
         name=album_payload["name"],
         album_artist=album_artist,
         year=_year(album_payload.get("release_date")),
         track_count=album_payload.get("total_tracks"),
         cover_url=_largest_image(album_payload.get("images")),
+        label=album_payload.get("label"),
+        copyright_text=_first_copyright(album_payload),
+        album_type=album_payload.get("album_type"),
+        popularity=album_payload.get("popularity"),
+        genres=tuple(g for g in (album_payload.get("genres") or ()) if g),
     )
 
 
@@ -554,7 +571,13 @@ class SpotifyProvider(HttpProvider):
             provider_id=entity_id,
             entity_type=EntityType.ARTIST,
             artist=ArtistRef(
-                name=artist["name"], provider=ProviderId.SPOTIFY, provider_id=entity_id
+                name=artist["name"],
+                provider=ProviderId.SPOTIFY,
+                provider_id=entity_id,
+                image_url=_largest_image(artist.get("images")),
+                genres=tuple(g for g in (artist.get("genres") or ()) if g),
+                followers=(artist.get("followers") or {}).get("total"),
+                popularity=artist.get("popularity"),
             ),
             name=artist.get("name"),
             tracks=tracks,

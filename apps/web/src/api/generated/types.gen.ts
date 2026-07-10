@@ -107,17 +107,37 @@ export type AlbumOut = {
      */
     album_artist?: string | null;
     /**
+     * Album Type
+     */
+    album_type?: string | null;
+    /**
+     * Copyright Text
+     */
+    copyright_text?: string | null;
+    /**
      * Cover Url
      */
     cover_url?: string | null;
+    /**
+     * Genres
+     */
+    genres?: Array<string>;
     /**
      * Id
      */
     id: string;
     /**
+     * Label
+     */
+    label?: string | null;
+    /**
      * Name
      */
     name: string;
+    /**
+     * Popularity
+     */
+    popularity?: number | null;
     /**
      * Track Count
      */
@@ -174,9 +194,25 @@ export type AlbumRefOut = {
  */
 export type ArtistOut = {
     /**
+     * Bio
+     */
+    bio?: string | null;
+    /**
+     * Country
+     */
+    country?: string | null;
+    /**
+     * Followers
+     */
+    followers?: number | null;
+    /**
      * Genres
      */
     genres?: Array<string>;
+    /**
+     * Header Url
+     */
+    header_url?: string | null;
     /**
      * Id
      */
@@ -189,6 +225,10 @@ export type ArtistOut = {
      * Name
      */
     name: string;
+    /**
+     * Popularity
+     */
+    popularity?: number | null;
     /**
      * Tracks
      */
@@ -1150,6 +1190,18 @@ export type TrackOut = {
      */
     artists: Array<string>;
     /**
+     * Copyright Text
+     */
+    copyright_text?: string | null;
+    /**
+     * Cover Url
+     */
+    cover_url?: string | null;
+    /**
+     * Date
+     */
+    date?: string | null;
+    /**
      * Disc Number
      */
     disc_number?: number | null;
@@ -1189,6 +1241,10 @@ export type TrackOut = {
      * Provider Id
      */
     provider_id?: string | null;
+    /**
+     * Publisher
+     */
+    publisher?: string | null;
     /**
      * Track Number
      */

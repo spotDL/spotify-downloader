@@ -125,6 +125,10 @@ async def test_resolve_album_refetches_each_track() -> None:
         "nb_tracks": 2,
         "cover_xl": "https://img/xl",
         "artist": {"name": "The Band"},
+        "label": "Deezer Label",
+        "record_type": "album",
+        "fans": 4200,
+        "genres": {"data": [{"name": "Rock"}, {"name": "Indie"}]},
         "tracks": {"data": [{"id": 1}, {"id": 2}]},
     }
     track1 = {
@@ -150,7 +154,34 @@ async def test_resolve_album_refetches_each_track() -> None:
     # re-fetched full tracks carry the isrc that album-listing entries lack
     assert resolved.tracks[0].isrc == "AAA"
     assert resolved.tracks[1].duration_ms == 200_000
+    assert resolved.album is not None
+    assert resolved.album.label == "Deezer Label"
+    assert resolved.album.album_type == "album"
+    assert resolved.album.popularity == 4200
+    assert resolved.album.genres == ("Rock", "Indie")
     assert all(t.album == resolved.album for t in resolved.tracks)
+
+
+@respx.mock
+async def test_resolve_artist_captures_picture_and_fans() -> None:
+    artist_id = "27"
+    artist = {
+        "id": 27,
+        "name": "Daft Punk",
+        "picture_xl": "https://img/dp-xl",
+        "nb_fan": 9_000_000,
+    }
+    respx.get(f"{_API}/artist/{artist_id}").mock(return_value=httpx.Response(200, json=artist))
+    respx.get(f"{_API}/artist/{artist_id}/top").mock(
+        return_value=httpx.Response(200, json={"data": []})
+    )
+    ref = PlatformRef(ProviderId.DEEZER, EntityType.ARTIST, artist_id)
+    async with create_client(base_url=_API) as client:
+        resolved = await _provider(client).resolve(ref)
+    assert resolved.entity_type is EntityType.ARTIST
+    assert resolved.artist is not None
+    assert resolved.artist.image_url == "https://img/dp-xl"
+    assert resolved.artist.followers == 9_000_000
 
 
 @respx.mock

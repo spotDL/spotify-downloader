@@ -20,15 +20,25 @@ class ArtistOut:
     Attributes:
         id (str):
         name (str):
+        bio (Union[None, Unset, str]):
+        country (Union[None, Unset, str]):
+        followers (Union[None, Unset, int]):
         genres (Union[Unset, list[str]]):
+        header_url (Union[None, Unset, str]):
         image_url (Union[None, Unset, str]):
+        popularity (Union[None, Unset, int]):
         tracks (Union[Unset, list['TrackOut']]):
     """
 
     id: str
     name: str
+    bio: Union[None, Unset, str] = UNSET
+    country: Union[None, Unset, str] = UNSET
+    followers: Union[None, Unset, int] = UNSET
     genres: Union[Unset, list[str]] = UNSET
+    header_url: Union[None, Unset, str] = UNSET
     image_url: Union[None, Unset, str] = UNSET
+    popularity: Union[None, Unset, int] = UNSET
     tracks: Union[Unset, list["TrackOut"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -39,15 +49,45 @@ class ArtistOut:
 
         name = self.name
 
+        bio: Union[None, Unset, str]
+        if isinstance(self.bio, Unset):
+            bio = UNSET
+        else:
+            bio = self.bio
+
+        country: Union[None, Unset, str]
+        if isinstance(self.country, Unset):
+            country = UNSET
+        else:
+            country = self.country
+
+        followers: Union[None, Unset, int]
+        if isinstance(self.followers, Unset):
+            followers = UNSET
+        else:
+            followers = self.followers
+
         genres: Union[Unset, list[str]] = UNSET
         if not isinstance(self.genres, Unset):
             genres = self.genres
+
+        header_url: Union[None, Unset, str]
+        if isinstance(self.header_url, Unset):
+            header_url = UNSET
+        else:
+            header_url = self.header_url
 
         image_url: Union[None, Unset, str]
         if isinstance(self.image_url, Unset):
             image_url = UNSET
         else:
             image_url = self.image_url
+
+        popularity: Union[None, Unset, int]
+        if isinstance(self.popularity, Unset):
+            popularity = UNSET
+        else:
+            popularity = self.popularity
 
         tracks: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.tracks, Unset):
@@ -64,10 +104,20 @@ class ArtistOut:
                 "name": name,
             }
         )
+        if bio is not UNSET:
+            field_dict["bio"] = bio
+        if country is not UNSET:
+            field_dict["country"] = country
+        if followers is not UNSET:
+            field_dict["followers"] = followers
         if genres is not UNSET:
             field_dict["genres"] = genres
+        if header_url is not UNSET:
+            field_dict["header_url"] = header_url
         if image_url is not UNSET:
             field_dict["image_url"] = image_url
+        if popularity is not UNSET:
+            field_dict["popularity"] = popularity
         if tracks is not UNSET:
             field_dict["tracks"] = tracks
 
@@ -82,7 +132,43 @@ class ArtistOut:
 
         name = d.pop("name")
 
+        def _parse_bio(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        bio = _parse_bio(d.pop("bio", UNSET))
+
+        def _parse_country(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        country = _parse_country(d.pop("country", UNSET))
+
+        def _parse_followers(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        followers = _parse_followers(d.pop("followers", UNSET))
+
         genres = cast(list[str], d.pop("genres", UNSET))
+
+        def _parse_header_url(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        header_url = _parse_header_url(d.pop("header_url", UNSET))
 
         def _parse_image_url(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -92,6 +178,15 @@ class ArtistOut:
             return cast(Union[None, Unset, str], data)
 
         image_url = _parse_image_url(d.pop("image_url", UNSET))
+
+        def _parse_popularity(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        popularity = _parse_popularity(d.pop("popularity", UNSET))
 
         tracks = []
         _tracks = d.pop("tracks", UNSET)
@@ -103,8 +198,13 @@ class ArtistOut:
         artist_out = cls(
             id=id,
             name=name,
+            bio=bio,
+            country=country,
+            followers=followers,
             genres=genres,
+            header_url=header_url,
             image_url=image_url,
+            popularity=popularity,
             tracks=tracks,
         )
 

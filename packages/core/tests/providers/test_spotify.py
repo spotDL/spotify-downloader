@@ -361,6 +361,11 @@ async def test_resolve_album_paginates() -> None:
         "total_tracks": 2,
         "artists": [{"name": "The Band"}],
         "images": [{"url": "https://img/big", "width": 640, "height": 640}],
+        "label": "Big Label",
+        "copyrights": [{"text": "(C) 2020 Big Label", "type": "C"}],
+        "album_type": "album",
+        "genres": ["rock"],
+        "popularity": 71,
         "tracks": {
             "items": [
                 {
@@ -403,7 +408,38 @@ async def test_resolve_album_paginates() -> None:
     assert [t.name for t in resolved.tracks] == ["Track One", "Track Two"]
     assert resolved.album is not None
     assert resolved.album.year == 2020
+    assert resolved.album.label == "Big Label"
+    assert resolved.album.copyright_text == "(C) 2020 Big Label"
+    assert resolved.album.album_type == "album"
+    assert resolved.album.popularity == 71
+    assert resolved.album.genres == ("rock",)
     assert all(t.album == resolved.album for t in resolved.tracks)
+
+
+@respx.mock
+async def test_resolve_artist_captures_metadata() -> None:
+    artist_id = "ARTIST1"
+    artist = {
+        "id": artist_id,
+        "name": "The Band",
+        "images": [{"url": "https://img/avatar", "width": 640, "height": 640}],
+        "genres": ["rock", "indie"],
+        "followers": {"total": 123456},
+        "popularity": 82,
+    }
+    respx.get(f"{_API}/v1/artists/{artist_id}").mock(return_value=httpx.Response(200, json=artist))
+    respx.get(f"{_API}/v1/artists/{artist_id}/top-tracks").mock(
+        return_value=httpx.Response(200, json={"tracks": []})
+    )
+    ref = PlatformRef(ProviderId.SPOTIFY, EntityType.ARTIST, artist_id)
+    async with create_client(base_url=_API) as client:
+        resolved = await _provider(client).resolve(ref)
+    assert resolved.entity_type is EntityType.ARTIST
+    assert resolved.artist is not None
+    assert resolved.artist.image_url == "https://img/avatar"
+    assert resolved.artist.genres == ("rock", "indie")
+    assert resolved.artist.followers == 123456
+    assert resolved.artist.popularity == 82
 
 
 @respx.mock

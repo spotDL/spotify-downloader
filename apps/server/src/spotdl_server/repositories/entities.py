@@ -123,15 +123,19 @@ class AlbumRepository:
         self.session = session
 
     async def get(self, id: uuid.UUID) -> Album | None:
-        # Eager-load the listing tracks *and their artists*: model-level selectin
-        # does not reliably cascade to the nested level, so the chain is stated
-        # explicitly. ``populate_existing`` forces the nested load even when the
-        # track rows are already warm in the identity map (a fresh per-request
-        # session has none — this only matters for a session that also wrote them).
+        # Eager-load the listing tracks *and their artists + album*: model-level
+        # selectin does not reliably cascade to the nested level, so each chain is
+        # stated explicitly (``Track.album`` powers the nested cover thumbnail).
+        # ``populate_existing`` forces the nested load even when the track rows are
+        # already warm in the identity map (a fresh per-request session has none —
+        # this only matters for a session that also wrote them).
         return await self.session.get(
             Album,
             id,
-            options=[selectinload(Album.tracks).selectinload(Track.artists)],
+            options=[
+                selectinload(Album.tracks).selectinload(Track.artists),
+                selectinload(Album.tracks).selectinload(Track.album),
+            ],
             populate_existing=True,
         )
 
@@ -154,12 +158,16 @@ class ArtistRepository:
 
     async def get(self, id: uuid.UUID) -> Artist | None:
         # Nested selectin does not cascade through the M2M ``tracks`` relationship,
-        # so the track→artists chain is stated explicitly; ``populate_existing``
-        # forces it even for identity-map-warm track rows (see AlbumRepository.get).
+        # so the track→artists and track→album chains are stated explicitly
+        # (``Track.album`` powers the nested cover thumbnail); ``populate_existing``
+        # forces them even for identity-map-warm track rows (see AlbumRepository.get).
         return await self.session.get(
             Artist,
             id,
-            options=[selectinload(Artist.tracks).selectinload(Track.artists)],
+            options=[
+                selectinload(Artist.tracks).selectinload(Track.artists),
+                selectinload(Artist.tracks).selectinload(Track.album),
+            ],
             populate_existing=True,
         )
 
@@ -199,12 +207,16 @@ class PlaylistRepository:
 
     async def get(self, id: uuid.UUID) -> Playlist | None:
         # Nested selectin does not cascade through the M2M ``tracks`` relationship,
-        # so the track→artists chain is stated explicitly; ``populate_existing``
-        # forces it even for identity-map-warm track rows (see AlbumRepository.get).
+        # so the track→artists and track→album chains are stated explicitly
+        # (``Track.album`` powers the nested cover thumbnail); ``populate_existing``
+        # forces them even for identity-map-warm track rows (see AlbumRepository.get).
         return await self.session.get(
             Playlist,
             id,
-            options=[selectinload(Playlist.tracks).selectinload(Track.artists)],
+            options=[
+                selectinload(Playlist.tracks).selectinload(Track.artists),
+                selectinload(Playlist.tracks).selectinload(Track.album),
+            ],
             populate_existing=True,
         )
 

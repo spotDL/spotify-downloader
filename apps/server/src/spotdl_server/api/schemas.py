@@ -259,6 +259,11 @@ class TrackOut(BaseModel):
     year: int | None = None
     genres: list[str] = []
     popularity: int | None = None
+    date: str | None = None
+    publisher: str | None = None
+    copyright_text: str | None = None
+    cover_url: str | None = None
+    """Album cover thumbnail, present even on nested listing rows (``album`` dropped)."""
     provider: str | None = None
     """Source-provider ref (search previews): resolve via ``{provider}:track:{provider_id}``."""
     provider_id: str | None = None
@@ -280,6 +285,12 @@ class AlbumOut(BaseModel):
     year: int | None = None
     track_count: int | None = None
     cover_url: str | None = None
+    label: str | None = None
+    copyright_text: str | None = None
+    popularity: int | None = None
+    genres: list[str] = []
+    # Display label only (album/single/ep/compilation) — NOT an entity type.
+    album_type: str | None = None
     tracks: list[TrackOut] = []
 
     @classmethod
@@ -296,6 +307,12 @@ class ArtistOut(BaseModel):
     name: str
     genres: list[str] = []
     image_url: str | None = None
+    popularity: int | None = None
+    followers: int | None = None
+    bio: str | None = None
+    country: str | None = None
+    # Hero-backdrop art, distinct from the ``image_url`` avatar.
+    header_url: str | None = None
     tracks: list[TrackOut] = []
 
     @classmethod

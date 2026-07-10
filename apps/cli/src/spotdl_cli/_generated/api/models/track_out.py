@@ -23,6 +23,9 @@ class TrackOut:
         id (str):
         name (str):
         album (Union['AlbumRefOut', None, Unset]):
+        copyright_text (Union[None, Unset, str]):
+        cover_url (Union[None, Unset, str]):
+        date (Union[None, Unset, str]):
         disc_number (Union[None, Unset, int]):
         explicit (Union[None, Unset, bool]):
         genres (Union[Unset, list[str]]):
@@ -30,6 +33,7 @@ class TrackOut:
         popularity (Union[None, Unset, int]):
         provider (Union[None, Unset, str]):
         provider_id (Union[None, Unset, str]):
+        publisher (Union[None, Unset, str]):
         track_number (Union[None, Unset, int]):
         year (Union[None, Unset, int]):
     """
@@ -39,6 +43,9 @@ class TrackOut:
     id: str
     name: str
     album: Union["AlbumRefOut", None, Unset] = UNSET
+    copyright_text: Union[None, Unset, str] = UNSET
+    cover_url: Union[None, Unset, str] = UNSET
+    date: Union[None, Unset, str] = UNSET
     disc_number: Union[None, Unset, int] = UNSET
     explicit: Union[None, Unset, bool] = UNSET
     genres: Union[Unset, list[str]] = UNSET
@@ -46,6 +53,7 @@ class TrackOut:
     popularity: Union[None, Unset, int] = UNSET
     provider: Union[None, Unset, str] = UNSET
     provider_id: Union[None, Unset, str] = UNSET
+    publisher: Union[None, Unset, str] = UNSET
     track_number: Union[None, Unset, int] = UNSET
     year: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -68,6 +76,24 @@ class TrackOut:
             album = self.album.to_dict()
         else:
             album = self.album
+
+        copyright_text: Union[None, Unset, str]
+        if isinstance(self.copyright_text, Unset):
+            copyright_text = UNSET
+        else:
+            copyright_text = self.copyright_text
+
+        cover_url: Union[None, Unset, str]
+        if isinstance(self.cover_url, Unset):
+            cover_url = UNSET
+        else:
+            cover_url = self.cover_url
+
+        date: Union[None, Unset, str]
+        if isinstance(self.date, Unset):
+            date = UNSET
+        else:
+            date = self.date
 
         disc_number: Union[None, Unset, int]
         if isinstance(self.disc_number, Unset):
@@ -109,6 +135,12 @@ class TrackOut:
         else:
             provider_id = self.provider_id
 
+        publisher: Union[None, Unset, str]
+        if isinstance(self.publisher, Unset):
+            publisher = UNSET
+        else:
+            publisher = self.publisher
+
         track_number: Union[None, Unset, int]
         if isinstance(self.track_number, Unset):
             track_number = UNSET
@@ -133,6 +165,12 @@ class TrackOut:
         )
         if album is not UNSET:
             field_dict["album"] = album
+        if copyright_text is not UNSET:
+            field_dict["copyright_text"] = copyright_text
+        if cover_url is not UNSET:
+            field_dict["cover_url"] = cover_url
+        if date is not UNSET:
+            field_dict["date"] = date
         if disc_number is not UNSET:
             field_dict["disc_number"] = disc_number
         if explicit is not UNSET:
@@ -147,6 +185,8 @@ class TrackOut:
             field_dict["provider"] = provider
         if provider_id is not UNSET:
             field_dict["provider_id"] = provider_id
+        if publisher is not UNSET:
+            field_dict["publisher"] = publisher
         if track_number is not UNSET:
             field_dict["track_number"] = track_number
         if year is not UNSET:
@@ -183,6 +223,33 @@ class TrackOut:
             return cast(Union["AlbumRefOut", None, Unset], data)
 
         album = _parse_album(d.pop("album", UNSET))
+
+        def _parse_copyright_text(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        copyright_text = _parse_copyright_text(d.pop("copyright_text", UNSET))
+
+        def _parse_cover_url(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        cover_url = _parse_cover_url(d.pop("cover_url", UNSET))
+
+        def _parse_date(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        date = _parse_date(d.pop("date", UNSET))
 
         def _parse_disc_number(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -240,6 +307,15 @@ class TrackOut:
 
         provider_id = _parse_provider_id(d.pop("provider_id", UNSET))
 
+        def _parse_publisher(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        publisher = _parse_publisher(d.pop("publisher", UNSET))
+
         def _parse_track_number(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
@@ -264,6 +340,9 @@ class TrackOut:
             id=id,
             name=name,
             album=album,
+            copyright_text=copyright_text,
+            cover_url=cover_url,
+            date=date,
             disc_number=disc_number,
             explicit=explicit,
             genres=genres,
@@ -271,6 +350,7 @@ class TrackOut:
             popularity=popularity,
             provider=provider,
             provider_id=provider_id,
+            publisher=publisher,
             track_number=track_number,
             year=year,
         )

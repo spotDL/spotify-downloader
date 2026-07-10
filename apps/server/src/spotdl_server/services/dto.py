@@ -94,6 +94,9 @@ class TrackView:
     date: str | None = None
     publisher: str | None = None
     copyright_text: str | None = None
+    # Album cover thumbnail, carried even on nested listing rows (where ``album`` is
+    # dropped) so a list can render the artwork without the full album sub-object.
+    cover_url: str | None = None
     # Source-provider ref (search previews only): lets clients resolve a hit
     # into a canonical entity ("{provider}:track:{provider_id}").
     provider: str | None = None

@@ -21,7 +21,12 @@ class AlbumOut:
         id (str):
         name (str):
         album_artist (Union[None, Unset, str]):
+        album_type (Union[None, Unset, str]):
+        copyright_text (Union[None, Unset, str]):
         cover_url (Union[None, Unset, str]):
+        genres (Union[Unset, list[str]]):
+        label (Union[None, Unset, str]):
+        popularity (Union[None, Unset, int]):
         track_count (Union[None, Unset, int]):
         tracks (Union[Unset, list['TrackOut']]):
         year (Union[None, Unset, int]):
@@ -30,7 +35,12 @@ class AlbumOut:
     id: str
     name: str
     album_artist: Union[None, Unset, str] = UNSET
+    album_type: Union[None, Unset, str] = UNSET
+    copyright_text: Union[None, Unset, str] = UNSET
     cover_url: Union[None, Unset, str] = UNSET
+    genres: Union[Unset, list[str]] = UNSET
+    label: Union[None, Unset, str] = UNSET
+    popularity: Union[None, Unset, int] = UNSET
     track_count: Union[None, Unset, int] = UNSET
     tracks: Union[Unset, list["TrackOut"]] = UNSET
     year: Union[None, Unset, int] = UNSET
@@ -49,11 +59,39 @@ class AlbumOut:
         else:
             album_artist = self.album_artist
 
+        album_type: Union[None, Unset, str]
+        if isinstance(self.album_type, Unset):
+            album_type = UNSET
+        else:
+            album_type = self.album_type
+
+        copyright_text: Union[None, Unset, str]
+        if isinstance(self.copyright_text, Unset):
+            copyright_text = UNSET
+        else:
+            copyright_text = self.copyright_text
+
         cover_url: Union[None, Unset, str]
         if isinstance(self.cover_url, Unset):
             cover_url = UNSET
         else:
             cover_url = self.cover_url
+
+        genres: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.genres, Unset):
+            genres = self.genres
+
+        label: Union[None, Unset, str]
+        if isinstance(self.label, Unset):
+            label = UNSET
+        else:
+            label = self.label
+
+        popularity: Union[None, Unset, int]
+        if isinstance(self.popularity, Unset):
+            popularity = UNSET
+        else:
+            popularity = self.popularity
 
         track_count: Union[None, Unset, int]
         if isinstance(self.track_count, Unset):
@@ -84,8 +122,18 @@ class AlbumOut:
         )
         if album_artist is not UNSET:
             field_dict["album_artist"] = album_artist
+        if album_type is not UNSET:
+            field_dict["album_type"] = album_type
+        if copyright_text is not UNSET:
+            field_dict["copyright_text"] = copyright_text
         if cover_url is not UNSET:
             field_dict["cover_url"] = cover_url
+        if genres is not UNSET:
+            field_dict["genres"] = genres
+        if label is not UNSET:
+            field_dict["label"] = label
+        if popularity is not UNSET:
+            field_dict["popularity"] = popularity
         if track_count is not UNSET:
             field_dict["track_count"] = track_count
         if tracks is not UNSET:
@@ -113,6 +161,24 @@ class AlbumOut:
 
         album_artist = _parse_album_artist(d.pop("album_artist", UNSET))
 
+        def _parse_album_type(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        album_type = _parse_album_type(d.pop("album_type", UNSET))
+
+        def _parse_copyright_text(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        copyright_text = _parse_copyright_text(d.pop("copyright_text", UNSET))
+
         def _parse_cover_url(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -121,6 +187,26 @@ class AlbumOut:
             return cast(Union[None, Unset, str], data)
 
         cover_url = _parse_cover_url(d.pop("cover_url", UNSET))
+
+        genres = cast(list[str], d.pop("genres", UNSET))
+
+        def _parse_label(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        label = _parse_label(d.pop("label", UNSET))
+
+        def _parse_popularity(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        popularity = _parse_popularity(d.pop("popularity", UNSET))
 
         def _parse_track_count(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -151,7 +237,12 @@ class AlbumOut:
             id=id,
             name=name,
             album_artist=album_artist,
+            album_type=album_type,
+            copyright_text=copyright_text,
             cover_url=cover_url,
+            genres=genres,
+            label=label,
+            popularity=popularity,
             track_count=track_count,
             tracks=tracks,
             year=year,

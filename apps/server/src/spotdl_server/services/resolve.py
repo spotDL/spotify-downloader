@@ -350,13 +350,19 @@ class ResolveService:
     async def _persist_artist_snapshot(self, resolved: ResolvedEntity) -> ProviderSnapshot:
         artist = resolved.artist
         name = artist.name if artist is not None else resolved.name
-        payload: dict[str, Any] = {"name": name, "genres": [], "image_url": None}
+        # Serialize the full ``ArtistRef`` (image_url/genres/followers/popularity/bio)
+        # into ``raw_payload`` under the keys the merger reads (``_image_url``,
+        # ``_genres``, ``_payload_key("followers")`` …); ``art_url`` mirrors the avatar
+        # for the fast-query projection (``_image_url`` prefers it).
+        payload: dict[str, Any] = artist.model_dump(mode="json") if artist is not None else {}
+        payload["name"] = name
         return await self._snapshots.upsert(
             provider=resolved.provider,
             provider_entity_id=resolved.provider_id,
             entity_type=EntityType.ARTIST,
             raw_payload=payload,
             name=name,
+            art_url=artist.image_url if artist is not None else None,
         )
 
     async def _persist_playlist_snapshot(self, resolved: ResolvedEntity) -> ProviderSnapshot:

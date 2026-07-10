@@ -125,6 +125,28 @@
             ],
             "title": "Album Artist"
           },
+          "album_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Album Type"
+          },
+          "copyright_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Copyright Text"
+          },
           "cover_url": {
             "anyOf": [
               {
@@ -136,13 +158,43 @@
             ],
             "title": "Cover Url"
           },
+          "genres": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Genres",
+            "type": "array"
+          },
           "id": {
             "title": "Id",
             "type": "string"
           },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          },
           "name": {
             "title": "Name",
             "type": "string"
+          },
+          "popularity": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Popularity"
           },
           "track_count": {
             "anyOf": [
@@ -248,6 +300,39 @@
       "ArtistOut": {
         "description": "A canonical artist with its (metadata-only) top tracks.",
         "properties": {
+          "bio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bio"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "followers": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Followers"
+          },
           "genres": {
             "default": [],
             "items": {
@@ -255,6 +340,17 @@
             },
             "title": "Genres",
             "type": "array"
+          },
+          "header_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Header Url"
           },
           "id": {
             "title": "Id",
@@ -274,6 +370,17 @@
           "name": {
             "title": "Name",
             "type": "string"
+          },
+          "popularity": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Popularity"
           },
           "tracks": {
             "default": [],
@@ -1856,6 +1963,39 @@
             "title": "Artists",
             "type": "array"
           },
+          "copyright_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Copyright Text"
+          },
+          "cover_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cover Url"
+          },
+          "date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date"
+          },
           "disc_number": {
             "anyOf": [
               {
@@ -1941,6 +2081,17 @@
               }
             ],
             "title": "Provider Id"
+          },
+          "publisher": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publisher"
           },
           "track_number": {
             "anyOf": [

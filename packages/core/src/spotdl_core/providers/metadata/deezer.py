@@ -77,16 +77,29 @@ def _artist_names(payload: dict[str, Any]) -> tuple[str, ...]:
     return tuple(names)
 
 
+def _genre_names(album_payload: dict[str, Any]) -> tuple[str, ...]:
+    """Genre names from ``/album`` ``genres.data[]`` (absent on album refs)."""
+    data = (album_payload.get("genres") or {}).get("data") or []
+    return tuple(g["name"] for g in data if isinstance(g, dict) and g.get("name"))
+
+
 def _album_ref(album_payload: dict[str, Any]) -> AlbumRef | None:
     title = album_payload.get("title")
     if not title:
         return None
+    # ``label``/``genres``/``record_type``/``fans`` are present only on the full
+    # ``/album/{id}`` object, not on the simplified album embedded in a track — they
+    # fall back to ``None``/``()`` there.
     return AlbumRef(
         name=title,
         album_artist=(album_payload.get("artist") or {}).get("name"),
         year=_year(album_payload.get("release_date")),
         track_count=album_payload.get("nb_tracks"),
         cover_url=album_payload.get("cover_xl") or album_payload.get("cover_big"),
+        label=album_payload.get("label"),
+        album_type=album_payload.get("record_type"),
+        popularity=album_payload.get("fans"),
+        genres=_genre_names(album_payload),
     )
 
 
@@ -285,7 +298,13 @@ class DeezerProvider(HttpProvider):
             provider_id=entity_id,
             entity_type=EntityType.ARTIST,
             artist=(
-                ArtistRef(name=name, provider=ProviderId.DEEZER, provider_id=entity_id)
+                ArtistRef(
+                    name=name,
+                    provider=ProviderId.DEEZER,
+                    provider_id=entity_id,
+                    image_url=_cover(artist, "picture_xl", "picture_big", "picture"),
+                    followers=artist.get("nb_fan"),
+                )
                 if name
                 else None
             ),

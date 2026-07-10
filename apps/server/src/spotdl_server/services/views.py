@@ -110,11 +110,13 @@ def track_view(
     fires here. Nested listing tracks omit both and the album to keep the graph
     bounded (``include_album=False``).
     """
-    # Only touch ``track.album`` when the caller wants it: nested listing tracks
-    # (``include_album=False``) are reloaded by the album/artist/playlist repos,
-    # which do NOT eager-load ``album``, so reading it here would lazy-load on
-    # attribute access outside the await context (MissingGreenlet).
-    album = track.album if include_album else None
+    # ``track.album`` is eager-loaded on every path that builds a ``TrackView``
+    # (model-level selectin for a direct track get; the explicit track→album chain
+    # in the album/artist/playlist repos), so reading it here never lazy-loads. The
+    # full album sub-object is attached only when the caller asks (``include_album``);
+    # the cover thumbnail is always carried so nested listing rows can render artwork.
+    album = track.album
+    cover_url = album.cover_url if album is not None else None
     return TrackView(
         id=str(track.id),
         name=track.name,
@@ -130,7 +132,8 @@ def track_view(
         date=track.date,
         publisher=track.publisher,
         copyright_text=track.copyright_text,
-        album=(album_meta(album) if album is not None else None),
+        cover_url=cover_url,
+        album=(album_meta(album) if include_album and album is not None else None),
         matches=tuple(match_view(m) for m in matches),
         lyrics=tuple(lyrics_view(row) for row in lyrics),
     )

@@ -11,6 +11,11 @@ class ArtistRef(_Frozen):
     name: str
     provider: ProviderId | None = None
     provider_id: str | None = None
+    image_url: str | None = None  # avatar / profile picture (largest available)
+    genres: tuple[str, ...] = ()
+    followers: int | None = None  # provider follower/fan count (raw, not 0-100)
+    popularity: int | None = None  # 0-100 popularity prior where a provider exposes one
+    bio: str | None = None
 
 
 class AlbumRef(_Frozen):
@@ -20,6 +25,11 @@ class AlbumRef(_Frozen):
     track_count: int | None = None
     disc_count: int | None = None
     cover_url: str | None = None
+    label: str | None = None
+    copyright_text: str | None = None
+    album_type: str | None = None  # display label (album/single/ep/compilation)
+    popularity: int | None = None
+    genres: tuple[str, ...] = ()
 
 
 class Track(_Frozen):
