@@ -1,47 +1,188 @@
 @import "tailwindcss";
 
-/* Dark mode is driven by the `data-theme` attribute stamped by ThemeProvider
-   (CONTRACT H), not the OS media query directly. */
+/* ────────────────────────────────────────────────────────────────────────
+   spotDL "Emerald / Midnight Vinyl" design system — the single source of
+   truth for the web palette, type, and the full-maximalism utility layer.
+   The SAME token values are mirrored in the TUI (app.tcss + theme.py).
+   Dark-only by deliberate design choice (the collector aesthetic commits to
+   one world); `data-theme` is retained only so the reduce-motion toggle and
+   future theming have a hook.
+   ──────────────────────────────────────────────────────────────────────── */
+
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme {
-  --color-brand-50: oklch(0.97 0.02 150);
-  --color-brand-100: oklch(0.93 0.05 150);
-  --color-brand-500: oklch(0.72 0.17 150);
-  --color-brand-600: oklch(0.64 0.16 150);
-  --color-brand-700: oklch(0.55 0.14 150);
+  /* Accent — emerald primary, teal/gold/red semantics */
+  --color-emerald: #00d084;
+  --color-emerald-dim: #00b874;
+  --color-teal: #4ecdc4;
+  --color-gold: #ffd93d;
+  --color-red: #ff3333;
 
-  --color-bg: oklch(0.99 0 0);
-  --color-surface: oklch(0.97 0 0);
-  --color-fg: oklch(0.2 0 0);
-  --color-muted: oklch(0.55 0 0);
-  --color-accent: var(--color-brand-500);
-  --color-danger: oklch(0.62 0.2 25);
-  --color-warn: oklch(0.75 0.15 80);
+  /* brand scale kept (emerald shades) so pre-rebuild components still resolve */
+  --color-brand-50: #e6faf1;
+  --color-brand-100: #b8f0d6;
+  --color-brand-500: #00d084;
+  --color-brand-600: #00b874;
+  --color-brand-700: #009a61;
+  --color-accent: #00d084;
+  --color-success: #00d084;
+  --color-warn: #ffd93d;
+  --color-danger: #ff3333;
 
-  --font-sans: system-ui, "Segoe UI", Roboto, sans-serif;
+  /* Surfaces — layered near-black (depth by bg-step, not borders) */
+  --color-void: #08080a;
+  --color-chassis: #0f1012;
+  --color-panel: #161819;
+  --color-elevated: #1c1e20;
+  --color-surface: #242628;
+  --color-hover: #2c2e32;
 
-  --radius-card: 0.75rem;
+  /* Text hierarchy */
+  --color-bg: #08080a;
+  --color-fg: #fafafa;
+  --color-ink-2: #a8a8b3;
+  --color-muted: #6b6b76;
+  --color-ink-4: #454550;
 
-  --shadow-card: 0 1px 2px oklch(0 0 0 / 0.06), 0 4px 12px oklch(0 0 0 / 0.05);
-}
+  /* Lines */
+  --color-line: #2f2f33;
+  --color-line-soft: #232326;
 
-/* Dark-theme token overrides. */
-[data-theme="dark"] {
-  --color-bg: oklch(0.17 0 0);
-  --color-surface: oklch(0.22 0 0);
-  --color-fg: oklch(0.96 0 0);
-  --color-muted: oklch(0.68 0 0);
+  /* Platform brand colors */
+  --color-spotify: #1db954;
+  --color-apple: #fc3c44;
+  --color-deezer: #a238ff;
+  --color-youtube: #ff0000;
+  --color-soundcloud: #ff5500;
+  --color-musicbrainz: #ba478f;
+
+  /* Type — self-hosted faces (vendored under /fonts); mono carries all data */
+  --font-sans: "General Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Satoshi", var(--font-sans);
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --radius-card: 1rem;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 1px 2px oklch(0 0 0 / 0.2), 0 12px 32px -12px oklch(0 0 0 / 0.5);
+  --shadow-glow: 0 0 40px -8px color-mix(in oklab, #00d084 50%, transparent);
+
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 :root {
-  color-scheme: light dark;
+  color-scheme: dark;
 }
 
 body {
   margin: 0;
   min-height: 100svh;
   font-family: var(--font-sans);
-  background-color: var(--color-bg);
+  background-color: var(--color-void);
   color: var(--color-fg);
+  -webkit-font-smoothing: antialiased;
+  /* atmosphere: two faint accent glows fixed behind everything */
+  background-image:
+    radial-gradient(60% 50% at 85% -5%, color-mix(in oklab, #00d084 6%, transparent), transparent 70%),
+    radial-gradient(50% 40% at 0% 100%, color-mix(in oklab, #4ecdc4 5%, transparent), transparent 70%);
+  background-attachment: fixed;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+/* ── Maximalism utility layer ─────────────────────────────────────────────
+   Real components live in React; these are the shared texture/motion atoms.
+   All motion is disabled under reduce-motion. */
+
+@layer utilities {
+  /* film-grain overlay — apply to a positioned hero container */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.045;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* glassmorphism panel */
+  .glass {
+    background: color-mix(in oklab, var(--color-surface) 55%, transparent);
+    backdrop-filter: blur(8px);
+  }
+
+  /* blurred cover-art hero backdrop — set --hero-art to the cover url */
+  .hero-backdrop {
+    position: absolute;
+    inset: -30% -10% 0;
+    z-index: 0;
+    background-image: var(--hero-art);
+    background-size: cover;
+    background-position: center;
+    filter: blur(60px) saturate(1.15);
+    opacity: 0.42;
+    transform: scale(1.15);
+  }
+  .hero-fade {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(to bottom, color-mix(in oklab, var(--color-void) 35%, transparent), var(--color-void) 92%);
+  }
+
+  .hover-lift {
+    transition: transform 160ms var(--ease-smooth), box-shadow 160ms var(--ease-smooth);
+  }
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card);
+  }
+
+  .animate-beat { animation: beat 0.69s ease-in-out infinite; }
+  .animate-fade-in { animation: fade-in 0.3s var(--ease-smooth) both; }
+  .animate-rise { animation: rise 0.4s var(--ease-spring) both; }
+  .shimmer {
+    background: linear-gradient(100deg, var(--color-surface) 30%, var(--color-hover) 50%, var(--color-surface) 70%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+}
+
+@keyframes beat {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.9); opacity: 1; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+:root[data-theme="reduce-motion"] *,
+:root[data-theme="reduce-motion"] *::before,
+:root[data-theme="reduce-motion"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
 }
