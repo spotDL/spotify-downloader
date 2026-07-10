@@ -749,8 +749,13 @@ class ResolveService:
         entity_type, entity_id = located
         if entity_type is EntityType.ALBUM:
             album = await self._albums.get(entity_id)
-            if album is not None:
+            # A trackless album is a discography stub (persisted metadata-only from
+            # an artist's ``/albums`` listing), NOT a fully-resolved album — fall
+            # through to a real fetch so the direct resolve returns its track list.
+            if album is not None and album.tracks:
                 return ResolveResult(entity_type=entity_type.value, album=views.album_view(album))
+            if album is not None:
+                return None
         elif entity_type is EntityType.ARTIST:
             artist = await self._artists.get(entity_id)
             if artist is not None:
@@ -827,6 +832,13 @@ class ResolveService:
         """
         if album.provider is None or album.provider_id is None:
             return None
+        # Never downgrade a richer existing snapshot: a discography ref is the
+        # simplified ``/artists/albums`` shape (no label/copyright/tracks). If this
+        # album was ever resolved fully, reuse its snapshot instead of clobbering
+        # its ``raw_payload`` with the sparse listing payload.
+        existing = await self._snapshots.get(album.provider, album.provider_id)
+        if existing is not None:
+            return existing
         return await self._snapshots.upsert(
             provider=album.provider,
             provider_entity_id=album.provider_id,

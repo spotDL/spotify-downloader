@@ -356,6 +356,87 @@ async def test_resolve_artist_lists_top_tracks_across_fresh_sessions(
                 assert result.artist.id == result_id
 
 
+async def test_album_resolve_after_discography_returns_full_tracks_and_label(
+    download_sessionmaker: Any,
+) -> None:
+    """Resolving an album whose artist was resolved first must return the FULL album.
+
+    Regression (found by the E2E audit): the artist resolve persists each
+    discography album metadata-only (the simplified ``/artists/albums`` shape — no
+    tracks, no label). A later *direct* album resolve must NOT cache-hit on that
+    trackless stub (returning 0 tracks + a nulled label); it must fetch the full
+    album, and the discography persist must never clobber an already-rich snapshot.
+    """
+    from spotdl_core.model import AlbumRef, ArtistRef
+    from spotdl_core.providers import ResolvedEntity
+
+    disc_ref = AlbumRef(
+        name="Discovery",
+        year=2001,
+        album_type="album",
+        provider=ProviderId.SPOTIFY,
+        provider_id="disc-1",
+    )
+    artist_entity = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="artist-1",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Daft Punk"),
+        tracks=(),
+        albums=(disc_ref,),
+    )
+    # The SAME album ref, but fully resolved: carries its label + track listing.
+    full_album = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="disc-1",
+        entity_type=EntityType.ALBUM,
+        album=AlbumRef(name="Discovery", year=2001, album_type="album", label="Virgin"),
+        tracks=(
+            _track("One More Time", "Daft Punk", isrc="USONE0000031"),
+            _track("Aerodynamic", "Daft Punk", isrc="USONE0000032"),
+        ),
+    )
+
+    class _PerRefResolver:
+        id = ProviderId.SPOTIFY
+
+        def __init__(self) -> None:
+            self.calls: list[Any] = []
+
+        async def resolve(self, ref: Any) -> ResolvedEntity:
+            self.calls.append(ref)
+            return artist_entity if ref.entity_type is EntityType.ARTIST else full_album
+
+    registry = build_fake_registry(_PerRefResolver())
+
+    # Resolve the artist first (persists Discovery as a trackless discography stub).
+    async with download_sessionmaker() as session:
+        svc = ResolveService(session=session, registry=registry)
+        artist = await svc.resolve("spotify:artist:artist-1")
+        await session.commit()
+        assert [a.name for a in artist.artist.albums] == ["Discovery"]
+
+    # Now resolve the album directly — it must return the FULL album, not the stub.
+    async with download_sessionmaker() as session:
+        svc = ResolveService(session=session, registry=registry)
+        album = await svc.resolve("spotify:album:disc-1")
+        await session.commit()
+        assert album.album is not None
+        assert album.album.label == "Virgin"
+        assert {t.name for t in album.album.tracks} == {"One More Time", "Aerodynamic"}
+
+    # Re-resolving the artist again must not clobber the now-rich album's label.
+    async with download_sessionmaker() as session:
+        svc = ResolveService(session=session, registry=registry)
+        await svc.resolve("spotify:artist:artist-1")
+        await session.commit()
+    async with download_sessionmaker() as session:
+        svc = ResolveService(session=session, registry=registry)
+        again = await svc.resolve("spotify:album:disc-1")
+        assert again.album.label == "Virgin"
+        assert len(again.album.tracks) == 2
+
+
 def _uuid(value: str) -> Any:
     import uuid
 
