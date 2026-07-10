@@ -51,8 +51,12 @@ NEW_TABLES = {
     "votes",
     "reports",
 }
+# Tables introduced by migrations AFTER ``0002`` (e.g. ``0003``'s ``entity_stat``).
+# They do not exist at revision ``0002`` and must be excluded from the Plan-5 set
+# so this ``0002``-scoped guard stays correct as later migrations are added.
+POST_0002_TABLES = {"entity_stat"}
 # Every other application table belongs to Plan 5 and must survive ``downgrade -1``.
-PLAN5_TABLES = set(Base.metadata.tables.keys()) - NEW_TABLES
+PLAN5_TABLES = set(Base.metadata.tables.keys()) - NEW_TABLES - POST_0002_TABLES
 # Pre-existing votable tables ``0002`` must never ALTER.
 VOTABLE_TABLES = ("matches", "lyrics", "entity_links")
 
@@ -160,7 +164,9 @@ def test_upgrade_head_creates_all_tables(target_url: str) -> None:
 def test_downgrade_one_removes_only_new_tables(target_url: str) -> None:
     """``downgrade -1`` drops exactly the six ``0002`` tables; Plan-5 tables stay."""
     cfg = _config(target_url)
-    command.upgrade(cfg, "head")
+    # Pin to ``0002`` (not ``head``) so this stays the 0001↔0002 boundary as later
+    # migrations (``0003`` …) are added on top.
+    command.upgrade(cfg, "0002")
     command.downgrade(cfg, "-1")  # back to 0001
     names = _run_async(_table_names(target_url))
     # The six new tables are gone ...
@@ -187,9 +193,10 @@ def test_upgrade_head_matches_models_no_autogenerate_diff(target_url: str) -> No
 
 
 def test_downgrade_one_is_additive_on_plan5_votable_tables(target_url: str) -> None:
-    """``0002`` issues no ALTER: votable columns are identical at head and at 0001."""
+    """``0002`` issues no ALTER: votable columns are identical at 0002 and at 0001."""
     cfg = _config(target_url)
-    command.upgrade(cfg, "head")
+    # Pin to ``0002`` (not ``head``) so this isolates the 0002 ALTER surface.
+    command.upgrade(cfg, "0002")
     at_head = _run_async(_reflect_columns(target_url, VOTABLE_TABLES))
     command.downgrade(cfg, "-1")  # back to 0001
     at_0001 = _run_async(_reflect_columns(target_url, VOTABLE_TABLES))

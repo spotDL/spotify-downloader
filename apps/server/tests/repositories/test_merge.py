@@ -65,6 +65,9 @@ async def _track_snapshot(
     year: int | None = None,
     genres: Sequence[str] | None = None,
     popularity: int | None = None,
+    date: str | None = None,
+    publisher: str | None = None,
+    copyright_text: str | None = None,
 ) -> ProviderSnapshot:
     payload: dict[str, Any] = {
         "name": name,
@@ -79,6 +82,9 @@ async def _track_snapshot(
         "year": year,
         "genres": list(genres) if genres else [],
         "popularity": popularity,
+        "date": date,
+        "publisher": publisher,
+        "copyright_text": copyright_text,
     }
     return await SnapshotRepository(session).upsert(
         provider=provider,
@@ -147,6 +153,37 @@ async def test_genres_first_nonempty(session: AsyncSession) -> None:
     )
     track = await CanonicalMerger(session).merge_track([spotify, musicbrainz])
     assert list(track.genres) == ["rock", "pop"]
+
+
+async def test_track_metadata_fields_merge_spotify_first(session: AsyncSession) -> None:
+    # Spotify wins each new canonical field; a lower-priority source only fills a
+    # gap the higher-priority snapshot leaves ``None`` (``copyright_text`` here).
+    spotify = await _track_snapshot(
+        session,
+        ProviderId.SPOTIFY,
+        "s1",
+        name="Song",
+        artists=["A"],
+        isrc="META00000001",
+        date="2001-03-12",
+        publisher="Virgin",
+        copyright_text=None,
+    )
+    deezer = await _track_snapshot(
+        session,
+        ProviderId.DEEZER,
+        "d1",
+        name="Song",
+        artists=["A"],
+        isrc="META00000001",
+        date="1999-01-01",
+        publisher="Deezer Label",
+        copyright_text="© 2001 Deezer",
+    )
+    track = await CanonicalMerger(session).merge_track([spotify, deezer])
+    assert track.date == "2001-03-12"
+    assert track.publisher == "Virgin"
+    assert track.copyright_text == "© 2001 Deezer"
 
 
 def _track_fields(track: Track) -> tuple[Any, ...]:
@@ -487,3 +524,82 @@ async def test_merge_playlist_orders_tracks(session: AsyncSession) -> None:
     fetched = await merger._playlists.get(playlist.id)
     assert fetched is not None
     assert [t.name for t in fetched.tracks] == ["Second", "First"]
+
+
+# --------------------------------------------------------------------------- #
+# multi-provider metadata fields (Phase 1b) — Spotify-first per SOURCE_PRIORITY
+# --------------------------------------------------------------------------- #
+async def test_merge_artist_metadata_fields_spotify_first(session: AsyncSession) -> None:
+    async def _artist_snap(
+        provider: ProviderId, pid: str, **payload: Any
+    ) -> ProviderSnapshot:
+        return await SnapshotRepository(session).upsert(
+            provider=provider,
+            provider_entity_id=pid,
+            entity_type=EntityType.ARTIST,
+            raw_payload={"name": "Daft Punk", **payload},
+            name="Daft Punk",
+        )
+
+    # Spotify carries popularity/followers/header_url but no bio/country; Deezer
+    # (lower priority) fills those gaps and is overridden where Spotify has a value.
+    spotify = await _artist_snap(
+        ProviderId.SPOTIFY,
+        "s1",
+        popularity=88,
+        followers=12_000_000,
+        header_url="https://img/dp-hero.jpg",
+    )
+    deezer = await _artist_snap(
+        ProviderId.DEEZER,
+        "d1",
+        popularity=70,
+        followers=1,
+        bio="French house duo.",
+        country="FR",
+        header_url="https://img/deezer-hero.jpg",
+    )
+    artist = await CanonicalMerger(session).merge_artist([spotify, deezer])
+    assert artist.popularity == 88
+    assert artist.followers == 12_000_000
+    assert artist.header_url == "https://img/dp-hero.jpg"
+    assert artist.bio == "French house duo."
+    assert artist.country == "FR"
+
+
+async def test_merge_album_metadata_fields_spotify_first(session: AsyncSession) -> None:
+    async def _album_snap(
+        provider: ProviderId, pid: str, **payload: Any
+    ) -> ProviderSnapshot:
+        return await SnapshotRepository(session).upsert(
+            provider=provider,
+            provider_entity_id=pid,
+            entity_type=EntityType.ALBUM,
+            raw_payload={"name": "Discovery", **payload},
+            name="Discovery",
+        )
+
+    spotify = await _album_snap(
+        ProviderId.SPOTIFY,
+        "s1",
+        label="Virgin",
+        popularity=64,
+        album_type="album",
+        genres=["french house"],
+    )
+    deezer = await _album_snap(
+        ProviderId.DEEZER,
+        "d1",
+        label="Deezer Label",
+        popularity=10,
+        copyright_text="© 2001 Virgin",
+        album_type="compilation",
+        genres=["electro"],
+    )
+    album = await CanonicalMerger(session).merge_album([spotify, deezer], {})
+    assert album.label == "Virgin"
+    assert album.popularity == 64
+    assert album.album_type == "album"
+    assert list(album.genres) == ["french house"]
+    # Gap-fill from the lower-priority source where Spotify is silent.
+    assert album.copyright_text == "© 2001 Virgin"

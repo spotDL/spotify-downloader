@@ -178,6 +178,66 @@ async def test_get_artist_returns_view_with_tracks(session: AsyncSession) -> Non
     assert {t.name for t in view.tracks} == {"Hello"}
 
 
+async def test_views_carry_multi_provider_metadata_fields(session: AsyncSession) -> None:
+    """The Phase 1b canonical fields surface in the artist/album/track views."""
+    albums = AlbumRepository(session)
+    artists = ArtistRepository(session)
+    tracks = TrackRepository(session)
+
+    album = await albums.create(
+        name="Discovery",
+        album_artist="Daft Punk",
+        year=2001,
+        label="Virgin",
+        copyright_text="© 2001 Virgin",
+        popularity=64,
+        genres=["french house"],
+        album_type="album",
+    )
+    artist, _ = await artists.get_or_create_by_normalized_name("Daft Punk")
+    await artists.update(
+        artist,
+        popularity=88,
+        followers=12_000_000,
+        bio="French house duo.",
+        country="FR",
+        header_url="https://img/dp-hero.jpg",
+    )
+    track = await tracks.create(
+        name="One More Time",
+        duration_ms=320_000,
+        album_id=album.id,
+        date="2000-11-30",
+        publisher="Virgin",
+        copyright_text="© 2000 Virgin",
+    )
+    await tracks.set_artists(track, [artist.id])
+    await session.flush()
+    track_id, album_id, artist_id = track.id, album.id, artist.id
+    session.expire_all()
+
+    service = EntityService(session=session)
+
+    track_view = await service.get_track(track_id)
+    assert track_view.date == "2000-11-30"
+    assert track_view.publisher == "Virgin"
+    assert track_view.copyright_text == "© 2000 Virgin"
+
+    album_view = await service.get_album(album_id)
+    assert album_view.label == "Virgin"
+    assert album_view.copyright_text == "© 2001 Virgin"
+    assert album_view.popularity == 64
+    assert album_view.genres == ("french house",)
+    assert album_view.album_type == "album"
+
+    artist_view = await service.get_artist(artist_id)
+    assert artist_view.popularity == 88
+    assert artist_view.followers == 12_000_000
+    assert artist_view.bio == "French house duo."
+    assert artist_view.country == "FR"
+    assert artist_view.header_url == "https://img/dp-hero.jpg"
+
+
 async def test_get_artist_missing_raises_not_found(session: AsyncSession) -> None:
     service = EntityService(session=session)
     missing = uuid.uuid4()

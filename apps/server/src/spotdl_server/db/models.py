@@ -142,6 +142,13 @@ class Album(Base, TimestampMixin):
     year: Mapped[int | None] = mapped_column(sa.Integer, nullable=True)
     track_count: Mapped[int | None] = mapped_column(sa.Integer, nullable=True)
     cover_url: Mapped[str | None] = mapped_column(sa.String(2048), nullable=True)
+    # Multi-provider metadata (Spotify-first merged; all nullable).
+    label: Mapped[str | None] = mapped_column(sa.String(1024), nullable=True)
+    copyright_text: Mapped[str | None] = mapped_column(sa.String(1024), nullable=True)
+    popularity: Mapped[int | None] = mapped_column(sa.Integer, nullable=True)
+    genres: Mapped[list[str]] = mapped_column(sa.JSON, nullable=False, default=list)
+    # Display label only (album/single/ep/compilation) — NOT an entity type.
+    album_type: Mapped[str | None] = mapped_column(sa.String(32), nullable=True)
 
     tracks: Mapped[list[Track]] = relationship(
         "Track",
@@ -163,6 +170,13 @@ class Artist(Base, TimestampMixin):
     normalized_name: Mapped[str] = mapped_column(sa.String(1024), nullable=False)
     genres: Mapped[list[str]] = mapped_column(sa.JSON, nullable=False, default=list)
     image_url: Mapped[str | None] = mapped_column(sa.String(2048), nullable=True)
+    # Multi-provider metadata (Spotify-first merged; all nullable). ``header_url``
+    # is the hero-backdrop art, distinct from the ``image_url`` avatar.
+    popularity: Mapped[int | None] = mapped_column(sa.Integer, nullable=True)
+    followers: Mapped[int | None] = mapped_column(sa.Integer, nullable=True)
+    bio: Mapped[str | None] = mapped_column(sa.Text, nullable=True)
+    country: Mapped[str | None] = mapped_column(sa.String(8), nullable=True)
+    header_url: Mapped[str | None] = mapped_column(sa.String(2048), nullable=True)
 
     tracks: Mapped[list[Track]] = relationship(
         "Track",
@@ -193,6 +207,10 @@ class Track(Base, TimestampMixin):
     year: Mapped[int | None] = mapped_column(sa.Integer, nullable=True)
     genres: Mapped[list[str]] = mapped_column(sa.JSON, nullable=False, default=list)
     popularity: Mapped[int | None] = mapped_column(sa.Integer, nullable=True)
+    # Canonical-row persistence of the core ``Track`` metadata (all nullable).
+    date: Mapped[str | None] = mapped_column(sa.String(32), nullable=True)
+    publisher: Mapped[str | None] = mapped_column(sa.String(1024), nullable=True)
+    copyright_text: Mapped[str | None] = mapped_column(sa.String(1024), nullable=True)
     album_id: Mapped[uuid.UUID | None] = mapped_column(
         sa.Uuid(as_uuid=True),
         ForeignKey("albums.id", ondelete="SET NULL"),
@@ -275,6 +293,42 @@ class EntityLink(Base, TimestampMixin):
     upvotes: Mapped[int] = mapped_column(sa.Integer, nullable=False, default=0)
     downvotes: Mapped[int] = mapped_column(sa.Integer, nullable=False, default=0)
     net_score: Mapped[int] = mapped_column(sa.Integer, nullable=False, default=0)
+
+
+# --------------------------------------------------------------------------- #
+# entity_stat — time-series engagement metrics (schema only; Phase 4 collection)
+# --------------------------------------------------------------------------- #
+class EntityStat(Base, TimestampMixin):
+    """One provider-reported engagement metric captured for a canonical entity.
+
+    A row per ``(entity, provider, metric, capture)`` — e.g. Spotify
+    ``followers``/``popularity``, Deezer ``fans``/``rank``, YouTube ``views``.
+    The metric name is a free ``str`` (followers|fans|views|listeners|playcount|
+    popularity|rank …); ``value`` is a ``BigInteger`` to hold large play/view
+    counts. Collection is deferred to a later phase — this is schema only.
+    """
+
+    __tablename__ = "entity_stat"
+    __table_args__ = (
+        Index(
+            "ix_entity_stat_entity_type_entity_id_metric",
+            "entity_type",
+            "entity_id",
+            "metric",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    entity_type: Mapped[EntityType] = mapped_column(_enum(EntityType), nullable=False)
+    entity_id: Mapped[uuid.UUID] = mapped_column(sa.Uuid(as_uuid=True), nullable=False)
+    provider: Mapped[ProviderId] = mapped_column(_enum(ProviderId), nullable=False)
+    metric: Mapped[str] = mapped_column(sa.String(32), nullable=False)
+    value: Mapped[int] = mapped_column(sa.BigInteger, nullable=False)
+    captured_at: Mapped[datetime] = mapped_column(
+        sa.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(UTC),
+    )
 
 
 # --------------------------------------------------------------------------- #

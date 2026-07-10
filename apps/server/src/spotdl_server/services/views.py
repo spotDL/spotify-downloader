@@ -88,6 +88,11 @@ def album_meta(album: AlbumModel) -> AlbumView:
         year=album.year,
         track_count=album.track_count,
         cover_url=album.cover_url,
+        label=album.label,
+        copyright_text=album.copyright_text,
+        popularity=album.popularity,
+        genres=tuple(album.genres),
+        album_type=album.album_type,
     )
 
 
@@ -122,6 +127,9 @@ def track_view(
         year=track.year,
         genres=tuple(track.genres),
         popularity=track.popularity,
+        date=track.date,
+        publisher=track.publisher,
+        copyright_text=track.copyright_text,
         album=(album_meta(album) if album is not None else None),
         matches=tuple(match_view(m) for m in matches),
         lyrics=tuple(lyrics_view(row) for row in lyrics),
@@ -137,6 +145,11 @@ def album_view(album: AlbumModel) -> AlbumView:
         year=album.year,
         track_count=album.track_count,
         cover_url=album.cover_url,
+        label=album.label,
+        copyright_text=album.copyright_text,
+        popularity=album.popularity,
+        genres=tuple(album.genres),
+        album_type=album.album_type,
         tracks=tuple(track_view(t) for t in album.tracks),
     )
 
@@ -148,6 +161,11 @@ def artist_view(artist: ArtistModel) -> ArtistView:
         name=artist.name,
         genres=tuple(artist.genres),
         image_url=artist.image_url,
+        popularity=artist.popularity,
+        followers=artist.followers,
+        bio=artist.bio,
+        country=artist.country,
+        header_url=artist.header_url,
         tracks=tuple(track_view(t) for t in artist.tracks),
     )
 

@@ -40,6 +40,7 @@ EXPECTED_TABLES = {
     "track_artists",
     "playlist_tracks",
     "entity_links",
+    "entity_stat",
     "matches",
     "lyrics",
     "download_batches",
@@ -151,6 +152,11 @@ def test_albums_columns() -> None:
         "year": ("Integer", None, True, None),
         "track_count": ("Integer", None, True, None),
         "cover_url": ("String", 2048, True, None),
+        "label": ("String", 1024, True, None),
+        "copyright_text": ("String", 1024, True, None),
+        "popularity": ("Integer", None, True, None),
+        "genres": ("JSON", None, False, "callable"),
+        "album_type": ("String", 32, True, None),
         "created_at": ("DateTime", None, False, "callable"),
         "updated_at": ("DateTime", None, False, "callable"),
     }
@@ -163,6 +169,11 @@ def test_artists_columns() -> None:
         "normalized_name": ("String", 1024, False, None),
         "genres": ("JSON", None, False, "callable"),
         "image_url": ("String", 2048, True, None),
+        "popularity": ("Integer", None, True, None),
+        "followers": ("Integer", None, True, None),
+        "bio": ("Text", None, True, None),
+        "country": ("String", 8, True, None),
+        "header_url": ("String", 2048, True, None),
         "created_at": ("DateTime", None, False, "callable"),
         "updated_at": ("DateTime", None, False, "callable"),
     }
@@ -180,6 +191,9 @@ def test_tracks_columns() -> None:
         "year": ("Integer", None, True, None),
         "genres": ("JSON", None, False, "callable"),
         "popularity": ("Integer", None, True, None),
+        "date": ("String", 32, True, None),
+        "publisher": ("String", 1024, True, None),
+        "copyright_text": ("String", 1024, True, None),
         "album_id": ("Uuid", None, True, None),
         "created_at": ("DateTime", None, False, "callable"),
         "updated_at": ("DateTime", None, False, "callable"),
@@ -231,6 +245,22 @@ def test_entity_links_columns() -> None:
         "created_at": ("DateTime", None, False, "callable"),
         "updated_at": ("DateTime", None, False, "callable"),
     }
+
+
+def test_entity_stat_columns() -> None:
+    assert describe(tbl("entity_stat")) == {
+        "id": ("Uuid", None, False, "callable"),
+        "entity_type": ("Enum", 32, False, None),
+        "entity_id": ("Uuid", None, False, None),
+        "provider": ("Enum", 32, False, None),
+        "metric": ("String", 32, False, None),
+        "value": ("BigInteger", None, False, None),
+        "captured_at": ("DateTime", None, False, "callable"),
+        "created_at": ("DateTime", None, False, "callable"),
+        "updated_at": ("DateTime", None, False, "callable"),
+    }
+    ix_names = {ix.name for ix in tbl("entity_stat").indexes}
+    assert "ix_entity_stat_entity_type_entity_id_metric" in ix_names
 
 
 def test_matches_columns() -> None:

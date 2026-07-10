@@ -62,6 +62,12 @@ class AlbumView:
     year: int | None = None
     track_count: int | None = None
     cover_url: str | None = None
+    label: str | None = None
+    copyright_text: str | None = None
+    popularity: int | None = None
+    genres: tuple[str, ...] = ()
+    # Display label only (album/single/ep/compilation) — NOT an entity type.
+    album_type: str | None = None
     tracks: tuple[TrackView, ...] = ()
 
 
@@ -85,6 +91,9 @@ class TrackView:
     year: int | None = None
     genres: tuple[str, ...] = ()
     popularity: int | None = None
+    date: str | None = None
+    publisher: str | None = None
+    copyright_text: str | None = None
     # Source-provider ref (search previews only): lets clients resolve a hit
     # into a canonical entity ("{provider}:track:{provider_id}").
     provider: str | None = None
@@ -102,6 +111,12 @@ class ArtistView:
     name: str
     genres: tuple[str, ...] = ()
     image_url: str | None = None
+    popularity: int | None = None
+    followers: int | None = None
+    bio: str | None = None
+    country: str | None = None
+    # Hero-backdrop art, distinct from the ``image_url`` avatar.
+    header_url: str | None = None
     tracks: tuple[TrackView, ...] = ()
 
 

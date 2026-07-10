@@ -54,6 +54,9 @@ NEW_TABLES = {
     "votes",
     "reports",
 }
+# Tables added by later phases (Phase 1b's ``entity_stat``) — neither Plan-5 nor
+# the Plan-6 community layer this module guards, but part of the full metadata.
+OTHER_TABLES = {"entity_stat"}
 
 
 # --------------------------------------------------------------------------- #
@@ -128,7 +131,7 @@ def test_new_tables_present() -> None:
     assert tables >= NEW_TABLES
     # every Plan-5 table still present — no removals.
     assert tables >= PLAN5_TABLES
-    assert tables == PLAN5_TABLES | NEW_TABLES
+    assert tables == PLAN5_TABLES | NEW_TABLES | OTHER_TABLES
 
 
 # --------------------------------------------------------------------------- #

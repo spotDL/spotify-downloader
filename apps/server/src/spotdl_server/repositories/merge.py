@@ -210,6 +210,9 @@ class CanonicalMerger:
             year=_first_not_none(snaps, _payload_key("year")),
             genres=_first_non_empty(snaps, _genres),
             popularity=_spotify_popularity(snaps),
+            date=_first_not_none(snaps, _payload_key("date")),
+            publisher=_first_not_none(snaps, _payload_key("publisher")),
+            copyright_text=_first_not_none(snaps, _payload_key("copyright_text")),
             album_id=album_id,
         )
 
@@ -291,6 +294,11 @@ class CanonicalMerger:
             year=_first_not_none(snaps, _payload_key("year")),
             track_count=_first_not_none(snaps, _payload_key("track_count")),
             cover_url=_first_not_none(snaps, _cover_url),
+            label=_first_not_none(snaps, _payload_key("label")),
+            copyright_text=_first_not_none(snaps, _payload_key("copyright_text")),
+            popularity=_first_not_none(snaps, _payload_key("popularity")),
+            genres=_first_non_empty(snaps, _genres),
+            album_type=_first_not_none(snaps, _payload_key("album_type")),
         )
         for position in sorted(track_snapshots_by_pos):
             track = await self.merge_track(
@@ -327,6 +335,11 @@ class CanonicalMerger:
             normalized_name=normalize_artist_name(name),
             genres=_first_non_empty(snaps, _genres),
             image_url=_first_not_none(snaps, _image_url),
+            popularity=_first_not_none(snaps, _payload_key("popularity")),
+            followers=_first_not_none(snaps, _payload_key("followers")),
+            bio=_first_not_none(snaps, _payload_key("bio")),
+            country=_first_not_none(snaps, _payload_key("country")),
+            header_url=_first_not_none(snaps, _payload_key("header_url")),
         )
         # Merge the artist's top-track listing so ``artist.tracks`` is populated:
         # each merged track credits this artist via ``track_artists`` (set_artists),
