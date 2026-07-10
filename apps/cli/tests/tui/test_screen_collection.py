@@ -16,6 +16,7 @@ from spotdl_cli.tui.app import SpotdlApp
 from spotdl_cli.tui.messages import NavigateTo
 from spotdl_cli.tui.screens.collection import AlbumScreen, ArtistScreen, PlaylistScreen
 from spotdl_cli.tui.widgets.entity_card import EntityCard
+from spotdl_cli.tui.widgets.sources_panel import SourcesPanel
 from spotdl_cli.viewmodels.factory import ViewModelFactory
 from spotdl_cli.viewmodels.types import EntityRef
 from textual.widgets import DataTable
@@ -30,6 +31,8 @@ from .fakes import (
     make_features,
     make_job,
     make_playlist,
+    make_source,
+    make_sources,
     make_track,
 )
 
@@ -174,6 +177,28 @@ async def test_artist_side_panel_omits_enqueue_all_and_explains() -> None:
         assert app.screen.check_action("enqueue_all", ()) is None
         notes = " ".join(str(n.render()) for n in app.screen.query(Static))
         assert "unsupported for an artist" in notes
+
+
+async def test_sources_panel_lists_providers() -> None:
+    client, album_id, _ = _album_client()
+    client.sources_by_entity[str(album_id)] = make_sources(
+        entity_id=album_id,
+        entity_type="album",
+        sources=[
+            make_source(provider="spotify", entity_type="album", label="Virgin", year=2001),
+            make_source(provider="deezer", entity_type="album", label="Virgin"),
+        ],
+    )
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await _open_album(app, album_id, pilot)
+        await app.workers.wait_for_complete()
+        await pilot.pause()
+        assert client.called("sources")
+        summary = app.screen.query_one(SourcesPanel).summary
+        assert "spotify" in summary and "deezer" in summary
+        assert "Virgin" in summary and "2001" in summary
 
 
 async def test_narrow_width_collapses_columns() -> None:

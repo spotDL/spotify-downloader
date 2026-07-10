@@ -28,6 +28,7 @@ from spotdl_cli.tui.widgets.entity_card import EntityCard
 from spotdl_cli.tui.widgets.lyrics_pane import LyricsPane
 from spotdl_cli.tui.widgets.match_gauge import MatchGauge
 from spotdl_cli.tui.widgets.patterns import LoadingPane
+from spotdl_cli.tui.widgets.sources_panel import SourcesPanel
 from spotdl_cli.viewmodels.app_state import SessionSnapshot
 from spotdl_cli.viewmodels.base import LoadState
 from spotdl_cli.viewmodels.track import TrackViewModel
@@ -63,12 +64,16 @@ class TrackScreen(SpotdlScreen):
             with VerticalScroll(id="matches", classes="panel"):
                 yield LoadingPane("Loading matches…")
             with Vertical(id="lyrics-slot"):
-                yield LoadingPane("Loading lyrics…")
+                yield Vertical(LoadingPane("Loading lyrics…"), id="lyrics-inner")
+                yield VerticalScroll(
+                    LoadingPane("Loading sources…"), id="track-sources", classes="panel"
+                )
 
     def on_mount(self) -> None:
         super().on_mount()
         self.query_one("#track-header", Vertical).border_title = "Track"
         self.query_one("#matches", VerticalScroll).border_title = "Matches"
+        self.query_one("#track-sources", VerticalScroll).border_title = "Sources"
         self._apply_width(self.size.width)
         self._vm = self.vm_factory.track()
         self._load()
@@ -115,15 +120,25 @@ class TrackScreen(SpotdlScreen):
         await self.query_one("#card-slot", Vertical).mount(EntityCard(detail.header))
         matches = self.query_one("#matches", VerticalScroll)
         await matches.remove_children()
-        await self.query_one("#lyrics-slot", Vertical).remove_children()
+        inner = self.query_one("#lyrics-inner", Vertical)
+        await inner.remove_children()
         for row in detail.matches:
             await matches.mount(MatchGauge(row, can_vote=can_vote))
-        lyrics = LyricsPane(detail.lyrics)
-        await self.query_one("#lyrics-slot", Vertical).mount(lyrics)
+        await inner.mount(LyricsPane(detail.lyrics))
         self._sync_voting(session)
+        self._load_sources()
         gauges = self.query(MatchGauge)
         if gauges:
             gauges.first().focus()
+
+    @work(group="track-sources")
+    async def _load_sources(self) -> None:
+        assert self._vm is not None
+        result = await self._vm.load_sources()
+        panel = self.query_one("#track-sources", VerticalScroll)
+        await panel.remove_children()
+        rows = result.data if result.state is LoadState.READY and result.data is not None else ()
+        await panel.mount(SourcesPanel(rows))
 
     def _sync_voting(self, session: SessionSnapshot) -> None:
         """Push the current ``can_vote`` onto the gauges + the header CTA."""

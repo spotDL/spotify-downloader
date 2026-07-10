@@ -84,6 +84,54 @@ async def test_search_returns_track_views(client: SpotdlClient) -> None:
     assert results.tracks[0].name == "One More Time"
 
 
+async def test_search_maps_all_universal_sections(client: SpotdlClient) -> None:
+    body = {
+        "degraded_sources": [],
+        "results": [TRACK_JSON],
+        "albums": [{"id": "sp:a", "name": "Discovery", "album_type": "album", "year": 2001}],
+        "artists": [{"id": "sp:ar", "name": "Daft Punk", "followers": 1_500_000}],
+        "playlists": [{"id": "sp:pl", "name": "Mix", "owner": "curator"}],
+    }
+    with respx.mock(base_url=BASE, assert_all_called=False) as router:
+        router.get("/api/v1/search").mock(return_value=httpx.Response(200, json=body))
+        results = await client.search("daft punk")
+
+    assert [a.name for a in results.albums] == ["Discovery"]
+    assert results.albums[0].album_type == "album"
+    assert results.artists[0].followers == 1_500_000
+    assert [p.name for p in results.playlists] == ["Mix"]
+
+
+async def test_sources_returns_provider_provenance(client: SpotdlClient) -> None:
+    artist_id = UUID("22222222-2222-2222-2222-222222222222")
+    body = {
+        "entity_id": str(artist_id),
+        "entity_type": "artist",
+        "sources": [
+            {
+                "provider": "spotify",
+                "entity_type": "artist",
+                "fetched_at": "2024-01-01T00:00:00Z",
+                "name": "Daft Punk",
+                "followers": 1_500_000,
+                "popularity": 88,
+            }
+        ],
+    }
+    with respx.mock(base_url=BASE, assert_all_called=False) as router:
+        route = router.get(f"/api/v1/artists/{artist_id}/sources").mock(
+            return_value=httpx.Response(200, json=body)
+        )
+        view = await client.sources("artist", artist_id)
+
+    assert route.called
+    assert view.entity_type == "artist"
+    (source,) = view.sources
+    assert source.provider == "spotify"
+    assert source.followers == 1_500_000
+    assert source.popularity == 88
+
+
 async def test_404_envelope_becomes_api_error(client: SpotdlClient) -> None:
     envelope = {"code": "not_found", "message": "no such track"}
     with respx.mock(base_url=BASE, assert_all_called=False) as router:

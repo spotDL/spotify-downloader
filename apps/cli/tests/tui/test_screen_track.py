@@ -20,6 +20,7 @@ from spotdl_cli.tui.screens.track import TrackScreen
 from spotdl_cli.tui.widgets.entity_card import EntityCard
 from spotdl_cli.tui.widgets.lyrics_pane import LyricsPane
 from spotdl_cli.tui.widgets.match_gauge import MatchGauge
+from spotdl_cli.tui.widgets.sources_panel import SourcesPanel
 from spotdl_cli.viewmodels.factory import ViewModelFactory
 
 from .conftest import FakeConfigStore, FakeCredentialStore
@@ -30,6 +31,8 @@ from .fakes import (
     make_lyrics,
     make_match,
     make_pat,
+    make_source,
+    make_sources,
     make_tokens,
     make_track,
     make_user,
@@ -93,6 +96,26 @@ async def test_mounts_card_gauges_and_pane() -> None:
         assert len(app.screen.query(LyricsPane)) == 1
         card = app.screen.query_one(EntityCard)
         assert "Harder Better" in card.summary
+
+
+async def test_sources_panel_shows_provider_provenance() -> None:
+    track_id = uuid4()
+    client = _client_with_track(track_id)
+    client.sources_by_entity[str(track_id)] = make_sources(
+        entity_id=track_id,
+        entity_type="track",
+        sources=[make_source(provider="spotify", entity_type="track", isrc="GBUM71029604")],
+    )
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await _mount_track(app, track_id)
+        await app.workers.wait_for_complete()
+        await pilot.pause()
+
+        assert client.called("sources")
+        summary = app.screen.query_one(SourcesPanel).summary
+        assert "spotify" in summary and "GBUM71029604" in summary
 
 
 async def test_vote_up_merges_fresh_tallies_onto_gauge() -> None:

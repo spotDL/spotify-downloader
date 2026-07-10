@@ -65,9 +65,18 @@ from spotdl_cli._generated.api.api.downloads import (
     submit_download_api_v1_downloads_post as _submit_dl_ep,
 )
 from spotdl_cli._generated.api.api.entities import get_album_api_v1_albums_id_get as _album_ep
+from spotdl_cli._generated.api.api.entities import (
+    get_album_sources_api_v1_albums_id_sources_get as _album_sources_ep,
+)
 from spotdl_cli._generated.api.api.entities import get_artist_api_v1_artists_id_get as _artist_ep
 from spotdl_cli._generated.api.api.entities import (
+    get_artist_sources_api_v1_artists_id_sources_get as _artist_sources_ep,
+)
+from spotdl_cli._generated.api.api.entities import (
     get_playlist_api_v1_playlists_id_get as _playlist_ep,
+)
+from spotdl_cli._generated.api.api.entities import (
+    get_playlist_sources_api_v1_playlists_id_sources_get as _playlist_sources_ep,
 )
 from spotdl_cli._generated.api.api.entities import get_track_api_v1_tracks_id_get as _track_ep
 from spotdl_cli._generated.api.api.entities import (
@@ -75,6 +84,9 @@ from spotdl_cli._generated.api.api.entities import (
 )
 from spotdl_cli._generated.api.api.entities import (
     get_track_matches_api_v1_tracks_id_matches_get as _matches_ep,
+)
+from spotdl_cli._generated.api.api.entities import (
+    get_track_sources_api_v1_tracks_id_sources_get as _track_sources_ep,
 )
 from spotdl_cli._generated.api.api.meta import config_api_v1_config_get as _config_ep
 from spotdl_cli._generated.api.api.reports import (
@@ -129,6 +141,7 @@ from spotdl_cli._generated.api.models.report_status import ReportStatus
 from spotdl_cli._generated.api.models.resolve_request import ResolveRequest
 from spotdl_cli._generated.api.models.resolve_response import ResolveResponse
 from spotdl_cli._generated.api.models.search_response import SearchResponse
+from spotdl_cli._generated.api.models.sources_response import SourcesResponse
 from spotdl_cli._generated.api.models.submit_match_request import SubmitMatchRequest
 from spotdl_cli._generated.api.models.token_response import TokenResponse
 from spotdl_cli._generated.api.models.track_out import TrackOut
@@ -157,11 +170,20 @@ from spotdl_cli.views import (
     PlaylistView,
     ReportView,
     SearchResultView,
+    SourcesView,
     StatsView,
     Tokens,
     TrackView,
     UserView,
 )
+
+# entity_type -> the generated ``.../{id}/sources`` endpoint module (CONTRACT B).
+_SOURCES_EPS = {
+    "track": _track_sources_ep,
+    "album": _album_sources_ep,
+    "artist": _artist_sources_ep,
+    "playlist": _playlist_sources_ep,
+}
 
 DEFAULT_API_URL = "https://api.spotdl.dev"
 """The community server (domain owned by the project; see the domain decision).
@@ -533,6 +555,19 @@ class SpotdlClient:
         result = _unwrap(resp)
         assert isinstance(result, PlaylistOut)
         return PlaylistView.from_generated(result)
+
+    async def sources(self, entity_type: str, id: UUID) -> SourcesView:
+        """``GET /{kind}/{id}/sources`` — an entity's per-provider metadata provenance.
+
+        Dispatches to the generated per-kind endpoint (they share a request shape and
+        the :class:`SourcesResponse` body); an unknown ``entity_type`` raises
+        ``KeyError`` (a caller bug — the four kinds are the resolvable universe).
+        """
+        endpoint = _SOURCES_EPS[entity_type]
+        resp = await endpoint.asyncio_detailed(id=id, client=self._client(self._resolution))
+        result = _unwrap(resp)
+        assert isinstance(result, SourcesResponse)
+        return SourcesView.from_generated(result)
 
     async def matches(self, track_id: UUID) -> list[MatchView]:
         resp = await _matches_ep.asyncio_detailed(

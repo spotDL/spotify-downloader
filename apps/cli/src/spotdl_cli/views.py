@@ -32,11 +32,13 @@ from spotdl_cli._generated.api.models.entity_envelope import EntityEnvelope
 from spotdl_cli._generated.api.models.feature_flags import FeatureFlags
 from spotdl_cli._generated.api.models.lyrics_out import LyricsOut
 from spotdl_cli._generated.api.models.match_out import MatchOut
+from spotdl_cli._generated.api.models.metadata_source_out import MetadataSourceOut
 from spotdl_cli._generated.api.models.paged_users import PagedUsers
 from spotdl_cli._generated.api.models.pat_created_response import PatCreatedResponse
 from spotdl_cli._generated.api.models.playlist_out import PlaylistOut
 from spotdl_cli._generated.api.models.report_response import ReportResponse
 from spotdl_cli._generated.api.models.search_response import SearchResponse
+from spotdl_cli._generated.api.models.sources_response import SourcesResponse
 from spotdl_cli._generated.api.models.token_response import TokenResponse
 from spotdl_cli._generated.api.models.track_out import TrackOut
 from spotdl_cli._generated.api.models.user_response import UserResponse
@@ -105,6 +107,7 @@ class TrackView:
     artists: list[str]
     duration_ms: int
     album: AlbumRefView | None = None
+    cover_url: str | None = None
     disc_number: int | None = None
     explicit: bool | None = None
     genres: list[str] = field(default_factory=list)
@@ -126,6 +129,7 @@ class TrackView:
             artists=list(track.artists),
             duration_ms=track.duration_ms,
             album=AlbumRefView.from_generated(album) if isinstance(album, AlbumRefOut) else None,
+            cover_url=_opt(track.cover_url),
             disc_number=_opt(track.disc_number),
             explicit=_opt(track.explicit),
             genres=_seq(track.genres),
@@ -140,29 +144,44 @@ class TrackView:
 
 @dataclass(frozen=True, slots=True)
 class SearchResultView:
-    """``GET /search``: the ranked track list plus the ``degraded_sources`` the
-    resolution layer reported for the query (a non-empty list means one or more
-    metadata providers fell back — the caller surfaces a "degraded" hint)."""
+    """``GET /search``: the sectioned universal-search result.
+
+    ``tracks`` is the ranked song list (the generated ``results``); ``albums`` /
+    ``artists`` / ``playlists`` are the other three preview sections (each empty when
+    the server omits it). ``degraded_sources`` is non-empty when one or more metadata
+    providers fell back — the caller surfaces a "degraded" hint. Every section carries
+    preview views; the client resolves a ref for the full canonical graph."""
 
     tracks: list[TrackView]
+    albums: list[AlbumView] = field(default_factory=list)
+    artists: list[ArtistView] = field(default_factory=list)
+    playlists: list[PlaylistView] = field(default_factory=list)
     degraded_sources: list[str] = field(default_factory=list)
 
     @classmethod
     def from_generated(cls, response: SearchResponse) -> SearchResultView:
         return cls(
             tracks=[TrackView.from_generated(t) for t in response.results],
+            albums=[AlbumView.from_generated(a) for a in _seq(response.albums)],
+            artists=[ArtistView.from_generated(a) for a in _seq(response.artists)],
+            playlists=[PlaylistView.from_generated(p) for p in _seq(response.playlists)],
             degraded_sources=list(response.degraded_sources),
         )
 
 
 @dataclass(frozen=True, slots=True)
 class AlbumView:
-    """A full album with its track list."""
+    """A full album with its track list and provenance metadata."""
 
     id: str
     name: str
     album_artist: str | None = None
+    album_type: str | None = None
     cover_url: str | None = None
+    copyright_text: str | None = None
+    genres: list[str] = field(default_factory=list)
+    label: str | None = None
+    popularity: int | None = None
     track_count: int | None = None
     year: int | None = None
     tracks: list[TrackView] = field(default_factory=list)
@@ -173,7 +192,12 @@ class AlbumView:
             id=album.id,
             name=album.name,
             album_artist=_opt(album.album_artist),
+            album_type=_opt(album.album_type),
             cover_url=_opt(album.cover_url),
+            copyright_text=_opt(album.copyright_text),
+            genres=_seq(album.genres),
+            label=_opt(album.label),
+            popularity=_opt(album.popularity),
             track_count=_opt(album.track_count),
             year=_opt(album.year),
             tracks=[TrackView.from_generated(t) for t in _seq(album.tracks)],
@@ -182,12 +206,14 @@ class AlbumView:
 
 @dataclass(frozen=True, slots=True)
 class ArtistView:
-    """An artist with an optional top-track list."""
+    """An artist with an optional top-track list and audience metadata."""
 
     id: str
     name: str
+    followers: int | None = None
     genres: list[str] = field(default_factory=list)
     image_url: str | None = None
+    popularity: int | None = None
     tracks: list[TrackView] = field(default_factory=list)
 
     @classmethod
@@ -195,8 +221,10 @@ class ArtistView:
         return cls(
             id=artist.id,
             name=artist.name,
+            followers=_opt(artist.followers),
             genres=_seq(artist.genres),
             image_url=_opt(artist.image_url),
+            popularity=_opt(artist.popularity),
             tracks=[TrackView.from_generated(t) for t in _seq(artist.tracks)],
         )
 
@@ -256,6 +284,63 @@ class EntityView:
             if isinstance(playlist, PlaylistOut)
             else None,
             degraded_sources=list(degraded_sources),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class MetadataSourceView:
+    """One provider's contribution to a canonical entity (``.../{id}/sources``).
+
+    Mirrors the server ``MetadataSourceOut``: only the fields relevant to the entity
+    type are populated (``followers`` for an artist, ``label``/``year`` for an album,
+    ``isrc`` for a track, …); the rest stay ``None`` / empty. The "Sources" panel
+    renders these as the terminal equivalent of the web ``SourcesPanel``."""
+
+    provider: str
+    entity_type: str
+    name: str | None = None
+    album_name: str | None = None
+    artist_names: list[str] = field(default_factory=list)
+    followers: int | None = None
+    popularity: int | None = None
+    label: str | None = None
+    year: int | None = None
+    isrc: str | None = None
+    genres: list[str] = field(default_factory=list)
+    cover_url: str | None = None
+
+    @classmethod
+    def from_generated(cls, source: MetadataSourceOut) -> MetadataSourceView:
+        return cls(
+            provider=source.provider.value,
+            entity_type=source.entity_type.value,
+            name=_opt(source.name),
+            album_name=_opt(source.album_name),
+            artist_names=_seq(source.artist_names),
+            followers=_opt(source.followers),
+            popularity=_opt(source.popularity),
+            label=_opt(source.label),
+            year=_opt(source.year),
+            isrc=_opt(source.isrc),
+            genres=_seq(source.genres),
+            cover_url=_opt(source.cover_url),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class SourcesView:
+    """``GET /{kind}/{id}/sources``: an entity's per-provider metadata provenance."""
+
+    entity_id: str
+    entity_type: str
+    sources: list[MetadataSourceView] = field(default_factory=list)
+
+    @classmethod
+    def from_generated(cls, response: SourcesResponse) -> SourcesView:
+        return cls(
+            entity_id=response.entity_id,
+            entity_type=response.entity_type.value,
+            sources=[MetadataSourceView.from_generated(s) for s in response.sources],
         )
 
 

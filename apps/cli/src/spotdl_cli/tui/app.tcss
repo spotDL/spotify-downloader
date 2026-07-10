@@ -468,7 +468,8 @@ NotePromptModal {
 
 #filter-chips {
     height: 1;
-    color: $text-muted;
+    color: $text-secondary;
+    text-style: bold;
     padding: 0 1 1 1;
 }
 
@@ -476,13 +477,29 @@ NotePromptModal {
     height: 1fr;
 }
 
-#search-results {
+#results-scroll {
     height: 1fr;
+}
+
+/* Universal-search section headers (Artists · N) and their stacked preview tables. */
+.section-title {
+    height: 1;
+    color: $accent;
+    text-style: bold;
+    padding: 1 1 0 1;
+}
+
+.section-table {
+    height: auto;
+    max-height: 16;
+    margin: 0 0 1 0;
 }
 
 .results-empty {
     width: 100%;
     height: 1fr;
+    content-align: center middle;
+    text-align: center;
     color: $text-muted;
     padding: 1 1;
 }
@@ -611,6 +628,28 @@ EntityCard {
     height: auto;
     color: $text-muted;
     margin: 1 0 0 0;
+}
+
+/* Per-provider metadata provenance — the terminal "Sources" panel (track + collection). */
+#collection-sources {
+    height: auto;
+    max-height: 20;
+    margin: 1 0 0 0;
+}
+
+#track-sources {
+    height: auto;
+    max-height: 14;
+    margin: 1 0 0 0;
+}
+
+.sources-panel {
+    height: auto;
+    color: $text;
+}
+
+#lyrics-inner {
+    height: 1fr;
 }
 
 MatchGauge {

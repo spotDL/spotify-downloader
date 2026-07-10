@@ -10,7 +10,7 @@ toast with an empty table (no crash); and ``/`` focuses the input.
 
 from __future__ import annotations
 
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from spotdl_cli._generated.api.models.error_code import ErrorCode
 from spotdl_cli.errors import ApiError
@@ -22,7 +22,7 @@ from spotdl_cli.views import AlbumRefView, EntityView
 from textual.widgets import DataTable, Input, Static
 
 from .conftest import FakeConfigStore, FakeCredentialStore
-from .fakes import FakeSpotdlClient, make_track
+from .fakes import FakeSpotdlClient, make_album, make_artist, make_playlist, make_track
 
 _ORIGIN = "https://api.example.test"
 _TRANSPORT = "remote · api.example.test"
@@ -151,6 +151,80 @@ async def test_degraded_search_surfaces_banner_and_yellow_dot() -> None:
         assert "spotify" in str(banner.render())
         # The shell's nav-rail dot folds the session-degraded flag over transport.
         assert app.screen.query_one(NavRail).dot_state == "degraded"
+
+
+def _universal_client() -> tuple[FakeSpotdlClient, dict[str, UUID]]:
+    client = FakeSpotdlClient()
+    album_id, artist_id, playlist_id = uuid4(), uuid4(), uuid4()
+    client.search_results = [make_track(name="One More Time")]
+    client.search_albums = [make_album(id=album_id, name="Discovery")]
+    client.search_artists = [make_artist(id=artist_id, name="Daft Punk")]
+    client.search_playlists = [make_playlist(id=playlist_id, name="Mix")]
+    client.albums[str(album_id)] = make_album(id=album_id, name="Discovery")
+    client.artists[str(artist_id)] = make_artist(id=artist_id, name="Daft Punk")
+    client.playlists[str(playlist_id)] = make_playlist(id=playlist_id, name="Mix")
+    return client, {"album": album_id, "artist": artist_id, "playlist": playlist_id}
+
+
+async def _run_search(app: SpotdlApp, pilot: object) -> None:
+    app.screen.query_one("#search-input", Input).focus()
+    await pilot.press("d", "a", "f", "t", "enter")  # type: ignore[attr-defined]
+    await app.workers.wait_for_complete()
+    await pilot.pause()  # type: ignore[attr-defined]
+
+
+async def test_universal_search_renders_four_sections_with_counts() -> None:
+    client, _ = _universal_client()
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await _run_search(app, pilot)
+
+        for table_id in (
+            "artists-results",
+            "albums-results",
+            "search-results",
+            "playlists-results",
+        ):
+            assert app.screen.query_one(f"#{table_id}", DataTable).row_count == 1
+        # Each visible section title carries its count.
+        assert "Artists · 1" in str(app.screen.query_one("#artists-title", Static).render())
+        assert "Songs · 1" in str(app.screen.query_one("#songs-title", Static).render())
+        # The filter chips reflect the per-section counts.
+        chips = str(app.screen.query_one("#filter-chips", Static).render())
+        assert "Albums 1" in chips and "Playlists 1" in chips
+
+
+async def test_filter_cycling_narrows_to_one_section() -> None:
+    client, _ = _universal_client()
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await _run_search(app, pilot)
+        # all → artists: only the artists section stays visible.
+        await pilot.press("f")
+        await pilot.pause()
+        assert "hidden" not in app.screen.query_one("#artists-results", DataTable).classes
+        assert "hidden" in app.screen.query_one("#search-results", DataTable).classes
+        assert "hidden" in app.screen.query_one("#albums-results", DataTable).classes
+
+
+async def test_selecting_artist_hit_routes_to_collection_screen() -> None:
+    client, ids = _universal_client()
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await _run_search(app, pilot)
+        table = app.screen.query_one("#artists-results", DataTable)
+        table.focus()
+        await pilot.press("enter")
+        await app.workers.wait_for_complete()
+        await pilot.pause()
+
+        from spotdl_cli.tui.screens.collection import ArtistScreen
+
+        assert isinstance(app.screen, ArtistScreen)
+        assert client.called("artist")
 
 
 async def test_slash_focuses_the_search_input() -> None:

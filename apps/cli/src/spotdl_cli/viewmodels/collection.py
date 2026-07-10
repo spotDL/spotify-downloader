@@ -11,10 +11,11 @@ from spotdl_cli.viewmodels.mappers import (
     artist_header,
     batch_ref,
     playlist_header,
+    source_row,
     track_row,
 )
 from spotdl_cli.viewmodels.protocol import SpotdlClientProtocol
-from spotdl_cli.viewmodels.types import BatchRef, CollectionDetail
+from spotdl_cli.viewmodels.types import BatchRef, CollectionDetail, SourceRow
 from spotdl_cli.views import DownloadSubmit
 
 _COLLECTION_KINDS = ("album", "artist", "playlist")
@@ -38,6 +39,21 @@ class CollectionViewModel:
             )
         self._entity_id = entity_id
         return await guard(self._fetch(entity_type, entity_id))
+
+    async def load_sources(
+        self, entity_type: str, entity_id: UUID
+    ) -> Loadable[tuple[SourceRow, ...]]:
+        """Fetch an entity's per-provider metadata provenance (the "Sources" panel).
+
+        Loaded separately from :meth:`load` so a slow/unavailable ``/sources`` endpoint
+        degrades to an empty panel rather than failing the whole collection view.
+        """
+
+        async def _run() -> tuple[SourceRow, ...]:
+            result = await self._client.sources(entity_type, entity_id)
+            return tuple(source_row(source) for source in result.sources)
+
+        return await guard(_run())
 
     async def _fetch(self, entity_type: str, entity_id: UUID) -> CollectionDetail:
         if entity_type == "album":

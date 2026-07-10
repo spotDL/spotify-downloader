@@ -31,11 +31,13 @@ from spotdl_cli.views import (
     JobView,
     LyricsView,
     MatchView,
+    MetadataSourceView,
     PagedUsersView,
     PatCreated,
     PlaylistView,
     ReportView,
     SearchResultView,
+    SourcesView,
     StatsView,
     Tokens,
     TrackView,
@@ -174,6 +176,10 @@ def make_album(
         id=str(id or uuid4()),
         name=name,
         album_artist="Daft Punk",
+        album_type="album",
+        label="Virgin",
+        popularity=75,
+        genres=["french house"],
         track_count=len(tracks) if tracks is not None else 1,
         year=2001,
         tracks=tracks if tracks is not None else [make_track()],
@@ -186,7 +192,9 @@ def make_artist(
     return ArtistView(
         id=str(id or uuid4()),
         name=name,
+        followers=1_500_000,
         genres=["french house"],
+        popularity=88,
         tracks=tracks if tracks is not None else [make_track()],
     )
 
@@ -199,6 +207,44 @@ def make_playlist(
         name=name,
         owner="curator",
         tracks=tracks if tracks is not None else [make_track()],
+    )
+
+
+def make_source(
+    *,
+    provider: str = "spotify",
+    entity_type: str = "artist",
+    name: str | None = "Daft Punk",
+    followers: int | None = None,
+    popularity: int | None = None,
+    label: str | None = None,
+    year: int | None = None,
+    isrc: str | None = None,
+    genres: list[str] | None = None,
+) -> MetadataSourceView:
+    return MetadataSourceView(
+        provider=provider,
+        entity_type=entity_type,
+        name=name,
+        followers=followers,
+        popularity=popularity,
+        label=label,
+        year=year,
+        isrc=isrc,
+        genres=genres if genres is not None else [],
+    )
+
+
+def make_sources(
+    *,
+    entity_id: UUID | None = None,
+    entity_type: str = "artist",
+    sources: list[MetadataSourceView] | None = None,
+) -> SourcesView:
+    return SourcesView(
+        entity_id=str(entity_id or uuid4()),
+        entity_type=entity_type,
+        sources=sources if sources is not None else [make_source()],
     )
 
 
@@ -443,12 +489,17 @@ class FakeSpotdlClient:
         # per-key canned returns (tests override); keyed by method name where a
         # single canned value suffices, or by entity id for the lookup methods.
         self.search_results: list[TrackView] = []
+        self.search_albums: list[AlbumView] = []
+        self.search_artists: list[ArtistView] = []
+        self.search_playlists: list[PlaylistView] = []
         self.search_degraded: list[str] = []
         self.resolve_result: EntityView | None = None
         self.tracks: dict[str, TrackView] = {}
         self.albums: dict[str, AlbumView] = {}
         self.artists: dict[str, ArtistView] = {}
         self.playlists: dict[str, PlaylistView] = {}
+        # per-entity-id canned /sources responses (tests seed these)
+        self.sources_by_entity: dict[str, SourcesView] = {}
         self.matches_by_track: dict[str, list[MatchView]] = {}
         self.lyrics_by_track: dict[str, list[LyricsView]] = {}
         self.vote_match_result: MatchView | None = None
@@ -514,7 +565,13 @@ class FakeSpotdlClient:
     async def search(self, q: str, *, limit: int = 10) -> SearchResultView:
         self._record("search", q, limit=limit)
         self._maybe_raise("search")
-        return SearchResultView(tracks=self.search_results, degraded_sources=self.search_degraded)
+        return SearchResultView(
+            tracks=self.search_results,
+            albums=self.search_albums,
+            artists=self.search_artists,
+            playlists=self.search_playlists,
+            degraded_sources=self.search_degraded,
+        )
 
     async def track(self, id: UUID) -> TrackView:
         self._record("track", id)
@@ -535,6 +592,13 @@ class FakeSpotdlClient:
         self._record("playlist", id)
         self._maybe_raise("playlist")
         return self.playlists[str(id)]
+
+    async def sources(self, entity_type: str, id: UUID) -> SourcesView:
+        self._record("sources", entity_type, id)
+        self._maybe_raise("sources")
+        return self.sources_by_entity.get(
+            str(id), SourcesView(entity_id=str(id), entity_type=entity_type, sources=[])
+        )
 
     async def matches(self, track_id: UUID) -> list[MatchView]:
         self._record("matches", track_id)

@@ -10,7 +10,29 @@ from spotdl_cli.viewmodels.base import LoadState
 from spotdl_cli.viewmodels.search import SearchViewModel
 from spotdl_cli.views import AlbumRefView, EntityView
 
-from .fakes import FakeSpotdlClient, make_track
+from .fakes import FakeSpotdlClient, make_album, make_artist, make_playlist, make_track
+
+
+async def test_search_maps_all_universal_sections() -> None:
+    """A universal search maps every group (tracks/albums/artists/playlists) → hits."""
+    client = FakeSpotdlClient()
+    album_id, artist_id, playlist_id = uuid4(), uuid4(), uuid4()
+    client.search_results = [make_track(name="One More Time")]
+    client.search_albums = [make_album(id=album_id, name="Discovery")]
+    client.search_artists = [make_artist(id=artist_id, name="Daft Punk")]
+    client.search_playlists = [make_playlist(id=playlist_id, name="Mix")]
+    result = await SearchViewModel(client).search("daft")
+
+    assert result.state is LoadState.READY
+    data = result.data
+    assert data is not None
+    assert [row.title for row in data.rows] == ["One More Time"]
+    ((album,), (artist,), (playlist,)) = (data.albums, data.artists, data.playlists)
+    assert (album.entity_type, album.id, album.title) == ("album", album_id, "Discovery")
+    assert (artist.entity_type, artist.id) == ("artist", artist_id)
+    assert artist.detail == "1.5M followers"  # followers formatted K/M/B
+    assert (playlist.entity_type, playlist.id, playlist.title) == ("playlist", playlist_id, "Mix")
+    assert data.total == 4
 
 
 async def test_search_maps_track_rows() -> None:

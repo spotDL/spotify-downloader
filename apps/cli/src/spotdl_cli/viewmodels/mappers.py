@@ -21,6 +21,8 @@ from spotdl_cli.viewmodels.types import (
     LyricsLine,
     MatchRow,
     ReportRow,
+    SearchHit,
+    SourceRow,
     TrackRow,
     UserRow,
 )
@@ -33,6 +35,7 @@ from spotdl_cli.views import (
     JobView,
     LyricsView,
     MatchView,
+    MetadataSourceView,
     PlaylistView,
     ReportView,
     TrackView,
@@ -65,6 +68,15 @@ def format_duration(duration_ms: int) -> str:
 def score_to_percent(score: float) -> int:
     """Scale a 0..1 match score to a clamped 0..100 integer gauge value."""
     return max(0, min(100, round(score * 100)))
+
+
+def format_count(value: int) -> str:
+    """Render a large count compactly (``1500`` → ``1.5K``, ``2_000_000`` → ``2M``)."""
+    for threshold, suffix in ((1_000_000_000, "B"), (1_000_000, "M"), (1_000, "K")):
+        if abs(value) >= threshold:
+            scaled = f"{value / threshold:.1f}".rstrip("0").rstrip(".")
+            return f"{scaled}{suffix}"
+    return str(value)
 
 
 def track_row(track: TrackView) -> TrackRow:
@@ -157,10 +169,18 @@ def track_header(track: TrackView) -> EntityHeader:
 
 def album_header(album: AlbumView) -> EntityHeader:
     stats: list[tuple[str, str]] = []
+    if album.album_type:
+        stats.append(("type", album.album_type))
     if album.track_count is not None:
         stats.append(("tracks", str(album.track_count)))
     if album.year is not None:
         stats.append(("year", str(album.year)))
+    if album.label:
+        stats.append(("label", album.label))
+    if album.popularity is not None:
+        stats.append(("popularity", str(album.popularity)))
+    if album.genres:
+        stats.append(("genres", ", ".join(album.genres)))
     return EntityHeader(
         title=album.name,
         subtitle=album.album_artist or "",
@@ -171,11 +191,17 @@ def album_header(album: AlbumView) -> EntityHeader:
 
 
 def artist_header(artist: ArtistView) -> EntityHeader:
+    stats: list[tuple[str, str]] = []
+    if artist.followers is not None:
+        stats.append(("followers", format_count(artist.followers)))
+    if artist.popularity is not None:
+        stats.append(("popularity", str(artist.popularity)))
+    stats.append(("tracks", str(len(artist.tracks))))
     return EntityHeader(
         title=artist.name,
         subtitle=", ".join(artist.genres),
         kind="artist",
-        stats=(("tracks", str(len(artist.tracks))),),
+        stats=tuple(stats),
         cover_url=artist.image_url,
     )
 
@@ -189,6 +215,51 @@ def playlist_header(playlist: PlaylistView) -> EntityHeader:
         stats=tuple(stats),
         cover_url=playlist.cover_url,
     )
+
+
+def album_hit(album: AlbumView) -> SearchHit:
+    """An album preview row for the universal-search "Albums" section."""
+    detail = " · ".join(p for p in (album.album_type, _year(album.year)) if p)
+    return SearchHit("album", UUID(album.id), album.name, album.album_artist or "", detail)
+
+
+def artist_hit(artist: ArtistView) -> SearchHit:
+    """An artist preview row for the "Artists" section (followers as the detail)."""
+    detail = f"{format_count(artist.followers)} followers" if artist.followers is not None else ""
+    return SearchHit("artist", UUID(artist.id), artist.name, ", ".join(artist.genres), detail)
+
+
+def playlist_hit(playlist: PlaylistView) -> SearchHit:
+    """A playlist preview row for the "Playlists" section."""
+    detail = f"{len(playlist.tracks)} tracks" if playlist.tracks else ""
+    return SearchHit("playlist", UUID(playlist.id), playlist.name, playlist.owner or "", detail)
+
+
+def _year(year: int | None) -> str:
+    return str(year) if year is not None else ""
+
+
+def source_row(source: MetadataSourceView) -> SourceRow:
+    """One provider's per-entity metadata provenance → a "Sources" panel row.
+
+    Only the metrics relevant to the entity kind are populated on the source, so the
+    chip list stays naturally sparse (followers for artists, label/year for albums, …).
+    """
+    metrics: list[tuple[str, str]] = []
+    if source.followers is not None:
+        metrics.append(("followers", format_count(source.followers)))
+    if source.popularity is not None:
+        metrics.append(("popularity", str(source.popularity)))
+    if source.label:
+        metrics.append(("label", source.label))
+    if source.year is not None:
+        metrics.append(("year", str(source.year)))
+    if source.isrc:
+        metrics.append(("isrc", source.isrc))
+    if source.genres:
+        metrics.append(("genres", ", ".join(source.genres)))
+    name = source.name or source.album_name or ""
+    return SourceRow(provider=source.provider, name=name, metrics=tuple(metrics))
 
 
 def batch_ref(batch: BatchView) -> BatchRef:

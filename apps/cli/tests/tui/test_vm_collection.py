@@ -5,6 +5,8 @@ from __future__ import annotations
 from uuid import uuid4
 
 import pytest
+from spotdl_cli._generated.api.models.error_code import ErrorCode
+from spotdl_cli.errors import ApiError
 from spotdl_cli.viewmodels.base import LoadState
 from spotdl_cli.viewmodels.collection import CollectionViewModel
 
@@ -15,6 +17,8 @@ from .fakes import (
     make_batch,
     make_playlist,
     make_session,
+    make_source,
+    make_sources,
     make_track,
 )
 
@@ -94,6 +98,36 @@ async def test_enqueue_track_submits_track_id() -> None:
     assert result.state is LoadState.READY
     submit = next(c for c in client.calls if c[0] == "submit_download")
     assert submit[1][0].query == str(track_id)
+
+
+async def test_load_sources_maps_provider_rows() -> None:
+    client = FakeSpotdlClient()
+    artist_id = uuid4()
+    client.sources_by_entity[str(artist_id)] = make_sources(
+        entity_id=artist_id,
+        entity_type="artist",
+        sources=[
+            make_source(provider="spotify", name="Daft Punk", followers=1_500_000, popularity=88),
+            make_source(provider="deezer", name="Daft Punk", followers=900_000),
+        ],
+    )
+    result = await CollectionViewModel(client, make_session()).load_sources("artist", artist_id)
+
+    assert result.state is LoadState.READY
+    rows = result.data
+    assert rows is not None
+    assert [row.provider for row in rows] == ["spotify", "deezer"]
+    # followers formatted compactly; popularity present only where the source carries it
+    assert dict(rows[0].metrics) == {"followers": "1.5M", "popularity": "88"}
+    assert dict(rows[1].metrics) == {"followers": "900K"}
+    assert client.called("sources")
+
+
+async def test_load_sources_error_is_surfaced() -> None:
+    client = FakeSpotdlClient()
+    client.errors["sources"] = ApiError(ErrorCode.INTERNAL_ERROR, message="boom")
+    result = await CollectionViewModel(client, make_session()).load_sources("album", uuid4())
+    assert result.state is LoadState.ERROR
 
 
 @pytest.mark.parametrize("method", ["enqueue_all", "enqueue_track"])

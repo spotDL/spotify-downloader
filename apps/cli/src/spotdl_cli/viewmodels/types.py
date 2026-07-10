@@ -39,19 +39,44 @@ class TrackRow:
 
 
 @dataclass(frozen=True, slots=True)
-class SearchResult:
-    """A search outcome: the mapped rows plus whether the query degraded a source.
+class SearchHit:
+    """One album/artist/playlist preview in a universal-search section.
 
-    ``degraded`` is ``True`` when the resolution layer reported one or more fallen-
-    back metadata providers (``degraded_sources`` non-empty); the app folds it into
-    the session so the status bar's degraded badge fires (CONTRACT F, spec §10).
-    ``degraded_sources`` names them so the Search screen's banner can list which
-    sources are unavailable ("some sources unavailable: spotify").
+    A light row for the non-track sections: ``entity_type`` routes it (opening posts a
+    ``NavigateTo`` with an :class:`EntityRef`), ``title``/``subtitle``/``detail`` are the
+    three rendered columns (name · artist-or-owner-or-genres · type/year/followers/count).
+    """
+
+    entity_type: str
+    id: UUID
+    title: str
+    subtitle: str
+    detail: str
+
+
+@dataclass(frozen=True, slots=True)
+class SearchResult:
+    """A universal-search outcome: the four sectioned groups + the degraded flag.
+
+    ``rows`` is the song section (tracks); ``artists``/``albums``/``playlists`` are the
+    preview sections. ``degraded`` is ``True`` when the resolution layer reported one or
+    more fallen-back metadata providers (``degraded_sources`` non-empty); the app folds
+    it into the session so the status bar's degraded badge fires (CONTRACT F, spec §10).
+    ``degraded_sources`` names them so the Search screen's banner can list which sources
+    are unavailable ("some sources unavailable: spotify").
     """
 
     rows: tuple[TrackRow, ...]
     degraded: bool
+    artists: tuple[SearchHit, ...] = ()
+    albums: tuple[SearchHit, ...] = ()
+    playlists: tuple[SearchHit, ...] = ()
     degraded_sources: tuple[str, ...] = ()
+
+    @property
+    def total(self) -> int:
+        """The combined hit count across all four sections (for the empty check)."""
+        return len(self.rows) + len(self.artists) + len(self.albums) + len(self.playlists)
 
 
 @dataclass(frozen=True, slots=True)
@@ -130,6 +155,20 @@ class TrackDetail:
     header: EntityHeader
     matches: tuple[MatchRow, ...]
     lyrics: tuple[LyricsChoice, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class SourceRow:
+    """One provider's contribution in the "Sources" panel (per-provider provenance).
+
+    ``provider`` is the platform (spotify/deezer/…); ``name`` is what that source calls
+    the entity; ``metrics`` are the ``(label, value)`` chips relevant to the kind
+    (followers/popularity for artists, label/year for albums, isrc for tracks).
+    """
+
+    provider: str
+    name: str
+    metrics: tuple[tuple[str, str], ...]
 
 
 @dataclass(frozen=True, slots=True)

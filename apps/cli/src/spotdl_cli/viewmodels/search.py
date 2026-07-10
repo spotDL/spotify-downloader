@@ -3,7 +3,13 @@
 from __future__ import annotations
 
 from spotdl_cli.viewmodels.base import ErrorDisplay, Loadable, guard
-from spotdl_cli.viewmodels.mappers import entity_ref, track_row
+from spotdl_cli.viewmodels.mappers import (
+    album_hit,
+    artist_hit,
+    entity_ref,
+    playlist_hit,
+    track_row,
+)
 from spotdl_cli.viewmodels.protocol import SpotdlClientProtocol
 from spotdl_cli.viewmodels.types import ResolveOutcome, SearchResult
 
@@ -15,9 +21,15 @@ class SearchViewModel:
     async def search(self, query: str, *, limit: int = 20) -> Loadable[SearchResult]:
         async def _run() -> SearchResult:
             result = await self._client.search(query, limit=limit)
-            rows = tuple(track_row(track) for track in result.tracks)
             sources = tuple(result.degraded_sources)
-            return SearchResult(rows=rows, degraded=bool(sources), degraded_sources=sources)
+            return SearchResult(
+                rows=tuple(track_row(track) for track in result.tracks),
+                degraded=bool(sources),
+                artists=tuple(artist_hit(artist) for artist in result.artists),
+                albums=tuple(album_hit(album) for album in result.albums),
+                playlists=tuple(playlist_hit(playlist) for playlist in result.playlists),
+                degraded_sources=sources,
+            )
 
         return await guard(_run())
 

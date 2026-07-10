@@ -25,7 +25,7 @@ from uuid import UUID
 
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Horizontal, Vertical
+from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.events import Resize
 from textual.widget import Widget
 from textual.widgets import Button, DataTable, Static
@@ -34,6 +34,7 @@ from spotdl_cli.tui.messages import NavigateTo
 from spotdl_cli.tui.screens.base import SpotdlScreen
 from spotdl_cli.tui.widgets.entity_card import EntityCard
 from spotdl_cli.tui.widgets.patterns import LoadingPane
+from spotdl_cli.tui.widgets.sources_panel import SourcesPanel
 from spotdl_cli.viewmodels.base import Loadable, LoadState
 from spotdl_cli.viewmodels.types import BatchRef, CollectionDetail, EntityRef, TrackRow
 
@@ -87,6 +88,9 @@ class CollectionScreen(SpotdlScreen):
         await main.mount(self._build_side(detail))
         self._apply_width(self.size.width)
         self.query_one("#track-table", DataTable).focus()
+        # Provenance loads on its own worker so a slow/absent /sources endpoint
+        # degrades to an empty panel rather than blocking the collection view.
+        self.run_worker(self._load_sources(), exclusive=False, group="collection-sources")
 
     def _build_table(self, detail: CollectionDetail) -> DataTable[str]:
         table: DataTable[str] = DataTable(id="track-table", cursor_type="row", zebra_stripes=True)
@@ -108,9 +112,21 @@ class CollectionScreen(SpotdlScreen):
         note = _side_note(detail.kind, can_download=self._can_download())
         if note:
             rows.append(Static(note, classes="collection-note"))
+        sources = VerticalScroll(
+            LoadingPane("Loading sources…"), id="collection-sources", classes="panel"
+        )
+        sources.border_title = "Sources"
+        rows.append(sources)
         side = Vertical(*rows, id="collection-side", classes="panel")
         side.border_title = "Actions"
         return side
+
+    async def _load_sources(self) -> None:
+        result = await self._vm.load_sources(self.KIND, self._entity_id)
+        panel = self.query_one("#collection-sources", VerticalScroll)
+        await panel.remove_children()
+        rows = result.data if result.state is LoadState.READY and result.data is not None else ()
+        await panel.mount(SourcesPanel(rows))
 
     # -- gating ---------------------------------------------------------------
     def check_action(self, action: str, parameters: tuple[object, ...]) -> bool | None:

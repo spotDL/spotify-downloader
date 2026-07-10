@@ -19,6 +19,7 @@ from spotdl_cli.viewmodels.mappers import (
     lyrics_choices,
     match_row,
     report_row,
+    source_row,
     track_header,
 )
 from spotdl_cli.viewmodels.protocol import SpotdlClientProtocol, VoteValue
@@ -27,6 +28,7 @@ from spotdl_cli.viewmodels.types import (
     LyricsChoice,
     MatchRow,
     ReportRow,
+    SourceRow,
     TrackDetail,
 )
 from spotdl_cli.views import DownloadSubmit
@@ -62,6 +64,22 @@ class TrackViewModel:
                 matches=tuple(match_row(match) for match in matches),
                 lyrics=lyrics_choices(lyrics),
             )
+
+        return await guard(_run())
+
+    async def load_sources(self) -> Loadable[tuple[SourceRow, ...]]:
+        """Fetch the track's per-provider metadata provenance (the "Sources" panel).
+
+        Loaded apart from :meth:`load` so a slow/absent ``/sources`` endpoint degrades
+        to an empty panel rather than failing the whole track view.
+        """
+        if self._track_id is None:
+            return Loadable.failed(_NOT_LOADED)
+        track_id = self._track_id
+
+        async def _run() -> tuple[SourceRow, ...]:
+            result = await self._client.sources("track", track_id)
+            return tuple(source_row(source) for source in result.sources)
 
         return await guard(_run())
 
