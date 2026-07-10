@@ -16,14 +16,17 @@ import httpx
 import pytest
 import respx
 from spotdl_core.model import EntityType, ProviderId, Track
-from spotdl_core.providers.base import Enriches, Resolves, Searches
+from spotdl_core.providers.base import Enriches, Resolves, Searches, SearchesEntities
 from spotdl_core.providers.errors import EntityNotFound
 from spotdl_core.providers.http import create_client
 from spotdl_core.providers.metadata.itunes import (
     ITunesProvider,
     build_itunes_provider,
     map_album,
+    map_album_hits,
+    map_artist_hits,
     map_search,
+    map_song_hits,
     map_track,
 )
 from spotdl_core.providers.registry import ProviderContext
@@ -194,6 +197,153 @@ async def test_enrich_fills_missing_genres_via_search(load_fixture: Any) -> None
     assert enriched.isrc is None  # iTunes never supplies an ISRC
 
 
+# --- album metadata (copyright + type) ------------------------------------
+
+
+def test_itunes_map_album_sets_copyright_and_type(load_fixture: Any) -> None:
+    payload = load_fixture("itunes", "lookup_album")
+    resolved = map_album(payload["results"])
+    collection = payload["results"][0]
+    assert resolved.album is not None
+    assert resolved.album.copyright_text == collection["copyright"]
+    assert resolved.album.album_type == collection["collectionType"].lower()  # "album"
+
+
+# --- entity search --------------------------------------------------------
+
+
+def test_map_album_hits_upscales_artwork() -> None:
+    payload = {
+        "results": [
+            {
+                "collectionId": 697194953,
+                "collectionName": "Discovery",
+                "artistName": "Daft Punk",
+                "artworkUrl100": "https://is1.mzstatic.com/a/100x100bb.jpg",
+                "releaseDate": "2001-03-12T08:00:00Z",
+            }
+        ]
+    }
+    hits = map_album_hits(payload)
+    assert len(hits) == 1
+    assert hits[0].entity_type is EntityType.ALBUM
+    assert hits[0].provider is ProviderId.ITUNES
+    assert hits[0].provider_id == "697194953"
+    assert hits[0].subtitle == "Daft Punk"
+    assert hits[0].year == 2001
+    assert hits[0].cover_url is not None and "600x600" in hits[0].cover_url  # upscaled
+
+
+def test_map_artist_hits_uses_genre_subtitle() -> None:
+    payload = {
+        "results": [
+            {"artistId": 5468295, "artistName": "Daft Punk", "primaryGenreName": "Electronic"}
+        ]
+    }
+    hits = map_artist_hits(payload)
+    assert len(hits) == 1
+    assert hits[0].entity_type is EntityType.ARTIST
+    assert hits[0].provider_id == "5468295"
+    assert hits[0].subtitle == "Electronic"  # primary genre -> subtitle
+    assert hits[0].cover_url is None and hits[0].followers is None  # iTunes exposes neither
+
+
+def test_map_song_hits_from_search_fixture(load_fixture: Any) -> None:
+    hits = map_song_hits(load_fixture("itunes", "search"))
+    assert hits and all(hit.entity_type is EntityType.TRACK for hit in hits)
+    assert all(hit.provider is ProviderId.ITUNES for hit in hits)
+
+
+@respx.mock
+async def test_search_entities_requests_all_three_types(load_fixture: Any) -> None:
+    song_payload = load_fixture("itunes", "search")
+    respx.get(f"{_API}/search", params={"entity": "song"}).mock(
+        return_value=httpx.Response(200, json=song_payload)
+    )
+    respx.get(f"{_API}/search", params={"entity": "album"}).mock(
+        return_value=httpx.Response(
+            200,
+            json={"results": [{"collectionId": 1, "collectionName": "Discovery"}]},
+        )
+    )
+    respx.get(f"{_API}/search", params={"entity": "musicArtist"}).mock(
+        return_value=httpx.Response(
+            200, json={"results": [{"artistId": 2, "artistName": "Daft Punk"}]}
+        )
+    )
+    async with create_client(base_url=_API) as client:
+        hits = await _provider(client).search_entities("daft punk", limit=5)
+    kinds = {hit.entity_type for hit in hits}
+    assert kinds == {EntityType.TRACK, EntityType.ALBUM, EntityType.ARTIST}
+
+
+@respx.mock
+async def test_search_entities_playlist_only_returns_nothing() -> None:
+    # iTunes has no playlist search -> a playlist-only request issues no request.
+    async with create_client(base_url=_API) as client:
+        hits = await _provider(client).search_entities(
+            "daft punk", types=frozenset({EntityType.PLAYLIST})
+        )
+    assert hits == []
+
+
+# --- artist resolve (lookup discography) ----------------------------------
+
+
+@respx.mock
+async def test_resolve_artist_returns_discography() -> None:
+    artist_id = "5468295"
+    payload = {
+        "results": [
+            {
+                "wrapperType": "artist",
+                "artistId": 5468295,
+                "artistName": "Daft Punk",
+                "primaryGenreName": "Electronic",
+            },
+            {
+                "wrapperType": "collection",
+                "collectionId": 697194953,
+                "collectionName": "Discovery",
+                "artistName": "Daft Punk",
+                "collectionType": "Album",
+                "releaseDate": "2001-03-12T08:00:00Z",
+                "trackCount": 14,
+                "artworkUrl100": "https://is1.mzstatic.com/a/100x100bb.jpg",
+            },
+            {
+                "wrapperType": "collection",
+                "collectionId": 697194954,
+                "collectionName": "Discovery",  # dup name -> deduped
+            },
+            {
+                "wrapperType": "collection",
+                "collectionId": 5468291,
+                "collectionName": "Homework",
+                "collectionType": "Album",
+                "releaseDate": "1997-01-20T08:00:00Z",
+            },
+        ]
+    }
+    route = respx.get(f"{_API}/lookup").mock(return_value=httpx.Response(200, json=payload))
+    ref = PlatformRef(ProviderId.ITUNES, EntityType.ARTIST, artist_id)
+    async with create_client(base_url=_API) as client:
+        resolved = await _provider(client).resolve(ref)
+
+    assert resolved.entity_type is EntityType.ARTIST
+    assert resolved.artist is not None
+    assert resolved.artist.genres == ("Electronic",)  # primaryGenreName -> genres
+    assert resolved.tracks == ()  # no top tracks; overlap gate uses albums
+    assert [album.name for album in resolved.albums] == ["Discovery", "Homework"]  # deduped
+    disc = resolved.albums[0]
+    assert disc.provider is ProviderId.ITUNES and disc.provider_id == "697194953"
+    assert disc.album_type == "album" and disc.year == 2001
+    assert disc.cover_url is not None and "600x600" in disc.cover_url
+    params = httpx.QueryParams(route.calls.last.request.url.query)
+    assert params["entity"] == "album"  # discography expanded via entity=album
+    assert params["limit"] == "200"
+
+
 # --- wiring / capabilities ------------------------------------------------
 
 
@@ -203,6 +353,7 @@ async def test_provider_advertises_capabilities() -> None:
         assert provider.id is ProviderId.ITUNES
         assert isinstance(provider, Resolves)
         assert isinstance(provider, Searches)
+        assert isinstance(provider, SearchesEntities)
         assert isinstance(provider, Enriches)
     finally:
         await provider.aclose()

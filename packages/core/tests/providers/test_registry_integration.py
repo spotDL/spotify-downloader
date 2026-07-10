@@ -28,6 +28,7 @@ from spotdl_core.providers.base import (
     ProvidesAudio,
     ProvidesLyrics,
     Resolves,
+    SearchesEntities,
 )
 from spotdl_core.providers.errors import ProviderUnavailable
 from spotdl_core.providers.registry import (
@@ -92,6 +93,17 @@ def test_capable_metadata_order() -> None:
     order_index = {pid: i for i, pid in enumerate(PROVIDER_ORDER)}
     assert ids == sorted(ids, key=lambda pid: order_index[pid])
     assert len(ids) == len(set(ids))
+
+
+def test_capable_entity_search_membership() -> None:
+    """All four metadata sources power universal/entity search (spec §Phase 2)."""
+    reg = build_default_registry(ProviderContext())
+    assert {p.id for p in reg.capable(SearchesEntities)} == {
+        ProviderId.SPOTIFY,
+        ProviderId.DEEZER,
+        ProviderId.ITUNES,
+        ProviderId.MUSICBRAINZ,
+    }
 
 
 def test_capable_audio_membership() -> None:

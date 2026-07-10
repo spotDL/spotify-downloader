@@ -443,14 +443,14 @@ def build_default_registry(context: ProviderContext) -> ProviderRegistry:
     reg.register(
         ProviderSpec(
             ProviderId.ITUNES,
-            frozenset({Resolves, Searches, Enriches}),
+            frozenset({Resolves, Searches, SearchesEntities, Enriches}),
             _itunes_factory,
         )
     )
     reg.register(
         ProviderSpec(
             ProviderId.MUSICBRAINZ,
-            frozenset({Resolves, Searches, Enriches}),
+            frozenset({Resolves, Searches, SearchesEntities, Enriches}),
             _musicbrainz_factory,
         )
     )

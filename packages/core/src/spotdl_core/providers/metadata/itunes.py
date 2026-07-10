@@ -21,10 +21,12 @@ result is the ``collection`` record, the rest are its ``track`` records).
 
 from __future__ import annotations
 
+import asyncio
+from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, ClassVar
 
-from spotdl_core.model import AlbumRef, ArtistRef, EntityType, ProviderId, Track
-from spotdl_core.providers.base import HttpProvider, ResolvedEntity
+from spotdl_core.model import AlbumRef, ArtistRef, EntityType, ProviderId, SearchHit, Track
+from spotdl_core.providers.base import ALL_SEARCH_ENTITY_TYPES, HttpProvider, ResolvedEntity
 from spotdl_core.providers.errors import EntityNotFound, UnsupportedURL
 from spotdl_core.providers.http import create_client, request_json
 
@@ -36,9 +38,16 @@ __all__ = [
     "ITunesProvider",
     "build_itunes_provider",
     "map_album",
+    "map_album_hits",
+    "map_artist_hits",
     "map_search",
+    "map_song_hits",
     "map_track",
 ]
+
+#: Discography cap — raw ``lookup?entity=album`` collections fetched for an artist
+#: before the name dedupe (also the ``limit`` sent to the Lookup API).
+_ARTIST_ALBUMS_LIMIT = 200
 
 _API_BASE = "https://itunes.apple.com"
 
@@ -58,6 +67,11 @@ def _upgrade_artwork(url: str | None) -> str | None:
     if not url:
         return None
     return url.replace("100x100", "600x600")
+
+
+def _album_type(collection_type: str | None) -> str | None:
+    """Lower-case an iTunes ``collectionType`` (``Album`` -> ``album``)."""
+    return collection_type.lower() if isinstance(collection_type, str) and collection_type else None
 
 
 def _album_ref(result: dict[str, Any]) -> AlbumRef | None:
@@ -108,6 +122,8 @@ def map_album(results: list[dict[str, Any]]) -> ResolvedEntity:
         year=_year(collection.get("releaseDate")),
         track_count=collection.get("trackCount"),
         cover_url=_upgrade_artwork(collection.get("artworkUrl100")),
+        copyright_text=collection.get("copyright"),
+        album_type=_album_type(collection.get("collectionType")),
     )
     tracks = tuple(
         map_track(result).model_copy(update={"album": album, "year": album.year})
@@ -129,6 +145,90 @@ def map_search(payload: dict[str, Any]) -> list[Track]:
     return [map_track(r) for r in results if r.get("trackName") and r.get("trackId") is not None]
 
 
+def _artist_album_ref(item: dict[str, Any]) -> AlbumRef | None:
+    """Map one ``lookup?entity=album`` collection to a source-tagged ``AlbumRef``."""
+    name = item.get("collectionName")
+    collection_id = item.get("collectionId")
+    if not name or collection_id is None:
+        return None
+    return AlbumRef(
+        name=name,
+        album_artist=item.get("artistName"),
+        year=_year(item.get("releaseDate")),
+        track_count=item.get("trackCount"),
+        cover_url=_upgrade_artwork(item.get("artworkUrl100")),
+        album_type=_album_type(item.get("collectionType")),
+        provider=ProviderId.ITUNES,
+        provider_id=str(collection_id),
+    )
+
+
+def _dedupe_artist_albums(refs: list[AlbumRef], *, cap: int) -> tuple[AlbumRef, ...]:
+    """De-duplicate a discography by (case-folded) name, preserving order, capped."""
+    seen: set[str] = set()
+    out: list[AlbumRef] = []
+    for ref in refs:
+        key = ref.name.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(ref)
+        if len(out) >= cap:
+            break
+    return tuple(out)
+
+
+def map_song_hits(payload: dict[str, Any]) -> list[SearchHit]:
+    """Map a ``search?entity=song`` payload to track :class:`SearchHit`\\ s."""
+    return [SearchHit.from_track(track) for track in map_search(payload)]
+
+
+def map_album_hits(payload: dict[str, Any]) -> list[SearchHit]:
+    """Map a ``search?entity=album`` payload to album :class:`SearchHit`\\ s."""
+    hits: list[SearchHit] = []
+    for item in payload.get("results") or []:
+        collection_id = item.get("collectionId")
+        name = item.get("collectionName")
+        if collection_id is None or not name:
+            continue
+        hits.append(
+            SearchHit(
+                entity_type=EntityType.ALBUM,
+                provider=ProviderId.ITUNES,
+                provider_id=str(collection_id),
+                name=name,
+                subtitle=item.get("artistName"),
+                cover_url=_upgrade_artwork(item.get("artworkUrl100")),
+                year=_year(item.get("releaseDate")),
+            )
+        )
+    return hits
+
+
+def map_artist_hits(payload: dict[str, Any]) -> list[SearchHit]:
+    """Map a ``search?entity=musicArtist`` payload to artist :class:`SearchHit`\\ s.
+
+    iTunes exposes no artist image or follower count, so the primary genre (when
+    present) becomes the subtitle and ``cover_url``/``followers`` stay ``None``.
+    """
+    hits: list[SearchHit] = []
+    for item in payload.get("results") or []:
+        artist_id = item.get("artistId")
+        name = item.get("artistName")
+        if artist_id is None or not name:
+            continue
+        hits.append(
+            SearchHit(
+                entity_type=EntityType.ARTIST,
+                provider=ProviderId.ITUNES,
+                provider_id=str(artist_id),
+                name=name,
+                subtitle=item.get("primaryGenreName"),
+            )
+        )
+    return hits
+
+
 # --- provider -------------------------------------------------------------
 
 
@@ -136,11 +236,22 @@ class ITunesProvider(HttpProvider):
     """Resolve/search/enrich against the open iTunes APIs.
 
     Implements :class:`~spotdl_core.providers.base.Searches`,
+    :class:`~spotdl_core.providers.base.SearchesEntities`,
     :class:`~spotdl_core.providers.base.Resolves` and
     :class:`~spotdl_core.providers.base.Enriches`.
     """
 
     id: ClassVar[ProviderId] = ProviderId.ITUNES
+
+    #: Per-entity ``search`` ``entity`` value + item→hit mapper, in stable order.
+    #: iTunes exposes no playlist search, so playlists are absent (skipped).
+    _SEARCH_ENTITIES: ClassVar[
+        tuple[tuple[EntityType, str, Callable[[dict[str, Any]], list[SearchHit]]], ...]
+    ] = (
+        (EntityType.TRACK, "song", map_song_hits),
+        (EntityType.ALBUM, "album", map_album_hits),
+        (EntityType.ARTIST, "musicArtist", map_artist_hits),
+    )
 
     async def _get(self, path: str, **params: Any) -> Any:
         clean = {key: value for key, value in params.items() if value is not None}
@@ -177,26 +288,46 @@ class ITunesProvider(HttpProvider):
         return map_album(results)
 
     async def _resolve_artist(self, entity_id: str) -> ResolvedEntity:
-        results = await self._lookup(entity_id, entity="song")
+        """Resolve an artist to metadata + a full discography (one Lookup request).
+
+        ``lookup?entity=album`` returns the artist record first, then its
+        collections → source-tagged discography ``AlbumRef``\\ s (deduped by name).
+        iTunes exposes no artist image/followers and no per-artist top tracks, so
+        ``tracks=()`` — the enrichment overlap gate then compares via albums.
+        """
+        results = await self._lookup(entity_id, entity="album", limit=_ARTIST_ALBUMS_LIMIT)
         artist = next((r for r in results if r.get("wrapperType") == "artist"), None)
         name = artist.get("artistName") if artist else None
-        tracks = tuple(map_track(result) for result in _song_results(results))
+        genre = artist.get("primaryGenreName") if artist else None
+        refs = [
+            ref
+            for r in results
+            if r.get("wrapperType") == "collection" and (ref := _artist_album_ref(r)) is not None
+        ]
+        albums = _dedupe_artist_albums(refs, cap=_ARTIST_ALBUMS_LIMIT)
         return ResolvedEntity(
             provider=ProviderId.ITUNES,
             provider_id=entity_id,
             entity_type=EntityType.ARTIST,
             artist=(
-                ArtistRef(name=name, provider=ProviderId.ITUNES, provider_id=entity_id)
+                ArtistRef(
+                    name=name,
+                    provider=ProviderId.ITUNES,
+                    provider_id=entity_id,
+                    genres=(genre,) if genre else (),
+                )
                 if name
                 else None
             ),
             name=name,
-            tracks=tracks,
+            albums=albums,
         )
 
-    async def _lookup(self, entity_id: str, *, entity: str | None = None) -> list[dict[str, Any]]:
+    async def _lookup(
+        self, entity_id: str, *, entity: str | None = None, limit: int | None = None
+    ) -> list[dict[str, Any]]:
         """Run the Lookup API, raising :class:`EntityNotFound` on an empty body."""
-        payload = await self._get("/lookup", id=entity_id, entity=entity)
+        payload = await self._get("/lookup", id=entity_id, entity=entity, limit=limit)
         results = payload.get("results") or []
         if not results:
             raise EntityNotFound(provider=ProviderId.ITUNES)
@@ -205,6 +336,36 @@ class ITunesProvider(HttpProvider):
     async def search(self, query: str, *, limit: int = 10) -> list[Track]:
         payload = await self._get("/search", term=query, media="music", entity="song", limit=limit)
         return map_search(payload)
+
+    async def search_entities(
+        self,
+        query: str,
+        *,
+        types: frozenset[EntityType] = ALL_SEARCH_ENTITY_TYPES,
+        limit: int = 10,
+    ) -> list[SearchHit]:
+        """Universal search: one ``/search`` request per requested type, concurrently.
+
+        iTunes has no playlist search, so a requested ``PLAYLIST`` type is skipped;
+        each supported type maps its own ``entity`` (``song``/``album``/``musicArtist``).
+        """
+        requested = [
+            (entity_type, entity, mapper)
+            for entity_type, entity, mapper in self._SEARCH_ENTITIES
+            if entity_type in types
+        ]
+        if not requested:
+            return []
+        payloads = await asyncio.gather(
+            *(
+                self._get("/search", term=query, media="music", entity=entity, limit=limit)
+                for _, entity, _ in requested
+            )
+        )
+        hits: list[SearchHit] = []
+        for (_, _, mapper), payload in zip(requested, payloads, strict=True):
+            hits.extend(mapper(payload)[:limit])
+        return hits
 
     async def enrich(self, track: Track) -> Track:
         fresh = await self._fresh_track(track)

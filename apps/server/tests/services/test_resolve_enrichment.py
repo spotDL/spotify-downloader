@@ -508,6 +508,126 @@ async def test_artist_enrichment_unions_confirmed_secondary_discography(
     }
 
 
+def _artist_candidate(
+    provider: ProviderId, provider_id: str, exclusive_album: str, exclusive_id: str
+) -> FakeMetadataProvider:
+    """A secondary artist source sharing "Shared Album" (confirms overlap) + one exclusive."""
+    artist = ResolvedEntity(
+        provider=provider,
+        provider_id=provider_id,
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Daft Punk", followers=1_000),
+        albums=(
+            AlbumRef(name="Shared Album", provider=provider, provider_id=f"{provider_id}-shared"),
+            AlbumRef(name=exclusive_album, provider=provider, provider_id=exclusive_id),
+        ),
+    )
+    return FakeMetadataProvider(
+        id=provider,
+        hits=[
+            SearchHit(
+                entity_type=EntityType.ARTIST,
+                provider=provider,
+                provider_id=provider_id,
+                name="Daft Punk",
+            )
+        ],
+        resolved={EntityType.ARTIST: artist},
+    )
+
+
+async def test_artist_enrichment_unions_all_four_metadata_sources(session: AsyncSession) -> None:
+    """Spotify primary + Deezer/iTunes/MusicBrainz candidates → 4 linked sources.
+
+    Every content-confirmed secondary contributes to the discography union: the
+    shared album dedupes to one entry while each provider-exclusive release joins,
+    including an iTunes-only and a MusicBrainz-only album.
+    """
+    spotify_artist = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="artist123",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Daft Punk", followers=9_000_000),
+        tracks=(),
+        albums=(
+            AlbumRef(name="Shared Album", provider=ProviderId.SPOTIFY, provider_id="sp-shared"),
+        ),
+    )
+    spotify = FakeResolver(id=ProviderId.SPOTIFY, entity=spotify_artist)
+    deezer = _artist_candidate(ProviderId.DEEZER, "dz-real", "Deezer Exclusive", "dz-excl")
+    itunes = _artist_candidate(ProviderId.ITUNES, "it-real", "iTunes Exclusive", "it-excl")
+    musicbrainz = _artist_candidate(
+        ProviderId.MUSICBRAINZ, "mb-real", "MusicBrainz Exclusive", "mb-excl"
+    )
+    service = ResolveService(
+        session=session, registry=build_fake_registry(spotify, deezer, itunes, musicbrainz)
+    )
+
+    result = await service.resolve(SPOTIFY_ARTIST_URL)
+
+    assert result.artist is not None
+    assert result.artist.followers == 9_000_000  # Spotify-first display wins
+    # All four metadata sources are linked to the one canonical artist.
+    assert await _linked_providers(session, EntityType.ARTIST, result.artist.id) == {
+        "spotify",
+        "deezer",
+        "itunes",
+        "musicbrainz",
+    }
+    names = [album.name for album in result.artist.albums]
+    assert names == [
+        "Shared Album",  # deduped across all four sources
+        "Deezer Exclusive",
+        "iTunes Exclusive",
+        "MusicBrainz Exclusive",  # the MB-only release still appears
+    ]
+    assert result.degraded_sources == ()
+
+
+async def test_artist_enrichment_rejects_itunes_stranger(session: AsyncSession) -> None:
+    """A same-named iTunes artist with NO content overlap contributes nothing.
+
+    The overlap gate is provider-agnostic, so the new iTunes source is held to the
+    same identity check as Deezer: a stranger is never linked or merged.
+    """
+    spotify_artist = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="artist123",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Mata", followers=2_700_000),
+        albums=(AlbumRef(name="Młody Matczak", provider=ProviderId.SPOTIFY, provider_id="sp-al1"),),
+    )
+    stranger = ResolvedEntity(
+        provider=ProviderId.ITUNES,
+        provider_id="it-stranger",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Mata", followers=42),
+        albums=(
+            AlbumRef(name="Unrelated Record", provider=ProviderId.ITUNES, provider_id="it-al9"),
+        ),
+    )
+    spotify = FakeResolver(id=ProviderId.SPOTIFY, entity=spotify_artist)
+    itunes = FakeMetadataProvider(
+        id=ProviderId.ITUNES,
+        hits=[
+            SearchHit(
+                entity_type=EntityType.ARTIST,
+                provider=ProviderId.ITUNES,
+                provider_id="it-stranger",
+                name="Mata",
+            )
+        ],
+        resolved={EntityType.ARTIST: stranger},
+    )
+    service = ResolveService(session=session, registry=build_fake_registry(spotify, itunes))
+
+    result = await service.resolve(SPOTIFY_ARTIST_URL)
+
+    assert result.artist is not None
+    assert await _linked_providers(session, EntityType.ARTIST, result.artist.id) == {"spotify"}
+    assert [a.name for a in result.artist.albums] == ["Młody Matczak"]  # no pollution
+
+
 async def test_listing_preview_does_not_starve_track_enrichment(session: AsyncSession) -> None:
     """A track first seen via a container listing must still enrich on direct open.
 
