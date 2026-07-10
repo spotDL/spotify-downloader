@@ -36,7 +36,7 @@ from spotdl_core.providers import ProviderRegistry
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl_server.observability import record_provider_degraded
-from spotdl_server.repositories.snapshots import SnapshotRepository
+from spotdl_server.repositories.snapshots import PARTIAL_MARKER, SnapshotRepository
 from spotdl_server.services.dto import AlbumView, ArtistView, PlaylistView, SearchResult, TrackView
 from spotdl_server.services.provider_search import provider_search, provider_search_entities
 
@@ -99,6 +99,8 @@ class SearchService:
             name=hit.name,
             album_name=hit.name,
             art_url=hit.cover_url,
+            # A hit is sparser than a full resolve — never clobber a rich snapshot.
+            fill_only=True,
         )
         return AlbumView(
             id=str(snapshot.id),
@@ -125,6 +127,8 @@ class SearchService:
             raw_payload={"name": hit.name, "genres": [], "image_url": hit.cover_url},
             name=hit.name,
             art_url=hit.cover_url,
+            # A hit is sparser than a full resolve — never clobber a rich snapshot.
+            fill_only=True,
         )
         return ArtistView(
             id=str(snapshot.id),
@@ -164,17 +168,24 @@ class SearchService:
         """
         snapshot_id: str | None = None
         if track.provider is not None and track.provider_id is not None:
+            payload = track.model_dump(mode="json")
+            if track.isrc is None:
+                # Some searchers (Deezer, iTunes) return tracks without an ISRC;
+                # mark the preview partial so the first direct open fetches the
+                # full track instead of cache-hitting this ISRC-less listing.
+                payload[PARTIAL_MARKER] = True
             snapshot = await self._snapshots.upsert(
                 provider=track.provider,
                 provider_entity_id=track.provider_id,
                 entity_type=EntityType.TRACK,
-                raw_payload=track.model_dump(mode="json"),
+                raw_payload=payload,
                 name=track.name,
                 isrc=track.isrc,
                 duration_ms=track.duration_ms,
                 artist_names=list(track.artists),
                 album_name=track.album.name if track.album is not None else None,
                 art_url=track.cover_url or (track.album.cover_url if track.album else None),
+                fill_only=True,
             )
             snapshot_id = str(snapshot.id)
         return self._track_view(track, id=snapshot_id or _ref_id(track))

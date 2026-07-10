@@ -18,6 +18,39 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl_server.db.models import EntityLink, ProviderSnapshot
 
+#: Payload marker set by preview writers on a LISTING-derived track snapshot that
+#: lacks its ISRC (search hits, playlist/album listings). ``ResolveService`` treats
+#: a partial snapshot as a cache miss so the first direct open fetches the full
+#: track (whose authoritative persist overwrites the payload, clearing the marker).
+PARTIAL_MARKER = "partial"
+
+
+def is_partial(snapshot: ProviderSnapshot) -> bool:
+    """True when ``snapshot`` is a marked-partial listing preview (see marker doc)."""
+    payload = snapshot.raw_payload
+    return isinstance(payload, dict) and bool(payload.get(PARTIAL_MARKER))
+
+
+def _fill_payload(existing: Any, incoming: Any) -> Any:
+    """Merge a preview payload into an existing one, filling gaps only.
+
+    Every existing key wins unless its value is a null gap (``None`` / ``[]`` /
+    ``""``), in which case a non-null incoming value fills it. Keys only the
+    incoming payload knows are added — except :data:`PARTIAL_MARKER`, a writer
+    lifecycle flag that must never be grafted onto an already-full snapshot.
+    Non-dict payloads keep the existing value.
+    """
+    if not isinstance(existing, dict) or not isinstance(incoming, dict):
+        return existing
+    merged = dict(existing)
+    for key, value in incoming.items():
+        if value is None or key == PARTIAL_MARKER:
+            continue
+        current = merged.get(key)
+        if current is None or current == [] or current == "":
+            merged[key] = value
+    return merged
+
 
 def _as_aware(value: datetime) -> datetime:
     """Coerce a possibly-naive datetime to aware UTC.
@@ -46,11 +79,20 @@ class SnapshotRepository:
         album_name: str | None = None,
         art_url: str | None = None,
         expires_at: datetime | None = None,
+        fill_only: bool = False,
     ) -> ProviderSnapshot:
         """Create or refresh the snapshot for ``(provider, provider_entity_id)``.
 
-        Refreshes ``raw_payload`` and ``fetched_at`` (and the normalized key
-        fields) on an existing row; inserts a new row otherwise.
+        The default (authoritative) mode refreshes ``raw_payload``, the normalized
+        key fields, and ``fetched_at`` on an existing row; inserts otherwise.
+
+        ``fill_only=True`` is the PREVIEW writer's mode (search hits, discography
+        refs, container track listings): a preview may be *sparser* than what a
+        full resolve already persisted, so it must never clobber. On an existing
+        row it only fills gaps — payload keys the row lacks (or holds as
+        null/empty) and normalized columns that are ``None`` — and leaves
+        ``fetched_at``/``expires_at`` untouched (a preview does not renew a full
+        snapshot's freshness). On a missing row it inserts normally.
         """
         now = datetime.now(UTC)
         snapshot = await self.get(provider, provider_entity_id)
@@ -70,6 +112,16 @@ class SnapshotRepository:
                 expires_at=expires_at,
             )
             self.session.add(snapshot)
+        elif fill_only:
+            snapshot.raw_payload = _fill_payload(snapshot.raw_payload, raw_payload)
+            snapshot.name = snapshot.name or name
+            snapshot.isrc = snapshot.isrc or isrc
+            snapshot.duration_ms = (
+                snapshot.duration_ms if snapshot.duration_ms is not None else duration_ms
+            )
+            snapshot.artist_names = snapshot.artist_names or artist_names
+            snapshot.album_name = snapshot.album_name or album_name
+            snapshot.art_url = snapshot.art_url or art_url
         else:
             snapshot.entity_type = entity_type
             snapshot.raw_payload = raw_payload

@@ -80,7 +80,11 @@ from spotdl_server.repositories.links import EntityLinkRepository
 from spotdl_server.repositories.lyrics import LyricsRepository
 from spotdl_server.repositories.matches import MatchRepository
 from spotdl_server.repositories.merge import SOURCE_PRIORITY, CanonicalMerger
-from spotdl_server.repositories.snapshots import SnapshotRepository
+from spotdl_server.repositories.snapshots import (
+    PARTIAL_MARKER,
+    SnapshotRepository,
+    is_partial,
+)
 from spotdl_server.repositories.stats import EntityStatRepository
 from spotdl_server.services import views
 from spotdl_server.services.dto import ResolveResult
@@ -188,6 +192,10 @@ class ResolveService:
     async def _resolve_track(self, ref: PlatformRef, degraded: set[ProviderId]) -> ResolveResult:
         now = datetime.now(UTC)
         primary = await self._snapshots.get_fresh(ref.provider, ref.entity_id, now)
+        if primary is not None and is_partial(primary):
+            # A marked-partial listing preview (no ISRC) is not a resolved track —
+            # fall through to a full fetch, whose authoritative persist clears it.
+            primary = None
         was_miss = primary is None
         enriched: list[ProviderSnapshot] = []
         if primary is None:  # cache miss → fetch + snapshot + fan-out enrichment
@@ -786,13 +794,29 @@ class ResolveService:
         return linked or [primary]
 
     async def _persist_track_snapshot(
-        self, provider: ProviderId, provider_entity_id: str, track: Track
+        self,
+        provider: ProviderId,
+        provider_entity_id: str,
+        track: Track,
+        *,
+        preview: bool = False,
     ) -> ProviderSnapshot:
+        """Persist one track snapshot.
+
+        ``preview=True`` is the container-listing mode (album/playlist/top-tracks
+        rows): it fills gaps without clobbering a richer existing snapshot, and an
+        ISRC-less listing row is marked :data:`PARTIAL_MARKER` so the first direct
+        open fetches the full track instead of cache-hitting the sparse listing.
+        """
+        payload = track.model_dump(mode="json")
+        if preview and track.isrc is None:
+            payload[PARTIAL_MARKER] = True
         return await self._snapshots.upsert(
             provider=provider,
             provider_entity_id=provider_entity_id,
             entity_type=EntityType.TRACK,
-            raw_payload=track.model_dump(mode="json"),
+            raw_payload=payload,
+            fill_only=preview,
             name=track.name,
             isrc=track.isrc,
             duration_ms=track.duration_ms,
@@ -807,7 +831,7 @@ class ResolveService:
         """Snapshot a listing track, synthesising a stable id when it lacks one."""
         provider = track.provider or container.provider
         provider_id = track.provider_id or f"{container.provider_id}::{index}"
-        return await self._persist_track_snapshot(provider, provider_id, track)
+        return await self._persist_track_snapshot(provider, provider_id, track, preview=True)
 
     async def _persist_album_snapshot(self, resolved: ResolvedEntity) -> ProviderSnapshot:
         album = resolved.album
@@ -832,34 +856,15 @@ class ResolveService:
         """
         if album.provider is None or album.provider_id is None:
             return None
-        ref_payload = album.model_dump(mode="json")
-        # Merge, never clobber or downgrade. An existing snapshot may be richer (a
-        # full album resolve: label/copyright/tracks) OR sparser (a search hit:
-        # name/artist/year/cover only — no ``album_type``). Fill the gaps the
-        # discography ref knows (notably ``album_type``) without overwriting any
-        # value the existing snapshot already carries: ``{**ref, **existing}`` keeps
-        # every existing key and only adds keys the existing payload lacks.
-        existing = await self._snapshots.get(album.provider, album.provider_id)
-        if existing is not None:
-            raw = existing.raw_payload
-            existing_payload = raw if isinstance(raw, dict) else {}
-            merged = {**ref_payload, **existing_payload}
-            if merged == existing_payload:
-                return existing  # existing already covers the ref — no write needed
-            return await self._snapshots.upsert(
-                provider=album.provider,
-                provider_entity_id=album.provider_id,
-                entity_type=EntityType.ALBUM,
-                raw_payload=merged,
-                name=existing.name or album.name,
-                album_name=existing.album_name or album.name,
-                art_url=existing.art_url or album.cover_url,
-            )
+        # ``fill_only``: an existing snapshot may be richer (a full album resolve:
+        # label/copyright) OR sparser (a search hit with no ``album_type``) — fill
+        # the gaps this ref knows (album_type/track_count) and never downgrade.
         return await self._snapshots.upsert(
             provider=album.provider,
             provider_entity_id=album.provider_id,
             entity_type=EntityType.ALBUM,
-            raw_payload=ref_payload,
+            raw_payload=album.model_dump(mode="json"),
+            fill_only=True,
             name=album.name,
             album_name=album.name,
             art_url=album.cover_url,
@@ -884,13 +889,23 @@ class ResolveService:
         )
 
     async def _persist_playlist_snapshot(self, resolved: ResolvedEntity) -> ProviderSnapshot:
-        payload: dict[str, Any] = {"name": resolved.name, "description": None, "owner": None}
+        # Serialize the provider's ``PlaylistRef`` (description/owner/cover) under
+        # the keys ``merge_playlist`` reads; older providers without one still
+        # persist the name-only shape.
+        playlist = resolved.playlist
+        payload: dict[str, Any] = (
+            playlist.model_dump(mode="json")
+            if playlist is not None
+            else {"name": resolved.name, "description": None, "owner": None}
+        )
+        payload.setdefault("name", resolved.name)
         return await self._snapshots.upsert(
             provider=resolved.provider,
             provider_entity_id=resolved.provider_id,
             entity_type=EntityType.PLAYLIST,
             raw_payload=payload,
             name=resolved.name,
+            art_url=playlist.cover_url if playlist is not None else None,
         )
 
     # ------------------------------------------------------------- mapping

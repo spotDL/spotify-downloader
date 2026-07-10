@@ -287,3 +287,52 @@ async def test_search_failing_entity_searcher_is_degraded(session: AsyncSession)
 
     assert {t.name for t in result.tracks} == {"Good"}  # still returns good results
     assert ProviderId.DEEZER.value in result.degraded_sources
+
+
+async def test_search_hit_never_clobbers_a_rich_snapshot(session: AsyncSession) -> None:
+    """Searching AFTER a full resolve must not wipe the rich snapshot.
+
+    Regression (E2E sweep): the artist/album search-hit writers used the default
+    clobbering upsert, so a search for an already-resolved artist replaced its
+    payload (followers/popularity) with the sparse hit shape — degrading /sources
+    and every future re-merge.
+    """
+    # A rich snapshot, as a full artist resolve persists it.
+    await SnapshotRepository(session).upsert(
+        provider=ProviderId.SPOTIFY,
+        provider_entity_id="ar1",
+        entity_type=EntityType.ARTIST,
+        raw_payload={"name": "Mata", "followers": 2_700_000, "popularity": 73, "genres": ["rap"]},
+        name="Mata",
+        art_url="https://img/full",
+    )
+    searcher = FakeEntitySearcher(
+        id=ProviderId.SPOTIFY,
+        hits=[_hit(EntityType.ARTIST, "Mata", provider_id="ar1")],
+    )
+    service = SearchService(session=session, registry=build_fake_registry(searcher))
+
+    await service.search("mata")
+
+    snapshot = await SnapshotRepository(session).get(ProviderId.SPOTIFY, "ar1")
+    assert snapshot is not None
+    assert snapshot.raw_payload["followers"] == 2_700_000  # not clobbered
+    assert snapshot.raw_payload["popularity"] == 73
+    assert snapshot.art_url == "https://img/full"
+
+
+async def test_isrc_less_track_hit_is_marked_partial(session: AsyncSession) -> None:
+    """A searcher that returns tracks without ISRC (Deezer/iTunes) must mark the
+    snapshot partial so a direct open fetches the full track instead of
+    cache-hitting the sparse listing."""
+    searcher = FakeSearcher(
+        id=ProviderId.DEEZER,
+        tracks=[_track("NoIsrc", isrc=None, provider=ProviderId.DEEZER, provider_id="d1")],
+    )
+    service = SearchService(session=session, registry=build_fake_registry(searcher))
+
+    await service.search("noisrc")
+
+    snapshot = await SnapshotRepository(session).get(ProviderId.DEEZER, "d1")
+    assert snapshot is not None
+    assert snapshot.raw_payload.get("partial") is True

@@ -23,6 +23,7 @@ from spotdl_core.model import (
     AudioCandidate,
     EntityType,
     Lyrics,
+    PlaylistRef,
     ProviderId,
     SearchHit,
     Track,
@@ -54,7 +55,8 @@ class ResolvedEntity(BaseModel):
       ALBUM    -> `album` set; `tracks` = album track listing.
       ARTIST   -> `artist` set; `tracks` = top tracks (may be empty);
                   `albums` = the artist's discography (may be empty).
-      PLAYLIST -> `name` set; `tracks` = playlist track listing.
+      PLAYLIST -> `playlist` set (name/description/owner/cover);
+                  `tracks` = playlist track listing.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -65,6 +67,7 @@ class ResolvedEntity(BaseModel):
     track: Track | None = None
     album: AlbumRef | None = None
     artist: ArtistRef | None = None
+    playlist: PlaylistRef | None = None
     name: str | None = None
     tracks: tuple[Track, ...] = ()
     #: ARTIST only — the artist's discography as metadata-only album refs (each

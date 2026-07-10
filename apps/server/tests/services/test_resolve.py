@@ -534,3 +534,74 @@ async def test_warm_cache_reresolve_in_fresh_session_loads_relationships(
             assert result.track.artists == ("Cache Artist",)
             assert result.track.album is not None
             assert result.track.album.name == "Warm Album"
+
+
+async def test_partial_track_snapshot_is_a_cache_miss(session: AsyncSession) -> None:
+    """A marked-partial (ISRC-less listing) snapshot must not satisfy a direct resolve.
+
+    Regression (E2E sweep): opening a Deezer search hit / playlist row cache-hit the
+    ISRC-less listing snapshot, so the canonical track never gained its ISRC and
+    matching fell back to fuzzy name/artist. A partial snapshot is treated as a
+    miss; the full fetch's authoritative persist clears the marker.
+    """
+    await SnapshotRepository(session).upsert(
+        provider=ProviderId.SPOTIFY,
+        provider_entity_id="track123",
+        entity_type=EntityType.TRACK,
+        raw_payload={
+            "name": "Listing Row",
+            "artists": ["Artist"],
+            "duration_ms": 200_000,
+            "partial": True,
+        },
+        name="Listing Row",
+        duration_ms=200_000,
+        artist_names=["Artist"],
+    )
+    resolver = FakeResolver(id=ProviderId.SPOTIFY, track=_track("Full Track", isrc="USFULL000001"))
+    service = ResolveService(session=session, registry=build_fake_registry(resolver))
+
+    result = await service.resolve(SPOTIFY_URL)
+
+    assert len(resolver.calls) == 1  # partial snapshot did NOT satisfy the resolve
+    assert result.track is not None
+    assert result.track.isrc == "USFULL000001"
+    refreshed = await SnapshotRepository(session).get(ProviderId.SPOTIFY, "track123")
+    assert refreshed is not None
+    assert "partial" not in refreshed.raw_payload  # authoritative persist cleared it
+
+
+async def test_playlist_resolve_captures_description_owner_and_cover(
+    session: AsyncSession,
+) -> None:
+    """The canonical playlist must carry the provider's description/owner/cover.
+
+    Regression (E2E sweep): providers returned them but the resolve hardcoded
+    ``description``/``owner`` to None, so every canonical playlist was WORSE than
+    its own search preview (which showed the owner).
+    """
+    from spotdl_core.model import PlaylistRef
+    from spotdl_core.providers import ResolvedEntity
+
+    entity = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="pl1",
+        entity_type=EntityType.PLAYLIST,
+        name="Top USA",
+        playlist=PlaylistRef(
+            name="Top USA",
+            description="The hottest tracks in the USA.",
+            owner="Charts",
+            cover_url="https://img/pl",
+        ),
+        tracks=(_track("One", isrc="USONE0000001"),),
+    )
+    resolver = FakeResolver(id=ProviderId.SPOTIFY, entity=entity)
+    service = ResolveService(session=session, registry=build_fake_registry(resolver))
+
+    result = await service.resolve("spotify:playlist:pl1")
+
+    assert result.playlist is not None
+    assert result.playlist.description == "The hottest tracks in the USA."
+    assert result.playlist.owner == "Charts"
+    assert result.playlist.cover_url == "https://img/pl"

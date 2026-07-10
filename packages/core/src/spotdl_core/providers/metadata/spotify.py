@@ -34,7 +34,15 @@ from typing import TYPE_CHECKING, Any, ClassVar, Protocol
 import httpx
 import pyotp
 
-from spotdl_core.model import AlbumRef, ArtistRef, EntityType, ProviderId, SearchHit, Track
+from spotdl_core.model import (
+    AlbumRef,
+    ArtistRef,
+    EntityType,
+    PlaylistRef,
+    ProviderId,
+    SearchHit,
+    Track,
+)
 from spotdl_core.providers.base import ALL_SEARCH_ENTITY_TYPES, HttpProvider, ResolvedEntity
 from spotdl_core.providers.errors import (
     ProviderAuthError,
@@ -686,11 +694,22 @@ class SpotifyProvider(HttpProvider):
             page = await self._get(next_url)
             tracks.extend(_playlist_page_tracks(page))
             next_url = page.get("next")
+        name = playlist.get("name")
         return ResolvedEntity(
             provider=ProviderId.SPOTIFY,
             provider_id=entity_id,
             entity_type=EntityType.PLAYLIST,
-            name=playlist.get("name"),
+            name=name,
+            playlist=(
+                PlaylistRef(
+                    name=name,
+                    description=playlist.get("description") or None,
+                    owner=(playlist.get("owner") or {}).get("display_name"),
+                    cover_url=_largest_image(playlist.get("images")),
+                )
+                if name
+                else None
+            ),
             tracks=tuple(tracks),
         )
 

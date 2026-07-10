@@ -21,7 +21,15 @@ import asyncio
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, ClassVar
 
-from spotdl_core.model import AlbumRef, ArtistRef, EntityType, ProviderId, SearchHit, Track
+from spotdl_core.model import (
+    AlbumRef,
+    ArtistRef,
+    EntityType,
+    PlaylistRef,
+    ProviderId,
+    SearchHit,
+    Track,
+)
 from spotdl_core.providers.base import ALL_SEARCH_ENTITY_TYPES, HttpProvider, ResolvedEntity
 from spotdl_core.providers.errors import EntityNotFound, ProviderError, UnsupportedURL
 from spotdl_core.providers.http import create_client, request_json
@@ -364,11 +372,22 @@ class DeezerProvider(HttpProvider):
         playlist = await self._get(f"/playlist/{entity_id}")
         entries = (playlist.get("tracks") or {}).get("data") or []
         tracks = tuple(map_track(item) for item in entries if item and item.get("id"))
+        name = playlist.get("title")
         return ResolvedEntity(
             provider=ProviderId.DEEZER,
             provider_id=entity_id,
             entity_type=EntityType.PLAYLIST,
-            name=playlist.get("title"),
+            name=name,
+            playlist=(
+                PlaylistRef(
+                    name=name,
+                    description=playlist.get("description") or None,
+                    owner=(playlist.get("creator") or {}).get("name"),
+                    cover_url=_cover(playlist, "picture_xl", "picture_big", "picture"),
+                )
+                if name
+                else None
+            ),
             tracks=tracks,
         )
 

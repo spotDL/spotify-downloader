@@ -18,6 +18,15 @@ class ArtistRef(_Frozen):
     bio: str | None = None
 
 
+class PlaylistRef(_Frozen):
+    """A playlist's own metadata; its track listing travels on ``ResolvedEntity``."""
+
+    name: str
+    description: str | None = None
+    owner: str | None = None  # curator/creator display name
+    cover_url: str | None = None
+
+
 class AlbumRef(_Frozen):
     name: str
     album_artist: str | None = None

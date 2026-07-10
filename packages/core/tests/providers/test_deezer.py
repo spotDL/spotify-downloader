@@ -413,3 +413,34 @@ async def test_live_deezer_resolve_known_track() -> None:
     assert resolved.track is not None
     assert resolved.track.isrc
     assert resolved.track.duration_ms > 0
+
+
+@respx.mock
+async def test_resolve_playlist_captures_description_owner_and_cover() -> None:
+    """Playlist resolve carries description/creator/cover (regression: dropped)."""
+    payload = {
+        "id": 42,
+        "title": "Chill Mix",
+        "description": "Laid back tracks.",
+        "creator": {"name": "Jane"},
+        "picture_xl": "https://img/pl-xl",
+        "tracks": {
+            "data": [
+                {
+                    "id": 7,
+                    "title": "Song",
+                    "duration": 200,
+                    "artist": {"name": "Artist"},
+                    "album": {"title": "Album"},
+                }
+            ]
+        },
+    }
+    respx.get(f"{_API}/playlist/42").mock(return_value=httpx.Response(200, json=payload))
+    ref = PlatformRef(ProviderId.DEEZER, EntityType.PLAYLIST, "42")
+    async with create_client(base_url=_API) as client:
+        resolved = await _provider(client).resolve(ref)
+    assert resolved.playlist is not None
+    assert resolved.playlist.description == "Laid back tracks."
+    assert resolved.playlist.owner == "Jane"
+    assert resolved.playlist.cover_url == "https://img/pl-xl"

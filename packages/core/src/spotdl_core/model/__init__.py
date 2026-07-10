@@ -5,6 +5,7 @@ from spotdl_core.model.entities import (
     FeatureVector,
     Lyrics,
     Match,
+    PlaylistRef,
     SearchHit,
     Track,
 )
@@ -20,6 +21,7 @@ __all__ = [
     "LyricsKind",
     "Match",
     "MatchStatus",
+    "PlaylistRef",
     "ProviderId",
     "SearchHit",
     "Track",

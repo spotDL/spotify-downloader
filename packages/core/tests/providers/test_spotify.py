@@ -707,3 +707,44 @@ async def test_live_anonymous_resolve_known_track() -> None:
     assert resolved.track is not None
     assert resolved.track.isrc
     assert resolved.track.duration_ms > 0
+
+
+@respx.mock
+async def test_resolve_playlist_captures_description_owner_and_cover() -> None:
+    """Playlist resolve carries the playlist's own metadata, not just its name.
+
+    Regression: description/owner/cover were dropped, so canonical playlists
+    rendered without the curator the search preview already showed.
+    """
+    playlist_id = "PL1"
+    payload = {
+        "id": playlist_id,
+        "name": "Chill Mix",
+        "description": "Laid back tracks.",
+        "owner": {"display_name": "Spotify"},
+        "images": [{"url": "https://img/pl", "width": 640, "height": 640}],
+        "tracks": {
+            "items": [
+                {
+                    "track": {
+                        "id": "t1",
+                        "name": "Song",
+                        "duration_ms": 200000,
+                        "artists": [{"name": "Artist"}],
+                        "external_ids": {"isrc": "USAAA0000001"},
+                    }
+                }
+            ],
+            "next": None,
+        },
+    }
+    respx.get(f"{_API}/v1/playlists/{playlist_id}").mock(
+        return_value=httpx.Response(200, json=payload)
+    )
+    ref = PlatformRef(ProviderId.SPOTIFY, EntityType.PLAYLIST, playlist_id)
+    async with create_client(base_url=_API) as client:
+        resolved = await _provider(client).resolve(ref)
+    assert resolved.playlist is not None
+    assert resolved.playlist.description == "Laid back tracks."
+    assert resolved.playlist.owner == "Spotify"
+    assert resolved.playlist.cover_url == "https://img/pl"
