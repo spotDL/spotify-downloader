@@ -21,7 +21,13 @@ from spotdl_core.model import (
     Track,
 )
 from spotdl_core.providers import ProviderUnavailable, ResolvedEntity
+from spotdl_core.providers.metadata.lastfm import (
+    LastfmArtistInfo,
+    LastfmProvider,
+    LastfmTrackInfo,
+)
 from spotdl_server.repositories.snapshots import SnapshotRepository
+from spotdl_server.repositories.stats import EntityStatRepository
 from spotdl_server.services.resolve import ResolveService
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -30,6 +36,49 @@ from apps.server.tests.fakes import (
     FakeResolver,
     build_fake_registry,
 )
+
+
+class FakeLastfm(LastfmProvider):
+    """A Last.fm provider returning canned name-keyed info (no HTTP).
+
+    Subclasses :class:`LastfmProvider` so the resolve layer's ``isinstance`` gate
+    accepts it; the two info methods are overridden to serve fixtures and record
+    calls. ``__init__`` deliberately skips ``super().__init__`` (there is no client).
+    """
+
+    def __init__(
+        self,
+        *,
+        artist: LastfmArtistInfo | None = None,
+        track: LastfmTrackInfo | None = None,
+        error: Exception | None = None,
+    ) -> None:
+        self.id = ProviderId.LASTFM
+        self._artist = artist
+        self._track = track
+        self._error = error
+        self.artist_calls: list[str] = []
+        self.track_calls: list[tuple[str, str]] = []
+
+    async def artist_info(self, name: str) -> LastfmArtistInfo | None:
+        self.artist_calls.append(name)
+        if self._error is not None:
+            raise self._error
+        return self._artist
+
+    async def track_info(self, artist: str, track: str) -> LastfmTrackInfo | None:
+        self.track_calls.append((artist, track))
+        if self._error is not None:
+            raise self._error
+        return self._track
+
+
+async def _entity_stats(
+    session: AsyncSession, entity_type: EntityType, id: str
+) -> set[tuple[str, str, int]]:
+    rows = await EntityStatRepository(session).list_for_entity(entity_type, uuid.UUID(id))
+    return {(row.provider.value, row.metric, row.value) for row in rows}
+
 
 SPOTIFY_TRACK_URL = "https://open.spotify.com/track/track123"
 SPOTIFY_ALBUM_URL = "https://open.spotify.com/album/album123"
@@ -235,4 +284,127 @@ async def test_artist_enrichment_fills_gap(session: AsyncSession) -> None:
     assert await _linked_providers(session, EntityType.ARTIST, result.artist.id) == {
         "spotify",
         "deezer",
+    }
+
+
+# --------------------------------------------------------------------------
+# Phase 4 — Last.fm name-keyed enrichment + entity_stat recording
+# --------------------------------------------------------------------------
+
+
+async def test_lastfm_fills_artist_bio_and_adds_source(session: AsyncSession) -> None:
+    # Spotify carries followers/popularity but NO bio and NO genres; Last.fm
+    # (name-matched) fills the bio + genres and adds a lastfm metadata source.
+    spotify_artist = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="artist123",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Daft Punk", followers=9_000_000, popularity=88),
+        tracks=(_track("One More Time", "Daft Punk", isrc="USONE0000011"),),
+    )
+    spotify = FakeResolver(id=ProviderId.SPOTIFY, entity=spotify_artist)
+    lastfm = FakeLastfm(
+        artist=LastfmArtistInfo(
+            name="Daft Punk",
+            listeners=5_000_000,
+            playcount=88_000_000,
+            bio="French electronic duo",
+            genres=("electronic", "house"),
+        )
+    )
+    service = ResolveService(session=session, registry=build_fake_registry(spotify, lastfm))
+
+    result = await service.resolve(SPOTIFY_ARTIST_URL)
+
+    assert result.artist is not None
+    assert result.artist.followers == 9_000_000  # Spotify-first display still wins
+    assert result.artist.bio == "French electronic duo"  # Last.fm fills the empty bio
+    assert tuple(result.artist.genres) == ("electronic", "house")  # Last.fm fills genres
+    assert lastfm.artist_calls == ["Daft Punk"]
+    # Last.fm appears as a metadata source alongside Spotify.
+    assert await _linked_providers(session, EntityType.ARTIST, result.artist.id) == {
+        "spotify",
+        "lastfm",
+    }
+    assert result.degraded_sources == ()
+    # entity_stat captured Spotify followers/popularity + Last.fm listeners/playcount.
+    assert await _entity_stats(session, EntityType.ARTIST, result.artist.id) == {
+        ("spotify", "followers", 9_000_000),
+        ("spotify", "popularity", 88),
+        ("lastfm", "listeners", 5_000_000),
+        ("lastfm", "playcount", 88_000_000),
+    }
+
+
+async def test_lastfm_wrong_artist_bio_is_rejected(session: AsyncSession) -> None:
+    # Last.fm returns a DIFFERENT artist (autocorrect gone wrong) → normalized-name
+    # mismatch rejects it: no bio, no lastfm source, no error.
+    spotify_artist = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="artist123",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Daft Punk", followers=9_000_000),
+        tracks=(),
+    )
+    spotify = FakeResolver(id=ProviderId.SPOTIFY, entity=spotify_artist)
+    lastfm = FakeLastfm(artist=LastfmArtistInfo(name="Some Other Band", bio="Not Daft Punk at all"))
+    service = ResolveService(session=session, registry=build_fake_registry(spotify, lastfm))
+
+    result = await service.resolve(SPOTIFY_ARTIST_URL)
+
+    assert result.artist is not None
+    assert result.artist.bio is None  # wrong-artist bio not trusted
+    assert await _linked_providers(session, EntityType.ARTIST, result.artist.id) == {"spotify"}
+    assert result.degraded_sources == ()  # a name mismatch is a miss, not an error
+
+
+async def test_lastfm_failure_degrades_not_fatal(session: AsyncSession) -> None:
+    spotify_artist = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="artist123",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Daft Punk", followers=9_000_000),
+        tracks=(),
+    )
+    spotify = FakeResolver(id=ProviderId.SPOTIFY, entity=spotify_artist)
+    lastfm = FakeLastfm(error=ProviderUnavailable("lastfm down", provider=ProviderId.LASTFM))
+    service = ResolveService(session=session, registry=build_fake_registry(spotify, lastfm))
+
+    result = await service.resolve(SPOTIFY_ARTIST_URL)
+
+    assert result.artist is not None  # primary still succeeds
+    assert ProviderId.LASTFM.value in result.degraded_sources
+    assert await _linked_providers(session, EntityType.ARTIST, result.artist.id) == {"spotify"}
+
+
+async def test_track_resolve_records_stats(session: AsyncSession) -> None:
+    # A Spotify track with a popularity + a name-matched Last.fm track → entity_stat
+    # captures Spotify popularity and Last.fm listeners/playcount; Last.fm is a source.
+    spotify_track = Track(
+        name="Hello",
+        artists=("Adele",),
+        duration_ms=200_000,
+        isrc=ISRC,
+        popularity=80,
+    )
+    spotify = FakeResolver(id=ProviderId.SPOTIFY, track=spotify_track)
+    lastfm = FakeLastfm(
+        track=LastfmTrackInfo(
+            name="Hello", artist="Adele", listeners=1_234_567, playcount=9_876_543
+        )
+    )
+    service = ResolveService(session=session, registry=build_fake_registry(spotify, lastfm))
+
+    result = await service.resolve(SPOTIFY_TRACK_URL)
+
+    assert result.track is not None
+    assert lastfm.track_calls == [("Adele", "Hello")]
+    assert await _linked_providers(session, EntityType.TRACK, result.track.id) == {
+        "spotify",
+        "lastfm",
+    }
+    assert await _entity_stats(session, EntityType.TRACK, result.track.id) == {
+        ("spotify", "popularity", 80),
+        ("lastfm", "listeners", 1_234_567),
+        ("lastfm", "playcount", 9_876_543),
     }

@@ -351,6 +351,7 @@ def test_provider_order_is_the_contract_tuple() -> None:
         ProviderId.GENIUS,
         ProviderId.MUSIXMATCH,
         ProviderId.AZLYRICS,
+        ProviderId.LASTFM,
     )
     # every provider id has a place in the ordering
     assert set(PROVIDER_ORDER) == set(ProviderId)

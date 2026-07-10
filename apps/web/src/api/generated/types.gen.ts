@@ -910,9 +910,17 @@ export type MetadataSourceOut = {
      */
     label?: string | null;
     /**
+     * Listeners
+     */
+    listeners?: number | null;
+    /**
      * Name
      */
     name?: string | null;
+    /**
+     * Playcount
+     */
+    playcount?: number | null;
     /**
      * Popularity
      */
@@ -1087,7 +1095,7 @@ export type PlaylistOut = {
 /**
  * ProviderId
  */
-export type ProviderId = 'spotify' | 'deezer' | 'itunes' | 'musicbrainz' | 'ytmusic' | 'youtube' | 'soundcloud' | 'bandcamp' | 'piped' | 'lrclib' | 'genius' | 'musixmatch' | 'azlyrics';
+export type ProviderId = 'spotify' | 'deezer' | 'itunes' | 'musicbrainz' | 'lastfm' | 'ytmusic' | 'youtube' | 'soundcloud' | 'bandcamp' | 'piped' | 'lrclib' | 'genius' | 'musixmatch' | 'azlyrics';
 
 /**
  * RefreshRequest

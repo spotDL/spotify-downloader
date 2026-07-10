@@ -491,6 +491,9 @@ class MetadataSourceOut(BaseModel):
     isrc: str | None = None
     popularity: int | None = None
     followers: int | None = None
+    # Last.fm-reported reach (name-keyed enrichment); null for other providers.
+    listeners: int | None = None
+    playcount: int | None = None
     genres: list[str] = []
     label: str | None = None
     year: int | None = None

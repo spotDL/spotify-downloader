@@ -222,6 +222,8 @@ def metadata_source_view(snapshot: ProviderSnapshot) -> MetadataSourceView:
         isrc=snapshot.isrc or _str_field(payload, "isrc"),
         popularity=_int_field(payload, "popularity"),
         followers=_int_field(payload, "followers"),
+        listeners=_int_field(payload, "listeners"),
+        playcount=_int_field(payload, "playcount"),
         genres=tuple(genres) if isinstance(genres, list) else (),
         label=_str_field(payload, "label"),
         year=_int_field(payload, "year"),

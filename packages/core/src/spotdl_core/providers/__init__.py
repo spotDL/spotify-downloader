@@ -40,6 +40,7 @@ from spotdl_core.providers.http import (
 )
 from spotdl_core.providers.registry import (
     PROVIDER_ORDER,
+    LastfmConfig,
     ProviderContext,
     ProviderRegistry,
     ProviderSpec,
@@ -53,6 +54,7 @@ __all__ = [
     "DEFAULT_USER_AGENT",
     "PROVIDER_ORDER",
     "AudioFetchFailed",
+    "LastfmConfig",
     "ConversionFailed",
     "DownloadFailed",
     "Enriches",

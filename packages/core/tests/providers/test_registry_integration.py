@@ -66,7 +66,7 @@ def test_import_registry_has_no_provider_dep_imports() -> None:
 
 
 def test_default_registry_registers_all_providers() -> None:
-    """Every ``ProviderId`` in ``PROVIDER_ORDER`` is registered (all 13)."""
+    """Every ``ProviderId`` in ``PROVIDER_ORDER`` is registered (all 14)."""
     reg = build_default_registry(ProviderContext())
     assert set(reg.registered) == set(PROVIDER_ORDER)
     # ``registered`` is returned in PROVIDER_ORDER, so the tuple equals it.

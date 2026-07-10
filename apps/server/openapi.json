@@ -1596,6 +1596,17 @@
             ],
             "title": "Label"
           },
+          "listeners": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Listeners"
+          },
           "name": {
             "anyOf": [
               {
@@ -1606,6 +1617,17 @@
               }
             ],
             "title": "Name"
+          },
+          "playcount": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Playcount"
           },
           "popularity": {
             "anyOf": [
@@ -1909,6 +1931,7 @@
           "deezer",
           "itunes",
           "musicbrainz",
+          "lastfm",
           "ytmusic",
           "youtube",
           "soundcloud",

@@ -24,6 +24,7 @@ boundary). The unit of work is the caller's: repositories flush, and the FastAPI
 from __future__ import annotations
 
 import asyncio
+import uuid
 from datetime import UTC, datetime
 from typing import Any
 
@@ -48,6 +49,11 @@ from spotdl_core.providers import (
     SearchesEntities,
     UnsupportedURL,
     parse,
+)
+from spotdl_core.providers.metadata.lastfm import (
+    LastfmArtistInfo,
+    LastfmProvider,
+    LastfmTrackInfo,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -75,6 +81,7 @@ from spotdl_server.repositories.lyrics import LyricsRepository
 from spotdl_server.repositories.matches import MatchRepository
 from spotdl_server.repositories.merge import SOURCE_PRIORITY, CanonicalMerger
 from spotdl_server.repositories.snapshots import SnapshotRepository
+from spotdl_server.repositories.stats import EntityStatRepository
 from spotdl_server.services import views
 from spotdl_server.services.dto import ResolveResult
 from spotdl_server.services.provider_search import provider_search
@@ -95,6 +102,18 @@ _ENRICH_TIMEOUT_S: float = 6.0
 
 #: How many search hits a secondary provider is asked for per enrichment leg.
 _ENRICH_SEARCH_LIMIT: int = 5
+
+#: Provider-snapshot ``raw_payload`` key → ``entity_stat`` metric name. Engagement
+#: metrics are lifted from the already-collected snapshots (no extra fetch):
+#: Spotify ``followers``/``popularity``, Deezer ``followers`` (``nb_fan``, mapped by
+#: the Deezer provider), Last.fm ``listeners``/``playcount``. One capture per
+#: (entity, provider, metric) per resolve (spec §Phase 4).
+_STAT_METRICS: tuple[tuple[str, str], ...] = (
+    ("followers", "followers"),
+    ("popularity", "popularity"),
+    ("listeners", "listeners"),
+    ("playcount", "playcount"),
+)
 
 
 class ResolveService:
@@ -127,6 +146,7 @@ class ResolveService:
         self._albums = AlbumRepository(session)
         self._artists = ArtistRepository(session)
         self._playlists = PlaylistRepository(session)
+        self._stats = EntityStatRepository(session)
         self._merger = CanonicalMerger(session)
 
     async def resolve(self, query: str) -> ResolveResult:
@@ -168,6 +188,7 @@ class ResolveService:
     async def _resolve_track(self, ref: PlatformRef, degraded: set[ProviderId]) -> ResolveResult:
         now = datetime.now(UTC)
         primary = await self._snapshots.get_fresh(ref.provider, ref.entity_id, now)
+        was_miss = primary is None
         enriched: list[ProviderSnapshot] = []
         if primary is None:  # cache miss → fetch + snapshot + fan-out enrichment
             record_cache_miss("snapshot")
@@ -182,6 +203,11 @@ class ResolveService:
 
         merge_set = self._combine(await self._merge_set(primary), enriched)
         track = await self._merger.merge_track(merge_set)
+        # Capture engagement stats only on a fresh fetch (a cold miss) — a warm
+        # re-resolve re-merges cached snapshots and should not append a duplicate
+        # capture for the same numbers.
+        if was_miss:
+            await self._record_stats(EntityType.TRACK, track.id, merge_set)
         await self._kick_matching(track, degraded)
 
         match_rows = await self._matches.list_for_track(track.id)
@@ -299,7 +325,11 @@ class ResolveService:
         async def leg(provider: Any) -> ProviderSnapshot | None:
             return await self._enrich_track_from(provider, track)
 
-        return await self._gather_enrich(providers, leg, degraded)
+        snapshots = await self._gather_enrich(providers, leg, degraded)
+        lastfm = await self._enrich_lastfm_track(track, degraded)
+        if lastfm is not None:
+            snapshots.append(lastfm)
+        return snapshots
 
     async def _enrich_track_from(self, provider: Any, track: Track) -> ProviderSnapshot | None:
         queries: list[str] = []
@@ -438,7 +468,11 @@ class ResolveService:
         async def leg(provider: Any) -> ProviderSnapshot | None:
             return await self._enrich_artist_from(provider, name)
 
-        return await self._gather_enrich(providers, leg, degraded)
+        snapshots = await self._gather_enrich(providers, leg, degraded)
+        lastfm = await self._enrich_lastfm_artist(name, degraded)
+        if lastfm is not None:
+            snapshots.append(lastfm)
+        return snapshots
 
     async def _enrich_artist_from(self, provider: Any, name: str) -> ProviderSnapshot | None:
         hits = await provider.search_entities(
@@ -457,6 +491,163 @@ class ResolveService:
             )
         )
         return await self._persist_artist_snapshot(resolved)
+
+    # --------------------------------------------------- last.fm enrichment
+    def _lastfm(self) -> LastfmProvider | None:
+        """The Last.fm provider, or ``None`` when unavailable (no API key set).
+
+        Constructed lazily by the registry; a missing key makes the factory raise
+        :class:`ProviderUnavailable`, which the registry caches — so this simply
+        yields ``None`` and every Last.fm leg becomes a clean no-op (never an error).
+        """
+        try:
+            provider = self._registry.get(ProviderId.LASTFM)
+        except (KeyError, ProviderError):
+            return None
+        return provider if isinstance(provider, LastfmProvider) else None
+
+    async def _enrich_lastfm_artist(
+        self, name: str, degraded: set[ProviderId]
+    ) -> ProviderSnapshot | None:
+        """Query Last.fm by artist name; snapshot bio/genres + engagement stats.
+
+        Confirmed by :func:`normalize_artist_name` equality against the returned
+        name (Last.fm may autocorrect) so a wrong-artist bio is never trusted. The
+        lookup is time-bounded and non-fatal — a failure degrades Last.fm only.
+        """
+        provider = self._lastfm()
+        if provider is None or not name:
+            return None
+        info = await self._bounded_lastfm(provider.artist_info(name), degraded)
+        if info is None or not self._names_match(name, info.name):
+            return None
+        return await self._persist_lastfm_artist_snapshot(name, info)
+
+    async def _enrich_lastfm_track(
+        self, track: Track, degraded: set[ProviderId]
+    ) -> ProviderSnapshot | None:
+        """Query Last.fm by artist+track name; snapshot genres + engagement stats.
+
+        Confirmed by normalized-name equality on BOTH the track title and the main
+        artist so an unrelated same-titled recording is not trusted. Time-bounded
+        and non-fatal (a failure degrades Last.fm only).
+        """
+        provider = self._lastfm()
+        if provider is None or not track.name or not track.artists:
+            return None
+        info = await self._bounded_lastfm(
+            provider.track_info(track.main_artist, track.name), degraded
+        )
+        if info is None or not self._names_match(track.name, info.name):
+            return None
+        if info.artist is not None and not self._names_match(track.main_artist, info.artist):
+            return None
+        return await self._persist_lastfm_track_snapshot(track, info)
+
+    @staticmethod
+    async def _bounded_lastfm(coro: Any, degraded: set[ProviderId]) -> Any:
+        """Await a Last.fm coroutine under the enrichment timeout; ``None`` on failure.
+
+        Any error or timeout degrades Last.fm (records it) and yields ``None`` so
+        the resolve continues — Last.fm is strictly best-effort (spec §Phase 4).
+        """
+        try:
+            return await asyncio.wait_for(coro, timeout=_ENRICH_TIMEOUT_S)
+        except Exception:  # noqa: BLE001 — best-effort: any failure degrades, never fatal
+            degraded.add(ProviderId.LASTFM)
+            record_provider_error(ProviderId.LASTFM.value)
+            return None
+
+    @staticmethod
+    def _names_match(expected: str, actual: str | None) -> bool:
+        """Whether two names share the normalized artist-identity key."""
+        return actual is not None and normalize_artist_name(expected) == normalize_artist_name(
+            actual
+        )
+
+    async def _persist_lastfm_artist_snapshot(
+        self, name: str, info: LastfmArtistInfo
+    ) -> ProviderSnapshot:
+        """Snapshot a Last.fm artist result under a stable normalized-name key.
+
+        The payload carries the merge-read keys (``bio``/``genres`` fold into the
+        canonical artist — Spotify-first still wins, so Last.fm fills the bio when
+        Spotify has none) plus ``listeners``/``playcount`` for :meth:`_record_stats`.
+        """
+        payload: dict[str, Any] = {
+            "name": info.name,
+            "bio": info.bio,
+            "genres": list(info.genres),
+            "listeners": info.listeners,
+            "playcount": info.playcount,
+        }
+        return await self._snapshots.upsert(
+            provider=ProviderId.LASTFM,
+            provider_entity_id=f"artist:{normalize_artist_name(name)}",
+            entity_type=EntityType.ARTIST,
+            raw_payload=payload,
+            name=info.name,
+        )
+
+    async def _persist_lastfm_track_snapshot(
+        self, track: Track, info: LastfmTrackInfo
+    ) -> ProviderSnapshot:
+        """Snapshot a Last.fm track result keyed by normalized artist + title.
+
+        Contributes ``genres`` to the merge (gap-fill only, Last.fm ranks last) and
+        carries ``listeners``/``playcount`` for :meth:`_record_stats`.
+        """
+        artist_key = normalize_artist_name(track.main_artist)
+        key = f"track:{artist_key}:{normalize_artist_name(track.name)}"
+        payload: dict[str, Any] = {
+            "name": info.name,
+            "artists": [info.artist or track.main_artist],
+            "genres": list(info.genres),
+            "listeners": info.listeners,
+            "playcount": info.playcount,
+        }
+        return await self._snapshots.upsert(
+            provider=ProviderId.LASTFM,
+            provider_entity_id=key,
+            entity_type=EntityType.TRACK,
+            raw_payload=payload,
+            name=info.name,
+            artist_names=[info.artist or track.main_artist],
+        )
+
+    # ------------------------------------------------------ stats recording
+    async def _record_stats(
+        self,
+        entity_type: EntityType,
+        entity_id: uuid.UUID,
+        snapshots: list[ProviderSnapshot],
+    ) -> None:
+        """Append one engagement capture per (provider, metric) into ``entity_stat``.
+
+        Lifts the metrics in :data:`_STAT_METRICS` from each contributing snapshot's
+        ``raw_payload`` (already fetched — no extra network call): Spotify
+        ``followers``/``popularity``, Deezer ``followers``, Last.fm
+        ``listeners``/``playcount``. Deduplicated by (provider, metric) so a single
+        resolve writes at most one row per pair; across resolves the series grows.
+        """
+        seen: set[tuple[ProviderId, str]] = set()
+        for snapshot in snapshots:
+            payload = snapshot.raw_payload if isinstance(snapshot.raw_payload, dict) else {}
+            for key, metric in _STAT_METRICS:
+                value = payload.get(key)
+                if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+                    continue
+                marker = (snapshot.provider, metric)
+                if marker in seen:
+                    continue
+                seen.add(marker)
+                await self._stats.record(
+                    entity_type=entity_type,
+                    entity_id=entity_id,
+                    provider=snapshot.provider,
+                    metric=metric,
+                    value=value,
+                )
 
     @staticmethod
     def _combine(
@@ -517,6 +708,7 @@ class ResolveService:
                 for index, track in enumerate(resolved.tracks)
             }
             album = await self._merger.merge_album([album_snap, *enriched], by_pos)
+            await self._record_stats(EntityType.ALBUM, album.id, [album_snap, *enriched])
             return ResolveResult(entity_type=EntityType.ALBUM.value, album=views.album_view(album))
         if resolved.entity_type is EntityType.ARTIST:
             artist_snap = await self._persist_artist_snapshot(resolved)
@@ -534,6 +726,7 @@ class ResolveService:
                 if disc_snap is not None:
                     album_by_pos[index] = [disc_snap]
             artist = await self._merger.merge_artist([artist_snap, *enriched], by_pos, album_by_pos)
+            await self._record_stats(EntityType.ARTIST, artist.id, [artist_snap, *enriched])
             return ResolveResult(
                 entity_type=EntityType.ARTIST.value, artist=views.artist_view(artist)
             )

@@ -19,7 +19,12 @@ from typing import Any
 
 import httpx
 from fastapi import Depends, HTTPException, Request
-from spotdl_core.providers import ProviderContext, ProviderRegistry, SpotifyConfig
+from spotdl_core.providers import (
+    LastfmConfig,
+    ProviderContext,
+    ProviderRegistry,
+    SpotifyConfig,
+)
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from spotdl_server.auth.clock import Clock, ensure_utc
@@ -54,11 +59,12 @@ def provider_context(settings: Settings) -> ProviderContext:
     """Build the provider context for the default registry.
 
     Provider credentials are read from the environment (the ``SPOTDL_SPOTIFY_*``
-    family via :meth:`SpotifyConfig.from_env`); ``settings`` is accepted so the
-    signature is stable as configuration surface grows in later plans.
+    family via :meth:`SpotifyConfig.from_env`, ``SPOTDL_LASTFM_API_KEY`` via
+    :meth:`LastfmConfig.from_env`); ``settings`` is accepted so the signature is
+    stable as configuration surface grows in later plans.
     """
     _ = settings  # reserved for future settings-sourced provider configuration
-    return ProviderContext(spotify=SpotifyConfig.from_env())
+    return ProviderContext(spotify=SpotifyConfig.from_env(), lastfm=LastfmConfig.from_env())
 
 
 def get_settings(request: Request) -> Settings:

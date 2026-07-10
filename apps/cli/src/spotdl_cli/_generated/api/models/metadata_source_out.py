@@ -33,7 +33,9 @@ class MetadataSourceOut:
             genres (Union[Unset, list[str]]):
             isrc (Union[None, Unset, str]):
             label (Union[None, Unset, str]):
+            listeners (Union[None, Unset, int]):
             name (Union[None, Unset, str]):
+            playcount (Union[None, Unset, int]):
             popularity (Union[None, Unset, int]):
             year (Union[None, Unset, int]):
     """
@@ -48,7 +50,9 @@ class MetadataSourceOut:
     genres: Union[Unset, list[str]] = UNSET
     isrc: Union[None, Unset, str] = UNSET
     label: Union[None, Unset, str] = UNSET
+    listeners: Union[None, Unset, int] = UNSET
     name: Union[None, Unset, str] = UNSET
+    playcount: Union[None, Unset, int] = UNSET
     popularity: Union[None, Unset, int] = UNSET
     year: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -98,11 +102,23 @@ class MetadataSourceOut:
         else:
             label = self.label
 
+        listeners: Union[None, Unset, int]
+        if isinstance(self.listeners, Unset):
+            listeners = UNSET
+        else:
+            listeners = self.listeners
+
         name: Union[None, Unset, str]
         if isinstance(self.name, Unset):
             name = UNSET
         else:
             name = self.name
+
+        playcount: Union[None, Unset, int]
+        if isinstance(self.playcount, Unset):
+            playcount = UNSET
+        else:
+            playcount = self.playcount
 
         popularity: Union[None, Unset, int]
         if isinstance(self.popularity, Unset):
@@ -139,8 +155,12 @@ class MetadataSourceOut:
             field_dict["isrc"] = isrc
         if label is not UNSET:
             field_dict["label"] = label
+        if listeners is not UNSET:
+            field_dict["listeners"] = listeners
         if name is not UNSET:
             field_dict["name"] = name
+        if playcount is not UNSET:
+            field_dict["playcount"] = playcount
         if popularity is not UNSET:
             field_dict["popularity"] = popularity
         if year is not UNSET:
@@ -206,6 +226,15 @@ class MetadataSourceOut:
 
         label = _parse_label(d.pop("label", UNSET))
 
+        def _parse_listeners(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        listeners = _parse_listeners(d.pop("listeners", UNSET))
+
         def _parse_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -214,6 +243,15 @@ class MetadataSourceOut:
             return cast(Union[None, Unset, str], data)
 
         name = _parse_name(d.pop("name", UNSET))
+
+        def _parse_playcount(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        playcount = _parse_playcount(d.pop("playcount", UNSET))
 
         def _parse_popularity(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -244,7 +282,9 @@ class MetadataSourceOut:
             genres=genres,
             isrc=isrc,
             label=label,
+            listeners=listeners,
             name=name,
+            playcount=playcount,
             popularity=popularity,
             year=year,
         )

@@ -49,6 +49,11 @@ function sourceMetric(
     if (source.isrc) parts.push(source.isrc);
     if (popularity != null) parts.push(`★ ${popularity}`);
   }
+  // Last.fm-reported reach (listeners) — a provider-reported metric, not a
+  // licensed play count. Surfaced generically for whichever entity carries it.
+  if (source.listeners != null) {
+    parts.push(`${formatFollowers(source.listeners)} listeners`);
+  }
   if (parts.length === 0) return null;
   return (
     <span className="shrink-0 font-mono tabular-nums text-[11.5px] text-ink-2">

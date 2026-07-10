@@ -44,6 +44,7 @@ from spotdl_core.providers.http import DEFAULT_USER_AGENT
 __all__ = [
     "DEFAULT_PIPED_INSTANCES",
     "PROVIDER_ORDER",
+    "LastfmConfig",
     "ProviderContext",
     "ProviderFactory",
     "ProviderRegistry",
@@ -69,6 +70,7 @@ PROVIDER_ORDER: tuple[ProviderId, ...] = (
     ProviderId.GENIUS,
     ProviderId.MUSIXMATCH,
     ProviderId.AZLYRICS,
+    ProviderId.LASTFM,
 )
 
 #: Rank lookup for ordering matched specs; O(1) per provider.
@@ -128,6 +130,24 @@ class SpotifyConfig:
 
 
 @dataclass(frozen=True)
+class LastfmConfig:
+    """Last.fm credential configuration (a free API key).
+
+    Last.fm is registered unconditionally (like Genius) but its factory raises
+    :class:`~spotdl_core.providers.errors.ProviderUnavailable` when ``api_key`` is
+    unset, so the registry constructs it only when a key is configured — otherwise
+    it is a silently skipped, degraded-at-most enrichment source.
+    """
+
+    api_key: str | None = None
+
+    @classmethod
+    def from_env(cls) -> LastfmConfig:
+        """Build a config from the ``SPOTDL_LASTFM_API_KEY`` environment variable."""
+        return cls(api_key=os.environ.get("SPOTDL_LASTFM_API_KEY"))
+
+
+@dataclass(frozen=True)
 class ProviderContext:
     """Immutable configuration handed to every provider factory.
 
@@ -138,6 +158,7 @@ class ProviderContext:
 
     user_agent: str = DEFAULT_USER_AGENT
     spotify: SpotifyConfig = field(default_factory=SpotifyConfig)
+    lastfm: LastfmConfig = field(default_factory=LastfmConfig)
     soundcloud_client_id: str | None = None
     genius_token: str | None = None
     piped_instances: tuple[str, ...] = DEFAULT_PIPED_INSTANCES
@@ -307,6 +328,17 @@ def _musicbrainz_factory(ctx: ProviderContext) -> Provider:
     from spotdl_core.providers.metadata.musicbrainz import build_musicbrainz_provider
 
     return build_musicbrainz_provider(ctx)
+
+
+def _lastfm_factory(ctx: ProviderContext) -> Provider:
+    """Lazily import and build the Last.fm provider (isolation constraint).
+
+    The factory raises :class:`ProviderUnavailable` when no API key is configured;
+    :meth:`ProviderRegistry._construct` caches that so ``capable``/``get`` omit it.
+    """
+    from spotdl_core.providers.metadata.lastfm import build_lastfm_provider
+
+    return build_lastfm_provider(ctx)
 
 
 def _ytmusic_factory(ctx: ProviderContext) -> Provider:
@@ -483,6 +515,18 @@ def build_default_registry(context: ProviderContext) -> ProviderRegistry:
             ProviderId.AZLYRICS,
             frozenset({ProvidesLyrics}),
             _azlyrics_factory,
+        )
+    )
+    # Last.fm is a name-keyed enrichment source (engagement/bio/tags), not a
+    # capability-Protocol implementer: it declares no capabilities (``capable``
+    # never returns it) and the resolve layer fetches it by id. Registered
+    # unconditionally so it appears in ``registered``; its factory raises when no
+    # API key is set, so ``get`` cleanly reports it unavailable (Genius pattern).
+    reg.register(
+        ProviderSpec(
+            ProviderId.LASTFM,
+            frozenset(),
+            _lastfm_factory,
         )
     )
     return reg

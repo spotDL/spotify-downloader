@@ -14,6 +14,7 @@ const PROVIDER_META: Record<string, ProviderMeta> = {
   bandcamp: { label: "Bandcamp", dotClass: "bg-teal" },
   piped: { label: "Piped", dotClass: "bg-youtube" },
   musicbrainz: { label: "MusicBrainz", dotClass: "bg-musicbrainz" },
+  lastfm: { label: "Last.fm", dotClass: "bg-red" },
   genius: { label: "Genius", dotClass: "bg-gold" },
   musixmatch: { label: "Musixmatch", dotClass: "bg-teal" },
   lrclib: { label: "LRCLIB", dotClass: "bg-emerald" },

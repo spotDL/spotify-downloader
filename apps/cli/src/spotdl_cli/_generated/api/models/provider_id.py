@@ -7,6 +7,7 @@ class ProviderId(str, Enum):
     DEEZER = "deezer"
     GENIUS = "genius"
     ITUNES = "itunes"
+    LASTFM = "lastfm"
     LRCLIB = "lrclib"
     MUSICBRAINZ = "musicbrainz"
     MUSIXMATCH = "musixmatch"

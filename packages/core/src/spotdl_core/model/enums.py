@@ -14,6 +14,8 @@ class ProviderId(StrEnum):
     DEEZER = "deezer"
     ITUNES = "itunes"
     MUSICBRAINZ = "musicbrainz"
+    # name-keyed engagement/bio/tags source (Last.fm; not a URL resolver)
+    LASTFM = "lastfm"
     # audio targets (ytmusic is also a metadata source)
     YTMUSIC = "ytmusic"
     YOUTUBE = "youtube"

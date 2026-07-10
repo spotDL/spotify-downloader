@@ -172,6 +172,9 @@ class MetadataSourceView:
     isrc: str | None = None
     popularity: int | None = None
     followers: int | None = None
+    # Last.fm-reported reach (name-keyed enrichment); None for other providers.
+    listeners: int | None = None
+    playcount: int | None = None
     genres: tuple[str, ...] = ()
     label: str | None = None
     year: int | None = None
