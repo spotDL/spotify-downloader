@@ -27,11 +27,10 @@ function AdminReports() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* MERGE: replace with the design-system <SegmentedControl> */}
       <div
         role="radiogroup"
         aria-label="Report status"
-        className="inline-flex self-start rounded-md border border-black/10 p-0.5 dark:border-white/15"
+        className="inline-flex self-start rounded-lg border border-line bg-void p-0.5"
       >
         {STATUSES.map((s) => (
           <button
@@ -40,8 +39,8 @@ function AdminReports() {
             role="radio"
             aria-checked={status === s}
             onClick={() => setStatus(s)}
-            className={`rounded px-3 py-1.5 text-sm font-medium capitalize transition-colors ${
-              status === s ? "bg-brand-600 text-white" : "text-muted hover:text-fg"
+            className={`rounded-md px-3 py-1.5 text-xs font-semibold capitalize transition-colors ${
+              status === s ? "bg-emerald text-void" : "text-muted hover:text-fg"
             }`}
           >
             {s}
@@ -73,30 +72,32 @@ function ReportCard({ report }: { report: ReportResponse }) {
   const isPending = report.status === "pending";
 
   return (
-    <li className="rounded-card border border-black/10 bg-surface p-4 dark:border-white/10">
+    <li className="rounded-card border border-line-soft bg-surface p-4">
       <div className="flex flex-wrap items-center gap-2">
-        <Badge tone="neutral">{report.subject_type}</Badge>
-        <span className="font-mono text-sm text-muted">{report.subject_id}</span>
+        <Badge tone="neutral" className="capitalize">
+          {report.subject_type}
+        </Badge>
+        <span className="font-mono text-xs text-muted">{report.subject_id}</span>
         <Badge tone={STATUS_TONE[report.status]} className="ml-auto capitalize">
           {report.status}
         </Badge>
       </div>
-      <dl className="mt-3 flex flex-col gap-1 text-sm">
+      <dl className="mt-3 flex flex-col gap-1.5 text-[12.5px]">
         {report.field ? (
           <div className="flex gap-2">
-            <dt className="text-muted">Field</dt>
-            <dd className="font-medium text-fg">{report.field}</dd>
+            <dt className="w-20 shrink-0 text-muted">Field</dt>
+            <dd className="font-mono font-medium text-fg">{report.field}</dd>
           </div>
         ) : null}
         {report.proposed_value ? (
           <div className="flex gap-2">
-            <dt className="text-muted">Proposed</dt>
-            <dd className="font-medium text-fg">{report.proposed_value}</dd>
+            <dt className="w-20 shrink-0 text-muted">Proposed</dt>
+            <dd className="font-medium text-emerald">{report.proposed_value}</dd>
           </div>
         ) : null}
         {report.reason ? (
           <div className="flex gap-2">
-            <dt className="text-muted">Reason</dt>
+            <dt className="w-20 shrink-0 text-muted">Reason</dt>
             <dd className="text-fg">{report.reason}</dd>
           </div>
         ) : null}

@@ -41,7 +41,11 @@ describe("Downloads page", () => {
     renderApp("/downloads");
 
     expect(await screen.findByText("Get Lucky")).toBeInTheDocument();
-    expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "0");
+    // The queue shows a per-job "Progress" bar plus an "Overall" summary bar;
+    // target the job row by its accessible name.
+    expect(
+      screen.getByRole("progressbar", { name: "Progress" }),
+    ).toHaveAttribute("aria-valuenow", "0");
   });
 
   it("updates a job's progress bar from a WS progress frame", async () => {
@@ -63,10 +67,9 @@ describe("Downloads page", () => {
     });
 
     await waitFor(() =>
-      expect(screen.getByRole("progressbar")).toHaveAttribute(
-        "aria-valuenow",
-        "50",
-      ),
+      expect(
+        screen.getByRole("progressbar", { name: "Progress" }),
+      ).toHaveAttribute("aria-valuenow", "50"),
     );
   });
 
@@ -92,6 +95,43 @@ describe("Downloads page", () => {
 
     const link = await screen.findByRole("link", { name: "Download" });
     expect(link).toHaveAttribute("href", expect.stringContaining("/downloads/job-1/file"));
+  });
+
+  it("renders the summary strip with an overall progress bar", async () => {
+    serveDownloads([
+      makeDownloadJob({ id: "job-1", status: "running", progress: 0.5 }),
+      makeDownloadJob({ id: "job-2", status: "completed", progress: 1 }),
+    ]);
+    renderApp("/downloads");
+
+    // The summary strip exposes the batch-wide counters + an "Overall" bar.
+    expect(await screen.findByText("Active")).toBeInTheDocument();
+    expect(screen.getByText("Done")).toBeInTheDocument();
+    expect(
+      screen.getByRole("progressbar", { name: "Overall" }),
+    ).toBeInTheDocument();
+  });
+
+  it("offers Retry on a failed job (re-submitting its track id)", async () => {
+    serveDownloads([
+      makeDownloadJob({
+        status: "failed",
+        progress: 0,
+        track_id: "track-1",
+        error_message: "network error",
+      }),
+    ]);
+    let submitted: unknown = null;
+    server.use(
+      http.post("*/api/v1/downloads", async ({ request }) => {
+        submitted = await request.json();
+        return HttpResponse.json(makeDownloadList({ jobs: [], total: 0 }));
+      }),
+    );
+    renderApp("/downloads");
+
+    await userEvent.click(await screen.findByRole("button", { name: "Retry" }));
+    await waitFor(() => expect(submitted).toEqual({ query: "track-1" }));
   });
 
   it("cancels a job and invalidates the queue", async () => {

@@ -13,6 +13,14 @@ import { Input } from "../components/Input";
 import { Badge } from "../components/Badge";
 import { Spinner } from "../components/Spinner";
 import { ErrorState } from "../components/ErrorState";
+import {
+  DiscIcon,
+  DownloadIcon,
+  ExternalIcon,
+  FlagIcon,
+  SettingsIcon,
+  UserIcon,
+} from "../components/icons";
 
 // Settings is entirely a client/prefs surface plus a READ-ONLY window onto the
 // server's startup config (spec §4/§8). There is deliberately no `PUT /config`
@@ -21,31 +29,60 @@ export const Route = createFileRoute("/settings")({
   component: SettingsPage,
 });
 
-// MERGE: replace the section shell / definition rows / segmented control below
-// with the design-system <SettingsSection>, <DefinitionRow>, and <SegmentedControl>.
+// A bordered card group led by a section header with a small emerald icon tile.
 function Section({
   title,
   description,
+  icon,
   children,
 }: {
   title: string;
   description?: ReactNode;
+  icon: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-card border border-black/10 bg-surface p-5 dark:border-white/10">
-      <h2 className="text-base font-semibold text-fg">{title}</h2>
-      {description ? <p className="mt-1 text-sm text-muted">{description}</p> : null}
+    <section className="rounded-card border border-line-soft bg-surface p-5">
+      <header className="flex items-start gap-3">
+        <span
+          className="grid size-9 shrink-0 place-items-center rounded-[10px] border border-emerald/25 bg-emerald/12 text-emerald"
+          aria-hidden
+        >
+          {icon}
+        </span>
+        <div className="min-w-0">
+          <h2 className="text-[15px] font-bold tracking-tight text-fg">{title}</h2>
+          {description ? (
+            <p className="mt-0.5 text-xs text-muted">{description}</p>
+          ) : null}
+        </div>
+      </header>
       <div className="mt-4">{children}</div>
     </section>
   );
 }
 
-function Row({ label, children }: { label: string; children: ReactNode }) {
+// A key/value row — kept as <dt>/<dd> so the read-only server rows stay a
+// semantic definition list; value is mono/tabular for technical data.
+function Row({
+  label,
+  children,
+  mono = false,
+}: {
+  label: string;
+  children: ReactNode;
+  mono?: boolean;
+}) {
   return (
-    <div className="flex items-center justify-between gap-4 border-t border-black/5 py-2 first:border-t-0 dark:border-white/5">
-      <dt className="text-sm text-muted">{label}</dt>
-      <dd className="text-sm font-medium text-fg">{children}</dd>
+    <div className="flex items-center justify-between gap-4 border-b border-line-soft py-2 last:border-b-0">
+      <dt className="text-[12.5px] text-muted">{label}</dt>
+      <dd
+        className={`text-right text-[12.5px] text-fg ${
+          mono ? "font-mono tabular-nums" : "font-medium"
+        }`}
+      >
+        {children}
+      </dd>
     </div>
   );
 }
@@ -67,22 +104,29 @@ function ServerConfigPanel() {
   const { mode, features, matcher_version, download_defaults } = config.data;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       <Section
+        icon={<SettingsIcon className="size-4" />}
         title="Server"
-        description="These values are fixed by the server at startup and can't be changed from here."
+        description="Fixed by the server at startup — these can't be changed from here."
       >
         <dl>
           <Row label="Deployment mode">
-            <Badge tone="brand">{mode}</Badge>
+            <Badge tone="brand" className="uppercase">
+              {mode}
+            </Badge>
           </Row>
-          <Row label="Matcher version">
-            <span className="font-mono">{matcher_version}</span>
+          <Row label="Matcher version" mono>
+            {matcher_version}
           </Row>
         </dl>
       </Section>
 
-      <Section title="Features" description="Which capabilities this server exposes.">
+      <Section
+        icon={<FlagIcon className="size-4" />}
+        title="Features"
+        description="Which capabilities this server exposes."
+      >
         <dl>
           {(Object.keys(FLAG_LABELS) as (keyof FeatureFlags)[]).map((flag) => (
             <Row key={flag} label={FLAG_LABELS[flag]}>
@@ -98,6 +142,7 @@ function ServerConfigPanel() {
 
       {download_defaults ? (
         <Section
+          icon={<DownloadIcon className="size-4" />}
           title="Download defaults"
           description="The server's effective download settings (used to pre-fill submit forms)."
         >
@@ -111,18 +156,24 @@ function ServerConfigPanel() {
 function DownloadDefaultsRows({ defaults }: { defaults: DownloadDefaults }) {
   return (
     <dl>
-      <Row label="Output format">
-        <span className="font-mono">{defaults.output_format}</span>
+      <Row label="Output format" mono>
+        {defaults.output_format}
       </Row>
-      <Row label="Bitrate">
-        <span className="font-mono">{defaults.bitrate}</span>
+      <Row label="Bitrate" mono>
+        {defaults.bitrate}
       </Row>
-      <Row label="Concurrency">{defaults.concurrency}</Row>
-      <Row label="Output template">
-        <span className="font-mono break-all">{defaults.output_template}</span>
+      <Row label="Concurrency" mono>
+        {defaults.concurrency}
       </Row>
-      <Row label="Scan existing">{defaults.scan_existing ? "Yes" : "No"}</Row>
-      <Row label="Skip explicit">{defaults.skip_explicit ? "Yes" : "No"}</Row>
+      <Row label="Output template" mono>
+        <span className="break-all">{defaults.output_template}</span>
+      </Row>
+      <Row label="Scan existing" mono>
+        {defaults.scan_existing ? "yes" : "no"}
+      </Row>
+      <Row label="Skip explicit" mono>
+        {defaults.skip_explicit ? "yes" : "no"}
+      </Row>
     </dl>
   );
 }
@@ -138,12 +189,15 @@ function AppearancePanel() {
   const setTheme = useUiStore((s) => s.setTheme);
 
   return (
-    <Section title="Appearance" description="Choose how spotDL looks on this device.">
-      {/* MERGE: replace with design-system <SegmentedControl> */}
+    <Section
+      icon={<DiscIcon className="size-4" />}
+      title="Appearance"
+      description="Choose how spotDL looks on this device."
+    >
       <div
         role="radiogroup"
         aria-label="Theme"
-        className="inline-flex rounded-md border border-black/10 p-0.5 dark:border-white/15"
+        className="inline-flex rounded-lg border border-line bg-void p-0.5"
       >
         {THEMES.map(({ value, label }) => (
           <button
@@ -152,8 +206,10 @@ function AppearancePanel() {
             role="radio"
             aria-checked={theme === value}
             onClick={() => setTheme(value)}
-            className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-              theme === value ? "bg-brand-600 text-white" : "text-muted hover:text-fg"
+            className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
+              theme === value
+                ? "bg-emerald text-void"
+                : "text-muted hover:text-fg"
             }`}
           >
             {label}
@@ -206,6 +262,7 @@ function ConnectionPanel() {
 
   return (
     <Section
+      icon={<ExternalIcon className="size-4" />}
       title="Connection"
       description="The API server this app talks to. Leave blank to use the server that served this page."
     >
@@ -217,7 +274,10 @@ function ConnectionPanel() {
         }}
       >
         <div>
-          <label className="block text-sm font-medium text-fg" htmlFor="api-base-url">
+          <label
+            className="block text-[12.5px] font-medium text-ink-2"
+            htmlFor="api-base-url"
+          >
             API base URL
           </label>
           <Input
@@ -232,10 +292,10 @@ function ConnectionPanel() {
               setTest("idle");
             }}
             aria-invalid={!valid}
-            className="mt-1"
+            className="mt-1 font-mono"
           />
           {!valid ? (
-            <p className="mt-1 text-sm text-danger">
+            <p className="mt-1 text-xs text-red">
               Enter a valid http(s) URL, or leave it blank.
             </p>
           ) : null}
@@ -256,12 +316,10 @@ function ConnectionPanel() {
             <Spinner label="Testing connection" className="size-4" />
           ) : null}
           {test === "ok" ? (
-            <span className="text-sm font-medium text-brand-700 dark:text-brand-100">
-              Connected
-            </span>
+            <span className="text-xs font-semibold text-emerald">Connected</span>
           ) : null}
           {test === "error" ? (
-            <span className="text-sm font-medium text-danger">
+            <span className="text-xs font-semibold text-red">
               Couldn&apos;t reach the server
             </span>
           ) : null}
@@ -291,7 +349,11 @@ function AccountPanel() {
 
   if (accessToken === null) {
     return (
-      <Section title="Account" description="You're not signed in on this device.">
+      <Section
+        icon={<UserIcon className="size-4" />}
+        title="Account"
+        description="You're not signed in on this device."
+      >
         <Button type="button" onClick={() => void navigate({ to: "/login" })}>
           Sign in
         </Button>
@@ -300,9 +362,9 @@ function AccountPanel() {
   }
 
   return (
-    <Section title="Account">
+    <Section icon={<UserIcon className="size-4" />} title="Account">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted">
+        <p className="text-[12.5px] text-muted">
           Signed in{me.data ? ` as ${me.data.display_name ?? me.data.email}` : ""}.
         </p>
         <Button type="button" variant="danger" onClick={signOut}>
@@ -315,8 +377,13 @@ function AccountPanel() {
 
 function SettingsPage() {
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-8">
-      <h1 className="text-2xl font-semibold tracking-tight text-fg">Settings</h1>
+    <div className="mx-auto flex max-w-2xl flex-col gap-5 px-6 py-8">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold tracking-tight text-fg">Settings</h1>
+        <p className="text-sm text-muted">
+          Server configuration and this device's preferences.
+        </p>
+      </div>
       <ServerConfigPanel />
       <AppearancePanel />
       <ConnectionPanel />

@@ -26,31 +26,36 @@ function AdminUsers() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* MERGE: replace with the design-system <DataTable>. */}
-      <div className="overflow-x-auto rounded-card border border-black/10 dark:border-white/10">
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-black/10 text-muted dark:border-white/10">
+      <div className="overflow-x-auto rounded-card border border-line-soft">
+        <table className="w-full text-left text-[13px]">
+          <thead className="bg-elevated text-[11px] uppercase tracking-wide text-ink-2">
             <tr>
-              <th className="px-4 py-2 font-medium">User</th>
-              <th className="px-4 py-2 font-medium">Email</th>
-              <th className="px-4 py-2 font-medium">Role</th>
-              <th className="px-4 py-2 font-medium">Status</th>
+              <th className="px-4 py-2.5 font-semibold">User</th>
+              <th className="px-4 py-2.5 font-semibold">Email</th>
+              <th className="px-4 py-2.5 font-semibold">Role</th>
+              <th className="px-4 py-2.5 font-semibold">Status</th>
             </tr>
           </thead>
           <tbody>
             {items.map((user) => (
               <tr
                 key={user.id}
-                className="border-b border-black/5 last:border-b-0 dark:border-white/5"
+                className="border-t border-line-soft bg-void transition-colors hover:bg-surface"
               >
-                <td className="px-4 py-2 font-medium text-fg">
+                <td className="px-4 py-2.5 font-medium text-fg">
                   {user.display_name ?? "—"}
                 </td>
-                <td className="px-4 py-2 text-muted">{user.email}</td>
-                <td className="px-4 py-2">
-                  {user.is_admin ? <Badge tone="brand">Admin</Badge> : <Badge tone="muted">User</Badge>}
+                <td className="px-4 py-2.5 font-mono text-xs text-muted">
+                  {user.email}
                 </td>
-                <td className="px-4 py-2">
+                <td className="px-4 py-2.5">
+                  {user.is_admin ? (
+                    <Badge tone="brand">Admin</Badge>
+                  ) : (
+                    <Badge tone="muted">User</Badge>
+                  )}
+                </td>
+                <td className="px-4 py-2.5">
                   {user.is_active ? (
                     <Badge tone="neutral">Active</Badge>
                   ) : (
@@ -64,7 +69,7 @@ function AdminUsers() {
       </div>
 
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-muted">
+        <p className="font-mono text-xs text-muted tabular-nums">
           {start}–{end} of {total}
         </p>
         <div className="flex gap-2">

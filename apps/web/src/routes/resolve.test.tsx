@@ -36,6 +36,16 @@ describe("home resolve flow", () => {
     ).toBeInTheDocument();
   });
 
+  it("renders the hero with search, hint pills, and a paste-link field", async () => {
+    renderApp("/");
+
+    expect(await screen.findByLabelText("Paste a link")).toBeInTheDocument();
+    expect(screen.getByRole("searchbox", { name: "Search" })).toBeInTheDocument();
+    // Input-type hint pills.
+    expect(screen.getByText("Spotify URL")).toBeInTheDocument();
+    expect(screen.getByText("Artist - Song")).toBeInTheDocument();
+  });
+
   it("toasts on an unsupported_url error", async () => {
     serveResolve(() =>
       HttpResponse.json(

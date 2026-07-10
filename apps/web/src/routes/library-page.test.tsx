@@ -46,6 +46,20 @@ describe("Library page", () => {
     );
   });
 
+  it("shows the batch list and the selected batch's file path", async () => {
+    serveCompleted();
+    renderApp("/library");
+
+    // Master list of batches + a detail pane with the file's on-disk path.
+    expect(
+      await screen.findByRole("navigation", { name: /downloaded batches/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("/library/Get Lucky.mp3")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Copy path" }),
+    ).toBeInTheDocument();
+  });
+
   it("is unavailable when the library feature is off", async () => {
     server.use(
       http.get("*/api/v1/config", () =>

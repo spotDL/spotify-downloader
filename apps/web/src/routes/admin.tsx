@@ -23,15 +23,19 @@ export const Route = createFileRoute("/admin")({
   component: AdminLayout,
 });
 
-// MERGE: replace with the design-system <Tabs>.
 const TAB_CLASS =
-  "rounded-md px-3 py-1.5 text-sm font-medium text-muted transition-colors hover:bg-black/5 hover:text-fg data-[status=active]:bg-brand-100 data-[status=active]:text-brand-700 dark:hover:bg-white/10 dark:data-[status=active]:bg-brand-700/30 dark:data-[status=active]:text-brand-100";
+  "rounded-full border border-transparent px-3.5 py-1.5 text-xs font-semibold text-ink-2 transition-colors hover:bg-surface hover:text-fg data-[status=active]:border-emerald/30 data-[status=active]:bg-emerald/15 data-[status=active]:text-emerald";
 
 function AdminLayout() {
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-6 px-6 py-8">
-      <h1 className="text-2xl font-semibold tracking-tight text-fg">Admin</h1>
-      <nav className="flex flex-wrap gap-1" aria-label="Admin sections">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold tracking-tight text-fg">Admin</h1>
+        <p className="text-sm text-muted">
+          Moderation and community-metadata review.
+        </p>
+      </div>
+      <nav className="flex flex-wrap gap-1.5" aria-label="Admin sections">
         <Link to="/admin" activeOptions={{ exact: true }} className={TAB_CLASS}>
           Overview
         </Link>
