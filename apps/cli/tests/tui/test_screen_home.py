@@ -211,6 +211,11 @@ async def test_filter_cycling_narrows_to_one_section() -> None:
 
 async def test_selecting_artist_hit_routes_to_collection_screen() -> None:
     client, ids = _universal_client()
+    # An artist hit is a snapshot preview; selecting it resolves its provider ref
+    # into the canonical artist (never navigates to the raw snapshot id, which 404s).
+    client.resolve_result = EntityView(
+        type="artist", artist=make_artist(id=ids["artist"], name="Daft Punk")
+    )
     app = SpotdlApp(_factory(client))
     async with app.run_test() as pilot:
         await pilot.pause()

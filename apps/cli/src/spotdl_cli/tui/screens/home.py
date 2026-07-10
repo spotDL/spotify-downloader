@@ -134,8 +134,11 @@ class HomeSearchScreen(SpotdlScreen):
             self._open_song(key)
             return
         hit = self._hits.get(key) if key is not None else None
-        if hit is not None:
-            self.post_message(NavigateTo(EntityRef(hit.entity_type, hit.id, hit.title)))
+        if hit is not None and hit.provider and hit.provider_id:
+            # Resolve the provider-snapshot preview into its canonical entity, the
+            # same as a song row — navigating to the raw hit id (a snapshot id /
+            # playlist ref) 404s at GET /{kind}/{id}.
+            self._open(f"{hit.provider}:{hit.entity_type}:{hit.provider_id}")
 
     def _open_song(self, key: str | None) -> None:
         row = self._rows.get(key) if key is not None else None

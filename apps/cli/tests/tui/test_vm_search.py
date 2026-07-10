@@ -28,10 +28,15 @@ async def test_search_maps_all_universal_sections() -> None:
     assert data is not None
     assert [row.title for row in data.rows] == ["One More Time"]
     ((album,), (artist,), (playlist,)) = (data.albums, data.artists, data.playlists)
-    assert (album.entity_type, album.id, album.title) == ("album", album_id, "Discovery")
-    assert (artist.entity_type, artist.id) == ("artist", artist_id)
+    # A hit's id is the table row key (a str); resolve-on-open uses provider/provider_id.
+    assert (album.entity_type, album.id, album.title) == ("album", str(album_id), "Discovery")
+    assert (artist.entity_type, artist.id) == ("artist", str(artist_id))
     assert artist.detail == "1.5M followers"  # followers formatted K/M/B
-    assert (playlist.entity_type, playlist.id, playlist.title) == ("playlist", playlist_id, "Mix")
+    assert (playlist.entity_type, playlist.id, playlist.title) == (
+        "playlist",
+        str(playlist_id),
+        "Mix",
+    )
     assert data.total == 4
 
 

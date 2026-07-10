@@ -170,7 +170,12 @@ def make_lyrics(
 
 
 def make_album(
-    *, id: UUID | None = None, name: str = "Discovery", tracks: list[TrackView] | None = None
+    *,
+    id: UUID | None = None,
+    name: str = "Discovery",
+    tracks: list[TrackView] | None = None,
+    provider: str = "spotify",
+    provider_id: str = "al1",
 ) -> AlbumView:
     return AlbumView(
         id=str(id or uuid4()),
@@ -182,12 +187,19 @@ def make_album(
         genres=["french house"],
         track_count=len(tracks) if tracks is not None else 1,
         year=2001,
+        provider=provider,
+        provider_id=provider_id,
         tracks=tracks if tracks is not None else [make_track()],
     )
 
 
 def make_artist(
-    *, id: UUID | None = None, name: str = "Daft Punk", tracks: list[TrackView] | None = None
+    *,
+    id: UUID | None = None,
+    name: str = "Daft Punk",
+    tracks: list[TrackView] | None = None,
+    provider: str = "spotify",
+    provider_id: str = "ar1",
 ) -> ArtistView:
     return ArtistView(
         id=str(id or uuid4()),
@@ -195,17 +207,26 @@ def make_artist(
         followers=1_500_000,
         genres=["french house"],
         popularity=88,
+        provider=provider,
+        provider_id=provider_id,
         tracks=tracks if tracks is not None else [make_track()],
     )
 
 
 def make_playlist(
-    *, id: UUID | None = None, name: str = "Mix", tracks: list[TrackView] | None = None
+    *,
+    id: UUID | None = None,
+    name: str = "Mix",
+    tracks: list[TrackView] | None = None,
+    provider: str = "spotify",
+    provider_id: str = "pl1",
 ) -> PlaylistView:
     return PlaylistView(
         id=str(id or uuid4()),
         name=name,
         owner="curator",
+        provider=provider,
+        provider_id=provider_id,
         tracks=tracks if tracks is not None else [make_track()],
     )
 

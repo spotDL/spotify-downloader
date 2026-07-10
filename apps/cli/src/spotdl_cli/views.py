@@ -184,6 +184,9 @@ class AlbumView:
     popularity: int | None = None
     track_count: int | None = None
     year: int | None = None
+    # Source-provider ref (search previews): resolve via {provider}:album:{provider_id}.
+    provider: str | None = None
+    provider_id: str | None = None
     tracks: list[TrackView] = field(default_factory=list)
 
     @classmethod
@@ -200,6 +203,8 @@ class AlbumView:
             popularity=_opt(album.popularity),
             track_count=_opt(album.track_count),
             year=_opt(album.year),
+            provider=_opt(album.provider),
+            provider_id=_opt(album.provider_id),
             tracks=[TrackView.from_generated(t) for t in _seq(album.tracks)],
         )
 
@@ -214,6 +219,9 @@ class ArtistView:
     genres: list[str] = field(default_factory=list)
     image_url: str | None = None
     popularity: int | None = None
+    # Source-provider ref (search previews): resolve via {provider}:artist:{provider_id}.
+    provider: str | None = None
+    provider_id: str | None = None
     tracks: list[TrackView] = field(default_factory=list)
 
     @classmethod
@@ -225,6 +233,8 @@ class ArtistView:
             genres=_seq(artist.genres),
             image_url=_opt(artist.image_url),
             popularity=_opt(artist.popularity),
+            provider=_opt(artist.provider),
+            provider_id=_opt(artist.provider_id),
             tracks=[TrackView.from_generated(t) for t in _seq(artist.tracks)],
         )
 
@@ -238,6 +248,9 @@ class PlaylistView:
     cover_url: str | None = None
     description: str | None = None
     owner: str | None = None
+    # Source-provider ref (search previews): resolve via {provider}:playlist:{provider_id}.
+    provider: str | None = None
+    provider_id: str | None = None
     tracks: list[TrackView] = field(default_factory=list)
 
     @classmethod
@@ -248,6 +261,8 @@ class PlaylistView:
             cover_url=_opt(playlist.cover_url),
             description=_opt(playlist.description),
             owner=_opt(playlist.owner),
+            provider=_opt(playlist.provider),
+            provider_id=_opt(playlist.provider_id),
             tracks=[TrackView.from_generated(t) for t in _seq(playlist.tracks)],
         )
 

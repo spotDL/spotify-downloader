@@ -42,16 +42,20 @@ class TrackRow:
 class SearchHit:
     """One album/artist/playlist preview in a universal-search section.
 
-    A light row for the non-track sections: ``entity_type`` routes it (opening posts a
-    ``NavigateTo`` with an :class:`EntityRef`), ``title``/``subtitle``/``detail`` are the
-    three rendered columns (name · artist-or-owner-or-genres · type/year/followers/count).
+    A light row for the non-track sections. ``provider``/``provider_id`` are the source
+    ref (a hit is a provider-snapshot preview, not a canonical entity): opening resolves
+    ``{provider}:{entity_type}:{provider_id}`` into the canonical id, exactly like a track
+    row — navigating to the raw ``id`` (a snapshot id / playlist ref) 404s. ``id`` is only
+    the table row key. ``title``/``subtitle``/``detail`` are the three rendered columns.
     """
 
     entity_type: str
-    id: UUID
+    id: str
     title: str
     subtitle: str
     detail: str
+    provider: str = ""
+    provider_id: str = ""
 
 
 @dataclass(frozen=True, slots=True)
