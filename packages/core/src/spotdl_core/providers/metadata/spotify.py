@@ -589,7 +589,46 @@ class SpotifyProvider(HttpProvider):
             offset += len(items)
             if isinstance(total, int) and offset >= total:
                 break
-        return map_album(album, tracks)
+        return map_album(album, await self._hydrate_album_tracks(tracks))
+
+    async def _hydrate_album_tracks(self, tracks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """Splice full-track ``external_ids`` (ISRC) + ``popularity`` into the album's
+        simplified track listing.
+
+        ``/v1/albums/{id}/tracks`` returns *simplified* tracks with no ISRC — so an
+        album track, once persisted, would poison a later direct resolve of that
+        track (returning it ISRC-less) and, worse, make album-download matching fall
+        back from ISRC to fuzzy name/artist. Batch ``/v1/tracks?ids=`` (50 at a time)
+        and merge the missing fields back in. Best-effort: on any failure the album
+        still resolves with its simplified tracks (spec §10 — degrade, never fail).
+        """
+        ids = [t["id"] for t in tracks if t.get("id")]
+        if not ids:
+            return tracks
+        full_by_id: dict[str, dict[str, Any]] = {}
+        try:
+            for start in range(0, len(ids), _PAGE_LIMIT):
+                chunk = ids[start : start + _PAGE_LIMIT]
+                resp = await self._get("/v1/tracks", ids=",".join(chunk))
+                for full in resp.get("tracks") or []:
+                    if full and full.get("id"):
+                        full_by_id[full["id"]] = full
+        except ProviderError:
+            return tracks
+        hydrated: list[dict[str, Any]] = []
+        for track in tracks:
+            tid = track.get("id")
+            full = full_by_id.get(tid) if tid else None
+            if full is None:
+                hydrated.append(track)
+                continue
+            merged = {**track}
+            if full.get("external_ids"):
+                merged["external_ids"] = full["external_ids"]
+            if full.get("popularity") is not None:
+                merged["popularity"] = full["popularity"]
+            hydrated.append(merged)
+        return hydrated
 
     async def _resolve_artist(self, entity_id: str) -> ResolvedEntity:
         artist = await self._get(f"/v1/artists/{entity_id}")

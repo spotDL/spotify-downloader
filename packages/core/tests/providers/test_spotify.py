@@ -401,11 +401,26 @@ async def test_resolve_album_paginates() -> None:
     respx.get(f"{_API}/v1/albums/{album_id}/tracks").mock(
         return_value=httpx.Response(200, json=page2)
     )
+    # The album track listing is simplified (no ISRC); the resolver batch-fetches
+    # /v1/tracks to splice external_ids back in so album tracks carry their ISRC.
+    respx.get(f"{_API}/v1/tracks").mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "tracks": [
+                    {"id": "t1", "external_ids": {"isrc": "USAAA0000001"}, "popularity": 50},
+                    {"id": "t2", "external_ids": {"isrc": "USAAA0000002"}, "popularity": 60},
+                ]
+            },
+        )
+    )
     ref = PlatformRef(ProviderId.SPOTIFY, EntityType.ALBUM, album_id)
     async with create_client(base_url=_API) as client:
         resolved = await _provider(client).resolve(ref)
     assert resolved.entity_type is EntityType.ALBUM
     assert [t.name for t in resolved.tracks] == ["Track One", "Track Two"]
+    # ISRC (+ popularity) hydrated onto the simplified album tracks.
+    assert [t.isrc for t in resolved.tracks] == ["USAAA0000001", "USAAA0000002"]
     assert resolved.album is not None
     assert resolved.album.year == 2020
     assert resolved.album.label == "Big Label"
