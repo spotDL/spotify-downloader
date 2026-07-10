@@ -106,6 +106,10 @@ class SearchService:
             album_artist=hit.subtitle,
             year=hit.year,
             cover_url=hit.cover_url,
+            # Carry the source ref so the client resolves the preview into a
+            # canonical album on open (the id is a snapshot id, not resolvable).
+            provider=hit.provider.value,
+            provider_id=hit.provider_id,
         )
 
     async def _artist_view(self, hit: SearchHit) -> ArtistView:
@@ -122,7 +126,15 @@ class SearchService:
             name=hit.name,
             art_url=hit.cover_url,
         )
-        return ArtistView(id=str(snapshot.id), name=hit.name, image_url=hit.cover_url)
+        return ArtistView(
+            id=str(snapshot.id),
+            name=hit.name,
+            image_url=hit.cover_url,
+            # Carry the source ref so the client resolves the preview into a
+            # canonical artist on open (the id is a snapshot id, not resolvable).
+            provider=hit.provider.value,
+            provider_id=hit.provider_id,
+        )
 
     @staticmethod
     def _playlist_view(hit: SearchHit) -> PlaylistView:
@@ -137,6 +149,8 @@ class SearchService:
             name=hit.name,
             owner=hit.subtitle,
             cover_url=hit.cover_url,
+            provider=hit.provider.value,
+            provider_id=hit.provider_id,
         )
 
     async def _snapshot_and_view(self, track: Track) -> TrackView:

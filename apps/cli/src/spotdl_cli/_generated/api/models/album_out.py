@@ -27,6 +27,8 @@ class AlbumOut:
         genres (Union[Unset, list[str]]):
         label (Union[None, Unset, str]):
         popularity (Union[None, Unset, int]):
+        provider (Union[None, Unset, str]):
+        provider_id (Union[None, Unset, str]):
         track_count (Union[None, Unset, int]):
         tracks (Union[Unset, list['TrackOut']]):
         year (Union[None, Unset, int]):
@@ -41,6 +43,8 @@ class AlbumOut:
     genres: Union[Unset, list[str]] = UNSET
     label: Union[None, Unset, str] = UNSET
     popularity: Union[None, Unset, int] = UNSET
+    provider: Union[None, Unset, str] = UNSET
+    provider_id: Union[None, Unset, str] = UNSET
     track_count: Union[None, Unset, int] = UNSET
     tracks: Union[Unset, list["TrackOut"]] = UNSET
     year: Union[None, Unset, int] = UNSET
@@ -93,6 +97,18 @@ class AlbumOut:
         else:
             popularity = self.popularity
 
+        provider: Union[None, Unset, str]
+        if isinstance(self.provider, Unset):
+            provider = UNSET
+        else:
+            provider = self.provider
+
+        provider_id: Union[None, Unset, str]
+        if isinstance(self.provider_id, Unset):
+            provider_id = UNSET
+        else:
+            provider_id = self.provider_id
+
         track_count: Union[None, Unset, int]
         if isinstance(self.track_count, Unset):
             track_count = UNSET
@@ -134,6 +150,10 @@ class AlbumOut:
             field_dict["label"] = label
         if popularity is not UNSET:
             field_dict["popularity"] = popularity
+        if provider is not UNSET:
+            field_dict["provider"] = provider
+        if provider_id is not UNSET:
+            field_dict["provider_id"] = provider_id
         if track_count is not UNSET:
             field_dict["track_count"] = track_count
         if tracks is not UNSET:
@@ -208,6 +228,24 @@ class AlbumOut:
 
         popularity = _parse_popularity(d.pop("popularity", UNSET))
 
+        def _parse_provider(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        provider = _parse_provider(d.pop("provider", UNSET))
+
+        def _parse_provider_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        provider_id = _parse_provider_id(d.pop("provider_id", UNSET))
+
         def _parse_track_count(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
@@ -243,6 +281,8 @@ class AlbumOut:
             genres=genres,
             label=label,
             popularity=popularity,
+            provider=provider,
+            provider_id=provider_id,
             track_count=track_count,
             tracks=tracks,
             year=year,

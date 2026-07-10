@@ -69,6 +69,10 @@ class AlbumView:
     genres: tuple[str, ...] = ()
     # Display label only (album/single/ep/compilation) — NOT an entity type.
     album_type: str | None = None
+    # Source-provider ref (search previews only): lets clients resolve a hit into
+    # a canonical entity ("{provider}:album:{provider_id}"). None on canonical rows.
+    provider: str | None = None
+    provider_id: str | None = None
     tracks: tuple[TrackView, ...] = ()
 
 
@@ -121,6 +125,9 @@ class ArtistView:
     country: str | None = None
     # Hero-backdrop art, distinct from the ``image_url`` avatar.
     header_url: str | None = None
+    # Source-provider ref (search previews only): "{provider}:artist:{provider_id}".
+    provider: str | None = None
+    provider_id: str | None = None
     tracks: tuple[TrackView, ...] = ()
 
 
@@ -133,6 +140,9 @@ class PlaylistView:
     description: str | None = None
     owner: str | None = None
     cover_url: str | None = None
+    # Source-provider ref (search previews only): "{provider}:playlist:{provider_id}".
+    provider: str | None = None
+    provider_id: str | None = None
     tracks: tuple[TrackView, ...] = ()
 
 

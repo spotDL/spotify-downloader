@@ -218,7 +218,7 @@ function ArtistsSection({ artists }: { artists: ArtistOut[] }) {
           <button
             key={a.id}
             type="button"
-            onClick={() => openArtist(a.id)}
+            onClick={() => openArtist(a)}
             className="group flex w-24 flex-col items-center gap-2 text-center"
           >
             {a.image_url ? (
@@ -321,7 +321,7 @@ function AlbumsSection({ albums }: { albums: AlbumOut[] }) {
                 name={al.name}
                 subtitle={al.album_artist ?? undefined}
                 imageUrl={al.cover_url}
-                onSelect={() => openAlbum(al.id)}
+                onSelect={() => openAlbum(al)}
               />
             </li>
           ))}
@@ -335,7 +335,7 @@ function AlbumsSection({ albums }: { albums: AlbumOut[] }) {
               coverUrl={al.cover_url}
               year={al.year}
               subtitle={al.album_artist ?? "Album"}
-              onOpen={() => openAlbum(al.id)}
+              onOpen={() => openAlbum(al)}
               onDownload={() => enqueue(al.id)}
               downloading={submit.isPending}
             />
@@ -365,7 +365,7 @@ function PlaylistsSection({ playlists }: { playlists: PlaylistOut[] }) {
               name={p.name}
               subtitle={p.owner ?? undefined}
               imageUrl={p.cover_url}
-              onSelect={() => openPlaylist(p.id)}
+              onSelect={() => openPlaylist(p)}
             />
           </li>
         ))}

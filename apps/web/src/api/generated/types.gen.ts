@@ -139,6 +139,14 @@ export type AlbumOut = {
      */
     popularity?: number | null;
     /**
+     * Provider
+     */
+    provider?: string | null;
+    /**
+     * Provider Id
+     */
+    provider_id?: string | null;
+    /**
      * Track Count
      */
     track_count?: number | null;
@@ -229,6 +237,14 @@ export type ArtistOut = {
      * Popularity
      */
     popularity?: number | null;
+    /**
+     * Provider
+     */
+    provider?: string | null;
+    /**
+     * Provider Id
+     */
+    provider_id?: string | null;
     /**
      * Tracks
      */
@@ -1041,6 +1057,14 @@ export type PlaylistOut = {
      * Owner
      */
     owner?: string | null;
+    /**
+     * Provider
+     */
+    provider?: string | null;
+    /**
+     * Provider Id
+     */
+    provider_id?: string | null;
     /**
      * Tracks
      */

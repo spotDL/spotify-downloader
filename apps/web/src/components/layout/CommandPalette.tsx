@@ -124,7 +124,7 @@ export function CommandPalette({
                       key={a.id}
                       type="button"
                       className={ROW}
-                      onClick={() => select(() => entity.openArtist(a.id))}
+                      onClick={() => select(() => entity.openArtist(a))}
                     >
                       {a.image_url ? (
                         <img src={a.image_url} alt="" className={`${THUMB} rounded-full`} />
@@ -185,7 +185,7 @@ export function CommandPalette({
                       key={al.id}
                       type="button"
                       className={ROW}
-                      onClick={() => select(() => entity.openAlbum(al.id))}
+                      onClick={() => select(() => entity.openAlbum(al))}
                     >
                       {al.cover_url ? (
                         <img src={al.cover_url} alt="" className={THUMB} />
@@ -218,7 +218,7 @@ export function CommandPalette({
                       key={p.id}
                       type="button"
                       className={ROW}
-                      onClick={() => select(() => entity.openPlaylist(p.id))}
+                      onClick={() => select(() => entity.openPlaylist(p))}
                     >
                       {p.cover_url ? (
                         <img src={p.cover_url} alt="" className={THUMB} />

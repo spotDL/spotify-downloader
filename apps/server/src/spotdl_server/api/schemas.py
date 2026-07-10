@@ -292,6 +292,9 @@ class AlbumOut(BaseModel):
     genres: list[str] = []
     # Display label only (album/single/ep/compilation) — NOT an entity type.
     album_type: str | None = None
+    # Source-provider ref (search previews): resolve via ``{provider}:album:{provider_id}``.
+    provider: str | None = None
+    provider_id: str | None = None
     tracks: list[TrackOut] = []
 
     @classmethod
@@ -314,6 +317,9 @@ class ArtistOut(BaseModel):
     country: str | None = None
     # Hero-backdrop art, distinct from the ``image_url`` avatar.
     header_url: str | None = None
+    # Source-provider ref (search previews): resolve via ``{provider}:artist:{provider_id}``.
+    provider: str | None = None
+    provider_id: str | None = None
     tracks: list[TrackOut] = []
 
     @classmethod
@@ -331,6 +337,9 @@ class PlaylistOut(BaseModel):
     description: str | None = None
     owner: str | None = None
     cover_url: str | None = None
+    # Source-provider ref (search previews): resolve via ``{provider}:playlist:{provider_id}``.
+    provider: str | None = None
+    provider_id: str | None = None
     tracks: list[TrackOut] = []
 
     @classmethod

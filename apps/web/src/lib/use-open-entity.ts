@@ -2,51 +2,60 @@ import { useNavigate } from "@tanstack/react-router";
 import { useResolve } from "../api/queries";
 import { reportError } from "./report-error";
 
-// Resolve-on-open (CONTRACT — spec §6). A search hit is a provider snapshot, not
-// a canonical entity: a track ref must be POSTed to /resolve to obtain its
-// canonical id before the /tracks/{id} route can serve it. Album/artist/playlist
-// previews already carry the id their detail route reads, so they navigate
-// directly. Shared by the search screen and the command palette.
+// Resolve-on-open (CONTRACT — spec §6). A search / command-palette hit is a
+// provider snapshot preview, NOT a canonical entity: its `id` is a snapshot id
+// (album/artist) or a bare provider ref (playlist), so navigating to the detail
+// route directly 404s. Every hit carries `provider` + `provider_id`, so we POST
+// `{provider}:{kind}:{provider_id}` to /resolve to obtain the canonical id the
+// detail route reads, then navigate. Shared by the search screen + palette.
 
-type TrackRef = {
-  id: string;
+type EntityRef = {
   provider?: string | null;
   provider_id?: string | null;
 };
+
+type Kind = "track" | "album" | "artist" | "playlist";
 
 export function useOpenEntity() {
   const navigate = useNavigate();
   const resolve = useResolve();
 
-  const openTrack = (track: TrackRef) => {
-    if (!track.provider || !track.provider_id) {
+  const open = (kind: Kind, ref: EntityRef) => {
+    if (!ref.provider || !ref.provider_id) {
       reportError(null, "That result can't be opened (no source reference).");
       return;
     }
     resolve.mutate(
-      { body: { query: `${track.provider}:track:${track.provider_id}` } },
+      { body: { query: `${ref.provider}:${kind}:${ref.provider_id}` } },
       {
         onSuccess: (res) => {
-          const id = res.entity.type === "track" ? res.entity.track?.id : undefined;
-          if (id) void navigate({ to: "/tracks/$trackId", params: { trackId: id } });
+          const e = res.entity;
+          switch (e.type) {
+            case "track":
+              if (e.track) void navigate({ to: "/tracks/$trackId", params: { trackId: e.track.id } });
+              break;
+            case "album":
+              if (e.album) void navigate({ to: "/albums/$albumId", params: { albumId: e.album.id } });
+              break;
+            case "artist":
+              if (e.artist) void navigate({ to: "/artists/$artistId", params: { artistId: e.artist.id } });
+              break;
+            case "playlist":
+              if (e.playlist)
+                void navigate({ to: "/playlists/$playlistId", params: { playlistId: e.playlist.id } });
+              break;
+          }
         },
         onError: (err) => reportError(err, "Couldn't open that result."),
       },
     );
   };
 
-  const openAlbum = (id: string) =>
-    void navigate({ to: "/albums/$albumId", params: { albumId: id } });
-  const openArtist = (id: string) =>
-    void navigate({ to: "/artists/$artistId", params: { artistId: id } });
-  const openPlaylist = (id: string) =>
-    void navigate({ to: "/playlists/$playlistId", params: { playlistId: id } });
-
   return {
-    openTrack,
-    openAlbum,
-    openArtist,
-    openPlaylist,
+    openTrack: (t: EntityRef) => open("track", t),
+    openAlbum: (a: EntityRef) => open("album", a),
+    openArtist: (a: EntityRef) => open("artist", a),
+    openPlaylist: (p: EntityRef) => open("playlist", p),
     resolving: resolve.isPending,
   };
 }

@@ -27,6 +27,8 @@ class ArtistOut:
         header_url (Union[None, Unset, str]):
         image_url (Union[None, Unset, str]):
         popularity (Union[None, Unset, int]):
+        provider (Union[None, Unset, str]):
+        provider_id (Union[None, Unset, str]):
         tracks (Union[Unset, list['TrackOut']]):
     """
 
@@ -39,6 +41,8 @@ class ArtistOut:
     header_url: Union[None, Unset, str] = UNSET
     image_url: Union[None, Unset, str] = UNSET
     popularity: Union[None, Unset, int] = UNSET
+    provider: Union[None, Unset, str] = UNSET
+    provider_id: Union[None, Unset, str] = UNSET
     tracks: Union[Unset, list["TrackOut"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -89,6 +93,18 @@ class ArtistOut:
         else:
             popularity = self.popularity
 
+        provider: Union[None, Unset, str]
+        if isinstance(self.provider, Unset):
+            provider = UNSET
+        else:
+            provider = self.provider
+
+        provider_id: Union[None, Unset, str]
+        if isinstance(self.provider_id, Unset):
+            provider_id = UNSET
+        else:
+            provider_id = self.provider_id
+
         tracks: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.tracks, Unset):
             tracks = []
@@ -118,6 +134,10 @@ class ArtistOut:
             field_dict["image_url"] = image_url
         if popularity is not UNSET:
             field_dict["popularity"] = popularity
+        if provider is not UNSET:
+            field_dict["provider"] = provider
+        if provider_id is not UNSET:
+            field_dict["provider_id"] = provider_id
         if tracks is not UNSET:
             field_dict["tracks"] = tracks
 
@@ -188,6 +208,24 @@ class ArtistOut:
 
         popularity = _parse_popularity(d.pop("popularity", UNSET))
 
+        def _parse_provider(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        provider = _parse_provider(d.pop("provider", UNSET))
+
+        def _parse_provider_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        provider_id = _parse_provider_id(d.pop("provider_id", UNSET))
+
         tracks = []
         _tracks = d.pop("tracks", UNSET)
         for tracks_item_data in _tracks or []:
@@ -205,6 +243,8 @@ class ArtistOut:
             header_url=header_url,
             image_url=image_url,
             popularity=popularity,
+            provider=provider,
+            provider_id=provider_id,
             tracks=tracks,
         )
 
