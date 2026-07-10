@@ -232,6 +232,14 @@ class BandcampProvider(HttpProvider):
             raise ProviderUnavailable(
                 f"bandcamp request failed: {exc}", provider=ProviderId.BANDCAMP
             ) from exc
+        # Bandcamp serves a JS anti-bot page ("Client Challenge") to non-browser
+        # clients with HTTP 200 — parsing it yields zero results, which read as a
+        # silent "no matches". Surface it as an honest degraded source instead.
+        if "<title>Client Challenge</title>" in response.text:
+            raise ProviderUnavailable(
+                "bandcamp is serving an anti-bot client challenge",
+                provider=ProviderId.BANDCAMP,
+            )
         return response.text
 
     async def audio_candidates(self, track: Track, *, limit: int = 10) -> list[AudioCandidate]:

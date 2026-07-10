@@ -21,6 +21,7 @@ import pytest
 import respx
 from spotdl_core.model import AudioCandidate, EntityType, ProviderId, Track
 from spotdl_core.providers.audio.bandcamp import (
+    _SEARCH_URL,
     BandcampProvider,
     _map_bandcamp_search,
     _map_bandcamp_tralbum,
@@ -172,3 +173,21 @@ async def test_live_bandcamp_search() -> None:
     finally:
         await provider.aclose()
     assert all(c.provider is ProviderId.BANDCAMP for c in candidates)
+
+
+@respx.mock
+async def test_client_challenge_page_is_an_honest_degradation() -> None:
+    """Bandcamp's anti-bot page (HTTP 200) must raise, not read as 'no matches'.
+
+    Regression (found live): the "Client Challenge" shell parses to zero results,
+    so Bandcamp silently contributed nothing while looking healthy.
+    """
+    challenge = "<!DOCTYPE html><html><head><title>Client Challenge</title></head></html>"
+    respx.get(f"{_SEARCH_URL}").mock(return_value=httpx.Response(200, text=challenge))
+    provider = build_bandcamp_provider(ProviderContext())
+    track = Track(name="Sweden", artists=("C418",), duration_ms=210_000)
+    try:
+        with pytest.raises(ProviderUnavailable):
+            await provider.audio_candidates(track)
+    finally:
+        await provider.aclose()
