@@ -7,6 +7,7 @@ downstream layer imports errors from a single place.
 """
 
 from spotdl_core.providers.base import (
+    ALL_SEARCH_ENTITY_TYPES,
     Enriches,
     HttpProvider,
     Provider,
@@ -15,6 +16,7 @@ from spotdl_core.providers.base import (
     ResolvedEntity,
     Resolves,
     Searches,
+    SearchesEntities,
 )
 from spotdl_core.providers.errors import (
     AudioFetchFailed,
@@ -47,6 +49,7 @@ from spotdl_core.providers.registry import (
 from spotdl_core.providers.urls import PlatformRef, parse, resolve_shortlink, strip_intl
 
 __all__ = [
+    "ALL_SEARCH_ENTITY_TYPES",
     "DEFAULT_USER_AGENT",
     "PROVIDER_ORDER",
     "AudioFetchFailed",
@@ -72,6 +75,7 @@ __all__ = [
     "ResolvedEntity",
     "Resolves",
     "Searches",
+    "SearchesEntities",
     "SpotdlError",
     "SpotifyConfig",
     "UnsupportedURL",

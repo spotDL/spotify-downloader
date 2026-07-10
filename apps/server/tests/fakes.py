@@ -18,12 +18,15 @@ from collections.abc import Iterable
 
 from spotdl_core.model import (
     AudioCandidate,
+    EntityType,
     Lyrics,
     LyricsKind,
     ProviderId,
+    SearchHit,
     Track,
 )
 from spotdl_core.providers import (
+    ALL_SEARCH_ENTITY_TYPES,
     Enriches,
     ProviderContext,
     ProviderRegistry,
@@ -34,6 +37,7 @@ from spotdl_core.providers import (
     ResolvedEntity,
     Resolves,
     Searches,
+    SearchesEntities,
 )
 from spotdl_core.providers.urls import PlatformRef
 
@@ -41,6 +45,7 @@ from spotdl_core.providers.urls import PlatformRef
 _ALL_CAPABILITIES: tuple[type, ...] = (
     Resolves,
     Searches,
+    SearchesEntities,
     Enriches,
     ProvidesAudio,
     ProvidesLyrics,
@@ -105,6 +110,49 @@ class FakeSearcher:
         if self.error is not None:
             raise self.error
         return self.tracks[:limit]
+
+
+class FakeEntitySearcher:
+    """A ``SearchesEntities`` provider returning fixed hits filtered by ``types``.
+
+    Returns only the hits whose ``entity_type`` is in the requested ``types`` (each
+    such section truncated to ``limit``), mirroring a real provider that maps only
+    the requested sections. ``error`` makes ``search_entities`` raise instead.
+    """
+
+    def __init__(
+        self,
+        *,
+        id: ProviderId,
+        hits: Iterable[SearchHit] = (),
+        error: Exception | None = None,
+    ) -> None:
+        self.id = id
+        self.hits = list(hits)
+        self.error = error
+        self.calls: list[tuple[str, frozenset[EntityType]]] = []
+
+    async def search_entities(
+        self,
+        query: str,
+        *,
+        types: frozenset[EntityType] = ALL_SEARCH_ENTITY_TYPES,
+        limit: int = 10,
+    ) -> list[SearchHit]:
+        self.calls.append((query, types))
+        if self.error is not None:
+            raise self.error
+        per_type: dict[EntityType, int] = {}
+        selected: list[SearchHit] = []
+        for hit in self.hits:
+            if hit.entity_type not in types:
+                continue
+            seen = per_type.get(hit.entity_type, 0)
+            if seen >= limit:
+                continue
+            per_type[hit.entity_type] = seen + 1
+            selected.append(hit)
+        return selected
 
 
 class FakeAudioProvider:

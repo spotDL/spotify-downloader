@@ -15,15 +15,19 @@ import httpx
 import pytest
 import respx
 from spotdl_core.model import EntityType, ProviderId, Track
-from spotdl_core.providers.base import Enriches, Resolves, Searches
-from spotdl_core.providers.errors import EntityNotFound
+from spotdl_core.providers.base import Enriches, Resolves, Searches, SearchesEntities
+from spotdl_core.providers.errors import EntityNotFound, ProviderUnavailable
 from spotdl_core.providers.http import create_client
 from spotdl_core.providers.metadata.deezer import (
     DeezerProvider,
     build_deezer_provider,
     map_album,
+    map_album_hits,
+    map_artist_hits,
+    map_playlist_hits,
     map_search,
     map_track,
+    map_track_hits,
 )
 from spotdl_core.providers.registry import ProviderContext
 from spotdl_core.providers.urls import PlatformRef
@@ -160,6 +164,131 @@ async def test_search_returns_tracks(load_fixture: Any) -> None:
     params = httpx.QueryParams(route.calls.last.request.url.query)
     assert params["q"] == "daft punk"
     assert params["limit"] == "5"
+
+
+def test_deezer_map_entity_hits() -> None:
+    album = map_album_hits(
+        {
+            "data": [
+                {
+                    "id": 302127,
+                    "title": "Discovery",
+                    "artist": {"name": "Daft Punk"},
+                    "cover_xl": "https://img/xl",
+                }
+            ]
+        }
+    )
+    assert len(album) == 1
+    assert album[0].entity_type is EntityType.ALBUM
+    assert album[0].provider is ProviderId.DEEZER
+    assert album[0].provider_id == "302127"
+    assert album[0].subtitle == "Daft Punk"
+    assert album[0].cover_url == "https://img/xl"
+    assert album[0].year is None  # album search carries no release_date
+
+    artist = map_artist_hits(
+        {"data": [{"id": 27, "name": "Daft Punk", "picture_big": "https://p"}]}
+    )
+    assert artist[0].entity_type is EntityType.ARTIST
+    assert artist[0].subtitle is None
+    assert artist[0].cover_url == "https://p"
+
+    playlist = map_playlist_hits(
+        {"data": [{"id": 908622995, "title": "Rock", "user": {"name": "Jane"}}]}
+    )
+    assert playlist[0].entity_type is EntityType.PLAYLIST
+    assert playlist[0].provider_id == "908622995"
+    assert playlist[0].subtitle == "Jane"
+
+
+def test_deezer_map_track_hits_from_search(load_fixture: Any) -> None:
+    hits = map_track_hits(load_fixture("deezer", "search"))
+    assert hits
+    assert all(hit.entity_type is EntityType.TRACK for hit in hits)
+    assert all(hit.provider is ProviderId.DEEZER for hit in hits)
+    assert hits[0].isrc is not None  # track hits carry isrc for de-dup
+
+
+def test_deezer_provider_satisfies_searches_entities() -> None:
+    assert isinstance(_provider(httpx.AsyncClient()), SearchesEntities)
+
+
+@respx.mock
+async def test_search_entities_parallel_per_type() -> None:
+    track_route = respx.get(f"{_API}/search/track").mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "data": [
+                    {
+                        "id": 1,
+                        "title": "One More Time",
+                        "duration": 320,
+                        "isrc": "GBDUW0000048",
+                        "artist": {"name": "Daft Punk"},
+                        "album": {"title": "Discovery", "cover_xl": "https://img/xl"},
+                    }
+                ]
+            },
+        )
+    )
+    album_route = respx.get(f"{_API}/search/album").mock(
+        return_value=httpx.Response(
+            200,
+            json={"data": [{"id": 302127, "title": "Discovery", "artist": {"name": "Daft Punk"}}]},
+        )
+    )
+    artist_route = respx.get(f"{_API}/search/artist").mock(
+        return_value=httpx.Response(200, json={"data": [{"id": 27, "name": "Daft Punk"}]})
+    )
+    playlist_route = respx.get(f"{_API}/search/playlist").mock(
+        return_value=httpx.Response(
+            200, json={"data": [{"id": 9, "title": "Best of Daft", "user": {"name": "Deezer"}}]}
+        )
+    )
+    async with create_client(base_url=_API) as client:
+        hits = await _provider(client).search_entities("daft punk", limit=5)
+
+    assert track_route.called and album_route.called
+    assert artist_route.called and playlist_route.called
+    assert {hit.entity_type for hit in hits} == {
+        EntityType.TRACK,
+        EntityType.ALBUM,
+        EntityType.ARTIST,
+        EntityType.PLAYLIST,
+    }
+
+
+@respx.mock
+async def test_search_entities_only_requested_types() -> None:
+    album_route = respx.get(f"{_API}/search/album").mock(
+        return_value=httpx.Response(200, json={"data": [{"id": 1, "title": "A"}]})
+    )
+    track_route = respx.get(f"{_API}/search/track").mock(
+        return_value=httpx.Response(200, json={"data": []})
+    )
+    async with create_client(base_url=_API) as client:
+        hits = await _provider(client).search_entities("x", types=frozenset({EntityType.ALBUM}))
+
+    assert album_route.called
+    assert not track_route.called  # only the requested type is queried
+    assert [hit.entity_type for hit in hits] == [EntityType.ALBUM]
+
+
+@respx.mock
+async def test_search_entities_propagates_provider_error() -> None:
+    respx.get(f"{_API}/search/track").mock(
+        return_value=httpx.Response(
+            200, json={"error": {"type": "DataException", "message": "no", "code": 800}}
+        )
+    )
+    respx.get(f"{_API}/search/album").mock(return_value=httpx.Response(200, json={"data": []}))
+    respx.get(f"{_API}/search/artist").mock(return_value=httpx.Response(200, json={"data": []}))
+    respx.get(f"{_API}/search/playlist").mock(return_value=httpx.Response(200, json={"data": []}))
+    async with create_client(base_url=_API) as client:
+        with pytest.raises((EntityNotFound, ProviderUnavailable)):
+            await _provider(client).search_entities("boom")
 
 
 @respx.mock

@@ -18,10 +18,11 @@ provider re-fetches each ``/track/{id}`` for the full fields (in parallel).
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, ClassVar
 
-from spotdl_core.model import AlbumRef, ArtistRef, EntityType, ProviderId, Track
-from spotdl_core.providers.base import HttpProvider, ResolvedEntity
+from spotdl_core.model import AlbumRef, ArtistRef, EntityType, ProviderId, SearchHit, Track
+from spotdl_core.providers.base import ALL_SEARCH_ENTITY_TYPES, HttpProvider, ResolvedEntity
 from spotdl_core.providers.errors import EntityNotFound, UnsupportedURL
 from spotdl_core.providers.http import create_client, request_json
 
@@ -33,7 +34,11 @@ __all__ = [
     "DeezerProvider",
     "build_deezer_provider",
     "map_album",
+    "map_album_hits",
+    "map_artist_hits",
+    "map_playlist_hits",
     "map_search",
+    "map_track_hits",
     "map_track",
 ]
 
@@ -133,6 +138,80 @@ def map_search(payload: dict[str, Any]) -> list[Track]:
     return [map_track(item) for item in (payload.get("data") or []) if item]
 
 
+def _cover(payload: dict[str, Any], *keys: str) -> str | None:
+    """First present, non-empty image URL across ``keys`` (largest-first)."""
+    for key in keys:
+        value = payload.get(key)
+        if value:
+            return value if isinstance(value, str) else None
+    return None
+
+
+def map_track_hits(payload: dict[str, Any]) -> list[SearchHit]:
+    """Map a ``/search/track`` payload to track :class:`SearchHit`\\ s."""
+    return [SearchHit.from_track(track) for track in map_search(payload)]
+
+
+def map_album_hits(payload: dict[str, Any]) -> list[SearchHit]:
+    """Map a ``/search/album`` payload to album :class:`SearchHit`\\ s.
+
+    Deezer's album-search items carry no ``release_date``, so ``year`` is ``None``.
+    """
+    hits: list[SearchHit] = []
+    for item in payload.get("data") or []:
+        if not item or not item.get("id") or not item.get("title"):
+            continue
+        hits.append(
+            SearchHit(
+                entity_type=EntityType.ALBUM,
+                provider=ProviderId.DEEZER,
+                provider_id=str(item["id"]),
+                name=item["title"],
+                subtitle=(item.get("artist") or {}).get("name"),
+                cover_url=_cover(item, "cover_xl", "cover_big", "cover"),
+            )
+        )
+    return hits
+
+
+def map_artist_hits(payload: dict[str, Any]) -> list[SearchHit]:
+    """Map a ``/search/artist`` payload to artist :class:`SearchHit`\\ s."""
+    hits: list[SearchHit] = []
+    for item in payload.get("data") or []:
+        if not item or not item.get("id") or not item.get("name"):
+            continue
+        hits.append(
+            SearchHit(
+                entity_type=EntityType.ARTIST,
+                provider=ProviderId.DEEZER,
+                provider_id=str(item["id"]),
+                name=item["name"],
+                subtitle=None,
+                cover_url=_cover(item, "picture_xl", "picture_big", "picture"),
+            )
+        )
+    return hits
+
+
+def map_playlist_hits(payload: dict[str, Any]) -> list[SearchHit]:
+    """Map a ``/search/playlist`` payload to playlist :class:`SearchHit`\\ s."""
+    hits: list[SearchHit] = []
+    for item in payload.get("data") or []:
+        if not item or not item.get("id") or not item.get("title"):
+            continue
+        hits.append(
+            SearchHit(
+                entity_type=EntityType.PLAYLIST,
+                provider=ProviderId.DEEZER,
+                provider_id=str(item["id"]),
+                name=item["title"],
+                subtitle=(item.get("user") or {}).get("name"),
+                cover_url=_cover(item, "picture_xl", "picture_big", "picture"),
+            )
+        )
+    return hits
+
+
 # --- provider -------------------------------------------------------------
 
 
@@ -140,11 +219,22 @@ class DeezerProvider(HttpProvider):
     """Resolve/search/enrich against the open Deezer API.
 
     Implements :class:`~spotdl_core.providers.base.Resolves`,
-    :class:`~spotdl_core.providers.base.Searches` and
+    :class:`~spotdl_core.providers.base.Searches`,
+    :class:`~spotdl_core.providers.base.SearchesEntities` and
     :class:`~spotdl_core.providers.base.Enriches`.
     """
 
     id: ClassVar[ProviderId] = ProviderId.DEEZER
+
+    #: Per-entity ``/search/{path}`` endpoint + item→hit mapper, in stable order.
+    _SEARCH_ENDPOINTS: ClassVar[
+        tuple[tuple[EntityType, str, Callable[[dict[str, Any]], list[SearchHit]]], ...]
+    ] = (
+        (EntityType.TRACK, "track", map_track_hits),
+        (EntityType.ALBUM, "album", map_album_hits),
+        (EntityType.ARTIST, "artist", map_artist_hits),
+        (EntityType.PLAYLIST, "playlist", map_playlist_hits),
+    )
 
     async def _get(self, path: str, **params: Any) -> Any:
         return await request_json(
@@ -218,6 +308,29 @@ class DeezerProvider(HttpProvider):
     async def search(self, query: str, *, limit: int = 10) -> list[Track]:
         payload = await self._get("/search/track", q=query, limit=limit)
         return map_search(payload)
+
+    async def search_entities(
+        self,
+        query: str,
+        *,
+        types: frozenset[EntityType] = ALL_SEARCH_ENTITY_TYPES,
+        limit: int = 10,
+    ) -> list[SearchHit]:
+        """Universal search: one ``/search/{type}`` request per type, concurrently."""
+        requested = [
+            (entity_type, path, mapper)
+            for entity_type, path, mapper in self._SEARCH_ENDPOINTS
+            if entity_type in types
+        ]
+        if not requested:
+            return []
+        payloads = await asyncio.gather(
+            *(self._get(f"/search/{path}", q=query, limit=limit) for _, path, _ in requested)
+        )
+        hits: list[SearchHit] = []
+        for (_, _, mapper), payload in zip(requested, payloads, strict=True):
+            hits.extend(mapper(payload)[:limit])
+        return hits
 
     async def enrich(self, track: Track) -> Track:
         fresh = await self._fresh_track(track)

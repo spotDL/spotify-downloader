@@ -12,7 +12,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any
 
-from spotdl_core.model import ProviderId, Track
+from spotdl_core.model import EntityType, ProviderId, SearchHit, Track
 from spotdl_core.providers import ProviderUnavailable
 from spotdl_server.db.models import ProviderSnapshot
 from spotdl_server.repositories.snapshots import SnapshotRepository
@@ -21,7 +21,26 @@ from spotdl_server.services.search import SearchService
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from apps.server.tests.fakes import FakeSearcher, build_fake_registry
+from apps.server.tests.fakes import FakeEntitySearcher, FakeSearcher, build_fake_registry
+
+
+def _hit(
+    entity_type: EntityType,
+    name: str,
+    *,
+    subtitle: str | None = None,
+    provider: ProviderId = ProviderId.SPOTIFY,
+    provider_id: str = "x1",
+    isrc: str | None = None,
+) -> SearchHit:
+    return SearchHit(
+        entity_type=entity_type,
+        provider=provider,
+        provider_id=provider_id,
+        name=name,
+        subtitle=subtitle,
+        isrc=isrc,
+    )
 
 
 def _track(
@@ -177,5 +196,94 @@ async def test_search_empty_returns_empty_tuple(session: AsyncSession) -> None:
     result = await service.search("no such song")
 
     assert result.tracks == ()
+    assert result.albums == ()
+    assert result.artists == ()
+    assert result.playlists == ()
     assert result.degraded_sources == ()
     assert await _count(session, ProviderSnapshot) == 0
+
+
+# --- universal (multi-entity) search --------------------------------------
+
+
+async def test_search_returns_all_entity_groups(session: AsyncSession) -> None:
+    # Distinct provider ids: the registry keys specs by id, so a track-only
+    # searcher and an entity searcher must be different providers to coexist.
+    tracks = FakeSearcher(id=ProviderId.SPOTIFY, tracks=[_track("Song", provider_id="t1")])
+    dz = ProviderId.DEEZER
+    entities = FakeEntitySearcher(
+        id=dz,
+        hits=[
+            _hit(EntityType.ALBUM, "An Album", subtitle="Band", provider=dz, provider_id="al1"),
+            _hit(EntityType.ARTIST, "An Artist", provider=dz, provider_id="ar1"),
+            _hit(
+                EntityType.PLAYLIST, "A Playlist", subtitle="Owner", provider=dz, provider_id="pl1"
+            ),
+        ],
+    )
+    service = SearchService(session=session, registry=build_fake_registry(tracks, entities))
+
+    result = await service.search("query")
+
+    assert {t.name for t in result.tracks} == {"Song"}
+    assert [(a.name, a.album_artist) for a in result.albums] == [("An Album", "Band")]
+    assert [a.name for a in result.artists] == ["An Artist"]
+    assert [(p.name, p.owner) for p in result.playlists] == [("A Playlist", "Owner")]
+    # The playlist preview id is the resolvable provider ref (not snapshotted).
+    assert result.playlists[0].id == "deezer:playlist:pl1"
+
+
+async def test_search_snapshots_album_and_artist_hits(session: AsyncSession) -> None:
+    entities = FakeEntitySearcher(
+        id=ProviderId.SPOTIFY,
+        hits=[
+            _hit(EntityType.ALBUM, "An Album", provider_id="al1"),
+            _hit(EntityType.ARTIST, "An Artist", provider_id="ar1"),
+            _hit(EntityType.PLAYLIST, "A Playlist", provider_id="pl1"),
+        ],
+    )
+    service = SearchService(session=session, registry=build_fake_registry(entities))
+
+    result = await service.search("query")
+
+    # Album + artist hits are snapshotted (resolve-on-open cache hit); playlist is not.
+    assert await _count(session, ProviderSnapshot) == 2
+    album_snap = await SnapshotRepository(session).get_fresh(
+        ProviderId.SPOTIFY, "al1", datetime.now(UTC)
+    )
+    assert album_snap is not None
+    assert album_snap.entity_type is EntityType.ALBUM
+    # The preview view's id is its snapshot id (a resolvable durable ref).
+    assert result.albums[0].id == str(album_snap.id)
+
+
+async def test_search_dedupes_entity_hits_across_providers(session: AsyncSession) -> None:
+    spotify = FakeEntitySearcher(
+        id=ProviderId.SPOTIFY,
+        hits=[_hit(EntityType.ALBUM, "Discovery", subtitle="Daft Punk", provider_id="sp_al")],
+    )
+    deezer = FakeEntitySearcher(
+        id=ProviderId.DEEZER,
+        hits=[_hit(EntityType.ALBUM, "discovery", subtitle="daft punk", provider_id="dz_al")],
+    )
+    service = SearchService(session=session, registry=build_fake_registry(spotify, deezer))
+
+    result = await service.search("discovery")
+
+    # Same (name, subtitle) casefolded → Spotify (higher priority) wins the dedup.
+    assert len(result.albums) == 1
+    assert result.albums[0].album_artist == "Daft Punk"
+
+
+async def test_search_failing_entity_searcher_is_degraded(session: AsyncSession) -> None:
+    good = FakeSearcher(id=ProviderId.SPOTIFY, tracks=[_track("Good", provider_id="t1")])
+    bad = FakeEntitySearcher(
+        id=ProviderId.DEEZER,
+        error=ProviderUnavailable("deezer down", provider=ProviderId.DEEZER),
+    )
+    service = SearchService(session=session, registry=build_fake_registry(good, bad))
+
+    result = await service.search("query")
+
+    assert {t.name for t in result.tracks} == {"Good"}  # still returns good results
+    assert ProviderId.DEEZER.value in result.degraded_sources

@@ -1063,13 +1063,30 @@ export type ResolveResponse = {
 /**
  * SearchResponse
  *
- * ``GET /search`` result: a ranked track list + degraded sources.
+ * ``GET /search`` result: sectioned universal search + degraded sources.
+ *
+ * ``results`` is the ranked track list (kept as-is for existing clients);
+ * ``albums`` / ``artists`` / ``playlists`` are the other lightweight preview
+ * sections (each defaults empty). Every section carries preview views — the
+ * client resolves a ref for the full canonical graph.
  */
 export type SearchResponse = {
+    /**
+     * Albums
+     */
+    albums?: Array<AlbumOut>;
+    /**
+     * Artists
+     */
+    artists?: Array<ArtistOut>;
     /**
      * Degraded Sources
      */
     degraded_sources: Array<string>;
+    /**
+     * Playlists
+     */
+    playlists?: Array<PlaylistOut>;
     /**
      * Results
      */

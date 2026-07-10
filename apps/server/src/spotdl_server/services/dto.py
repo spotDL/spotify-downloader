@@ -147,7 +147,17 @@ class ResolveResult:
 
 @dataclass(frozen=True, slots=True)
 class SearchResult:
-    """The output of ``SearchService.search`` (Task 9) — a ranked track list."""
+    """The output of ``SearchService.search`` — sectioned universal search results.
+
+    Each group is a ranked tuple of preview views (Phase 2 §universal search):
+    ``tracks`` are the rich track previews (with album cover); ``albums`` /
+    ``artists`` / ``playlists`` are lightweight previews built from provider search
+    hits. Any group may be empty. ``degraded_sources`` is the sorted provider-id
+    values that failed during the fan-out.
+    """
 
     tracks: tuple[TrackView, ...] = field(default_factory=tuple)
+    albums: tuple[AlbumView, ...] = field(default_factory=tuple)
+    artists: tuple[ArtistView, ...] = field(default_factory=tuple)
+    playlists: tuple[PlaylistView, ...] = field(default_factory=tuple)
     degraded_sources: tuple[str, ...] = ()

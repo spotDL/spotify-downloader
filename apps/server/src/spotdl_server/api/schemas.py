@@ -351,15 +351,27 @@ class ResolveResponse(BaseModel):
 
 
 class SearchResponse(BaseModel):
-    """``GET /search`` result: a ranked track list + degraded sources."""
+    """``GET /search`` result: sectioned universal search + degraded sources.
+
+    ``results`` is the ranked track list (kept as-is for existing clients);
+    ``albums`` / ``artists`` / ``playlists`` are the other lightweight preview
+    sections (each defaults empty). Every section carries preview views — the
+    client resolves a ref for the full canonical graph.
+    """
 
     results: list[TrackOut]
+    albums: list[AlbumOut] = []
+    artists: list[ArtistOut] = []
+    playlists: list[PlaylistOut] = []
     degraded_sources: list[str]
 
     @classmethod
     def from_result(cls, result: SearchResult) -> SearchResponse:
         return cls(
             results=[TrackOut.from_view(t) for t in result.tracks],
+            albums=[AlbumOut.from_view(a) for a in result.albums],
+            artists=[ArtistOut.from_view(a) for a in result.artists],
+            playlists=[PlaylistOut.from_view(p) for p in result.playlists],
             degraded_sources=list(result.degraded_sources),
         )
 

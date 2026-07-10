@@ -14,7 +14,7 @@ import httpx
 import pytest
 import respx
 from spotdl_core.model import EntityType, ProviderId, Track
-from spotdl_core.providers.base import Enriches, Resolves, Searches
+from spotdl_core.providers.base import Enriches, Resolves, Searches, SearchesEntities
 from spotdl_core.providers.errors import EntityNotFound, ProviderAuthError, ProviderError
 from spotdl_core.providers.http import create_client
 from spotdl_core.providers.metadata.spotify import (
@@ -25,6 +25,7 @@ from spotdl_core.providers.metadata.spotify import (
     build_spotify_provider,
     map_album,
     map_search,
+    map_search_hits,
     map_track,
 )
 from spotdl_core.providers.registry import ProviderContext, SpotifyConfig
@@ -417,6 +418,130 @@ async def test_search_returns_tracks(load_fixture: Any) -> None:
     assert params["type"] == "track"
     assert params["q"] == "shape of you"
     assert params["limit"] == "5"
+
+
+def _multi_search_body() -> dict[str, Any]:
+    """A ``/v1/search?type=track,album,artist,playlist`` payload (all sections)."""
+    return {
+        "tracks": {
+            "items": [
+                {
+                    "id": "t1",
+                    "name": "Shape of You",
+                    "duration_ms": 233_000,
+                    "explicit": False,
+                    "external_ids": {"isrc": "GBAHS1600463"},
+                    "artists": [{"name": "Ed Sheeran"}],
+                    "album": {
+                        "name": "÷",
+                        "release_date": "2017-03-03",
+                        "images": [{"url": "https://img/divide", "width": 640, "height": 640}],
+                        "artists": [{"name": "Ed Sheeran"}],
+                    },
+                }
+            ]
+        },
+        "albums": {
+            "items": [
+                {
+                    "id": "al1",
+                    "name": "÷ (Deluxe)",
+                    "release_date": "2017-03-03",
+                    "artists": [{"name": "Ed Sheeran"}],
+                    "images": [{"url": "https://img/al", "width": 640, "height": 640}],
+                }
+            ]
+        },
+        "artists": {
+            "items": [
+                {
+                    "id": "ar1",
+                    "name": "Ed Sheeran",
+                    "images": [{"url": "https://img/ar", "width": 640, "height": 640}],
+                }
+            ]
+        },
+        "playlists": {
+            "items": [
+                None,  # Spotify occasionally returns null entries — must be skipped
+                {
+                    "id": "pl1",
+                    "name": "This Is Ed Sheeran",
+                    "owner": {"display_name": "Spotify"},
+                    "images": [{"url": "https://img/pl", "width": 640, "height": 640}],
+                },
+            ]
+        },
+    }
+
+
+def test_map_search_hits_maps_every_section() -> None:
+    hits = map_search_hits(_multi_search_body())
+
+    by_type = {hit.entity_type: hit for hit in hits}
+    assert set(by_type) == {
+        EntityType.TRACK,
+        EntityType.ALBUM,
+        EntityType.ARTIST,
+        EntityType.PLAYLIST,
+    }
+    track = by_type[EntityType.TRACK]
+    assert track.provider is ProviderId.SPOTIFY
+    assert track.provider_id == "t1"
+    assert track.subtitle == "Ed Sheeran"
+    assert track.isrc == "GBAHS1600463"
+    assert track.cover_url == "https://img/divide"
+    album = by_type[EntityType.ALBUM]
+    assert album.subtitle == "Ed Sheeran"  # album artist
+    assert album.year == 2017
+    assert by_type[EntityType.ARTIST].subtitle is None  # artists carry no subtitle
+    playlist = by_type[EntityType.PLAYLIST]
+    assert playlist.subtitle == "Spotify"  # owner
+    assert playlist.year is None
+
+
+def test_map_search_hits_filters_requested_types() -> None:
+    hits = map_search_hits(_multi_search_body(), frozenset({EntityType.ALBUM}))
+    assert [hit.entity_type for hit in hits] == [EntityType.ALBUM]
+
+
+def test_spotify_provider_satisfies_searches_entities() -> None:
+    assert isinstance(_provider(httpx.AsyncClient()), SearchesEntities)
+
+
+@respx.mock
+async def test_search_entities_one_call_all_types() -> None:
+    route = respx.get(f"{_API}/v1/search").mock(
+        return_value=httpx.Response(200, json=_multi_search_body())
+    )
+    async with create_client(base_url=_API) as client:
+        hits = await _provider(client).search_entities("ed sheeran", limit=5)
+
+    assert route.call_count == 1  # a single multi-type call
+    params = httpx.QueryParams(route.calls.last.request.url.query)
+    assert params["type"] == "track,album,artist,playlist"
+    assert params["limit"] == "5"
+    assert {hit.entity_type for hit in hits} == {
+        EntityType.TRACK,
+        EntityType.ALBUM,
+        EntityType.ARTIST,
+        EntityType.PLAYLIST,
+    }
+
+
+@respx.mock
+async def test_search_entities_requests_only_selected_types() -> None:
+    route = respx.get(f"{_API}/v1/search").mock(
+        return_value=httpx.Response(200, json=_multi_search_body())
+    )
+    async with create_client(base_url=_API) as client:
+        hits = await _provider(client).search_entities(
+            "ed sheeran", types=frozenset({EntityType.ALBUM, EntityType.ARTIST})
+        )
+
+    params = httpx.QueryParams(route.calls.last.request.url.query)
+    assert params["type"] == "album,artist"
+    assert {hit.entity_type for hit in hits} == {EntityType.ALBUM, EntityType.ARTIST}
 
 
 @respx.mock

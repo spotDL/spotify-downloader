@@ -1740,13 +1740,37 @@
         "type": "object"
       },
       "SearchResponse": {
-        "description": "``GET /search`` result: a ranked track list + degraded sources.",
+        "description": "``GET /search`` result: sectioned universal search + degraded sources.\n\n``results`` is the ranked track list (kept as-is for existing clients);\n``albums`` / ``artists`` / ``playlists`` are the other lightweight preview\nsections (each defaults empty). Every section carries preview views — the\nclient resolves a ref for the full canonical graph.",
         "properties": {
+          "albums": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AlbumOut"
+            },
+            "title": "Albums",
+            "type": "array"
+          },
+          "artists": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ArtistOut"
+            },
+            "title": "Artists",
+            "type": "array"
+          },
           "degraded_sources": {
             "items": {
               "type": "string"
             },
             "title": "Degraded Sources",
+            "type": "array"
+          },
+          "playlists": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PlaylistOut"
+            },
+            "title": "Playlists",
             "type": "array"
           },
           "results": {

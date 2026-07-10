@@ -390,20 +390,21 @@ def build_default_registry(context: ProviderContext) -> ProviderRegistry:
         ProvidesLyrics,
         Resolves,
         Searches,
+        SearchesEntities,
     )
 
     reg = ProviderRegistry(context)
     reg.register(
         ProviderSpec(
             ProviderId.SPOTIFY,
-            frozenset({Resolves, Searches, Enriches}),
+            frozenset({Resolves, Searches, SearchesEntities, Enriches}),
             _spotify_factory,
         )
     )
     reg.register(
         ProviderSpec(
             ProviderId.DEEZER,
-            frozenset({Resolves, Searches, Enriches}),
+            frozenset({Resolves, Searches, SearchesEntities, Enriches}),
             _deezer_factory,
         )
     )

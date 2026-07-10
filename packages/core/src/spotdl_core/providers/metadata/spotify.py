@@ -34,8 +34,8 @@ from typing import TYPE_CHECKING, Any, ClassVar, Protocol
 import httpx
 import pyotp
 
-from spotdl_core.model import AlbumRef, ArtistRef, EntityType, ProviderId, Track
-from spotdl_core.providers.base import HttpProvider, ResolvedEntity
+from spotdl_core.model import AlbumRef, ArtistRef, EntityType, ProviderId, SearchHit, Track
+from spotdl_core.providers.base import ALL_SEARCH_ENTITY_TYPES, HttpProvider, ResolvedEntity
 from spotdl_core.providers.errors import (
     ProviderAuthError,
     ProviderError,
@@ -56,8 +56,24 @@ __all__ = [
     "build_spotify_provider",
     "map_album",
     "map_search",
+    "map_search_hits",
     "map_track",
 ]
+
+#: Spotify's ``/v1/search`` ``type`` vocabulary, keyed by the domain entity type.
+_SEARCH_TYPE_PARAM: dict[EntityType, str] = {
+    EntityType.TRACK: "track",
+    EntityType.ALBUM: "album",
+    EntityType.ARTIST: "artist",
+    EntityType.PLAYLIST: "playlist",
+}
+#: The response section key ``/v1/search`` returns for each ``type`` (pluralised).
+_SEARCH_SECTION: dict[EntityType, str] = {
+    EntityType.TRACK: "tracks",
+    EntityType.ALBUM: "albums",
+    EntityType.ARTIST: "artists",
+    EntityType.PLAYLIST: "playlists",
+}
 
 _API_BASE = "https://api.spotify.com"
 _ANON_TOKEN_URL = "https://open.spotify.com/api/token"
@@ -389,6 +405,78 @@ def map_search(payload: dict[str, Any]) -> list[Track]:
     return [map_track(item) for item in items if item]
 
 
+def _track_hit(item: dict[str, Any]) -> SearchHit:
+    return SearchHit.from_track(map_track(item))
+
+
+def _album_hit(item: dict[str, Any]) -> SearchHit:
+    artists = item.get("artists") or []
+    subtitle = artists[0]["name"] if artists and artists[0].get("name") else None
+    return SearchHit(
+        entity_type=EntityType.ALBUM,
+        provider=ProviderId.SPOTIFY,
+        provider_id=item["id"],
+        name=item["name"],
+        subtitle=subtitle,
+        cover_url=_largest_image(item.get("images")),
+        year=_year(item.get("release_date")),
+    )
+
+
+def _artist_hit(item: dict[str, Any]) -> SearchHit:
+    return SearchHit(
+        entity_type=EntityType.ARTIST,
+        provider=ProviderId.SPOTIFY,
+        provider_id=item["id"],
+        name=item["name"],
+        subtitle=None,
+        cover_url=_largest_image(item.get("images")),
+    )
+
+
+def _playlist_hit(item: dict[str, Any]) -> SearchHit:
+    owner = (item.get("owner") or {}).get("display_name")
+    return SearchHit(
+        entity_type=EntityType.PLAYLIST,
+        provider=ProviderId.SPOTIFY,
+        provider_id=item["id"],
+        name=item["name"],
+        subtitle=owner,
+        cover_url=_largest_image(item.get("images")),
+    )
+
+
+#: Per-entity ``search`` item → :class:`SearchHit` mappers.
+_HIT_MAPPERS: dict[EntityType, Callable[[dict[str, Any]], SearchHit]] = {
+    EntityType.TRACK: _track_hit,
+    EntityType.ALBUM: _album_hit,
+    EntityType.ARTIST: _artist_hit,
+    EntityType.PLAYLIST: _playlist_hit,
+}
+
+
+def map_search_hits(
+    payload: dict[str, Any], types: frozenset[EntityType] = ALL_SEARCH_ENTITY_TYPES
+) -> list[SearchHit]:
+    """Map a multi-type ``/v1/search`` payload to a flat :class:`SearchHit` list.
+
+    Each requested section (``tracks``/``albums``/``artists``/``playlists``) is
+    mapped in a stable type order; Spotify occasionally returns ``null`` array
+    entries, which are skipped. An item that lacks the ``id``/``name`` a hit needs
+    is dropped rather than raising.
+    """
+    hits: list[SearchHit] = []
+    for entity_type in _SEARCH_TYPE_PARAM:
+        if entity_type not in types:
+            continue
+        section = payload.get(_SEARCH_SECTION[entity_type]) or {}
+        mapper = _HIT_MAPPERS[entity_type]
+        for item in section.get("items") or []:
+            if item and item.get("id") and item.get("name"):
+                hits.append(mapper(item))
+    return hits
+
+
 # --- provider -------------------------------------------------------------
 
 
@@ -396,7 +484,8 @@ class SpotifyProvider(HttpProvider):
     """Resolve/search/enrich against the Spotify Web API using an injected auth.
 
     Implements :class:`~spotdl_core.providers.base.Resolves`,
-    :class:`~spotdl_core.providers.base.Searches` and
+    :class:`~spotdl_core.providers.base.Searches`,
+    :class:`~spotdl_core.providers.base.SearchesEntities` and
     :class:`~spotdl_core.providers.base.Enriches`.
     """
 
@@ -491,6 +580,21 @@ class SpotifyProvider(HttpProvider):
     async def search(self, query: str, *, limit: int = 10) -> list[Track]:
         payload = await self._get("/v1/search", q=query, type="track", limit=limit)
         return map_search(payload)
+
+    async def search_entities(
+        self,
+        query: str,
+        *,
+        types: frozenset[EntityType] = ALL_SEARCH_ENTITY_TYPES,
+        limit: int = 10,
+    ) -> list[SearchHit]:
+        """Universal search: one ``/v1/search`` call across the requested types."""
+        requested = [t for t in _SEARCH_TYPE_PARAM if t in types]
+        if not requested:
+            return []
+        type_param = ",".join(_SEARCH_TYPE_PARAM[t] for t in requested)
+        payload = await self._get("/v1/search", q=query, type=type_param, limit=limit)
+        return map_search_hits(payload, frozenset(requested))
 
     async def enrich(self, track: Track) -> Track:
         entity_id = _spotify_track_id(track)

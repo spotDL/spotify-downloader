@@ -1,20 +1,28 @@
-"""SearchService — free-text search fan-out with a durable snapshot cache.
+"""SearchService — universal free-text search with a durable snapshot cache.
 
-The read side of ``GET /search`` (spec §6.2). A thin orchestration seam over the
-shared :func:`~spotdl_server.services.provider_search.provider_search` helper
-(Task 8 — the fan-out / merge / de-dup rule is **not** re-implemented here):
+The read side of ``GET /search`` (spec §Phase 2). A thin orchestration seam over
+the shared fan-out helpers (the merge / de-dup rules are **not** re-implemented
+here):
 
-1. Delegate the multi-provider search + de-dup + truncate to ``provider_search``.
-2. **Snapshot** every result track (``SnapshotRepository.upsert``) so a later
-   ``POST /resolve`` of that provider ref is a cache hit — the permanent snapshot
-   cache is the durable layer, so no separate query→results cache is needed.
-3. Return a plain :class:`~spotdl_server.services.dto.SearchResult` (a ranked
-   ``TrackView`` tuple + ``degraded_sources``).
+1. **Tracks** — delegate to
+   :func:`~spotdl_server.services.provider_search.provider_search`, which fans out
+   every ``Searches`` provider and yields rich :class:`Track` results (so the track
+   preview keeps its full ``TrackView`` shape with album cover).
+2. **Albums / artists / playlists** — delegate to
+   :func:`~spotdl_server.services.provider_search.provider_search_entities`, which
+   fans out every ``SearchesEntities`` provider and yields lightweight
+   :class:`~spotdl_core.model.SearchHit` previews per type.
+3. **Snapshot** every track/album/artist hit (``SnapshotRepository.upsert``) so a
+   later ``POST /resolve`` of that provider ref is a cache hit — the permanent
+   snapshot cache is the durable layer, so no separate query→results cache is
+   needed. (Playlist hits are not snapshotted — a playlist's canonical row is its
+   ordered listing, which a preview does not carry.)
+4. Return a sectioned :class:`~spotdl_server.services.dto.SearchResult`.
 
-Provider failures are non-fatal: a searcher that raised (from the helper's failed
-set) unioned with the registry's construction failures (``registry.unavailable``)
-becomes the sorted ``degraded_sources`` tuple (spec §10 "no silent fallbacks").
-Empty results return an empty tuple — never an error.
+Provider failures are non-fatal: the searchers that raised (from both helpers'
+failed sets) unioned with the registry's construction failures
+(``registry.unavailable``) become the sorted ``degraded_sources`` tuple (spec §10
+"no silent fallbacks"). Empty groups return empty tuples — never an error.
 
 Collaborators are injected; the service holds no FastAPI types and returns no ORM
 rows. The unit of work is the caller's (the FastAPI ``get_session`` dependency or
@@ -23,18 +31,24 @@ a test fixture owns commit/rollback).
 
 from __future__ import annotations
 
-from spotdl_core.model import EntityType, Track
+from spotdl_core.model import EntityType, SearchHit, Track
 from spotdl_core.providers import ProviderRegistry
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl_server.observability import record_provider_degraded
 from spotdl_server.repositories.snapshots import SnapshotRepository
-from spotdl_server.services.dto import AlbumView, SearchResult, TrackView
-from spotdl_server.services.provider_search import provider_search
+from spotdl_server.services.dto import AlbumView, ArtistView, PlaylistView, SearchResult, TrackView
+from spotdl_server.services.provider_search import provider_search, provider_search_entities
+
+#: The non-track entity groups sourced from the ``SearchesEntities`` fan-out
+#: (tracks keep the rich ``provider_search`` path to preserve their full preview).
+_ENTITY_TYPES: frozenset[EntityType] = frozenset(
+    {EntityType.ALBUM, EntityType.ARTIST, EntityType.PLAYLIST}
+)
 
 
 class SearchService:
-    """Fan-out free-text search, snapshot the hits, return a ranked track list."""
+    """Fan-out universal search, snapshot the hits, return sectioned results."""
 
     def __init__(self, *, session: AsyncSession, registry: ProviderRegistry) -> None:
         self._session = session
@@ -42,18 +56,88 @@ class SearchService:
         self._snapshots = SnapshotRepository(session)
 
     async def search(self, query: str, *, limit: int = 20) -> SearchResult:
-        """Search every capable provider, snapshot the hits, return the results."""
-        tracks, failed = await provider_search(self._registry, query, limit=limit)
+        """Search every capable provider, snapshot the hits, return sectioned results."""
+        tracks, track_failed = await provider_search(self._registry, query, limit=limit)
+        by_type, entity_failed = await provider_search_entities(
+            self._registry, query, types=_ENTITY_TYPES, limit=limit
+        )
 
-        views: list[TrackView] = []
-        for track in tracks:
-            views.append(await self._snapshot_and_view(track))
+        track_views = [await self._snapshot_and_view(track) for track in tracks]
+        album_views = [await self._album_view(hit) for hit in by_type.get(EntityType.ALBUM, [])]
+        artist_views = [await self._artist_view(hit) for hit in by_type.get(EntityType.ARTIST, [])]
+        playlist_views = [self._playlist_view(hit) for hit in by_type.get(EntityType.PLAYLIST, [])]
 
-        degraded = failed | set(self._registry.unavailable.keys())
+        degraded = track_failed | entity_failed | set(self._registry.unavailable.keys())
         sources = tuple(sorted(pid.value for pid in degraded))
         for provider in sources:
             record_provider_degraded(provider)
-        return SearchResult(tracks=tuple(views), degraded_sources=sources)
+        return SearchResult(
+            tracks=tuple(track_views),
+            albums=tuple(album_views),
+            artists=tuple(artist_views),
+            playlists=tuple(playlist_views),
+            degraded_sources=sources,
+        )
+
+    async def _album_view(self, hit: SearchHit) -> AlbumView:
+        """Snapshot an album hit and map it to a lightweight preview ``AlbumView``.
+
+        The snapshot (``entity_type=ALBUM``) makes a subsequent resolve of the
+        provider ref a cache hit; its id is the preview's stable id. The album's
+        ``subtitle`` is the album artist.
+        """
+        snapshot = await self._snapshots.upsert(
+            provider=hit.provider,
+            provider_entity_id=hit.provider_id,
+            entity_type=EntityType.ALBUM,
+            raw_payload={
+                "name": hit.name,
+                "album_artist": hit.subtitle,
+                "year": hit.year,
+                "cover_url": hit.cover_url,
+            },
+            name=hit.name,
+            album_name=hit.name,
+            art_url=hit.cover_url,
+        )
+        return AlbumView(
+            id=str(snapshot.id),
+            name=hit.name,
+            album_artist=hit.subtitle,
+            year=hit.year,
+            cover_url=hit.cover_url,
+        )
+
+    async def _artist_view(self, hit: SearchHit) -> ArtistView:
+        """Snapshot an artist hit and map it to a lightweight preview ``ArtistView``.
+
+        The snapshot (``entity_type=ARTIST``) makes a subsequent resolve of the
+        provider ref a cache hit; its id is the preview's stable id.
+        """
+        snapshot = await self._snapshots.upsert(
+            provider=hit.provider,
+            provider_entity_id=hit.provider_id,
+            entity_type=EntityType.ARTIST,
+            raw_payload={"name": hit.name, "genres": [], "image_url": hit.cover_url},
+            name=hit.name,
+            art_url=hit.cover_url,
+        )
+        return ArtistView(id=str(snapshot.id), name=hit.name, image_url=hit.cover_url)
+
+    @staticmethod
+    def _playlist_view(hit: SearchHit) -> PlaylistView:
+        """Map a playlist hit to a lightweight preview ``PlaylistView``.
+
+        Playlist hits are not snapshotted (a playlist's canonical row is its ordered
+        listing, absent from a preview), so the id is the resolvable provider ref
+        ``{provider}:playlist:{provider_id}``; ``subtitle`` is the owner.
+        """
+        return PlaylistView(
+            id=f"{hit.provider.value}:{EntityType.PLAYLIST.value}:{hit.provider_id}",
+            name=hit.name,
+            owner=hit.subtitle,
+            cover_url=hit.cover_url,
+        )
 
     async def _snapshot_and_view(self, track: Track) -> TrackView:
         """Persist a search hit as a snapshot (when it carries a provider ref) and

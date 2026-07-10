@@ -24,11 +24,17 @@ from spotdl_core.model import (
     EntityType,
     Lyrics,
     ProviderId,
+    SearchHit,
     Track,
 )
 from spotdl_core.providers.urls import PlatformRef
 
+#: Every entity type free-text search can return — the default request set for
+#: :meth:`SearchesEntities.search_entities`.
+ALL_SEARCH_ENTITY_TYPES: frozenset[EntityType] = frozenset(EntityType)
+
 __all__ = [
+    "ALL_SEARCH_ENTITY_TYPES",
     "Enriches",
     "HttpProvider",
     "Provider",
@@ -37,6 +43,7 @@ __all__ = [
     "ResolvedEntity",
     "Resolves",
     "Searches",
+    "SearchesEntities",
 ]
 
 
@@ -80,6 +87,28 @@ class Searches(Provider, Protocol):
     """Free-text search -> tracks."""
 
     async def search(self, query: str, *, limit: int = 10) -> list[Track]: ...
+
+
+@runtime_checkable
+class SearchesEntities(Provider, Protocol):
+    """Universal free-text search -> mixed entity previews (optional capability).
+
+    Providers whose API can search across tracks, albums, artists and playlists
+    implement this to power sectioned universal search (spec §Phase 2). ``types``
+    selects which entity sections to return; a provider maps only the requested,
+    supported sections and returns the flattened :class:`SearchHit` list (each
+    section truncated to ``limit``). A provider without this capability stays
+    track-only via :class:`Searches`; the fan-out layer synthesises track hits
+    from its :meth:`Searches.search` results.
+    """
+
+    async def search_entities(
+        self,
+        query: str,
+        *,
+        types: frozenset[EntityType] = ALL_SEARCH_ENTITY_TYPES,
+        limit: int = 10,
+    ) -> list[SearchHit]: ...
 
 
 @runtime_checkable

@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict, field_validator
 
-from spotdl_core.model.enums import LyricsKind, MatchStatus, ProviderId
+from spotdl_core.model.enums import EntityType, LyricsKind, MatchStatus, ProviderId
 
 
 class _Frozen(BaseModel):
@@ -104,3 +104,53 @@ class Lyrics(_Frozen):
     kind: LyricsKind
     text: str
     source: ProviderId
+
+
+class SearchHit(_Frozen):
+    """A lightweight cross-entity search preview (universal search, spec §Phase 2).
+
+    One row in a sectioned search result. The provider ref
+    (``provider`` + ``provider_id`` + ``entity_type``) makes the hit resolvable via
+    ``{provider}:{entity_type}:{provider_id}``; the remaining fields are the display
+    values every entity type shares:
+
+    * ``subtitle`` -- the artist(s) for a track/album, the owner for a playlist,
+      ``None`` for an artist.
+    * ``cover_url`` -- album/track cover, artist avatar, or playlist image.
+    * ``year`` -- release year where a provider exposes one (tracks/albums), else
+      ``None``.
+
+    ``isrc`` is carried for tracks only (``None`` otherwise) so a fan-out can
+    de-duplicate track hits by recording identity before display. A hit is a
+    *preview*: it holds no track listing, matches, or lyrics -- the client resolves
+    the ref for the full canonical graph.
+    """
+
+    entity_type: EntityType
+    provider: ProviderId
+    provider_id: str
+    name: str
+    subtitle: str | None = None
+    cover_url: str | None = None
+    year: int | None = None
+    isrc: str | None = None
+
+    @classmethod
+    def from_track(cls, track: Track) -> "SearchHit":
+        """Build a track ``SearchHit`` from a resolved :class:`Track`.
+
+        The track must carry a provider ref (search results always do); the
+        subtitle is its artist credit and the cover falls back to the album cover.
+        """
+        if track.provider is None or track.provider_id is None:
+            raise ValueError("a track SearchHit needs a provider ref")
+        return cls(
+            entity_type=EntityType.TRACK,
+            provider=track.provider,
+            provider_id=track.provider_id,
+            name=track.name,
+            subtitle=", ".join(track.artists) or None,
+            cover_url=track.cover_url or (track.album.cover_url if track.album else None),
+            year=track.year,
+            isrc=track.isrc,
+        )

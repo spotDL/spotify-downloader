@@ -5,6 +5,7 @@ from spotdl_core.model.entities import (
     FeatureVector,
     Lyrics,
     Match,
+    SearchHit,
     Track,
 )
 from spotdl_core.model.enums import EntityType, LyricsKind, MatchStatus, ProviderId
@@ -20,5 +21,6 @@ __all__ = [
     "Match",
     "MatchStatus",
     "ProviderId",
+    "SearchHit",
     "Track",
 ]
