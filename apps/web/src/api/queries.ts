@@ -6,9 +6,13 @@ import {
   configApiV1ConfigGetOptions,
   createReportApiV1ReportsPostMutation,
   getAlbumApiV1AlbumsIdGetOptions,
+  getAlbumSourcesApiV1AlbumsIdSourcesGetOptions,
   getArtistApiV1ArtistsIdGetOptions,
+  getArtistSourcesApiV1ArtistsIdSourcesGetOptions,
   getPlaylistApiV1PlaylistsIdGetOptions,
+  getPlaylistSourcesApiV1PlaylistsIdSourcesGetOptions,
   getTrackApiV1TracksIdGetOptions,
+  getTrackSourcesApiV1TracksIdSourcesGetOptions,
   getTrackApiV1TracksIdGetQueryKey,
   getTrackLyricsApiV1TracksIdLyricsGetOptions,
   getTrackLyricsApiV1TracksIdLyricsGetQueryKey,
@@ -35,7 +39,7 @@ import {
   reportsQueueApiV1AdminReportsGet,
   statsApiV1AdminStatsGet,
 } from "./generated/sdk.gen";
-import type { ReportStatus } from "./generated/types.gen";
+import type { EntityType, ReportStatus } from "./generated/types.gen";
 import { resolveHttpBase } from "./client";
 import { useAuthStore } from "../stores/auth";
 
@@ -89,6 +93,25 @@ export function usePlaylist(id: string) {
     ...getPlaylistApiV1PlaylistsIdGetOptions({ path: { id } }),
     enabled: id.length > 0,
   });
+}
+
+/**
+ * `GET /{tracks|albums|artists|playlists}/{id}/sources` — the per-provider
+ * provenance behind a canonical entity (the "Metadata sources" panel + reach
+ * stats). Picks the right generated endpoint by `entityType`; all four return
+ * the same `SourcesResponse`. Disabled until an id is present.
+ */
+export function useEntitySources(entityType: EntityType, id: string) {
+  const path = { path: { id } };
+  const options =
+    entityType === "artist"
+      ? getArtistSourcesApiV1ArtistsIdSourcesGetOptions(path)
+      : entityType === "album"
+        ? getAlbumSourcesApiV1AlbumsIdSourcesGetOptions(path)
+        : entityType === "playlist"
+          ? getPlaylistSourcesApiV1PlaylistsIdSourcesGetOptions(path)
+          : getTrackSourcesApiV1TracksIdSourcesGetOptions(path);
+  return useQuery({ ...options, enabled: id.length > 0 });
 }
 
 /**

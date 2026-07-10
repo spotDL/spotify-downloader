@@ -26,6 +26,7 @@ import { Feature } from "../components/Feature";
 import { HeroBackdrop } from "../components/HeroBackdrop";
 import { Input } from "../components/Input";
 import { PlatformLinks, type PlatformLink } from "../components/PlatformLinks";
+import { SourcesPanel } from "../components/SourcesPanel";
 import { Spinner } from "../components/Spinner";
 import { StatChip } from "../components/StatChip";
 import { SyncedLyricsViewer } from "../components/SyncedLyricsViewer";
@@ -210,6 +211,7 @@ function TrackDetail({ trackId, t }: { trackId: string; t: TrackOut }) {
               {t.year ? <DetailRow label="Year">{t.year}</DetailRow> : null}
               {t.album?.name ? <DetailRow label="Album">{t.album.name}</DetailRow> : null}
             </Card>
+            <SourcesPanel entityType="track" id={t.id} />
           </div>
         </div>
       </div>

@@ -54,6 +54,23 @@ describe("Artist page", () => {
     expect(screen.getByText("A French electronic duo.")).toBeInTheDocument();
   });
 
+  it("shows 'Reach across platforms' with two providers plus a metadata-sources panel", async () => {
+    serveArtist();
+    renderApp("/artists/artist-1");
+
+    // Default sources handler serves Spotify + Deezer follower snapshots.
+    expect(
+      await screen.findByText("Reach across platforms"),
+    ).toBeInTheDocument();
+    // Deezer's fan count shows only in the reach card; the honest label sits beside it.
+    expect(screen.getByText("4.5M")).toBeInTheDocument();
+    expect(screen.getByText(/not licensed play counts/i)).toBeInTheDocument();
+    // The provenance panel lists both providers by name (Deezer appears in both
+    // the reach card and the sources panel).
+    expect(screen.getByText("Metadata sources")).toBeInTheDocument();
+    expect(screen.getAllByText("Deezer").length).toBeGreaterThanOrEqual(2);
+  });
+
   it("never offers Enqueue all (an artist is not a downloadable batch)", async () => {
     // Even in a downloads-ON mode (selfhost is the fixture default), the artist
     // page has no batch enqueue — per Plan 8's `unsupported_entity` rule.

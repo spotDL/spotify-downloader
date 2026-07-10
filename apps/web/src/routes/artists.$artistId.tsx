@@ -12,6 +12,7 @@ import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
 import { HeroBackdrop } from "../components/HeroBackdrop";
 import { SectionDivider } from "../components/SectionDivider";
+import { SourcesPanel, StatsCard } from "../components/SourcesPanel";
 import { Spinner } from "../components/Spinner";
 import { StatChip } from "../components/StatChip";
 import { TrackTable } from "../components/TrackTable";
@@ -183,13 +184,7 @@ function ArtistDetail({
       </div>
 
       <div className="mx-auto max-w-[1080px] px-6 py-7">
-        <div
-          className={
-            bio
-              ? "grid gap-8 lg:grid-cols-[1.9fr_1fr]"
-              : "flex flex-col gap-8"
-          }
-        >
+        <div className="grid gap-8 lg:grid-cols-[1.9fr_1fr]">
           <div className="flex min-w-0 flex-col gap-8">
         <section className="flex flex-col gap-4">
           <SectionDivider
@@ -232,13 +227,15 @@ function ArtistDetail({
         ) : null}
           </div>
 
-          {bio ? (
-            <aside className="flex min-w-0 flex-col gap-5">
+          <aside className="flex min-w-0 flex-col gap-5">
+            {bio ? (
               <Card title="About">
                 <p className="text-[14px] leading-relaxed text-ink-2">{bio}</p>
               </Card>
-            </aside>
-          ) : null}
+            ) : null}
+            <StatsCard id={artist.id} />
+            <SourcesPanel entityType="artist" id={artist.id} />
+          </aside>
         </div>
       </div>
     </div>

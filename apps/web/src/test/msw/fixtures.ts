@@ -18,10 +18,12 @@ import type {
   LyricsResponse,
   MatchesResponse,
   MatchOut,
+  MetadataSourceOut,
   PagedReports,
   PagedUsers,
   PlaylistOut,
   ReportResponse,
+  SourcesResponse,
   TokenResponse,
   TrackOut,
   UserResponse,
@@ -151,6 +153,46 @@ export function makeLyrics(
         upvotes: 2,
         downvotes: 0,
       },
+    ],
+    ...overrides,
+  };
+}
+
+// A single provider snapshot behind a canonical entity (the "Metadata sources"
+// panel row). Defaults to a Spotify artist snapshot; override per test.
+export function makeSource(
+  overrides: Overrides<MetadataSourceOut> = {},
+): MetadataSourceOut {
+  return {
+    provider: "spotify",
+    entity_type: "artist",
+    fetched_at: "2026-01-01T00:00:00Z",
+    name: "Daft Punk",
+    cover_url: null,
+    ...overrides,
+  };
+}
+
+// The `/{entity}/{id}/sources` provenance response. Defaults to Spotify + Deezer
+// artist sources with follower counts, so an artist page shows "Reach across
+// platforms" with two providers out of the box.
+export function makeSources(
+  overrides: Overrides<SourcesResponse> = {},
+): SourcesResponse {
+  return {
+    entity_type: "artist",
+    entity_id: "artist-1",
+    // Distinct per-provider follower snapshots (Spotify followers ≠ Deezer fans),
+    // deliberately different from the canonical/hero count so page tests can tell
+    // the reach card's numbers apart from the hero stat.
+    sources: [
+      makeSource({ provider: "spotify", followers: 34_200_000, popularity: 88 }),
+      makeSource({
+        provider: "deezer",
+        name: "Daft Punk",
+        followers: 4_500_000,
+        popularity: 90,
+      }),
     ],
     ...overrides,
   };

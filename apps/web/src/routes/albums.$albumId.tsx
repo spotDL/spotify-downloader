@@ -11,6 +11,7 @@ import { EnqueueAllButton } from "../components/EnqueueAllButton";
 import { ErrorState } from "../components/ErrorState";
 import { Feature } from "../components/Feature";
 import { HeroBackdrop } from "../components/HeroBackdrop";
+import { SourcesPanel } from "../components/SourcesPanel";
 import { Spinner } from "../components/Spinner";
 import { StatChip } from "../components/StatChip";
 import { TrackTable } from "../components/TrackTable";
@@ -161,11 +162,7 @@ function AlbumDetail({
       </div>
 
       <div className="mx-auto max-w-[1080px] px-6 py-7">
-        <div
-          className={
-            hasDetails ? "grid gap-5 lg:grid-cols-[1.9fr_1fr]" : undefined
-          }
-        >
+        <div className="grid gap-5 lg:grid-cols-[1.9fr_1fr]">
           <div className="min-w-0">
             {tracks.length === 0 ? (
               <EmptyState
@@ -177,8 +174,8 @@ function AlbumDetail({
             )}
           </div>
 
-          {hasDetails ? (
-            <aside className="flex min-w-0 flex-col gap-5">
+          <aside className="flex min-w-0 flex-col gap-5">
+            {hasDetails ? (
               <Card title="Details">
                 {album.label ? (
                   <DetailRow label="Label">{album.label}</DetailRow>
@@ -193,8 +190,9 @@ function AlbumDetail({
                   <DetailRow label="Copyright">{album.copyright_text}</DetailRow>
                 ) : null}
               </Card>
-            </aside>
-          ) : null}
+            ) : null}
+            <SourcesPanel entityType="album" id={album.id} />
+          </aside>
         </div>
       </div>
     </div>
