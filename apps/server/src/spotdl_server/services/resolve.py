@@ -315,9 +315,7 @@ class ResolveService:
             confirmed = full or best
             if confirmed.provider_id is None:
                 return None  # cannot key/cache a ref-less hit
-            return await self._persist_track_snapshot(
-                provider.id, confirmed.provider_id, confirmed
-            )
+            return await self._persist_track_snapshot(provider.id, confirmed.provider_id, confirmed)
         return None
 
     def _best_track_match(self, track: Track, hits: list[Track]) -> Track | None:
@@ -535,9 +533,7 @@ class ResolveService:
                 disc_snap = await self._persist_discography_album_snapshot(album_ref)
                 if disc_snap is not None:
                     album_by_pos[index] = [disc_snap]
-            artist = await self._merger.merge_artist(
-                [artist_snap, *enriched], by_pos, album_by_pos
-            )
+            artist = await self._merger.merge_artist([artist_snap, *enriched], by_pos, album_by_pos)
             return ResolveResult(
                 entity_type=EntityType.ARTIST.value, artist=views.artist_view(artist)
             )
@@ -629,9 +625,7 @@ class ResolveService:
             art_url=album.cover_url if album is not None else None,
         )
 
-    async def _persist_discography_album_snapshot(
-        self, album: AlbumRef
-    ) -> ProviderSnapshot | None:
+    async def _persist_discography_album_snapshot(self, album: AlbumRef) -> ProviderSnapshot | None:
         """Snapshot one discography album ref (metadata only), keyed by its source ref.
 
         Returns ``None`` for a ref lacking a resolvable ``provider``/``provider_id``

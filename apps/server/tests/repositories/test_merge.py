@@ -582,9 +582,7 @@ async def test_merge_playlist_orders_tracks(session: AsyncSession) -> None:
 # multi-provider metadata fields (Phase 1b) — Spotify-first per SOURCE_PRIORITY
 # --------------------------------------------------------------------------- #
 async def test_merge_artist_metadata_fields_spotify_first(session: AsyncSession) -> None:
-    async def _artist_snap(
-        provider: ProviderId, pid: str, **payload: Any
-    ) -> ProviderSnapshot:
+    async def _artist_snap(provider: ProviderId, pid: str, **payload: Any) -> ProviderSnapshot:
         return await SnapshotRepository(session).upsert(
             provider=provider,
             provider_entity_id=pid,
@@ -620,9 +618,7 @@ async def test_merge_artist_metadata_fields_spotify_first(session: AsyncSession)
 
 
 async def test_merge_album_metadata_fields_spotify_first(session: AsyncSession) -> None:
-    async def _album_snap(
-        provider: ProviderId, pid: str, **payload: Any
-    ) -> ProviderSnapshot:
+    async def _album_snap(provider: ProviderId, pid: str, **payload: Any) -> ProviderSnapshot:
         return await SnapshotRepository(session).upsert(
             provider=provider,
             provider_entity_id=pid,

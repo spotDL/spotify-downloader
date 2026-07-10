@@ -206,9 +206,7 @@ class CollectionScreen(SpotdlScreen):
         """
         if not (album.provider and album.provider_id):
             return
-        result = await self.vm_factory.search().open(
-            f"{album.provider}:album:{album.provider_id}"
-        )
+        result = await self.vm_factory.search().open(f"{album.provider}:album:{album.provider_id}")
         if result.state is LoadState.ERROR:
             if result.error is not None:
                 self.show_error(result.error)

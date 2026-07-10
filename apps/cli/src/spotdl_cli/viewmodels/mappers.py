@@ -234,8 +234,13 @@ def album_hit(album: AlbumView) -> SearchHit:
     """An album preview row for the universal-search "Albums" section."""
     detail = " · ".join(p for p in (album.album_type, _year(album.year)) if p)
     return SearchHit(
-        "album", str(album.id), album.name, album.album_artist or "", detail,
-        provider=album.provider or "", provider_id=album.provider_id or "",
+        "album",
+        str(album.id),
+        album.name,
+        album.album_artist or "",
+        detail,
+        provider=album.provider or "",
+        provider_id=album.provider_id or "",
     )
 
 
@@ -243,8 +248,13 @@ def artist_hit(artist: ArtistView) -> SearchHit:
     """An artist preview row for the "Artists" section (followers as the detail)."""
     detail = f"{format_count(artist.followers)} followers" if artist.followers is not None else ""
     return SearchHit(
-        "artist", str(artist.id), artist.name, ", ".join(artist.genres), detail,
-        provider=artist.provider or "", provider_id=artist.provider_id or "",
+        "artist",
+        str(artist.id),
+        artist.name,
+        ", ".join(artist.genres),
+        detail,
+        provider=artist.provider or "",
+        provider_id=artist.provider_id or "",
     )
 
 
@@ -252,8 +262,13 @@ def playlist_hit(playlist: PlaylistView) -> SearchHit:
     """A playlist preview row for the "Playlists" section."""
     detail = f"{len(playlist.tracks)} tracks" if playlist.tracks else ""
     return SearchHit(
-        "playlist", str(playlist.id), playlist.name, playlist.owner or "", detail,
-        provider=playlist.provider or "", provider_id=playlist.provider_id or "",
+        "playlist",
+        str(playlist.id),
+        playlist.name,
+        playlist.owner or "",
+        detail,
+        provider=playlist.provider or "",
+        provider_id=playlist.provider_id or "",
     )
 
 

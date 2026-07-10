@@ -141,8 +141,11 @@ async def test_track_enrichment_skips_non_matching_hit(session: AsyncSession) ->
     # fails the matcher gate → not linked, a clean miss (not degraded).
     spotify = FakeResolver(id=ProviderId.SPOTIFY, track=_track("Hello", "Adele"))
     unrelated = _track(
-        "Totally Different", "Someone Else", isrc="GBXYZ9999999",
-        provider=ProviderId.DEEZER, provider_id="dz9",
+        "Totally Different",
+        "Someone Else",
+        isrc="GBXYZ9999999",
+        provider=ProviderId.DEEZER,
+        provider_id="dz9",
     )
     deezer = FakeMetadataProvider(id=ProviderId.DEEZER, tracks=[unrelated])
     service = ResolveService(session=session, registry=build_fake_registry(spotify, deezer))
