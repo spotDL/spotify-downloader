@@ -145,19 +145,40 @@ def map_search(payload: dict[str, Any]) -> list[Track]:
     return [map_track(r) for r in results if r.get("trackName") and r.get("trackId") is not None]
 
 
-def _artist_album_ref(item: dict[str, Any]) -> AlbumRef | None:
-    """Map one ``lookup?entity=album`` collection to a source-tagged ``AlbumRef``."""
+def _split_collection_name(raw: str) -> tuple[str, str | None]:
+    """Strip iTunes' ``" - Single"``/``" - EP"`` collection-name suffix.
+
+    The suffix IS the release-type signal (iTunes has no ``collectionType`` on
+    most collections) — and left in place it breaks the cross-source name dedupe
+    ("I Love It - Single" would sit next to Spotify's "I Love It").
+    """
+    for suffix, kind in ((" - Single", "single"), (" - EP", "ep")):
+        if raw.endswith(suffix):
+            return raw[: -len(suffix)], kind
+    return raw, None
+
+
+def _artist_album_ref(item: dict[str, Any], *, artist_id: str) -> AlbumRef | None:
+    """Map one ``lookup?entity=album`` collection to a source-tagged ``AlbumRef``.
+
+    Collections not OWNED by the looked-up artist are dropped: iTunes' lookup
+    also returns releases the artist merely appears on ("… (feat. X)" albums by
+    other artists), which polluted the discography with features.
+    """
     name = item.get("collectionName")
     collection_id = item.get("collectionId")
     if not name or collection_id is None:
         return None
+    if str(item.get("artistId")) != artist_id:
+        return None  # someone else's release featuring the artist — not discography
+    clean_name, suffix_type = _split_collection_name(name)
     return AlbumRef(
-        name=name,
+        name=clean_name,
         album_artist=item.get("artistName"),
         year=_year(item.get("releaseDate")),
         track_count=item.get("trackCount"),
         cover_url=_upgrade_artwork(item.get("artworkUrl100")),
-        album_type=_album_type(item.get("collectionType")),
+        album_type=_album_type(item.get("collectionType")) or suffix_type,
         provider=ProviderId.ITUNES,
         provider_id=str(collection_id),
     )
@@ -302,7 +323,8 @@ class ITunesProvider(HttpProvider):
         refs = [
             ref
             for r in results
-            if r.get("wrapperType") == "collection" and (ref := _artist_album_ref(r)) is not None
+            if r.get("wrapperType") == "collection"
+            and (ref := _artist_album_ref(r, artist_id=entity_id)) is not None
         ]
         albums = _dedupe_artist_albums(refs, cap=_ARTIST_ALBUMS_LIMIT)
         return ResolvedEntity(

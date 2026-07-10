@@ -743,3 +743,91 @@ async def test_artist_top_tracks_union_across_confirmed_sources(session: AsyncSe
     assert result.artist is not None
     names = [t.name for t in result.artist.tracks]
     assert names == ["KAMIKAZE", "Deezer Only Song"]  # union, deduped by ISRC/name
+
+
+async def test_renamed_artist_confirmed_by_strict_overlap(session: AsyncSession) -> None:
+    """A provider's canonical RENAME still enriches when content proves identity.
+
+    Regression (found live): MusicBrainz lists Kanye West as "Ye", so the
+    name-equality gate rejected the correct artist and MB never contributed. A
+    non-name-matching top hit is now resolved and accepted ONLY when its content
+    overlaps the primary's (strict gate — no lenient no-content fallback).
+    """
+    spotify_artist = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="artist123",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Kanye West"),
+        tracks=(),
+        albums=(AlbumRef(name="Graduation", provider=ProviderId.SPOTIFY, provider_id="sp-al1"),),
+    )
+    ye = ResolvedEntity(
+        provider=ProviderId.DEEZER,
+        provider_id="dz-ye",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Ye", genres=("hip hop",)),
+        albums=(AlbumRef(name="Graduation", provider=ProviderId.DEEZER, provider_id="dz-al1"),),
+    )
+    deezer = FakeMetadataProvider(
+        id=ProviderId.DEEZER,
+        hits=[
+            SearchHit(
+                entity_type=EntityType.ARTIST,
+                provider=ProviderId.DEEZER,
+                provider_id="dz-ye",
+                name="Ye",  # canonical rename — does NOT normalize-equal the query
+            )
+        ],
+        resolved={EntityType.ARTIST: ye},
+    )
+    spotify = FakeResolver(id=ProviderId.SPOTIFY, entity=spotify_artist)
+    service = ResolveService(session=session, registry=build_fake_registry(spotify, deezer))
+
+    result = await service.resolve(SPOTIFY_ARTIST_URL)
+
+    assert result.artist is not None
+    assert await _linked_providers(session, EntityType.ARTIST, result.artist.id) == {
+        "spotify",
+        "deezer",
+    }
+
+
+async def test_non_matching_hit_without_overlap_is_rejected(session: AsyncSession) -> None:
+    """A non-name-matching top hit with NO shared content must never be trusted
+    (the strict gate has no lenient fallback — a tribute band named differently
+    with a disjoint catalogue contributes nothing)."""
+    spotify_artist = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="artist123",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Kanye West"),
+        tracks=(),
+        albums=(AlbumRef(name="Graduation", provider=ProviderId.SPOTIFY, provider_id="sp-al1"),),
+    )
+    tribute = ResolvedEntity(
+        provider=ProviderId.DEEZER,
+        provider_id="dz-trib",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Kanye West Tribute Band"),
+        albums=(AlbumRef(name="Karaoke Hits", provider=ProviderId.DEEZER, provider_id="dz-k1"),),
+    )
+    deezer = FakeMetadataProvider(
+        id=ProviderId.DEEZER,
+        hits=[
+            SearchHit(
+                entity_type=EntityType.ARTIST,
+                provider=ProviderId.DEEZER,
+                provider_id="dz-trib",
+                name="Kanye West Tribute Band",
+            )
+        ],
+        resolved={EntityType.ARTIST: tribute},
+    )
+    spotify = FakeResolver(id=ProviderId.SPOTIFY, entity=spotify_artist)
+    service = ResolveService(session=session, registry=build_fake_registry(spotify, deezer))
+
+    result = await service.resolve(SPOTIFY_ARTIST_URL)
+
+    assert result.artist is not None
+    assert await _linked_providers(session, EntityType.ARTIST, result.artist.id) == {"spotify"}
+    assert [a.name for a in result.artist.albums] == ["Graduation"]  # no pollution

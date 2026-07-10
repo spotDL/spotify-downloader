@@ -304,6 +304,7 @@ async def test_resolve_artist_returns_discography() -> None:
             {
                 "wrapperType": "collection",
                 "collectionId": 697194953,
+                "artistId": 5468295,
                 "collectionName": "Discovery",
                 "artistName": "Daft Punk",
                 "collectionType": "Album",
@@ -314,14 +315,32 @@ async def test_resolve_artist_returns_discography() -> None:
             {
                 "wrapperType": "collection",
                 "collectionId": 697194954,
+                "artistId": 5468295,
                 "collectionName": "Discovery",  # dup name -> deduped
             },
             {
                 "wrapperType": "collection",
                 "collectionId": 5468291,
+                "artistId": 5468295,
+                "collectionName": "One More Time - Single",  # suffix -> name + type
+                "releaseDate": "2000-11-13T08:00:00Z",
+            },
+            {
+                "wrapperType": "collection",
+                "collectionId": 5468291,
+                "artistId": 5468295,
                 "collectionName": "Homework",
                 "collectionType": "Album",
                 "releaseDate": "1997-01-20T08:00:00Z",
+            },
+            {
+                # Someone ELSE's release featuring the artist — iTunes' lookup
+                # includes these; they must NOT pollute the discography.
+                "wrapperType": "collection",
+                "collectionId": 999,
+                "artistId": 42,
+                "artistName": "Other Artist",
+                "collectionName": "Everybody (feat. Daft Punk)",
             },
         ]
     }
@@ -334,7 +353,12 @@ async def test_resolve_artist_returns_discography() -> None:
     assert resolved.artist is not None
     assert resolved.artist.genres == ("Electronic",)  # primaryGenreName -> genres
     assert resolved.tracks == ()  # no top tracks; overlap gate uses albums
-    assert [album.name for album in resolved.albums] == ["Discovery", "Homework"]  # deduped
+    assert [album.name for album in resolved.albums] == [
+        "Discovery",
+        "One More Time",
+        "Homework",
+    ]  # deduped; feature release filtered; " - Single" suffix stripped
+    assert resolved.albums[1].album_type == "single"  # type recovered from the suffix
     disc = resolved.albums[0]
     assert disc.provider is ProviderId.ITUNES and disc.provider_id == "697194953"
     assert disc.album_type == "album" and disc.year == 2001

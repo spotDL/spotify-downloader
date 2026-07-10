@@ -101,9 +101,12 @@ _METADATA_SOURCES: frozenset[ProviderId] = frozenset(SOURCE_PRIORITY)
 
 #: Per-provider wall-clock budget for one enrichment fan-out leg (search + resolve).
 #: A secondary provider that exceeds it is dropped (recorded as a degraded source),
-#: never blocking the primary result. Kept small so total resolve latency stays the
-#: primary fetch plus one bounded, concurrent round to the other sources.
-_ENRICH_TIMEOUT_S: float = 6.0
+#: never blocking the primary result. Sized for the slowest legitimate leg:
+#: MusicBrainz throttles to 1 req/s and an artist leg is 3 sequential requests
+#: (search + artist + release-group browse) with MB's own multi-second latency —
+#: 6s cut that leg off mid-flight. Legs run concurrently, so this only bounds a
+#: COLD resolve's tail, never a warm one.
+_ENRICH_TIMEOUT_S: float = 12.0
 
 #: How many search hits a secondary provider is asked for per enrichment leg.
 _ENRICH_SEARCH_LIMIT: int = 5
@@ -146,6 +149,22 @@ def _same_artist(primary: ResolvedEntity, candidate: ResolvedEntity) -> bool:
     albums_comparable = bool(primary_albums and candidate_albums)
     tracks_comparable = bool(primary_tracks and candidate_tracks)
     return not (albums_comparable or tracks_comparable)
+
+
+def _same_artist_strict(primary: ResolvedEntity, candidate: ResolvedEntity) -> bool:
+    """The overlap gate WITHOUT the lenient no-content fallback.
+
+    Used for a candidate whose name did NOT match the query (a provider's
+    canonical rename — MusicBrainz lists Kanye West as "Ye" — or a relevance-only
+    hit): identity must be PROVEN by shared content, never assumed.
+    """
+    primary_albums = {a.name.casefold() for a in primary.albums}
+    candidate_albums = {a.name.casefold() for a in candidate.albums}
+    if primary_albums & candidate_albums:
+        return True
+    primary_tracks = {t.name.casefold() for t in primary.tracks}
+    candidate_tracks = {t.name.casefold() for t in candidate.tracks}
+    return bool(primary_tracks & candidate_tracks)
 
 
 class ResolveService:
@@ -528,16 +547,21 @@ class ResolveService:
             return [], (), ()
         providers = self._enrichment_providers(resolved.provider, SearchesEntities)
 
-        async def leg(provider: Any) -> ResolvedEntity | None:
+        async def leg(provider: Any) -> tuple[ResolvedEntity, bool] | None:
             return await self._artist_candidate_from(provider, name)
 
         candidates = await self._gather_artist_candidates(providers, leg, degraded)
         snapshots: list[ProviderSnapshot] = []
         extra_albums: list[AlbumRef] = []
         extra_tracks: list[tuple[ResolvedEntity, Track]] = []
-        for candidate in candidates:
-            if not _same_artist(resolved, candidate):
-                continue  # a same-named stranger — never trust its data
+        for candidate, name_matched in candidates:
+            confirmed = (
+                _same_artist(resolved, candidate)
+                if name_matched
+                else _same_artist_strict(resolved, candidate)
+            )
+            if not confirmed:
+                continue  # a same-named stranger / unproven rename — never trust it
             snapshots.append(await self._persist_artist_snapshot(candidate))
             extra_albums.extend(candidate.albums)
             extra_tracks.extend((candidate, track) for track in candidate.tracks)
@@ -546,47 +570,55 @@ class ResolveService:
             snapshots.append(lastfm)
         return snapshots, tuple(extra_albums), tuple(extra_tracks)
 
-    async def _artist_candidate_from(self, provider: Any, name: str) -> ResolvedEntity | None:
+    async def _artist_candidate_from(
+        self, provider: Any, name: str
+    ) -> tuple[ResolvedEntity, bool] | None:
         """Search+resolve one secondary provider's candidate for ``name`` (no persist).
 
-        The first normalized-name-equal hit is taken — the provider's own relevance
-        ranking beats raw popularity here (Deezer ranks the intended "Mata" first
-        even though a same-named stranger has more fans). Identity is confirmed by
-        the caller's content-overlap gate before anything is persisted.
+        The first normalized-name-equal hit is preferred — the provider's own
+        relevance ranking beats raw popularity (Deezer ranks the intended "Mata"
+        first even though a same-named stranger has more fans). When NO hit
+        matches the name, the top relevance hit is still resolved but flagged
+        ``name_matched=False``: providers canonically rename artists (MusicBrainz
+        lists Kanye West as "Ye"), so the caller demands STRICT content overlap
+        before trusting it. Nothing is persisted here.
         """
         hits = await provider.search_entities(
             name, types=frozenset({EntityType.ARTIST}), limit=_ENRICH_SEARCH_LIMIT
         )
         target = normalize_artist_name(name)
-        best = next(
+        exact = next(
             (hit for hit in hits if normalize_artist_name(hit.name) == target),
             None,
         )
+        best = exact or (hits[0] if hits else None)
         if best is None or not isinstance(provider, Resolves):
             return None
-        return await provider.resolve(
+        resolved = await provider.resolve(
             PlatformRef(
                 provider=provider.id, entity_type=EntityType.ARTIST, entity_id=best.provider_id
             )
         )
+        return resolved, exact is not None
 
     async def _gather_artist_candidates(
         self, providers: list[Any], leg: Any, degraded: set[ProviderId]
-    ) -> list[ResolvedEntity]:
+    ) -> list[tuple[ResolvedEntity, bool]]:
         """The ``_gather_enrich`` semantics (concurrent, time-bounded, a failing leg
-        degrades its source) for legs yielding an unpersisted :class:`ResolvedEntity`."""
+        degrades its source) for legs yielding an unpersisted
+        ``(ResolvedEntity, name_matched)`` candidate pair."""
         if not providers:
             return []
 
-        async def _bounded(provider: Any) -> ResolvedEntity | None:
+        async def _bounded(provider: Any) -> tuple[ResolvedEntity, bool] | None:
             return await asyncio.wait_for(leg(provider), timeout=_ENRICH_TIMEOUT_S)
 
         results = await asyncio.gather(
             *(_bounded(provider) for provider in providers), return_exceptions=True
         )
-        candidates: list[ResolvedEntity] = []
+        candidates: list[tuple[ResolvedEntity, bool]] = []
         for provider, result in zip(providers, results, strict=True):
-            if isinstance(result, ResolvedEntity):
+            if isinstance(result, tuple):
                 candidates.append(result)
             elif isinstance(result, BaseException):
                 degraded.add(provider.id)
