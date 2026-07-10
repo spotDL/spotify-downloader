@@ -40,6 +40,7 @@ from spotdl_server.services.dto import (
     ArtistView,
     LyricsView,
     MatchView,
+    MetadataSourceView,
     PlaylistView,
     ResolveResult,
     SearchResult,
@@ -452,6 +453,54 @@ class LyricsResponse(BaseModel):
 
     track_id: str
     lyrics: list[LyricsOut]
+
+
+# --------------------------------------------------------------------------
+# Metadata sources (spec §Phase 3 — the per-provider provenance breakdown)
+# --------------------------------------------------------------------------
+
+
+class MetadataSourceOut(BaseModel):
+    """One provider's contribution to a canonical entity (``.../{id}/sources`` element).
+
+    The merged canonical row still displays Spotify-first; this is the per-source
+    provenance the "Metadata Sources" panel renders. Only the fields relevant to the
+    entity type are populated (``followers`` for an artist, ``label``/``year`` for an
+    album, ``isrc`` for a track, …); the rest stay ``null``/empty.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    provider: ProviderId
+    entity_type: EntityType
+    fetched_at: datetime
+    name: str | None = None
+    cover_url: str | None = None
+    isrc: str | None = None
+    popularity: int | None = None
+    followers: int | None = None
+    genres: list[str] = []
+    label: str | None = None
+    year: int | None = None
+    album_name: str | None = None
+    artist_names: list[str] = []
+
+    @classmethod
+    def from_view(cls, view: MetadataSourceView) -> MetadataSourceOut:
+        return cls.model_validate(view)
+
+
+class SourcesResponse(BaseModel):
+    """``GET /{tracks|albums|artists|playlists}/{id}/sources``: the entity's provenance.
+
+    ``sources`` lists every provider snapshot linked to the canonical entity, ordered
+    Spotify-first (``SOURCE_PRIORITY``), so the UI can show which providers contributed
+    which fields to the merged row.
+    """
+
+    entity_type: EntityType
+    entity_id: str
+    sources: list[MetadataSourceOut]
 
 
 # --------------------------------------------------------------------------

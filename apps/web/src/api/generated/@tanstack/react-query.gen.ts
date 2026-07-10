@@ -4,8 +4,8 @@
 import { type DefaultError, type InfiniteData, infiniteQueryOptions, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { approveReportApiV1AdminReportsReportIdApprovePost, authorizeApiV1AuthOauthProviderAuthorizeGet, callbackApiV1AuthOauthProviderCallbackGet, cancelDownloadApiV1DownloadsJobIdDelete, configApiV1ConfigGet, createReportApiV1ReportsPost, createTokenApiV1AuthTokensPost, downloadFileApiV1DownloadsJobIdFileGet, getAlbumApiV1AlbumsIdGet, getArtistApiV1ArtistsIdGet, getBatchApiV1DownloadsBatchesBatchIdGet, getBatchSaveFileApiV1DownloadsBatchesBatchIdSaveFileGet, getDownloadApiV1DownloadsJobIdGet, getPlaylistApiV1PlaylistsIdGet, getTrackApiV1TracksIdGet, getTrackLyricsApiV1TracksIdLyricsGet, getTrackMatchesApiV1TracksIdMatchesGet, healthApiV1HealthGet, listDownloadsApiV1DownloadsGet, listMyReportsApiV1ReportsMeGet, listTokensApiV1AuthTokensGet, listUsersApiV1AdminUsersGet, loginApiV1AuthLoginPost, logoutApiV1AuthLogoutPost, meApiV1AuthMeGet, type Options, refreshApiV1AuthRefreshPost, registerApiV1AuthRegisterPost, rejectReportApiV1AdminReportsReportIdRejectPost, reportsQueueApiV1AdminReportsGet, resolveApiV1ResolvePost, revokeTokenApiV1AuthTokensTokenIdDelete, searchApiV1SearchGet, statsApiV1AdminStatsGet, submitDownloadApiV1DownloadsPost, submitMatchApiV1TracksIdMatchesPost, voteLinkApiV1LinksLinkIdVotePost, voteLyricsApiV1LyricsLyricsIdVotePost, voteMatchApiV1MatchesMatchIdVotePost } from '../sdk.gen';
-import type { ApproveReportApiV1AdminReportsReportIdApprovePostData, ApproveReportApiV1AdminReportsReportIdApprovePostError, ApproveReportApiV1AdminReportsReportIdApprovePostResponse, AuthorizeApiV1AuthOauthProviderAuthorizeGetData, AuthorizeApiV1AuthOauthProviderAuthorizeGetError, CallbackApiV1AuthOauthProviderCallbackGetData, CallbackApiV1AuthOauthProviderCallbackGetError, CancelDownloadApiV1DownloadsJobIdDeleteData, CancelDownloadApiV1DownloadsJobIdDeleteError, CancelDownloadApiV1DownloadsJobIdDeleteResponse, ConfigApiV1ConfigGetData, ConfigApiV1ConfigGetResponse, CreateReportApiV1ReportsPostData, CreateReportApiV1ReportsPostError, CreateReportApiV1ReportsPostResponse, CreateTokenApiV1AuthTokensPostData, CreateTokenApiV1AuthTokensPostError, CreateTokenApiV1AuthTokensPostResponse, DownloadFileApiV1DownloadsJobIdFileGetData, DownloadFileApiV1DownloadsJobIdFileGetError, GetAlbumApiV1AlbumsIdGetData, GetAlbumApiV1AlbumsIdGetError, GetAlbumApiV1AlbumsIdGetResponse, GetArtistApiV1ArtistsIdGetData, GetArtistApiV1ArtistsIdGetError, GetArtistApiV1ArtistsIdGetResponse, GetBatchApiV1DownloadsBatchesBatchIdGetData, GetBatchApiV1DownloadsBatchesBatchIdGetError, GetBatchApiV1DownloadsBatchesBatchIdGetResponse, GetBatchSaveFileApiV1DownloadsBatchesBatchIdSaveFileGetData, GetBatchSaveFileApiV1DownloadsBatchesBatchIdSaveFileGetError, GetDownloadApiV1DownloadsJobIdGetData, GetDownloadApiV1DownloadsJobIdGetError, GetDownloadApiV1DownloadsJobIdGetResponse, GetPlaylistApiV1PlaylistsIdGetData, GetPlaylistApiV1PlaylistsIdGetError, GetPlaylistApiV1PlaylistsIdGetResponse, GetTrackApiV1TracksIdGetData, GetTrackApiV1TracksIdGetError, GetTrackApiV1TracksIdGetResponse, GetTrackLyricsApiV1TracksIdLyricsGetData, GetTrackLyricsApiV1TracksIdLyricsGetError, GetTrackLyricsApiV1TracksIdLyricsGetResponse, GetTrackMatchesApiV1TracksIdMatchesGetData, GetTrackMatchesApiV1TracksIdMatchesGetError, GetTrackMatchesApiV1TracksIdMatchesGetResponse, HealthApiV1HealthGetData, HealthApiV1HealthGetResponse, ListDownloadsApiV1DownloadsGetData, ListDownloadsApiV1DownloadsGetError, ListDownloadsApiV1DownloadsGetResponse, ListMyReportsApiV1ReportsMeGetData, ListMyReportsApiV1ReportsMeGetError, ListMyReportsApiV1ReportsMeGetResponse, ListTokensApiV1AuthTokensGetData, ListTokensApiV1AuthTokensGetError, ListTokensApiV1AuthTokensGetResponse, ListUsersApiV1AdminUsersGetData, ListUsersApiV1AdminUsersGetError, ListUsersApiV1AdminUsersGetResponse, LoginApiV1AuthLoginPostData, LoginApiV1AuthLoginPostError, LoginApiV1AuthLoginPostResponse, LogoutApiV1AuthLogoutPostData, LogoutApiV1AuthLogoutPostError, LogoutApiV1AuthLogoutPostResponse, MeApiV1AuthMeGetData, MeApiV1AuthMeGetError, MeApiV1AuthMeGetResponse, RefreshApiV1AuthRefreshPostData, RefreshApiV1AuthRefreshPostError, RefreshApiV1AuthRefreshPostResponse, RegisterApiV1AuthRegisterPostData, RegisterApiV1AuthRegisterPostError, RegisterApiV1AuthRegisterPostResponse, RejectReportApiV1AdminReportsReportIdRejectPostData, RejectReportApiV1AdminReportsReportIdRejectPostError, RejectReportApiV1AdminReportsReportIdRejectPostResponse, ReportsQueueApiV1AdminReportsGetData, ReportsQueueApiV1AdminReportsGetError, ReportsQueueApiV1AdminReportsGetResponse, ResolveApiV1ResolvePostData, ResolveApiV1ResolvePostError, ResolveApiV1ResolvePostResponse, RevokeTokenApiV1AuthTokensTokenIdDeleteData, RevokeTokenApiV1AuthTokensTokenIdDeleteError, RevokeTokenApiV1AuthTokensTokenIdDeleteResponse, SearchApiV1SearchGetData, SearchApiV1SearchGetError, SearchApiV1SearchGetResponse, StatsApiV1AdminStatsGetData, StatsApiV1AdminStatsGetError, StatsApiV1AdminStatsGetResponse, SubmitDownloadApiV1DownloadsPostData, SubmitDownloadApiV1DownloadsPostError, SubmitDownloadApiV1DownloadsPostResponse, SubmitMatchApiV1TracksIdMatchesPostData, SubmitMatchApiV1TracksIdMatchesPostError, SubmitMatchApiV1TracksIdMatchesPostResponse, VoteLinkApiV1LinksLinkIdVotePostData, VoteLinkApiV1LinksLinkIdVotePostError, VoteLinkApiV1LinksLinkIdVotePostResponse, VoteLyricsApiV1LyricsLyricsIdVotePostData, VoteLyricsApiV1LyricsLyricsIdVotePostError, VoteLyricsApiV1LyricsLyricsIdVotePostResponse, VoteMatchApiV1MatchesMatchIdVotePostData, VoteMatchApiV1MatchesMatchIdVotePostError, VoteMatchApiV1MatchesMatchIdVotePostResponse } from '../types.gen';
+import { approveReportApiV1AdminReportsReportIdApprovePost, authorizeApiV1AuthOauthProviderAuthorizeGet, callbackApiV1AuthOauthProviderCallbackGet, cancelDownloadApiV1DownloadsJobIdDelete, configApiV1ConfigGet, createReportApiV1ReportsPost, createTokenApiV1AuthTokensPost, downloadFileApiV1DownloadsJobIdFileGet, getAlbumApiV1AlbumsIdGet, getAlbumSourcesApiV1AlbumsIdSourcesGet, getArtistApiV1ArtistsIdGet, getArtistSourcesApiV1ArtistsIdSourcesGet, getBatchApiV1DownloadsBatchesBatchIdGet, getBatchSaveFileApiV1DownloadsBatchesBatchIdSaveFileGet, getDownloadApiV1DownloadsJobIdGet, getPlaylistApiV1PlaylistsIdGet, getPlaylistSourcesApiV1PlaylistsIdSourcesGet, getTrackApiV1TracksIdGet, getTrackLyricsApiV1TracksIdLyricsGet, getTrackMatchesApiV1TracksIdMatchesGet, getTrackSourcesApiV1TracksIdSourcesGet, healthApiV1HealthGet, listDownloadsApiV1DownloadsGet, listMyReportsApiV1ReportsMeGet, listTokensApiV1AuthTokensGet, listUsersApiV1AdminUsersGet, loginApiV1AuthLoginPost, logoutApiV1AuthLogoutPost, meApiV1AuthMeGet, type Options, refreshApiV1AuthRefreshPost, registerApiV1AuthRegisterPost, rejectReportApiV1AdminReportsReportIdRejectPost, reportsQueueApiV1AdminReportsGet, resolveApiV1ResolvePost, revokeTokenApiV1AuthTokensTokenIdDelete, searchApiV1SearchGet, statsApiV1AdminStatsGet, submitDownloadApiV1DownloadsPost, submitMatchApiV1TracksIdMatchesPost, voteLinkApiV1LinksLinkIdVotePost, voteLyricsApiV1LyricsLyricsIdVotePost, voteMatchApiV1MatchesMatchIdVotePost } from '../sdk.gen';
+import type { ApproveReportApiV1AdminReportsReportIdApprovePostData, ApproveReportApiV1AdminReportsReportIdApprovePostError, ApproveReportApiV1AdminReportsReportIdApprovePostResponse, AuthorizeApiV1AuthOauthProviderAuthorizeGetData, AuthorizeApiV1AuthOauthProviderAuthorizeGetError, CallbackApiV1AuthOauthProviderCallbackGetData, CallbackApiV1AuthOauthProviderCallbackGetError, CancelDownloadApiV1DownloadsJobIdDeleteData, CancelDownloadApiV1DownloadsJobIdDeleteError, CancelDownloadApiV1DownloadsJobIdDeleteResponse, ConfigApiV1ConfigGetData, ConfigApiV1ConfigGetResponse, CreateReportApiV1ReportsPostData, CreateReportApiV1ReportsPostError, CreateReportApiV1ReportsPostResponse, CreateTokenApiV1AuthTokensPostData, CreateTokenApiV1AuthTokensPostError, CreateTokenApiV1AuthTokensPostResponse, DownloadFileApiV1DownloadsJobIdFileGetData, DownloadFileApiV1DownloadsJobIdFileGetError, GetAlbumApiV1AlbumsIdGetData, GetAlbumApiV1AlbumsIdGetError, GetAlbumApiV1AlbumsIdGetResponse, GetAlbumSourcesApiV1AlbumsIdSourcesGetData, GetAlbumSourcesApiV1AlbumsIdSourcesGetError, GetAlbumSourcesApiV1AlbumsIdSourcesGetResponse, GetArtistApiV1ArtistsIdGetData, GetArtistApiV1ArtistsIdGetError, GetArtistApiV1ArtistsIdGetResponse, GetArtistSourcesApiV1ArtistsIdSourcesGetData, GetArtistSourcesApiV1ArtistsIdSourcesGetError, GetArtistSourcesApiV1ArtistsIdSourcesGetResponse, GetBatchApiV1DownloadsBatchesBatchIdGetData, GetBatchApiV1DownloadsBatchesBatchIdGetError, GetBatchApiV1DownloadsBatchesBatchIdGetResponse, GetBatchSaveFileApiV1DownloadsBatchesBatchIdSaveFileGetData, GetBatchSaveFileApiV1DownloadsBatchesBatchIdSaveFileGetError, GetDownloadApiV1DownloadsJobIdGetData, GetDownloadApiV1DownloadsJobIdGetError, GetDownloadApiV1DownloadsJobIdGetResponse, GetPlaylistApiV1PlaylistsIdGetData, GetPlaylistApiV1PlaylistsIdGetError, GetPlaylistApiV1PlaylistsIdGetResponse, GetPlaylistSourcesApiV1PlaylistsIdSourcesGetData, GetPlaylistSourcesApiV1PlaylistsIdSourcesGetError, GetPlaylistSourcesApiV1PlaylistsIdSourcesGetResponse, GetTrackApiV1TracksIdGetData, GetTrackApiV1TracksIdGetError, GetTrackApiV1TracksIdGetResponse, GetTrackLyricsApiV1TracksIdLyricsGetData, GetTrackLyricsApiV1TracksIdLyricsGetError, GetTrackLyricsApiV1TracksIdLyricsGetResponse, GetTrackMatchesApiV1TracksIdMatchesGetData, GetTrackMatchesApiV1TracksIdMatchesGetError, GetTrackMatchesApiV1TracksIdMatchesGetResponse, GetTrackSourcesApiV1TracksIdSourcesGetData, GetTrackSourcesApiV1TracksIdSourcesGetError, GetTrackSourcesApiV1TracksIdSourcesGetResponse, HealthApiV1HealthGetData, HealthApiV1HealthGetResponse, ListDownloadsApiV1DownloadsGetData, ListDownloadsApiV1DownloadsGetError, ListDownloadsApiV1DownloadsGetResponse, ListMyReportsApiV1ReportsMeGetData, ListMyReportsApiV1ReportsMeGetError, ListMyReportsApiV1ReportsMeGetResponse, ListTokensApiV1AuthTokensGetData, ListTokensApiV1AuthTokensGetError, ListTokensApiV1AuthTokensGetResponse, ListUsersApiV1AdminUsersGetData, ListUsersApiV1AdminUsersGetError, ListUsersApiV1AdminUsersGetResponse, LoginApiV1AuthLoginPostData, LoginApiV1AuthLoginPostError, LoginApiV1AuthLoginPostResponse, LogoutApiV1AuthLogoutPostData, LogoutApiV1AuthLogoutPostError, LogoutApiV1AuthLogoutPostResponse, MeApiV1AuthMeGetData, MeApiV1AuthMeGetError, MeApiV1AuthMeGetResponse, RefreshApiV1AuthRefreshPostData, RefreshApiV1AuthRefreshPostError, RefreshApiV1AuthRefreshPostResponse, RegisterApiV1AuthRegisterPostData, RegisterApiV1AuthRegisterPostError, RegisterApiV1AuthRegisterPostResponse, RejectReportApiV1AdminReportsReportIdRejectPostData, RejectReportApiV1AdminReportsReportIdRejectPostError, RejectReportApiV1AdminReportsReportIdRejectPostResponse, ReportsQueueApiV1AdminReportsGetData, ReportsQueueApiV1AdminReportsGetError, ReportsQueueApiV1AdminReportsGetResponse, ResolveApiV1ResolvePostData, ResolveApiV1ResolvePostError, ResolveApiV1ResolvePostResponse, RevokeTokenApiV1AuthTokensTokenIdDeleteData, RevokeTokenApiV1AuthTokensTokenIdDeleteError, RevokeTokenApiV1AuthTokensTokenIdDeleteResponse, SearchApiV1SearchGetData, SearchApiV1SearchGetError, SearchApiV1SearchGetResponse, StatsApiV1AdminStatsGetData, StatsApiV1AdminStatsGetError, StatsApiV1AdminStatsGetResponse, SubmitDownloadApiV1DownloadsPostData, SubmitDownloadApiV1DownloadsPostError, SubmitDownloadApiV1DownloadsPostResponse, SubmitMatchApiV1TracksIdMatchesPostData, SubmitMatchApiV1TracksIdMatchesPostError, SubmitMatchApiV1TracksIdMatchesPostResponse, VoteLinkApiV1LinksLinkIdVotePostData, VoteLinkApiV1LinksLinkIdVotePostError, VoteLinkApiV1LinksLinkIdVotePostResponse, VoteLyricsApiV1LyricsLyricsIdVotePostData, VoteLyricsApiV1LyricsLyricsIdVotePostError, VoteLyricsApiV1LyricsLyricsIdVotePostResponse, VoteMatchApiV1MatchesMatchIdVotePostData, VoteMatchApiV1MatchesMatchIdVotePostError, VoteMatchApiV1MatchesMatchIdVotePostResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -249,6 +249,24 @@ export const getAlbumApiV1AlbumsIdGetOptions = (options: Options<GetAlbumApiV1Al
     queryKey: getAlbumApiV1AlbumsIdGetQueryKey(options)
 });
 
+export const getAlbumSourcesApiV1AlbumsIdSourcesGetQueryKey = (options: Options<GetAlbumSourcesApiV1AlbumsIdSourcesGetData>) => createQueryKey('getAlbumSourcesApiV1AlbumsIdSourcesGet', options);
+
+/**
+ * Get Album Sources
+ */
+export const getAlbumSourcesApiV1AlbumsIdSourcesGetOptions = (options: Options<GetAlbumSourcesApiV1AlbumsIdSourcesGetData>) => queryOptions<GetAlbumSourcesApiV1AlbumsIdSourcesGetResponse, GetAlbumSourcesApiV1AlbumsIdSourcesGetError, GetAlbumSourcesApiV1AlbumsIdSourcesGetResponse, ReturnType<typeof getAlbumSourcesApiV1AlbumsIdSourcesGetQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getAlbumSourcesApiV1AlbumsIdSourcesGet({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getAlbumSourcesApiV1AlbumsIdSourcesGetQueryKey(options)
+});
+
 export const getArtistApiV1ArtistsIdGetQueryKey = (options: Options<GetArtistApiV1ArtistsIdGetData>) => createQueryKey('getArtistApiV1ArtistsIdGet', options);
 
 /**
@@ -265,6 +283,24 @@ export const getArtistApiV1ArtistsIdGetOptions = (options: Options<GetArtistApiV
         return data;
     },
     queryKey: getArtistApiV1ArtistsIdGetQueryKey(options)
+});
+
+export const getArtistSourcesApiV1ArtistsIdSourcesGetQueryKey = (options: Options<GetArtistSourcesApiV1ArtistsIdSourcesGetData>) => createQueryKey('getArtistSourcesApiV1ArtistsIdSourcesGet', options);
+
+/**
+ * Get Artist Sources
+ */
+export const getArtistSourcesApiV1ArtistsIdSourcesGetOptions = (options: Options<GetArtistSourcesApiV1ArtistsIdSourcesGetData>) => queryOptions<GetArtistSourcesApiV1ArtistsIdSourcesGetResponse, GetArtistSourcesApiV1ArtistsIdSourcesGetError, GetArtistSourcesApiV1ArtistsIdSourcesGetResponse, ReturnType<typeof getArtistSourcesApiV1ArtistsIdSourcesGetQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getArtistSourcesApiV1ArtistsIdSourcesGet({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getArtistSourcesApiV1ArtistsIdSourcesGetQueryKey(options)
 });
 
 /**
@@ -763,6 +799,24 @@ export const getPlaylistApiV1PlaylistsIdGetOptions = (options: Options<GetPlayli
     queryKey: getPlaylistApiV1PlaylistsIdGetQueryKey(options)
 });
 
+export const getPlaylistSourcesApiV1PlaylistsIdSourcesGetQueryKey = (options: Options<GetPlaylistSourcesApiV1PlaylistsIdSourcesGetData>) => createQueryKey('getPlaylistSourcesApiV1PlaylistsIdSourcesGet', options);
+
+/**
+ * Get Playlist Sources
+ */
+export const getPlaylistSourcesApiV1PlaylistsIdSourcesGetOptions = (options: Options<GetPlaylistSourcesApiV1PlaylistsIdSourcesGetData>) => queryOptions<GetPlaylistSourcesApiV1PlaylistsIdSourcesGetResponse, GetPlaylistSourcesApiV1PlaylistsIdSourcesGetError, GetPlaylistSourcesApiV1PlaylistsIdSourcesGetResponse, ReturnType<typeof getPlaylistSourcesApiV1PlaylistsIdSourcesGetQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getPlaylistSourcesApiV1PlaylistsIdSourcesGet({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getPlaylistSourcesApiV1PlaylistsIdSourcesGetQueryKey(options)
+});
+
 /**
  * Create Report
  *
@@ -913,3 +967,21 @@ export const submitMatchApiV1TracksIdMatchesPostMutation = (options?: Partial<Op
     };
     return mutationOptions;
 };
+
+export const getTrackSourcesApiV1TracksIdSourcesGetQueryKey = (options: Options<GetTrackSourcesApiV1TracksIdSourcesGetData>) => createQueryKey('getTrackSourcesApiV1TracksIdSourcesGet', options);
+
+/**
+ * Get Track Sources
+ */
+export const getTrackSourcesApiV1TracksIdSourcesGetOptions = (options: Options<GetTrackSourcesApiV1TracksIdSourcesGetData>) => queryOptions<GetTrackSourcesApiV1TracksIdSourcesGetResponse, GetTrackSourcesApiV1TracksIdSourcesGetError, GetTrackSourcesApiV1TracksIdSourcesGetResponse, ReturnType<typeof getTrackSourcesApiV1TracksIdSourcesGetQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getTrackSourcesApiV1TracksIdSourcesGet({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getTrackSourcesApiV1TracksIdSourcesGetQueryKey(options)
+});

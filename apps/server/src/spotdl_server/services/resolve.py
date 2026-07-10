@@ -23,6 +23,7 @@ boundary). The unit of work is the caller's: repositories flush, and the FastAPI
 
 from __future__ import annotations
 
+import asyncio
 from datetime import UTC, datetime
 from typing import Any
 
@@ -32,6 +33,7 @@ from spotdl_core.model import (
     AudioCandidate,
     EntityType,
     ProviderId,
+    SearchHit,
     Track,
 )
 from spotdl_core.providers import (
@@ -42,6 +44,8 @@ from spotdl_core.providers import (
     ProvidesAudio,
     ResolvedEntity,
     Resolves,
+    Searches,
+    SearchesEntities,
     UnsupportedURL,
     parse,
 )
@@ -64,19 +68,47 @@ from spotdl_server.repositories.entities import (
     AlbumRepository,
     ArtistRepository,
     PlaylistRepository,
+    normalize_artist_name,
 )
 from spotdl_server.repositories.links import EntityLinkRepository
 from spotdl_server.repositories.lyrics import LyricsRepository
 from spotdl_server.repositories.matches import MatchRepository
-from spotdl_server.repositories.merge import CanonicalMerger
+from spotdl_server.repositories.merge import SOURCE_PRIORITY, CanonicalMerger
 from spotdl_server.repositories.snapshots import SnapshotRepository
 from spotdl_server.services import views
 from spotdl_server.services.dto import ResolveResult
 from spotdl_server.services.provider_search import provider_search
 
+#: The set of canonical metadata sources cross-provider enrichment fans out to —
+#: exactly the providers the deterministic merge ranks (``SOURCE_PRIORITY``:
+#: Spotify > Deezer > iTunes > MusicBrainz). Audio-only providers (YTMusic, …) are
+#: deliberately excluded: enrichment gathers *metadata*, and the merge only reads
+#: these four for display fields. Membership is checked, not iteration order — the
+#: merge re-sorts by priority regardless of the order snapshots are gathered in.
+_METADATA_SOURCES: frozenset[ProviderId] = frozenset(SOURCE_PRIORITY)
+
+#: Per-provider wall-clock budget for one enrichment fan-out leg (search + resolve).
+#: A secondary provider that exceeds it is dropped (recorded as a degraded source),
+#: never blocking the primary result. Kept small so total resolve latency stays the
+#: primary fetch plus one bounded, concurrent round to the other sources.
+_ENRICH_TIMEOUT_S: float = 6.0
+
+#: How many search hits a secondary provider is asked for per enrichment leg.
+_ENRICH_SEARCH_LIMIT: int = 5
+
 
 class ResolveService:
-    """Cache-first resolve of a query to a canonical entity + kicked matches."""
+    """Cache-first resolve of a query to a canonical entity + kicked matches.
+
+    On a cache **miss** the resolve additionally fans out to the other canonical
+    metadata providers (:data:`_METADATA_SOURCES`), snapshots the same real-world
+    entity from each, and links those snapshots so the deterministic merge folds
+    every source into the canonical row (Spotify still wins display fields). The
+    fan-out is bounded (per-provider timeout, concurrent) and best-effort (a miss
+    or error degrades that source, never the result). A warm re-resolve inside the
+    snapshot's freshness window skips the fan-out entirely — the durable snapshot
+    layer is the cache, so the already-linked secondary snapshots re-merge for free.
+    """
 
     def __init__(
         self,
@@ -136,17 +168,19 @@ class ResolveService:
     async def _resolve_track(self, ref: PlatformRef, degraded: set[ProviderId]) -> ResolveResult:
         now = datetime.now(UTC)
         primary = await self._snapshots.get_fresh(ref.provider, ref.entity_id, now)
-        if primary is None:  # cache miss → fetch + snapshot
+        enriched: list[ProviderSnapshot] = []
+        if primary is None:  # cache miss → fetch + snapshot + fan-out enrichment
             record_cache_miss("snapshot")
             resolved = await self._fetch_primary(ref)
             assert resolved.track is not None  # _fetch_primary guarantees a track
             primary = await self._persist_track_snapshot(
                 resolved.provider, resolved.provider_id, resolved.track
             )
+            enriched = await self._enrich_track(resolved.provider, resolved.track, degraded)
         else:
             record_cache_hit("snapshot")
 
-        merge_set = await self._merge_set(primary)
+        merge_set = self._combine(await self._merge_set(primary), enriched)
         track = await self._merger.merge_track(merge_set)
         await self._kick_matching(track, degraded)
 
@@ -205,6 +239,240 @@ class ResolveService:
         )
         record_match_served(self._matcher_config.matcher_version)
 
+    # --------------------------------------------------- cross-provider enrich
+    def _enrichment_providers(self, primary: ProviderId, capability: type) -> list[Any]:
+        """The other canonical metadata sources with ``capability``, primary excluded.
+
+        Restricted to :data:`_METADATA_SOURCES` (the merge-ranked providers) so
+        enrichment only gathers display metadata. ``capable`` constructs each lazily
+        and skips (records in ``registry.unavailable``) any whose factory fails, so a
+        broken optional provider degrades exactly one source.
+        """
+        providers: list[Any] = self._registry.capable(capability)
+        return [
+            provider
+            for provider in providers
+            if provider.id in _METADATA_SOURCES and provider.id != primary
+        ]
+
+    async def _gather_enrich(
+        self, providers: list[Any], leg: Any, degraded: set[ProviderId]
+    ) -> list[ProviderSnapshot]:
+        """Run one enrichment ``leg`` per provider, concurrently + time-bounded.
+
+        Each leg returns a linked-in snapshot or ``None`` (a clean miss — the source
+        had no confident match). A leg that raises or exceeds
+        :data:`_ENRICH_TIMEOUT_S` degrades that source (never fatal). Never blocks
+        the primary result on a slow secondary — the timeout caps every leg.
+        """
+        if not providers:
+            return []
+
+        async def _bounded(provider: Any) -> ProviderSnapshot | None:
+            return await asyncio.wait_for(leg(provider), timeout=_ENRICH_TIMEOUT_S)
+
+        results = await asyncio.gather(
+            *(_bounded(provider) for provider in providers), return_exceptions=True
+        )
+        snapshots: list[ProviderSnapshot] = []
+        for provider, result in zip(providers, results, strict=True):
+            if isinstance(result, ProviderSnapshot):
+                snapshots.append(result)
+            elif isinstance(result, BaseException):
+                degraded.add(provider.id)
+                record_provider_error(provider.id.value)
+        return snapshots
+
+    async def _enrich_track(
+        self, primary: ProviderId, track: Track, degraded: set[ProviderId]
+    ) -> list[ProviderSnapshot]:
+        """Fan out to the other metadata sources for the same recording.
+
+        Match strategy: search each source by ISRC (falling back to
+        ``name + main artist`` when the ISRC query finds nothing, or when the track
+        has no ISRC), confirm the best hit is really the same recording with the
+        shared matcher (``match`` — reusing its ISRC/title/artist gate, no new rule),
+        resolve it to a full entity, and snapshot + link it so the merge folds it in.
+        """
+        providers = self._enrichment_providers(primary, Searches)
+
+        async def leg(provider: Any) -> ProviderSnapshot | None:
+            return await self._enrich_track_from(provider, track)
+
+        return await self._gather_enrich(providers, leg, degraded)
+
+    async def _enrich_track_from(self, provider: Any, track: Track) -> ProviderSnapshot | None:
+        queries: list[str] = []
+        if track.isrc:
+            queries.append(track.isrc)
+        queries.append(f"{track.name} {track.main_artist}".strip())
+        for query in queries:
+            hits = await provider.search(query, limit=_ENRICH_SEARCH_LIMIT)
+            best = self._best_track_match(track, hits)
+            if best is None:
+                continue
+            full = await self._resolve_secondary_track(provider, best)
+            confirmed = full or best
+            if confirmed.provider_id is None:
+                return None  # cannot key/cache a ref-less hit
+            return await self._persist_track_snapshot(
+                provider.id, confirmed.provider_id, confirmed
+            )
+        return None
+
+    def _best_track_match(self, track: Track, hits: list[Track]) -> Track | None:
+        """The highest-confidence hit confirmed to be the same recording, or ``None``.
+
+        Reuses the shared matcher: each hit is scored as an audio candidate against
+        ``track`` and accepted only above the matcher's own ISRC short-circuit
+        threshold (a calibrated number, not an invented one).
+        """
+        threshold = self._matcher_config.selection.isrc_short_circuit_min_score
+        best: Track | None = None
+        best_score = threshold
+        for hit in hits:
+            ranked = match(track, [self._as_candidate(hit)], self._matcher_config)
+            if ranked and ranked[0].score >= best_score:
+                best_score = ranked[0].score
+                best = hit
+        return best
+
+    @staticmethod
+    def _as_candidate(track: Track) -> AudioCandidate:
+        """Adapt a metadata hit to an ``AudioCandidate`` for a match-confidence check."""
+        return AudioCandidate(
+            provider=track.provider or ProviderId.SPOTIFY,
+            provider_id=track.provider_id or "",
+            url="",
+            name=track.name,
+            artists=track.artists,
+            duration_ms=track.duration_ms,
+            album=track.album.name if track.album is not None else None,
+            isrc=track.isrc,
+        )
+
+    @staticmethod
+    async def _resolve_secondary_track(provider: Any, hit: Track) -> Track | None:
+        """Resolve a confirmed hit's ref to a full track (for its richer metadata)."""
+        if hit.provider_id is None or not isinstance(provider, Resolves):
+            return None
+        resolved = await provider.resolve(
+            PlatformRef(
+                provider=provider.id, entity_type=EntityType.TRACK, entity_id=hit.provider_id
+            )
+        )
+        return resolved.track
+
+    async def _enrich_album(
+        self, resolved: ResolvedEntity, degraded: set[ProviderId]
+    ) -> list[ProviderSnapshot]:
+        """Fan out to the other metadata sources for the same album (name + year gate).
+
+        Matched by normalized name, additionally gated on release year and album
+        artist when the primary carries them (conservative — a miss is non-fatal).
+        Only ``SearchesEntities`` providers can search albums, so this naturally
+        narrows to Spotify/Deezer.
+        """
+        album = resolved.album
+        name = album.name if album is not None else resolved.name
+        if not name:
+            return []
+        year = album.year if album is not None else None
+        album_artist = album.album_artist if album is not None else None
+        providers = self._enrichment_providers(resolved.provider, SearchesEntities)
+
+        async def leg(provider: Any) -> ProviderSnapshot | None:
+            return await self._enrich_album_from(provider, name, year, album_artist)
+
+        return await self._gather_enrich(providers, leg, degraded)
+
+    async def _enrich_album_from(
+        self, provider: Any, name: str, year: int | None, album_artist: str | None
+    ) -> ProviderSnapshot | None:
+        hits = await provider.search_entities(
+            name, types=frozenset({EntityType.ALBUM}), limit=_ENRICH_SEARCH_LIMIT
+        )
+        best = self._best_album_match(name, year, album_artist, hits)
+        if best is None or not isinstance(provider, Resolves):
+            return None
+        resolved = await provider.resolve(
+            PlatformRef(
+                provider=provider.id, entity_type=EntityType.ALBUM, entity_id=best.provider_id
+            )
+        )
+        return await self._persist_album_snapshot(resolved)
+
+    @staticmethod
+    def _best_album_match(
+        name: str, year: int | None, album_artist: str | None, hits: list[SearchHit]
+    ) -> SearchHit | None:
+        target = normalize_artist_name(name)
+        target_artist = normalize_artist_name(album_artist) if album_artist else None
+        for hit in hits:
+            if normalize_artist_name(hit.name) != target:
+                continue
+            if year is not None and hit.year is not None and hit.year != year:
+                continue
+            if (
+                target_artist is not None
+                and hit.subtitle
+                and normalize_artist_name(hit.subtitle) != target_artist
+            ):
+                continue
+            return hit
+        return None
+
+    async def _enrich_artist(
+        self, resolved: ResolvedEntity, degraded: set[ProviderId]
+    ) -> list[ProviderSnapshot]:
+        """Fan out to the other metadata sources for the same artist (normalized name).
+
+        Confirmed by :func:`normalize_artist_name` equality (the shared artist-identity
+        key), so only an exact normalized-name match links. Only ``SearchesEntities``
+        providers can search artists, narrowing to Spotify/Deezer.
+        """
+        artist = resolved.artist
+        name = artist.name if artist is not None else resolved.name
+        if not name:
+            return []
+        providers = self._enrichment_providers(resolved.provider, SearchesEntities)
+
+        async def leg(provider: Any) -> ProviderSnapshot | None:
+            return await self._enrich_artist_from(provider, name)
+
+        return await self._gather_enrich(providers, leg, degraded)
+
+    async def _enrich_artist_from(self, provider: Any, name: str) -> ProviderSnapshot | None:
+        hits = await provider.search_entities(
+            name, types=frozenset({EntityType.ARTIST}), limit=_ENRICH_SEARCH_LIMIT
+        )
+        target = normalize_artist_name(name)
+        best = next(
+            (hit for hit in hits if normalize_artist_name(hit.name) == target),
+            None,
+        )
+        if best is None or not isinstance(provider, Resolves):
+            return None
+        resolved = await provider.resolve(
+            PlatformRef(
+                provider=provider.id, entity_type=EntityType.ARTIST, entity_id=best.provider_id
+            )
+        )
+        return await self._persist_artist_snapshot(resolved)
+
+    @staticmethod
+    def _combine(
+        base: list[ProviderSnapshot], extra: list[ProviderSnapshot]
+    ) -> list[ProviderSnapshot]:
+        """Union two snapshot lists, de-duplicated by id (order-independent merge)."""
+        seen = {snapshot.id for snapshot in base}
+        combined = list(base)
+        for snapshot in extra:
+            if snapshot.id not in seen:
+                seen.add(snapshot.id)
+                combined.append(snapshot)
+        return combined
+
     # ------------------------------------------------------------- container
     async def _resolve_container(
         self, ref: PlatformRef, degraded: set[ProviderId]
@@ -225,7 +493,7 @@ class ResolveService:
 
         record_cache_miss("snapshot")
         resolved = await self._fetch_container(ref)
-        return await self._merge_container(resolved)
+        return await self._merge_container(resolved, degraded)
 
     async def _fetch_container(self, ref: PlatformRef) -> ResolvedEntity:
         try:
@@ -240,22 +508,26 @@ class ResolveService:
             )
         return await provider.resolve(ref)
 
-    async def _merge_container(self, resolved: ResolvedEntity) -> ResolveResult:
+    async def _merge_container(
+        self, resolved: ResolvedEntity, degraded: set[ProviderId]
+    ) -> ResolveResult:
         if resolved.entity_type is EntityType.ALBUM:
             album_snap = await self._persist_album_snapshot(resolved)
+            enriched = await self._enrich_album(resolved, degraded)
             by_pos = {
                 index: [await self._persist_track_snapshot_from(resolved, index, track)]
                 for index, track in enumerate(resolved.tracks)
             }
-            album = await self._merger.merge_album([album_snap], by_pos)
+            album = await self._merger.merge_album([album_snap, *enriched], by_pos)
             return ResolveResult(entity_type=EntityType.ALBUM.value, album=views.album_view(album))
         if resolved.entity_type is EntityType.ARTIST:
             artist_snap = await self._persist_artist_snapshot(resolved)
+            enriched = await self._enrich_artist(resolved, degraded)
             by_pos = {
                 index: [await self._persist_track_snapshot_from(resolved, index, track)]
                 for index, track in enumerate(resolved.tracks)
             }
-            artist = await self._merger.merge_artist([artist_snap], by_pos)
+            artist = await self._merger.merge_artist([artist_snap, *enriched], by_pos)
             return ResolveResult(
                 entity_type=EntityType.ARTIST.value, artist=views.artist_view(artist)
             )

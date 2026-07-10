@@ -35,6 +35,7 @@ from .lyrics_response import LyricsResponse
 from .match_out import MatchOut
 from .match_status import MatchStatus
 from .matches_response import MatchesResponse
+from .metadata_source_out import MetadataSourceOut
 from .output_format import OutputFormat
 from .overwrite_mode import OverwriteMode
 from .paged_reports import PagedReports
@@ -50,6 +51,7 @@ from .report_status import ReportStatus
 from .resolve_request import ResolveRequest
 from .resolve_response import ResolveResponse
 from .search_response import SearchResponse
+from .sources_response import SourcesResponse
 from .submit_match_request import SubmitMatchRequest
 from .token_response import TokenResponse
 from .track_out import TrackOut
@@ -96,6 +98,7 @@ __all__ = (
     "MatchesResponse",
     "MatchOut",
     "MatchStatus",
+    "MetadataSourceOut",
     "OutputFormat",
     "OverwriteMode",
     "PagedReports",
@@ -111,6 +114,7 @@ __all__ = (
     "ResolveRequest",
     "ResolveResponse",
     "SearchResponse",
+    "SourcesResponse",
     "SubmitMatchRequest",
     "TokenResponse",
     "TrackOut",

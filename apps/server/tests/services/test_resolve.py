@@ -171,7 +171,9 @@ async def test_resolve_free_text_falls_back_to_search(session: AsyncSession) -> 
 
     assert result.track is not None
     assert result.track.name == "Found"
-    assert searcher.calls == ["adele hello free text"]
+    # The free-text query drives the fallback search (Phase 3 enrichment may add a
+    # follow-up ISRC search to the same secondary provider afterwards).
+    assert searcher.calls[0] == "adele hello free text"
     # Resolved the searched track's ref via the Spotify resolver.
     assert resolver.calls and resolver.calls[0].entity_id == "sp99"
 

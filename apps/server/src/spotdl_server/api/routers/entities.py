@@ -11,6 +11,7 @@ from __future__ import annotations
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from spotdl_core.model import EntityType
 
 from spotdl_server.api.deps import get_entity_service
 from spotdl_server.api.routers import ERROR_RESPONSES
@@ -21,7 +22,9 @@ from spotdl_server.api.schemas import (
     LyricsResponse,
     MatchesResponse,
     MatchOut,
+    MetadataSourceOut,
     PlaylistOut,
+    SourcesResponse,
     TrackOut,
 )
 from spotdl_server.services.entities import EntityService
@@ -59,6 +62,49 @@ async def get_playlist(
     service: EntityService = Depends(get_entity_service),
 ) -> PlaylistOut:
     return PlaylistOut.from_view(await service.get_playlist(id))
+
+
+async def _sources_response(
+    entity_type: EntityType, id: UUID, service: EntityService
+) -> SourcesResponse:
+    sources = await service.get_sources(entity_type, id)
+    return SourcesResponse(
+        entity_type=entity_type,
+        entity_id=str(id),
+        sources=[MetadataSourceOut.from_view(source) for source in sources],
+    )
+
+
+@router.get("/tracks/{id}/sources", response_model=SourcesResponse)
+async def get_track_sources(
+    id: UUID,
+    service: EntityService = Depends(get_entity_service),
+) -> SourcesResponse:
+    return await _sources_response(EntityType.TRACK, id, service)
+
+
+@router.get("/albums/{id}/sources", response_model=SourcesResponse)
+async def get_album_sources(
+    id: UUID,
+    service: EntityService = Depends(get_entity_service),
+) -> SourcesResponse:
+    return await _sources_response(EntityType.ALBUM, id, service)
+
+
+@router.get("/artists/{id}/sources", response_model=SourcesResponse)
+async def get_artist_sources(
+    id: UUID,
+    service: EntityService = Depends(get_entity_service),
+) -> SourcesResponse:
+    return await _sources_response(EntityType.ARTIST, id, service)
+
+
+@router.get("/playlists/{id}/sources", response_model=SourcesResponse)
+async def get_playlist_sources(
+    id: UUID,
+    service: EntityService = Depends(get_entity_service),
+) -> SourcesResponse:
+    return await _sources_response(EntityType.PLAYLIST, id, service)
 
 
 @router.get("/tracks/{id}/matches", response_model=MatchesResponse)

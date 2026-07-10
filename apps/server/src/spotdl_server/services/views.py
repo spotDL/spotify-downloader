@@ -16,6 +16,7 @@ off the ORM relationship, keeping the async boundary at the service layer.
 from __future__ import annotations
 
 from collections.abc import Sequence
+from typing import Any
 
 from spotdl_server.db.models import (
     Album as AlbumModel,
@@ -33,6 +34,9 @@ from spotdl_server.db.models import (
     Playlist as PlaylistModel,
 )
 from spotdl_server.db.models import (
+    ProviderSnapshot,
+)
+from spotdl_server.db.models import (
     Track as TrackModel,
 )
 from spotdl_server.services.dto import (
@@ -40,6 +44,7 @@ from spotdl_server.services.dto import (
     ArtistView,
     LyricsView,
     MatchView,
+    MetadataSourceView,
     PlaylistView,
     TrackView,
 )
@@ -170,6 +175,51 @@ def artist_view(artist: ArtistModel) -> ArtistView:
         country=artist.country,
         header_url=artist.header_url,
         tracks=tuple(track_view(t) for t in artist.tracks),
+    )
+
+
+def _payload_of(snapshot: ProviderSnapshot) -> dict[str, Any]:
+    payload = snapshot.raw_payload
+    return payload if isinstance(payload, dict) else {}
+
+
+def _int_field(payload: dict[str, Any], key: str) -> int | None:
+    value = payload.get(key)
+    return value if isinstance(value, int) and not isinstance(value, bool) else None
+
+
+def _str_field(payload: dict[str, Any], key: str) -> str | None:
+    value = payload.get(key)
+    return value if isinstance(value, str) else None
+
+
+def metadata_source_view(snapshot: ProviderSnapshot) -> MetadataSourceView:
+    """Map one entity-linked provider snapshot to a per-source provenance view.
+
+    Reads the fast-query normalized columns first, then the ``raw_payload`` for the
+    notable metadata a source contributed (mirrors the accessor convention the
+    :class:`~spotdl_server.repositories.merge.CanonicalMerger` uses, but only for
+    display — this never influences the merge). Fields irrelevant to the snapshot's
+    entity type simply stay ``None`` / empty.
+    """
+    payload = _payload_of(snapshot)
+    genres = payload.get("genres")
+    return MetadataSourceView(
+        provider=snapshot.provider.value,
+        entity_type=snapshot.entity_type.value,
+        fetched_at=snapshot.fetched_at,
+        name=snapshot.name or _str_field(payload, "name"),
+        cover_url=snapshot.art_url
+        or _str_field(payload, "cover_url")
+        or _str_field(payload, "image_url"),
+        isrc=snapshot.isrc or _str_field(payload, "isrc"),
+        popularity=_int_field(payload, "popularity"),
+        followers=_int_field(payload, "followers"),
+        genres=tuple(genres) if isinstance(genres, list) else (),
+        label=_str_field(payload, "label"),
+        year=_int_field(payload, "year"),
+        album_name=snapshot.album_name,
+        artist_names=tuple(snapshot.artist_names or ()),
     )
 
 

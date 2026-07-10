@@ -29,6 +29,7 @@ import uuid
 from spotdl_core.model import EntityType
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from spotdl_server.db.models import ProviderSnapshot
 from spotdl_server.db.models import Track as TrackModel
 from spotdl_server.repositories.entities import (
     AlbumRepository,
@@ -38,12 +39,15 @@ from spotdl_server.repositories.entities import (
 )
 from spotdl_server.repositories.lyrics import LyricsRepository
 from spotdl_server.repositories.matches import MatchRepository
+from spotdl_server.repositories.merge import SOURCE_PRIORITY
+from spotdl_server.repositories.snapshots import SnapshotRepository
 from spotdl_server.services import views
 from spotdl_server.services.dto import (
     AlbumView,
     ArtistView,
     LyricsView,
     MatchView,
+    MetadataSourceView,
     PlaylistView,
     TrackView,
 )
@@ -61,6 +65,7 @@ class EntityService:
         self._playlists = PlaylistRepository(session)
         self._matches = MatchRepository(session)
         self._lyrics = LyricsRepository(session)
+        self._snapshots = SnapshotRepository(session)
 
     async def get_track(self, id: uuid.UUID | str) -> TrackView:
         track = await self._require_track(EntityType.TRACK, id)
@@ -99,6 +104,34 @@ class EntityService:
         rows = await self._lyrics.list_for_track(track.id)
         return tuple(views.lyrics_view(row) for row in rows)
 
+    async def get_sources(
+        self, entity_type: EntityType, id: uuid.UUID | str
+    ) -> tuple[MetadataSourceView, ...]:
+        """The per-provider metadata-sources breakdown for a canonical entity.
+
+        Reads the ``EntityLink`` → ``ProviderSnapshot`` provenance set for
+        ``(entity_type, id)`` and maps each contributing snapshot to a
+        :class:`MetadataSourceView`, ordered Spotify-first (``SOURCE_PRIORITY``) so
+        the UI's "Metadata Sources" panel lists the display source of truth first.
+        Raises :class:`NotFoundError` when the entity itself is absent (an existing
+        entity with no snapshots returns an empty tuple).
+        """
+        entity_id = _coerce(id)
+        if entity_id is None or not await self._entity_exists(entity_type, entity_id):
+            raise NotFoundError(entity_type=entity_type, entity_id=id)
+        snapshots = await self._snapshots.list_for_entity(entity_type, entity_id)
+        ordered = sorted(snapshots, key=_source_sort_key)
+        return tuple(views.metadata_source_view(snapshot) for snapshot in ordered)
+
+    async def _entity_exists(self, entity_type: EntityType, entity_id: uuid.UUID) -> bool:
+        if entity_type is EntityType.TRACK:
+            return await self._tracks.get(entity_id) is not None
+        if entity_type is EntityType.ALBUM:
+            return await self._albums.get(entity_id) is not None
+        if entity_type is EntityType.ARTIST:
+            return await self._artists.get(entity_id) is not None
+        return await self._playlists.get(entity_id) is not None
+
     async def _require_track(self, entity_type: EntityType, id: uuid.UUID | str) -> TrackModel:
         """Load a track or raise :class:`NotFoundError` (invalid id counts as absent)."""
         entity_id = _coerce(id)
@@ -106,6 +139,15 @@ class EntityService:
         if track is None:
             raise NotFoundError(entity_type=entity_type, entity_id=id)
         return track
+
+
+_SOURCE_RANK = {provider: index for index, provider in enumerate(SOURCE_PRIORITY)}
+
+
+def _source_sort_key(snapshot: ProviderSnapshot) -> tuple[int, str, str]:
+    """Order sources Spotify-first (``SOURCE_PRIORITY``), then a stable total order."""
+    rank = _SOURCE_RANK.get(snapshot.provider, len(SOURCE_PRIORITY))
+    return (rank, snapshot.provider.value, snapshot.provider_entity_id)
 
 
 def _coerce(value: uuid.UUID | str) -> uuid.UUID | None:

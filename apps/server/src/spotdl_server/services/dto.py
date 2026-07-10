@@ -16,6 +16,7 @@ succeeded (spec §10 "no silent fallbacks": the client can always see what broke
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import datetime
 
 
 @dataclass(frozen=True, slots=True)
@@ -133,6 +134,35 @@ class PlaylistView:
     owner: str | None = None
     cover_url: str | None = None
     tracks: tuple[TrackView, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
+class MetadataSourceView:
+    """One provider's contribution to a canonical entity (the "sources" breakdown).
+
+    Built from a single :class:`~spotdl_server.db.models.ProviderSnapshot` linked to
+    the entity, so the UI's "Metadata Sources" panel can render, per provider, the
+    fields that snapshot carries (spec §Phase 3). ``provider`` / ``fetched_at`` /
+    ``name`` / ``cover_url`` are the shared header; the remaining fields are the
+    notable metadata a source contributed (only the ones relevant to the entity
+    type are populated — e.g. ``followers`` for an artist, ``label`` for an album,
+    ``isrc`` for a track). The merged canonical row still displays Spotify-first;
+    this view is purely the per-source provenance.
+    """
+
+    provider: str
+    entity_type: str
+    fetched_at: datetime
+    name: str | None = None
+    cover_url: str | None = None
+    isrc: str | None = None
+    popularity: int | None = None
+    followers: int | None = None
+    genres: tuple[str, ...] = ()
+    label: str | None = None
+    year: int | None = None
+    album_name: str | None = None
+    artist_names: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

@@ -155,6 +155,65 @@ class FakeEntitySearcher:
         return selected
 
 
+class FakeMetadataProvider:
+    """A combined ``Resolves`` + ``Searches`` + ``SearchesEntities`` metadata source.
+
+    Drives cross-provider enrichment (Phase 3): ``search`` returns fixed track hits,
+    ``search_entities`` returns fixed mixed hits filtered by ``types``, and
+    ``resolve`` echoes the ref — returning the configured full entity for that
+    ``entity_type`` (``resolved``) or a bare echo otherwise. ``search_calls`` /
+    ``resolve_calls`` record activity so a test can assert a warm re-resolve does
+    **not** re-fan-out. ``error`` makes every call raise, exercising the
+    degraded-secondary path (non-fatal).
+    """
+
+    def __init__(
+        self,
+        *,
+        id: ProviderId,
+        tracks: Iterable[Track] = (),
+        hits: Iterable[SearchHit] = (),
+        resolved: dict[EntityType, ResolvedEntity] | None = None,
+        error: Exception | None = None,
+    ) -> None:
+        self.id = id
+        self.tracks = list(tracks)
+        self.hits = list(hits)
+        self.resolved = dict(resolved or {})
+        self.error = error
+        self.search_calls: list[str] = []
+        self.resolve_calls: list[PlatformRef] = []
+
+    async def search(self, query: str, *, limit: int = 10) -> list[Track]:
+        self.search_calls.append(query)
+        if self.error is not None:
+            raise self.error
+        return self.tracks[:limit]
+
+    async def search_entities(
+        self,
+        query: str,
+        *,
+        types: frozenset[EntityType] = ALL_SEARCH_ENTITY_TYPES,
+        limit: int = 10,
+    ) -> list[SearchHit]:
+        self.search_calls.append(query)
+        if self.error is not None:
+            raise self.error
+        return [hit for hit in self.hits if hit.entity_type in types][:limit]
+
+    async def resolve(self, ref: PlatformRef) -> ResolvedEntity:
+        self.resolve_calls.append(ref)
+        if self.error is not None:
+            raise self.error
+        entity = self.resolved.get(ref.entity_type)
+        if entity is not None:
+            return entity
+        return ResolvedEntity(
+            provider=self.id, provider_id=ref.entity_id, entity_type=ref.entity_type
+        )
+
+
 class FakeAudioProvider:
     """A ``ProvidesAudio`` provider returning fixed candidates (truncated to limit)."""
 

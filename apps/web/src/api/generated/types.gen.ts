@@ -837,6 +837,65 @@ export type MatchesResponse = {
 };
 
 /**
+ * MetadataSourceOut
+ *
+ * One provider's contribution to a canonical entity (``.../{id}/sources`` element).
+ *
+ * The merged canonical row still displays Spotify-first; this is the per-source
+ * provenance the "Metadata Sources" panel renders. Only the fields relevant to the
+ * entity type are populated (``followers`` for an artist, ``label``/``year`` for an
+ * album, ``isrc`` for a track, …); the rest stay ``null``/empty.
+ */
+export type MetadataSourceOut = {
+    /**
+     * Album Name
+     */
+    album_name?: string | null;
+    /**
+     * Artist Names
+     */
+    artist_names?: Array<string>;
+    /**
+     * Cover Url
+     */
+    cover_url?: string | null;
+    entity_type: EntityType;
+    /**
+     * Fetched At
+     */
+    fetched_at: string;
+    /**
+     * Followers
+     */
+    followers?: number | null;
+    /**
+     * Genres
+     */
+    genres?: Array<string>;
+    /**
+     * Isrc
+     */
+    isrc?: string | null;
+    /**
+     * Label
+     */
+    label?: string | null;
+    /**
+     * Name
+     */
+    name?: string | null;
+    /**
+     * Popularity
+     */
+    popularity?: number | null;
+    provider: ProviderId;
+    /**
+     * Year
+     */
+    year?: number | null;
+};
+
+/**
  * OutputFormat
  */
 export type OutputFormat = 'mp3' | 'm4a' | 'flac' | 'ogg' | 'opus' | 'wav';
@@ -1131,6 +1190,27 @@ export type SearchResponse = {
      * Results
      */
     results: Array<TrackOut>;
+};
+
+/**
+ * SourcesResponse
+ *
+ * ``GET /{tracks|albums|artists|playlists}/{id}/sources``: the entity's provenance.
+ *
+ * ``sources`` lists every provider snapshot linked to the canonical entity, ordered
+ * Spotify-first (``SOURCE_PRIORITY``), so the UI can show which providers contributed
+ * which fields to the merged row.
+ */
+export type SourcesResponse = {
+    /**
+     * Entity Id
+     */
+    entity_id: string;
+    entity_type: EntityType;
+    /**
+     * Sources
+     */
+    sources: Array<MetadataSourceOut>;
 };
 
 /**
@@ -1765,6 +1845,68 @@ export type GetAlbumApiV1AlbumsIdGetResponses = {
 
 export type GetAlbumApiV1AlbumsIdGetResponse = GetAlbumApiV1AlbumsIdGetResponses[keyof GetAlbumApiV1AlbumsIdGetResponses];
 
+export type GetAlbumSourcesApiV1AlbumsIdSourcesGetData = {
+    body?: never;
+    path: {
+        /**
+         * Id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/albums/{id}/sources';
+};
+
+export type GetAlbumSourcesApiV1AlbumsIdSourcesGetErrors = {
+    /**
+     * Bad Request
+     */
+    400: ErrorEnvelope;
+    /**
+     * Unauthorized
+     */
+    401: ErrorEnvelope;
+    /**
+     * Forbidden
+     */
+    403: ErrorEnvelope;
+    /**
+     * Not Found
+     */
+    404: ErrorEnvelope;
+    /**
+     * Conflict
+     */
+    409: ErrorEnvelope;
+    /**
+     * Unprocessable Content
+     */
+    422: ErrorEnvelope;
+    /**
+     * Too Many Requests
+     */
+    429: ErrorEnvelope;
+    /**
+     * Internal Server Error
+     */
+    500: ErrorEnvelope;
+    /**
+     * Bad Gateway
+     */
+    502: ErrorEnvelope;
+};
+
+export type GetAlbumSourcesApiV1AlbumsIdSourcesGetError = GetAlbumSourcesApiV1AlbumsIdSourcesGetErrors[keyof GetAlbumSourcesApiV1AlbumsIdSourcesGetErrors];
+
+export type GetAlbumSourcesApiV1AlbumsIdSourcesGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: SourcesResponse;
+};
+
+export type GetAlbumSourcesApiV1AlbumsIdSourcesGetResponse = GetAlbumSourcesApiV1AlbumsIdSourcesGetResponses[keyof GetAlbumSourcesApiV1AlbumsIdSourcesGetResponses];
+
 export type GetArtistApiV1ArtistsIdGetData = {
     body?: never;
     path: {
@@ -1826,6 +1968,68 @@ export type GetArtistApiV1ArtistsIdGetResponses = {
 };
 
 export type GetArtistApiV1ArtistsIdGetResponse = GetArtistApiV1ArtistsIdGetResponses[keyof GetArtistApiV1ArtistsIdGetResponses];
+
+export type GetArtistSourcesApiV1ArtistsIdSourcesGetData = {
+    body?: never;
+    path: {
+        /**
+         * Id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/artists/{id}/sources';
+};
+
+export type GetArtistSourcesApiV1ArtistsIdSourcesGetErrors = {
+    /**
+     * Bad Request
+     */
+    400: ErrorEnvelope;
+    /**
+     * Unauthorized
+     */
+    401: ErrorEnvelope;
+    /**
+     * Forbidden
+     */
+    403: ErrorEnvelope;
+    /**
+     * Not Found
+     */
+    404: ErrorEnvelope;
+    /**
+     * Conflict
+     */
+    409: ErrorEnvelope;
+    /**
+     * Unprocessable Content
+     */
+    422: ErrorEnvelope;
+    /**
+     * Too Many Requests
+     */
+    429: ErrorEnvelope;
+    /**
+     * Internal Server Error
+     */
+    500: ErrorEnvelope;
+    /**
+     * Bad Gateway
+     */
+    502: ErrorEnvelope;
+};
+
+export type GetArtistSourcesApiV1ArtistsIdSourcesGetError = GetArtistSourcesApiV1ArtistsIdSourcesGetErrors[keyof GetArtistSourcesApiV1ArtistsIdSourcesGetErrors];
+
+export type GetArtistSourcesApiV1ArtistsIdSourcesGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: SourcesResponse;
+};
+
+export type GetArtistSourcesApiV1ArtistsIdSourcesGetResponse = GetArtistSourcesApiV1ArtistsIdSourcesGetResponses[keyof GetArtistSourcesApiV1ArtistsIdSourcesGetResponses];
 
 export type LoginApiV1AuthLoginPostData = {
     body: LoginRequest;
@@ -2921,6 +3125,68 @@ export type GetPlaylistApiV1PlaylistsIdGetResponses = {
 
 export type GetPlaylistApiV1PlaylistsIdGetResponse = GetPlaylistApiV1PlaylistsIdGetResponses[keyof GetPlaylistApiV1PlaylistsIdGetResponses];
 
+export type GetPlaylistSourcesApiV1PlaylistsIdSourcesGetData = {
+    body?: never;
+    path: {
+        /**
+         * Id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/playlists/{id}/sources';
+};
+
+export type GetPlaylistSourcesApiV1PlaylistsIdSourcesGetErrors = {
+    /**
+     * Bad Request
+     */
+    400: ErrorEnvelope;
+    /**
+     * Unauthorized
+     */
+    401: ErrorEnvelope;
+    /**
+     * Forbidden
+     */
+    403: ErrorEnvelope;
+    /**
+     * Not Found
+     */
+    404: ErrorEnvelope;
+    /**
+     * Conflict
+     */
+    409: ErrorEnvelope;
+    /**
+     * Unprocessable Content
+     */
+    422: ErrorEnvelope;
+    /**
+     * Too Many Requests
+     */
+    429: ErrorEnvelope;
+    /**
+     * Internal Server Error
+     */
+    500: ErrorEnvelope;
+    /**
+     * Bad Gateway
+     */
+    502: ErrorEnvelope;
+};
+
+export type GetPlaylistSourcesApiV1PlaylistsIdSourcesGetError = GetPlaylistSourcesApiV1PlaylistsIdSourcesGetErrors[keyof GetPlaylistSourcesApiV1PlaylistsIdSourcesGetErrors];
+
+export type GetPlaylistSourcesApiV1PlaylistsIdSourcesGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: SourcesResponse;
+};
+
+export type GetPlaylistSourcesApiV1PlaylistsIdSourcesGetResponse = GetPlaylistSourcesApiV1PlaylistsIdSourcesGetResponses[keyof GetPlaylistSourcesApiV1PlaylistsIdSourcesGetResponses];
+
 export type CreateReportApiV1ReportsPostData = {
     body: CreateReportRequest;
     path?: never;
@@ -3411,3 +3677,65 @@ export type SubmitMatchApiV1TracksIdMatchesPostResponses = {
 };
 
 export type SubmitMatchApiV1TracksIdMatchesPostResponse = SubmitMatchApiV1TracksIdMatchesPostResponses[keyof SubmitMatchApiV1TracksIdMatchesPostResponses];
+
+export type GetTrackSourcesApiV1TracksIdSourcesGetData = {
+    body?: never;
+    path: {
+        /**
+         * Id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/tracks/{id}/sources';
+};
+
+export type GetTrackSourcesApiV1TracksIdSourcesGetErrors = {
+    /**
+     * Bad Request
+     */
+    400: ErrorEnvelope;
+    /**
+     * Unauthorized
+     */
+    401: ErrorEnvelope;
+    /**
+     * Forbidden
+     */
+    403: ErrorEnvelope;
+    /**
+     * Not Found
+     */
+    404: ErrorEnvelope;
+    /**
+     * Conflict
+     */
+    409: ErrorEnvelope;
+    /**
+     * Unprocessable Content
+     */
+    422: ErrorEnvelope;
+    /**
+     * Too Many Requests
+     */
+    429: ErrorEnvelope;
+    /**
+     * Internal Server Error
+     */
+    500: ErrorEnvelope;
+    /**
+     * Bad Gateway
+     */
+    502: ErrorEnvelope;
+};
+
+export type GetTrackSourcesApiV1TracksIdSourcesGetError = GetTrackSourcesApiV1TracksIdSourcesGetErrors[keyof GetTrackSourcesApiV1TracksIdSourcesGetErrors];
+
+export type GetTrackSourcesApiV1TracksIdSourcesGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: SourcesResponse;
+};
+
+export type GetTrackSourcesApiV1TracksIdSourcesGetResponse = GetTrackSourcesApiV1TracksIdSourcesGetResponses[keyof GetTrackSourcesApiV1TracksIdSourcesGetResponses];

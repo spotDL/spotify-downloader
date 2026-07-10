@@ -11,12 +11,21 @@ from __future__ import annotations
 import uuid
 from pathlib import Path
 
-from spotdl_core.model import AlbumRef, ArtistRef, AudioCandidate, EntityType, ProviderId, Track
+from spotdl_core.model import (
+    AlbumRef,
+    ArtistRef,
+    AudioCandidate,
+    EntityType,
+    ProviderId,
+    SearchHit,
+    Track,
+)
 from spotdl_core.providers import ResolvedEntity
 
 from apps.server.tests.api.support import api_client
 from apps.server.tests.fakes import (
     FakeAudioProvider,
+    FakeMetadataProvider,
     FakeResolver,
     build_fake_registry,
 )
@@ -154,6 +163,107 @@ async def test_get_artist_wire_schema_carries_metadata_and_track_covers(tmp_path
     assert out["popularity"] == 88
     # Nested listing row exposes the album cover thumbnail even without the album object.
     assert out["tracks"][0]["cover_url"] == "https://img/discovery"
+
+
+async def test_track_sources_lists_per_provider_rows(tmp_path: Path) -> None:
+    """``GET /tracks/{id}/sources`` returns one row per contributing provider snapshot.
+
+    Cross-provider enrichment links a Spotify + a Deezer snapshot to the canonical
+    track; the sources endpoint exposes both, Spotify-first, each carrying the
+    fields that snapshot contributed.
+    """
+    spotify = FakeResolver(
+        id=ProviderId.SPOTIFY,
+        track=Track(name="Hello", artists=("Adele",), duration_ms=200_000, isrc="USABC1234567"),
+    )
+    deezer_hit = Track(
+        name="Hello",
+        artists=("Adele",),
+        duration_ms=200_000,
+        isrc="USABC1234567",
+        provider=ProviderId.DEEZER,
+        provider_id="dz1",
+    )
+    deezer_full = deezer_hit.model_copy(update={"genres": ("pop",)})
+    deezer = FakeMetadataProvider(
+        id=ProviderId.DEEZER,
+        tracks=[deezer_hit],
+        resolved={
+            EntityType.TRACK: ResolvedEntity(
+                provider=ProviderId.DEEZER,
+                provider_id="dz1",
+                entity_type=EntityType.TRACK,
+                track=deezer_full,
+            )
+        },
+    )
+    registry = build_fake_registry(spotify, deezer)
+    async with api_client(registry, data_dir=tmp_path) as client:
+        track_id = await _resolve_track_id(client)
+        resp = await client.get(f"/api/v1/tracks/{track_id}/sources")
+
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["entity_type"] == "track"
+    assert body["entity_id"] == track_id
+    providers = [source["provider"] for source in body["sources"]]
+    assert providers == ["spotify", "deezer"]  # Spotify-first ordering
+    deezer_row = body["sources"][1]
+    assert deezer_row["isrc"] == "USABC1234567"
+    assert deezer_row["genres"] == ["pop"]
+    assert "fetched_at" in body["sources"][0]
+
+
+async def test_artist_sources_carries_followers(tmp_path: Path) -> None:
+    artist_entity = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="artist123",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Daft Punk", followers=9_000_000, popularity=88),
+    )
+    deezer = FakeMetadataProvider(
+        id=ProviderId.DEEZER,
+        hits=[
+            SearchHit(
+                entity_type=EntityType.ARTIST,
+                provider=ProviderId.DEEZER,
+                provider_id="dzartist",
+                name="Daft Punk",
+            )
+        ],
+        resolved={
+            EntityType.ARTIST: ResolvedEntity(
+                provider=ProviderId.DEEZER,
+                provider_id="dzartist",
+                entity_type=EntityType.ARTIST,
+                artist=ArtistRef(name="Daft Punk", followers=1_000, bio="French duo"),
+            )
+        },
+    )
+    spotify = FakeResolver(id=ProviderId.SPOTIFY, entity=artist_entity)
+    registry = build_fake_registry(spotify, deezer)
+    async with api_client(registry, data_dir=tmp_path) as client:
+        body = (
+            await client.post(
+                "/api/v1/resolve", json={"query": "https://open.spotify.com/artist/artist123"}
+            )
+        ).json()
+        artist_id = body["entity"]["artist"]["id"]
+        resp = await client.get(f"/api/v1/artists/{artist_id}/sources")
+
+    assert resp.status_code == 200
+    sources = {row["provider"]: row for row in resp.json()["sources"]}
+    assert sources["spotify"]["followers"] == 9_000_000
+    assert sources["deezer"]["followers"] == 1_000
+
+
+async def test_sources_on_unknown_entity_returns_404(tmp_path: Path) -> None:
+    registry = build_fake_registry(FakeResolver(id=ProviderId.SPOTIFY, track=_track()))
+    async with api_client(registry, data_dir=tmp_path) as client:
+        resp = await client.get(f"/api/v1/tracks/{uuid.uuid4()}/sources")
+
+    assert resp.status_code == 404
+    assert resp.json()["code"] == "not_found"
 
 
 async def test_get_album_unknown_id_returns_404(tmp_path: Path) -> None:
