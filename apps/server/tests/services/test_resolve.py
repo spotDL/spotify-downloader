@@ -356,6 +356,61 @@ async def test_resolve_artist_lists_top_tracks_across_fresh_sessions(
                 assert result.artist.id == result_id
 
 
+async def test_discography_fills_album_type_over_a_sparse_search_snapshot(
+    download_sessionmaker: Any,
+) -> None:
+    """Discography must FILL gaps (album_type) on a sparser existing snapshot.
+
+    Regression (found live via Mata): a prior search creates album-hit snapshots
+    with only name/artist/year/cover — no ``album_type``. When the artist resolve's
+    discography later persists the same album (which DOES know its album_type), the
+    get-or-reuse guard must not blindly keep the sparse snapshot (leaving the album
+    untyped → no "Albums" tab); it merges the ref's fields in, never downgrading.
+    """
+    from spotdl_core.model import AlbumRef, ArtistRef
+    from spotdl_core.providers import ResolvedEntity
+
+    # 1) Seed a SPARSE album snapshot, exactly the search-hit shape (no album_type).
+    async with download_sessionmaker() as session:
+        await SnapshotRepository(session).upsert(
+            provider=ProviderId.SPOTIFY,
+            provider_entity_id="mata-alb-1",
+            entity_type=EntityType.ALBUM,
+            raw_payload={"name": "Młody Matczak", "album_artist": "Mata", "year": 2021},
+            name="Młody Matczak",
+            album_name="Młody Matczak",
+        )
+        await session.commit()
+
+    # 2) The artist's discography knows this album is an ``album`` (not a single).
+    artist_entity = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="mata-1",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Mata"),
+        tracks=(),
+        albums=(
+            AlbumRef(
+                name="Młody Matczak",
+                year=2021,
+                album_type="album",
+                track_count=15,
+                provider=ProviderId.SPOTIFY,
+                provider_id="mata-alb-1",
+            ),
+        ),
+    )
+    registry = build_fake_registry(FakeResolver(id=ProviderId.SPOTIFY, entity=artist_entity))
+
+    async with download_sessionmaker() as session:
+        svc = ResolveService(session=session, registry=registry)
+        artist = await svc.resolve("spotify:artist:mata-1")
+        await session.commit()
+        (album,) = artist.artist.albums
+        assert album.album_type == "album"  # filled from the discography ref
+        assert album.track_count == 15
+
+
 async def test_album_resolve_after_discography_returns_full_tracks_and_label(
     download_sessionmaker: Any,
 ) -> None:

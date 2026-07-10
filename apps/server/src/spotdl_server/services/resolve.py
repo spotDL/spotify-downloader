@@ -832,18 +832,34 @@ class ResolveService:
         """
         if album.provider is None or album.provider_id is None:
             return None
-        # Never downgrade a richer existing snapshot: a discography ref is the
-        # simplified ``/artists/albums`` shape (no label/copyright/tracks). If this
-        # album was ever resolved fully, reuse its snapshot instead of clobbering
-        # its ``raw_payload`` with the sparse listing payload.
+        ref_payload = album.model_dump(mode="json")
+        # Merge, never clobber or downgrade. An existing snapshot may be richer (a
+        # full album resolve: label/copyright/tracks) OR sparser (a search hit:
+        # name/artist/year/cover only — no ``album_type``). Fill the gaps the
+        # discography ref knows (notably ``album_type``) without overwriting any
+        # value the existing snapshot already carries: ``{**ref, **existing}`` keeps
+        # every existing key and only adds keys the existing payload lacks.
         existing = await self._snapshots.get(album.provider, album.provider_id)
         if existing is not None:
-            return existing
+            raw = existing.raw_payload
+            existing_payload = raw if isinstance(raw, dict) else {}
+            merged = {**ref_payload, **existing_payload}
+            if merged == existing_payload:
+                return existing  # existing already covers the ref — no write needed
+            return await self._snapshots.upsert(
+                provider=album.provider,
+                provider_entity_id=album.provider_id,
+                entity_type=EntityType.ALBUM,
+                raw_payload=merged,
+                name=existing.name or album.name,
+                album_name=existing.album_name or album.name,
+                art_url=existing.art_url or album.cover_url,
+            )
         return await self._snapshots.upsert(
             provider=album.provider,
             provider_entity_id=album.provider_id,
             entity_type=EntityType.ALBUM,
-            raw_payload=album.model_dump(mode="json"),
+            raw_payload=ref_payload,
             name=album.name,
             album_name=album.name,
             art_url=album.cover_url,
