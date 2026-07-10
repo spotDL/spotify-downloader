@@ -198,6 +198,7 @@ def make_artist(
     id: UUID | None = None,
     name: str = "Daft Punk",
     tracks: list[TrackView] | None = None,
+    albums: list[AlbumView] | None = None,
     provider: str = "spotify",
     provider_id: str = "ar1",
 ) -> ArtistView:
@@ -210,6 +211,7 @@ def make_artist(
         provider=provider,
         provider_id=provider_id,
         tracks=tracks if tracks is not None else [make_track()],
+        albums=albums if albums is not None else [],
     )
 
 

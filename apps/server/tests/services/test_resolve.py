@@ -284,7 +284,7 @@ async def test_resolve_artist_lists_top_tracks_across_fresh_sessions(
     top-tracks entirely. A fresh session per resolve (empty identity map) is what
     exposes the lazy-load — a single session keeps the relationships warm.
     """
-    from spotdl_core.model import ArtistRef
+    from spotdl_core.model import AlbumRef, ArtistRef
     from spotdl_core.providers import ResolvedEntity
 
     artist_entity = ResolvedEntity(
@@ -301,6 +301,23 @@ async def test_resolve_artist_lists_top_tracks_across_fresh_sessions(
         tracks=(
             _track("One More Time", "Daft Punk", isrc="USONE0000011"),
             _track("Harder Better", "Daft Punk", isrc="USTWO0000022"),
+        ),
+        albums=(
+            AlbumRef(
+                name="Discovery",
+                year=2001,
+                album_type="album",
+                cover_url="https://img/discovery",
+                provider=ProviderId.SPOTIFY,
+                provider_id="disc-album-1",
+            ),
+            AlbumRef(
+                name="Homework",
+                year=1997,
+                album_type="album",
+                provider=ProviderId.SPOTIFY,
+                provider_id="disc-album-2",
+            ),
         ),
     )
     resolver = FakeResolver(id=ProviderId.SPOTIFY, entity=artist_entity)
@@ -324,6 +341,15 @@ async def test_resolve_artist_lists_top_tracks_across_fresh_sessions(
             # Nested listing tracks carry their artists but no album sub-object.
             assert all(t.artists == ("Daft Punk",) for t in result.artist.tracks)
             assert all(t.album is None for t in result.artist.tracks)
+            # The discography flows snapshot → merge → view (metadata-only, ordered),
+            # each album carrying its source ref for resolve-on-open — and survives a
+            # fresh-session warm re-resolve without MissingGreenlet.
+            assert [a.name for a in result.artist.albums] == ["Discovery", "Homework"]
+            assert [a.provider_id for a in result.artist.albums] == [
+                "disc-album-1",
+                "disc-album-2",
+            ]
+            assert all(a.provider == "spotify" and not a.tracks for a in result.artist.albums)
             if result_id is None:
                 result_id = result.artist.id
             else:  # warm re-resolve reuses the same canonical row (no dup)

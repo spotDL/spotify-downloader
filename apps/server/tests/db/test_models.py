@@ -39,6 +39,7 @@ EXPECTED_TABLES = {
     "playlists",
     "track_artists",
     "playlist_tracks",
+    "artist_albums",
     "entity_links",
     "entity_stat",
     "matches",
@@ -157,6 +158,8 @@ def test_albums_columns() -> None:
         "popularity": ("Integer", None, True, None),
         "genres": ("JSON", None, False, "callable"),
         "album_type": ("String", 32, True, None),
+        "provider": ("Enum", 32, True, None),
+        "provider_id": ("String", 256, True, None),
         "created_at": ("DateTime", None, False, "callable"),
         "updated_at": ("DateTime", None, False, "callable"),
     }

@@ -21,6 +21,7 @@ from spotdl_server.db.models import (
     Artist,
     Playlist,
     Track,
+    artist_albums,
     playlist_tracks,
     track_artists,
 )
@@ -161,12 +162,15 @@ class ArtistRepository:
         # so the track→artists and track→album chains are stated explicitly
         # (``Track.album`` powers the nested cover thumbnail); ``populate_existing``
         # forces them even for identity-map-warm track rows (see AlbumRepository.get).
+        # ``Artist.albums`` (the metadata-only discography) is loaded flat — the grid
+        # needs no nested track listing.
         return await self.session.get(
             Artist,
             id,
             options=[
                 selectinload(Artist.tracks).selectinload(Track.artists),
                 selectinload(Artist.tracks).selectinload(Track.album),
+                selectinload(Artist.albums),
             ],
             populate_existing=True,
         )
@@ -199,6 +203,26 @@ class ArtistRepository:
         self.session.add(artist)
         await self.session.flush()
         return artist, True
+
+    async def set_albums(self, artist: Artist, album_ids_in_order: list[uuid.UUID]) -> None:
+        """Replace the artist's full ordered discography set. Re-runnable/idempotent.
+
+        Positions are assigned by list index; duplicate album ids are deduped
+        keeping first occurrence so the composite PK never collides. Mirrors
+        :meth:`TrackRepository.set_artists`.
+        """
+        ordered = _dedupe_preserving_order(album_ids_in_order)
+        await self.session.execute(
+            delete(artist_albums).where(artist_albums.c.artist_id == artist.id)
+        )
+        rows = [
+            {"artist_id": artist.id, "album_id": album_id, "position": position}
+            for position, album_id in enumerate(ordered)
+        ]
+        if rows:
+            await self.session.execute(artist_albums.insert(), rows)
+        await self.session.flush()
+        await self.session.refresh(artist, attribute_names=["albums"])
 
 
 class PlaylistRepository:

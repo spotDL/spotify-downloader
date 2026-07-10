@@ -299,6 +299,11 @@ class CanonicalMerger:
             popularity=_first_not_none(snaps, _payload_key("popularity")),
             genres=_first_non_empty(snaps, _genres),
             album_type=_first_not_none(snaps, _payload_key("album_type")),
+            # Primary source ref = the highest-priority snapshot (input is
+            # priority-sorted), so a metadata-only discography album can be
+            # resolve-refreshed via ``{provider}:album:{provider_id}``.
+            provider=snaps[0].provider,
+            provider_id=snaps[0].provider_entity_id,
         )
         for position in sorted(track_snapshots_by_pos):
             track = await self.merge_track(
@@ -330,6 +335,7 @@ class CanonicalMerger:
         self,
         snapshots: Sequence[ProviderSnapshot],
         track_snapshots_by_pos: Mapping[int, Sequence[ProviderSnapshot]] | None = None,
+        album_snapshots_by_pos: Mapping[int, Sequence[ProviderSnapshot]] | None = None,
     ) -> Artist:
         snaps = _sorted(snapshots)
         name = _first_not_none(snaps, _name) or ""
@@ -353,12 +359,24 @@ class CanonicalMerger:
         by_pos = track_snapshots_by_pos or {}
         for position in sorted(by_pos):
             await self.merge_track(list(by_pos[position]))
+        # Persist the discography: each album is merged (metadata-only — no track
+        # listing here) and linked to the artist via ``artist_albums`` (set_albums),
+        # in provider listing order. A discography album with no tracks is fine — a
+        # later ``{provider}:album:{id}`` resolve reuses the same canonical row.
+        by_album_pos = album_snapshots_by_pos or {}
+        album_ids: list[uuid.UUID] = []
+        for position in sorted(by_album_pos):
+            album = await self.merge_album(list(by_album_pos[position]), {})
+            album_ids.append(album.id)
+        if by_album_pos:
+            await self._artists.set_albums(artist, album_ids)
         await self._link_all(EntityType.ARTIST, artist.id, snaps)
         await self.session.flush()
-        # Reload with ``tracks`` + nested ``artists`` force-loaded in the greenlet:
-        # ``artist_view`` iterates ``artist.tracks`` and each track's ``artists``, so
-        # returning the bare row would lazy-load them on attribute access outside the
-        # await context (MissingGreenlet). ``ArtistRepository.get`` states the chain.
+        # Reload with ``tracks`` + nested ``artists`` + ``albums`` force-loaded in the
+        # greenlet: ``artist_view`` iterates ``artist.tracks`` (and each track's
+        # ``artists``) and ``artist.albums``, so returning the bare row would lazy-load
+        # them on attribute access outside the await context (MissingGreenlet).
+        # ``ArtistRepository.get`` states the chain.
         reloaded = await self._artists.get(artist.id)
         assert reloaded is not None
         return reloaded

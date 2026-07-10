@@ -223,6 +223,9 @@ class ArtistView:
     provider: str | None = None
     provider_id: str | None = None
     tracks: list[TrackView] = field(default_factory=list)
+    # The artist's discography — metadata-only album previews (each carrying a
+    # source ref for resolve-on-open).
+    albums: list[AlbumView] = field(default_factory=list)
 
     @classmethod
     def from_generated(cls, artist: ArtistOut) -> ArtistView:
@@ -236,6 +239,7 @@ class ArtistView:
             provider=_opt(artist.provider),
             provider_id=_opt(artist.provider_id),
             tracks=[TrackView.from_generated(t) for t in _seq(artist.tracks)],
+            albums=[AlbumView.from_generated(a) for a in _seq(artist.albums)],
         )
 
 

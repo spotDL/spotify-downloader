@@ -98,6 +98,8 @@ def album_meta(album: AlbumModel) -> AlbumView:
         popularity=album.popularity,
         genres=tuple(album.genres),
         album_type=album.album_type,
+        provider=album.provider.value if album.provider is not None else None,
+        provider_id=album.provider_id,
     )
 
 
@@ -158,12 +160,14 @@ def album_view(album: AlbumModel) -> AlbumView:
         popularity=album.popularity,
         genres=tuple(album.genres),
         album_type=album.album_type,
+        provider=album.provider.value if album.provider is not None else None,
+        provider_id=album.provider_id,
         tracks=tuple(track_view(t) for t in album.tracks),
     )
 
 
 def artist_view(artist: ArtistModel) -> ArtistView:
-    """A full artist view with its (metadata-only) track listing."""
+    """A full artist view with its (metadata-only) track listing + discography."""
     return ArtistView(
         id=str(artist.id),
         name=artist.name,
@@ -175,6 +179,9 @@ def artist_view(artist: ArtistModel) -> ArtistView:
         country=artist.country,
         header_url=artist.header_url,
         tracks=tuple(track_view(t) for t in artist.tracks),
+        # ``album_meta`` (no nested track listing) — the discography grid needs only
+        # cover/name/year/album_type + the source ref for resolve-on-open.
+        albums=tuple(album_meta(a) for a in artist.albums),
     )
 
 

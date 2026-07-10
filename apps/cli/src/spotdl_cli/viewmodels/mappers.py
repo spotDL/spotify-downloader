@@ -12,6 +12,7 @@ import re
 from uuid import UUID
 
 from spotdl_cli.viewmodels.types import (
+    AlbumCard,
     BatchRef,
     EntityHeader,
     EntityRef,
@@ -214,6 +215,18 @@ def playlist_header(playlist: PlaylistView) -> EntityHeader:
         kind="playlist",
         stats=tuple(stats),
         cover_url=playlist.cover_url,
+    )
+
+
+def album_card(album: AlbumView) -> AlbumCard:
+    """One discography album (an artist's ``AlbumView``) → a rendered card row."""
+    return AlbumCard(
+        id=str(album.id),
+        title=album.name,
+        album_type=album.album_type or "",
+        year=_year(album.year),
+        provider=album.provider or "",
+        provider_id=album.provider_id or "",
     )
 
 

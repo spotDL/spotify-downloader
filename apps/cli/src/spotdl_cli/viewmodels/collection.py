@@ -7,6 +7,7 @@ from uuid import UUID
 from spotdl_cli.viewmodels.app_state import SessionSnapshot
 from spotdl_cli.viewmodels.base import ErrorDisplay, Loadable, guard
 from spotdl_cli.viewmodels.mappers import (
+    album_card,
     album_header,
     artist_header,
     batch_ref,
@@ -69,6 +70,7 @@ class CollectionViewModel:
                 header=artist_header(artist),
                 kind="artist",
                 tracks=tuple(track_row(track) for track in artist.tracks),
+                albums=tuple(album_card(album) for album in artist.albums),
             )
         playlist = await self._client.playlist(entity_id)
         return CollectionDetail(

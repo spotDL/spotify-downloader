@@ -52,7 +52,8 @@ class ResolvedEntity(BaseModel):
     depend on `entity_type`:
       TRACK    -> `track` set; `tracks` empty.
       ALBUM    -> `album` set; `tracks` = album track listing.
-      ARTIST   -> `artist` set; `tracks` = top tracks (may be empty).
+      ARTIST   -> `artist` set; `tracks` = top tracks (may be empty);
+                  `albums` = the artist's discography (may be empty).
       PLAYLIST -> `name` set; `tracks` = playlist track listing.
     """
 
@@ -66,6 +67,9 @@ class ResolvedEntity(BaseModel):
     artist: ArtistRef | None = None
     name: str | None = None
     tracks: tuple[Track, ...] = ()
+    #: ARTIST only — the artist's discography as metadata-only album refs (each
+    #: carrying its source ``provider``/``provider_id`` for resolve-on-open).
+    albums: tuple[AlbumRef, ...] = ()
 
 
 @runtime_checkable

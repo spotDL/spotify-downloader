@@ -431,6 +431,30 @@ async def test_resolve_artist_captures_metadata() -> None:
     respx.get(f"{_API}/v1/artists/{artist_id}/top-tracks").mock(
         return_value=httpx.Response(200, json={"tracks": []})
     )
+    albums_payload = {
+        "items": [
+            {
+                "id": "AL1",
+                "name": "Debut",
+                "album_type": "album",
+                "release_date": "2019-05-01",
+                "total_tracks": 10,
+                "images": [{"url": "https://img/al1", "width": 640, "height": 640}],
+                "artists": [{"name": "The Band"}],
+            },
+            # A second market pressing of the same title is deduped by name.
+            {"id": "AL1B", "name": "Debut", "album_type": "album", "release_date": "2019-05-01"},
+            {
+                "id": "AL2",
+                "name": "The Single",
+                "album_type": "single",
+                "release_date": "2021-01-01",
+            },
+        ]
+    }
+    respx.get(f"{_API}/v1/artists/{artist_id}/albums").mock(
+        return_value=httpx.Response(200, json=albums_payload)
+    )
     ref = PlatformRef(ProviderId.SPOTIFY, EntityType.ARTIST, artist_id)
     async with create_client(base_url=_API) as client:
         resolved = await _provider(client).resolve(ref)
@@ -440,6 +464,13 @@ async def test_resolve_artist_captures_metadata() -> None:
     assert resolved.artist.genres == ("rock", "indie")
     assert resolved.artist.followers == 123456
     assert resolved.artist.popularity == 82
+    # Discography: deduped by name, each carrying its source ref + album_type.
+    assert [(a.name, a.album_type, a.provider_id) for a in resolved.albums] == [
+        ("Debut", "album", "AL1"),
+        ("The Single", "single", "AL2"),
+    ]
+    assert all(a.provider is ProviderId.SPOTIFY for a in resolved.albums)
+    assert resolved.albums[0].cover_url == "https://img/al1"
 
 
 @respx.mock

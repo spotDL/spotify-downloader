@@ -129,6 +129,29 @@ playlist_tracks = Table(
     Index("ix_playlist_tracks_track_id", "track_id"),
 )
 
+# Ordered M2M linking an artist to the albums of its discography (Spotify/Deezer
+# ``/artists/{id}/albums``). Mirrors ``track_artists`` — ``position`` preserves the
+# provider listing order. Distinct from ``tracks.album_id`` (a track's own album):
+# a discography album may be metadata-only (no track listing merged yet).
+artist_albums = Table(
+    "artist_albums",
+    Base.metadata,
+    Column(
+        "artist_id",
+        sa.Uuid(as_uuid=True),
+        ForeignKey("artists.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column(
+        "album_id",
+        sa.Uuid(as_uuid=True),
+        ForeignKey("albums.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column("position", sa.Integer, nullable=False),
+    Index("ix_artist_albums_album_id", "album_id"),
+)
+
 
 # --------------------------------------------------------------------------- #
 # albums
@@ -149,6 +172,10 @@ class Album(Base, TimestampMixin):
     genres: Mapped[list[str]] = mapped_column(sa.JSON, nullable=False, default=list)
     # Display label only (album/single/ep/compilation) — NOT an entity type.
     album_type: Mapped[str | None] = mapped_column(sa.String(32), nullable=True)
+    # Primary source ref (highest-priority snapshot), so a client can resolve
+    # ``{provider}:album:{provider_id}`` to (re)populate a metadata-only album.
+    provider: Mapped[ProviderId | None] = mapped_column(_enum(ProviderId), nullable=True)
+    provider_id: Mapped[str | None] = mapped_column(sa.String(256), nullable=True)
 
     tracks: Mapped[list[Track]] = relationship(
         "Track",
@@ -182,6 +209,16 @@ class Artist(Base, TimestampMixin):
         "Track",
         secondary=track_artists,
         back_populates="artists",
+        lazy="selectin",
+        passive_deletes=True,
+    )
+    # The artist's discography (metadata-only albums), ordered by provider listing
+    # position. One-directional M2M (no ``Album`` back-reference — an album need not
+    # know every artist whose discography lists it).
+    albums: Mapped[list[Album]] = relationship(
+        "Album",
+        secondary=artist_albums,
+        order_by=artist_albums.c.position,
         lazy="selectin",
         passive_deletes=True,
     )

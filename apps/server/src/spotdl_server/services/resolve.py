@@ -527,7 +527,17 @@ class ResolveService:
                 index: [await self._persist_track_snapshot_from(resolved, index, track)]
                 for index, track in enumerate(resolved.tracks)
             }
-            artist = await self._merger.merge_artist([artist_snap, *enriched], by_pos)
+            # Snapshot each discography album (metadata-only, one source snapshot
+            # each — no per-album enrichment fan-out) so the merge persists + links
+            # them; refs without a resolvable provider id are skipped.
+            album_by_pos: dict[int, list[ProviderSnapshot]] = {}
+            for index, album_ref in enumerate(resolved.albums):
+                disc_snap = await self._persist_discography_album_snapshot(album_ref)
+                if disc_snap is not None:
+                    album_by_pos[index] = [disc_snap]
+            artist = await self._merger.merge_artist(
+                [artist_snap, *enriched], by_pos, album_by_pos
+            )
             return ResolveResult(
                 entity_type=EntityType.ARTIST.value, artist=views.artist_view(artist)
             )
@@ -617,6 +627,27 @@ class ResolveService:
             name=(album.name if album is not None else resolved.name),
             album_name=(album.name if album is not None else resolved.name),
             art_url=album.cover_url if album is not None else None,
+        )
+
+    async def _persist_discography_album_snapshot(
+        self, album: AlbumRef
+    ) -> ProviderSnapshot | None:
+        """Snapshot one discography album ref (metadata only), keyed by its source ref.
+
+        Returns ``None`` for a ref lacking a resolvable ``provider``/``provider_id``
+        (it cannot be cached or later resolve-refreshed). The serialized ``AlbumRef``
+        carries the merge-read keys (``album_type``/``year``/``cover_url`` …).
+        """
+        if album.provider is None or album.provider_id is None:
+            return None
+        return await self._snapshots.upsert(
+            provider=album.provider,
+            provider_entity_id=album.provider_id,
+            entity_type=EntityType.ALBUM,
+            raw_payload=album.model_dump(mode="json"),
+            name=album.name,
+            album_name=album.name,
+            art_url=album.cover_url,
         )
 
     async def _persist_artist_snapshot(self, resolved: ResolvedEntity) -> ProviderSnapshot:

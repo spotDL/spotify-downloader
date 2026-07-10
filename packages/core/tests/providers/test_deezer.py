@@ -175,6 +175,22 @@ async def test_resolve_artist_captures_picture_and_fans() -> None:
     respx.get(f"{_API}/artist/{artist_id}/top").mock(
         return_value=httpx.Response(200, json={"data": []})
     )
+    albums_payload = {
+        "data": [
+            {
+                "id": 302127,
+                "title": "Discovery",
+                "record_type": "album",
+                "release_date": "2001-03-12",
+                "nb_tracks": 14,
+                "cover_xl": "https://img/discovery-xl",
+            },
+            {"id": 302128, "title": "Homework", "record_type": "album"},
+        ]
+    }
+    respx.get(f"{_API}/artist/{artist_id}/albums").mock(
+        return_value=httpx.Response(200, json=albums_payload)
+    )
     ref = PlatformRef(ProviderId.DEEZER, EntityType.ARTIST, artist_id)
     async with create_client(base_url=_API) as client:
         resolved = await _provider(client).resolve(ref)
@@ -182,6 +198,13 @@ async def test_resolve_artist_captures_picture_and_fans() -> None:
     assert resolved.artist is not None
     assert resolved.artist.image_url == "https://img/dp-xl"
     assert resolved.artist.followers == 9_000_000
+    # Discography carries record_type as album_type + each album's source ref.
+    assert [(a.name, a.album_type, a.provider_id) for a in resolved.albums] == [
+        ("Discovery", "album", "302127"),
+        ("Homework", "album", "302128"),
+    ]
+    assert all(a.provider is ProviderId.DEEZER for a in resolved.albums)
+    assert resolved.albums[0].cover_url == "https://img/discovery-xl"
 
 
 @respx.mock

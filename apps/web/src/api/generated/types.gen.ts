@@ -202,6 +202,10 @@ export type AlbumRefOut = {
  */
 export type ArtistOut = {
     /**
+     * Albums
+     */
+    albums?: Array<AlbumOut>;
+    /**
      * Bio
      */
     bio?: string | null;

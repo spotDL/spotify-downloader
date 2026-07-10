@@ -408,6 +408,58 @@ async def test_merge_artist_direct_resolve_by_normalized_name(session: AsyncSess
     assert int(links.scalar_one()) == 2
 
 
+async def test_merge_artist_persists_and_links_discography(session: AsyncSession) -> None:
+    async def _artist_snap(pid: str, name: str) -> ProviderSnapshot:
+        return await SnapshotRepository(session).upsert(
+            provider=ProviderId.SPOTIFY,
+            provider_entity_id=pid,
+            entity_type=EntityType.ARTIST,
+            raw_payload={"name": name},
+            name=name,
+        )
+
+    async def _disc_album_snap(pid: str, name: str, album_type: str) -> ProviderSnapshot:
+        return await SnapshotRepository(session).upsert(
+            provider=ProviderId.SPOTIFY,
+            provider_entity_id=pid,
+            entity_type=EntityType.ALBUM,
+            raw_payload={"name": name, "album_type": album_type, "cover_url": f"https://c/{pid}"},
+            name=name,
+            album_name=name,
+            art_url=f"https://c/{pid}",
+        )
+
+    artist_snap = await _artist_snap("s1", "The Band")
+    albums_by_pos = {
+        0: [await _disc_album_snap("AL1", "Debut", "album")],
+        1: [await _disc_album_snap("AL2", "The Single", "single")],
+    }
+    merger = CanonicalMerger(session)
+    artist = await merger.merge_artist([artist_snap], {}, albums_by_pos)
+
+    # Discography persisted (metadata-only Albums), linked + ordered, each carrying
+    # its source ref so a client can resolve-refresh it.
+    assert [(a.name, a.album_type, a.provider_id) for a in artist.albums] == [
+        ("Debut", "album", "AL1"),
+        ("The Single", "single", "AL2"),
+    ]
+    assert all(a.provider is ProviderId.SPOTIFY and not a.tracks for a in artist.albums)
+    assert await _count(session, Album) == 2
+
+    # Re-run converges: no duplicate albums or association rows.
+    from spotdl_server.db.models import artist_albums
+
+    again = await merger.merge_artist([artist_snap], {}, albums_by_pos)
+    assert [a.id for a in again.albums] == [a.id for a in artist.albums]
+    assert await _count(session, Album) == 2
+    link_rows = await session.execute(
+        select(func.count())
+        .select_from(artist_albums)
+        .where(artist_albums.c.artist_id == artist.id)
+    )
+    assert int(link_rows.scalar_one()) == 2
+
+
 async def test_merge_album_builds_ordered_tracks(session: AsyncSession) -> None:
     album_snap = await SnapshotRepository(session).upsert(
         provider=ProviderId.SPOTIFY,

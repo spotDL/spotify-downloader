@@ -30,6 +30,10 @@ class AlbumRef(_Frozen):
     album_type: str | None = None  # display label (album/single/ep/compilation)
     popularity: int | None = None
     genres: tuple[str, ...] = ()
+    # Source-provider ref, carried on a discography ``AlbumRef`` so a client can
+    # resolve ``{provider}:album:{provider_id}`` into the full album (None otherwise).
+    provider: ProviderId | None = None
+    provider_id: str | None = None
 
 
 class Track(_Frozen):

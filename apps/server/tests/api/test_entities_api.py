@@ -144,6 +144,23 @@ async def test_get_artist_wire_schema_carries_metadata_and_track_covers(tmp_path
                 album=AlbumRef(name="Discovery", cover_url="https://img/discovery"),
             ),
         ),
+        albums=(
+            AlbumRef(
+                name="Discovery",
+                year=2001,
+                album_type="album",
+                cover_url="https://img/discovery",
+                provider=ProviderId.SPOTIFY,
+                provider_id="disc-1",
+            ),
+            AlbumRef(
+                name="Homework",
+                year=1997,
+                album_type="album",
+                provider=ProviderId.SPOTIFY,
+                provider_id="disc-2",
+            ),
+        ),
     )
     registry = build_fake_registry(FakeResolver(id=ProviderId.SPOTIFY, entity=artist_entity))
     async with api_client(registry, data_dir=tmp_path) as client:
@@ -163,6 +180,14 @@ async def test_get_artist_wire_schema_carries_metadata_and_track_covers(tmp_path
     assert out["popularity"] == 88
     # Nested listing row exposes the album cover thumbnail even without the album object.
     assert out["tracks"][0]["cover_url"] == "https://img/discovery"
+    # ``ArtistOut`` carries the discography — metadata-only album previews, each with
+    # its source ref so the client resolves-on-open ({provider}:album:{provider_id}).
+    albums = out["albums"]
+    assert [(a["name"], a["album_type"], a["provider"], a["provider_id"]) for a in albums] == [
+        ("Discovery", "album", "spotify", "disc-1"),
+        ("Homework", "album", "spotify", "disc-2"),
+    ]
+    assert all(a["tracks"] == [] for a in albums)
 
 
 async def test_track_sources_lists_per_provider_rows(tmp_path: Path) -> None:

@@ -592,9 +592,23 @@ EntityCard {
     layout: vertical;
 }
 
+#collection-left {
+    width: 1fr;
+    height: 1fr;
+    layout: vertical;
+}
+
 #track-table {
     width: 1fr;
     height: 1fr;
+    margin: 1 1 0 0;
+}
+
+/* Artist discography: a compact table under the top-tracks table. */
+#discography-table {
+    width: 1fr;
+    height: auto;
+    max-height: 16;
     margin: 1 1 0 0;
 }
 

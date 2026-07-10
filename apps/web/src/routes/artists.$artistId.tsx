@@ -1,8 +1,10 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import type { AlbumRefOut, ArtistOut } from "../api/generated/types.gen";
+import { useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import type { AlbumOut, ArtistOut } from "../api/generated/types.gen";
 import { useArtist } from "../api/queries";
 import { useSubmitDownload } from "../api/downloads";
 import { isApiError } from "../api/errors";
+import { useOpenEntity } from "../lib/use-open-entity";
 import { formatFollowers } from "../lib/format";
 import { ActionButton } from "../components/ActionButton";
 import { AlbumGridCard } from "../components/AlbumGridCard";
@@ -68,7 +70,6 @@ function ArtistDetail({
   artist: ArtistOut;
   onRefresh: () => void;
 }) {
-  const navigate = useNavigate();
   const submit = useSubmitDownload();
   const tracks = artist.tracks ?? [];
   const genres = artist.genres ?? [];
@@ -81,25 +82,9 @@ function ArtistDetail({
       : null;
   const hasStats = artist.followers != null || popularity != null;
 
-  // The artist endpoint returns only top tracks (no album graph), so derive a
-  // lightweight discography from the distinct albums those tracks belong to.
-  const albumMap = new Map<string, AlbumRefOut>();
-  for (const t of tracks) {
-    if (t.album) albumMap.set(t.album.id, t.album);
-  }
-  const albums = [...albumMap.values()];
-
-  const enqueueAlbum = (id: string) =>
-    submit.mutate(
-      { body: { query: id } },
-      {
-        onSuccess: () => toast.info("Added to the download queue."),
-        onError: (error) => {
-          if (isApiError(error)) toast.fromApiError(error);
-          else toast.error("Couldn't start the download.");
-        },
-      },
-    );
+  // The stored discography: metadata-only album previews, each carrying a
+  // provider/provider_id source ref for resolve-on-open (like search cards).
+  const albums = artist.albums ?? [];
 
   return (
     <div>
@@ -199,32 +184,7 @@ function ArtistDetail({
           )}
         </section>
 
-        {albums.length > 0 ? (
-          <section className="flex flex-col gap-4">
-            <SectionDivider
-              title="Discography"
-              accent="teal"
-              count={albums.length}
-              icon={<DiscIcon className="size-4" />}
-            />
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-              {albums.map((al) => (
-                <AlbumGridCard
-                  key={al.id}
-                  name={al.name}
-                  coverUrl={al.cover_url}
-                  year={al.year}
-                  subtitle={al.album_artist ?? "Album"}
-                  onOpen={() =>
-                    void navigate({ to: "/albums/$albumId", params: { albumId: al.id } })
-                  }
-                  onDownload={() => enqueueAlbum(al.id)}
-                  downloading={submit.isPending}
-                />
-              ))}
-            </div>
-          </section>
-        ) : null}
+        {albums.length > 0 ? <Discography albums={albums} downloading={submit.isPending} /> : null}
           </div>
 
           <aside className="flex min-w-0 flex-col gap-5">
@@ -239,5 +199,108 @@ function ArtistDetail({
         </div>
       </div>
     </div>
+  );
+}
+
+type AlbumFilter = "all" | "album" | "single" | "ep";
+
+const DISCOGRAPHY_TABS: { key: AlbumFilter; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "album", label: "Albums" },
+  { key: "single", label: "Singles" },
+  { key: "ep", label: "EPs" },
+];
+
+/** `"ep"` → `"EP"`, otherwise capitalize the album_type for display. */
+function albumTypeLabel(type: string): string {
+  const lower = type.toLowerCase();
+  if (lower === "ep") return "EP";
+  return lower.charAt(0).toUpperCase() + lower.slice(1);
+}
+
+// The artist discography grid: album-type filter tabs (All / Albums / Singles /
+// EPs, each shown only when non-empty) over a grid of `AlbumGridCard`. A stored
+// discography album is metadata-only, so opening resolves its `{provider}:album:
+// {provider_id}` ref on demand (like a search card) — the same ref downloads it.
+function Discography({ albums, downloading }: { albums: AlbumOut[]; downloading: boolean }) {
+  const submit = useSubmitDownload();
+  const { openAlbum } = useOpenEntity();
+  const [filter, setFilter] = useState<AlbumFilter>("all");
+
+  const counts: Record<Exclude<AlbumFilter, "all">, number> = { album: 0, single: 0, ep: 0 };
+  for (const a of albums) {
+    const type = (a.album_type ?? "").toLowerCase();
+    if (type === "album" || type === "single" || type === "ep") counts[type] += 1;
+  }
+  const tabs = DISCOGRAPHY_TABS.filter((t) => t.key === "all" || counts[t.key] > 0);
+  const shown =
+    filter === "all"
+      ? albums
+      : albums.filter((a) => (a.album_type ?? "").toLowerCase() === filter);
+
+  const enqueueAlbum = (album: AlbumOut) => {
+    const query =
+      album.provider && album.provider_id
+        ? `${album.provider}:album:${album.provider_id}`
+        : album.id;
+    submit.mutate(
+      { body: { query } },
+      {
+        onSuccess: () => toast.info("Added to the download queue."),
+        onError: (error) => {
+          if (isApiError(error)) toast.fromApiError(error);
+          else toast.error("Couldn't start the download.");
+        },
+      },
+    );
+  };
+
+  return (
+    <section className="flex flex-col gap-4">
+      <SectionDivider
+        title="Discography"
+        accent="teal"
+        count={albums.length}
+        icon={<DiscIcon className="size-4" />}
+      />
+      {tabs.length > 1 ? (
+        <div role="tablist" aria-label="Filter discography" className="flex flex-wrap gap-2">
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              role="tab"
+              aria-selected={filter === tab.key}
+              onClick={() => setFilter(tab.key)}
+              className={`rounded-full border px-3 py-1 text-[12px] transition-colors ${
+                filter === tab.key
+                  ? "border-teal bg-teal/15 text-fg"
+                  : "border-line-soft bg-elevated text-ink-2 hover:text-fg"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
+      {shown.length === 0 ? (
+        <EmptyState title="No releases" description="Nothing in this category." />
+      ) : (
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          {shown.map((al) => (
+            <AlbumGridCard
+              key={al.id}
+              name={al.name}
+              coverUrl={al.cover_url}
+              year={al.year}
+              subtitle={al.album_type ? albumTypeLabel(al.album_type) : (al.album_artist ?? "Album")}
+              onOpen={() => openAlbum({ provider: al.provider, provider_id: al.provider_id })}
+              onDownload={() => enqueueAlbum(al)}
+              downloading={downloading || submit.isPending}
+            />
+          ))}
+        </div>
+      )}
+    </section>
   );
 }

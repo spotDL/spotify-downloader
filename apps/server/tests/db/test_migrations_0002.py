@@ -54,7 +54,7 @@ NEW_TABLES = {
 # Tables introduced by migrations AFTER ``0002`` (e.g. ``0003``'s ``entity_stat``).
 # They do not exist at revision ``0002`` and must be excluded from the Plan-5 set
 # so this ``0002``-scoped guard stays correct as later migrations are added.
-POST_0002_TABLES = {"entity_stat"}
+POST_0002_TABLES = {"entity_stat", "artist_albums"}
 # Every other application table belongs to Plan 5 and must survive ``downgrade -1``.
 PLAN5_TABLES = set(Base.metadata.tables.keys()) - NEW_TABLES - POST_0002_TABLES
 # Pre-existing votable tables ``0002`` must never ALTER.

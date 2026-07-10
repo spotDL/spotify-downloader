@@ -129,6 +129,10 @@ class ArtistView:
     provider: str | None = None
     provider_id: str | None = None
     tracks: tuple[TrackView, ...] = ()
+    # The artist's discography — metadata-only album previews (each carrying a
+    # ``provider``/``provider_id`` source ref for resolve-on-open). Empty on a
+    # search preview; populated on the canonical artist view.
+    albums: tuple[AlbumView, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

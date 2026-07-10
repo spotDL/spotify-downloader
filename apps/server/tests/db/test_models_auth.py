@@ -56,7 +56,7 @@ NEW_TABLES = {
 }
 # Tables added by later phases (Phase 1b's ``entity_stat``) — neither Plan-5 nor
 # the Plan-6 community layer this module guards, but part of the full metadata.
-OTHER_TABLES = {"entity_stat"}
+OTHER_TABLES = {"entity_stat", "artist_albums"}
 
 
 # --------------------------------------------------------------------------- #

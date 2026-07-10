@@ -7,6 +7,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.album_out import AlbumOut
     from ..models.track_out import TrackOut
 
 
@@ -20,6 +21,7 @@ class ArtistOut:
     Attributes:
         id (str):
         name (str):
+        albums (Union[Unset, list['AlbumOut']]):
         bio (Union[None, Unset, str]):
         country (Union[None, Unset, str]):
         followers (Union[None, Unset, int]):
@@ -34,6 +36,7 @@ class ArtistOut:
 
     id: str
     name: str
+    albums: Union[Unset, list["AlbumOut"]] = UNSET
     bio: Union[None, Unset, str] = UNSET
     country: Union[None, Unset, str] = UNSET
     followers: Union[None, Unset, int] = UNSET
@@ -47,11 +50,19 @@ class ArtistOut:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.album_out import AlbumOut
         from ..models.track_out import TrackOut
 
         id = self.id
 
         name = self.name
+
+        albums: Union[Unset, list[dict[str, Any]]] = UNSET
+        if not isinstance(self.albums, Unset):
+            albums = []
+            for albums_item_data in self.albums:
+                albums_item = albums_item_data.to_dict()
+                albums.append(albums_item)
 
         bio: Union[None, Unset, str]
         if isinstance(self.bio, Unset):
@@ -120,6 +131,8 @@ class ArtistOut:
                 "name": name,
             }
         )
+        if albums is not UNSET:
+            field_dict["albums"] = albums
         if bio is not UNSET:
             field_dict["bio"] = bio
         if country is not UNSET:
@@ -145,12 +158,20 @@ class ArtistOut:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.album_out import AlbumOut
         from ..models.track_out import TrackOut
 
         d = dict(src_dict)
         id = d.pop("id")
 
         name = d.pop("name")
+
+        albums = []
+        _albums = d.pop("albums", UNSET)
+        for albums_item_data in _albums or []:
+            albums_item = AlbumOut.from_dict(albums_item_data)
+
+            albums.append(albums_item)
 
         def _parse_bio(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -236,6 +257,7 @@ class ArtistOut:
         artist_out = cls(
             id=id,
             name=name,
+            albums=albums,
             bio=bio,
             country=country,
             followers=followers,

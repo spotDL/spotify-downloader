@@ -321,6 +321,9 @@ class ArtistOut(BaseModel):
     provider: str | None = None
     provider_id: str | None = None
     tracks: list[TrackOut] = []
+    # The artist's discography — metadata-only album previews. Each carries a
+    # ``provider``/``provider_id`` source ref so a client resolves-on-open.
+    albums: list[AlbumOut] = []
 
     @classmethod
     def from_view(cls, view: ArtistView) -> ArtistOut:

@@ -85,6 +85,9 @@ _REFRESH_SKEW_MS = 30_000.0
 #: Album-tracks page size (Spotify caps ``limit`` at 50).
 _PAGE_LIMIT = 50
 
+#: Discography cap — one ``/v1/artists/{id}/albums`` page, deduped by name.
+_ARTIST_ALBUMS_LIMIT = 50
+
 #: Pinned default TOTP cipher for the anonymous-token flow. This mirrors the
 #: ``spotapi``/web-player scheme: each byte is XOR-transformed, the decimal
 #: digits are concatenated and base32-encoded to form the ``pyotp`` secret. The
@@ -366,6 +369,32 @@ def _album_ref(album_payload: dict[str, Any]) -> AlbumRef:
     )
 
 
+def _artist_album_ref(item: dict[str, Any]) -> AlbumRef:
+    """Map one ``/v1/artists/{id}/albums`` item to a source-tagged ``AlbumRef``."""
+    return _album_ref(item).model_copy(
+        update={"provider": ProviderId.SPOTIFY, "provider_id": item["id"]}
+    )
+
+
+def _dedupe_artist_albums(refs: list[AlbumRef], *, cap: int) -> tuple[AlbumRef, ...]:
+    """De-duplicate a discography by (case-folded) name, preserving order, capped.
+
+    Spotify's album listing repeats a title across markets/reissues; the first
+    occurrence wins so the richest (album, then single/compilation) entry stays.
+    """
+    seen: set[str] = set()
+    out: list[AlbumRef] = []
+    for ref in refs:
+        key = ref.name.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(ref)
+        if len(out) >= cap:
+            break
+    return tuple(out)
+
+
 def map_track(payload: dict[str, Any]) -> Track:
     """Map a full ``/v1/tracks/{id}`` (or search) track object to a ``Track``."""
     album_payload = payload.get("album")
@@ -566,6 +595,7 @@ class SpotifyProvider(HttpProvider):
         artist = await self._get(f"/v1/artists/{entity_id}")
         top = await self._get(f"/v1/artists/{entity_id}/top-tracks", market="US")
         tracks = tuple(map_track(item) for item in (top.get("tracks") or []) if item)
+        albums = await self._resolve_artist_albums(entity_id)
         return ResolvedEntity(
             provider=ProviderId.SPOTIFY,
             provider_id=entity_id,
@@ -581,7 +611,32 @@ class SpotifyProvider(HttpProvider):
             ),
             name=artist.get("name"),
             tracks=tracks,
+            albums=albums,
         )
+
+    async def _resolve_artist_albums(self, entity_id: str) -> tuple[AlbumRef, ...]:
+        """Fetch the artist's discography (best-effort; a failure yields ``()``).
+
+        A discography fetch is *non-fatal* to the artist resolve — the artist still
+        resolves with its top tracks if ``/albums`` breaks (spec §10 degraded, never
+        a hard failure). One page is fetched (``include_groups`` covers albums, EPs —
+        Spotify labels EPs ``single`` — singles and compilations), deduped by name.
+        """
+        try:
+            payload = await self._get(
+                f"/v1/artists/{entity_id}/albums",
+                include_groups="album,single,compilation",
+                market="US",
+                limit=_ARTIST_ALBUMS_LIMIT,
+            )
+        except ProviderError:
+            return ()
+        refs = [
+            _artist_album_ref(item)
+            for item in (payload.get("items") or [])
+            if item and item.get("id") and item.get("name")
+        ]
+        return _dedupe_artist_albums(refs, cap=_ARTIST_ALBUMS_LIMIT)
 
     async def _resolve_playlist(self, entity_id: str) -> ResolvedEntity:
         playlist = await self._get(f"/v1/playlists/{entity_id}")

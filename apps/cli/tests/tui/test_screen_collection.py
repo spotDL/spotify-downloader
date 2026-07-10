@@ -19,6 +19,7 @@ from spotdl_cli.tui.widgets.entity_card import EntityCard
 from spotdl_cli.tui.widgets.sources_panel import SourcesPanel
 from spotdl_cli.viewmodels.factory import ViewModelFactory
 from spotdl_cli.viewmodels.types import EntityRef
+from spotdl_cli.views import EntityView
 from textual.widgets import DataTable
 
 from .conftest import FakeConfigStore, FakeCredentialStore
@@ -177,6 +178,47 @@ async def test_artist_side_panel_omits_enqueue_all_and_explains() -> None:
         assert app.screen.check_action("enqueue_all", ()) is None
         notes = " ".join(str(n.render()) for n in app.screen.query(Static))
         assert "unsupported for an artist" in notes
+
+
+async def test_artist_lists_discography_and_resolves_on_select() -> None:
+    config = make_config(features=make_features(downloads=True))
+    client = FakeSpotdlClient(config=config, download_config=config)
+    artist_id = uuid4()
+    disc_album = make_album(name="Homework", provider="spotify", provider_id="disc-hw")
+    client.artists[str(artist_id)] = make_artist(
+        id=artist_id, name="Daft Punk", albums=[disc_album]
+    )
+    # Selecting the discography row resolves ``spotify:album:disc-hw`` → the canonical
+    # album, which the router then opens (AlbumScreen).
+    canonical_album_id = uuid4()
+    canonical = make_album(id=canonical_album_id, name="Homework")
+    client.albums[str(canonical_album_id)] = canonical
+    client.resolve_result = EntityView(type="album", album=canonical)
+
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        app.post_message(
+            NavigateTo(EntityRef(entity_type="artist", id=artist_id, title="Daft Punk"))
+        )
+        await pilot.pause()
+        await pilot.pause()
+        assert isinstance(app.screen, ArtistScreen)
+        disc = app.screen.query_one("#discography-table", DataTable)
+        assert disc.row_count == 1
+
+        disc.focus()
+        disc.move_cursor(row=0)
+        await pilot.press("enter")
+        await app.workers.wait_for_complete()
+        await pilot.pause()
+        await pilot.pause()
+
+        assert client.called("resolve")
+        resolved = next(call for call in client.calls if call[0] == "resolve")
+        assert "spotify:album:disc-hw" in str(resolved[1][0])
+        assert isinstance(app.screen, AlbumScreen)
+        assert "Homework" in app.screen.query_one(EntityCard).summary
 
 
 async def test_sources_panel_lists_providers() -> None:

@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING, Any, ClassVar
 
 from spotdl_core.model import AlbumRef, ArtistRef, EntityType, ProviderId, SearchHit, Track
 from spotdl_core.providers.base import ALL_SEARCH_ENTITY_TYPES, HttpProvider, ResolvedEntity
-from spotdl_core.providers.errors import EntityNotFound, UnsupportedURL
+from spotdl_core.providers.errors import EntityNotFound, ProviderError, UnsupportedURL
 from spotdl_core.providers.http import create_client, request_json
 
 if TYPE_CHECKING:
@@ -46,6 +46,9 @@ _API_BASE = "https://api.deezer.com"
 
 #: Deezer caps ``/artist/{id}/top`` and search at 100 items per request.
 _TOP_LIMIT = 100
+
+#: Discography cap — one ``/artist/{id}/albums`` page, deduped by name.
+_ARTIST_ALBUMS_LIMIT = 50
 
 
 def _expect_no_error(body: Any) -> None:
@@ -101,6 +104,29 @@ def _album_ref(album_payload: dict[str, Any]) -> AlbumRef | None:
         popularity=album_payload.get("fans"),
         genres=_genre_names(album_payload),
     )
+
+
+def _artist_album_ref(item: dict[str, Any]) -> AlbumRef | None:
+    """Map one ``/artist/{id}/albums`` item to a source-tagged ``AlbumRef``."""
+    ref = _album_ref(item)
+    if ref is None:
+        return None
+    return ref.model_copy(update={"provider": ProviderId.DEEZER, "provider_id": str(item["id"])})
+
+
+def _dedupe_artist_albums(refs: list[AlbumRef], *, cap: int) -> tuple[AlbumRef, ...]:
+    """De-duplicate a discography by (case-folded) name, preserving order, capped."""
+    seen: set[str] = set()
+    out: list[AlbumRef] = []
+    for ref in refs:
+        key = ref.name.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(ref)
+        if len(out) >= cap:
+            break
+    return tuple(out)
 
 
 def map_track(payload: dict[str, Any]) -> Track:
@@ -292,6 +318,7 @@ class DeezerProvider(HttpProvider):
         artist = await self._get(f"/artist/{entity_id}")
         top = await self._get(f"/artist/{entity_id}/top", limit=_TOP_LIMIT)
         tracks = tuple(map_track(item) for item in (top.get("data") or []) if item)
+        albums = await self._resolve_artist_albums(entity_id)
         name = artist.get("name")
         return ResolvedEntity(
             provider=ProviderId.DEEZER,
@@ -310,7 +337,28 @@ class DeezerProvider(HttpProvider):
             ),
             name=name,
             tracks=tracks,
+            albums=albums,
         )
+
+    async def _resolve_artist_albums(self, entity_id: str) -> tuple[AlbumRef, ...]:
+        """Fetch the artist's discography (best-effort; a failure yields ``()``).
+
+        Non-fatal to the artist resolve (spec §10 degraded): the artist still
+        resolves with its top tracks if ``/albums`` breaks. Deezer's album items
+        carry ``record_type`` (album/single/ep/compilation), deduped by name.
+        """
+        try:
+            payload = await self._get(f"/artist/{entity_id}/albums", limit=_ARTIST_ALBUMS_LIMIT)
+        except ProviderError:
+            return ()
+        refs: list[AlbumRef] = []
+        for item in payload.get("data") or []:
+            if not item or not item.get("id"):
+                continue
+            ref = _artist_album_ref(item)
+            if ref is not None:
+                refs.append(ref)
+        return _dedupe_artist_albums(refs, cap=_ARTIST_ALBUMS_LIMIT)
 
     async def _resolve_playlist(self, entity_id: str) -> ResolvedEntity:
         playlist = await self._get(f"/playlist/{entity_id}")

@@ -36,7 +36,7 @@ from spotdl_cli.tui.widgets.entity_card import EntityCard
 from spotdl_cli.tui.widgets.patterns import LoadingPane
 from spotdl_cli.tui.widgets.sources_panel import SourcesPanel
 from spotdl_cli.viewmodels.base import Loadable, LoadState
-from spotdl_cli.viewmodels.types import BatchRef, CollectionDetail, EntityRef, TrackRow
+from spotdl_cli.viewmodels.types import AlbumCard, BatchRef, CollectionDetail, EntityRef, TrackRow
 
 _ENQUEUE_ACTIONS = frozenset({"enqueue_all", "enqueue_track"})
 _NARROW_WIDTH = 110  # two columns collapse to one below this (contract §1)
@@ -56,6 +56,7 @@ class CollectionScreen(SpotdlScreen):
         super().__init__()
         self._entity_id = entity_id
         self._tracks: tuple[TrackRow, ...] = ()
+        self._albums: dict[str, AlbumCard] = {}
 
     def compose_content(self) -> ComposeResult:
         # A loading pane fills the region until the async load resolves in ``on_mount``.
@@ -77,6 +78,7 @@ class CollectionScreen(SpotdlScreen):
 
     async def _render_detail(self, detail: CollectionDetail) -> None:
         self._tracks = detail.tracks
+        self._albums = {str(album.id): album for album in detail.albums}
         body = self.query_one("#collection-body", Vertical)
         await body.remove_children()
         card = EntityCard(detail.header, id="entity-card")
@@ -84,7 +86,13 @@ class CollectionScreen(SpotdlScreen):
         await body.mount(card)
         main = Horizontal(id="collection-main")
         await body.mount(main)
-        await main.mount(self._build_table(detail))
+        # The tracks table (and, for an artist, the discography table below it)
+        # share a 1fr left column; the side panel is the fixed-width right column.
+        left = Vertical(id="collection-left")
+        await main.mount(left)
+        await left.mount(self._build_table(detail))
+        if detail.albums:
+            await left.mount(self._build_discography(detail))
         await main.mount(self._build_side(detail))
         self._apply_width(self.size.width)
         self.query_one("#track-table", DataTable).focus()
@@ -101,6 +109,21 @@ class CollectionScreen(SpotdlScreen):
             # Per-track match status is not in the collection payload (it would need
             # a lookup per track); the column renders "—" until a track is opened.
             table.add_row(str(position), row.title, row.duration, "—", key=str(row.id))
+        return table
+
+    def _build_discography(self, detail: CollectionDetail) -> DataTable[str]:
+        """The artist discography table (Album · Type · Year); Enter resolves-on-open."""
+        table: DataTable[str] = DataTable(
+            id="discography-table", cursor_type="row", zebra_stripes=True
+        )
+        table.add_class("panel")
+        table.border_title = "Discography"
+        table.border_subtitle = "enter open"
+        table.add_columns("Album", "Type", "Year")
+        for album in detail.albums:
+            table.add_row(
+                album.title, album.album_type or "—", album.year or "—", key=str(album.id)
+            )
         return table
 
     def _build_side(self, detail: CollectionDetail) -> Vertical:
@@ -162,12 +185,36 @@ class CollectionScreen(SpotdlScreen):
         self.notify(f"queued {result.data.job_count}")
 
     def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
-        """Enter on a row drills into that track's screen (CONTRACT C parity)."""
+        """Enter drills into the focused track — or resolves-on-open a discography album."""
+        if event.data_table.id == "discography-table":
+            album = self._albums.get(event.row_key.value) if event.row_key.value else None
+            if album is not None:
+                self.run_worker(self._open_album(album), exclusive=True)
+            return
         row = self._track_for_key(event.row_key.value)
         if row is not None:
             self.post_message(
                 NavigateTo(EntityRef(entity_type="track", id=row.id, title=row.title))
             )
+
+    async def _open_album(self, album: AlbumCard) -> None:
+        """Resolve a discography album's source ref into its canonical page (CONTRACT C).
+
+        A discography album is a metadata-only preview — navigating to its raw id can
+        404 or land on a track-less album, so ``{provider}:album:{provider_id}`` is
+        resolved first (mirrors the search screen), then routed via ``NavigateTo``.
+        """
+        if not (album.provider and album.provider_id):
+            return
+        result = await self.vm_factory.search().open(
+            f"{album.provider}:album:{album.provider_id}"
+        )
+        if result.state is LoadState.ERROR:
+            if result.error is not None:
+                self.show_error(result.error)
+            return
+        assert result.data is not None
+        self.post_message(NavigateTo(result.data.ref))
 
     # -- responsive collapse --------------------------------------------------
     def on_resize(self, event: Resize) -> None:

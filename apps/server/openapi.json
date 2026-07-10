@@ -322,6 +322,14 @@
       "ArtistOut": {
         "description": "A canonical artist with its (metadata-only) top tracks.",
         "properties": {
+          "albums": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AlbumOut"
+            },
+            "title": "Albums",
+            "type": "array"
+          },
           "bio": {
             "anyOf": [
               {

@@ -176,10 +176,32 @@ class SourceRow:
 
 
 @dataclass(frozen=True, slots=True)
+class AlbumCard:
+    """One album in an artist's discography (a ``CollectionDetail.albums`` entry).
+
+    A metadata-only preview: ``provider``/``provider_id`` are the source ref, so
+    selecting it resolves ``{provider}:album:{provider_id}`` into the canonical
+    album (resolve-on-open) exactly like a search hit — the raw ``id`` may be a
+    metadata-only row with no track listing. ``title``/``album_type``/``year`` are
+    the three rendered columns.
+    """
+
+    id: str
+    title: str
+    album_type: str
+    year: str
+    provider: str = ""
+    provider_id: str = ""
+
+
+@dataclass(frozen=True, slots=True)
 class CollectionDetail:
     header: EntityHeader
     kind: str
     tracks: tuple[TrackRow, ...]
+    # The artist's discography (empty for albums/playlists). Selecting one
+    # resolves-on-open via its source ref.
+    albums: tuple[AlbumCard, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
