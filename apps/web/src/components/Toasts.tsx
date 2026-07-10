@@ -66,7 +66,7 @@ export function useToast() {
 const SEVERITY_STYLES: Record<Severity, string> = {
   error: "border-danger/40 bg-danger/10 text-danger",
   warn: "border-warn/40 bg-warn/10 text-fg",
-  info: "border-brand-500/40 bg-brand-50 text-fg dark:bg-brand-700/20",
+  info: "border-brand-500/40 bg-brand-500/15 text-fg",
 };
 
 // A leading glyph reinforces severity for colorblind users (color alone is not

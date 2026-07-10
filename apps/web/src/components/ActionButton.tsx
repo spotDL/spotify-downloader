@@ -28,7 +28,7 @@ export function ActionButton({
   return (
     <button
       type={type}
-      className={`hover-lift inline-flex items-center gap-2 rounded-[11px] px-4 py-2.5 text-sm font-semibold transition-transform disabled:cursor-not-allowed disabled:opacity-60 ${VARIANTS[variant]} ${className}`}
+      className={`hover-lift inline-flex items-center gap-2 rounded-[11px] px-4 py-2.5 text-sm font-semibold transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald/70 disabled:cursor-not-allowed disabled:opacity-60 ${VARIANTS[variant]} ${className}`}
       {...props}
     >
       {icon}

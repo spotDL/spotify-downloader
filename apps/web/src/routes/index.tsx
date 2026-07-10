@@ -100,9 +100,6 @@ function Home() {
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-2xl flex-col justify-center gap-8 px-6 py-12">
       <section className="animate-rise flex flex-col items-center gap-3 text-center">
-        <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-emerald">
-          Midnight Vinyl
-        </span>
         <h1 className="text-5xl font-bold tracking-tight text-fg">
           spot<span className="text-emerald">DL</span>
         </h1>

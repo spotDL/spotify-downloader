@@ -11,6 +11,40 @@
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
+/* Self-hosted display/body/mono faces (vendored under /public/fonts, bundled
+   into the SPA + server wheel — never CDN). Satoshi + General Sans ship as
+   variable fonts; JetBrains Mono as static weights. */
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Variable.woff2") format("woff2");
+  font-weight: 300 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "General Sans";
+  src: url("/fonts/GeneralSans-Variable.woff2") format("woff2");
+  font-weight: 200 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
 @theme {
   /* Accent — emerald primary, teal/gold/red semantics */
   --color-emerald: #00d084;
@@ -94,6 +128,14 @@ h1, h2, h3, h4 {
   font-family: var(--font-display);
   letter-spacing: -0.02em;
   text-wrap: balance;
+}
+
+/* Kill the browser-default (blue) focus ring everywhere; keyboard focus is
+   always emerald. Components may still add their own ring on top. */
+:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--color-emerald) 75%, transparent);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 /* ── Maximalism utility layer ─────────────────────────────────────────────
