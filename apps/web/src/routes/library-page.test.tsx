@@ -60,6 +60,20 @@ describe("Library page", () => {
     ).toBeInTheDocument();
   });
 
+  it("labels the batch by its real name and shows each file's cover", async () => {
+    serveCompleted();
+    renderApp("/library");
+
+    // The batch list now shows the real name (kind-prefixed) as its title.
+    expect(await screen.findByText(/Random Access Memories/)).toBeInTheDocument();
+    // The file row renders the track's album cover from `cover_url` (decorative
+    // `alt=""` images are role="presentation", so query the DOM by src directly).
+    const cover = document.querySelector(
+      'img[src="https://example.com/cover.jpg"]',
+    );
+    expect(cover).toBeInTheDocument();
+  });
+
   it("is unavailable when the library feature is off", async () => {
     server.use(
       http.get("*/api/v1/config", () =>

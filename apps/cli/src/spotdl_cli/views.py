@@ -583,12 +583,15 @@ class JobView:
     status: str
     progress: float
     track_name: str | None = None
+    cover_url: str | None = None
     artists: list[str] = field(default_factory=list)
     output_path: str | None = None
     output_format: str | None = None
     output_template: str | None = None
     bitrate: str | None = None
     batch_id: str | None = None
+    batch_name: str | None = None
+    batch_kind: str | None = None
     track_id: str | None = None
     list_position: int | None = None
     error_message: str | None = None
@@ -600,17 +603,21 @@ class JobView:
 
     @classmethod
     def from_generated(cls, job: DownloadJobOut) -> JobView:
+        batch_kind = _opt(job.batch_kind)
         return cls(
             id=str(job.id),
             status=job.status.value,
             progress=job.progress,
             track_name=_opt(job.track_name),
+            cover_url=_opt(job.cover_url),
             artists=list(job.artists),
             output_path=_opt(job.output_path),
             output_format=_opt(job.output_format),
             output_template=_opt(job.output_template),
             bitrate=_opt(job.bitrate),
             batch_id=str(_opt(job.batch_id)) if _opt(job.batch_id) is not None else None,
+            batch_name=_opt(job.batch_name),
+            batch_kind=batch_kind.value if batch_kind is not None else None,
             track_id=str(_opt(job.track_id)) if _opt(job.track_id) is not None else None,
             list_position=_opt(job.list_position),
             error_message=_opt(job.error_message),

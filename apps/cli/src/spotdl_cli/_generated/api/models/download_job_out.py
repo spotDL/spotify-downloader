@@ -7,6 +7,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
+from ..models.batch_kind import BatchKind
 from ..models.download_status import DownloadStatus
 from ..types import UNSET, Unset
 
@@ -20,7 +21,10 @@ class DownloadJobOut:
     Attributes:
         artists (list[str]):
         batch_id (Union[None, UUID]):
+        batch_kind (Union[BatchKind, None]):
+        batch_name (Union[None, str]):
         bitrate (Union[None, str]):
+        cover_url (Union[None, str]):
         created_at (datetime.datetime):
         error_message (Union[None, str]):
         error_step (Union[None, str]):
@@ -40,7 +44,10 @@ class DownloadJobOut:
 
     artists: list[str]
     batch_id: Union[None, UUID]
+    batch_kind: Union[BatchKind, None]
+    batch_name: Union[None, str]
     bitrate: Union[None, str]
+    cover_url: Union[None, str]
     created_at: datetime.datetime
     error_message: Union[None, str]
     error_step: Union[None, str]
@@ -67,8 +74,20 @@ class DownloadJobOut:
         else:
             batch_id = self.batch_id
 
+        batch_kind: Union[None, str]
+        if isinstance(self.batch_kind, BatchKind):
+            batch_kind = self.batch_kind.value
+        else:
+            batch_kind = self.batch_kind
+
+        batch_name: Union[None, str]
+        batch_name = self.batch_name
+
         bitrate: Union[None, str]
         bitrate = self.bitrate
+
+        cover_url: Union[None, str]
+        cover_url = self.cover_url
 
         created_at = self.created_at.isoformat()
 
@@ -126,7 +145,10 @@ class DownloadJobOut:
             {
                 "artists": artists,
                 "batch_id": batch_id,
+                "batch_kind": batch_kind,
+                "batch_name": batch_name,
                 "bitrate": bitrate,
+                "cover_url": cover_url,
                 "created_at": created_at,
                 "error_message": error_message,
                 "error_step": error_step,
@@ -167,12 +189,41 @@ class DownloadJobOut:
 
         batch_id = _parse_batch_id(d.pop("batch_id"))
 
+        def _parse_batch_kind(data: object) -> Union[BatchKind, None]:
+            if data is None:
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                batch_kind_type_0 = BatchKind(data)
+
+                return batch_kind_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[BatchKind, None], data)
+
+        batch_kind = _parse_batch_kind(d.pop("batch_kind"))
+
+        def _parse_batch_name(data: object) -> Union[None, str]:
+            if data is None:
+                return data
+            return cast(Union[None, str], data)
+
+        batch_name = _parse_batch_name(d.pop("batch_name"))
+
         def _parse_bitrate(data: object) -> Union[None, str]:
             if data is None:
                 return data
             return cast(Union[None, str], data)
 
         bitrate = _parse_bitrate(d.pop("bitrate"))
+
+        def _parse_cover_url(data: object) -> Union[None, str]:
+            if data is None:
+                return data
+            return cast(Union[None, str], data)
+
+        cover_url = _parse_cover_url(d.pop("cover_url"))
 
         created_at = isoparse(d.pop("created_at"))
 
@@ -286,7 +337,10 @@ class DownloadJobOut:
         download_job_out = cls(
             artists=artists,
             batch_id=batch_id,
+            batch_kind=batch_kind,
+            batch_name=batch_name,
             bitrate=bitrate,
+            cover_url=cover_url,
             created_at=created_at,
             error_message=error_message,
             error_step=error_step,

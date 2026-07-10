@@ -95,6 +95,37 @@ async def test_library_batch_list_and_save_file_action() -> None:
         )
 
 
+async def test_library_batch_list_shows_real_name_not_id() -> None:
+    """The batch list labels each batch by its name/kind, not a raw id (metadata gap fix)."""
+    from textual.widgets import Label, ListView
+
+    client = FakeSpotdlClient()
+    batch = uuid4()
+    client.download_page = make_download_page(
+        jobs=[
+            make_job(
+                status="completed",
+                batch_id=batch,
+                batch_name="Random Access Memories",
+                batch_kind="album",
+                output_path="/music/one.mp3",
+            )
+        ]
+    )
+    app = SpotdlApp(_factory(client))
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("3")
+        await pilot.pause()
+        labels = " ".join(
+            str(node.render())
+            for node in app.screen.query_one("#library-batches", ListView).query(Label)
+        )
+        assert "Random Access Memories" in labels
+        assert "Album" in labels  # kind-prefixed
+        assert batch.hex[:8] not in labels  # not the raw id fallback
+
+
 async def test_library_section_hidden_when_feature_off() -> None:
     client = FakeSpotdlClient(config=make_config(features=make_features(library=False)))
     app = SpotdlApp(_factory(client))

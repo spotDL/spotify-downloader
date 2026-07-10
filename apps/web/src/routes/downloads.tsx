@@ -152,7 +152,12 @@ function Stat({
 }
 
 // ── Batch groups ─────────────────────────────────────────────────────────────
-type Group = { batchId: string | null; jobs: DownloadJobOut[] };
+type Group = {
+  batchId: string | null;
+  batchName: string | null;
+  batchKind: string | null;
+  jobs: DownloadJobOut[];
+};
 
 function groupByBatch(jobs: DownloadJobOut[]): Group[] {
   const order: string[] = [];
@@ -161,7 +166,12 @@ function groupByBatch(jobs: DownloadJobOut[]): Group[] {
     const key = job.batch_id ?? `job:${job.id}`;
     let group = groups.get(key);
     if (!group) {
-      group = { batchId: job.batch_id, jobs: [] };
+      group = {
+        batchId: job.batch_id,
+        batchName: job.batch_name,
+        batchKind: job.batch_kind,
+        jobs: [],
+      };
       groups.set(key, group);
       order.push(key);
     }
@@ -174,9 +184,14 @@ function QueueGroups({ jobs }: { jobs: DownloadJobOut[] }) {
   return (
     <div className="flex flex-col gap-6">
       {groupByBatch(jobs).map((group) => {
-        // The jobs list carries no batch name/kind (only `batch_id`), so a
-        // multi-track batch is headed by its track count + short id.
+        // A multi-track batch is headed by its real name (kind-prefixed) when the
+        // server knows it, falling back to the track count for an unnamed batch.
         const multi = group.jobs.length > 1;
+        const title = group.batchName
+          ? group.batchKind
+            ? `${group.batchKind} · ${group.batchName}`
+            : group.batchName
+          : `${group.jobs.length} tracks`;
         return (
           <section
             key={group.batchId ?? group.jobs[0].id}
@@ -184,15 +199,10 @@ function QueueGroups({ jobs }: { jobs: DownloadJobOut[] }) {
           >
             {multi ? (
               <div className="flex items-center gap-3">
-                <SectionDivider
-                  title={`${group.jobs.length} tracks`}
-                  accent="teal"
-                />
-                {group.batchId ? (
-                  <span className="font-mono text-[11px] text-ink-4">
-                    #{group.batchId.slice(0, 8)}
-                  </span>
-                ) : null}
+                <SectionDivider title={title} accent="teal" />
+                <span className="font-mono text-[11px] text-ink-4">
+                  {group.jobs.length} tracks
+                </span>
               </div>
             ) : null}
             <ul className="flex flex-col gap-2">
@@ -226,9 +236,19 @@ function JobRow({ job }: { job: DownloadJobOut }) {
   return (
     <div className="group flex flex-col gap-2 rounded-card border border-line-soft bg-surface px-3 py-2.5 transition-colors hover:border-line">
       <div className="flex items-center gap-3">
-        {/* DownloadJobOut carries no cover art, so the note glyph always shows. */}
-        <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-elevated text-muted ring-1 ring-white/5">
-          <NoteIcon className="size-5" />
+        {/* The job's album cover when known, else the note-glyph placeholder. */}
+        <span className="size-11 shrink-0 overflow-hidden rounded-lg ring-1 ring-white/5">
+          {job.cover_url ? (
+            <img
+              src={job.cover_url}
+              alt=""
+              className="size-full object-cover"
+            />
+          ) : (
+            <span className="grid size-full place-items-center bg-elevated text-muted">
+              <NoteIcon className="size-5" />
+            </span>
+          )}
         </span>
 
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">

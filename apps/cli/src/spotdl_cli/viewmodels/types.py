@@ -100,6 +100,9 @@ class LibraryTrack:
     artists: str
     output_path: str | None
     skip_reason: str | None
+    # The track's album cover thumbnail (``None`` when absent). The TUI cannot
+    # paint a bitmap in a DataTable, so this flows through for parity/web reuse.
+    cover_url: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -114,6 +117,11 @@ class LibraryBatch:
     batch_id: UUID | None
     save_file_url: str | None
     tracks: tuple[LibraryTrack, ...]
+    # The submission's real name + kind (denormalized from the jobs), so the
+    # batch list shows "Album · <name>" instead of a raw id. ``None`` for the
+    # synthetic "unbatched" group or a batch the server left unnamed.
+    name: str | None = None
+    kind: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -215,6 +223,12 @@ class JobRow:
     error: str | None
     output_path: str | None
     skip_reason: str | None
+    # Album cover thumbnail + the parent batch's name/kind, carried through for
+    # the batch-grouped header label (and web/parity reuse). WS-created rows have
+    # no batch metadata yet, so these default to ``None`` (header falls back to id).
+    cover_url: str | None = None
+    batch_name: str | None = None
+    batch_kind: str | None = None
 
 
 @dataclass(frozen=True, slots=True)

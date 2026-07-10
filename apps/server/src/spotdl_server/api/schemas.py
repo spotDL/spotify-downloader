@@ -789,9 +789,16 @@ class DownloadJobOut(BaseModel):
 
     id: UUID
     batch_id: UUID | None
+    # Parent-batch label + kind, denormalized onto every job so a flat jobs list
+    # groups/labels its rows without a second call (``null`` for an unbatched job).
+    batch_name: str | None
+    batch_kind: BatchKind | None
     status: DownloadStatus
     track_id: UUID | None
     track_name: str | None
+    # The canonical track's album cover thumbnail (``null`` when the track/album
+    # is gone or has no art) — the per-row artwork the download surface renders.
+    cover_url: str | None
     artists: list[str]
     output_format: str | None
     bitrate: str | None

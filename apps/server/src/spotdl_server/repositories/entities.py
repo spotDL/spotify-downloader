@@ -56,6 +56,28 @@ class TrackRepository:
     async def get(self, id: uuid.UUID) -> Track | None:
         return await self.session.get(Track, id)
 
+    async def list_by_ids(self, ids: list[uuid.UUID]) -> dict[uuid.UUID, Track]:
+        """Load many tracks by id in one query, keyed by id (missing ids omitted).
+
+        ``album`` and ``artists`` are force-loaded so a caller reading a track's
+        cover / artist names never lazy-loads outside the greenlet. The two
+        ``selectin`` relationships fan out into a bounded number of follow-up
+        queries (one per relationship, not per row), so this stays N+1-free — the
+        bulk read behind the downloads list's per-row cover + artists.
+        """
+        if not ids:
+            return {}
+        result = await self.session.execute(
+            select(Track)
+            .where(Track.id.in_(ids))
+            .options(selectinload(Track.album), selectinload(Track.artists))
+            # Force the loaders even for identity-map-warm rows: a job's track may
+            # have been read earlier in the same request with a since-changed album
+            # link (mirrors ``AlbumRepository.get``'s nested-cover rationale).
+            .execution_options(populate_existing=True)
+        )
+        return {track.id: track for track in result.scalars().all()}
+
     async def get_for_matching(self, id: uuid.UUID) -> Track | None:
         """Fetch a track with ``artists`` + ``album`` force-loaded in the greenlet.
 

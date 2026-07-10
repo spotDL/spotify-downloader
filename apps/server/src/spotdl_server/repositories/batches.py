@@ -73,6 +73,18 @@ class DownloadBatchRepository:
     async def get(self, batch_id: UUID) -> DownloadBatch | None:
         return await self.session.get(DownloadBatch, batch_id)
 
+    async def list_by_ids(self, ids: list[UUID]) -> dict[UUID, DownloadBatch]:
+        """Load many batches by id in one query, keyed by id (missing ids omitted).
+
+        The single read behind the downloads list's per-row ``batch_name`` /
+        ``batch_kind`` denormalization — one query for every batch a page of jobs
+        references, so the mapping stays N+1-free.
+        """
+        if not ids:
+            return {}
+        result = await self.session.execute(select(DownloadBatch).where(DownloadBatch.id.in_(ids)))
+        return {batch.id: batch for batch in result.scalars().all()}
+
     async def jobs(self, batch_id: UUID) -> list[DownloadJob]:
         """Every job in the batch, ordered by ``list_position`` (then ``created_at``)."""
         result = await self.session.execute(

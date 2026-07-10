@@ -255,8 +255,11 @@ export function makeDownloadJob(
   return {
     id: "job-1",
     batch_id: "batch-1",
+    batch_name: "Random Access Memories",
+    batch_kind: "album",
     track_id: "track-1",
     track_name: "Get Lucky",
+    cover_url: "https://example.com/cover.jpg",
     artists: ["Daft Punk"],
     status: "queued",
     progress: 0,

@@ -32,8 +32,14 @@ function LibraryPage() {
   return <LibraryBrowser />;
 }
 
-// A completed batch: id, its jobs (files), and a representative date.
-type Batch = { key: string; batchId: string | null; jobs: DownloadJobOut[] };
+// A completed batch: id, name/kind, its jobs (files), and a representative date.
+type Batch = {
+  key: string;
+  batchId: string | null;
+  batchName: string | null;
+  batchKind: string | null;
+  jobs: DownloadJobOut[];
+};
 
 function groupByBatch(jobs: DownloadJobOut[]): Batch[] {
   const order: string[] = [];
@@ -42,13 +48,30 @@ function groupByBatch(jobs: DownloadJobOut[]): Batch[] {
     const key = job.batch_id ?? `job:${job.id}`;
     let group = groups.get(key);
     if (!group) {
-      group = { key, batchId: job.batch_id, jobs: [] };
+      group = {
+        key,
+        batchId: job.batch_id,
+        batchName: job.batch_name,
+        batchKind: job.batch_kind,
+        jobs: [],
+      };
       groups.set(key, group);
       order.push(key);
     }
     group.jobs.push(job);
   }
   return order.map((key) => groups.get(key)!);
+}
+
+// The batch's display title: its real name (kind-prefixed) or a track count.
+function batchTitle(batch: Batch): string {
+  if (batch.batchName) {
+    return batch.batchKind
+      ? `${batch.batchKind} · ${batch.batchName}`
+      : batch.batchName;
+  }
+  const n = batch.jobs.length;
+  return `${n} ${n === 1 ? "track" : "tracks"}`;
 }
 
 function formatDate(iso: string): string {
@@ -158,9 +181,7 @@ function BatchList({
       {batches.map((batch) => {
         const active = batch.key === selectedKey;
         const first = batch.jobs[0];
-        const title = `${batch.jobs.length} ${
-          batch.jobs.length === 1 ? "track" : "tracks"
-        }`;
+        const title = batchTitle(batch);
         return (
           <button
             key={batch.key}
@@ -243,8 +264,18 @@ function FileRow({ job }: { job: DownloadJobOut }) {
 
   return (
     <li className="group flex items-center gap-3 py-2.5">
-      <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-elevated text-muted ring-1 ring-white/5">
-        <NoteIcon className="size-4" />
+      <span className="size-9 shrink-0 overflow-hidden rounded-lg ring-1 ring-white/5">
+        {job.cover_url ? (
+          <img
+            src={job.cover_url}
+            alt=""
+            className="size-full object-cover"
+          />
+        ) : (
+          <span className="grid size-full place-items-center bg-elevated text-muted">
+            <NoteIcon className="size-4" />
+          </span>
+        )}
       </span>
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="truncate text-[13px] font-medium text-fg">

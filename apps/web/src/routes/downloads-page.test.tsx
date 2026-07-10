@@ -134,6 +134,24 @@ describe("Downloads page", () => {
     await waitFor(() => expect(submitted).toEqual({ query: "track-1" }));
   });
 
+  it("renders each job's album cover and labels a batch by its real name", async () => {
+    serveDownloads([
+      makeDownloadJob({ id: "job-1", track_name: "Give Life Back to Music" }),
+      makeDownloadJob({ id: "job-2", track_name: "Get Lucky", list_position: 2 }),
+    ]);
+    renderApp("/downloads");
+
+    // The batch group header shows the denormalized name/kind, not "#batch_id".
+    expect(await screen.findByText(/Random Access Memories/)).toBeInTheDocument();
+    expect(screen.queryByText(/#batch-1/)).not.toBeInTheDocument();
+    // Every job row renders its cover art from `cover_url` (decorative `alt=""`
+    // images are role="presentation", so query the DOM by src directly).
+    const covers = document.querySelectorAll(
+      'img[src="https://example.com/cover.jpg"]',
+    );
+    expect(covers.length).toBe(2);
+  });
+
   it("cancels a job and invalidates the queue", async () => {
     serveDownloads([makeDownloadJob({ status: "queued", progress: 0 })]);
     let listGets = 0;

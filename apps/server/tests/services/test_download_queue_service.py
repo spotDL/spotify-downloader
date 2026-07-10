@@ -15,7 +15,7 @@ from spotdl_core.model import MatchStatus, ProviderId
 from spotdl_core.providers import NoMatchFound
 from spotdl_server.api.schemas import DownloadSubmitRequest
 from spotdl_server.db.enums import BatchKind, DownloadStatus
-from spotdl_server.db.models import Artist, Match, Track, track_artists
+from spotdl_server.db.models import Album, Artist, Match, Track, track_artists
 from spotdl_server.repositories.batches import DownloadBatchRepository
 from spotdl_server.repositories.downloads import DownloadJobRepository
 from spotdl_server.repositories.entities import TrackRepository
@@ -274,6 +274,103 @@ async def test_list_jobs_filters_and_paginates(
     assert queued.total == 2
     completed = await svc.list_jobs(status=DownloadStatus.COMPLETED)
     assert completed.total == 0
+
+
+async def test_job_out_carries_cover_and_batch_label(
+    session: AsyncSession, download_settings: object, clock: object
+) -> None:
+    """A job DTO carries its album cover + the parent batch's name/kind (no N+1)."""
+    album = Album(name="Random Access Memories", cover_url="https://img/ram.jpg")
+    session.add(album)
+    await session.flush()
+    t1, _ = await _seed_track(session, name="Give Life Back to Music")
+    t2, _ = await _seed_track(session, name="Get Lucky")
+    t1.album_id = album.id
+    t2.album_id = album.id
+    await session.flush()
+    album_view = AlbumView(
+        id=str(uuid4()),
+        name="Random Access Memories",
+        tracks=(_track_view(t1), _track_view(t2)),
+    )
+    svc = _service(
+        session, ResolveResult(entity_type="album", album=album_view), download_settings, clock
+    )
+    batch, job_ids = await svc.submit(DownloadSubmitRequest(query="album-url"))
+
+    # Flat list: every row carries the cover + the denormalized batch name/kind.
+    page = await svc.list_jobs(batch_id=batch.batch_id)
+    assert {job.cover_url for job in page.jobs} == {"https://img/ram.jpg"}
+    assert {job.batch_name for job in page.jobs} == {"Random Access Memories"}
+    assert {job.batch_kind for job in page.jobs} == {BatchKind.ALBUM}
+
+    # The single-job read and the nested batch listing resolve the same fields.
+    job_out = await svc.get_job(job_ids[0])
+    assert job_out.cover_url == "https://img/ram.jpg"
+    assert job_out.batch_name == "Random Access Memories"
+    assert job_out.batch_kind is BatchKind.ALBUM
+
+    batch_out = await svc.get_batch(batch.batch_id)
+    assert all(j.cover_url == "https://img/ram.jpg" for j in batch_out.jobs)
+
+
+async def test_job_out_null_cover_and_batch_when_absent(
+    session: AsyncSession, download_settings: object, clock: object
+) -> None:
+    """A single track with no album yields a null cover; a SINGLE batch has no name."""
+    track, _ = await _seed_track(session, name="Loner")
+    svc = _service(
+        session,
+        ResolveResult(entity_type="track", track=_track_view(track)),
+        download_settings,
+        clock,
+    )
+    _, job_ids = await svc.submit(DownloadSubmitRequest(query="q"))
+    job_out = await svc.get_job(job_ids[0])
+    assert job_out.cover_url is None
+    assert job_out.batch_name is None
+    assert job_out.batch_kind is BatchKind.SINGLE
+
+
+async def test_list_jobs_avoids_per_row_track_query(
+    session: AsyncSession, download_settings: object, clock: object
+) -> None:
+    """Listing N jobs bulk-loads tracks once — never one ``track_repo.get`` per row."""
+    tracks = [(await _seed_track(session, name=f"T{i}"))[0] for i in range(5)]
+    album_view = AlbumView(
+        id=str(uuid4()), name="Album", tracks=tuple(_track_view(t) for t in tracks)
+    )
+    svc = _service(
+        session, ResolveResult(entity_type="album", album=album_view), download_settings, clock
+    )
+    await svc.submit(DownloadSubmitRequest(query="album"))
+
+    # Spy on the service's track repo: the old per-row mapping called ``get`` N
+    # times; the bulk mapping calls ``list_by_ids`` exactly once and ``get`` never.
+    track_repo = svc._tracks  # noqa: SLF001 — asserting the query shape is the point
+    get_calls = 0
+    bulk_calls = 0
+    original_get = track_repo.get
+    original_bulk = track_repo.list_by_ids
+
+    async def _spy_get(track_id: object) -> object:
+        nonlocal get_calls
+        get_calls += 1
+        return await original_get(track_id)  # type: ignore[arg-type]
+
+    async def _spy_bulk(ids: object) -> object:
+        nonlocal bulk_calls
+        bulk_calls += 1
+        return await original_bulk(ids)  # type: ignore[arg-type]
+
+    track_repo.get = _spy_get  # type: ignore[method-assign,assignment]
+    track_repo.list_by_ids = _spy_bulk  # type: ignore[method-assign,assignment]
+
+    page = await svc.list_jobs()
+
+    assert page.total == 5
+    assert bulk_calls == 1, "tracks should be bulk-loaded in a single query"
+    assert get_calls == 0, f"suspected N+1: track_repo.get called {get_calls}x in list_jobs"
 
 
 async def test_get_job_and_batch_not_found(

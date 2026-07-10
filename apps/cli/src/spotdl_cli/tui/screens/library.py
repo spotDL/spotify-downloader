@@ -151,9 +151,14 @@ class LibraryScreen(SpotdlScreen):
 
 
 def _batch_label(batch: LibraryBatch) -> str:
-    name = batch.batch_id.hex[:8] if batch.batch_id is not None else "unbatched"
+    if batch.name:
+        title = f"{batch.kind.capitalize()} · {batch.name}" if batch.kind else batch.name
+    elif batch.batch_id is not None:
+        title = batch.batch_id.hex[:8]
+    else:
+        title = "unbatched"
     count = len(batch.tracks)
-    return f"{name}\n{count} {'file' if count == 1 else 'files'}"
+    return f"{title}\n{count} {'file' if count == 1 else 'files'}"
 
 
 def _heading(batch: LibraryBatch) -> str:

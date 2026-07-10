@@ -63,10 +63,13 @@ def test_job_out_serializes_status_value() -> None:
 
     job = DownloadJobOut(
         id=uuid4(),
-        batch_id=None,
+        batch_id=uuid4(),
+        batch_name="Random Access Memories",
+        batch_kind=BatchKind.ALBUM,
         status=DownloadStatus.COMPLETED,
         track_id=None,
         track_name="X",
+        cover_url="https://img/cover.jpg",
         artists=["A"],
         output_format="mp3",
         bitrate="auto",
@@ -83,6 +86,11 @@ def test_job_out_serializes_status_value() -> None:
     )
     dumped = job.model_dump(mode="json")
     assert dumped["status"] == "completed"
+    # The Downloads/Library surfaces render a cover per row and label each batch
+    # from the denormalized name/kind — so they must survive JSON serialization.
+    assert dumped["cover_url"] == "https://img/cover.jpg"
+    assert dumped["batch_name"] == "Random Access Memories"
+    assert dumped["batch_kind"] == "album"
 
 
 def test_batch_out_serializes_kind_value() -> None:

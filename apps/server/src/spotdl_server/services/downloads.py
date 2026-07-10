@@ -63,7 +63,7 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
     from spotdl_server.auth.clock import Clock
-    from spotdl_server.db.models import DownloadJob, Match, Track
+    from spotdl_server.db.models import DownloadBatch, DownloadJob, Match, Track
     from spotdl_server.repositories.batches import DownloadBatchRepository
     from spotdl_server.repositories.downloads import DownloadJobRepository
     from spotdl_server.repositories.entities import TrackRepository
@@ -248,8 +248,17 @@ class DownloadQueueService:
         jobs, total = await self._jobs.list(
             status=status, batch_id=batch_id, limit=limit, offset=offset
         )
+        tracks_by_id = await self._tracks_for(jobs)
+        batches_by_id = await self._batches_for(jobs)
         return DownloadListResponse(
-            jobs=[await self._job_out(job) for job in jobs],
+            jobs=[
+                self._build_job_out(
+                    job,
+                    tracks_by_id.get(job.track_id) if job.track_id is not None else None,
+                    batches_by_id.get(job.batch_id) if job.batch_id is not None else None,
+                )
+                for job in jobs
+            ],
             total=total,
             limit=limit,
             offset=offset,
@@ -259,7 +268,9 @@ class DownloadQueueService:
         job = await self._jobs.get(job_id)
         if job is None:
             raise NotFoundError(entity_type="download_job", entity_id=job_id)
-        return await self._job_out(job)
+        track = await self._tracks.get(job.track_id) if job.track_id is not None else None
+        batch = await self._batches.get(job.batch_id) if job.batch_id is not None else None
+        return self._build_job_out(job, track, batch)
 
     async def get_batch(self, batch_id: UUID) -> DownloadBatchOut:
         batch = await self._batches.get(batch_id)
@@ -300,6 +311,9 @@ class DownloadQueueService:
         assert batch is not None  # only ever called with a just-created / known id
         jobs = await self._batches.jobs(batch_id)
         counts = await self._batches.counts(batch_id)
+        # Every job in a batch shares that batch; one bulk track read covers the
+        # whole listing (no per-job track query).
+        tracks_by_id = await self._tracks_for(jobs)
         return DownloadBatchOut(
             batch_id=batch.id,
             kind=batch.kind,
@@ -307,23 +321,50 @@ class DownloadQueueService:
             total_jobs=batch.total_jobs,
             counts=counts,
             finalized=batch.finalized_at is not None,
-            jobs=[await self._job_out(job) for job in jobs],
+            jobs=[
+                self._build_job_out(
+                    job,
+                    tracks_by_id.get(job.track_id) if job.track_id is not None else None,
+                    batch,
+                )
+                for job in jobs
+            ],
         )
 
-    async def _job_out(self, job: DownloadJob) -> DownloadJobOut:
-        track_name: str | None = None
-        artists: list[str] = []
-        if job.track_id is not None:
-            track = await self._tracks.get(job.track_id)
-            if track is not None:
-                track_name = track.name
-                artists = [artist.name for artist in track.artists]
+    async def _tracks_for(self, jobs: list[DownloadJob]) -> dict[UUID, Track]:
+        """Bulk-load the canonical tracks a batch of jobs references (cover + artists)."""
+        ids = list({job.track_id for job in jobs if job.track_id is not None})
+        return await self._tracks.list_by_ids(ids)
+
+    async def _batches_for(self, jobs: list[DownloadJob]) -> dict[UUID, DownloadBatch]:
+        """Bulk-load the parent batches a page of jobs references (name + kind)."""
+        ids = list({job.batch_id for job in jobs if job.batch_id is not None})
+        return await self._batches.list_by_ids(ids)
+
+    def _build_job_out(
+        self,
+        job: DownloadJob,
+        track: Track | None,
+        batch: DownloadBatch | None,
+    ) -> DownloadJobOut:
+        """Map a job (+ its pre-loaded track/batch) to the wire DTO — no I/O.
+
+        The track/batch are looked up in bulk by the callers so a listing never
+        issues a per-row query; ``None`` means the row is absent (unbatched job or
+        a track that was ``SET NULL``-ed away).
+        """
+        track_name = track.name if track is not None else None
+        artists = [artist.name for artist in track.artists] if track is not None else []
+        cover_url = track.album.cover_url if track is not None and track.album is not None else None
         return DownloadJobOut(
             id=job.id,
             batch_id=job.batch_id,
+            batch_name=batch.name if batch is not None else None,
+            batch_kind=batch.kind if batch is not None else None,
             status=job.status,
             track_id=job.track_id,
             track_name=track_name,
+            cover_url=cover_url,
             artists=artists,
             output_format=job.output_format,
             bitrate=job.bitrate,

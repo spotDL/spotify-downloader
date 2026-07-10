@@ -299,6 +299,9 @@ def job_row(job: JobView) -> JobRow:
         error=job.error_message,
         output_path=job.output_path,
         skip_reason=job.skip_reason,
+        cover_url=job.cover_url,
+        batch_name=job.batch_name,
+        batch_kind=job.batch_kind,
     )
 
 
@@ -309,6 +312,7 @@ def library_track(job: JobView) -> LibraryTrack:
         artists=", ".join(job.artists),
         output_path=job.output_path,
         skip_reason=job.skip_reason,
+        cover_url=job.cover_url,
     )
 
 

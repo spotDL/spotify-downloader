@@ -462,10 +462,19 @@ export type DownloadJobOut = {
      * Batch Id
      */
     batch_id: string | null;
+    batch_kind: BatchKind | null;
+    /**
+     * Batch Name
+     */
+    batch_name: string | null;
     /**
      * Bitrate
      */
     bitrate: string | null;
+    /**
+     * Cover Url
+     */
+    cover_url: string | null;
     /**
      * Created At
      */

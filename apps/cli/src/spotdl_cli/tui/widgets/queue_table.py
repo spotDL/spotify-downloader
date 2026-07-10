@@ -102,8 +102,17 @@ def _grouped_keys(snapshot: QueueSnapshot) -> list[str]:
 
 
 def _header_cells(batch_id: str, group: list[JobRow]) -> tuple[Text, Text, Text, Text]:
-    label = Text(f"▸ Batch {batch_id[:8]} · {len(group)} tracks", style="dim bold")
+    label = Text(f"▸ {_batch_title(batch_id, group)} · {len(group)} tracks", style="dim bold")
     return (Text("", style="dim"), label, Text(""), Text(""))
+
+
+def _batch_title(batch_id: str, group: list[JobRow]) -> str:
+    """The group header: the batch's real name (kind-prefixed), else a short id."""
+    name = next((job.batch_name for job in group if job.batch_name), None)
+    kind = next((job.batch_kind for job in group if job.batch_kind), None)
+    if name:
+        return f"{kind.capitalize()} · {name}" if kind else name
+    return f"Batch {batch_id[:8]}"
 
 
 def _cells(job: JobRow) -> tuple[Text, Text, Text, Text]:

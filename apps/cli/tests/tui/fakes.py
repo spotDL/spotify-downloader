@@ -314,7 +314,10 @@ def make_job(
     status: str = "queued",
     progress: float = 0.0,
     batch_id: UUID | None = None,
+    batch_name: str | None = None,
+    batch_kind: str | None = None,
     track_name: str = "Song",
+    cover_url: str | None = None,
     artists: list[str] | None = None,
     output_path: str | None = None,
     skip_reason: str | None = None,
@@ -324,10 +327,13 @@ def make_job(
         status=status,
         progress=progress,
         track_name=track_name,
+        cover_url=cover_url,
         artists=artists if artists is not None else ["Artist"],
         output_path=output_path,
         skip_reason=skip_reason,
         batch_id=str(batch_id) if batch_id is not None else None,
+        batch_name=batch_name,
+        batch_kind=batch_kind,
     )
 
 

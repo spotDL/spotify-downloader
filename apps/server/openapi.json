@@ -764,6 +764,27 @@
             ],
             "title": "Batch Id"
           },
+          "batch_kind": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BatchKind"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "batch_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batch Name"
+          },
           "bitrate": {
             "anyOf": [
               {
@@ -774,6 +795,17 @@
               }
             ],
             "title": "Bitrate"
+          },
+          "cover_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cover Url"
           },
           "created_at": {
             "format": "date-time",
@@ -920,9 +952,12 @@
         "required": [
           "id",
           "batch_id",
+          "batch_name",
+          "batch_kind",
           "status",
           "track_id",
           "track_name",
+          "cover_url",
           "artists",
           "output_format",
           "bitrate",

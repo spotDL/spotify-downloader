@@ -40,6 +40,30 @@ async def test_groups_completed_jobs_by_batch_with_save_file_urls() -> None:
     assert groups[1].batch_id == batch_b
 
 
+async def test_batch_carries_name_and_kind_and_track_cover() -> None:
+    client = FakeSpotdlClient()
+    batch = uuid4()
+    client.download_page = make_download_page(
+        jobs=[
+            make_job(
+                status="completed",
+                batch_id=batch,
+                batch_name="Random Access Memories",
+                batch_kind="album",
+                cover_url="https://img/ram.jpg",
+                output_path="/music/a1.mp3",
+            )
+        ]
+    )
+    result = await _vm(client).load()
+
+    assert result.data is not None
+    group = result.data[0]
+    assert group.name == "Random Access Memories"
+    assert group.kind == "album"
+    assert group.tracks[0].cover_url == "https://img/ram.jpg"
+
+
 async def test_load_requests_only_completed_downloads() -> None:
     client = FakeSpotdlClient()
     await _vm(client).load()
