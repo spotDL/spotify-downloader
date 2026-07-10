@@ -46,9 +46,8 @@ from spotdl_cli.views import (
 # frame or list row omits ``batch_id`` (defensive — should not happen in practice).
 _UNBATCHED = UUID(int=0)
 
-# A canonical track carries no single "provider" (it is provider-agnostic
-# metadata; provider identity lives on a MatchRow). The field is kept on TrackRow
-# per CONTRACT A but has no TrackView source, so it renders empty.
+# A canonical track carries no single "provider" (provider identity lives on a
+# MatchRow); the TrackRow field is kept per CONTRACT A but renders empty.
 _NO_PROVIDER = ""
 
 _VERIFIED_STATUS = "community_verified"
@@ -230,46 +229,37 @@ def album_card(album: AlbumView) -> AlbumCard:
     )
 
 
+def _hit(
+    kind: str, view: AlbumView | ArtistView | PlaylistView, subtitle: str, detail: str
+) -> SearchHit:
+    """Section hit: ``id`` is the row key, ``provider``/``provider_id`` resolve-on-open."""
+    return SearchHit(
+        kind,
+        str(view.id),
+        view.name,
+        subtitle,
+        detail,
+        provider=view.provider or "",
+        provider_id=view.provider_id or "",
+    )
+
+
 def album_hit(album: AlbumView) -> SearchHit:
     """An album preview row for the universal-search "Albums" section."""
     detail = " · ".join(p for p in (album.album_type, _year(album.year)) if p)
-    return SearchHit(
-        "album",
-        str(album.id),
-        album.name,
-        album.album_artist or "",
-        detail,
-        provider=album.provider or "",
-        provider_id=album.provider_id or "",
-    )
+    return _hit("album", album, album.album_artist or "", detail)
 
 
 def artist_hit(artist: ArtistView) -> SearchHit:
     """An artist preview row for the "Artists" section (followers as the detail)."""
     detail = f"{format_count(artist.followers)} followers" if artist.followers is not None else ""
-    return SearchHit(
-        "artist",
-        str(artist.id),
-        artist.name,
-        ", ".join(artist.genres),
-        detail,
-        provider=artist.provider or "",
-        provider_id=artist.provider_id or "",
-    )
+    return _hit("artist", artist, ", ".join(artist.genres), detail)
 
 
 def playlist_hit(playlist: PlaylistView) -> SearchHit:
     """A playlist preview row for the "Playlists" section."""
     detail = f"{len(playlist.tracks)} tracks" if playlist.tracks else ""
-    return SearchHit(
-        "playlist",
-        str(playlist.id),
-        playlist.name,
-        playlist.owner or "",
-        detail,
-        provider=playlist.provider or "",
-        provider_id=playlist.provider_id or "",
-    )
+    return _hit("playlist", playlist, playlist.owner or "", detail)
 
 
 def _year(year: int | None) -> str:
