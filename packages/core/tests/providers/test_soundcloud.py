@@ -99,6 +99,11 @@ def test_soundcloud_map_skips_items_without_id_or_title() -> None:
 @respx.mock
 async def test_soundcloud_search_scrapes_hydration(load_fixture: Any) -> None:
     hydration = load_fixture("soundcloud", "search")
+    # Keyless: discovery runs first — the homepage carries no asset bundles, so
+    # discovery yields nothing and the provider falls back to the page scrape.
+    respx.get("https://soundcloud.com/").mock(
+        return_value=httpx.Response(200, text="<html><body>no assets</body></html>")
+    )
     route = respx.get("https://soundcloud.com/search/sounds").mock(
         return_value=httpx.Response(200, text=_html_with_hydration(hydration))
     )
@@ -187,7 +192,140 @@ async def test_soundcloud_resolve_missing_sound_raises_not_found() -> None:
 
 @respx.mock
 async def test_soundcloud_http_error_raises_provider_unavailable() -> None:
+    # Discovery finds no id (homepage carries no assets) → scrape fallback; the
+    # scrape page's 503 is a transport failure and raises.
+    respx.get("https://soundcloud.com/").mock(
+        return_value=httpx.Response(200, text="<html></html>")
+    )
     respx.get("https://soundcloud.com/search/sounds").mock(return_value=httpx.Response(503))
+    async with create_client() as client:
+        with pytest.raises(ProviderUnavailable):
+            await SoundCloudProvider(client).audio_candidates(_QUERY_TRACK)
+
+
+# --- client_id discovery (respx) ------------------------------------------
+
+
+@respx.mock
+async def test_soundcloud_discovers_client_id_then_uses_api_v2() -> None:
+    # Keyless: scrape the homepage → asset bundle → 32-char client_id, then search
+    # via api-v2 with the discovered id (the scrape page is never touched).
+    asset_url = "https://a-v2.sndcdn.com/assets/50-abcdef0.js"
+    home = respx.get("https://soundcloud.com/").mock(
+        return_value=httpx.Response(
+            200, text=f'<html><head><script crossorigin src="{asset_url}"></script></head></html>'
+        )
+    )
+    client_id = "a" * 32
+    asset = respx.get(asset_url).mock(
+        return_value=httpx.Response(200, text=f'window.foo={{client_id:"{client_id}"}};')
+    )
+    body = {
+        "collection": [
+            {
+                "id": 42,
+                "kind": "track",
+                "title": "Master of Puppets",
+                "duration": 515_000,
+                "permalink_url": "https://soundcloud.com/metallica/master-of-puppets",
+                "playback_count": 9,
+                "user": {"username": "Metallica"},
+            }
+        ]
+    }
+    api = respx.get("https://api-v2.soundcloud.com/search/tracks").mock(
+        return_value=httpx.Response(200, json=body)
+    )
+    scrape = respx.get("https://soundcloud.com/search/sounds").mock(
+        return_value=httpx.Response(200, text="<html></html>")
+    )
+    async with create_client() as client:
+        provider = SoundCloudProvider(client)  # no operator client_id
+        candidates = await provider.audio_candidates(_QUERY_TRACK, limit=5)
+    assert home.called and asset.called and api.called
+    assert not scrape.called  # api-v2 path taken, not the hydration scrape
+    assert [c.provider_id for c in candidates] == ["42"]
+    params = httpx.QueryParams(api.calls.last.request.url.query)
+    assert params["client_id"] == client_id
+
+
+@respx.mock
+async def test_soundcloud_configured_client_id_skips_discovery() -> None:
+    # An operator-provided id is authoritative: discovery must never be attempted.
+    home = respx.get("https://soundcloud.com/").mock(
+        return_value=httpx.Response(200, text="<html></html>")
+    )
+    body = {
+        "collection": [
+            {
+                "id": 1,
+                "kind": "track",
+                "title": "T",
+                "duration": 1_000,
+                "permalink_url": "https://soundcloud.com/a/t",
+                "user": {"username": "A"},
+            }
+        ]
+    }
+    api = respx.get("https://api-v2.soundcloud.com/search/tracks").mock(
+        return_value=httpx.Response(200, json=body)
+    )
+    async with create_client() as client:
+        provider = SoundCloudProvider(client, client_id="operator-id")
+        candidates = await provider.audio_candidates(_QUERY_TRACK, limit=5)
+    assert api.called
+    assert not home.called  # discovery skipped entirely
+    assert [c.provider_id for c in candidates] == ["1"]
+
+
+@respx.mock
+async def test_soundcloud_rediscovers_client_id_on_401() -> None:
+    # A rotated id: api-v2 rejects the first (stale) id with 401 → the provider
+    # re-discovers ONCE and retries with the fresh id.
+    asset_url = "https://a-v2.sndcdn.com/assets/app.js"
+    stale, fresh = "s" * 32, "f" * 32
+    respx.get("https://soundcloud.com/").mock(
+        return_value=httpx.Response(200, text=f'<script crossorigin src="{asset_url}"></script>')
+    )
+    ids = iter([stale, fresh])
+    respx.get(asset_url).mock(
+        side_effect=lambda request: httpx.Response(200, text=f'client_id="{next(ids)}"')
+    )
+    body = {
+        "collection": [
+            {
+                "id": 7,
+                "kind": "track",
+                "title": "T",
+                "duration": 1_000,
+                "permalink_url": "https://soundcloud.com/a/t",
+                "user": {"username": "A"},
+            }
+        ]
+    }
+
+    def _api(request: httpx.Request) -> httpx.Response:
+        if request.url.params.get("client_id") == stale:
+            return httpx.Response(401)
+        return httpx.Response(200, json=body)
+
+    api = respx.get("https://api-v2.soundcloud.com/search/tracks").mock(side_effect=_api)
+    async with create_client() as client:
+        provider = SoundCloudProvider(client)
+        candidates = await provider.audio_candidates(_QUERY_TRACK, limit=5)
+    assert [c.provider_id for c in candidates] == ["7"]
+    assert len(api.calls) == 2  # stale (401) then fresh (200)
+
+
+@respx.mock
+async def test_soundcloud_api_transport_error_raises_provider_unavailable() -> None:
+    # A non-auth api-v2 failure (503, not 401/403) is a transport failure → raise.
+    asset_url = "https://a-v2.sndcdn.com/assets/app.js"
+    respx.get("https://soundcloud.com/").mock(
+        return_value=httpx.Response(200, text=f'<script crossorigin src="{asset_url}"></script>')
+    )
+    respx.get(asset_url).mock(return_value=httpx.Response(200, text=f'client_id="{"c" * 32}"'))
+    respx.get("https://api-v2.soundcloud.com/search/tracks").mock(return_value=httpx.Response(503))
     async with create_client() as client:
         with pytest.raises(ProviderUnavailable):
             await SoundCloudProvider(client).audio_candidates(_QUERY_TRACK)

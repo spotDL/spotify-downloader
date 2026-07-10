@@ -12,7 +12,7 @@ import contextlib
 from typing import Any
 
 import pytest
-from spotdl_core.model import AudioCandidate, EntityType, ProviderId, Track
+from spotdl_core.model import AudioCandidate, EntityType, LyricsKind, ProviderId, Track
 from spotdl_core.providers import ProviderUnavailable, UnsupportedURL
 from spotdl_server.repositories.matches import MatchRepository
 from spotdl_server.repositories.snapshots import SnapshotRepository
@@ -23,6 +23,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps.server.tests.fakes import (
     FakeAudioProvider,
+    FakeLyricsProvider,
     FakeResolver,
     FakeSearcher,
     build_fake_registry,
@@ -669,3 +670,100 @@ async def test_not_configured_provider_is_not_a_degraded_source(session: AsyncSe
     result = await service.resolve(SPOTIFY_URL)
 
     assert "lastfm" not in result.degraded_sources  # deliberate absence, not an outage
+
+
+async def test_resolve_fetches_and_persists_lyrics_from_providers(session: AsyncSession) -> None:
+    """A track resolve fans out to the lyrics providers; every hit is returned + saved.
+
+    Two sources contribute (a synced LRCLIB-style variant and a plain one); the
+    response carries both with the right source/kind, synced ordered first, and the
+    rows are persisted (keyed by source+kind).
+    """
+    from spotdl_server.db.models import Lyrics as LyricsModel
+
+    resolver = FakeResolver(id=ProviderId.SPOTIFY, track=_track("Song", "Artist"))
+    synced = FakeLyricsProvider(
+        id=ProviderId.LRCLIB, text="[00:01.00]a synced line", kind=LyricsKind.SYNCED
+    )
+    plain = FakeLyricsProvider(id=ProviderId.AZLYRICS, text="a plain line", kind=LyricsKind.PLAIN)
+    registry = build_fake_registry(resolver, synced, plain)
+    service = ResolveService(session=session, registry=registry)
+
+    result = await service.resolve(SPOTIFY_URL)
+
+    assert result.track is not None
+    by_source = {row.source: row for row in result.track.lyrics}
+    assert set(by_source) == {ProviderId.LRCLIB.value, ProviderId.AZLYRICS.value}
+    assert by_source[ProviderId.LRCLIB.value].kind == LyricsKind.SYNCED.value
+    assert by_source[ProviderId.LRCLIB.value].text == "[00:01.00]a synced line"
+    assert by_source[ProviderId.AZLYRICS.value].kind == LyricsKind.PLAIN.value
+    # list_for_track orders synced before plain.
+    assert result.track.lyrics[0].kind == LyricsKind.SYNCED.value
+    assert await _count(session, LyricsModel) == 2  # both hits persisted
+    assert len(synced.calls) == 1 and len(plain.calls) == 1
+
+
+async def test_resolve_does_not_refetch_lyrics_when_already_stored(session: AsyncSession) -> None:
+    """A warm re-resolve whose lyrics are already stored must not hit the provider."""
+    resolver = FakeResolver(id=ProviderId.SPOTIFY, track=_track("Song", "Artist"))
+    lyrics = FakeLyricsProvider(id=ProviderId.LRCLIB, text="a line", kind=LyricsKind.PLAIN)
+    registry = build_fake_registry(resolver, lyrics)
+    service = ResolveService(session=session, registry=registry)
+
+    first = await service.resolve(SPOTIFY_URL)
+    assert first.track is not None and len(first.track.lyrics) == 1
+    assert len(lyrics.calls) == 1  # fetched on the cold resolve
+
+    second = await service.resolve(SPOTIFY_URL)
+    assert second.track is not None and len(second.track.lyrics) == 1
+    assert len(lyrics.calls) == 1  # warm re-resolve did NOT re-fetch
+
+
+async def test_resolve_degrades_on_raising_lyrics_provider(session: AsyncSession) -> None:
+    """A lyrics provider that raises records a degraded source and is never fatal."""
+    resolver = FakeResolver(id=ProviderId.SPOTIFY, track=_track("Song", "Artist"))
+    lyrics = FakeLyricsProvider(
+        id=ProviderId.MUSIXMATCH,
+        error=ProviderUnavailable("lyrics down", provider=ProviderId.MUSIXMATCH),
+    )
+    registry = build_fake_registry(resolver, lyrics)
+    service = ResolveService(session=session, registry=registry)
+
+    result = await service.resolve(SPOTIFY_URL)
+
+    assert result.track is not None  # resolve still succeeds
+    assert result.track.lyrics == ()
+    assert ProviderId.MUSIXMATCH.value in result.degraded_sources
+
+
+async def test_not_configured_lyrics_provider_is_not_a_degraded_source(
+    session: AsyncSession,
+) -> None:
+    """A key-less lyrics provider (e.g. Genius) is a deliberate absence, not degraded.
+
+    Its factory raises ``ProviderNotConfigured`` when queried via
+    ``capable(ProvidesLyrics)``; the registry records it as unavailable but the
+    resolve must never surface it in ``degraded_sources``.
+    """
+    from spotdl_core.providers import ProviderNotConfigured, ProviderSpec, ProvidesLyrics
+
+    resolver = FakeResolver(id=ProviderId.SPOTIFY, track=_track("Song", "Artist"))
+    registry = build_fake_registry(resolver)
+
+    def _not_configured() -> Any:
+        raise ProviderNotConfigured("no genius token", provider=ProviderId.GENIUS)
+
+    registry.register(
+        ProviderSpec(
+            id=ProviderId.GENIUS,
+            capabilities=frozenset({ProvidesLyrics}),
+            factory=lambda ctx: _not_configured(),
+        )
+    )
+
+    service = ResolveService(session=session, registry=registry)
+    result = await service.resolve(SPOTIFY_URL)
+
+    assert result.track is not None
+    assert "genius" not in result.degraded_sources  # deliberate absence, not an outage
+    assert ProviderId.GENIUS in registry.unavailable  # but still recorded unavailable

@@ -9,9 +9,10 @@ extractor runs from a checked-in HTML fixture and HTTP behaviour is mocked with
 Fixture lyric bodies are short SYNTHETIC placeholder text -- never real song
 lyrics.
 
-Contract asserted here: a Genius provider built without a token is
-``ProviderUnavailable`` (so the registry omits it), and a successful lookup
-returns ``PLAIN`` lyrics.
+Contract asserted here: a Genius provider built without a token raises
+``ProviderNotConfigured`` (a ``ProviderUnavailable`` subclass, so the registry
+still omits it, but consumers never surface it as a degraded source), and a
+successful lookup returns ``PLAIN`` lyrics.
 """
 
 from __future__ import annotations
@@ -24,7 +25,7 @@ import pytest
 import respx
 from spotdl_core.model import LyricsKind, ProviderId, Track
 from spotdl_core.providers.base import ProvidesLyrics
-from spotdl_core.providers.errors import ProviderUnavailable
+from spotdl_core.providers.errors import ProviderNotConfigured
 from spotdl_core.providers.lyrics.genius import (
     _extract_genius_lyrics,
     build_genius_provider,
@@ -118,9 +119,11 @@ async def test_lyrics_returns_none_when_page_has_no_lyrics(load_fixture: Any) ->
 
 
 def test_genius_unavailable_without_token() -> None:
-    # CONTRACT: no token -> the factory raises ProviderUnavailable, so the
-    # registry omits Genius and records it in `unavailable`.
-    with pytest.raises(ProviderUnavailable):
+    # CONTRACT: no token -> the factory raises ProviderNotConfigured (a deliberate
+    # absence), so the registry omits Genius and records it in `unavailable` while
+    # consumers never treat it as a degraded source. Asserted as the exact type
+    # (an isinstance check against ProviderUnavailable would pass on the subclass).
+    with pytest.raises(ProviderNotConfigured):
         build_genius_provider(ProviderContext())
 
 

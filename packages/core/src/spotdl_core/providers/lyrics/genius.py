@@ -6,9 +6,10 @@ bearer token), picks the hit whose title best matches the track, then fetches
 that result's ``genius.com`` page and extracts the ``Lyrics__Container`` blocks.
 
 Token requirement is a **contract**: without ``ctx.genius_token`` the factory
-raises :class:`~spotdl_core.providers.errors.ProviderUnavailable`, so the
+raises :class:`~spotdl_core.providers.errors.ProviderNotConfigured`, so the
 registry omits Genius from ``capable(ProvidesLyrics)`` and records it in
-``unavailable`` (no silent, broken provider). ``beautifulsoup4`` is imported
+``unavailable`` — while consumers (the resolve layer) treat a key-less Genius as
+a deliberate absence, never a degraded source. ``beautifulsoup4`` is imported
 **lazily** inside the extractor so a broken install degrades only this provider;
 a parse failure yields ``None`` while a transport failure raises
 ``ProviderUnavailable``. Returning ``None`` means "not found", not an error.
@@ -25,7 +26,11 @@ import httpx
 
 from spotdl_core.model import Lyrics, LyricsKind, ProviderId, Track
 from spotdl_core.providers.base import HttpProvider
-from spotdl_core.providers.errors import EntityNotFound, ProviderUnavailable
+from spotdl_core.providers.errors import (
+    EntityNotFound,
+    ProviderNotConfigured,
+    ProviderUnavailable,
+)
 from spotdl_core.providers.http import request_json
 from spotdl_core.providers.lyrics._match import similarity
 
@@ -148,12 +153,13 @@ class GeniusProvider(HttpProvider):
 def build_genius_provider(ctx: ProviderContext) -> GeniusProvider:
     """Construct a :class:`GeniusProvider`; require a token (contract).
 
-    Raises :class:`ProviderUnavailable` when ``ctx.genius_token`` is unset so the
-    registry omits Genius rather than constructing a provider that always fails.
+    Raises :class:`ProviderNotConfigured` when ``ctx.genius_token`` is unset so the
+    registry omits Genius rather than constructing a provider that always fails —
+    and, being a deliberate absence, it never surfaces as a degraded source.
     """
     token = ctx.genius_token
     if not token:
-        raise ProviderUnavailable(
+        raise ProviderNotConfigured(
             "genius requires an access token (ctx.genius_token)", provider=ProviderId.GENIUS
         )
     from spotdl_core.providers.http import create_client

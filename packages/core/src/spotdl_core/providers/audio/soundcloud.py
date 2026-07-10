@@ -9,8 +9,13 @@ provider (the isolation constraint); network/parse failures raise
 :class:`ProviderUnavailable` and never crash the registry.
 
 If :attr:`ProviderContext.soundcloud_client_id` is supplied, the faster
-``api-v2`` search path is used instead of scraping; both paths feed the same
-:func:`_map_soundcloud_hydration` mapper.
+``api-v2`` search path is used instead of scraping. When it is not, the provider
+**lazily discovers** a public ``client_id`` on the first search by scraping
+soundcloud.com's asset bundles (the keyless hydration scrape returns nothing —
+the results are JS-rendered). Discovery is best-effort and cached for the
+provider's lifetime: on failure the provider falls back to the hydration scrape,
+and an api-v2 ``401``/``403`` (a rotated id) triggers a single re-discovery. Both
+search paths feed the same :func:`_map_soundcloud_hydration` mapper.
 
 This is a **fragile scraper**: the selectors/regex below track SoundCloud's
 current markup and are expected to need maintenance. One mapping rule is
@@ -53,6 +58,15 @@ _USER_AGENT = (
 
 #: The search/track pages embed their state as ``window.__sc_hydration = [...]``.
 _HYDRATION_RE = re.compile(r"window\.__sc_hydration\s*=\s*(\[.*?\]);", re.DOTALL)
+
+#: The homepage references the api-v2 asset bundles that carry a public client_id.
+_HOME_URL = "https://soundcloud.com/"
+
+#: ``<script crossorigin src="https://a-v2.sndcdn.com/assets/*.js">`` bundle URLs.
+_ASSET_RE = re.compile(r'<script[^>]+src="(https://a-v2\.sndcdn\.com/assets/[^"]+\.js)"')
+
+#: A public ``client_id`` appears as a 32-char alphanumeric literal in a bundle.
+_CLIENT_ID_RE = re.compile(r'client_id\s*[:=]\s*"([a-zA-Z0-9]{32})"')
 
 
 # --- pure mappers ---------------------------------------------------------
@@ -167,6 +181,10 @@ def _extract_hydration(html: str) -> list[dict[str, Any]]:
 # --- provider -------------------------------------------------------------
 
 
+class _ClientIdRejected(Exception):
+    """Internal signal: api-v2 rejected the ``client_id`` (401/403) — re-discover."""
+
+
 class SoundCloudProvider(HttpProvider):
     """SoundCloud audio + track-resolve provider (scraper).
 
@@ -178,7 +196,13 @@ class SoundCloudProvider(HttpProvider):
 
     def __init__(self, client: httpx.AsyncClient, *, client_id: str | None = None) -> None:
         super().__init__(client)
+        #: An operator-configured id (authoritative — never discovered/replaced).
         self._client_id = client_id
+        #: A lazily discovered public id, cached for the provider's lifetime.
+        self._discovered_id: str | None = None
+        #: Whether keyless discovery has been attempted (so a miss is not retried
+        #: on every search — only a 401/403 forces an explicit re-discovery).
+        self._discovery_attempted = False
 
     async def _get_text(self, url: str, **kwargs: Any) -> str:
         try:
@@ -192,20 +216,89 @@ class SoundCloudProvider(HttpProvider):
 
     async def audio_candidates(self, track: Track, *, limit: int = 10) -> list[AudioCandidate]:
         query = f"{track.main_artist} - {track.name}"
+        client_id = await self._search_client_id()
+        if client_id is None:
+            # Neither configured nor discoverable → scrape (may yield nothing).
+            return await self._scrape_candidates(query, limit)
+        try:
+            return (await self._api_search(query, limit, client_id))[:limit]
+        except _ClientIdRejected:
+            pass
+        # api-v2 rejected the id (401/403). An operator id is authoritative, so
+        # give up gracefully; a discovered id may have rotated, so re-discover ONCE
+        # and retry before giving up.
         if self._client_id:
-            return (await self._api_search(query, limit))[:limit]
+            return []
+        self._discovered_id = await self._discover_client_id()
+        if self._discovered_id is None:
+            return await self._scrape_candidates(query, limit)
+        try:
+            return (await self._api_search(query, limit, self._discovered_id))[:limit]
+        except _ClientIdRejected:
+            return []
+
+    async def _search_client_id(self) -> str | None:
+        """The ``client_id`` to search with: the operator's, else a discovered one.
+
+        An operator-configured id is used verbatim (discovery is skipped). Otherwise
+        a public id is discovered lazily on the first search and cached for the
+        provider's lifetime; ``None`` means neither is available (the caller then
+        falls back to the hydration scrape).
+        """
+        if self._client_id:
+            return self._client_id
+        if not self._discovery_attempted:
+            self._discovery_attempted = True
+            self._discovered_id = await self._discover_client_id()
+        return self._discovered_id
+
+    async def _discover_client_id(self) -> str | None:
+        """Best-effort scrape of a public ``client_id`` from soundcloud.com.
+
+        The homepage references a handful of ``a-v2.sndcdn.com`` asset bundles and
+        the id lives in one of them (usually the last), so bundles are scanned
+        last-first. Any transport/parse failure yields ``None`` — the caller falls
+        back to the hydration scrape; discovery never raises.
+        """
+        try:
+            home = await self._get_text(_HOME_URL)
+        except ProviderUnavailable:
+            return None
+        for asset_url in reversed(_ASSET_RE.findall(home)):
+            try:
+                bundle = await self._get_text(asset_url)
+            except ProviderUnavailable:
+                continue
+            match = _CLIENT_ID_RE.search(bundle)
+            if match is not None:
+                return match.group(1)
+        return None
+
+    async def _scrape_candidates(self, query: str, limit: int) -> list[AudioCandidate]:
+        """Fall-back path: parse candidates from the search page's hydration JSON."""
         html = await self._get_text(f"{_SEARCH_URL}?q={quote(query)}")
         return _map_soundcloud_hydration(_extract_hydration(html))[:limit]
 
-    async def _api_search(self, query: str, limit: int) -> list[AudioCandidate]:
-        """Search via the ``api-v2`` endpoint when a ``client_id`` is configured."""
+    async def _api_search(self, query: str, limit: int, client_id: str) -> list[AudioCandidate]:
+        """Search via the ``api-v2`` endpoint with ``client_id``.
+
+        A ``401``/``403`` (a stale/rotated id) raises :class:`_ClientIdRejected` so
+        the caller can re-discover; any other transport/parse failure raises
+        :class:`ProviderUnavailable`.
+        """
         try:
             response = await self._client.get(
                 _API_SEARCH_URL,
-                params={"q": query, "client_id": self._client_id, "limit": limit},
+                params={"q": query, "client_id": client_id, "limit": limit},
             )
             response.raise_for_status()
             body = response.json()
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code in (401, 403):
+                raise _ClientIdRejected from exc
+            raise ProviderUnavailable(
+                f"soundcloud api search failed: {exc}", provider=ProviderId.SOUNDCLOUD
+            ) from exc
         except (httpx.HTTPError, ValueError) as exc:
             raise ProviderUnavailable(
                 f"soundcloud api search failed: {exc}", provider=ProviderId.SOUNDCLOUD

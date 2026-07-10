@@ -33,6 +33,7 @@ from spotdl_core.model import (
     AlbumRef,
     AudioCandidate,
     EntityType,
+    Lyrics,
     ProviderId,
     SearchHit,
     Track,
@@ -44,6 +45,7 @@ from spotdl_core.providers import (
     ProviderRegistry,
     ProviderUnavailable,
     ProvidesAudio,
+    ProvidesLyrics,
     ResolvedEntity,
     Resolves,
     Searches,
@@ -282,8 +284,18 @@ class ResolveService:
             await self._record_stats(EntityType.TRACK, track.id, merge_set)
         await self._kick_matching(track, degraded)
 
-        match_rows = await self._matches.list_for_track(track.id)
+        # Fetch lyrics on the first resolve (no rows yet) or a forced refresh; a
+        # warm re-resolve whose lyrics are already stored skips the fan-out. This
+        # pre-check row list doubles as the response's when no fetch runs, so the
+        # common (warm) path issues no extra query.
         lyrics_rows = await self._lyrics.list_for_track(track.id)
+        if force or not lyrics_rows:
+            core = self._core_track(track)
+            if core is not None:  # a stub with no artists cannot be looked up
+                await self._kick_lyrics(track, core, degraded)
+                lyrics_rows = await self._lyrics.list_for_track(track.id)
+
+        match_rows = await self._matches.list_for_track(track.id)
         view = views.track_view(track, matches=match_rows, lyrics=lyrics_rows, include_album=True)
         return ResolveResult(entity_type=EntityType.TRACK.value, track=view)
 
@@ -336,6 +348,34 @@ class ResolveService:
             track.id, ranked, self._matcher_config.matcher_version
         )
         record_match_served(self._matcher_config.matcher_version)
+
+    async def _kick_lyrics(self, track: TrackModel, core: Track, degraded: set[ProviderId]) -> None:
+        """Fetch lyrics for ``track`` from every lyrics provider and persist each hit.
+
+        Fans out to :meth:`ProviderRegistry.capable` for ``ProvidesLyrics``
+        concurrently, each leg bounded by :data:`_ENRICH_TIMEOUT_S`. A provider that
+        raises or times out records itself in ``degraded`` (same semantics as
+        :meth:`_kick_matching`) and is never fatal; a ``None`` result is a clean
+        miss (that source simply has no lyrics for the track). Each hit is upserted
+        by its ``(source, kind)`` so a re-fetch refreshes the text without resetting
+        community votes.
+        """
+        providers: list[ProvidesLyrics] = self._registry.capable(ProvidesLyrics)  # type: ignore[type-abstract]
+        if not providers:
+            return
+
+        async def _bounded(provider: ProvidesLyrics) -> Lyrics | None:
+            return await asyncio.wait_for(provider.lyrics(core), timeout=_ENRICH_TIMEOUT_S)
+
+        results = await asyncio.gather(
+            *(_bounded(provider) for provider in providers), return_exceptions=True
+        )
+        for provider, result in zip(providers, results, strict=True):
+            if isinstance(result, Lyrics):
+                await self._lyrics.upsert(track.id, result.source, result.kind, result.text)
+            elif isinstance(result, BaseException):
+                degraded.add(provider.id)
+                record_provider_error(provider.id.value)
 
     # --------------------------------------------------- cross-provider enrich
     def _enrichment_providers(self, primary: ProviderId, capability: type) -> list[Any]:
