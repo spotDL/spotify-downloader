@@ -40,6 +40,10 @@ describe("track page", () => {
     expect(
       await screen.findByText("Get Lucky (Official Audio)"),
     ).toBeInTheDocument();
+    // The fixture's 0–100 score (94) must render as "94%", not clamp to 100%:
+    // guards the 0–100 wire scale → 0–1 gauge normalization on the track page.
+    const meter = await screen.findByRole("meter", { name: "Match score" });
+    expect(meter).toHaveAttribute("aria-valuetext", "94%");
   });
 
   it("invalidates the matches query after a vote", async () => {
