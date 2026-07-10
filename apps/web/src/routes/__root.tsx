@@ -1,17 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   createRootRouteWithContext,
   Link,
   Outlet,
-  useNavigate,
 } from "@tanstack/react-router";
 import type { RouterContext } from "../app/router";
-import { useUiStore } from "../stores/ui";
-import { useMe } from "../api/queries";
-import { Feature } from "../components/Feature";
-import { Input } from "../components/Input";
 import { EmptyState } from "../components/EmptyState";
 import { Toasts } from "../components/Toasts";
+import { NavRail } from "../components/layout/NavRail";
+import { TopBar } from "../components/layout/TopBar";
+import { CommandPalette } from "../components/layout/CommandPalette";
 
 // The root route carries the typed router context (CONTRACT G) so later tasks'
 // `beforeLoad` guards read `config`/`auth` synchronously.
@@ -20,104 +18,31 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   notFoundComponent: NotFound,
 });
 
-const NAV_LINK_CLASS =
-  "rounded-md px-2.5 py-1.5 text-sm font-medium text-muted transition-colors hover:bg-black/5 hover:text-fg data-[status=active]:bg-brand-100 data-[status=active]:text-brand-700 dark:hover:bg-white/10 dark:data-[status=active]:bg-brand-700/30 dark:data-[status=active]:text-brand-100";
-
-function ThemeToggle() {
-  const theme = useUiStore((s) => s.theme);
-  const setTheme = useUiStore((s) => s.setTheme);
-  const isDark = theme === "dark";
-  return (
-    <button
-      type="button"
-      aria-label={`Switch to ${isDark ? "light" : "dark"} theme`}
-      onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="rounded-md px-2.5 py-1.5 text-sm text-muted hover:bg-black/5 hover:text-fg dark:hover:bg-white/10"
-    >
-      {isDark ? "Light" : "Dark"}
-    </button>
-  );
-}
-
-// Admin is a privileged surface — the link only appears once the ["me"] query
-// confirms `is_admin` (the /admin route re-checks the same flag in its guard).
-function AdminNavLink() {
-  const me = useMe();
-  if (!me.data?.is_admin) return null;
-  return (
-    <Link to="/admin" className={NAV_LINK_CLASS}>
-      Admin
-    </Link>
-  );
-}
-
-function NavSearch() {
-  const navigate = useNavigate();
-  const [q, setQ] = useState("");
-  return (
-    <form
-      role="search"
-      className="min-w-0 flex-1 sm:max-w-xs"
-      onSubmit={(e) => {
-        e.preventDefault();
-        const query = q.trim();
-        if (query.length > 0) {
-          void navigate({ to: "/search", search: { q: query } });
-        }
-      }}
-    >
-      <Input
-        type="search"
-        aria-label="Search"
-        placeholder="Search tracks, albums, artists…"
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-      />
-    </form>
-  );
-}
-
 function RootLayout() {
+  const [paletteOpen, setPaletteOpen] = useState(false);
+
+  // ⌘K / Ctrl+K toggles the command palette from anywhere.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen((open) => !open);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   return (
-    <div className="flex min-h-svh flex-col bg-bg text-fg">
-      <header className="border-b border-black/10 bg-surface dark:border-white/10">
-        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-3 px-4 py-3">
-          <Link to="/" className="text-lg font-semibold text-fg">
-            spotDL
-          </Link>
-          <NavSearch />
-          <nav className="flex items-center gap-1" aria-label="Primary">
-            <Link to="/" className={NAV_LINK_CLASS}>
-              Home
-            </Link>
-            <Feature flag="downloads">
-              <Link to="/downloads" className={NAV_LINK_CLASS}>
-                Downloads
-              </Link>
-            </Feature>
-            <Feature flag="library">
-              <Link to="/library" className={NAV_LINK_CLASS}>
-                Library
-              </Link>
-            </Feature>
-            <Link to="/settings" className={NAV_LINK_CLASS}>
-              Settings
-            </Link>
-            <Feature flag="auth">
-              <AdminNavLink />
-            </Feature>
-            <Feature flag="auth">
-              <Link to="/login" className={NAV_LINK_CLASS}>
-                Sign in
-              </Link>
-            </Feature>
-            <ThemeToggle />
-          </nav>
-        </div>
-      </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
-        <Outlet />
-      </main>
+    <div className="flex min-h-svh bg-void text-fg">
+      <NavRail />
+      <div className="flex min-w-0 flex-1 flex-col pb-16 sm:pb-0">
+        <TopBar onOpenSearch={() => setPaletteOpen(true)} />
+        <main className="animate-fade-in flex-1">
+          <Outlet />
+        </main>
+      </div>
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
       <Toasts />
     </div>
   );
@@ -125,14 +50,19 @@ function RootLayout() {
 
 function NotFound() {
   return (
-    <EmptyState
-      title="Page not found"
-      description="The page you're looking for doesn't exist."
-      action={
-        <Link to="/" className={NAV_LINK_CLASS}>
-          Back to home
-        </Link>
-      }
-    />
+    <div className="mx-auto w-full max-w-2xl px-6 py-16">
+      <EmptyState
+        title="Page not found"
+        description="The page you're looking for doesn't exist."
+        action={
+          <Link
+            to="/"
+            className="rounded-md px-3 py-1.5 text-sm font-medium text-emerald hover:underline"
+          >
+            Back to home
+          </Link>
+        }
+      />
+    </div>
   );
 }

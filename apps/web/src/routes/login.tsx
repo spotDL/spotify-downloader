@@ -37,7 +37,7 @@ function LoginPage() {
   const providers = config?.oauth_providers ?? [];
 
   return (
-    <div className="mx-auto flex max-w-sm flex-col gap-6 py-10">
+    <div className="mx-auto flex max-w-sm flex-col gap-6 px-6 py-10">
       <h1 className="text-2xl font-semibold text-fg">Sign in</h1>
       <form
         className="flex flex-col gap-4"

@@ -1,6 +1,19 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import type { AlbumRefOut, ArtistOut } from "../api/generated/types.gen";
 import { useArtist } from "../api/queries";
-import { CollectionView } from "../components/CollectionView";
+import { useSubmitDownload } from "../api/downloads";
+import { isApiError } from "../api/errors";
+import { ActionButton } from "../components/ActionButton";
+import { AlbumGridCard } from "../components/AlbumGridCard";
+import { Badge } from "../components/Badge";
+import { EmptyState } from "../components/EmptyState";
+import { ErrorState } from "../components/ErrorState";
+import { HeroBackdrop } from "../components/HeroBackdrop";
+import { SectionDivider } from "../components/SectionDivider";
+import { Spinner } from "../components/Spinner";
+import { TrackTable } from "../components/TrackTable";
+import { DiscIcon, NoteIcon, RefreshIcon } from "../components/icons";
+import { toast } from "../components/Toasts";
 
 export const Route = createFileRoute("/artists/$artistId")({
   component: ArtistPage,
@@ -9,20 +22,178 @@ export const Route = createFileRoute("/artists/$artistId")({
 function ArtistPage() {
   const { artistId } = Route.useParams();
   const query = useArtist(artistId);
+
+  if (query.isPending) {
+    return (
+      <div className="flex justify-center py-16">
+        <Spinner label="Loading artist" className="size-8" />
+      </div>
+    );
+  }
+  if (query.isError) {
+    return (
+      <div className="mx-auto max-w-[1080px] px-6 py-16">
+        <ErrorState
+          description={
+            isApiError(query.error) ? query.error.message : "Couldn't load this artist."
+          }
+          action={
+            <ActionButton variant="ghost" onClick={() => void query.refetch()}>
+              Retry
+            </ActionButton>
+          }
+        />
+      </div>
+    );
+  }
+
+  return <ArtistDetail artist={query.data} onRefresh={() => void query.refetch()} />;
+}
+
+function artistInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
+
+function ArtistDetail({
+  artist,
+  onRefresh,
+}: {
+  artist: ArtistOut;
+  onRefresh: () => void;
+}) {
+  const navigate = useNavigate();
+  const submit = useSubmitDownload();
+  const tracks = artist.tracks ?? [];
+  const genres = artist.genres ?? [];
+
+  // The artist endpoint returns only top tracks (no album graph), so derive a
+  // lightweight discography from the distinct albums those tracks belong to.
+  const albumMap = new Map<string, AlbumRefOut>();
+  for (const t of tracks) {
+    if (t.album) albumMap.set(t.album.id, t.album);
+  }
+  const albums = [...albumMap.values()];
+
+  const enqueueAlbum = (id: string) =>
+    submit.mutate(
+      { body: { query: id } },
+      {
+        onSuccess: () => toast.info("Added to the download queue."),
+        onError: (error) => {
+          if (isApiError(error)) toast.fromApiError(error);
+          else toast.error("Couldn't start the download.");
+        },
+      },
+    );
+
   return (
-    <CollectionView
-      query={query}
-      toHeader={(artist) => ({
-        title: artist.name,
-        subtitle:
-          artist.genres && artist.genres.length > 0
-            ? artist.genres.join(", ")
-            : undefined,
-        coverUrl: artist.image_url,
-      })}
-      toTracks={(artist) => artist.tracks ?? []}
-      // No `enqueueQueryOf`: an artist is NOT a downloadable batch (Plan 8's
-      // `unsupported_entity` rule). Enqueue is per-track via the track pages.
-    />
+    <div>
+      <div className="grain relative overflow-hidden border-b border-line-soft">
+        <HeroBackdrop coverUrl={artist.image_url} />
+        <div className="relative z-[2] mx-auto max-w-[1080px] px-6">
+          <div className="flex flex-col items-start gap-7 pt-11 pb-8 sm:flex-row sm:items-end">
+            <div className="relative shrink-0">
+              <div
+                aria-hidden
+                className="absolute -inset-2.5 rounded-full opacity-50 blur-2xl"
+                style={{
+                  background: "conic-gradient(from 0deg, #00d084, #4ecdc4, #00d084)",
+                }}
+              />
+              {artist.image_url ? (
+                <img
+                  src={artist.image_url}
+                  alt=""
+                  className="relative size-40 rounded-full object-cover ring-2 ring-white/10"
+                />
+              ) : (
+                <div className="relative grid size-40 place-items-center rounded-full bg-elevated text-4xl font-bold text-ink-2 ring-2 ring-white/10">
+                  {artistInitials(artist.name)}
+                </div>
+              )}
+            </div>
+            <div className="min-w-0 flex-1 pb-1">
+              <div className="mb-3.5 flex flex-wrap gap-2">
+                <Badge tone="warn">Artist</Badge>
+              </div>
+              <h1 className="text-[clamp(32px,5.5vw,58px)] font-black leading-none tracking-[-0.03em] text-fg">
+                {artist.name}
+              </h1>
+              {genres.length > 0 ? (
+                <div className="mt-4 flex flex-wrap gap-1.5">
+                  {genres.slice(0, 6).map((g) => (
+                    <span
+                      key={g}
+                      className="rounded-full border border-line-soft bg-elevated px-2.5 py-1 text-[11px] text-ink-2"
+                    >
+                      {g}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+              {/* No Enqueue all: an artist is NOT a downloadable batch (Plan 8's
+                  `unsupported_entity` rule). Enqueue is per-track / per-album. */}
+              <div className="mt-5">
+                <ActionButton
+                  variant="ghost"
+                  icon={<RefreshIcon className="size-4" />}
+                  onClick={() => {
+                    onRefresh();
+                    toast.info("Refreshing…");
+                  }}
+                >
+                  Refresh
+                </ActionButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto flex max-w-[1080px] flex-col gap-8 px-6 py-7">
+        <section className="flex flex-col gap-4">
+          <SectionDivider
+            title="Top tracks"
+            accent="emerald"
+            icon={<NoteIcon className="size-4" />}
+          />
+          {tracks.length === 0 ? (
+            <EmptyState title="No tracks" description="No top tracks for this artist." />
+          ) : (
+            <TrackTable tracks={tracks} />
+          )}
+        </section>
+
+        {albums.length > 0 ? (
+          <section className="flex flex-col gap-4">
+            <SectionDivider
+              title="Discography"
+              accent="teal"
+              count={albums.length}
+              icon={<DiscIcon className="size-4" />}
+            />
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+              {albums.map((al) => (
+                <AlbumGridCard
+                  key={al.id}
+                  name={al.name}
+                  coverUrl={al.cover_url}
+                  year={al.year}
+                  subtitle={al.album_artist ?? "Album"}
+                  onOpen={() =>
+                    void navigate({ to: "/albums/$albumId", params: { albumId: al.id } })
+                  }
+                  onDownload={() => enqueueAlbum(al.id)}
+                  downloading={submit.isPending}
+                />
+              ))}
+            </div>
+          </section>
+        ) : null}
+      </div>
+    </div>
   );
 }

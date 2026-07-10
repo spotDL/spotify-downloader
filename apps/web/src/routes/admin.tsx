@@ -29,7 +29,7 @@ const TAB_CLASS =
 
 function AdminLayout() {
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-6 py-4">
+    <div className="mx-auto flex max-w-4xl flex-col gap-6 px-6 py-8">
       <h1 className="text-2xl font-semibold tracking-tight text-fg">Admin</h1>
       <nav className="flex flex-wrap gap-1" aria-label="Admin sections">
         <Link to="/admin" activeOptions={{ exact: true }} className={TAB_CLASS}>

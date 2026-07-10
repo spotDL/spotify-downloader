@@ -4,10 +4,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 // generated SDK directly (import-boundary guard, Task 5).
 import {
   configApiV1ConfigGetOptions,
+  createReportApiV1ReportsPostMutation,
   getAlbumApiV1AlbumsIdGetOptions,
   getArtistApiV1ArtistsIdGetOptions,
   getPlaylistApiV1PlaylistsIdGetOptions,
   getTrackApiV1TracksIdGetOptions,
+  getTrackApiV1TracksIdGetQueryKey,
   getTrackLyricsApiV1TracksIdLyricsGetOptions,
   getTrackLyricsApiV1TracksIdLyricsGetQueryKey,
   getTrackMatchesApiV1TracksIdMatchesGetOptions,
@@ -89,6 +91,25 @@ export function usePlaylist(id: string) {
   });
 }
 
+/**
+ * Returns a callback that invalidates a track's three server-state queries
+ * (metadata, matches, lyrics) so the "Refresh metadata" action re-reads them all.
+ */
+export function useRefreshTrack(id: string) {
+  const queryClient = useQueryClient();
+  return () => {
+    void queryClient.invalidateQueries({
+      queryKey: getTrackApiV1TracksIdGetQueryKey({ path: { id } }),
+    });
+    void queryClient.invalidateQueries({
+      queryKey: getTrackMatchesApiV1TracksIdMatchesGetQueryKey({ path: { id } }),
+    });
+    void queryClient.invalidateQueries({
+      queryKey: getTrackLyricsApiV1TracksIdLyricsGetQueryKey({ path: { id } }),
+    });
+  };
+}
+
 export function useTrackMatches(id: string) {
   return useQuery({
     ...getTrackMatchesApiV1TracksIdMatchesGetOptions({ path: { id } }),
@@ -110,6 +131,15 @@ export function useTrackLyrics(id: string) {
 /** `POST /resolve` — a URL/ref/free-text → tagged entity (no cache to touch). */
 export function useResolve() {
   return useMutation(resolveApiV1ResolvePostMutation());
+}
+
+/**
+ * `POST /reports` — file a metadata-correction report against a canonical entity
+ * (the track/album/artist "Report" action). Append-only server-side, so there's
+ * no client cache to invalidate.
+ */
+export function useSubmitReport() {
+  return useMutation(createReportApiV1ReportsPostMutation());
 }
 
 /**

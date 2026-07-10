@@ -41,7 +41,7 @@ export function EntityCard({
             }
           : undefined
       }
-      className={`flex items-center gap-3 rounded-card border border-black/10 bg-surface p-3 transition-colors hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/5 ${className}`}
+      className={`flex items-center gap-3 rounded-card border border-line-soft bg-elevated p-3 transition-colors hover:bg-hover ${className}`}
     >
       {imageUrl != null && imageUrl !== "" ? (
         <img
@@ -53,7 +53,7 @@ export function EntityCard({
       ) : (
         <div
           aria-hidden
-          className="flex size-12 shrink-0 items-center justify-center rounded bg-black/10 text-muted dark:bg-white/10"
+          className="flex size-12 shrink-0 items-center justify-center rounded bg-surface text-muted"
         >
           <span className="text-lg leading-none">♪</span>
         </div>

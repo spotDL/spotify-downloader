@@ -315,7 +315,7 @@ function AccountPanel() {
 
 function SettingsPage() {
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-6 py-4">
+    <div className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-8">
       <h1 className="text-2xl font-semibold tracking-tight text-fg">Settings</h1>
       <ServerConfigPanel />
       <AppearancePanel />

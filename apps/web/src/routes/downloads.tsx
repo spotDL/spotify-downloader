@@ -15,10 +15,12 @@ function DownloadsPage() {
   // where downloads are enabled (a direct-URL visit in HOSTED is a dead end).
   if (!useFeature("downloads")) {
     return (
-      <EmptyState
-        title="Downloads"
-        description="Downloads are disabled on this server."
-      />
+      <div className="mx-auto w-full max-w-6xl px-6 py-8">
+        <EmptyState
+          title="Downloads"
+          description="Downloads are disabled on this server."
+        />
+      </div>
     );
   }
   return <DownloadsQueue />;
@@ -32,7 +34,7 @@ function DownloadsQueue() {
   const query = useDownloads({ limit: 100 });
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-8">
       <h1 className="text-2xl font-semibold tracking-tight text-fg">Downloads</h1>
       {query.isPending ? (
         <div className="flex justify-center py-16">

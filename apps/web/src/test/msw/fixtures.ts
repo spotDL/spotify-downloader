@@ -108,7 +108,7 @@ export function makeMatch(overrides: Overrides<MatchOut> = {}): MatchOut {
     candidate_duration_ms: 248_000,
     // Match.score is the matcher's 0–100 value (v4 parity) — must mirror the real
     // wire scale so the mock can't hide a 0–100 vs 0–1 regression (see the track
-    // page's ScoreGauge, which normalizes score/100).
+    // page's VuGauge, which normalizes score/100).
     score: 94,
     status: "auto",
     matcher_version: "1.0.0",

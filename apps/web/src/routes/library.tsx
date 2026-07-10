@@ -12,10 +12,12 @@ export const Route = createFileRoute("/library")({ component: LibraryPage });
 function LibraryPage() {
   if (!useFeature("library")) {
     return (
-      <EmptyState
-        title="Library"
-        description="The library is not available on this server."
-      />
+      <div className="mx-auto w-full max-w-6xl px-6 py-8">
+        <EmptyState
+          title="Library"
+          description="The library is not available on this server."
+        />
+      </div>
     );
   }
   return <LibraryList />;
@@ -29,7 +31,7 @@ function LibraryList() {
   const query = useDownloads({ status: "completed", limit: 100 });
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-8">
       <h1 className="text-2xl font-semibold tracking-tight text-fg">Library</h1>
       {query.isPending ? (
         <div className="flex justify-center py-16">
