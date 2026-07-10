@@ -55,9 +55,14 @@ from spotdl_server.settings import DeploymentMode, Settings
 
 
 class ResolveRequest(BaseModel):
-    """Body of ``POST /resolve``: a URL, ``provider:type:id`` ref, or free text."""
+    """Body of ``POST /resolve``: a URL, ``provider:type:id`` ref, or free text.
+
+    ``force=True`` bypasses the snapshot cache and refetches from the providers,
+    re-merging into the same canonical entity — the client "Refresh" affordance.
+    """
 
     query: str
+    force: bool = False
 
 
 # --------------------------------------------------------------------------
@@ -484,6 +489,10 @@ class MetadataSourceOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     provider: ProviderId
+    # The provider's own id for the entity — with ``provider`` it forms the
+    # resolvable ref ``{provider}:{entity_type}:{provider_entity_id}`` a client
+    # uses to force-refresh the canonical entity.
+    provider_entity_id: str
     entity_type: EntityType
     fetched_at: datetime
     name: str | None = None

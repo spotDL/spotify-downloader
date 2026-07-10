@@ -157,6 +157,10 @@ class SearchHit(_Frozen):
     cover_url: str | None = None
     year: int | None = None
     isrc: str | None = None
+    # Artist hits only: the provider's follower/fan count. Same-named artists are
+    # common (four "Mata"s on Deezer); enrichment uses this to pick the candidate
+    # the searcher most plausibly means instead of blindly taking the first hit.
+    followers: int | None = None
 
     @classmethod
     def from_track(cls, track: Track) -> "SearchHit":

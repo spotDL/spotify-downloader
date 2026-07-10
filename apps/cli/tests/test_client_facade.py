@@ -110,6 +110,7 @@ async def test_sources_returns_provider_provenance(client: SpotdlClient) -> None
         "sources": [
             {
                 "provider": "spotify",
+                "provider_entity_id": "sp-artist-1",
                 "entity_type": "artist",
                 "fetched_at": "2024-01-01T00:00:00Z",
                 "name": "Daft Punk",

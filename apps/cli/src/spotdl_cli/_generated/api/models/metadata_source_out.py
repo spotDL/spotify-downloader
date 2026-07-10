@@ -26,6 +26,7 @@ class MetadataSourceOut:
             entity_type (EntityType):
             fetched_at (datetime.datetime):
             provider (ProviderId):
+            provider_entity_id (str):
             album_name (Union[None, Unset, str]):
             artist_names (Union[Unset, list[str]]):
             cover_url (Union[None, Unset, str]):
@@ -43,6 +44,7 @@ class MetadataSourceOut:
     entity_type: EntityType
     fetched_at: datetime.datetime
     provider: ProviderId
+    provider_entity_id: str
     album_name: Union[None, Unset, str] = UNSET
     artist_names: Union[Unset, list[str]] = UNSET
     cover_url: Union[None, Unset, str] = UNSET
@@ -63,6 +65,8 @@ class MetadataSourceOut:
         fetched_at = self.fetched_at.isoformat()
 
         provider = self.provider.value
+
+        provider_entity_id = self.provider_entity_id
 
         album_name: Union[None, Unset, str]
         if isinstance(self.album_name, Unset):
@@ -139,6 +143,7 @@ class MetadataSourceOut:
                 "entity_type": entity_type,
                 "fetched_at": fetched_at,
                 "provider": provider,
+                "provider_entity_id": provider_entity_id,
             }
         )
         if album_name is not UNSET:
@@ -176,6 +181,8 @@ class MetadataSourceOut:
         fetched_at = isoparse(d.pop("fetched_at"))
 
         provider = ProviderId(d.pop("provider"))
+
+        provider_entity_id = d.pop("provider_entity_id")
 
         def _parse_album_name(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -275,6 +282,7 @@ class MetadataSourceOut:
             entity_type=entity_type,
             fetched_at=fetched_at,
             provider=provider,
+            provider_entity_id=provider_entity_id,
             album_name=album_name,
             artist_names=artist_names,
             cover_url=cover_url,

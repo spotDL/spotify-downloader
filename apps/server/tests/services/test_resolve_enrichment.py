@@ -408,3 +408,101 @@ async def test_track_resolve_records_stats(session: AsyncSession) -> None:
         ("lastfm", "listeners", 1_234_567),
         ("lastfm", "playcount", 9_876_543),
     }
+
+
+async def test_artist_enrichment_rejects_same_named_stranger(session: AsyncSession) -> None:
+    """A same-named artist with NO content overlap must never contribute data.
+
+    Regression (found live via Mata — four artists named "Mata" on Deezer): the
+    name-equality gate alone trusted whichever hit came first, polluting the
+    canonical artist and /sources with a stranger's followers and discography.
+    """
+    spotify_artist = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="artist123",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Mata", followers=2_700_000),
+        tracks=(_track("KAMIKAZE", "Mata", isrc="USKAM0000001"),),
+        albums=(AlbumRef(name="Młody Matczak", provider=ProviderId.SPOTIFY, provider_id="sp-al1"),),
+    )
+    stranger = ResolvedEntity(
+        provider=ProviderId.DEEZER,
+        provider_id="dz-stranger",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Mata", followers=11_589, bio="someone else entirely"),
+        tracks=(_track("Bonita", "Mata", isrc="FRSTR0000001"),),
+        albums=(AlbumRef(name="Surface", provider=ProviderId.DEEZER, provider_id="dz-al9"),),
+    )
+    spotify = FakeResolver(id=ProviderId.SPOTIFY, entity=spotify_artist)
+    deezer = FakeMetadataProvider(
+        id=ProviderId.DEEZER,
+        hits=[
+            SearchHit(
+                entity_type=EntityType.ARTIST,
+                provider=ProviderId.DEEZER,
+                provider_id="dz-stranger",
+                name="Mata",
+            )
+        ],
+        resolved={EntityType.ARTIST: stranger},
+    )
+    service = ResolveService(session=session, registry=build_fake_registry(spotify, deezer))
+
+    result = await service.resolve(SPOTIFY_ARTIST_URL)
+
+    assert result.artist is not None
+    assert result.artist.bio is None  # the stranger's bio was never trusted
+    assert await _linked_providers(session, EntityType.ARTIST, result.artist.id) == {"spotify"}
+    assert [a.name for a in result.artist.albums] == ["Młody Matczak"]  # no pollution
+
+
+async def test_artist_enrichment_unions_confirmed_secondary_discography(
+    session: AsyncSession,
+) -> None:
+    """A content-confirmed secondary's exclusive releases join the discography.
+
+    The artist's discography is the union across all sources: a shared album name
+    confirms identity (and dedupes), and a provider-exclusive release appears.
+    """
+    spotify_artist = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="artist123",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Mata", followers=2_700_000),
+        tracks=(_track("KAMIKAZE", "Mata", isrc="USKAM0000001"),),
+        albums=(AlbumRef(name="Młody Matczak", provider=ProviderId.SPOTIFY, provider_id="sp-al1"),),
+    )
+    real_deezer = ResolvedEntity(
+        provider=ProviderId.DEEZER,
+        provider_id="dz-real",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Mata", followers=1_401),
+        albums=(
+            AlbumRef(name="Młody Matczak", provider=ProviderId.DEEZER, provider_id="dz-al1"),
+            AlbumRef(name="Deezer Exclusive EP", provider=ProviderId.DEEZER, provider_id="dz-al2"),
+        ),
+    )
+    spotify = FakeResolver(id=ProviderId.SPOTIFY, entity=spotify_artist)
+    deezer = FakeMetadataProvider(
+        id=ProviderId.DEEZER,
+        hits=[
+            SearchHit(
+                entity_type=EntityType.ARTIST,
+                provider=ProviderId.DEEZER,
+                provider_id="dz-real",
+                name="Mata",
+            )
+        ],
+        resolved={EntityType.ARTIST: real_deezer},
+    )
+    service = ResolveService(session=session, registry=build_fake_registry(spotify, deezer))
+
+    result = await service.resolve(SPOTIFY_ARTIST_URL)
+
+    assert result.artist is not None
+    names = [a.name for a in result.artist.albums]
+    assert names == ["Młody Matczak", "Deezer Exclusive EP"]  # union, deduped by name
+    assert await _linked_providers(session, EntityType.ARTIST, result.artist.id) == {
+        "spotify",
+        "deezer",
+    }

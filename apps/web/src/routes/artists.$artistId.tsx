@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import type { AlbumOut, ArtistOut } from "../api/generated/types.gen";
-import { useArtist } from "../api/queries";
+import { useArtist, useForceRefreshArtist } from "../api/queries";
 import { useSubmitDownload } from "../api/downloads";
 import { isApiError } from "../api/errors";
 import { useOpenEntity } from "../lib/use-open-entity";
@@ -53,7 +53,7 @@ function ArtistPage() {
     );
   }
 
-  return <ArtistDetail artist={query.data} onRefresh={() => void query.refetch()} />;
+  return <ArtistDetail artist={query.data} />;
 }
 
 function artistInitials(name: string): string {
@@ -63,14 +63,11 @@ function artistInitials(name: string): string {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
-function ArtistDetail({
-  artist,
-  onRefresh,
-}: {
-  artist: ArtistOut;
-  onRefresh: () => void;
-}) {
+function ArtistDetail({ artist }: { artist: ArtistOut }) {
   const submit = useSubmitDownload();
+  // Force-refresh: re-resolves the artist from its providers (snapshots are
+  // permanent, so a plain refetch would re-read the same row forever).
+  const { refresh: onRefresh, refreshing } = useForceRefreshArtist(artist.id);
   const tracks = artist.tracks ?? [];
   const genres = artist.genres ?? [];
   const bio = artist.bio?.trim() ? artist.bio.trim() : null;
@@ -155,12 +152,13 @@ function ArtistDetail({
                 <ActionButton
                   variant="ghost"
                   icon={<RefreshIcon className="size-4" />}
+                  disabled={refreshing}
                   onClick={() => {
                     onRefresh();
-                    toast.info("Refreshing…");
+                    toast.info("Refreshing from providers…");
                   }}
                 >
-                  Refresh
+                  {refreshing ? "Refreshing…" : "Refresh"}
                 </ActionButton>
               </div>
             </div>

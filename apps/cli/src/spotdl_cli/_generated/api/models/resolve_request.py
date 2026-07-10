@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, BinaryIO, Optional, TextIO, TypeVar
+from typing import TYPE_CHECKING, Any, BinaryIO, Optional, TextIO, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -13,15 +13,22 @@ T = TypeVar("T", bound="ResolveRequest")
 class ResolveRequest:
     """Body of ``POST /resolve``: a URL, ``provider:type:id`` ref, or free text.
 
-    Attributes:
-        query (str):
+    ``force=True`` bypasses the snapshot cache and refetches from the providers,
+    re-merging into the same canonical entity — the client "Refresh" affordance.
+
+        Attributes:
+            query (str):
+            force (Union[Unset, bool]):  Default: False.
     """
 
     query: str
+    force: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         query = self.query
+
+        force = self.force
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -30,6 +37,8 @@ class ResolveRequest:
                 "query": query,
             }
         )
+        if force is not UNSET:
+            field_dict["force"] = force
 
         return field_dict
 
@@ -38,8 +47,11 @@ class ResolveRequest:
         d = dict(src_dict)
         query = d.pop("query")
 
+        force = d.pop("force", UNSET)
+
         resolve_request = cls(
             query=query,
+            force=force,
         )
 
         resolve_request.additional_properties = d

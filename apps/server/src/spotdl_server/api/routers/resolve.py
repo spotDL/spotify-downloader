@@ -18,5 +18,5 @@ async def resolve(
     service: ResolveService = Depends(get_resolve_service),
 ) -> ResolveResponse:
     """Resolve ``body.query`` to a canonical entity + the sources that degraded."""
-    result = await service.resolve(body.query)
+    result = await service.resolve(body.query, force=body.force)
     return ResolveResponse.from_result(result)

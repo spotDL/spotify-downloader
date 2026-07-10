@@ -1643,6 +1643,10 @@
           "provider": {
             "$ref": "#/components/schemas/ProviderId"
           },
+          "provider_entity_id": {
+            "title": "Provider Entity Id",
+            "type": "string"
+          },
           "year": {
             "anyOf": [
               {
@@ -1657,6 +1661,7 @@
         },
         "required": [
           "provider",
+          "provider_entity_id",
           "entity_type",
           "fetched_at"
         ],
@@ -2071,8 +2076,13 @@
         "type": "string"
       },
       "ResolveRequest": {
-        "description": "Body of ``POST /resolve``: a URL, ``provider:type:id`` ref, or free text.",
+        "description": "Body of ``POST /resolve``: a URL, ``provider:type:id`` ref, or free text.\n\n``force=True`` bypasses the snapshot cache and refetches from the providers,\nre-merging into the same canonical entity — the client \"Refresh\" affordance.",
         "properties": {
+          "force": {
+            "default": false,
+            "title": "Force",
+            "type": "boolean"
+          },
           "query": {
             "title": "Query",
             "type": "string"

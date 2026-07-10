@@ -927,6 +927,10 @@ export type MetadataSourceOut = {
     popularity?: number | null;
     provider: ProviderId;
     /**
+     * Provider Entity Id
+     */
+    provider_entity_id: string;
+    /**
      * Year
      */
     year?: number | null;
@@ -1183,8 +1187,15 @@ export type ReportStatus = 'pending' | 'approved' | 'rejected';
  * ResolveRequest
  *
  * Body of ``POST /resolve``: a URL, ``provider:type:id`` ref, or free text.
+ *
+ * ``force=True`` bypasses the snapshot cache and refetches from the providers,
+ * re-merging into the same canonical entity — the client "Refresh" affordance.
  */
 export type ResolveRequest = {
+    /**
+     * Force
+     */
+    force?: boolean;
     /**
      * Query
      */

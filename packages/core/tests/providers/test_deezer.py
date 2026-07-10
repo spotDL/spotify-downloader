@@ -444,3 +444,35 @@ async def test_resolve_playlist_captures_description_owner_and_cover() -> None:
     assert resolved.playlist.description == "Laid back tracks."
     assert resolved.playlist.owner == "Jane"
     assert resolved.playlist.cover_url == "https://img/pl-xl"
+
+
+@respx.mock
+async def test_artist_albums_paginates() -> None:
+    """The Deezer discography follows ``index`` pages past the first 50 items."""
+    respx.get(f"{_API}/artist/9/albums").mock(
+        side_effect=[
+            httpx.Response(
+                200,
+                json={
+                    "data": [
+                        {"id": i, "title": f"Release {i}", "record_type": "single"}
+                        for i in range(1, 51)
+                    ],
+                    "next": f"{_API}/artist/9/albums?index=50",
+                },
+            ),
+            httpx.Response(
+                200,
+                json={"data": [{"id": 51, "title": "Exclusive", "record_type": "album"}]},
+            ),
+        ]
+    )
+    respx.get(f"{_API}/artist/9").mock(
+        return_value=httpx.Response(200, json={"id": 9, "name": "Mata"})
+    )
+    respx.get(f"{_API}/artist/9/top").mock(return_value=httpx.Response(200, json={"data": []}))
+    ref = PlatformRef(ProviderId.DEEZER, EntityType.ARTIST, "9")
+    async with create_client(base_url=_API) as client:
+        resolved = await _provider(client).resolve(ref)
+    assert len(resolved.albums) == 51
+    assert resolved.albums[-1].name == "Exclusive"

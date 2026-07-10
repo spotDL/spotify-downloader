@@ -605,3 +605,32 @@ async def test_playlist_resolve_captures_description_owner_and_cover(
     assert result.playlist.description == "The hottest tracks in the USA."
     assert result.playlist.owner == "Charts"
     assert result.playlist.cover_url == "https://img/pl"
+
+
+async def test_force_resolve_bypasses_snapshot_cache(session: AsyncSession) -> None:
+    """``force=True`` must refetch even when a fresh snapshot exists.
+
+    Snapshots are permanent, so without force an already-resolved entity would
+    never pick up new provider data — the "Refresh" affordance depends on this.
+    """
+    await SnapshotRepository(session).upsert(
+        provider=ProviderId.SPOTIFY,
+        provider_entity_id="track123",
+        entity_type=EntityType.TRACK,
+        raw_payload={"name": "Stale", "artists": ["Old"], "duration_ms": 1_000},
+        name="Stale",
+        isrc="USSTALE00001",
+        duration_ms=1_000,
+        artist_names=["Old"],
+    )
+    resolver = FakeResolver(id=ProviderId.SPOTIFY, track=_track("Fresh", isrc="USFRESH00001"))
+    service = ResolveService(session=session, registry=build_fake_registry(resolver))
+
+    unforced = await service.resolve(SPOTIFY_URL)
+    assert resolver.calls == []  # cache hit
+    assert unforced.track is not None and unforced.track.name == "Stale"
+
+    forced = await service.resolve(SPOTIFY_URL, force=True)
+    assert len(resolver.calls) == 1  # bypassed the fresh snapshot
+    assert forced.track is not None
+    assert forced.track.name == "Fresh"

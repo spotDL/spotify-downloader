@@ -213,6 +213,7 @@ def metadata_source_view(snapshot: ProviderSnapshot) -> MetadataSourceView:
     genres = payload.get("genres")
     return MetadataSourceView(
         provider=snapshot.provider.value,
+        provider_entity_id=snapshot.provider_entity_id,
         entity_type=snapshot.entity_type.value,
         fetched_at=snapshot.fetched_at,
         name=snapshot.name or _str_field(payload, "name"),

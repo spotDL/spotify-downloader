@@ -93,8 +93,9 @@ _REFRESH_SKEW_MS = 30_000.0
 #: Album-tracks page size (Spotify caps ``limit`` at 50).
 _PAGE_LIMIT = 50
 
-#: Discography cap — one ``/v1/artists/{id}/albums`` page, deduped by name.
-_ARTIST_ALBUMS_LIMIT = 50
+#: Discography cap — raw ``/v1/artists/{id}/albums`` items fetched across pages
+#: before the name dedupe (a generous ceiling, not a page size).
+_ARTIST_ALBUMS_LIMIT = 200
 
 #: Pinned default TOTP cipher for the anonymous-token flow. This mirrors the
 #: ``spotapi``/web-player scheme: each byte is XOR-transformed, the decimal
@@ -485,6 +486,7 @@ def _artist_hit(item: dict[str, Any]) -> SearchHit:
         name=item["name"],
         subtitle=None,
         cover_url=_largest_image(item.get("images")),
+        followers=(item.get("followers") or {}).get("total"),
     )
 
 
@@ -662,25 +664,42 @@ class SpotifyProvider(HttpProvider):
         )
 
     async def _resolve_artist_albums(self, entity_id: str) -> tuple[AlbumRef, ...]:
-        """Fetch the artist's discography (best-effort; a failure yields ``()``).
+        """Fetch the artist's FULL discography (best-effort; a failure yields ``()``).
 
         A discography fetch is *non-fatal* to the artist resolve — the artist still
         resolves with its top tracks if ``/albums`` breaks (spec §10 degraded, never
-        a hard failure). One page is fetched (``include_groups`` covers albums, EPs —
-        Spotify labels EPs ``single`` — singles and compilations), deduped by name.
+        a hard failure). Pages are followed until :data:`_ARTIST_ALBUMS_LIMIT` raw
+        items (``include_groups`` covers albums, EPs — Spotify labels EPs ``single``
+        — singles and compilations). Deliberately market-agnostic: a ``market``
+        filter hides an artist's home-market releases (a Polish artist's PL-only
+        singles vanished under ``market=US``); regional duplicates of the same
+        release collapse in the name dedupe.
         """
+        items: list[dict[str, Any]] = []
         try:
             payload = await self._get(
                 f"/v1/artists/{entity_id}/albums",
                 include_groups="album,single,compilation",
-                market="US",
-                limit=_ARTIST_ALBUMS_LIMIT,
+                limit=_PAGE_LIMIT,
             )
+            items.extend(payload.get("items") or [])
+            while payload.get("next") and len(items) < _ARTIST_ALBUMS_LIMIT:
+                payload = await self._get(
+                    f"/v1/artists/{entity_id}/albums",
+                    include_groups="album,single,compilation",
+                    limit=_PAGE_LIMIT,
+                    offset=len(items),
+                )
+                page_items = payload.get("items") or []
+                if not page_items:
+                    break
+                items.extend(page_items)
         except ProviderError:
-            return ()
+            if not items:
+                return ()
         refs = [
             _artist_album_ref(item)
-            for item in (payload.get("items") or [])
+            for item in items
             if item and item.get("id") and item.get("name")
         ]
         return _dedupe_artist_albums(refs, cap=_ARTIST_ALBUMS_LIMIT)

@@ -120,6 +120,29 @@ _STAT_METRICS: tuple[tuple[str, str], ...] = (
 )
 
 
+def _same_artist(primary: ResolvedEntity, candidate: ResolvedEntity) -> bool:
+    """Confirm a same-named secondary candidate is the SAME artist by content overlap.
+
+    Name equality alone is unsafe — providers host many artists sharing a name.
+    Any shared album title or top-track title (case-folded) confirms identity.
+    When both sides expose a comparable catalogue (albums or top tracks) and
+    NOTHING overlaps, the candidate is a stranger and is rejected. When neither
+    side has comparable content, the normalized-name gate (already applied by the
+    caller) is the best available signal, so the candidate is accepted.
+    """
+    primary_albums = {a.name.casefold() for a in primary.albums}
+    candidate_albums = {a.name.casefold() for a in candidate.albums}
+    if primary_albums & candidate_albums:
+        return True
+    primary_tracks = {t.name.casefold() for t in primary.tracks}
+    candidate_tracks = {t.name.casefold() for t in candidate.tracks}
+    if primary_tracks & candidate_tracks:
+        return True
+    albums_comparable = bool(primary_albums and candidate_albums)
+    tracks_comparable = bool(primary_tracks and candidate_tracks)
+    return not (albums_comparable or tracks_comparable)
+
+
 class ResolveService:
     """Cache-first resolve of a query to a canonical entity + kicked matches.
 
@@ -153,15 +176,21 @@ class ResolveService:
         self._stats = EntityStatRepository(session)
         self._merger = CanonicalMerger(session)
 
-    async def resolve(self, query: str) -> ResolveResult:
-        """Resolve ``query`` to a canonical entity view + ``degraded_sources``."""
+    async def resolve(self, query: str, *, force: bool = False) -> ResolveResult:
+        """Resolve ``query`` to a canonical entity view + ``degraded_sources``.
+
+        ``force=True`` bypasses the snapshot cache and refetches from the
+        providers (re-merging into the SAME canonical entity via its links) —
+        the "Refresh" affordance. Without it a permanent snapshot means an
+        already-resolved entity would never pick up new provider data.
+        """
         degraded: set[ProviderId] = set()
         ref = await self._parse_or_search(query, degraded)
 
         if ref.entity_type is EntityType.TRACK:
-            result = await self._resolve_track(ref, degraded)
+            result = await self._resolve_track(ref, degraded, force=force)
         else:
-            result = await self._resolve_container(ref, degraded)
+            result = await self._resolve_container(ref, degraded, force=force)
 
         degraded.update(self._registry.unavailable.keys())
         return self._with_degraded(result, degraded)
@@ -189,9 +218,13 @@ class ResolveService:
             raise
 
     # ----------------------------------------------------------------- track
-    async def _resolve_track(self, ref: PlatformRef, degraded: set[ProviderId]) -> ResolveResult:
+    async def _resolve_track(
+        self, ref: PlatformRef, degraded: set[ProviderId], *, force: bool = False
+    ) -> ResolveResult:
         now = datetime.now(UTC)
-        primary = await self._snapshots.get_fresh(ref.provider, ref.entity_id, now)
+        primary = (
+            None if force else await self._snapshots.get_fresh(ref.provider, ref.entity_id, now)
+        )
         if primary is not None and is_partial(primary):
             # A marked-partial listing preview (no ISRC) is not a resolved track —
             # fall through to a full fetch, whose authoritative persist clears it.
@@ -460,29 +493,50 @@ class ResolveService:
 
     async def _enrich_artist(
         self, resolved: ResolvedEntity, degraded: set[ProviderId]
-    ) -> list[ProviderSnapshot]:
-        """Fan out to the other metadata sources for the same artist (normalized name).
+    ) -> tuple[list[ProviderSnapshot], tuple[AlbumRef, ...]]:
+        """Fan out to the other metadata sources for the same artist.
 
-        Confirmed by :func:`normalize_artist_name` equality (the shared artist-identity
-        key), so only an exact normalized-name match links. Only ``SearchesEntities``
-        providers can search artists, narrowing to Spotify/Deezer.
+        Candidates are found by :func:`normalize_artist_name` equality, then
+        confirmed by CONTENT OVERLAP against the primary (a shared album or
+        top-track name): same-named artists are common (four "Mata"s on Deezer),
+        and a name-only gate trusted whichever hit came first — polluting
+        followers, genres, and the discography with a stranger's data. Only
+        ``SearchesEntities`` providers can search artists (Spotify/Deezer).
+
+        Returns the confirmed snapshots plus the confirmed candidates' discography
+        refs, so the artist's discography is the UNION across all sources (a
+        provider-exclusive release still appears).
         """
         artist = resolved.artist
         name = artist.name if artist is not None else resolved.name
         if not name:
-            return []
+            return [], ()
         providers = self._enrichment_providers(resolved.provider, SearchesEntities)
 
-        async def leg(provider: Any) -> ProviderSnapshot | None:
-            return await self._enrich_artist_from(provider, name)
+        async def leg(provider: Any) -> ResolvedEntity | None:
+            return await self._artist_candidate_from(provider, name)
 
-        snapshots = await self._gather_enrich(providers, leg, degraded)
+        candidates = await self._gather_artist_candidates(providers, leg, degraded)
+        snapshots: list[ProviderSnapshot] = []
+        extra_albums: list[AlbumRef] = []
+        for candidate in candidates:
+            if not _same_artist(resolved, candidate):
+                continue  # a same-named stranger — never trust its data
+            snapshots.append(await self._persist_artist_snapshot(candidate))
+            extra_albums.extend(candidate.albums)
         lastfm = await self._enrich_lastfm_artist(name, degraded)
         if lastfm is not None:
             snapshots.append(lastfm)
-        return snapshots
+        return snapshots, tuple(extra_albums)
 
-    async def _enrich_artist_from(self, provider: Any, name: str) -> ProviderSnapshot | None:
+    async def _artist_candidate_from(self, provider: Any, name: str) -> ResolvedEntity | None:
+        """Search+resolve one secondary provider's candidate for ``name`` (no persist).
+
+        The first normalized-name-equal hit is taken — the provider's own relevance
+        ranking beats raw popularity here (Deezer ranks the intended "Mata" first
+        even though a same-named stranger has more fans). Identity is confirmed by
+        the caller's content-overlap gate before anything is persisted.
+        """
         hits = await provider.search_entities(
             name, types=frozenset({EntityType.ARTIST}), limit=_ENRICH_SEARCH_LIMIT
         )
@@ -493,12 +547,34 @@ class ResolveService:
         )
         if best is None or not isinstance(provider, Resolves):
             return None
-        resolved = await provider.resolve(
+        return await provider.resolve(
             PlatformRef(
                 provider=provider.id, entity_type=EntityType.ARTIST, entity_id=best.provider_id
             )
         )
-        return await self._persist_artist_snapshot(resolved)
+
+    async def _gather_artist_candidates(
+        self, providers: list[Any], leg: Any, degraded: set[ProviderId]
+    ) -> list[ResolvedEntity]:
+        """The ``_gather_enrich`` semantics (concurrent, time-bounded, a failing leg
+        degrades its source) for legs yielding an unpersisted :class:`ResolvedEntity`."""
+        if not providers:
+            return []
+
+        async def _bounded(provider: Any) -> ResolvedEntity | None:
+            return await asyncio.wait_for(leg(provider), timeout=_ENRICH_TIMEOUT_S)
+
+        results = await asyncio.gather(
+            *(_bounded(provider) for provider in providers), return_exceptions=True
+        )
+        candidates: list[ResolvedEntity] = []
+        for provider, result in zip(providers, results, strict=True):
+            if isinstance(result, ResolvedEntity):
+                candidates.append(result)
+            elif isinstance(result, BaseException):
+                degraded.add(provider.id)
+                record_provider_error(provider.id.value)
+        return candidates
 
     # --------------------------------------------------- last.fm enrichment
     def _lastfm(self) -> LastfmProvider | None:
@@ -672,16 +748,16 @@ class ResolveService:
 
     # ------------------------------------------------------------- container
     async def _resolve_container(
-        self, ref: PlatformRef, degraded: set[ProviderId]
+        self, ref: PlatformRef, degraded: set[ProviderId], *, force: bool = False
     ) -> ResolveResult:
         """Resolve an album/artist/playlist ref (no per-track match kick).
 
         Cache-first: a fresh snapshot already merged into a canonical entity is
-        reloaded without any network call. Otherwise the entity and its track
-        listing are fetched, snapshotted, and merged.
+        reloaded without any network call. Otherwise (or on ``force``) the entity
+        and its track listing are fetched, snapshotted, and merged.
         """
         now = datetime.now(UTC)
-        fresh = await self._snapshots.get_fresh(ref.provider, ref.entity_id, now)
+        fresh = None if force else await self._snapshots.get_fresh(ref.provider, ref.entity_id, now)
         if fresh is not None:
             existing = await self._existing_container(fresh)
             if existing is not None:
@@ -720,16 +796,26 @@ class ResolveService:
             return ResolveResult(entity_type=EntityType.ALBUM.value, album=views.album_view(album))
         if resolved.entity_type is EntityType.ARTIST:
             artist_snap = await self._persist_artist_snapshot(resolved)
-            enriched = await self._enrich_artist(resolved, degraded)
+            enriched, extra_albums = await self._enrich_artist(resolved, degraded)
             by_pos = {
                 index: [await self._persist_track_snapshot_from(resolved, index, track)]
                 for index, track in enumerate(resolved.tracks)
             }
             # Snapshot each discography album (metadata-only, one source snapshot
             # each — no per-album enrichment fan-out) so the merge persists + links
-            # them; refs without a resolvable provider id are skipped.
+            # them; refs without a resolvable provider id are skipped. The listing
+            # is the UNION across sources: the primary's discography first, then any
+            # overlap-confirmed secondary's releases the primary doesn't carry
+            # (case-folded name dedupe, matching the providers' own dedupe rule).
+            disc_refs = list(resolved.albums)
+            seen_names = {ref.name.casefold() for ref in disc_refs}
+            for ref in extra_albums:
+                key = ref.name.casefold()
+                if key not in seen_names:
+                    seen_names.add(key)
+                    disc_refs.append(ref)
             album_by_pos: dict[int, list[ProviderSnapshot]] = {}
-            for index, album_ref in enumerate(resolved.albums):
+            for index, album_ref in enumerate(disc_refs):
                 disc_snap = await self._persist_discography_album_snapshot(album_ref)
                 if disc_snap is not None:
                     album_by_pos[index] = [disc_snap]

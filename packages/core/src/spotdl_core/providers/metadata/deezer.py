@@ -55,8 +55,12 @@ _API_BASE = "https://api.deezer.com"
 #: Deezer caps ``/artist/{id}/top`` and search at 100 items per request.
 _TOP_LIMIT = 100
 
-#: Discography cap — one ``/artist/{id}/albums`` page, deduped by name.
-_ARTIST_ALBUMS_LIMIT = 50
+#: Discography cap — raw ``/artist/{id}/albums`` items fetched across pages
+#: before the name dedupe (a generous ceiling, not a page size).
+_ARTIST_ALBUMS_LIMIT = 200
+
+#: Page size for paginated Deezer listings.
+_PAGE_LIMIT = 50
 
 
 def _expect_no_error(body: Any) -> None:
@@ -235,6 +239,7 @@ def map_artist_hits(payload: dict[str, Any]) -> list[SearchHit]:
                 name=item["name"],
                 subtitle=None,
                 cover_url=_cover(item, "picture_xl", "picture_big", "picture"),
+                followers=item.get("nb_fan"),
             )
         )
     return hits
@@ -349,18 +354,30 @@ class DeezerProvider(HttpProvider):
         )
 
     async def _resolve_artist_albums(self, entity_id: str) -> tuple[AlbumRef, ...]:
-        """Fetch the artist's discography (best-effort; a failure yields ``()``).
+        """Fetch the artist's FULL discography (best-effort; a failure yields ``()``).
 
         Non-fatal to the artist resolve (spec §10 degraded): the artist still
-        resolves with its top tracks if ``/albums`` breaks. Deezer's album items
-        carry ``record_type`` (album/single/ep/compilation), deduped by name.
+        resolves with its top tracks if ``/albums`` breaks. Pages are followed via
+        ``index`` until :data:`_ARTIST_ALBUMS_LIMIT` raw items. Deezer's album
+        items carry ``record_type`` (album/single/ep/compilation), deduped by name.
         """
+        items: list[dict[str, Any]] = []
         try:
-            payload = await self._get(f"/artist/{entity_id}/albums", limit=_ARTIST_ALBUMS_LIMIT)
+            payload = await self._get(f"/artist/{entity_id}/albums", limit=_PAGE_LIMIT)
+            items.extend(payload.get("data") or [])
+            while payload.get("next") and len(items) < _ARTIST_ALBUMS_LIMIT:
+                payload = await self._get(
+                    f"/artist/{entity_id}/albums", limit=_PAGE_LIMIT, index=len(items)
+                )
+                page_items = payload.get("data") or []
+                if not page_items:
+                    break
+                items.extend(page_items)
         except ProviderError:
-            return ()
+            if not items:
+                return ()
         refs: list[AlbumRef] = []
-        for item in payload.get("data") or []:
+        for item in items:
             if not item or not item.get("id"):
                 continue
             ref = _artist_album_ref(item)

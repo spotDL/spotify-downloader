@@ -165,8 +165,10 @@ class MetadataSourceView:
     """
 
     provider: str
-    entity_type: str
-    fetched_at: datetime
+    # The provider's own entity id (with ``provider``: the force-refresh ref).
+    provider_entity_id: str = ""
+    entity_type: str = ""
+    fetched_at: datetime | None = None
     name: str | None = None
     cover_url: str | None = None
     isrc: str | None = None

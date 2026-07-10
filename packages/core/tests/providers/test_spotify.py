@@ -748,3 +748,40 @@ async def test_resolve_playlist_captures_description_owner_and_cover() -> None:
     assert resolved.playlist.description == "Laid back tracks."
     assert resolved.playlist.owner == "Spotify"
     assert resolved.playlist.cover_url == "https://img/pl"
+
+
+@respx.mock
+async def test_artist_albums_paginates_and_is_market_agnostic() -> None:
+    """The discography follows pages and sends NO market filter.
+
+    Regression (found live via Mata): one page of 50 with ``market=US`` capped the
+    discography and hid a Polish artist's home-market releases entirely.
+    """
+    artist_id = "AR1"
+    respx.get(f"{_API}/v1/artists/{artist_id}").mock(
+        return_value=httpx.Response(200, json={"id": artist_id, "name": "Mata"})
+    )
+    respx.get(f"{_API}/v1/artists/{artist_id}/top-tracks").mock(
+        return_value=httpx.Response(200, json={"tracks": []})
+    )
+    page1 = {
+        "items": [
+            {"id": f"a{i}", "name": f"Release {i}", "album_type": "single"} for i in range(50)
+        ],
+        "next": f"{_API}/v1/artists/{artist_id}/albums?offset=50&limit=50",
+    }
+    page2 = {
+        "items": [{"id": "a50", "name": "Młody Matczak", "album_type": "album"}],
+        "next": None,
+    }
+    albums_route = respx.get(f"{_API}/v1/artists/{artist_id}/albums").mock(
+        side_effect=[httpx.Response(200, json=page1), httpx.Response(200, json=page2)]
+    )
+    ref = PlatformRef(ProviderId.SPOTIFY, EntityType.ARTIST, artist_id)
+    async with create_client(base_url=_API) as client:
+        resolved = await _provider(client).resolve(ref)
+    assert len(resolved.albums) == 51  # both pages, past the old 50 cap
+    assert resolved.albums[-1].name == "Młody Matczak"
+    for call in albums_route.calls:
+        params = httpx.QueryParams(call.request.url.query)
+        assert "market" not in params  # market-agnostic: home-market releases stay

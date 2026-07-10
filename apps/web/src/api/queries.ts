@@ -8,7 +8,9 @@ import {
   getAlbumApiV1AlbumsIdGetOptions,
   getAlbumSourcesApiV1AlbumsIdSourcesGetOptions,
   getArtistApiV1ArtistsIdGetOptions,
+  getArtistApiV1ArtistsIdGetQueryKey,
   getArtistSourcesApiV1ArtistsIdSourcesGetOptions,
+  getArtistSourcesApiV1ArtistsIdSourcesGetQueryKey,
   getPlaylistApiV1PlaylistsIdGetOptions,
   getPlaylistSourcesApiV1PlaylistsIdSourcesGetOptions,
   getTrackApiV1TracksIdGetOptions,
@@ -112,6 +114,44 @@ export function useEntitySources(entityType: EntityType, id: string) {
           ? getPlaylistSourcesApiV1PlaylistsIdSourcesGetOptions(path)
           : getTrackSourcesApiV1TracksIdSourcesGetOptions(path);
   return useQuery({ ...options, enabled: id.length > 0 });
+}
+
+/**
+ * Force-refresh a canonical artist from its providers.
+ *
+ * A resolved artist's snapshots are permanent, so a plain refetch re-reads the
+ * same DB row forever. This resolves the artist's Spotify-first source ref with
+ * `force: true` (bypassing the snapshot cache server-side), then invalidates the
+ * artist + sources queries. Falls back to a plain invalidate when the sources
+ * are not loaded yet (e.g. right after mount).
+ */
+export function useForceRefreshArtist(artistId: string) {
+  const queryClient = useQueryClient();
+  const sources = useEntitySources("artist", artistId);
+  const resolve = useResolve();
+
+  const invalidate = () => {
+    void queryClient.invalidateQueries({
+      queryKey: getArtistApiV1ArtistsIdGetQueryKey({ path: { id: artistId } }),
+    });
+    void queryClient.invalidateQueries({
+      queryKey: getArtistSourcesApiV1ArtistsIdSourcesGetQueryKey({ path: { id: artistId } }),
+    });
+  };
+
+  const refresh = () => {
+    const source = sources.data?.sources?.[0]; // Spotify-first ordering
+    if (!source) {
+      invalidate();
+      return;
+    }
+    resolve.mutate(
+      { body: { query: `${source.provider}:artist:${source.provider_entity_id}`, force: true } },
+      { onSuccess: invalidate, onError: invalidate },
+    );
+  };
+
+  return { refresh, refreshing: resolve.isPending };
 }
 
 /**
