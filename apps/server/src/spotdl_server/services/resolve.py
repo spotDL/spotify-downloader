@@ -284,12 +284,13 @@ class ResolveService:
             await self._record_stats(EntityType.TRACK, track.id, merge_set)
         await self._kick_matching(track, degraded)
 
-        # Fetch lyrics on the first resolve (no rows yet) or a forced refresh; a
-        # warm re-resolve whose lyrics are already stored skips the fan-out. This
-        # pre-check row list doubles as the response's when no fetch runs, so the
-        # common (warm) path issues no extra query.
+        # Fetch lyrics on a COLD resolve or a forced refresh only. Gating on
+        # "no rows yet" alone would re-run the fan-out on EVERY warm resolve of a
+        # track that genuinely has no lyrics anywhere — paying the slowest lyrics
+        # source's timeout (lrclib's search path can run tens of seconds) on each
+        # page load. A miss retries on the next cold/forced resolve instead.
         lyrics_rows = await self._lyrics.list_for_track(track.id)
-        if force or not lyrics_rows:
+        if force or (was_miss and not lyrics_rows):
             core = self._core_track(track)
             if core is not None:  # a stub with no artists cannot be looked up
                 await self._kick_lyrics(track, core, degraded)
