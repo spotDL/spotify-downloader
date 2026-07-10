@@ -44,6 +44,12 @@ describe("track page", () => {
     // guards the 0–100 wire scale → 0–1 gauge normalization on the track page.
     const meter = await screen.findByRole("meter", { name: "Match score" });
     expect(meter).toHaveAttribute("aria-valuetext", "94%");
+
+    // The Details card surfaces the newly-wired publisher/date fields.
+    expect(screen.getByText("Publisher")).toBeInTheDocument();
+    expect(screen.getByText("Columbia")).toBeInTheDocument();
+    expect(screen.getByText("Date")).toBeInTheDocument();
+    expect(screen.getByText("2013-05-17")).toBeInTheDocument();
   });
 
   it("invalidates the matches query after a vote", async () => {

@@ -3,14 +3,17 @@ import type { AlbumRefOut, ArtistOut } from "../api/generated/types.gen";
 import { useArtist } from "../api/queries";
 import { useSubmitDownload } from "../api/downloads";
 import { isApiError } from "../api/errors";
+import { formatFollowers } from "../lib/format";
 import { ActionButton } from "../components/ActionButton";
 import { AlbumGridCard } from "../components/AlbumGridCard";
 import { Badge } from "../components/Badge";
+import { Card } from "../components/Card";
 import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
 import { HeroBackdrop } from "../components/HeroBackdrop";
 import { SectionDivider } from "../components/SectionDivider";
 import { Spinner } from "../components/Spinner";
+import { StatChip } from "../components/StatChip";
 import { TrackTable } from "../components/TrackTable";
 import { DiscIcon, NoteIcon, RefreshIcon } from "../components/icons";
 import { toast } from "../components/Toasts";
@@ -68,6 +71,14 @@ function ArtistDetail({
   const submit = useSubmitDownload();
   const tracks = artist.tracks ?? [];
   const genres = artist.genres ?? [];
+  const bio = artist.bio?.trim() ? artist.bio.trim() : null;
+  // Deezer-sourced artists can carry a raw fan-count in `popularity` (>100); only
+  // render it as a 0–100 stat.
+  const popularity =
+    artist.popularity != null && artist.popularity >= 0 && artist.popularity <= 100
+      ? artist.popularity
+      : null;
+  const hasStats = artist.followers != null || popularity != null;
 
   // The artist endpoint returns only top tracks (no album graph), so derive a
   // lightweight discography from the distinct albums those tracks belong to.
@@ -92,7 +103,7 @@ function ArtistDetail({
   return (
     <div>
       <div className="grain relative overflow-hidden border-b border-line-soft">
-        <HeroBackdrop coverUrl={artist.image_url} />
+        <HeroBackdrop coverUrl={artist.header_url ?? artist.image_url} />
         <div className="relative z-[2] mx-auto max-w-[1080px] px-6">
           <div className="flex flex-col items-start gap-7 pt-11 pb-8 sm:flex-row sm:items-end">
             <div className="relative shrink-0">
@@ -118,13 +129,26 @@ function ArtistDetail({
             <div className="min-w-0 flex-1 pb-1">
               <div className="mb-3.5 flex flex-wrap gap-2">
                 <Badge tone="warn">Artist</Badge>
+                {artist.country ? <Badge tone="muted">{artist.country}</Badge> : null}
               </div>
               <h1 className="text-[clamp(32px,5.5vw,58px)] font-black leading-none tracking-[-0.03em] text-fg">
                 {artist.name}
               </h1>
+              {hasStats ? (
+                <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+                  {artist.followers != null ? (
+                    <StatChip label="followers">
+                      {formatFollowers(artist.followers)}
+                    </StatChip>
+                  ) : null}
+                  {popularity != null ? (
+                    <StatChip label="popularity">{popularity}</StatChip>
+                  ) : null}
+                </div>
+              ) : null}
               {genres.length > 0 ? (
                 <div className="mt-4 flex flex-wrap gap-1.5">
-                  {genres.slice(0, 6).map((g) => (
+                  {genres.slice(0, 5).map((g) => (
                     <span
                       key={g}
                       className="rounded-full border border-line-soft bg-elevated px-2.5 py-1 text-[11px] text-ink-2"
@@ -132,6 +156,11 @@ function ArtistDetail({
                       {g}
                     </span>
                   ))}
+                  {genres.length > 5 ? (
+                    <span className="rounded-full border border-line-soft bg-elevated px-2.5 py-1 text-[11px] text-muted">
+                      +{genres.length - 5}
+                    </span>
+                  ) : null}
                 </div>
               ) : null}
               {/* No Enqueue all: an artist is NOT a downloadable batch (Plan 8's
@@ -153,7 +182,15 @@ function ArtistDetail({
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-[1080px] flex-col gap-8 px-6 py-7">
+      <div className="mx-auto max-w-[1080px] px-6 py-7">
+        <div
+          className={
+            bio
+              ? "grid gap-8 lg:grid-cols-[1.9fr_1fr]"
+              : "flex flex-col gap-8"
+          }
+        >
+          <div className="flex min-w-0 flex-col gap-8">
         <section className="flex flex-col gap-4">
           <SectionDivider
             title="Top tracks"
@@ -193,6 +230,16 @@ function ArtistDetail({
             </div>
           </section>
         ) : null}
+          </div>
+
+          {bio ? (
+            <aside className="flex min-w-0 flex-col gap-5">
+              <Card title="About">
+                <p className="text-[14px] leading-relaxed text-ink-2">{bio}</p>
+              </Card>
+            </aside>
+          ) : null}
+        </div>
       </div>
     </div>
   );

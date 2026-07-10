@@ -86,8 +86,14 @@ function TrackDetail({ trackId, t }: { trackId: string; t: TrackOut }) {
   const enqueue = useEnqueueDownload();
   const refresh = useRefreshTrack(trackId);
   const matches = useTrackMatches(trackId);
-  const cover = t.album?.cover_url ?? null;
+  const cover = t.cover_url ?? t.album?.cover_url ?? null;
   const matchList = matches.data?.matches ?? [];
+  // Only surface popularity on the canonical 0–100 scale (a Deezer-sourced entity
+  // can carry a raw fan-count > 100 in the same field).
+  const popularity =
+    t.popularity != null && t.popularity >= 0 && t.popularity <= 100
+      ? t.popularity
+      : null;
 
   // "Listen on" = the canonical provider link (when buildable) plus each match's
   // audio target, de-duplicated by provider.
@@ -123,8 +129,8 @@ function TrackDetail({ trackId, t }: { trackId: string; t: TrackOut }) {
               <div className="mb-3.5 flex flex-wrap gap-2">
                 <Badge tone="brand">Track</Badge>
                 {t.explicit ? <Badge tone="danger">Explicit</Badge> : null}
-                {t.popularity != null ? (
-                  <Badge tone="muted">★ {t.popularity}</Badge>
+                {popularity != null ? (
+                  <Badge tone="muted">★ {popularity}</Badge>
                 ) : null}
               </div>
               <h1 className="text-[clamp(30px,5vw,52px)] font-black leading-[1.02] tracking-[-0.03em] text-fg">
@@ -193,10 +199,14 @@ function TrackDetail({ trackId, t }: { trackId: string; t: TrackOut }) {
             ) : null}
             <Card title="Details">
               {t.isrc ? <DetailRow label="ISRC">{t.isrc}</DetailRow> : null}
-              {t.popularity != null ? (
-                <DetailRow label="Popularity">{t.popularity} / 100</DetailRow>
+              {t.publisher ? (
+                <DetailRow label="Publisher">{t.publisher}</DetailRow>
+              ) : null}
+              {popularity != null ? (
+                <DetailRow label="Popularity">{popularity} / 100</DetailRow>
               ) : null}
               <DetailRow label="Matches">{matchList.length}</DetailRow>
+              {t.date ? <DetailRow label="Date">{t.date}</DetailRow> : null}
               {t.year ? <DetailRow label="Year">{t.year}</DetailRow> : null}
               {t.album?.name ? <DetailRow label="Album">{t.album.name}</DetailRow> : null}
             </Card>

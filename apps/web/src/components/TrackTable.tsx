@@ -20,8 +20,12 @@ export function TrackTable({ tracks }: { tracks: TrackOut[] }) {
             {track.track_number ?? i + 1}
           </span>
           <span className="size-9 overflow-hidden rounded ring-1 ring-white/5">
-            {track.album?.cover_url ? (
-              <img src={track.album.cover_url} alt="" className="size-full object-cover" />
+            {track.cover_url ?? track.album?.cover_url ? (
+              <img
+                src={track.cover_url ?? track.album?.cover_url ?? undefined}
+                alt=""
+                className="size-full object-cover"
+              />
             ) : (
               <span className="grid size-full place-items-center bg-elevated text-muted">
                 <NoteIcon className="size-4" />

@@ -90,12 +90,16 @@ export function makeTrack(overrides: Overrides<TrackOut> = {}): TrackOut {
     name: "Get Lucky",
     artists: ["Daft Punk", "Pharrell Williams"],
     duration_ms: 248_000,
+    cover_url: "https://example.com/track-cover.jpg",
     album: {
       id: "album-1",
       name: "Random Access Memories",
       cover_url: "https://example.com/cover.jpg",
     },
     year: 2013,
+    date: "2013-05-17",
+    publisher: "Columbia",
+    copyright_text: "© 2013 Daft Life Ltd.",
     ...overrides,
   };
 }
@@ -159,9 +163,14 @@ export function makeAlbum(overrides: Overrides<AlbumOut> = {}): AlbumOut {
     id: "album-1",
     name: "Random Access Memories",
     album_artist: "Daft Punk",
+    album_type: "album",
     cover_url: "https://example.com/cover.jpg",
     year: 2013,
     track_count: 2,
+    label: "Columbia",
+    copyright_text: "© 2013 Daft Life Ltd.",
+    popularity: 80,
+    genres: ["french house", "electronic"],
     tracks: [
       makeTrack({ id: "track-1", name: "Get Lucky" }),
       makeTrack({ id: "track-2", name: "Instant Crush" }),
@@ -174,8 +183,10 @@ export function makeArtist(overrides: Overrides<ArtistOut> = {}): ArtistOut {
   return {
     id: "artist-1",
     name: "Daft Punk",
-    genres: ["french house", "electronic"],
+    genres: ["french house", "electronic", "disco", "nu disco", "synthpop", "funk"],
     image_url: "https://example.com/artist.jpg",
+    followers: 33_901_227,
+    popularity: 88,
     tracks: [makeTrack({ id: "track-1", name: "Get Lucky" })],
     ...overrides,
   };

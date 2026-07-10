@@ -27,6 +27,33 @@ describe("Album page", () => {
     expect(screen.getByText("Instant Crush")).toBeInTheDocument();
   });
 
+  it("renders label, popularity, and album_type in the details card", async () => {
+    serveAlbum();
+    renderApp("/albums/album-1");
+
+    expect(await screen.findByText("Details")).toBeInTheDocument();
+    expect(screen.getByText("Label")).toBeInTheDocument();
+    expect(screen.getByText("Columbia")).toBeInTheDocument();
+    // popularity 80 renders on the 0–100 scale…
+    expect(screen.getByText("80 / 100")).toBeInTheDocument();
+    // …and the capitalized album_type ("Album") appears alongside the "Album"
+    // type badge in the hero and the "Type" detail row.
+    expect(screen.getByText("Type")).toBeInTheDocument();
+    expect(screen.getAllByText("Album").length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("hides popularity when it carries a raw fan-count (> 100)", async () => {
+    server.use(
+      http.get("*/api/v1/albums/:id", ({ params }) =>
+        HttpResponse.json(makeAlbum({ id: String(params.id), popularity: 250_000 })),
+      ),
+    );
+    renderApp("/albums/album-1");
+
+    expect(await screen.findByText("Get Lucky")).toBeInTheDocument();
+    expect(screen.queryByText(/\/ 100/)).not.toBeInTheDocument();
+  });
+
   it("Enqueue all posts the album query and links to the queue", async () => {
     serveAlbum();
     let posted: { query?: string } | null = null;

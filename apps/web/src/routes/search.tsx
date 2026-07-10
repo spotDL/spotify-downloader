@@ -258,7 +258,7 @@ function SongsSection({ tracks }: { tracks: TrackOut[] }) {
               id={track.id}
               name={track.name}
               subtitle={joinArtists(track.artists)}
-              imageUrl={track.album?.cover_url}
+              imageUrl={track.cover_url ?? track.album?.cover_url}
               onSelect={() => openTrack(track)}
             />
           </li>
