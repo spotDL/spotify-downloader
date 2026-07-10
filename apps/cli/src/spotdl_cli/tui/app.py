@@ -37,6 +37,7 @@ from spotdl_cli.tui.screens.home import HomeSearchScreen
 from spotdl_cli.tui.screens.library import LibraryScreen
 from spotdl_cli.tui.screens.queue import QueueScreen
 from spotdl_cli.tui.screens.settings import SettingsScreen
+from spotdl_cli.tui.theme import SPOTDL_EMERALD
 from spotdl_cli.tui.widgets.nav_rail import NavRail
 from spotdl_cli.tui.widgets.patterns import LoadingPane
 from spotdl_cli.tui.widgets.status_bar import StatusBar
@@ -142,6 +143,11 @@ class SpotdlApp(App[None]):
         return self.connection_state == "unreachable" and self.session is not None
 
     async def on_mount(self) -> None:
+        # Recolour the whole app to the Emerald palette (spec: one palette, two
+        # renderers). Registered + selected before any screen mounts so every
+        # widget's semantic tokens resolve to the emerald/near-black system.
+        self.register_theme(SPOTDL_EMERALD)
+        self.theme = "spotdl-emerald"
         self.add_mode(_RELOAD_MODE, _ReloadingScreen)
         loaded = await self._vm_factory.app_state().load()
         self._adopt(loaded)
