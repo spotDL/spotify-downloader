@@ -19,7 +19,9 @@ export type FeatureFlag = keyof FeatureFlags;
  */
 export function useFeature(flag: FeatureFlag): boolean {
   const { data } = useConfig();
-  return data?.features[flag] ?? false;
+  // Double-chain: a malformed /config body (e.g. an HTML fallback served where
+  // the API should be) must fail the flag, not crash the shell.
+  return data?.features?.[flag] ?? false;
 }
 
 // `bootstrapAuth` (CONTRACT C boot-time refresh) lives with the interceptors in
@@ -43,20 +45,20 @@ function ConfigErrorScreen({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="flex min-h-svh items-center justify-center bg-bg p-6">
       <form
-        className="w-full max-w-md rounded-card border border-black/10 bg-surface p-6 shadow-card dark:border-white/10"
+        className="w-full max-w-md rounded-lg border border-border bg-card p-6"
         onSubmit={(e) => {
           e.preventDefault();
           setApiBaseUrl(value.trim());
           onRetry();
         }}
       >
-        <h1 className="text-lg font-semibold text-fg">Can&apos;t reach the server</h1>
-        <p className="mt-2 text-sm text-muted">
+        <h1 className="font-display text-lg font-semibold text-foreground">Can&apos;t reach the server</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
           spotDL couldn&apos;t load its configuration. If the server lives at a
           different address, set its URL below. Leave it blank to use the server
           that served this page.
         </p>
-        <label className="mt-4 block text-sm font-medium text-fg" htmlFor="api-base-url">
+        <label className="mt-4 block text-sm font-medium text-foreground" htmlFor="api-base-url">
           API base URL
         </label>
         <Input

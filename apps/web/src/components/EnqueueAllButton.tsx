@@ -46,7 +46,7 @@ export function EnqueueAllButton({
       {enqueued ? (
         <Link
           to="/downloads"
-          className="text-xs font-medium text-emerald hover:underline"
+          className="text-xs font-medium text-primary hover:underline"
         >
           View downloads →
         </Link>

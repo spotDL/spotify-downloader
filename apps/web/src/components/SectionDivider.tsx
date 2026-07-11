@@ -1,30 +1,18 @@
 import type { ReactNode } from "react";
+import { cn } from "../lib/utils";
 
-// A section heading with a colour-tinted accent bar + icon and an optional
+// A section heading with a phosphor-amber accent bar + icon and an optional
 // count. Used to divide search sections (Artists / Albums / Songs / Playlists)
-// and the artist page's Top tracks / Discography (mockup `.section-title`).
-
+// and the artist page's Top tracks / Discography. The `accent` prop is retained
+// for API compatibility; the Control Room system uses a single amber accent.
 type Accent = "emerald" | "gold" | "teal" | "deezer";
-
-const BAR: Record<Accent, string> = {
-  emerald: "bg-emerald",
-  gold: "bg-gold",
-  teal: "bg-teal",
-  deezer: "bg-deezer",
-};
-const ICON: Record<Accent, string> = {
-  emerald: "text-emerald",
-  gold: "text-gold",
-  teal: "text-teal",
-  deezer: "text-deezer",
-};
 
 export function SectionDivider({
   title,
   count,
-  accent = "emerald",
+  accent: _accent = "emerald",
   icon,
-  className = "",
+  className,
 }: {
   title: string;
   count?: number;
@@ -33,12 +21,14 @@ export function SectionDivider({
   className?: string;
 }) {
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
-      <span className={`h-4 w-1 rounded-full ${BAR[accent]}`} aria-hidden />
-      {icon ? <span className={`${ICON[accent]}`}>{icon}</span> : null}
-      <h2 className="text-[15px] font-bold tracking-tight text-fg">{title}</h2>
+    <div className={cn("flex items-center gap-3", className)}>
+      <span className="h-4 w-1 rounded-full bg-primary" aria-hidden />
+      {icon ? <span className="text-primary">{icon}</span> : null}
+      <h2 className="font-display text-[15px] font-semibold tracking-tight text-foreground">
+        {title}
+      </h2>
       {count !== undefined ? (
-        <span className="font-mono text-xs text-muted tabular-nums">{count}</span>
+        <span className="font-mono text-xs text-muted-foreground tnum">{count}</span>
       ) : null}
     </div>
   );

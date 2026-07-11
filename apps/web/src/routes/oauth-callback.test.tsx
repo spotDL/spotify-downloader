@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
+import { toast } from "../components/Toasts";
 import { renderApp } from "../test/render-app";
 import { meQueryKey } from "../api/mutations";
 import { useAuthStore } from "../stores/auth";
@@ -43,12 +44,19 @@ describe("oauth callback", () => {
 
   it("toasts and redirects to /login on #error, stripping the fragment", async () => {
     setHash("#error=oauth_state_mismatch");
+    // The toast shim delegates to sonner, whose viewport animates toasts in via
+    // timers jsdom never fires — assert the shim call instead of toast DOM.
+    const pushSpy = vi.spyOn(toast, "push");
 
     renderApp("/auth/callback/github");
 
-    expect(
-      await screen.findByText("Sign-in failed (oauth_state_mismatch)."),
-    ).toBeInTheDocument();
+    await waitFor(() =>
+      expect(pushSpy).toHaveBeenCalledWith(
+        "Sign-in failed (oauth_state_mismatch).",
+        "error",
+      ),
+    );
+    pushSpy.mockRestore();
     expect(window.location.hash).toBe("");
     expect(useAuthStore.getState().accessToken).toBeNull();
     // Redirected to the login page.

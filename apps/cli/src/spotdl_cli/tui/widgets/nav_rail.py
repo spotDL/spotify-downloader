@@ -16,18 +16,19 @@ from textual.app import ComposeResult
 from textual.widgets import Static
 
 from spotdl_cli.tui.messages import NavSelected
+from spotdl_cli.tui.theme import ERROR, FAINT, SUCCESS, WARNING
 
 if TYPE_CHECKING:
     from spotdl_cli.tui.app import Section, SpotdlApp
     from spotdl_cli.viewmodels.app_state import SessionSnapshot
 
-# transport-reachability → dot class + colour word (degraded is folded in from the
-# session on top of an "ok" transport, so it is not one of these).
+# transport-reachability → dot class + palette colour (degraded is folded in from
+# the session on top of an "ok" transport, so it is not one of these).
 _DOT: dict[str, tuple[str, str]] = {
-    "ok": ("nav-dot--ok", "green"),
-    "degraded": ("nav-dot--degraded", "yellow"),
-    "unreachable": ("nav-dot--unreachable", "red"),
-    "connecting": ("nav-dot--connecting", "dim"),
+    "ok": ("nav-dot--ok", SUCCESS),
+    "degraded": ("nav-dot--degraded", WARNING),
+    "unreachable": ("nav-dot--unreachable", ERROR),
+    "connecting": ("nav-dot--connecting", FAINT),
 }
 
 

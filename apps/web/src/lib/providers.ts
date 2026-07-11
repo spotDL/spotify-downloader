@@ -11,14 +11,14 @@ const PROVIDER_META: Record<string, ProviderMeta> = {
   ytmusic: { label: "YouTube Music", dotClass: "bg-youtube" },
   youtube: { label: "YouTube", dotClass: "bg-youtube" },
   soundcloud: { label: "SoundCloud", dotClass: "bg-soundcloud" },
-  bandcamp: { label: "Bandcamp", dotClass: "bg-teal" },
+  bandcamp: { label: "Bandcamp", dotClass: "bg-info" },
   piped: { label: "Piped", dotClass: "bg-youtube" },
   musicbrainz: { label: "MusicBrainz", dotClass: "bg-musicbrainz" },
-  lastfm: { label: "Last.fm", dotClass: "bg-red" },
-  genius: { label: "Genius", dotClass: "bg-gold" },
-  musixmatch: { label: "Musixmatch", dotClass: "bg-teal" },
-  lrclib: { label: "LRCLIB", dotClass: "bg-emerald" },
-  azlyrics: { label: "AZLyrics", dotClass: "bg-ink-2" },
+  lastfm: { label: "Last.fm", dotClass: "bg-destructive" },
+  genius: { label: "Genius", dotClass: "bg-warning" },
+  musixmatch: { label: "Musixmatch", dotClass: "bg-info" },
+  lrclib: { label: "LRCLIB", dotClass: "bg-success" },
+  azlyrics: { label: "AZLyrics", dotClass: "bg-faint" },
 };
 
 /** Human label + accent-dot class for a provider id (falls back gracefully). */
@@ -26,7 +26,7 @@ export function providerMeta(provider: string): ProviderMeta {
   return (
     PROVIDER_META[provider] ?? {
       label: provider.charAt(0).toUpperCase() + provider.slice(1),
-      dotClass: "bg-ink-2",
+      dotClass: "bg-faint",
     }
   );
 }

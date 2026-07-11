@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { motion, useReducedMotion } from "motion/react";
+import { Search } from "lucide-react";
 import { useResolve } from "../api/queries";
 import type { EntityEnvelope } from "../api/generated/types.gen";
 import { reportError } from "../lib/report-error";
@@ -8,7 +10,6 @@ import { Button } from "../components/Button";
 import { DegradedBanner } from "../components/DegradedBanner";
 import { Input } from "../components/Input";
 import { Spinner } from "../components/Spinner";
-import { SearchIcon } from "../components/icons";
 import { useUiStore } from "../stores/ui";
 
 export const Route = createFileRoute("/")({
@@ -38,8 +39,23 @@ function entityTarget(entity: EntityEnvelope): ResolveTarget | null {
 
 const HINTS = ["Spotify URL", "YouTube URL", "Artist - Song"];
 
+// A subtle one-shot stagger on the hero (respecting reduce-motion).
+const heroContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.03 } },
+};
+const heroLine = {
+  hidden: { opacity: 0, y: 8 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.32, ease: [0.16, 1, 0.3, 1] as const },
+  },
+};
+
 function Home() {
   const navigate = useNavigate();
+  const reduceMotion = useReducedMotion();
   const [query, setQuery] = useState("");
   const [url, setUrl] = useState("");
   const [degraded, setDegraded] = useState<{
@@ -98,18 +114,36 @@ function Home() {
   };
 
   return (
-    <div className="mx-auto flex min-h-[70vh] max-w-2xl flex-col justify-center gap-8 px-6 py-12">
-      <section className="animate-rise flex flex-col items-center gap-3 text-center">
-        <h1 className="text-5xl font-bold tracking-tight text-fg">
-          spot<span className="text-emerald">DL</span>
-        </h1>
-        <p className="max-w-md text-muted">
-          Search for a track, album, artist, or playlist — or paste a link.
-        </p>
-      </section>
+    <div className="mx-auto flex min-h-[64vh] max-w-2xl flex-col justify-center gap-10 py-8 sm:py-16">
+      <motion.section
+        variants={reduceMotion ? undefined : heroContainer}
+        initial={reduceMotion ? false : "hidden"}
+        animate="show"
+        className="flex flex-col gap-6"
+      >
+        <motion.p
+          variants={reduceMotion ? undefined : heroLine}
+          className="text-xs font-medium uppercase tracking-wider text-faint"
+        >
+          Music catalog console
+        </motion.p>
 
-      <div className="flex flex-col gap-4">
-        <form
+        <motion.h1
+          variants={reduceMotion ? undefined : heroLine}
+          className="font-display text-4xl font-bold tracking-tight sm:text-5xl"
+        >
+          Download music from anywhere
+        </motion.h1>
+
+        <motion.p
+          variants={reduceMotion ? undefined : heroLine}
+          className="max-w-lg text-muted-foreground"
+        >
+          Search for a track, album, artist, or playlist — or paste a link.
+        </motion.p>
+
+        <motion.form
+          variants={reduceMotion ? undefined : heroLine}
           role="search"
           className="flex flex-col gap-2 sm:flex-row"
           onSubmit={(e) => {
@@ -119,38 +153,38 @@ function Home() {
           }}
         >
           <div className="relative flex-1">
-            <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 size-5 -translate-y-1/2 text-muted" />
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-faint" />
             <Input
               type="search"
               aria-label="Search"
               placeholder="e.g. Daft Punk — Get Lucky"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="h-12 rounded-card pl-11 text-base"
+              className="h-12 pl-11 text-base"
             />
           </div>
-          <Button
-            type="submit"
-            className="h-12 rounded-card px-6 text-base font-semibold"
-          >
+          <Button type="submit" className="h-12 px-6 text-base font-semibold">
             Search
           </Button>
-        </form>
+        </motion.form>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[11px] uppercase tracking-wide text-muted">
+        <motion.div
+          variants={reduceMotion ? undefined : heroLine}
+          className="flex flex-wrap items-center gap-2"
+        >
+          <span className="text-xs font-medium uppercase tracking-wider text-faint">
             Accepts
           </span>
           {HINTS.map((hint) => (
             <span
               key={hint}
-              className="rounded-full border border-line-soft bg-elevated px-2.5 py-1 font-mono text-[11px] text-ink-2"
+              className="rounded-full border border-border bg-card px-2.5 py-1 font-mono text-xs text-muted-foreground tnum"
             >
               {hint}
             </span>
           ))}
-        </div>
-      </div>
+        </motion.div>
+      </motion.section>
 
       <form className="flex flex-col gap-2 sm:flex-row" onSubmit={onResolve}>
         <Input
@@ -169,13 +203,13 @@ function Home() {
       {recent.length > 0 ? (
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase tracking-wide text-muted">
+            <span className="text-xs font-medium uppercase tracking-wider text-faint">
               Recent searches
             </span>
             <button
               type="button"
               onClick={clearRecent}
-              className="font-mono text-[11px] text-muted hover:text-fg"
+              className="font-mono text-xs text-muted-foreground transition-colors hover:text-foreground"
             >
               clear
             </button>
@@ -186,7 +220,7 @@ function Home() {
                 key={r}
                 type="button"
                 onClick={() => void navigate({ to: "/search", search: { q: r } })}
-                className="rounded-full border border-line-soft bg-elevated px-3 py-1.5 text-sm text-ink-2 transition-colors hover:bg-hover hover:text-fg"
+                className="rounded-md border border-border bg-card px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-elevated hover:text-foreground"
               >
                 {r}
               </button>

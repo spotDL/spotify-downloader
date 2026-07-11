@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { Disc3, Music, RefreshCw } from "lucide-react";
 import type { AlbumOut, ArtistOut } from "../api/generated/types.gen";
 import { useArtist, useForceRefreshArtist } from "../api/queries";
 import { useSubmitDownload } from "../api/downloads";
@@ -8,17 +9,14 @@ import { useOpenEntity } from "../lib/use-open-entity";
 import { formatFollowers } from "../lib/format";
 import { ActionButton } from "../components/ActionButton";
 import { AlbumGridCard } from "../components/AlbumGridCard";
-import { Badge } from "../components/Badge";
 import { Card } from "../components/Card";
 import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
-import { HeroBackdrop } from "../components/HeroBackdrop";
 import { SectionDivider } from "../components/SectionDivider";
 import { SourcesPanel, StatsCard } from "../components/SourcesPanel";
 import { Spinner } from "../components/Spinner";
 import { StatChip } from "../components/StatChip";
 import { TrackTable } from "../components/TrackTable";
-import { DiscIcon, NoteIcon, RefreshIcon } from "../components/icons";
 import { toast } from "../components/Toasts";
 
 export const Route = createFileRoute("/artists/$artistId")({
@@ -38,18 +36,16 @@ function ArtistPage() {
   }
   if (query.isError) {
     return (
-      <div className="mx-auto max-w-[1080px] px-6 py-16">
-        <ErrorState
-          description={
-            isApiError(query.error) ? query.error.message : "Couldn't load this artist."
-          }
-          action={
-            <ActionButton variant="ghost" onClick={() => void query.refetch()}>
-              Retry
-            </ActionButton>
-          }
-        />
-      </div>
+      <ErrorState
+        description={
+          isApiError(query.error) ? query.error.message : "Couldn't load this artist."
+        }
+        action={
+          <ActionButton variant="ghost" onClick={() => void query.refetch()}>
+            Retry
+          </ActionButton>
+        }
+      />
     );
   }
 
@@ -77,124 +73,104 @@ function ArtistDetail({ artist }: { artist: ArtistOut }) {
     artist.popularity != null && artist.popularity >= 0 && artist.popularity <= 100
       ? artist.popularity
       : null;
-  const hasStats = artist.followers != null || popularity != null;
 
   // The stored discography: metadata-only album previews, each carrying a
   // provider/provider_id source ref for resolve-on-open (like search cards).
   const albums = artist.albums ?? [];
 
   return (
-    <div>
-      <div className="grain relative overflow-hidden border-b border-line-soft">
-        <HeroBackdrop coverUrl={artist.header_url ?? artist.image_url} />
-        <div className="relative z-[2] mx-auto max-w-[1080px] px-6">
-          <div className="flex flex-col items-start gap-7 pt-11 pb-8 sm:flex-row sm:items-end">
-            <div className="relative shrink-0">
-              <div
-                aria-hidden
-                className="absolute -inset-2.5 rounded-full opacity-50 blur-2xl"
-                style={{
-                  background: "conic-gradient(from 0deg, #00d084, #4ecdc4, #00d084)",
-                }}
-              />
-              {artist.image_url ? (
-                <img
-                  src={artist.image_url}
-                  alt=""
-                  className="relative size-40 rounded-full object-cover ring-2 ring-white/10"
-                />
-              ) : (
-                <div className="relative grid size-40 place-items-center rounded-full bg-elevated text-4xl font-bold text-ink-2 ring-2 ring-white/10">
-                  {artistInitials(artist.name)}
-                </div>
-              )}
-            </div>
-            <div className="min-w-0 flex-1 pb-1">
-              <div className="mb-3.5 flex flex-wrap gap-2">
-                <Badge tone="warn">Artist</Badge>
-                {artist.country ? <Badge tone="muted">{artist.country}</Badge> : null}
-              </div>
-              <h1 className="text-[clamp(32px,5.5vw,58px)] font-black leading-none tracking-[-0.03em] text-fg">
-                {artist.name}
-              </h1>
-              {hasStats ? (
-                <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
-                  {artist.followers != null ? (
-                    <StatChip label="followers">
-                      {formatFollowers(artist.followers)}
-                    </StatChip>
-                  ) : null}
-                  {popularity != null ? (
-                    <StatChip label="popularity">{popularity}</StatChip>
-                  ) : null}
-                </div>
-              ) : null}
-              {genres.length > 0 ? (
-                <div className="mt-4 flex flex-wrap gap-1.5">
-                  {genres.slice(0, 5).map((g) => (
-                    <span
-                      key={g}
-                      className="rounded-full border border-line-soft bg-elevated px-2.5 py-1 text-[11px] text-ink-2"
-                    >
-                      {g}
-                    </span>
-                  ))}
-                  {genres.length > 5 ? (
-                    <span className="rounded-full border border-line-soft bg-elevated px-2.5 py-1 text-[11px] text-muted">
-                      +{genres.length - 5}
-                    </span>
-                  ) : null}
-                </div>
-              ) : null}
-              {/* No Enqueue all: an artist is NOT a downloadable batch (Plan 8's
-                  `unsupported_entity` rule). Enqueue is per-track / per-album. */}
-              <div className="mt-5">
-                <ActionButton
-                  variant="ghost"
-                  icon={<RefreshIcon className="size-4" />}
-                  disabled={refreshing}
-                  onClick={() => {
-                    onRefresh();
-                    toast.info("Refreshing from providers…");
-                  }}
-                >
-                  {refreshing ? "Refreshing…" : "Refresh"}
-                </ActionButton>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mx-auto max-w-[1080px] px-6 py-7">
-        <div className="grid gap-8 lg:grid-cols-[1.9fr_1fr]">
-          <div className="flex min-w-0 flex-col gap-8">
-        <section className="flex flex-col gap-4">
-          <SectionDivider
-            title="Top tracks"
-            accent="emerald"
-            icon={<NoteIcon className="size-4" />}
-          />
-          {tracks.length === 0 ? (
-            <EmptyState title="No tracks" description="No top tracks for this artist." />
+    <div className="space-y-8">
+      <header className="flex flex-col items-start gap-6 sm:flex-row sm:items-end">
+        <div className="shrink-0">
+          {artist.image_url ? (
+            <img
+              src={artist.image_url}
+              alt=""
+              className="size-36 rounded-full border border-border object-cover sm:size-40"
+            />
           ) : (
-            <TrackTable tracks={tracks} />
+            <div className="grid size-36 place-items-center rounded-full border border-border bg-elevated font-display text-4xl font-bold text-muted-foreground sm:size-40">
+              {artistInitials(artist.name)}
+            </div>
           )}
-        </section>
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-medium uppercase tracking-wider text-faint">Artist</p>
+          <h1 className="mt-1.5 font-display text-3xl font-bold tracking-tight text-foreground">
+            {artist.name}
+          </h1>
 
-        {albums.length > 0 ? <Discography albums={albums} downloading={submit.isPending} /> : null}
+          <div className="mt-4 flex flex-wrap items-baseline gap-x-6 gap-y-2">
+            {artist.followers != null ? (
+              <StatChip label="followers">{formatFollowers(artist.followers)}</StatChip>
+            ) : null}
+            {popularity != null ? (
+              <StatChip label="popularity">{popularity}</StatChip>
+            ) : null}
+            {artist.country ? <StatChip label="country">{artist.country}</StatChip> : null}
           </div>
 
-          <aside className="flex min-w-0 flex-col gap-5">
-            {bio ? (
-              <Card title="About">
-                <p className="text-[14px] leading-relaxed text-ink-2">{bio}</p>
-              </Card>
-            ) : null}
-            <StatsCard id={artist.id} />
-            <SourcesPanel entityType="artist" id={artist.id} />
-          </aside>
+          {genres.length > 0 ? (
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              {genres.slice(0, 5).map((g) => (
+                <span
+                  key={g}
+                  className="rounded-md bg-surface px-2 py-0.5 text-xs text-muted-foreground"
+                >
+                  {g}
+                </span>
+              ))}
+              {genres.length > 5 ? (
+                <span className="rounded-md bg-surface px-2 py-0.5 text-xs text-faint">
+                  +{genres.length - 5}
+                </span>
+              ) : null}
+            </div>
+          ) : null}
+
+          {/* No Enqueue all: an artist is NOT a downloadable batch (Plan 8's
+              `unsupported_entity` rule). Enqueue is per-track / per-album. */}
+          <div className="mt-5">
+            <ActionButton
+              variant="ghost"
+              icon={<RefreshCw className="size-4" />}
+              disabled={refreshing}
+              onClick={() => {
+                onRefresh();
+                toast.info("Refreshing from providers…");
+              }}
+            >
+              {refreshing ? "Refreshing…" : "Refresh"}
+            </ActionButton>
+          </div>
         </div>
+      </header>
+
+      <div className="grid gap-8 lg:grid-cols-[1.9fr_1fr]">
+        <div className="flex min-w-0 flex-col gap-8">
+          <section className="flex flex-col gap-4">
+            <SectionDivider title="Top tracks" icon={<Music className="size-4" />} />
+            {tracks.length === 0 ? (
+              <EmptyState title="No tracks" description="No top tracks for this artist." />
+            ) : (
+              <TrackTable tracks={tracks} />
+            )}
+          </section>
+
+          {albums.length > 0 ? (
+            <Discography albums={albums} downloading={submit.isPending} />
+          ) : null}
+        </div>
+
+        <aside className="flex min-w-0 flex-col gap-5">
+          {bio ? (
+            <Card title="About">
+              <p className="text-sm leading-relaxed text-muted-foreground">{bio}</p>
+            </Card>
+          ) : null}
+          <StatsCard id={artist.id} />
+          <SourcesPanel entityType="artist" id={artist.id} />
+        </aside>
       </div>
     </div>
   );
@@ -257,9 +233,8 @@ function Discography({ albums, downloading }: { albums: AlbumOut[]; downloading:
     <section className="flex flex-col gap-4">
       <SectionDivider
         title="Discography"
-        accent="teal"
         count={albums.length}
-        icon={<DiscIcon className="size-4" />}
+        icon={<Disc3 className="size-4" />}
       />
       {tabs.length > 1 ? (
         <div role="tablist" aria-label="Filter discography" className="flex flex-wrap gap-2">
@@ -270,11 +245,11 @@ function Discography({ albums, downloading }: { albums: AlbumOut[]; downloading:
               role="tab"
               aria-selected={filter === tab.key}
               onClick={() => setFilter(tab.key)}
-              className={`rounded-full border px-3 py-1 text-[12px] transition-colors ${
+              className={
                 filter === tab.key
-                  ? "border-teal bg-teal/15 text-fg"
-                  : "border-line-soft bg-elevated text-ink-2 hover:text-fg"
-              }`}
+                  ? "rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors"
+                  : "rounded-md bg-surface px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-elevated hover:text-foreground"
+              }
             >
               {tab.label}
             </button>

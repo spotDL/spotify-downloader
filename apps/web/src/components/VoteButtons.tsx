@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { cn } from "../lib/utils";
 
 // CONTRACT H — VoteButtons. Up/down toggle reflecting the caller's current vote,
 // retracting on a re-click, applied optimistically (local state flips before the
@@ -13,7 +14,7 @@ export function VoteButtons({
   canVote,
   onVote,
   netScore,
-  className = "",
+  className,
 }: {
   /** The viewer's current vote (1 up, -1 down, 0 none). */
   value?: VoteValue;
@@ -35,9 +36,11 @@ export function VoteButtons({
   };
 
   const tooltip = canVote ? undefined : "Sign in to vote";
+  const buttonBase =
+    "rounded px-1.5 py-0.5 text-sm text-muted-foreground transition-colors hover:bg-elevated hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50";
 
   return (
-    <div role="group" aria-label="Vote" className={`flex items-center gap-1 ${className}`}>
+    <div role="group" aria-label="Vote" className={cn("flex items-center gap-1", className)}>
       <button
         type="button"
         aria-label="Upvote"
@@ -45,12 +48,12 @@ export function VoteButtons({
         disabled={!canVote}
         title={tooltip}
         onClick={() => cast(1)}
-        className="rounded px-1.5 py-0.5 text-sm text-muted hover:bg-black/5 hover:text-fg disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-white/10 aria-pressed:text-brand-600"
+        className={cn(buttonBase, "aria-pressed:text-primary")}
       >
         ▲
       </button>
       {netScore !== undefined ? (
-        <span aria-live="polite" className="min-w-6 text-center text-xs tabular-nums text-fg">
+        <span aria-live="polite" className="min-w-6 text-center text-xs tnum text-foreground">
           {netScore >= 0 ? `+${netScore}` : netScore}
         </span>
       ) : null}
@@ -61,7 +64,7 @@ export function VoteButtons({
         disabled={!canVote}
         title={tooltip}
         onClick={() => cast(-1)}
-        className="rounded px-1.5 py-0.5 text-sm text-muted hover:bg-black/5 hover:text-fg disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-white/10 aria-pressed:text-danger"
+        className={cn(buttonBase, "aria-pressed:text-destructive")}
       >
         ▼
       </button>

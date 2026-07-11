@@ -21,6 +21,7 @@ from textual.reactive import reactive
 from textual.widgets import Input, Static
 
 from spotdl_cli.tui.screens.base import SpotdlScreen
+from spotdl_cli.tui.theme import segmented_meter
 from spotdl_cli.tui.widgets.patterns import EmptyState
 from spotdl_cli.tui.widgets.queue_table import QueueTable
 from spotdl_cli.viewmodels.base import LoadState
@@ -161,5 +162,4 @@ def _counts_line(snapshot: QueueSnapshot) -> str:
 
 
 def _overall_bar(percent: int) -> str:
-    filled = round(percent / 100 * _BAR_WIDTH)
-    return f"{'█' * filled}{'░' * (_BAR_WIDTH - filled)} {percent:3d}%"
+    return f"{segmented_meter(percent / 100, _BAR_WIDTH)} {percent:3d}%"

@@ -12,6 +12,8 @@ export const Route = createFileRoute("/admin/users")({
 
 const PAGE_SIZE = 20;
 
+const TH = "px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-faint";
+
 function AdminUsers() {
   const [offset, setOffset] = useState(0);
   const users = useAdminUsers({ limit: PAGE_SIZE, offset });
@@ -26,50 +28,69 @@ function AdminUsers() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="overflow-x-auto rounded-card border border-line-soft">
+      <div className="overflow-x-auto rounded-lg border border-border bg-card">
         <table className="w-full text-left text-[13px]">
-          <thead className="bg-elevated text-[11px] uppercase tracking-wide text-ink-2">
-            <tr>
-              <th className="px-4 py-2.5 font-semibold">User</th>
-              <th className="px-4 py-2.5 font-semibold">Email</th>
-              <th className="px-4 py-2.5 font-semibold">Role</th>
-              <th className="px-4 py-2.5 font-semibold">Status</th>
+          <thead className="bg-surface">
+            <tr className="border-b border-border">
+              <th className={TH}>User</th>
+              <th className={TH}>Email</th>
+              <th className={TH}>Role</th>
+              <th className={TH}>Status</th>
+              <th className={TH}>Joined</th>
             </tr>
           </thead>
           <tbody>
-            {items.map((user) => (
-              <tr
-                key={user.id}
-                className="border-t border-line-soft bg-void transition-colors hover:bg-surface"
-              >
-                <td className="px-4 py-2.5 font-medium text-fg">
-                  {user.display_name ?? "—"}
-                </td>
-                <td className="px-4 py-2.5 font-mono text-xs text-muted">
-                  {user.email}
-                </td>
-                <td className="px-4 py-2.5">
-                  {user.is_admin ? (
-                    <Badge tone="brand">Admin</Badge>
-                  ) : (
-                    <Badge tone="muted">User</Badge>
-                  )}
-                </td>
-                <td className="px-4 py-2.5">
-                  {user.is_active ? (
-                    <Badge tone="neutral">Active</Badge>
-                  ) : (
-                    <Badge tone="danger">Inactive</Badge>
-                  )}
-                </td>
-              </tr>
-            ))}
+            {items.map((user) => {
+              const initial = (user.display_name ?? user.email)
+                .charAt(0)
+                .toUpperCase();
+              return (
+                <tr
+                  key={user.id}
+                  className="border-t border-border transition-colors hover:bg-elevated/50"
+                >
+                  <td className="px-4 py-2.5">
+                    <div className="flex items-center gap-3">
+                      <span
+                        aria-hidden
+                        className="flex size-8 shrink-0 items-center justify-center rounded-md bg-elevated font-mono text-sm font-semibold text-foreground"
+                      >
+                        {initial}
+                      </span>
+                      <span className="font-medium text-foreground">
+                        {user.display_name ?? "—"}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-2.5 font-mono text-xs text-muted-foreground tnum">
+                    {user.email}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    {user.is_admin ? (
+                      <Badge tone="brand">Admin</Badge>
+                    ) : (
+                      <Badge tone="muted">User</Badge>
+                    )}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    {user.is_active ? (
+                      <Badge tone="neutral">Active</Badge>
+                    ) : (
+                      <Badge tone="danger">Inactive</Badge>
+                    )}
+                  </td>
+                  <td className="px-4 py-2.5 font-mono text-xs text-muted-foreground tnum">
+                    {new Date(user.created_at).toLocaleDateString()}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
       <div className="flex items-center justify-between gap-3">
-        <p className="font-mono text-xs text-muted tabular-nums">
+        <p className="font-mono text-xs text-muted-foreground tnum">
           {start}–{end} of {total}
         </p>
         <div className="flex gap-2">

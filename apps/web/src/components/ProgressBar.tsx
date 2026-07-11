@@ -1,11 +1,16 @@
+import { cn } from "../lib/utils";
+
 // CONTRACT H — ProgressBar. A 0–1 determinate bar with a phase label; renders
-// indeterminate (animated, no aria-valuenow) when `percent` is null. Accessible
-// as an ARIA `progressbar` on a 0–100 scale.
+// indeterminate (pulsing, no aria-valuenow) when `percent` is null. Rendered in
+// the Control Room segmented-meter language while remaining an ARIA
+// `progressbar` on a 0–100 scale.
+
+const CELLS = 16;
 
 export function ProgressBar({
   percent,
   phase,
-  className = "",
+  className,
 }: {
   /** 0–1 completion, or null for an indeterminate (unknown-progress) bar. */
   percent: number | null;
@@ -15,11 +20,13 @@ export function ProgressBar({
   const determinate = percent !== null;
   const clamped = determinate ? Math.min(1, Math.max(0, percent)) : 0;
   const pct = Math.round(clamped * 100);
+  const lit = determinate ? Math.round(clamped * CELLS) : 0;
+  const inFlight = determinate && pct > 0 && pct < 100;
 
   return (
-    <div className={`flex flex-col gap-1 ${className}`}>
+    <div className={cn("flex flex-col gap-1", className)}>
       {phase !== undefined ? (
-        <span className="text-xs text-muted">{phase}</span>
+        <span className="text-xs text-muted-foreground">{phase}</span>
       ) : null}
       <div
         role="progressbar"
@@ -29,16 +36,17 @@ export function ProgressBar({
         // Omit aria-valuenow entirely when indeterminate — the correct ARIA
         // signal for "progress unknown".
         aria-valuenow={determinate ? pct : undefined}
-        className="h-2 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10"
+        className="meter h-2 w-full"
+        style={{ ["--meter-cells" as string]: CELLS }}
       >
-        {determinate ? (
-          <div
-            className="h-full rounded-full bg-brand-500 transition-[width]"
-            style={{ width: `${pct}%` }}
+        {Array.from({ length: CELLS }, (_, i) => (
+          <span
+            key={i}
+            className="meter-cell"
+            data-lit={(determinate && i < lit) || undefined}
+            data-active={(!determinate || (inFlight && i === lit - 1)) || undefined}
           />
-        ) : (
-          <div className="h-full w-1/3 animate-pulse rounded-full bg-brand-500" />
-        )}
+        ))}
       </div>
     </div>
   );

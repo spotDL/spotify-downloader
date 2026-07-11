@@ -1,4 +1,5 @@
 import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router";
+import { ShieldCheck } from "lucide-react";
 import { meQueryOptions } from "../api/queries";
 
 // CONTRACT G — admin is gated on `auth && is_admin`. `auth` (a startup feature
@@ -23,19 +24,32 @@ export const Route = createFileRoute("/admin")({
   component: AdminLayout,
 });
 
+// Underline sub-nav tab. TanStack Router stamps data-status="active" on the
+// matching Link; the amber underline is the Control Room active marker.
 const TAB_CLASS =
-  "rounded-full border border-transparent px-3.5 py-1.5 text-xs font-semibold text-ink-2 transition-colors hover:bg-surface hover:text-fg data-[status=active]:border-emerald/30 data-[status=active]:bg-emerald/15 data-[status=active]:text-emerald";
+  "relative -mb-px border-b-2 border-transparent px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground data-[status=active]:border-primary data-[status=active]:text-foreground";
 
 function AdminLayout() {
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-6 px-6 py-8">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight text-fg">Admin</h1>
-        <p className="text-sm text-muted">
+    <div className="flex flex-col gap-6">
+      <header className="flex flex-col gap-1">
+        <p className="text-xs font-medium uppercase tracking-wider text-faint">
+          System
+        </p>
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="size-5 text-primary" aria-hidden />
+          <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">
+            Admin
+          </h1>
+        </div>
+        <p className="text-sm text-muted-foreground">
           Moderation and community-metadata review.
         </p>
-      </div>
-      <nav className="flex flex-wrap gap-1.5" aria-label="Admin sections">
+      </header>
+      <nav
+        className="flex flex-wrap gap-1 border-b border-border"
+        aria-label="Admin sections"
+      >
         <Link to="/admin" activeOptions={{ exact: true }} className={TAB_CLASS}>
           Overview
         </Link>

@@ -93,13 +93,13 @@ export function SyncedLyricsViewer({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <label className="flex items-center gap-2 text-sm text-muted">
+        <label className="flex items-center gap-2 text-sm text-muted-foreground">
           Source
           <select
             aria-label="Lyrics source"
             value={selected.id}
             onChange={(e) => setSelectedId(e.target.value)}
-            className="rounded-md border border-black/15 bg-bg px-2 py-1 text-sm text-fg dark:border-white/15"
+            className="rounded-md border border-border bg-surface px-2 py-1 text-sm text-foreground"
           >
             {lyrics.map((l) => (
               <option key={l.id} value={l.id}>
@@ -115,7 +115,7 @@ export function SyncedLyricsViewer({
       {parsed ? (
         <SyncedBody lines={parsed} />
       ) : (
-        <pre className="max-h-96 overflow-auto whitespace-pre-wrap rounded-card border border-black/10 bg-surface p-4 text-sm text-fg dark:border-white/10">
+        <pre className="max-h-96 overflow-auto whitespace-pre-wrap rounded-lg border border-border bg-surface p-4 text-sm text-foreground">
           {selected.text}
         </pre>
       )}
@@ -200,7 +200,7 @@ function SyncedBody({ lines }: { lines: LrcLine[] }) {
         onScroll={() => {
           if (!autoScrollingRef.current) setFollow(false);
         }}
-        className="max-h-96 overflow-auto rounded-card border border-black/10 bg-surface p-4 dark:border-white/10"
+        className="max-h-96 overflow-auto rounded-lg border border-border bg-surface p-4"
       >
         {lines.map((line, i) => (
           <p
@@ -209,8 +209,8 @@ function SyncedBody({ lines }: { lines: LrcLine[] }) {
             data-active={i === active}
             className={`py-1 text-sm transition-colors ${
               i === active
-                ? "font-medium text-fg"
-                : "text-muted"
+                ? "font-medium text-foreground"
+                : "text-muted-foreground"
             }`}
           >
             {line.text || " "}

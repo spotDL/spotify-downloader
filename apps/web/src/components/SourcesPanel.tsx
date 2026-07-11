@@ -7,6 +7,7 @@ import { useEntitySources } from "../api/queries";
 import { formatFollowers } from "../lib/format";
 import { providerMeta } from "../lib/providers";
 import { Card } from "./Card";
+import { Skeleton } from "./ui/skeleton";
 
 // The "Metadata sources" panel + a cross-platform "Reach" stat card. Both read
 // the same `/{entity}/{id}/sources` provenance (the merged canonical row is
@@ -26,7 +27,7 @@ function ProviderTag({ provider }: { provider: string }) {
   return (
     <span className="flex min-w-0 items-center gap-2">
       <span className={`size-2 shrink-0 rounded-full ${meta.dotClass}`} aria-hidden />
-      <span className="truncate text-[12.5px] font-medium text-fg">{meta.label}</span>
+      <span className="truncate text-[12.5px] font-medium text-foreground">{meta.label}</span>
     </span>
   );
 }
@@ -56,7 +57,7 @@ function sourceMetric(
   }
   if (parts.length === 0) return null;
   return (
-    <span className="shrink-0 font-mono tabular-nums text-[11.5px] text-ink-2">
+    <span className="shrink-0 font-mono tnum text-[11.5px] text-muted-foreground">
       {parts.join(" · ")}
     </span>
   );
@@ -76,8 +77,8 @@ export function SourcesPanel({
     return (
       <Card title="Metadata sources">
         <div className="flex flex-col gap-2">
-          <div className="shimmer h-6 rounded-lg" />
-          <div className="shimmer h-6 rounded-lg" />
+          <Skeleton className="h-6" />
+          <Skeleton className="h-6" />
         </div>
       </Card>
     );
@@ -86,7 +87,7 @@ export function SourcesPanel({
   if (query.isError) {
     return (
       <Card title="Metadata sources">
-        <p className="text-[12px] text-muted">Couldn't load sources.</p>
+        <p className="text-[12px] text-muted-foreground">Couldn't load sources.</p>
       </Card>
     );
   }
@@ -101,11 +102,11 @@ export function SourcesPanel({
         {sources.map((source, i) => (
           <div
             key={`${source.provider}-${i}`}
-            className="flex items-center justify-between gap-4 border-b border-line-soft py-2 last:border-b-0"
+            className="flex items-center justify-between gap-4 border-b border-border py-2 last:border-b-0"
           >
             <ProviderTag provider={source.provider} />
             {sourceMetric(entityType, source) ?? (
-              <span className="font-mono text-[11px] text-muted">
+              <span className="font-mono text-[11px] text-muted-foreground">
                 {source.entity_type}
               </span>
             )}
@@ -130,7 +131,7 @@ export function StatsCard({ id }: { id: string }) {
 
   return (
     <Card title="Reach across platforms">
-      <p className="mb-3 text-[11.5px] leading-snug text-muted">
+      <p className="mb-3 text-[11.5px] leading-snug text-muted-foreground">
         Provider-reported followers/fans — not licensed play counts.
       </p>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -143,10 +144,10 @@ export function StatsCard({ id }: { id: string }) {
               className={`size-2 shrink-0 rounded-full ${providerMeta(source.provider).dotClass}`}
               aria-hidden
             />
-            <span className="text-[12px] text-ink-2">
+            <span className="text-[12px] text-muted-foreground">
               {providerMeta(source.provider).label}
             </span>
-            <span className="font-mono tabular-nums text-[13px] font-semibold text-fg">
+            <span className="font-mono tnum text-[13px] font-semibold text-foreground">
               {formatFollowers(source.followers)}
             </span>
           </span>

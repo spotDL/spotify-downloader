@@ -1,72 +1,57 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
+import { Download, Flag, Home, Library, Settings, User } from "lucide-react";
 import { useMe } from "../../api/queries";
-import { Feature } from "../Feature";
-import {
-  DownloadIcon,
-  FlagIcon,
-  LibraryIcon,
-  SearchIcon,
-  SettingsIcon,
-  UserIcon,
-} from "../icons";
+import { useFeature } from "../../app/config";
+import { cn } from "../../lib/utils";
 
-// The left icon rail (mockup `.rail`): logo, the feature-gated primary links,
-// and a bottom account slot. One `<nav aria-label="Primary">` reflows to a
-// fixed bottom bar on mobile (never duplicated — the shell contract asserts a
-// single Primary nav with uniquely-named links). Active = emerald, driven by
-// TanStack Router's `data-status`.
+// The primary navigation: a grouped sidebar on desktop (Discover / Library /
+// System) with a meter-bar wordmark, reflowing to a fixed bottom bar on mobile.
+// One `<nav aria-label="Primary">` (never duplicated — the shell contract
+// asserts a single Primary nav with uniquely-named links). Active state is
+// amber, driven by TanStack Router's `data-status`. Feature gating and links
+// are unchanged from the icon rail; only the visuals/grouping differ.
 
-const ITEM =
-  "relative grid size-11 place-items-center rounded-xl text-muted transition-colors hover:bg-hover hover:text-ink-2 data-[status=active]:bg-emerald/10 data-[status=active]:text-emerald";
+const RAIL_LINK =
+  "flex items-center gap-3 rounded-md text-muted-foreground transition-colors hover:bg-elevated hover:text-foreground data-[status=active]:bg-elevated data-[status=active]:text-primary max-sm:size-11 max-sm:justify-center sm:px-2.5 sm:py-2";
 
-function RailLink({
-  to,
-  label,
-  children,
-}: {
-  to: string;
-  label: string;
-  children: ReactNode;
-}) {
+// The meter-bar wordmark: three amber cells + spotDL in the display face.
+function Wordmark() {
   return (
-    <Link to={to} aria-label={label} title={label} className={ITEM}>
-      {children}
+    <Link
+      to="/"
+      aria-label="spotDL home"
+      className="mb-2 hidden items-center gap-2.5 px-2.5 py-1 sm:flex"
+    >
+      <span
+        aria-hidden
+        className="flex size-8 items-end justify-center gap-[3px] rounded-md bg-primary p-[7px]"
+      >
+        <span className="h-2/5 w-[3px] rounded-[1px] bg-primary-foreground/80" />
+        <span className="h-full w-[3px] rounded-[1px] bg-primary-foreground" />
+        <span className="h-3/5 w-[3px] rounded-[1px] bg-primary-foreground/80" />
+      </span>
+      <span className="font-display text-lg font-bold tracking-tight">
+        spot<span className="text-primary">DL</span>
+      </span>
     </Link>
   );
 }
 
-function AccountSlot() {
-  const me = useMe();
-  if (me.data) {
-    const initials = accountInitials(me.data.display_name ?? me.data.email);
-    return (
-      <Link
-        to="/settings"
-        aria-label="Account"
-        title={me.data.display_name ?? me.data.email}
-        className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-emerald to-teal text-[13px] font-bold text-void"
-      >
-        {initials}
-      </Link>
-    );
-  }
+function Eyebrow({ children }: { children: ReactNode }) {
   return (
-    <RailLink to="/login" label="Sign in">
-      <UserIcon className="size-5" />
-    </RailLink>
+    <p className="hidden px-2.5 pb-1 pt-3 text-xs font-medium uppercase tracking-wider text-faint sm:block">
+      {children}
+    </p>
   );
 }
 
-// Admin is a privileged surface — the rail item appears only once ["me"]
-// confirms is_admin (the /admin route re-checks the same flag in its guard).
-function AdminRailLink() {
-  const me = useMe();
-  if (!me.data?.is_admin) return null;
+function RailLink({ to, label, icon }: { to: string; label: string; icon: ReactNode }) {
   return (
-    <RailLink to="/admin" label="Admin">
-      <FlagIcon className="size-5" />
-    </RailLink>
+    <Link to={to} aria-label={label} title={label} className={RAIL_LINK}>
+      {icon}
+      <span className="hidden text-sm font-medium sm:inline">{label}</span>
+    </Link>
   );
 }
 
@@ -77,44 +62,68 @@ function accountInitials(source: string): string {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
+function AccountSlot() {
+  const me = useMe();
+  if (me.data) {
+    const name = me.data.display_name ?? me.data.email;
+    return (
+      <Link
+        to="/settings"
+        aria-label="Account"
+        title={name}
+        className={cn(RAIL_LINK, "sm:gap-2.5")}
+      >
+        <span className="grid size-8 shrink-0 place-items-center rounded-md bg-elevated font-mono text-xs font-semibold text-primary">
+          {accountInitials(name)}
+        </span>
+        <span className="hidden min-w-0 flex-1 truncate text-sm font-medium sm:inline">{name}</span>
+      </Link>
+    );
+  }
+  return <RailLink to="/login" label="Sign in" icon={<User className="size-5 shrink-0" />} />;
+}
+
+// Admin is a privileged surface — the item appears only once `me` confirms
+// is_admin (the /admin route re-checks the same flag in its guard).
+function AdminRailLink() {
+  const me = useMe();
+  if (!me.data?.is_admin) return null;
+  return <RailLink to="/admin" label="Admin" icon={<Flag className="size-5 shrink-0" />} />;
+}
+
 export function NavRail() {
+  const hasDownloads = useFeature("downloads");
+  const hasLibrary = useFeature("library");
+  const hasAuth = useFeature("auth");
+  const showLibraryGroup = hasDownloads || hasLibrary;
+
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-30 flex h-16 flex-row items-center justify-around border-t border-line-soft bg-panel px-2 sm:sticky sm:inset-x-auto sm:top-0 sm:bottom-auto sm:h-svh sm:w-[76px] sm:flex-col sm:justify-start sm:gap-1.5 sm:border-t-0 sm:border-r sm:px-0 sm:py-3.5"
+      className="fixed inset-x-0 bottom-0 z-30 flex h-16 flex-row items-center justify-around border-t border-border bg-surface px-2 sm:sticky sm:inset-x-auto sm:top-0 sm:bottom-auto sm:h-svh sm:w-60 sm:flex-col sm:items-stretch sm:justify-start sm:gap-0.5 sm:overflow-y-auto sm:border-t-0 sm:border-r sm:px-3 sm:py-4"
     >
-      <span
-        aria-hidden
-        className="mb-5 hidden size-10 rounded-full shadow-[0_0_22px_-4px_var(--color-emerald)] sm:block"
-        style={{
-          background:
-            "radial-gradient(circle at 50% 50%, #0f1012 26%, transparent 27%), conic-gradient(from 200deg, #00d084, #4ecdc4, #00d084)",
-        }}
-      />
-      <RailLink to="/" label="Home">
-        <SearchIcon className="size-5" />
-      </RailLink>
-      <Feature flag="downloads">
-        <RailLink to="/downloads" label="Downloads">
-          <DownloadIcon className="size-5" />
-        </RailLink>
-      </Feature>
-      <Feature flag="library">
-        <RailLink to="/library" label="Library">
-          <LibraryIcon className="size-5" />
-        </RailLink>
-      </Feature>
-      <RailLink to="/settings" label="Settings">
-        <SettingsIcon className="size-5" />
-      </RailLink>
-      <Feature flag="auth">
-        <AdminRailLink />
-      </Feature>
-      <div className="sm:mt-auto">
-        <Feature flag="auth">
+      <Wordmark />
+
+      <Eyebrow>Discover</Eyebrow>
+      <RailLink to="/" label="Home" icon={<Home className="size-5 shrink-0" />} />
+
+      {showLibraryGroup ? <Eyebrow>Library</Eyebrow> : null}
+      {hasDownloads ? (
+        <RailLink to="/downloads" label="Downloads" icon={<Download className="size-5 shrink-0" />} />
+      ) : null}
+      {hasLibrary ? (
+        <RailLink to="/library" label="Library" icon={<Library className="size-5 shrink-0" />} />
+      ) : null}
+
+      <Eyebrow>System</Eyebrow>
+      <RailLink to="/settings" label="Settings" icon={<Settings className="size-5 shrink-0" />} />
+      {hasAuth ? <AdminRailLink /> : null}
+
+      {hasAuth ? (
+        <div className="sm:mt-auto sm:pt-2">
           <AccountSlot />
-        </Feature>
-      </div>
+        </div>
+      ) : null}
     </nav>
   );
 }

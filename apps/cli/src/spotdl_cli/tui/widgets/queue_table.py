@@ -17,12 +17,22 @@ from rich.text import Text
 from textual.coordinate import Coordinate
 from textual.widgets import DataTable
 
+from spotdl_cli.tui.theme import ERROR, FAINT, PRIMARY, SUCCESS, WARNING, segmented_meter
 from spotdl_cli.viewmodels.types import JobRow, QueueSnapshot
 
 _BAR_WIDTH = 12
 _DONE = frozenset({"completed", "skipped"})
 _BAD = frozenset({"failed", "cancelled"})
 _GLYPH = {"completed": "✓", "skipped": "»", "failed": "✗", "cancelled": "⊘", "running": "▸"}
+
+
+def _status_color(status: str) -> str:
+    """Palette hex for a job status: green done, red failed/cancelled, amber running."""
+    if status in _DONE:
+        return SUCCESS
+    if status in _BAD:
+        return ERROR
+    return PRIMARY
 
 
 class QueueTable(DataTable[Text]):
@@ -102,8 +112,8 @@ def _grouped_keys(snapshot: QueueSnapshot) -> list[str]:
 
 
 def _header_cells(batch_id: str, group: list[JobRow]) -> tuple[Text, Text, Text, Text]:
-    label = Text(f"▸ {_batch_title(batch_id, group)} · {len(group)} tracks", style="dim bold")
-    return (Text("", style="dim"), label, Text(""), Text(""))
+    label = Text(f"▸ {_batch_title(batch_id, group)} · {len(group)} tracks", style=f"bold {FAINT}")
+    return (Text(""), label, Text(""), Text(""))
 
 
 def _batch_title(batch_id: str, group: list[JobRow]) -> str:
@@ -120,26 +130,23 @@ def _cells(job: JobRow) -> tuple[Text, Text, Text, Text]:
 
 
 def _bar(percent: int, status: str) -> Text:
-    filled = round(percent / 100 * _BAR_WIDTH)
-    style = "green" if status in _DONE else "red" if status in _BAD else "cyan"
-    text = Text()
-    text.append("█" * filled + "░" * (_BAR_WIDTH - filled), style=style)
-    text.append(f" {percent:3d}%")
+    colour = _status_color(status)
+    text = Text.from_markup(segmented_meter(percent / 100, _BAR_WIDTH, lit_color=colour))
+    text.append(f" {percent:3d}%", style=FAINT)
     return text
 
 
 def _status(job: JobRow) -> Text:
     glyph = _GLYPH.get(job.status, "·")
-    style = "green" if job.status in _DONE else "red" if job.status in _BAD else "cyan"
-    return Text(f"{glyph} {job.status}", style=style)
+    return Text(f"{glyph} {job.status}", style=_status_color(job.status))
 
 
 def _step(job: JobRow) -> Text:
     """The detail cell: failure/skip reason, the (server) output path, or the phase."""
     if job.status == "failed" and job.error:
-        return Text(job.error, style="red")
+        return Text(job.error, style=ERROR)
     if job.status == "skipped" and job.skip_reason:
-        return Text(f"skipped: {job.skip_reason}", style="yellow")
+        return Text(f"skipped: {job.skip_reason}", style=WARNING)
     if job.status == "completed" and job.output_path:
         return Text(job.output_path)
     return Text(job.phase)

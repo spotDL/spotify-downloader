@@ -1,4 +1,5 @@
 import type { EntityType } from "../api/generated/types.gen";
+import { cn } from "../lib/utils";
 import { Badge } from "./Badge";
 
 // CONTRACT H — EntityCard. Cover art, title, subtitle (artists/owner), and a
@@ -18,7 +19,7 @@ export function EntityCard({
   name,
   subtitle,
   imageUrl,
-  className = "",
+  className,
   onSelect,
 }: {
   type: EntityType;
@@ -41,7 +42,10 @@ export function EntityCard({
             }
           : undefined
       }
-      className={`flex items-center gap-3 rounded-card border border-line-soft bg-elevated p-3 transition-colors hover:bg-hover ${className}`}
+      className={cn(
+        "flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-colors hover:bg-elevated",
+        className,
+      )}
     >
       {imageUrl != null && imageUrl !== "" ? (
         <img
@@ -53,15 +57,15 @@ export function EntityCard({
       ) : (
         <div
           aria-hidden
-          className="flex size-12 shrink-0 items-center justify-center rounded bg-surface text-muted"
+          className="flex size-12 shrink-0 items-center justify-center rounded bg-surface text-faint"
         >
           <span className="text-lg leading-none">♪</span>
         </div>
       )}
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="truncate text-sm font-medium text-fg">{name}</span>
+        <span className="truncate text-sm font-medium text-foreground">{name}</span>
         {subtitle !== undefined && subtitle !== "" ? (
-          <span className="truncate text-xs text-muted">{subtitle}</span>
+          <span className="truncate text-xs text-muted-foreground">{subtitle}</span>
         ) : null}
       </div>
       <Badge tone="muted" className="capitalize">

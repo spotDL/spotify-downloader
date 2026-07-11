@@ -1,11 +1,16 @@
 /* spotDL TUI — the one stylesheet (CONTRACT §2: a single .tcss token system).
  *
- * Theme-neutral: colours come from Textual's design tokens ($panel, $surface,
- * $accent, $primary, $boost, $text-muted, $success, $warning, $error) so the app
- * follows the active light/dark theme. This sheet is the shared vocabulary — the
- * app shell layout, the nav rail, bordered panels with titles, zebra tables,
- * buttons, and the reusable empty/loading/error/stat patterns — that every screen
- * composes on. Screens add only their own structural rules below the shared block.
+ * "Control Room" identity: broadcast-console precision — blue-ink black surfaces,
+ * flat panels with hairline 1-cell borders, one phosphor-amber accent for
+ * focus/active/meters, and segmented LED meters (▰▱) wherever progress or quality
+ * appears. Colours come only through Textual's design tokens ($panel, $surface,
+ * $accent, $primary, $boost, $text-muted, $success, $warning, $error) plus the
+ * theme's extra $border/$primary-ink variables, so the palette lives in one place
+ * (tui/theme.py, mirrored hex-for-hex from apps/web/src/index.css). This sheet is
+ * the shared vocabulary — the app shell layout, the nav rail, bordered panels with
+ * titles, zebra tables, buttons, and the reusable empty/loading/error/stat
+ * patterns — that every screen composes on. Screens add only their own structural
+ * rules below the shared block.
  */
 
 /* ------------------------------------------------------------------ shell §1 */
@@ -51,24 +56,29 @@ NavRail {
 .nav-title {
     text-style: bold;
     color: $accent;
-    padding: 0 1 1 1;
+    padding: 0 1 1 2;
 }
 
+/* Rows carry a channel-bar gutter that stays the panel tone until active/hovered,
+ * so lighting one amber never shifts the label — broadcast-console selection. */
 .nav-entry {
     height: 1;
     padding: 0 1;
     color: $text-muted;
+    border-left: thick $panel;
 }
 
 .nav-entry:hover {
     background: $boost;
     color: $text;
+    border-left: thick $border;
 }
 
 .nav-entry--active {
     background: $boost;
     color: $accent;
     text-style: bold;
+    border-left: thick $accent;
 }
 
 .nav-spacer {
@@ -84,18 +94,19 @@ NavRail {
 /* --------------------------------------------------------------- panels §2 */
 
 .panel {
-    border: round $primary 30%;
+    border: solid $border;
     border-title-color: $text-muted;
     border-title-style: bold;
     padding: 0 1;
 }
 
 .panel:focus-within {
-    border: round $accent;
+    border: solid $accent;
     border-title-color: $accent;
 }
 
-/* Every table fills its pane, stripes, and shows an accent cursor row. */
+/* Every table fills its pane, stripes, and shows an amber cursor row with dark
+ * ink — the Control Room readout. Headers read as quiet faint labels. */
 DataTable {
     height: 1fr;
 }
@@ -103,10 +114,17 @@ DataTable {
 DataTable > .datatable--header {
     text-style: bold;
     color: $text-muted;
+    background: $panel;
 }
 
 DataTable > .datatable--cursor {
     background: $accent;
+    color: auto 90%;
+    text-style: bold;
+}
+
+DataTable > .datatable--hover {
+    background: $boost;
 }
 
 /* Consistent button spacing; primary leftmost is a compose-order convention. */
@@ -142,7 +160,7 @@ Button {
 }
 
 .stat-card {
-    border: round $primary 30%;
+    border: solid $border;
     border-title-color: $text-muted;
     width: 1fr;
     min-width: 16;
@@ -156,7 +174,7 @@ Button {
 
 .connect-status {
     height: auto;
-    border: round $primary 30%;
+    border: solid $border;
     border-title-color: $text-muted;
     padding: 1 1;
     margin: 0 0 1 0;
@@ -170,7 +188,7 @@ Button {
 .connect-card {
     width: 1fr;
     height: auto;
-    border: round $primary 30%;
+    border: solid $border;
     border-title-color: $text-muted;
     border-title-style: bold;
     padding: 1 1;
@@ -178,7 +196,7 @@ Button {
 }
 
 .connect-card:focus-within {
-    border: round $accent;
+    border: solid $accent;
     border-title-color: $accent;
 }
 
@@ -209,7 +227,7 @@ HelpScreen {
     max-width: 90%;
     height: auto;
     max-height: 80%;
-    border: round $accent;
+    border: solid $accent;
     border-title-color: $accent;
     border-title-style: bold;
     background: $surface;
@@ -314,7 +332,7 @@ HelpScreen {
     width: 70;
     max-width: 100%;
     height: auto;
-    border: round $primary 30%;
+    border: solid $border;
     padding: 2 2;
     content-align: center middle;
     text-align: center;
@@ -358,7 +376,7 @@ NotePromptModal {
     width: 60;
     max-width: 90%;
     height: auto;
-    border: round $accent;
+    border: solid $accent;
     border-title-color: $accent;
     border-title-style: bold;
     background: $surface;
@@ -569,7 +587,7 @@ NotePromptModal {
  * accent left bar and the kind in its border title (contract §4). */
 EntityCard {
     height: auto;
-    border: round $primary 30%;
+    border: solid $border;
     border-left: thick $accent;
     border-title-color: $text-muted;
     border-title-style: bold;
@@ -677,7 +695,7 @@ MatchGauge:focus {
 
 LyricsPane {
     height: 1fr;
-    border: round $primary 30%;
+    border: solid $border;
     border-title-color: $text-muted;
     border-subtitle-color: $text-muted;
     padding: 0 1;
@@ -685,6 +703,6 @@ LyricsPane {
 }
 
 LyricsPane:focus {
-    border: round $accent;
+    border: solid $accent;
     border-title-color: $accent;
 }

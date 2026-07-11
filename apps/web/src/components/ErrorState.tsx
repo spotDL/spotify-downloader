@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
+import { cn } from "../lib/utils";
 
 export function ErrorState({
   title = "Something went wrong",
   description,
   action,
-  className = "",
+  className,
 }: {
   title?: string;
   description?: ReactNode;
@@ -14,11 +15,14 @@ export function ErrorState({
   return (
     <div
       role="alert"
-      className={`flex flex-col items-center gap-2 rounded-card border border-danger/30 bg-danger/5 px-6 py-12 text-center ${className}`}
+      className={cn(
+        "flex flex-col items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-6 py-12 text-center",
+        className,
+      )}
     >
-      <p className="text-base font-medium text-danger">{title}</p>
+      <p className="text-base font-medium text-destructive">{title}</p>
       {description ? (
-        <p className="max-w-prose text-sm text-muted">{description}</p>
+        <p className="max-w-prose text-sm text-muted-foreground">{description}</p>
       ) : null}
       {action ? <div className="mt-2">{action}</div> : null}
     </div>

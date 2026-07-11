@@ -1,89 +1,135 @@
 @import "tailwindcss";
 
 /* ────────────────────────────────────────────────────────────────────────
-   spotDL "Emerald / Midnight Vinyl" design system — the single source of
-   truth for the web palette, type, and the full-maximalism utility layer.
-   The SAME token values are mirrored in the TUI (app.tcss + theme.py).
-   Dark-only by deliberate design choice (the collector aesthetic commits to
-   one world); `data-theme` is retained only so the reduce-motion toggle and
-   future theming have a hook.
+   spotDL "Control Room" design system — the single source of truth for the
+   web palette, type, and utilities. The SAME token values are mirrored in
+   the TUI (apps/cli: tui/theme.py + tui/app.tcss) — one palette, two
+   renderers; change a hex here → change it there.
+
+   Identity: broadcast-console precision. Blue-ink dark surfaces (default),
+   a cool-neutral light theme, one phosphor-amber accent, IBM Plex + Space
+   Grotesk, and the segmented meter (.meter here, ▰▱ in the terminal) as the
+   only progress/score language.
+
+   Themes: ThemeProvider stamps data-theme="dark"|"light" (CONTRACT H).
+   Components style through semantic tokens only; the light block below
+   re-points the same tokens.
    ──────────────────────────────────────────────────────────────────────── */
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
-/* Self-hosted display/body/mono faces (vendored under /public/fonts, bundled
-   into the SPA + server wheel — never CDN). Satoshi + General Sans ship as
-   variable fonts; JetBrains Mono as static weights. */
+/* Self-hosted faces (vendored under /public/fonts, bundled into the SPA +
+   server wheel — never CDN). Space Grotesk + IBM Plex Sans ship as variable
+   fonts; IBM Plex Mono as static weights. */
 @font-face {
-  font-family: "Satoshi";
-  src: url("/fonts/Satoshi-Variable.woff2") format("woff2");
-  font-weight: 300 900;
+  font-family: "Space Grotesk";
+  src: url("/fonts/SpaceGrotesk-Variable.woff2") format("woff2");
+  font-weight: 300 700;
   font-display: swap;
 }
 @font-face {
-  font-family: "General Sans";
-  src: url("/fonts/GeneralSans-Variable.woff2") format("woff2");
-  font-weight: 200 700;
+  font-family: "IBM Plex Sans";
+  src: url("/fonts/IBMPlexSans-Variable.woff2") format("woff2");
+  font-weight: 100 700;
   font-display: swap;
 }
 @font-face {
-  font-family: "JetBrains Mono";
-  src: url("/fonts/JetBrainsMono-Regular.woff2") format("woff2");
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/IBMPlexMono-Regular.woff2") format("woff2");
   font-weight: 400;
   font-display: swap;
 }
 @font-face {
-  font-family: "JetBrains Mono";
-  src: url("/fonts/JetBrainsMono-Medium.woff2") format("woff2");
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/IBMPlexMono-Medium.woff2") format("woff2");
   font-weight: 500;
   font-display: swap;
 }
 @font-face {
-  font-family: "JetBrains Mono";
-  src: url("/fonts/JetBrainsMono-Bold.woff2") format("woff2");
-  font-weight: 700;
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/IBMPlexMono-SemiBold.woff2") format("woff2");
+  font-weight: 600;
   font-display: swap;
 }
 
+/* Theme-switchable values live on :root as plain custom properties and are
+   re-pointed by [data-theme="light"]; @theme inline below maps them into
+   Tailwind color utilities. */
+:root,
+:root[data-theme="dark"] {
+  /* Dark (default): blue-ink black, phosphor amber */
+  --background: #0b0d12;
+  --surface: #12151c;
+  --card: #171b24;
+  --elevated: #1e2430;
+  --border: #262d3a;
+  --border-soft: #1c222d;
+
+  --foreground: #e8eaf0;
+  --muted-foreground: #8b93a7;
+  --faint: #5a6274;
+
+  --primary: #f5a623;
+  --primary-foreground: #16110a;
+  --info: #56c8d8;
+  --success: #4ade80;
+  --warning: #facc15;
+  --destructive: #f4506c;
+  --destructive-foreground: #ffffff;
+  --ring: #f5a623;
+
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  /* Light: cool neutral, amber darkened for contrast */
+  --background: #f6f7f9;
+  --surface: #f0f1f4;
+  --card: #ffffff;
+  --elevated: #e4e6eb;
+  --border: #dde0e6;
+  --border-soft: #e6e8ed;
+
+  --foreground: #101318;
+  --muted-foreground: #5c6474;
+  --faint: #8a92a3;
+
+  --primary: #c77e0a;
+  --primary-foreground: #16110a;
+  --info: #0e7f92;
+  --success: #15803d;
+  --warning: #a16207;
+  --destructive: #d92643;
+  --destructive-foreground: #ffffff;
+  --ring: #c77e0a;
+
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-card: var(--card);
+  --color-elevated: var(--elevated);
+  --color-border: var(--border);
+  --color-border-soft: var(--border-soft);
+
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-faint: var(--faint);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-info: var(--info);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-ring: var(--ring);
+}
+
 @theme {
-  /* Accent — emerald primary, teal/gold/red semantics */
-  --color-emerald: #00d084;
-  --color-emerald-dim: #00b874;
-  --color-teal: #4ecdc4;
-  --color-gold: #ffd93d;
-  --color-red: #ff3333;
-
-  /* brand scale kept (emerald shades) so pre-rebuild components still resolve */
-  --color-brand-50: #e6faf1;
-  --color-brand-100: #b8f0d6;
-  --color-brand-500: #00d084;
-  --color-brand-600: #00b874;
-  --color-brand-700: #009a61;
-  --color-accent: #00d084;
-  --color-success: #00d084;
-  --color-warn: #ffd93d;
-  --color-danger: #ff3333;
-
-  /* Surfaces — layered near-black (depth by bg-step, not borders) */
-  --color-void: #08080a;
-  --color-chassis: #0f1012;
-  --color-panel: #161819;
-  --color-elevated: #1c1e20;
-  --color-surface: #242628;
-  --color-hover: #2c2e32;
-
-  /* Text hierarchy */
-  --color-bg: #08080a;
-  --color-fg: #fafafa;
-  --color-ink-2: #a8a8b3;
-  --color-muted: #6b6b76;
-  --color-ink-4: #454550;
-
-  /* Lines */
-  --color-line: #2f2f33;
-  --color-line-soft: #232326;
-
-  /* Platform brand colors */
+  /* Platform brand colors (facts, not theme — identity dots/links only) */
   --color-spotify: #1db954;
   --color-apple: #fc3c44;
   --color-deezer: #a238ff;
@@ -92,130 +138,148 @@
   --color-musicbrainz: #ba478f;
 
   /* Type — self-hosted faces (vendored under /fonts); mono carries all data */
-  --font-sans: "General Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Satoshi", var(--font-sans);
-  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", var(--font-sans);
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 
-  --radius-card: 1rem;
+  --radius-card: 0.5rem;
   --radius-pill: 999px;
 
-  --shadow-card: 0 1px 2px oklch(0 0 0 / 0.2), 0 12px 32px -12px oklch(0 0 0 / 0.5);
-  --shadow-glow: 0 0 40px -8px color-mix(in oklab, #00d084 50%, transparent);
-
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-:root {
-  color-scheme: dark;
 }
 
 body {
   margin: 0;
   min-height: 100svh;
   font-family: var(--font-sans);
-  background-color: var(--color-void);
-  color: var(--color-fg);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  background-color: var(--background);
+  color: var(--foreground);
   -webkit-font-smoothing: antialiased;
-  /* atmosphere: two faint accent glows fixed behind everything */
-  background-image:
-    radial-gradient(60% 50% at 85% -5%, color-mix(in oklab, #00d084 6%, transparent), transparent 70%),
-    radial-gradient(50% 40% at 0% 100%, color-mix(in oklab, #4ecdc4 5%, transparent), transparent 70%);
-  background-attachment: fixed;
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   font-family: var(--font-display);
+  font-weight: 600;
   letter-spacing: -0.02em;
   text-wrap: balance;
 }
 
-/* Kill the browser-default (blue) focus ring everywhere; keyboard focus is
-   always emerald. Components may still add their own ring on top. */
+code,
+kbd,
+.font-mono {
+  font-family: var(--font-mono);
+  font-feature-settings: "liga" 0;
+}
+
+/* Data that aligns in columns always uses tabular figures */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+/* Keyboard focus is always amber. Components may add their own ring on top. */
 :focus-visible {
-  outline: 2px solid color-mix(in oklab, var(--color-emerald) 75%, transparent);
+  outline: 2px solid var(--ring);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-/* ── Maximalism utility layer ─────────────────────────────────────────────
-   Real components live in React; these are the shared texture/motion atoms.
-   All motion is disabled under reduce-motion. */
+/* ── Scrollbars ─────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 5px;
+  border: 2px solid var(--background);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--faint);
+}
 
+/* ── Signature: the segmented meter ──────────────────────────────────────
+   The one motif shared with the TUI (▰▰▰▱▱). Discrete cells; lit cells take
+   the meter color, unlit cells stay faint. Used via the Meter component. */
+.meter {
+  display: grid;
+  grid-template-columns: repeat(var(--meter-cells, 10), 1fr);
+  gap: 3px;
+}
+
+.meter-cell {
+  height: 100%;
+  min-height: 6px;
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--foreground) 10%, transparent);
+  transition: background-color 0.25s var(--ease-out-expo);
+}
+
+.meter-cell[data-lit="true"] {
+  background: var(--meter-color, var(--primary));
+}
+
+.meter-cell[data-active="true"] {
+  background: var(--meter-color, var(--primary));
+  animation: meter-pulse 1.2s ease-in-out infinite;
+}
+
+/* ── Motion atoms ────────────────────────────────────────────────────────
+   Page-level orchestration lives in React (motion/react); these are the
+   shared CSS atoms. All motion is disabled under reduce-motion. */
 @layer utilities {
-  /* film-grain overlay — apply to a positioned hero container */
-  .grain::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.045;
-    mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  .animate-fade-in {
+    animation: fade-in 0.3s var(--ease-smooth) both;
   }
-
-  /* glassmorphism panel */
-  .glass {
-    background: color-mix(in oklab, var(--color-surface) 55%, transparent);
-    backdrop-filter: blur(8px);
-  }
-
-  /* blurred cover-art hero backdrop — set --hero-art to the cover url */
-  .hero-backdrop {
-    position: absolute;
-    inset: -30% -10% 0;
-    z-index: 0;
-    background-image: var(--hero-art);
-    background-size: cover;
-    background-position: center;
-    filter: blur(60px) saturate(1.15);
-    opacity: 0.42;
-    transform: scale(1.15);
-  }
-  .hero-fade {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background: linear-gradient(to bottom, color-mix(in oklab, var(--color-void) 35%, transparent), var(--color-void) 92%);
-  }
-
-  .hover-lift {
-    transition: transform 160ms var(--ease-smooth), box-shadow 160ms var(--ease-smooth);
-  }
-  .hover-lift:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-card);
-  }
-
-  .animate-beat { animation: beat 0.69s ease-in-out infinite; }
-  .animate-fade-in { animation: fade-in 0.3s var(--ease-smooth) both; }
-  .animate-rise { animation: rise 0.4s var(--ease-spring) both; }
-  .shimmer {
-    background: linear-gradient(100deg, var(--color-surface) 30%, var(--color-hover) 50%, var(--color-surface) 70%);
-    background-size: 200% 100%;
-    animation: shimmer 1.4s linear infinite;
+  .animate-rise {
+    animation: rise 0.4s var(--ease-out-expo) both;
   }
 }
 
-@keyframes beat {
-  0%, 100% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.9); opacity: 1; }
-}
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 @keyframes rise {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: none; }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
-@keyframes shimmer {
-  from { background-position: 200% 0; }
-  to { background-position: -200% 0; }
+@keyframes meter-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;

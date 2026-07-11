@@ -45,7 +45,9 @@ describe("Admin guard", () => {
     renderApp("/admin");
 
     expect(await screen.findByRole("heading", { name: "Admin" })).toBeInTheDocument();
+    // Stat tiles render as labelled StatChips (label + mono value).
     expect(await screen.findByText("Users")).toBeInTheDocument();
+    expect(screen.getByText("Verified matches")).toBeInTheDocument();
     expect(screen.getByText("12")).toBeInTheDocument();
   });
 });
@@ -64,6 +66,11 @@ describe("Admin reports", () => {
     const invalidateSpy = vi.spyOn(QueryClient.prototype, "invalidateQueries");
     const user = userEvent.setup();
     renderApp("/admin/reports");
+
+    // The queue renders as a dense table; a pending row exposes review controls.
+    expect(
+      await screen.findByRole("columnheader", { name: "Subject" }),
+    ).toBeInTheDocument();
 
     await user.click(await screen.findByRole("button", { name: "Approve" }));
 

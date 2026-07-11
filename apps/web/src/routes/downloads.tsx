@@ -1,4 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
+import {
+  AlertCircle,
+  Ban,
+  Download,
+  ListMusic,
+  Music,
+  RotateCcw,
+} from "lucide-react";
 import type { DownloadJobOut, DownloadStatus } from "../api/generated/types.gen";
 import {
   downloadFileUrl,
@@ -10,15 +18,13 @@ import { useProgressSocket } from "../api/ws";
 import { useFeature } from "../app/config";
 import { isApiError } from "../api/errors";
 import { joinArtists } from "../lib/format";
-import { Badge } from "../components/Badge";
+import { cn } from "../lib/utils";
 import { Button } from "../components/Button";
 import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
-import { ProgressBar } from "../components/ProgressBar";
-import { SectionDivider } from "../components/SectionDivider";
 import { Spinner } from "../components/Spinner";
+import { Meter } from "../components/ui/meter";
 import { toast } from "../components/Toasts";
-import { DownloadIcon, NoteIcon, RefreshIcon } from "../components/icons";
 
 export const Route = createFileRoute("/downloads")({ component: DownloadsPage });
 
@@ -27,12 +33,11 @@ function DownloadsPage() {
   // where downloads are enabled (a direct-URL visit in HOSTED is a dead end).
   if (!useFeature("downloads")) {
     return (
-      <div className="mx-auto w-full max-w-[1080px] px-6 py-16">
-        <EmptyState
-          title="Downloads"
-          description="Downloads are disabled on this server."
-        />
-      </div>
+      <EmptyState
+        icon={<Music aria-hidden />}
+        title="Downloads"
+        description="Downloads are disabled on this server."
+      />
     );
   }
   return <DownloadsQueue />;
@@ -46,13 +51,18 @@ function DownloadsQueue() {
   const query = useDownloads({ limit: 100 });
 
   return (
-    <div className="mx-auto flex w-full max-w-[1080px] flex-col gap-6 px-6 py-7">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight text-fg">Downloads</h1>
-        <p className="text-sm text-muted">
+    <div className="flex flex-col gap-6">
+      <header className="flex flex-col gap-1">
+        <p className="text-xs font-medium uppercase tracking-wider text-faint">
+          Console
+        </p>
+        <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">
+          Download queue
+        </h1>
+        <p className="text-sm text-muted-foreground">
           Live queue — active, waiting, and recently finished jobs.
         </p>
-      </div>
+      </header>
 
       {query.isPending ? (
         <div className="flex justify-center py-16">
@@ -69,6 +79,7 @@ function DownloadsQueue() {
         />
       ) : query.data.jobs.length === 0 ? (
         <EmptyState
+          icon={<ListMusic aria-hidden />}
           title="Nothing in the queue"
           description="Search to add a track, album, or playlist — it shows up here as it downloads."
         />
@@ -83,18 +94,37 @@ function DownloadsQueue() {
 }
 
 // ── Status vocabulary ────────────────────────────────────────────────────────
-type Tone = "neutral" | "brand" | "warn" | "danger" | "muted";
+const STATUS_META: Record<DownloadStatus, { label: string; className: string }> =
+  {
+    queued: { label: "Queued", className: "text-faint" },
+    running: { label: "Downloading", className: "text-primary" },
+    completed: { label: "Completed", className: "text-success" },
+    failed: { label: "Failed", className: "text-destructive" },
+    cancelled: { label: "Cancelled", className: "text-muted-foreground" },
+  };
 
-const STATUS_META: Record<
-  DownloadStatus,
-  { label: string; tone: Tone; dot: string }
-> = {
-  queued: { label: "Queued", tone: "muted", dot: "bg-muted" },
-  running: { label: "Downloading", tone: "warn", dot: "bg-gold" },
-  completed: { label: "Completed", tone: "brand", dot: "bg-emerald" },
-  failed: { label: "Failed", tone: "danger", dot: "bg-red" },
-  cancelled: { label: "Cancelled", tone: "muted", dot: "bg-muted" },
-};
+const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
+
+/** Meter appearance for a channel row — the only progress visualization. */
+function meterFor(job: DownloadJobOut): {
+  value: number;
+  active: boolean;
+  color?: string;
+} {
+  const pct = Math.round(clamp01(job.progress) * 100);
+  switch (job.status) {
+    case "completed":
+      return { value: 100, active: false, color: "var(--success)" };
+    case "failed":
+      return { value: pct, active: false, color: "var(--destructive)" };
+    case "cancelled":
+      return { value: pct, active: false, color: "var(--muted-foreground)" };
+    case "running":
+      return { value: pct, active: true };
+    default:
+      return { value: pct, active: false };
+  }
+}
 
 // ── Summary strip ────────────────────────────────────────────────────────────
 function SummaryStrip({ jobs }: { jobs: DownloadJobOut[] }) {
@@ -110,22 +140,27 @@ function SummaryStrip({ jobs }: { jobs: DownloadJobOut[] }) {
       ? 0
       : jobs.reduce((sum, j) => {
           if (j.status === "completed") return sum + 1;
-          if (j.status === "running") return sum + j.progress;
+          if (j.status === "running") return sum + clamp01(j.progress);
           return sum;
         }, 0) / jobs.length;
 
   return (
-    <section className="flex flex-col gap-3.5 rounded-card border border-line-soft bg-surface px-5 py-4">
+    <section className="flex flex-col gap-4 rounded-lg border border-border bg-card px-5 py-4">
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-        <Stat label="Active" value={active} accent="text-gold" />
-        <Stat label="Queued" value={queued} accent="text-ink-2" />
-        <Stat label="Done" value={done} accent="text-emerald" />
-        <Stat label="Failed" value={failed} accent="text-red" />
-        <span className="ml-auto font-mono text-xs tabular-nums text-muted">
+        <Stat label="Active" value={active} accent="text-primary" />
+        <Stat label="Queued" value={queued} accent="text-muted-foreground" />
+        <Stat label="Done" value={done} accent="text-success" />
+        <Stat label="Failed" value={failed} accent="text-destructive" />
+        <span className="ml-auto font-mono text-xs tnum text-muted-foreground">
           {Math.round(overall * 100)}%
         </span>
       </div>
-      <ProgressBar percent={overall} phase="Overall" />
+      <Meter
+        value={Math.round(overall * 100)}
+        max={100}
+        cells={16}
+        label="Overall"
+      />
     </section>
   );
 }
@@ -141,10 +176,10 @@ function Stat({
 }) {
   return (
     <span className="inline-flex items-baseline gap-1.5">
-      <span className="text-[11px] uppercase tracking-wide text-muted">
+      <span className="text-xs font-medium uppercase tracking-wider text-faint">
         {label}
       </span>
-      <span className={`font-mono text-lg font-semibold tabular-nums ${accent}`}>
+      <span className={cn("font-mono text-lg font-semibold tnum", accent)}>
         {value}
       </span>
     </span>
@@ -198,9 +233,11 @@ function QueueGroups({ jobs }: { jobs: DownloadJobOut[] }) {
             className="flex flex-col gap-2"
           >
             {multi ? (
-              <div className="flex items-center gap-3">
-                <SectionDivider title={title} accent="teal" />
-                <span className="font-mono text-[11px] text-ink-4">
+              <div className="flex items-center gap-3 border-b border-border pb-2">
+                <span className="truncate text-xs font-medium uppercase tracking-wider text-faint">
+                  {title}
+                </span>
+                <span className="ml-auto font-mono text-xs tnum text-muted-foreground">
                   {group.jobs.length} tracks
                 </span>
               </div>
@@ -219,74 +256,101 @@ function QueueGroups({ jobs }: { jobs: DownloadJobOut[] }) {
   );
 }
 
-// ── Job row ──────────────────────────────────────────────────────────────────
+// ── Channel row ──────────────────────────────────────────────────────────────
 function JobRow({ job }: { job: DownloadJobOut }) {
   const cancel = useCancelDownload();
   const retry = useSubmitDownload();
   const meta = STATUS_META[job.status];
+  const meter = meterFor(job);
+  const title = job.track_name ?? "Unknown track";
 
+  const inFlight = job.status === "running";
+  const isFailed = job.status === "failed";
   const cancellable = job.status === "queued" || job.status === "running";
-  const showProgress = job.status === "queued" || job.status === "running";
   const skipped = job.status === "completed" && job.skip_reason != null;
   const completedFile =
     job.status === "completed" && !job.skip_reason && job.output_path != null;
   // No dedicated retry endpoint — re-submitting the track id re-enqueues it.
   const retryable = job.status === "failed" && job.track_id != null;
+  const pct = Math.round(clamp01(job.progress) * 100);
+  const showPercent = job.status === "running" || job.status === "completed";
 
   return (
-    <div className="group flex flex-col gap-2 rounded-card border border-line-soft bg-surface px-3 py-2.5 transition-colors hover:border-line">
-      <div className="flex items-center gap-3">
+    <div
+      className={cn(
+        "rounded-lg border border-border bg-card transition-colors hover:border-faint/50",
+        inFlight && "border-primary/30",
+        isFailed && "border-l-2 border-l-destructive",
+      )}
+    >
+      <div className="flex items-center gap-4 p-3">
         {/* The job's album cover when known, else the note-glyph placeholder. */}
-        <span className="size-11 shrink-0 overflow-hidden rounded-lg ring-1 ring-white/5">
+        <span className="size-11 shrink-0 overflow-hidden rounded-md border border-border">
           {job.cover_url ? (
-            <img
-              src={job.cover_url}
-              alt=""
-              className="size-full object-cover"
-            />
+            <img src={job.cover_url} alt="" className="size-full object-cover" />
           ) : (
-            <span className="grid size-full place-items-center bg-elevated text-muted">
-              <NoteIcon className="size-5" />
+            <span className="grid size-full place-items-center bg-elevated text-faint">
+              <Music className="size-5" aria-hidden />
             </span>
           )}
         </span>
 
+        {/* Identity */}
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <p className="truncate text-[13px] font-medium text-fg">
-            {job.track_name ?? "Unknown track"}
+          <p
+            className={cn(
+              "text-xs font-medium uppercase tracking-wider",
+              meta.className,
+            )}
+          >
+            {skipped ? "Skipped" : meta.label}
           </p>
+          <p className="truncate text-sm font-medium text-foreground">{title}</p>
           {job.artists.length > 0 ? (
-            <p className="truncate text-[11px] text-muted">
+            <p className="truncate text-xs text-muted-foreground">
               {joinArtists(job.artists)}
             </p>
           ) : null}
         </div>
 
-        <span
-          className={`size-2 shrink-0 rounded-full ${meta.dot} ${
-            job.status === "running" ? "animate-pulse" : ""
-          }`}
-          aria-hidden
-        />
-        <Badge tone={skipped ? "warn" : meta.tone}>
-          {skipped ? "Skipped" : meta.label}
-        </Badge>
+        {/* Meter — 16-cell segmented, the only progress visualization */}
+        <div className="hidden w-28 shrink-0 sm:block md:w-36">
+          <Meter
+            cells={16}
+            value={meter.value}
+            max={100}
+            active={meter.active}
+            color={meter.color}
+            label="Progress"
+          />
+        </div>
 
-        <div className="flex items-center gap-1.5 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+        {/* Mono readout */}
+        <div className="hidden w-12 shrink-0 flex-col items-end font-mono text-xs tnum sm:flex">
+          {showPercent ? (
+            <span className="text-foreground">{pct}%</span>
+          ) : (
+            <span className="text-faint">—</span>
+          )}
+        </div>
+
+        {/* Row actions */}
+        <div className="flex shrink-0 items-center gap-0.5">
           {completedFile ? (
             <a
               href={downloadFileUrl(job.id)}
               download
-              className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold text-emerald hover:bg-elevated"
+              aria-label={`Download ${title}`}
+              className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-elevated hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <DownloadIcon className="size-3.5" />
-              Download
+              <Download className="size-4" />
             </a>
           ) : null}
           {retryable ? (
             <Button
               variant="ghost"
-              className="px-2 py-1 text-xs"
+              size="icon"
+              aria-label={`Retry ${title}`}
               disabled={retry.isPending}
               onClick={() =>
                 retry.mutate(
@@ -301,14 +365,14 @@ function JobRow({ job }: { job: DownloadJobOut }) {
                 )
               }
             >
-              <RefreshIcon className="size-3.5" />
-              Retry
+              <RotateCcw className="size-4" />
             </Button>
           ) : null}
           {cancellable ? (
             <Button
               variant="ghost"
-              className="px-2 py-1 text-xs"
+              size="icon"
+              aria-label={`Cancel ${title}`}
               disabled={cancel.isPending}
               onClick={() =>
                 cancel.mutate(
@@ -322,15 +386,18 @@ function JobRow({ job }: { job: DownloadJobOut }) {
                 )
               }
             >
-              Cancel
+              <Ban className="size-4" />
             </Button>
           ) : null}
         </div>
       </div>
 
-      {showProgress ? <ProgressBar percent={job.progress} /> : null}
-      {job.status === "failed" && job.error_message ? (
-        <p className="font-mono text-[11px] text-red">{job.error_message}</p>
+      {/* Failure detail line */}
+      {isFailed && job.error_message ? (
+        <div className="flex items-start gap-2 border-t border-border px-3 py-2 text-xs text-destructive">
+          <AlertCircle className="mt-px size-3.5 shrink-0" aria-hidden />
+          <span className="font-mono leading-relaxed">{job.error_message}</span>
+        </div>
       ) : null}
     </div>
   );

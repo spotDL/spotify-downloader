@@ -41,11 +41,13 @@ describe("Downloads page", () => {
     renderApp("/downloads");
 
     expect(await screen.findByText("Get Lucky")).toBeInTheDocument();
-    // The queue shows a per-job "Progress" bar plus an "Overall" summary bar;
-    // target the job row by its accessible name.
-    expect(
-      screen.getByRole("progressbar", { name: "Progress" }),
-    ).toHaveAttribute("aria-valuenow", "0");
+    // The queue shows a per-job "Progress" meter plus an "Overall" summary meter
+    // (the segmented Meter — role="meter" — is the only progress viz); target the
+    // job row by its accessible name.
+    expect(screen.getByRole("meter", { name: "Progress" })).toHaveAttribute(
+      "aria-valuenow",
+      "0",
+    );
   });
 
   it("updates a job's progress bar from a WS progress frame", async () => {
@@ -67,9 +69,10 @@ describe("Downloads page", () => {
     });
 
     await waitFor(() =>
-      expect(
-        screen.getByRole("progressbar", { name: "Progress" }),
-      ).toHaveAttribute("aria-valuenow", "50"),
+      expect(screen.getByRole("meter", { name: "Progress" })).toHaveAttribute(
+        "aria-valuenow",
+        "50",
+      ),
     );
   });
 
@@ -77,7 +80,11 @@ describe("Downloads page", () => {
     serveDownloads();
     renderApp("/downloads");
     await screen.findByText("Get Lucky");
-    expect(screen.queryByRole("link", { name: "Download" })).not.toBeInTheDocument();
+    // `/^download /i` targets the per-row "Download <title>" file link without
+    // matching the NavRail "Downloads" nav link.
+    expect(
+      screen.queryByRole("link", { name: /^download /i }),
+    ).not.toBeInTheDocument();
 
     const socket = MockWebSocket.instances[0];
     act(() => {
@@ -93,7 +100,7 @@ describe("Downloads page", () => {
       });
     });
 
-    const link = await screen.findByRole("link", { name: "Download" });
+    const link = await screen.findByRole("link", { name: /^download /i });
     expect(link).toHaveAttribute("href", expect.stringContaining("/downloads/job-1/file"));
   });
 
@@ -107,9 +114,7 @@ describe("Downloads page", () => {
     // The summary strip exposes the batch-wide counters + an "Overall" bar.
     expect(await screen.findByText("Active")).toBeInTheDocument();
     expect(screen.getByText("Done")).toBeInTheDocument();
-    expect(
-      screen.getByRole("progressbar", { name: "Overall" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("meter", { name: "Overall" })).toBeInTheDocument();
   });
 
   it("offers Retry on a failed job (re-submitting its track id)", async () => {
@@ -130,7 +135,7 @@ describe("Downloads page", () => {
     );
     renderApp("/downloads");
 
-    await userEvent.click(await screen.findByRole("button", { name: "Retry" }));
+    await userEvent.click(await screen.findByRole("button", { name: /retry/i }));
     await waitFor(() => expect(submitted).toEqual({ query: "track-1" }));
   });
 
@@ -175,7 +180,7 @@ describe("Downloads page", () => {
     );
     renderApp("/downloads");
 
-    await userEvent.click(await screen.findByRole("button", { name: "Cancel" }));
+    await userEvent.click(await screen.findByRole("button", { name: /cancel/i }));
 
     await waitFor(() => expect(deleted).toBe("job-1"));
     // Cancel invalidates ["downloads"], so the list is refetched.

@@ -21,6 +21,9 @@ const STATUS_TONE: Record<ReportStatus, "warn" | "brand" | "danger"> = {
   rejected: "danger",
 };
 
+const TH = "px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-faint";
+const TD = "px-4 py-2.5 align-top";
+
 function AdminReports() {
   const [status, setStatus] = useState<ReportStatus>("pending");
   const reports = useAdminReports(status);
@@ -30,7 +33,7 @@ function AdminReports() {
       <div
         role="radiogroup"
         aria-label="Report status"
-        className="inline-flex self-start rounded-lg border border-line bg-void p-0.5"
+        className="inline-flex self-start rounded-lg border border-border bg-surface p-0.5"
       >
         {STATUSES.map((s) => (
           <button
@@ -40,7 +43,9 @@ function AdminReports() {
             aria-checked={status === s}
             onClick={() => setStatus(s)}
             className={`rounded-md px-3 py-1.5 text-xs font-semibold capitalize transition-colors ${
-              status === s ? "bg-emerald text-void" : "text-muted hover:text-fg"
+              status === s
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             {s}
@@ -54,17 +59,31 @@ function AdminReports() {
         <EmptyState title="Nothing here" description={`No ${status} reports.`} />
       ) : null}
       {reports.data && reports.data.items.length > 0 ? (
-        <ul className="flex flex-col gap-3">
-          {reports.data.items.map((report) => (
-            <ReportCard key={report.id} report={report} />
-          ))}
-        </ul>
+        <div className="overflow-x-auto rounded-lg border border-border bg-card">
+          <table className="w-full text-left text-[13px]">
+            <thead className="bg-surface">
+              <tr className="border-b border-border">
+                <th className={TH}>Subject</th>
+                <th className={TH}>Field</th>
+                <th className={TH}>Proposed</th>
+                <th className={TH}>Reason</th>
+                <th className={TH}>Reported</th>
+                <th className={TH}>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reports.data.items.map((report) => (
+                <ReportRow key={report.id} report={report} />
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : null}
     </div>
   );
 }
 
-function ReportCard({ report }: { report: ReportResponse }) {
+function ReportRow({ report }: { report: ReportResponse }) {
   const [note, setNote] = useState("");
   const approve = useApproveReport();
   const reject = useRejectReport();
@@ -72,69 +91,76 @@ function ReportCard({ report }: { report: ReportResponse }) {
   const isPending = report.status === "pending";
 
   return (
-    <li className="rounded-card border border-line-soft bg-surface p-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge tone="neutral" className="capitalize">
-          {report.subject_type}
-        </Badge>
-        <span className="font-mono text-xs text-muted">{report.subject_id}</span>
-        <Badge tone={STATUS_TONE[report.status]} className="ml-auto capitalize">
-          {report.status}
-        </Badge>
-      </div>
-      <dl className="mt-3 flex flex-col gap-1.5 text-[12.5px]">
-        {report.field ? (
-          <div className="flex gap-2">
-            <dt className="w-20 shrink-0 text-muted">Field</dt>
-            <dd className="font-mono font-medium text-fg">{report.field}</dd>
+    <>
+      <tr className="border-t border-border">
+        <td className={TD}>
+          <div className="flex items-center gap-2">
+            <Badge tone="neutral" className="capitalize">
+              {report.subject_type}
+            </Badge>
+            <span className="font-mono text-xs text-muted-foreground tnum">
+              {report.subject_id}
+            </span>
           </div>
-        ) : null}
-        {report.proposed_value ? (
-          <div className="flex gap-2">
-            <dt className="w-20 shrink-0 text-muted">Proposed</dt>
-            <dd className="font-medium text-emerald">{report.proposed_value}</dd>
-          </div>
-        ) : null}
-        {report.reason ? (
-          <div className="flex gap-2">
-            <dt className="w-20 shrink-0 text-muted">Reason</dt>
-            <dd className="text-fg">{report.reason}</dd>
-          </div>
-        ) : null}
-      </dl>
-
+        </td>
+        <td className={`${TD} font-mono text-xs text-foreground tnum`}>
+          {report.field ?? <span className="text-faint">—</span>}
+        </td>
+        <td className={TD}>
+          {report.proposed_value ? (
+            <span className="font-medium text-success">{report.proposed_value}</span>
+          ) : (
+            <span className="text-faint">—</span>
+          )}
+        </td>
+        <td className={`${TD} text-muted-foreground`}>
+          {report.reason ?? <span className="text-faint">—</span>}
+        </td>
+        <td className={`${TD} font-mono text-xs text-muted-foreground tnum`}>
+          {new Date(report.created_at).toLocaleDateString()}
+        </td>
+        <td className={TD}>
+          <Badge tone={STATUS_TONE[report.status]} className="capitalize">
+            {report.status}
+          </Badge>
+        </td>
+      </tr>
       {isPending ? (
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
-          <Input
-            aria-label={`Review note for report ${report.id}`}
-            placeholder="Optional note…"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            className="sm:flex-1"
-          />
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              disabled={busy}
-              onClick={() =>
-                approve.mutate({ reportId: report.id, note: note.trim() || undefined })
-              }
-            >
-              Approve
-            </Button>
-            <Button
-              type="button"
-              variant="danger"
-              disabled={busy}
-              onClick={() =>
-                reject.mutate({ reportId: report.id, note: note.trim() || undefined })
-              }
-            >
-              Reject
-            </Button>
-          </div>
-        </div>
+        <tr className="border-t border-border/60 bg-surface/40">
+          <td colSpan={6} className="px-4 py-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <Input
+                aria-label={`Review note for report ${report.id}`}
+                placeholder="Optional note…"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                className="sm:flex-1"
+              />
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  disabled={busy}
+                  onClick={() =>
+                    approve.mutate({ reportId: report.id, note: note.trim() || undefined })
+                  }
+                >
+                  Approve
+                </Button>
+                <Button
+                  type="button"
+                  variant="danger"
+                  disabled={busy}
+                  onClick={() =>
+                    reject.mutate({ reportId: report.id, note: note.trim() || undefined })
+                  }
+                >
+                  Reject
+                </Button>
+              </div>
+            </div>
+          </td>
+        </tr>
       ) : null}
-    </li>
+    </>
   );
 }

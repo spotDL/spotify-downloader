@@ -1,8 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { motion, useReducedMotion } from "motion/react";
 import type { AdminStatsResponse } from "../api/generated/types.gen";
 import { useAdminStats } from "../api/queries";
+import { StatChip } from "../components/StatChip";
 import { Spinner } from "../components/Spinner";
 import { ErrorState } from "../components/ErrorState";
+import { cn } from "../lib/utils";
 
 export const Route = createFileRoute("/admin/")({
   component: AdminOverview,
@@ -13,20 +16,32 @@ const STAT_FIELDS: {
   label: string;
   accent: string;
 }[] = [
-  { key: "users_total", label: "Users", accent: "text-fg" },
-  { key: "matches_total", label: "Matches", accent: "text-fg" },
+  { key: "users_total", label: "Users", accent: "text-foreground" },
+  { key: "matches_total", label: "Matches", accent: "text-foreground" },
   {
     key: "community_verified_matches",
     label: "Verified matches",
-    accent: "text-emerald",
+    accent: "text-success",
   },
-  { key: "rejected_matches", label: "Rejected matches", accent: "text-red" },
-  { key: "votes_total", label: "Votes", accent: "text-teal" },
-  { key: "reports_total", label: "Reports", accent: "text-fg" },
-  { key: "reports_pending", label: "Reports pending", accent: "text-gold" },
+  { key: "rejected_matches", label: "Rejected matches", accent: "text-destructive" },
+  { key: "votes_total", label: "Votes", accent: "text-info" },
+  { key: "reports_total", label: "Reports", accent: "text-foreground" },
+  { key: "reports_pending", label: "Reports pending", accent: "text-warning" },
 ];
 
+// A subtle one-shot stagger across the stat tiles (respecting reduce-motion).
+const grid = { hidden: {}, show: { transition: { staggerChildren: 0.03 } } };
+const tile = {
+  hidden: { opacity: 0, y: 6 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] as const },
+  },
+};
+
 function AdminOverview() {
+  const reduceMotion = useReducedMotion();
   const stats = useAdminStats();
 
   if (stats.isPending) return <Spinner label="Loading stats" />;
@@ -36,18 +51,25 @@ function AdminOverview() {
   const data = stats.data;
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+    <motion.div
+      variants={reduceMotion ? undefined : grid}
+      initial={reduceMotion ? false : "hidden"}
+      animate="show"
+      className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
+    >
       {STAT_FIELDS.map(({ key, label, accent }) => (
-        <div
+        <motion.div
           key={key}
-          className="hover-lift flex flex-col gap-1 rounded-card border border-line-soft bg-surface p-4"
+          variants={reduceMotion ? undefined : tile}
+          className="rounded-lg border border-border bg-card px-4 py-3.5"
         >
-          <p className="text-[11px] uppercase tracking-wide text-muted">{label}</p>
-          <p className={`font-mono text-3xl font-semibold tabular-nums ${accent}`}>
-            {data[key]}
-          </p>
-        </div>
+          <StatChip label={label} className="flex-col items-start gap-1.5">
+            <span className={cn("font-mono text-2xl font-semibold tnum", accent)}>
+              {data[key]}
+            </span>
+          </StatChip>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }

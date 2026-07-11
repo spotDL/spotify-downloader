@@ -18,6 +18,14 @@ from textual.binding import Binding
 from textual.message import Message
 from textual.widgets import Static
 
+from spotdl_cli.tui.theme import (
+    FAINT,
+    METER_LIT,
+    METER_UNLIT,
+    SUCCESS,
+    score_color,
+    segmented_meter,
+)
 from spotdl_cli.viewmodels.types import MatchRow
 
 _BAR_CELLS = 12
@@ -100,34 +108,30 @@ class MatchGauge(Static, can_focus=True):
         self.update(markup)
 
 
-def _score_colour(score: int) -> str:
-    if score >= 85:
-        return "green"
-    if score >= 60:
-        return "yellow"
-    return "red"
-
-
 def _gauge(row: MatchRow, *, can_vote: bool, focused: bool) -> tuple[str, str]:
-    """Return ``(plain, markup)`` — plain for assertions, markup for the display."""
+    """Return ``(plain, markup)`` — plain for assertions, markup for the display.
+
+    The score renders as the signature segmented LED meter (``▰▱``), lit in the
+    match-quality colour (``score_color``): green ≥75, amber ≥45, else red.
+    """
     filled = max(0, min(_BAR_CELLS, round(row.score / 100 * _BAR_CELLS)))
-    bar = "█" * filled + "░" * (_BAR_CELLS - filled)
-    colour = _score_colour(row.score)
+    plain_bar = METER_LIT * filled + METER_UNLIT * (_BAR_CELLS - filled)
+    colour = score_color(row.score)
+    meter = segmented_meter(row.score / 100, _BAR_CELLS, lit_color=colour)
     icon = _PROVIDER_ICONS.get(row.provider, "♪")
     verified = "  ★ verified" if row.verified else ""
     tallies = f"▲{row.upvotes} ▼{row.downvotes} ({row.net_score:+d})"
     head = f"{icon} {row.provider:<12}"
     score = f"{row.score:>3}%"
-    plain = f"{head} {bar} {score}  {row.status}  {tallies}{verified}"
-    markup_verified = "  [green]★ verified[/]" if row.verified else ""
+    plain = f"{head} {plain_bar} {score}  {row.status}  {tallies}{verified}"
+    markup_verified = f"  [{SUCCESS}]★ verified[/]" if row.verified else ""
     markup = (
-        f"{head} [{colour}]{bar}[/] [{colour}]{score}[/]  "
-        f"{row.status}  [dim]{tallies}[/]{markup_verified}"
+        f"{head} {meter} [{colour}]{score}[/]  {row.status}  [{FAINT}]{tallies}[/]{markup_verified}"
     )
     if focused and row.url:
         plain += f"\n    {row.url}"
-        markup += f"\n    [dim]{row.url}[/]"
+        markup += f"\n    [{FAINT}]{row.url}[/]"
     if can_vote:
         plain += "   ↑ up · ↓ down"
-        markup += "   [dim]↑ up · ↓ down[/]"
+        markup += f"   [{FAINT}]↑ up · ↓ down[/]"
     return plain, markup

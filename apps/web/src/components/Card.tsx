@@ -1,13 +1,15 @@
 import type { ReactNode } from "react";
+import { cn } from "../lib/utils";
+import { Card as UICard } from "./ui/card";
 
-// The panel primitive (mockup `.card`): a surface tile with an optional header
-// (title + a mono "more" note) and optional glassmorphism. Shared by the detail
-// pages' match/lyrics/listen-on/details panels.
+// The panel primitive: a flat token surface with an optional header (title + a
+// mono "more" note). Shared by the detail pages' match/lyrics/listen-on/details
+// panels. `glass` is retained for API compatibility but is now a flat card.
 export function Card({
   title,
   action,
-  glass = false,
-  className = "",
+  glass: _glass = false,
+  className,
   children,
 }: {
   title?: string;
@@ -17,29 +19,27 @@ export function Card({
   children: ReactNode;
 }) {
   return (
-    <section
-      className={`rounded-card border border-line-soft px-5 py-4 ${
-        glass ? "glass" : "bg-surface"
-      } ${className}`}
-    >
+    <UICard className={cn("p-5", className)}>
       {title !== undefined || action !== undefined ? (
         <div className="mb-3.5 flex items-center justify-between gap-3">
           {title !== undefined ? (
-            <h3 className="text-sm font-bold tracking-tight text-fg">{title}</h3>
+            <h3 className="font-display text-sm font-semibold tracking-tight text-foreground">
+              {title}
+            </h3>
           ) : (
             <span />
           )}
           {action !== undefined ? (
-            <span className="font-mono text-[11px] text-muted">{action}</span>
+            <span className="font-mono text-[11px] text-muted-foreground tnum">{action}</span>
           ) : null}
         </div>
       ) : null}
       {children}
-    </section>
+    </UICard>
   );
 }
 
-// A key/value detail row (mockup `.kv`): dim label, mono tabular value.
+// A key/value detail row: dim label, mono tabular value.
 export function DetailRow({
   label,
   children,
@@ -48,9 +48,9 @@ export function DetailRow({
   children: ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-line-soft py-1.5 text-[12.5px] last:border-b-0">
-      <span className="text-muted">{label}</span>
-      <span className="font-mono tabular-nums text-fg">{children}</span>
+    <div className="flex items-center justify-between gap-4 border-b border-border py-1.5 text-[12.5px] last:border-b-0">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-mono tnum text-foreground">{children}</span>
     </div>
   );
 }

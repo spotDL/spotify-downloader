@@ -4,9 +4,10 @@ import {
   Link,
   Outlet,
 } from "@tanstack/react-router";
+import { motion, useReducedMotion } from "motion/react";
 import type { RouterContext } from "../app/router";
 import { EmptyState } from "../components/EmptyState";
-import { Toasts } from "../components/Toasts";
+import { Toaster } from "../components/ui/sonner";
 import { NavRail } from "../components/layout/NavRail";
 import { TopBar } from "../components/layout/TopBar";
 import { CommandPalette } from "../components/layout/CommandPalette";
@@ -20,6 +21,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
 function RootLayout() {
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const reduceMotion = useReducedMotion();
 
   // ⌘K / Ctrl+K toggles the command palette from anywhere.
   useEffect(() => {
@@ -34,35 +36,44 @@ function RootLayout() {
   }, []);
 
   return (
-    <div className="flex min-h-svh bg-void text-fg">
+    <div className="flex min-h-svh bg-background text-foreground">
+      {/* Mounted before the Outlet so sonner's store subscription is live before
+          any route mount-effect emits a toast (e.g. the OAuth callback, which
+          toasts an error and navigates away in the same tick). */}
+      <Toaster />
       <NavRail />
       <div className="flex min-w-0 flex-1 flex-col pb-16 sm:pb-0">
         <TopBar onOpenSearch={() => setPaletteOpen(true)} />
-        <main className="animate-fade-in flex-1">
-          <Outlet />
+        <main className="flex-1">
+          <motion.div
+            key={reduceMotion ? "static" : undefined}
+            initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+            className="mx-auto w-full max-w-6xl px-6 py-8"
+          >
+            <Outlet />
+          </motion.div>
         </main>
       </div>
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
-      <Toasts />
     </div>
   );
 }
 
 function NotFound() {
   return (
-    <div className="mx-auto w-full max-w-2xl px-6 py-16">
-      <EmptyState
-        title="Page not found"
-        description="The page you're looking for doesn't exist."
-        action={
-          <Link
-            to="/"
-            className="rounded-md px-3 py-1.5 text-sm font-medium text-emerald hover:underline"
-          >
-            Back to home
-          </Link>
-        }
-      />
-    </div>
+    <EmptyState
+      title="Page not found"
+      description="The page you're looking for doesn't exist."
+      action={
+        <Link
+          to="/"
+          className="rounded-md px-3 py-1.5 text-sm font-medium text-primary hover:underline"
+        >
+          Back to home
+        </Link>
+      }
+    />
   );
 }

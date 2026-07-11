@@ -1,24 +1,16 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { Button as UIButton } from "./ui/button";
 
-// The maximalist hero action (mockup `.btn` / `.btn.ghost`): a primary emerald
-// gradient with a lift-on-hover, or a bordered ghost. Distinct from the base
-// `Button` (used by out-of-scope forms) so restyling the heroes doesn't ripple
-// through login/settings/admin.
-
+// The prominent page action (album/artist "Enqueue all", hero CTAs). A flat
+// primary amber fill or a bordered ghost — distinct from the base `Button` so
+// the hero treatment can be tuned without touching forms.
 type Variant = "primary" | "ghost";
-
-const VARIANTS: Record<Variant, string> = {
-  primary:
-    "text-void bg-gradient-to-br from-emerald to-emerald-dim shadow-[0_8px_22px_-10px_var(--color-emerald)] hover:-translate-y-px",
-  ghost:
-    "text-ink-2 border border-line bg-transparent hover:bg-surface hover:text-fg",
-};
 
 export function ActionButton({
   variant = "primary",
   icon,
   children,
-  className = "",
+  className,
   type = "button",
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -26,13 +18,14 @@ export function ActionButton({
   icon?: ReactNode;
 }) {
   return (
-    <button
+    <UIButton
       type={type}
-      className={`hover-lift inline-flex items-center gap-2 rounded-[11px] px-4 py-2.5 text-sm font-semibold transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald/70 disabled:cursor-not-allowed disabled:opacity-60 ${VARIANTS[variant]} ${className}`}
+      variant={variant === "ghost" ? "outline" : "primary"}
+      className={className}
       {...props}
     >
       {icon}
       {children}
-    </button>
+    </UIButton>
   );
 }

@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { Download, ExternalLink, Flag, Music, RefreshCw } from "lucide-react";
 import type { LyricsOut, MatchOut, TrackOut } from "../api/generated/types.gen";
 import {
   useEnqueueDownload,
@@ -15,26 +16,23 @@ import {
 import { reportError } from "../lib/report-error";
 import { formatDuration, joinArtists } from "../lib/format";
 import { providerMeta, trackProviderUrl } from "../lib/providers";
+import { cn } from "../lib/utils";
 import { useFeature } from "../app/config";
 import { useAuthStore } from "../stores/auth";
 import { ActionButton } from "../components/ActionButton";
-import { Badge } from "../components/Badge";
 import { Card, DetailRow } from "../components/Card";
 import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
 import { Feature } from "../components/Feature";
-import { HeroBackdrop } from "../components/HeroBackdrop";
 import { Input } from "../components/Input";
 import { PlatformLinks, type PlatformLink } from "../components/PlatformLinks";
 import { SourcesPanel } from "../components/SourcesPanel";
 import { Spinner } from "../components/Spinner";
-import { StatChip } from "../components/StatChip";
 import { SyncedLyricsViewer } from "../components/SyncedLyricsViewer";
 import { toast } from "../components/Toasts";
 import { MatchStatusBadge } from "../components/MatchStatusBadge";
-import { VuGauge } from "../components/VuGauge";
+import { Meter, scoreColor } from "../components/ui/meter";
 import { VoteButtons, type VoteValue } from "../components/VoteButtons";
-import { DownloadIcon, ExternalIcon, FlagIcon, RefreshIcon } from "../components/icons";
 
 export const Route = createFileRoute("/tracks/$trackId")({
   component: TrackPage,
@@ -57,6 +55,16 @@ function toVoteValue(vote: number | null | undefined): VoteValue {
   return vote === 1 ? 1 : vote === -1 ? -1 : 0;
 }
 
+// A mono, tabular fact in the hero strip: a faint label beside a bright value.
+function Fact({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <span className="inline-flex items-baseline gap-1.5 font-mono text-xs tnum text-foreground">
+      <span className="uppercase tracking-wider text-faint">{label}</span>
+      {children}
+    </span>
+  );
+}
+
 function TrackPage() {
   const { trackId } = Route.useParams();
   const track = useTrack(trackId);
@@ -71,12 +79,10 @@ function TrackPage() {
 
   if (track.isError) {
     return (
-      <div className="mx-auto max-w-[1080px] px-6 py-16">
-        <ErrorState
-          title="Couldn't load this track"
-          description="The track may not exist, or the server is unreachable."
-        />
-      </div>
+      <ErrorState
+        title="Couldn't load this track"
+        description="The track may not exist, or the server is unreachable."
+      />
     );
   }
 
@@ -114,108 +120,96 @@ function TrackDetail({ trackId, t }: { trackId: string; t: TrackOut }) {
   }
 
   return (
-    <div>
-      <div className="grain relative overflow-hidden border-b border-line-soft">
-        <HeroBackdrop coverUrl={cover} />
-        <div className="relative z-[2] mx-auto max-w-[1080px] px-6">
-          <div className="flex flex-col gap-6 pt-9 pb-7 sm:flex-row sm:items-end sm:gap-7">
-            <div className="size-40 shrink-0 overflow-hidden rounded-[14px] shadow-[0_24px_60px_-18px_#000] ring-1 ring-white/10 sm:size-[196px]">
-              {cover ? (
-                <img src={cover} alt="" className="size-full object-cover" />
-              ) : (
-                <div className="grid size-full place-items-center bg-elevated text-4xl text-ink-4">
-                  ♪
-                </div>
-              )}
+    <div className="space-y-8">
+      <div className="flex flex-col gap-6 sm:flex-row sm:gap-7">
+        <div className="size-40 shrink-0 overflow-hidden rounded-lg border border-border bg-elevated sm:size-48">
+          {cover ? (
+            <img src={cover} alt="" className="size-full object-cover" />
+          ) : (
+            <div className="grid size-full place-items-center text-faint">
+              <Music className="size-12" />
             </div>
-            <div className="min-w-0 flex-1 pb-1">
-              <div className="mb-3.5 flex flex-wrap gap-2">
-                <Badge tone="brand">Track</Badge>
-                {t.explicit ? <Badge tone="danger">Explicit</Badge> : null}
-                {popularity != null ? (
-                  <Badge tone="muted">★ {popularity}</Badge>
-                ) : null}
-              </div>
-              <h1 className="text-[clamp(30px,5vw,52px)] font-black leading-[1.02] tracking-[-0.03em] text-fg">
-                {t.name}
-              </h1>
-              <p className="mt-2 text-[17px] text-ink-2">
-                <span className="font-semibold text-fg">{joinArtists(t.artists)}</span>
-              </p>
-              <div className="mt-4 mb-5 flex flex-wrap gap-x-6 gap-y-2">
-                <StatChip label="dur">{formatDuration(t.duration_ms)}</StatChip>
-                {t.album?.name ? <StatChip label="album">{t.album.name}</StatChip> : null}
-                {t.year ? <StatChip label="year">{t.year}</StatChip> : null}
-              </div>
-              <div className="flex flex-wrap gap-2.5">
-                <Feature flag="downloads">
-                  <ActionButton
-                    icon={<DownloadIcon className="size-4" />}
-                    disabled={enqueue.isPending}
-                    onClick={() =>
-                      enqueue.mutate(
-                        // Post the bare canonical id: the server short-circuits a
-                        // UUID to the local DB and picks the best match. Prefixing
-                        // `spotify:track:` would route it to Spotify's API → 400.
-                        { body: { query: t.id } },
-                        {
-                          onSuccess: () => toast.info("Added to the download queue."),
-                          onError: (e) => reportError(e, "Couldn't enqueue this track."),
-                        },
-                      )
-                    }
-                  >
-                    {enqueue.isPending ? "Enqueuing…" : "Download best match"}
-                  </ActionButton>
-                </Feature>
-                <ActionButton
-                  variant="ghost"
-                  icon={<RefreshIcon className="size-4" />}
-                  disabled={refreshing}
-                  onClick={() => {
-                    refresh();
-                    toast.info("Refreshing metadata from providers…");
-                  }}
-                >
-                  {refreshing ? "Refreshing…" : "Refresh metadata"}
-                </ActionButton>
-                <Feature flag="voting">
-                  <ReportButton subjectId={t.id} />
-                </Feature>
-              </div>
-            </div>
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-medium uppercase tracking-wider text-faint">
+            Track{t.explicit ? " · Explicit" : ""}
+          </p>
+          <h1 className="mt-1.5 font-display text-3xl font-bold leading-tight tracking-tight text-foreground">
+            {t.name}
+          </h1>
+          <p className="mt-2 text-foreground">{joinArtists(t.artists)}</p>
+          <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+            <Fact label="dur">{formatDuration(t.duration_ms)}</Fact>
+            {t.album?.name ? <Fact label="album">{t.album.name}</Fact> : null}
+            {t.year ? <Fact label="year">{t.year}</Fact> : null}
+            {popularity != null ? <Fact label="pop">{popularity}</Fact> : null}
+          </div>
+          <div className="mt-5 flex flex-wrap gap-2.5">
+            <Feature flag="downloads">
+              <ActionButton
+                icon={<Download className="size-4" />}
+                disabled={enqueue.isPending}
+                onClick={() =>
+                  enqueue.mutate(
+                    // Post the bare canonical id: the server short-circuits a
+                    // UUID to the local DB and picks the best match. Prefixing
+                    // `spotify:track:` would route it to Spotify's API → 400.
+                    { body: { query: t.id } },
+                    {
+                      onSuccess: () => toast.info("Added to the download queue."),
+                      onError: (e) => reportError(e, "Couldn't enqueue this track."),
+                    },
+                  )
+                }
+              >
+                {enqueue.isPending ? "Enqueuing…" : "Download best match"}
+              </ActionButton>
+            </Feature>
+            <ActionButton
+              variant="ghost"
+              icon={<RefreshCw className="size-4" />}
+              disabled={refreshing}
+              onClick={() => {
+                refresh();
+                toast.info("Refreshing metadata from providers…");
+              }}
+            >
+              {refreshing ? "Refreshing…" : "Refresh metadata"}
+            </ActionButton>
+            <Feature flag="voting">
+              <ReportButton subjectId={t.id} />
+            </Feature>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1080px] px-6">
-        <div className="grid gap-5 py-7 lg:grid-cols-[1.9fr_1fr]">
-          <div className="flex min-w-0 flex-col gap-5">
-            <MatchesCard trackId={trackId} />
-            <LyricsSection trackId={trackId} />
-          </div>
+      <div className="grid gap-5 lg:grid-cols-[1.9fr_1fr]">
+        <div className="flex min-w-0 flex-col gap-5">
+          <MatchesCard trackId={trackId} />
+          <LyricsSection trackId={trackId} />
+        </div>
 
-          <div className="flex min-w-0 flex-col gap-5">
-            {listen.length > 0 ? (
-              <Card title="Listen on">
-                <PlatformLinks links={listen} />
-              </Card>
-            ) : null}
-            <Card title="Details">
-              {t.isrc ? <DetailRow label="ISRC">{t.isrc}</DetailRow> : null}
-              {t.publisher ? (
-                <DetailRow label="Publisher">{t.publisher}</DetailRow>
-              ) : null}
-              {popularity != null ? (
-                <DetailRow label="Popularity">{popularity} / 100</DetailRow>
-              ) : null}
-              <DetailRow label="Matches">{matchList.length}</DetailRow>
-              {t.date ? <DetailRow label="Date">{t.date}</DetailRow> : null}
-              {t.year ? <DetailRow label="Year">{t.year}</DetailRow> : null}
-              {t.album?.name ? <DetailRow label="Album">{t.album.name}</DetailRow> : null}
+        <div className="flex min-w-0 flex-col gap-5">
+          {listen.length > 0 ? (
+            <Card title="Listen on">
+              <PlatformLinks links={listen} />
             </Card>
-            <SourcesPanel entityType="track" id={t.id} />
-          </div>
+          ) : null}
+          <Card title="Details">
+            {t.isrc ? <DetailRow label="ISRC">{t.isrc}</DetailRow> : null}
+            {t.publisher ? (
+              <DetailRow label="Publisher">{t.publisher}</DetailRow>
+            ) : null}
+            {popularity != null ? (
+              <DetailRow label="Popularity">{popularity} / 100</DetailRow>
+            ) : null}
+            <DetailRow label="Matches">{matchList.length}</DetailRow>
+            {t.date ? <DetailRow label="Date">{t.date}</DetailRow> : null}
+            {t.year ? <DetailRow label="Year">{t.year}</DetailRow> : null}
+            {t.album?.name ? <DetailRow label="Album">{t.album.name}</DetailRow> : null}
+          </Card>
+          <SourcesPanel entityType="track" id={t.id} />
         </div>
       </div>
     </div>
@@ -234,14 +228,14 @@ function ReportButton({ subjectId }: { subjectId: string }) {
     <div className="relative">
       <ActionButton
         variant="ghost"
-        icon={<FlagIcon className="size-4" />}
+        icon={<Flag className="size-4" />}
         onClick={() => setOpen((o) => !o)}
       >
         Report
       </ActionButton>
       {open ? (
         <form
-          className="absolute left-0 top-full z-10 mt-2 flex w-72 flex-col gap-2 rounded-card border border-line bg-panel p-3 shadow-card"
+          className="absolute left-0 top-full z-10 mt-2 flex w-72 flex-col gap-2 rounded-lg border border-border bg-card p-3 shadow-lg"
           title={anonymous ? ANON_VOTE_TOOLTIP : undefined}
           onSubmit={(e) => {
             e.preventDefault();
@@ -266,7 +260,10 @@ function ReportButton({ subjectId }: { subjectId: string }) {
             );
           }}
         >
-          <label className="text-xs font-medium text-ink-2" htmlFor="report-reason">
+          <label
+            className="text-xs font-medium text-muted-foreground"
+            htmlFor="report-reason"
+          >
             What's wrong with this track?
           </label>
           <Input
@@ -337,22 +334,41 @@ function MatchesCard({ trackId }: { trackId: string }) {
           {list.map((match, i) => {
             const meta = providerMeta(match.target_provider);
             const best = i === 0;
+            const pct = Math.round(match.score);
             return (
               <div
                 key={match.id}
-                className={`flex items-center gap-3.5 rounded-xl bg-elevated p-3 transition-colors hover:bg-hover ${
-                  best ? "shadow-[inset_0_0_0_1px_var(--color-emerald)]" : ""
-                }`}
+                className={cn(
+                  "flex items-center gap-3.5 rounded-md bg-elevated p-3 transition-colors hover:bg-surface",
+                  best && "ring-1 ring-primary/50",
+                )}
               >
-                {/* Match.score is the matcher's 0–100 value (v4 parity); VuGauge's
-                    contract is 0–1, so normalize here rather than clamp to 100%. */}
-                <VuGauge score={match.score / 100} />
+                {/* Match.score is the matcher's 0–100 value (v4 parity); the Meter
+                    reads the raw 0–100 scale, and aria-valuetext mirrors the
+                    percentage so the score-scale regression stays observable. */}
+                <div className="flex w-24 shrink-0 items-center gap-2">
+                  <Meter
+                    value={match.score}
+                    max={100}
+                    cells={10}
+                    color={scoreColor(match.score)}
+                    label="Match score"
+                    aria-valuetext={`${pct}%`}
+                    className="flex-1"
+                  />
+                  <span
+                    className="w-8 text-right font-mono text-xs font-semibold tnum"
+                    style={{ color: scoreColor(match.score) }}
+                  >
+                    {pct}%
+                  </span>
+                </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13px] font-semibold text-fg">
+                  <p className="truncate text-[13px] font-semibold text-foreground">
                     {match.candidate_name ?? match.target_id}
                   </p>
-                  <p className="mt-0.5 flex items-center gap-2 text-[11px] text-muted">
-                    <span className={`size-2 rounded-full ${meta.dotClass}`} aria-hidden />
+                  <p className="mt-0.5 flex items-center gap-2 text-[11px] text-muted-foreground">
+                    <span className={cn("size-2 rounded-full", meta.dotClass)} aria-hidden />
                     <span className="truncate">
                       {meta.label}
                       {match.candidate_duration_ms != null
@@ -360,7 +376,7 @@ function MatchesCard({ trackId }: { trackId: string }) {
                         : ""}
                     </span>
                     {best ? (
-                      <span className="rounded bg-emerald/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wide text-emerald">
+                      <span className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wide text-primary">
                         Best
                       </span>
                     ) : null}
@@ -374,9 +390,9 @@ function MatchesCard({ trackId }: { trackId: string }) {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Open match"
-                  className="text-muted transition-colors hover:text-fg"
+                  className="text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  <ExternalIcon className="size-4" />
+                  <ExternalLink className="size-4" />
                 </a>
                 <Feature flag="voting">
                   <VoteButtons
@@ -431,7 +447,10 @@ function SubmitMatchForm({
         );
       }}
     >
-      <label className="text-xs font-medium text-ink-2" htmlFor="submit-match-url">
+      <label
+        className="text-xs font-medium text-muted-foreground"
+        htmlFor="submit-match-url"
+      >
         Submit a match URL
       </label>
       <div className="flex gap-2">
