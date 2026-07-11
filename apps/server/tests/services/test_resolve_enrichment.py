@@ -287,6 +287,124 @@ async def test_artist_enrichment_fills_gap(session: AsyncSession) -> None:
     }
 
 
+def _artist_source(
+    provider: ProviderId, provider_id: str, name: str, tracks: tuple[Track, ...]
+) -> FakeMetadataProvider:
+    """A secondary metadata source whose artist search resolves to ``tracks``."""
+    return FakeMetadataProvider(
+        id=provider,
+        hits=[
+            SearchHit(
+                entity_type=EntityType.ARTIST,
+                provider=provider,
+                provider_id=provider_id,
+                name=name,
+            )
+        ],
+        resolved={
+            EntityType.ARTIST: ResolvedEntity(
+                provider=provider,
+                provider_id=provider_id,
+                entity_type=EntityType.ARTIST,
+                artist=ArtistRef(name=name, followers=1_000),
+                tracks=tracks,
+            )
+        },
+    )
+
+
+async def test_artist_top_tracks_dedup_differing_isrc(session: AsyncSession) -> None:
+    # Spotify and Deezer both list "ECHO", but Deezer's copy is a different
+    # pressing (different ISRC). The union must keep ONE ECHO (the primary's) and
+    # still append Deezer's genuinely exclusive track. The bug: the differing ISRC
+    # slipped past the name dedupe because the primary seeded only its ISRC, so
+    # ECHO was listed twice (each with its own provider's artwork/id).
+    spotify_artist = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="artist123",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Mata", followers=500_000),
+        tracks=(
+            _track("ECHO", "Mata", isrc="PLA010000001"),
+            _track("Kiss cam", "Mata", isrc="PLA010000002"),
+        ),
+    )
+    spotify = FakeResolver(id=ProviderId.SPOTIFY, entity=spotify_artist)
+    deezer = _artist_source(
+        ProviderId.DEEZER,
+        "dzartist",
+        "Mata",
+        (
+            _track("ECHO", "Mata", isrc="PLA019999999"),  # same song, other pressing
+            _track("Fantastine", "Mata", isrc="PLA010000003"),  # Deezer-exclusive
+        ),
+    )
+    service = ResolveService(session=session, registry=build_fake_registry(spotify, deezer))
+
+    result = await service.resolve(SPOTIFY_ARTIST_URL)
+
+    assert result.artist is not None
+    names = [t.name for t in result.artist.tracks]
+    assert names.count("ECHO") == 1  # deduped despite the differing ISRC
+    assert sorted(names) == ["ECHO", "Fantastine", "Kiss cam"]
+    # Rank stability: the primary's listing leads, the secondary-exclusive follows.
+    assert names == ["ECHO", "Kiss cam", "Fantastine"]
+
+
+async def test_artist_top_tracks_dedup_same_title_no_isrc(session: AsyncSession) -> None:
+    # Deezer's duplicate carries NO ISRC → dedupe falls back to the case-folded
+    # title (the casing even differs), so the same recording is not listed twice.
+    spotify_artist = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="artist123",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Mata", followers=500_000),
+        tracks=(_track("ECHO", "Mata", isrc="PLA010000001"),),
+    )
+    spotify = FakeResolver(id=ProviderId.SPOTIFY, entity=spotify_artist)
+    deezer = _artist_source(
+        ProviderId.DEEZER,
+        "dzartist",
+        "Mata",
+        (
+            _track("echo", "Mata", isrc=None),  # same song, no ISRC, different casing
+            _track("Kiss cam", "Mata", isrc=None),  # Deezer-exclusive
+        ),
+    )
+    service = ResolveService(session=session, registry=build_fake_registry(spotify, deezer))
+
+    result = await service.resolve(SPOTIFY_ARTIST_URL)
+
+    assert result.artist is not None
+    names = [t.name for t in result.artist.tracks]
+    assert [n.casefold() for n in names].count("echo") == 1  # name-fallback dedupe
+    assert names == ["ECHO", "Kiss cam"]
+
+
+async def test_artist_top_tracks_dedup_same_isrc(session: AsyncSession) -> None:
+    # Both providers agree on the ISRC → the classic ISRC dedupe keeps one copy.
+    spotify_artist = ResolvedEntity(
+        provider=ProviderId.SPOTIFY,
+        provider_id="artist123",
+        entity_type=EntityType.ARTIST,
+        artist=ArtistRef(name="Mata", followers=500_000),
+        tracks=(_track("ECHO", "Mata", isrc="PLA010000001"),),
+    )
+    spotify = FakeResolver(id=ProviderId.SPOTIFY, entity=spotify_artist)
+    deezer = _artist_source(
+        ProviderId.DEEZER,
+        "dzartist",
+        "Mata",
+        (_track("ECHO", "Mata", isrc="PLA010000001"),),  # identical ISRC
+    )
+    service = ResolveService(session=session, registry=build_fake_registry(spotify, deezer))
+
+    result = await service.resolve(SPOTIFY_ARTIST_URL)
+
+    assert result.artist is not None
+    assert [t.name for t in result.artist.tracks] == ["ECHO"]
+
+
 # --------------------------------------------------------------------------
 # Phase 4 — Last.fm name-keyed enrichment + entity_stat recording
 # --------------------------------------------------------------------------

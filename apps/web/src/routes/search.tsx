@@ -54,23 +54,27 @@ const sectionItem = {
   },
 };
 
-// Eyebrow section header — the Control Room label + mono count.
+// Eyebrow section header on a divider line — Control Room label + mono count,
+// with any actions right-aligned on the same rule (Layout rules v2 §6).
 function SectionHeader({
   title,
   count,
   icon,
+  actions,
 }: {
   title: string;
   count: number;
   icon?: ReactNode;
+  actions?: ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-2 px-1">
+    <div className="flex items-center gap-2 border-b border-border px-1 pb-2">
       {icon ? <span className="text-faint">{icon}</span> : null}
       <h2 className="text-xs font-medium uppercase tracking-wider text-faint">
         {title}
       </h2>
       <span className="font-mono text-xs text-faint tnum">{count}</span>
+      {actions ? <div className="ml-auto">{actions}</div> : null}
     </div>
   );
 }
@@ -91,7 +95,7 @@ function RowThumb({
         alt=""
         loading="lazy"
         className={cn(
-          "size-11 shrink-0 border border-border object-cover",
+          "size-10 shrink-0 border border-border object-cover",
           shape,
         )}
       />
@@ -101,12 +105,12 @@ function RowThumb({
     <span
       aria-hidden
       className={cn(
-        "grid size-11 shrink-0 place-items-center border border-border bg-surface text-faint",
+        "grid size-10 shrink-0 place-items-center border border-border bg-surface text-faint",
         shape,
       )}
     >
       {circle ? (
-        <User className="size-5" />
+        <User className="size-4" />
       ) : (
         <span className="text-base leading-none">♪</span>
       )}
@@ -171,14 +175,14 @@ function LinkRow({
         e.preventDefault();
         onSelect();
       }}
-      className="group flex items-center gap-3 rounded-md px-3 py-2.5 transition-colors hover:bg-elevated"
+      className="group flex items-center gap-3 rounded-md px-2.5 py-2 transition-colors hover:bg-elevated"
     >
       {thumb}
       <div className="min-w-0 flex-1">
-        <span className="block text-xs font-medium uppercase tracking-wider text-faint">
+        <span className="block text-[10px] font-medium uppercase tracking-wider text-faint">
           {eyebrow}
         </span>
-        <span className="block truncate text-sm font-medium text-foreground transition-colors group-hover:text-primary">
+        <span className="block truncate text-sm font-medium text-foreground transition-colors group-hover:text-info">
           {title}
         </span>
         {subtitle !== undefined && subtitle !== "" ? (
@@ -394,7 +398,7 @@ function FilterRail({
 function ArtistsSection({ artists }: { artists: ArtistOut[] }) {
   const { openArtist } = useOpenEntity();
   return (
-    <motion.section variants={sectionItem} className="flex flex-col gap-3">
+    <motion.section variants={sectionItem} className="flex max-w-3xl flex-col gap-3">
       <SectionHeader
         title="Artists"
         count={artists.length}
@@ -406,14 +410,14 @@ function ArtistsSection({ artists }: { artists: ArtistOut[] }) {
             key={a.id}
             type="button"
             onClick={() => openArtist(a)}
-            className="group flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left transition-colors hover:bg-elevated"
+            className="group flex w-full items-center gap-3 rounded-md px-2.5 py-2 text-left transition-colors hover:bg-elevated"
           >
             <RowThumb src={a.image_url} circle />
             <div className="min-w-0 flex-1">
-              <span className="block text-xs font-medium uppercase tracking-wider text-faint">
+              <span className="block text-[10px] font-medium uppercase tracking-wider text-faint">
                 Artist
               </span>
-              <span className="block truncate text-sm font-medium text-foreground transition-colors group-hover:text-primary">
+              <span className="block truncate text-sm font-medium text-foreground transition-colors group-hover:text-info">
                 {a.name}
               </span>
             </div>
@@ -432,7 +436,7 @@ function ArtistsSection({ artists }: { artists: ArtistOut[] }) {
 function SongsSection({ tracks }: { tracks: TrackOut[] }) {
   const { openTrack } = useOpenEntity();
   return (
-    <motion.section variants={sectionItem} className="flex flex-col gap-3">
+    <motion.section variants={sectionItem} className="flex max-w-3xl flex-col gap-3">
       <SectionHeader
         title="Songs"
         count={tracks.length}
@@ -479,32 +483,35 @@ function AlbumsSection({ albums }: { albums: AlbumOut[] }) {
     );
 
   return (
-    <motion.section variants={sectionItem} className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-3">
-        <SectionHeader
-          title="Albums"
-          count={albums.length}
-          icon={<Disc3 className="size-4" />}
-        />
-        <div className="flex gap-0.5 rounded-md border border-border bg-surface p-0.5">
-          {(["grid", "list"] as const).map((v) => (
-            <button
-              key={v}
-              type="button"
-              aria-pressed={view === v}
-              onClick={() => setView(v)}
-              className={cn(
-                "rounded px-2.5 py-1 text-xs font-medium capitalize transition-colors",
-                view === v
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {v}
-            </button>
-          ))}
-        </div>
-      </div>
+    <motion.section
+      variants={sectionItem}
+      className={cn("flex flex-col gap-3", view === "list" && "max-w-3xl")}
+    >
+      <SectionHeader
+        title="Albums"
+        count={albums.length}
+        icon={<Disc3 className="size-4" />}
+        actions={
+          <div className="flex gap-0.5 rounded-md border border-border bg-surface p-0.5">
+            {(["grid", "list"] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                aria-pressed={view === v}
+                onClick={() => setView(v)}
+                className={cn(
+                  "rounded px-2.5 py-1 text-xs font-medium capitalize transition-colors",
+                  view === v
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+        }
+      />
 
       {view === "list" ? (
         <div className="rounded-lg border border-border bg-card p-1">
@@ -552,7 +559,7 @@ function AlbumsSection({ albums }: { albums: AlbumOut[] }) {
 function PlaylistsSection({ playlists }: { playlists: PlaylistOut[] }) {
   const { openPlaylist } = useOpenEntity();
   return (
-    <motion.section variants={sectionItem} className="flex flex-col gap-3">
+    <motion.section variants={sectionItem} className="flex max-w-3xl flex-col gap-3">
       <SectionHeader
         title="Playlists"
         count={playlists.length}

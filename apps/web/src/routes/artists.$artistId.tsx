@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Disc3, Music, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import type { AlbumOut, ArtistOut } from "../api/generated/types.gen";
 import { useArtist, useForceRefreshArtist } from "../api/queries";
 import { useSubmitDownload } from "../api/downloads";
@@ -13,7 +13,7 @@ import { Card } from "../components/Card";
 import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
 import { SectionDivider } from "../components/SectionDivider";
-import { SourcesPanel, StatsCard } from "../components/SourcesPanel";
+import { SourcesPanel } from "../components/SourcesPanel";
 import { Spinner } from "../components/Spinner";
 import { StatChip } from "../components/StatChip";
 import { TrackTable } from "../components/TrackTable";
@@ -80,27 +80,27 @@ function ArtistDetail({ artist }: { artist: ArtistOut }) {
 
   return (
     <div className="space-y-8">
-      <header className="flex flex-col items-start gap-6 sm:flex-row sm:items-end">
+      <header className="flex flex-wrap items-center gap-x-5 gap-y-4">
         <div className="shrink-0">
           {artist.image_url ? (
             <img
               src={artist.image_url}
               alt=""
-              className="size-36 rounded-full border border-border object-cover sm:size-40"
+              className="size-28 rounded-full border border-border object-cover"
             />
           ) : (
-            <div className="grid size-36 place-items-center rounded-full border border-border bg-elevated font-display text-4xl font-bold text-muted-foreground sm:size-40">
+            <div className="grid size-28 place-items-center rounded-full border border-border bg-elevated font-display text-3xl font-bold text-muted-foreground">
               {artistInitials(artist.name)}
             </div>
           )}
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-xs font-medium uppercase tracking-wider text-faint">Artist</p>
-          <h1 className="mt-1.5 font-display text-3xl font-bold tracking-tight text-foreground">
+          <h1 className="mt-1 font-display text-2xl font-bold tracking-tight text-foreground">
             {artist.name}
           </h1>
 
-          <div className="mt-4 flex flex-wrap items-baseline gap-x-6 gap-y-2">
+          <div className="mt-2.5 flex flex-wrap items-baseline gap-x-5 gap-y-1.5">
             {artist.followers != null ? (
               <StatChip label="followers">{formatFollowers(artist.followers)}</StatChip>
             ) : null}
@@ -111,7 +111,7 @@ function ArtistDetail({ artist }: { artist: ArtistOut }) {
           </div>
 
           {genres.length > 0 ? (
-            <div className="mt-4 flex flex-wrap gap-1.5">
+            <div className="mt-3 flex flex-wrap gap-1.5">
               {genres.slice(0, 5).map((g) => (
                 <span
                   key={g}
@@ -127,33 +127,31 @@ function ArtistDetail({ artist }: { artist: ArtistOut }) {
               ) : null}
             </div>
           ) : null}
-
-          {/* No Enqueue all: an artist is NOT a downloadable batch (Plan 8's
-              `unsupported_entity` rule). Enqueue is per-track / per-album. */}
-          <div className="mt-5">
-            <ActionButton
-              variant="ghost"
-              icon={<RefreshCw className="size-4" />}
-              disabled={refreshing}
-              onClick={() => {
-                onRefresh();
-                toast.info("Refreshing from providers…");
-              }}
-            >
-              {refreshing ? "Refreshing…" : "Refresh"}
-            </ActionButton>
-          </div>
         </div>
+
+        {/* No Enqueue all: an artist is NOT a downloadable batch (Plan 8's
+            `unsupported_entity` rule). Enqueue is per-track / per-album. */}
+        <ActionButton
+          variant="ghost"
+          icon={<RefreshCw className="size-4" />}
+          disabled={refreshing}
+          onClick={() => {
+            onRefresh();
+            toast.info("Refreshing from providers…");
+          }}
+        >
+          {refreshing ? "Refreshing…" : "Refresh"}
+        </ActionButton>
       </header>
 
-      <div className="grid gap-8 lg:grid-cols-[1.9fr_1fr]">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="flex min-w-0 flex-col gap-8">
           <section className="flex flex-col gap-4">
-            <SectionDivider title="Top tracks" icon={<Music className="size-4" />} />
+            <SectionDivider title="Top tracks" count={tracks.length} />
             {tracks.length === 0 ? (
               <EmptyState title="No tracks" description="No top tracks for this artist." />
             ) : (
-              <TrackTable tracks={tracks} />
+              <TrackTable tracks={tracks} numbering="index" />
             )}
           </section>
 
@@ -162,13 +160,12 @@ function ArtistDetail({ artist }: { artist: ArtistOut }) {
           ) : null}
         </div>
 
-        <aside className="flex min-w-0 flex-col gap-5">
+        <aside className="flex min-w-0 flex-col gap-5 lg:sticky lg:top-20 lg:h-fit">
           {bio ? (
             <Card title="About">
               <p className="text-sm leading-relaxed text-muted-foreground">{bio}</p>
             </Card>
           ) : null}
-          <StatsCard id={artist.id} />
           <SourcesPanel entityType="artist" id={artist.id} />
         </aside>
       </div>
@@ -234,28 +231,29 @@ function Discography({ albums, downloading }: { albums: AlbumOut[]; downloading:
       <SectionDivider
         title="Discography"
         count={albums.length}
-        icon={<Disc3 className="size-4" />}
+        action={
+          tabs.length > 1 ? (
+            <div role="tablist" aria-label="Filter discography" className="flex flex-wrap gap-1.5">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={filter === tab.key}
+                  onClick={() => setFilter(tab.key)}
+                  className={
+                    filter === tab.key
+                      ? "rounded-md bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground transition-colors"
+                      : "rounded-md px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-elevated hover:text-foreground"
+                  }
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          ) : undefined
+        }
       />
-      {tabs.length > 1 ? (
-        <div role="tablist" aria-label="Filter discography" className="flex flex-wrap gap-2">
-          {tabs.map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              role="tab"
-              aria-selected={filter === tab.key}
-              onClick={() => setFilter(tab.key)}
-              className={
-                filter === tab.key
-                  ? "rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors"
-                  : "rounded-md bg-surface px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-elevated hover:text-foreground"
-              }
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      ) : null}
       {shown.length === 0 ? (
         <EmptyState title="No releases" description="Nothing in this category." />
       ) : (

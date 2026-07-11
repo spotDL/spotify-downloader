@@ -85,21 +85,23 @@ describe("Artist page", () => {
     expect(screen.getByText("A French electronic duo.")).toBeInTheDocument();
   });
 
-  it("shows 'Reach across platforms' with two providers plus a metadata-sources panel", async () => {
+  it("shows one merged Sources panel listing each provider once with its reach", async () => {
     serveArtist();
     renderApp("/artists/artist-1");
 
-    // Default sources handler serves Spotify + Deezer follower snapshots.
-    expect(
-      await screen.findByText("Reach across platforms"),
-    ).toBeInTheDocument();
-    // Deezer's fan count shows only in the reach card; the honest label sits beside it.
+    // Default sources handler serves Spotify + Deezer follower snapshots, folded
+    // into a single panel — the old reach-vs-provenance duplication is gone.
+    // Await a data-derived value so we're past the loading card, which also
+    // carries the "Sources" title.
+    expect(await screen.findByText("34.2M")).toBeInTheDocument();
+    expect(screen.getByText("Sources")).toBeInTheDocument();
+    expect(screen.queryByText("Reach across platforms")).not.toBeInTheDocument();
+    expect(screen.queryByText("Metadata sources")).not.toBeInTheDocument();
+
+    // Each provider's follower snapshot shows once, in mono, beside its ★ score.
     expect(screen.getByText("4.5M")).toBeInTheDocument();
-    expect(screen.getByText(/not licensed play counts/i)).toBeInTheDocument();
-    // The provenance panel lists both providers by name (Deezer appears in both
-    // the reach card and the sources panel).
-    expect(screen.getByText("Metadata sources")).toBeInTheDocument();
-    expect(screen.getAllByText("Deezer").length).toBeGreaterThanOrEqual(2);
+    // Deezer is listed exactly once now (no duplicate card).
+    expect(screen.getAllByText("Deezer")).toHaveLength(1);
   });
 
   it("renders the discography grid with album-type filter tabs that narrow it", async () => {

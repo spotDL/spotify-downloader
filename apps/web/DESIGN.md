@@ -15,8 +15,19 @@ Design rationale: `docs/superpowers/specs/2026-07-10-ui-redesign-design.md` (old
 
 Tailwind classes: `bg-background`, `bg-surface`, `bg-card`, `bg-elevated`, `border-border`, `text-foreground`, `text-muted-foreground`, `text-faint`, `text-primary`/`bg-primary`/`text-primary-foreground`, `text-info`, `text-success`, `text-warning`, `text-destructive`, `ring-ring`, platform colors (`bg-spotify` etc. — identity dots/links only, never chrome).
 
-Dark (default): background `#0b0d12`, surface `#12151c`, card `#171b24`, elevated `#1e2430`, border `#262d3a`, foreground `#e8eaf0`, muted-foreground `#8b93a7`, faint `#5a6274`, primary `#f5a623` (ink `#16110a`), info `#56c8d8`, success `#4ade80`, warning `#facc15`, destructive `#f4506c`.
-Light: background `#f6f7f9`, card `#ffffff`, surface `#f0f1f4`, elevated `#e4e6eb`, border `#dde0e6`, foreground `#101318`, muted-foreground `#5c6474`, faint `#8a92a3`, primary `#c77e0a`, info `#0e7f92`, success `#15803d`, warning `#a16207`, destructive `#d92643`.
+Dark (default): background `#0b0d12`, surface `#12151c`, card `#171b24`, elevated `#1e2430`, border `#262d3a`, foreground `#e8eaf0`, muted-foreground `#8b93a7`, faint `#5a6274`, primary `#f5a623` (ink `#16110a`), **secondary/info/success emerald `#00d084`** (ink `#06130c`), warning `#facc15`, destructive `#f4506c`.
+Light: background `#f6f7f9`, card `#ffffff`, surface `#f0f1f4`, elevated `#e4e6eb`, border `#dde0e6`, foreground `#101318`, muted-foreground `#5c6474`, faint `#8a92a3`, primary `#c77e0a`, secondary/info/success `#047857`, warning `#a16207`, destructive `#d92643`.
+
+**Color voices (v2):** amber = the operator's hand (actions, focus, active nav, in-flight meters); emerald = the community/positive voice (links, secondary accents, verified/complete states, success meter fill, source dots for healthy providers). Never both voices on one element.
+
+## Layout rules (v2 — after the first-pass layouts were rejected)
+
+1. **Constrain reading width.** Track lists, settings rows, and definition lists cap at `max-w-3xl`; only grids (discography, library cards) may span the full content column. Never let a row list stretch across the whole 6xl container.
+2. **Cap long lists.** Entity-page lists show 10 rows with a `Show all N` ghost expander. N is always visible in the section header count.
+3. **One panel per fact.** Never render the same values in two sidebar cards. The entity sidebar has ONE `Sources` panel: one row per provider — identity dot, name, follower/fan count, extra metric (e.g. ★ popularity), link — merging reach + provenance.
+4. **Sticky sidebar.** Entity-page side panels stick (`lg:sticky lg:top-20 h-fit`) beside the scrolling main column.
+5. **Dense rows.** List rows are 48px: 32–40px thumb, single-line title + artists (truncate), mono duration right-aligned; hover reveals row actions (visible by default on touch). Numbers in artist top lists are the merged list index (1..N), rendered `font-mono tnum text-faint`; album pages keep real `track_number`.
+6. **Section headers** carry the count: eyebrow label + `font-mono tnum` count on the divider line, actions right-aligned on the same line.
 
 Type: `font-display` = Space Grotesk (headings; page titles `font-display text-2xl font-bold tracking-tight`), `font-sans` = IBM Plex Sans (body), `font-mono` = IBM Plex Mono + `tnum` utility class for ALL data (durations, counts, scores, ISRCs, dates, kbd). Eyebrow labels: `text-xs font-medium uppercase tracking-wider text-faint`.
 

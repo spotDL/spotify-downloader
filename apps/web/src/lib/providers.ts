@@ -32,6 +32,35 @@ export function providerMeta(provider: string): ProviderMeta {
 }
 
 /**
+ * Best-effort public URL for any entity on a metadata provider, used by the
+ * Sources panel's per-provider external link. Returns `null` when we can't build
+ * a stable public URL for the {provider, entityType} pair so the caller can omit
+ * the link rather than emit a dead one.
+ */
+export function entityProviderUrl(
+  provider: string | null | undefined,
+  entityType: string,
+  providerEntityId: string | null | undefined,
+): string | null {
+  if (!provider || !providerEntityId) return null;
+  switch (provider) {
+    case "spotify":
+      // Spotify's web routes mirror the entity type 1:1.
+      return `https://open.spotify.com/${entityType}/${providerEntityId}`;
+    case "deezer":
+      return `https://www.deezer.com/${entityType}/${providerEntityId}`;
+    case "musicbrainz":
+      if (entityType === "artist")
+        return `https://musicbrainz.org/artist/${providerEntityId}`;
+      if (entityType === "track")
+        return `https://musicbrainz.org/recording/${providerEntityId}`;
+      return null;
+    default:
+      return null;
+  }
+}
+
+/**
  * Best-effort canonical "listen on" URL for a track on a metadata provider.
  * Returns `null` when we can't build a stable public URL (e.g. iTunes needs a
  * storefront) so the caller can omit the link rather than emit a dead one.

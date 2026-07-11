@@ -63,7 +63,7 @@ function Row({
   mono?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-border py-3.5 last:border-b-0">
+    <div className="flex items-center justify-between gap-4 border-b border-border py-2.5 last:border-b-0">
       <dt className="text-sm text-muted-foreground">{label}</dt>
       <dd
         className={cn(
@@ -102,7 +102,7 @@ function ServerConfigPanel() {
       >
         <dl>
           <Row label="Deployment mode">
-            <Badge tone="brand" className="uppercase">
+            <Badge tone="neutral" className="uppercase">
               {mode}
             </Badge>
           </Row>
@@ -121,7 +121,7 @@ function ServerConfigPanel() {
           {(Object.keys(FLAG_LABELS) as (keyof FeatureFlags)[]).map((flag) => (
             <Row key={flag} label={FLAG_LABELS[flag]}>
               {features[flag] ? (
-                <Badge tone="brand">On</Badge>
+                <Badge tone="ok">On</Badge>
               ) : (
                 <Badge tone="muted">Off</Badge>
               )}
@@ -184,7 +184,7 @@ function AppearancePanel() {
       title="Appearance"
       description="Choose how spotDL looks on this device."
     >
-      <div className="flex items-center justify-between gap-4 py-3.5">
+      <div className="flex items-center justify-between gap-4 py-2.5">
         <span className="text-sm text-muted-foreground">Theme</span>
         <div
           role="radiogroup"
@@ -439,7 +439,7 @@ function SettingsPage() {
 
       <div className="grid gap-8 lg:grid-cols-[184px_1fr]">
         <SettingsNav />
-        <div className="min-w-0 space-y-10">
+        <div className="min-w-0 max-w-3xl space-y-8">
           <ServerConfigPanel />
           <AppearancePanel />
           <ConnectionPanel />

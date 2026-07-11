@@ -32,8 +32,8 @@ FAINT = "#5a6274"  # --faint
 TEXT_DIM = "#3a4150"  # below faint — unlit meter cells
 
 PRIMARY = "#f5a623"  # --primary — phosphor amber (accent, focus, meters)
-INFO = "#56c8d8"  # --info — cyan secondary signal
-SUCCESS = "#4ade80"  # --success
+INFO = "#00d084"  # --info/--secondary — emerald secondary signal (mirrors web)
+SUCCESS = "#00d084"  # --success — unified on the emerald secondary
 WARNING = "#facc15"  # --warning
 ERROR = "#f4506c"  # --error
 

@@ -1,19 +1,21 @@
-import type { ReactNode } from "react";
+import { ExternalLink } from "lucide-react";
 import type {
   EntityType,
   MetadataSourceOut,
 } from "../api/generated/types.gen";
 import { useEntitySources } from "../api/queries";
 import { formatFollowers } from "../lib/format";
-import { providerMeta } from "../lib/providers";
+import { entityProviderUrl, providerMeta } from "../lib/providers";
 import { Card } from "./Card";
 import { Skeleton } from "./ui/skeleton";
 
-// The "Metadata sources" panel + a cross-platform "Reach" stat card. Both read
-// the same `/{entity}/{id}/sources` provenance (the merged canonical row is
-// Spotify-first; this shows which provider contributed which field). Data-driven:
-// each self-omits when there's nothing to show, so routes can mount them
-// unconditionally in a sidebar.
+// The ONE merged Sources panel (Layout v2): one row per provider snapshot behind
+// the canonical entity, folding the old "Reach across platforms" + "Metadata
+// sources" duplication into a single provenance list. Each row: an identity dot,
+// the provider name, its primary count (follower/fan, or the entity-appropriate
+// fact) in mono, a ★ popularity chip in the community/emerald voice when the
+// provider reports a canonical 0–100 score, and an external link when we can
+// build a public URL.
 
 /** Only surface a canonical 0–100 popularity (a Deezer fan-count can exceed 100). */
 function popularityScore(source: MetadataSourceOut): number | null {
@@ -21,46 +23,26 @@ function popularityScore(source: MetadataSourceOut): number | null {
   return p != null && p >= 0 && p <= 100 ? p : null;
 }
 
-// A small brand dot beside a label — the shared source/reach row prefix.
-function ProviderTag({ provider }: { provider: string }) {
-  const meta = providerMeta(provider);
-  return (
-    <span className="flex min-w-0 items-center gap-2">
-      <span className={`size-2 shrink-0 rounded-full ${meta.dotClass}`} aria-hidden />
-      <span className="truncate text-[12.5px] font-medium text-foreground">{meta.label}</span>
-    </span>
-  );
-}
-
-// The mono "what this provider contributed" summary, per entity type.
-function sourceMetric(
+/**
+ * The provider's headline mono fact for this entity type: the reach count for an
+ * artist, the label for an album, the ISRC for a track. Falls back to a
+ * Last.fm-style listener count when that's all a provider carries.
+ */
+function primaryFact(
   entityType: EntityType,
   source: MetadataSourceOut,
-): ReactNode {
-  const parts: string[] = [];
-  const popularity = popularityScore(source);
-  if (entityType === "artist") {
-    if (source.followers != null) parts.push(formatFollowers(source.followers));
-    if (popularity != null) parts.push(`★ ${popularity}`);
-  } else if (entityType === "album") {
-    if (source.label) parts.push(source.label);
-    if (popularity != null) parts.push(`★ ${popularity}`);
-  } else {
-    // track (and any other): ISRC + popularity
-    if (source.isrc) parts.push(source.isrc);
-    if (popularity != null) parts.push(`★ ${popularity}`);
+): string | null {
+  if (entityType === "artist" && source.followers != null) {
+    return formatFollowers(source.followers);
   }
-  // Last.fm-reported reach (listeners) — a provider-reported metric, not a
-  // licensed play count. Surfaced generically for whichever entity carries it.
-  if (source.listeners != null) {
-    parts.push(`${formatFollowers(source.listeners)} listeners`);
+  if (entityType === "album") {
+    if (source.label) return source.label;
+    if (source.year != null) return String(source.year);
   }
-  if (parts.length === 0) return null;
-  return (
-    <span className="shrink-0 font-mono tnum text-[11.5px] text-muted-foreground">
-      {parts.join(" · ")}
-    </span>
-  );
+  if (entityType === "track" && source.isrc) return source.isrc;
+  if (source.followers != null) return formatFollowers(source.followers);
+  if (source.listeners != null) return `${formatFollowers(source.listeners)} listeners`;
+  return null;
 }
 
 /** The provenance list: one row per provider snapshot behind the canonical entity. */
@@ -75,7 +57,7 @@ export function SourcesPanel({
 
   if (query.isPending) {
     return (
-      <Card title="Metadata sources">
+      <Card title="Sources">
         <div className="flex flex-col gap-2">
           <Skeleton className="h-6" />
           <Skeleton className="h-6" />
@@ -86,7 +68,7 @@ export function SourcesPanel({
 
   if (query.isError) {
     return (
-      <Card title="Metadata sources">
+      <Card title="Sources">
         <p className="text-[12px] text-muted-foreground">Couldn't load sources.</p>
       </Card>
     );
@@ -97,61 +79,53 @@ export function SourcesPanel({
   if (sources.length === 0) return null;
 
   return (
-    <Card title="Metadata sources" action={`${sources.length} sources`}>
+    <Card title="Sources" action={String(sources.length)}>
       <div className="flex flex-col">
-        {sources.map((source, i) => (
-          <div
-            key={`${source.provider}-${i}`}
-            className="flex items-center justify-between gap-4 border-b border-border py-2 last:border-b-0"
-          >
-            <ProviderTag provider={source.provider} />
-            {sourceMetric(entityType, source) ?? (
-              <span className="font-mono text-[11px] text-muted-foreground">
-                {source.entity_type}
+        {sources.map((source, i) => {
+          const meta = providerMeta(source.provider);
+          const fact = primaryFact(entityType, source);
+          const popularity = popularityScore(source);
+          const url = entityProviderUrl(
+            source.provider,
+            entityType,
+            source.provider_entity_id,
+          );
+          return (
+            <div
+              key={`${source.provider}-${i}`}
+              className="flex items-center gap-2.5 border-b border-border py-2 last:border-b-0"
+            >
+              <span
+                className={`size-2 shrink-0 rounded-full ${meta.dotClass}`}
+                aria-hidden
+              />
+              <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-foreground">
+                {meta.label}
               </span>
-            )}
-          </div>
-        ))}
-      </div>
-    </Card>
-  );
-}
-
-/**
- * "Reach across platforms": a compact, honest comparison of provider-reported
- * follower/fan counts (NOT licensed play counts). Artist-only; renders whenever
- * at least one source carries a followers value.
- */
-export function StatsCard({ id }: { id: string }) {
-  const query = useEntitySources("artist", id);
-
-  const withFollowers =
-    query.data?.sources.filter((s) => s.followers != null) ?? [];
-  if (withFollowers.length === 0) return null;
-
-  return (
-    <Card title="Reach across platforms">
-      <p className="mb-3 text-[11.5px] leading-snug text-muted-foreground">
-        Provider-reported followers/fans — not licensed play counts.
-      </p>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        {withFollowers.map((source, i) => (
-          <span
-            key={`${source.provider}-${i}`}
-            className="flex items-center gap-2"
-          >
-            <span
-              className={`size-2 shrink-0 rounded-full ${providerMeta(source.provider).dotClass}`}
-              aria-hidden
-            />
-            <span className="text-[12px] text-muted-foreground">
-              {providerMeta(source.provider).label}
-            </span>
-            <span className="font-mono tnum text-[13px] font-semibold text-foreground">
-              {formatFollowers(source.followers)}
-            </span>
-          </span>
-        ))}
+              {fact ? (
+                <span className="shrink-0 font-mono tnum text-[11.5px] text-muted-foreground">
+                  {fact}
+                </span>
+              ) : null}
+              {popularity != null ? (
+                <span className="shrink-0 font-mono tnum text-[11.5px] font-medium text-secondary">
+                  ★ {popularity}
+                </span>
+              ) : null}
+              {url ? (
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`Open on ${meta.label}`}
+                  className="shrink-0 text-faint transition-colors hover:text-secondary"
+                >
+                  <ExternalLink className="size-3.5" />
+                </a>
+              ) : null}
+            </div>
+          );
+        })}
       </div>
     </Card>
   );

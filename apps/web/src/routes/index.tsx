@@ -114,12 +114,12 @@ function Home() {
   };
 
   return (
-    <div className="mx-auto flex min-h-[64vh] max-w-2xl flex-col justify-center gap-10 py-8 sm:py-16">
+    <div className="mx-auto flex min-h-[56vh] max-w-2xl flex-col justify-center gap-6 py-8 sm:py-12">
       <motion.section
         variants={reduceMotion ? undefined : heroContainer}
         initial={reduceMotion ? false : "hidden"}
         animate="show"
-        className="flex flex-col gap-6"
+        className="flex flex-col gap-5"
       >
         <motion.p
           variants={reduceMotion ? undefined : heroLine}
@@ -130,7 +130,7 @@ function Home() {
 
         <motion.h1
           variants={reduceMotion ? undefined : heroLine}
-          className="font-display text-4xl font-bold tracking-tight sm:text-5xl"
+          className="font-display text-3xl font-bold tracking-tight sm:text-4xl"
         >
           Download music from anywhere
         </motion.h1>
@@ -167,38 +167,39 @@ function Home() {
             Search
           </Button>
         </motion.form>
-
-        <motion.div
-          variants={reduceMotion ? undefined : heroLine}
-          className="flex flex-wrap items-center gap-2"
-        >
-          <span className="text-xs font-medium uppercase tracking-wider text-faint">
-            Accepts
-          </span>
-          {HINTS.map((hint) => (
-            <span
-              key={hint}
-              className="rounded-full border border-border bg-card px-2.5 py-1 font-mono text-xs text-muted-foreground tnum"
-            >
-              {hint}
-            </span>
-          ))}
-        </motion.div>
       </motion.section>
 
-      <form className="flex flex-col gap-2 sm:flex-row" onSubmit={onResolve}>
-        <Input
-          type="text"
-          aria-label="Paste a link"
-          placeholder="Paste a Spotify or other supported link…"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          className="flex-1"
-        />
-        <Button type="submit" variant="secondary" disabled={resolve.isPending}>
-          {resolve.isPending ? <Spinner label="Opening" /> : "Open"}
-        </Button>
-      </form>
+      {/* Paste-a-link and the accepted-format hints read as one console block. */}
+      <div className="rounded-lg border border-border bg-card">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-3.5 py-2.5">
+          <span className="text-xs font-medium uppercase tracking-wider text-faint">
+            Or paste a link
+          </span>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {HINTS.map((hint) => (
+              <span
+                key={hint}
+                className="rounded-full border border-border bg-surface px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide text-muted-foreground tnum"
+              >
+                {hint}
+              </span>
+            ))}
+          </div>
+        </div>
+        <form className="flex flex-col gap-2 p-3 sm:flex-row" onSubmit={onResolve}>
+          <Input
+            type="text"
+            aria-label="Paste a link"
+            placeholder="Paste a Spotify or other supported link…"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            className="flex-1"
+          />
+          <Button type="submit" variant="secondary" disabled={resolve.isPending}>
+            {resolve.isPending ? <Spinner label="Opening" /> : "Open"}
+          </Button>
+        </form>
+      </div>
 
       {recent.length > 0 ? (
         <div className="flex flex-col gap-2">
@@ -214,13 +215,13 @@ function Home() {
               clear
             </button>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5">
             {recent.map((r) => (
               <button
                 key={r}
                 type="button"
                 onClick={() => void navigate({ to: "/search", search: { q: r } })}
-                className="rounded-md border border-border bg-card px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-elevated hover:text-foreground"
+                className="rounded-full border border-border bg-card px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-elevated hover:text-foreground"
               >
                 {r}
               </button>

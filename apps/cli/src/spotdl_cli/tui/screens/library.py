@@ -77,13 +77,14 @@ class LibraryScreen(SpotdlScreen):
             ListItem(Label(_batch_label(batch)), id=f"batch-{index}")
             for index, batch in enumerate(self._batches)
         ]
-        batches = ListView(*items, id="library-batches", classes="panel")
+        batches = ListView(*items, id="library-batches", classes="panel counted")
         batches.border_title = "Batches"
+        batches.border_subtitle = str(len(self._batches))
         detail = Vertical(
             Static("", id="library-detail-head", classes="library-batch-heading"),
             DataTable(id="library-files", cursor_type="row", zebra_stripes=True),
             id="library-detail",
-            classes="panel",
+            classes="panel counted",
         )
         detail.border_title = "Files"
         return Horizontal(batches, detail, id="library-main")
@@ -99,6 +100,7 @@ class LibraryScreen(SpotdlScreen):
         batch = self._batches[index]
         head = self.query_one("#library-detail-head", Static)
         head.update(_heading(batch))
+        self.query_one("#library-detail", Vertical).border_subtitle = str(len(batch.tracks))
         table = self.query_one("#library-files", DataTable)
         table.clear(columns=True)
         table.add_columns(*_COLUMNS)

@@ -10,6 +10,7 @@ import { EmptyState } from "../components/EmptyState";
 import { EnqueueAllButton } from "../components/EnqueueAllButton";
 import { ErrorState } from "../components/ErrorState";
 import { Feature } from "../components/Feature";
+import { SectionDivider } from "../components/SectionDivider";
 import { SourcesPanel } from "../components/SourcesPanel";
 import { Spinner } from "../components/Spinner";
 import { TrackTable } from "../components/TrackTable";
@@ -84,13 +85,13 @@ function AlbumDetail({ album }: { album: AlbumOut }) {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-6 sm:flex-row sm:gap-7">
-        <div className="size-40 shrink-0 overflow-hidden rounded-lg border border-border bg-elevated sm:size-48">
+      <header className="flex flex-wrap items-center gap-x-5 gap-y-4">
+        <div className="size-28 shrink-0 overflow-hidden rounded-lg border border-border bg-elevated">
           {album.cover_url ? (
             <img src={album.cover_url} alt="" className="size-full object-cover" />
           ) : (
             <div className="grid size-full place-items-center text-faint">
-              <Disc3 className="size-12" />
+              <Disc3 className="size-10" />
             </div>
           )}
         </div>
@@ -98,20 +99,20 @@ function AlbumDetail({ album }: { album: AlbumOut }) {
           <p className="text-xs font-medium uppercase tracking-wider text-faint">
             {typeLabel}
           </p>
-          <h1 className="mt-1.5 font-display text-3xl font-bold leading-tight tracking-tight text-foreground">
+          <h1 className="mt-1 font-display text-2xl font-bold leading-tight tracking-tight text-foreground">
             {album.name}
           </h1>
           {album.album_artist ? (
-            <p className="mt-2 font-medium text-foreground">{album.album_artist}</p>
+            <p className="mt-1 text-sm font-medium text-secondary">{album.album_artist}</p>
           ) : null}
-          <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+          <div className="mt-2.5 flex flex-wrap items-baseline gap-x-5 gap-y-1.5">
             {album.year ? <Fact label="year">{album.year}</Fact> : null}
             {album.track_count != null ? (
               <Fact label="tracks">{album.track_count}</Fact>
             ) : null}
           </div>
           {genres.length > 0 ? (
-            <div className="mt-4 flex flex-wrap gap-1.5">
+            <div className="mt-3 flex flex-wrap gap-1.5">
               {genres.slice(0, 5).map((g) => (
                 <span
                   key={g}
@@ -127,40 +128,41 @@ function AlbumDetail({ album }: { album: AlbumOut }) {
               ) : null}
             </div>
           ) : null}
-          <div className="mt-5 flex flex-wrap gap-2.5">
-            {/* Albums are a downloadable batch → Enqueue all (bare canonical id;
-                the server expands it into N jobs). */}
-            <Feature flag="downloads">
-              <EnqueueAllButton query={album.id} />
-            </Feature>
-            <ActionButton
-              variant="ghost"
-              icon={<RefreshCw className="size-4" />}
-              disabled={refreshing}
-              onClick={() => {
-                onRefresh();
-                toast.info("Refreshing from providers…");
-              }}
-            >
-              {refreshing ? "Refreshing…" : "Refresh"}
-            </ActionButton>
-          </div>
         </div>
-      </div>
+        <div className="flex flex-wrap gap-2.5">
+          {/* Albums are a downloadable batch → Enqueue all (bare canonical id;
+              the server expands it into N jobs). */}
+          <Feature flag="downloads">
+            <EnqueueAllButton query={album.id} />
+          </Feature>
+          <ActionButton
+            variant="ghost"
+            icon={<RefreshCw className="size-4" />}
+            disabled={refreshing}
+            onClick={() => {
+              onRefresh();
+              toast.info("Refreshing from providers…");
+            }}
+          >
+            {refreshing ? "Refreshing…" : "Refresh"}
+          </ActionButton>
+        </div>
+      </header>
 
-      <div className="grid gap-5 lg:grid-cols-[1.9fr_1fr]">
-        <div className="min-w-0">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <section className="flex min-w-0 flex-col gap-4">
+          <SectionDivider title="Tracks" count={tracks.length} />
           {tracks.length === 0 ? (
             <EmptyState
               title="No tracks"
               description="This album has no listed tracks."
             />
           ) : (
-            <TrackTable tracks={tracks} />
+            <TrackTable tracks={tracks} numbering="track_number" />
           )}
-        </div>
+        </section>
 
-        <aside className="flex min-w-0 flex-col gap-5">
+        <aside className="flex min-w-0 flex-col gap-5 lg:sticky lg:top-20 lg:h-fit">
           {hasDetails ? (
             <Card title="Details">
               {album.label ? (

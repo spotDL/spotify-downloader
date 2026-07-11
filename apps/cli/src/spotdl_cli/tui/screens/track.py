@@ -61,12 +61,12 @@ class TrackScreen(SpotdlScreen):
                 yield Button("Submit match", id="act-match")
                 yield Button("Open source", id="act-open")
         with Horizontal(id="track-body"):
-            with VerticalScroll(id="matches", classes="panel"):
+            with VerticalScroll(id="matches", classes="panel counted"):
                 yield LoadingPane("Loading matches…")
             with Vertical(id="lyrics-slot"):
                 yield Vertical(LoadingPane("Loading lyrics…"), id="lyrics-inner")
                 yield VerticalScroll(
-                    LoadingPane("Loading sources…"), id="track-sources", classes="panel"
+                    LoadingPane("Loading sources…"), id="track-sources", classes="panel counted"
                 )
 
     def on_mount(self) -> None:
@@ -120,6 +120,7 @@ class TrackScreen(SpotdlScreen):
         await self.query_one("#card-slot", Vertical).mount(EntityCard(detail.header))
         matches = self.query_one("#matches", VerticalScroll)
         await matches.remove_children()
+        matches.border_subtitle = str(len(detail.matches))
         inner = self.query_one("#lyrics-inner", Vertical)
         await inner.remove_children()
         for row in detail.matches:
@@ -138,6 +139,7 @@ class TrackScreen(SpotdlScreen):
         panel = self.query_one("#track-sources", VerticalScroll)
         await panel.remove_children()
         rows = result.data if result.state is LoadState.READY and result.data is not None else ()
+        panel.border_subtitle = str(len(rows))
         await panel.mount(SourcesPanel(rows))
 
     def _sync_voting(self, session: SessionSnapshot) -> None:

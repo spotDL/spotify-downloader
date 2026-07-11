@@ -45,7 +45,7 @@ class QueueScreen(SpotdlScreen):
 
     def compose_content(self) -> ComposeResult:
         yield Input(placeholder="paste a Spotify URL or search query…", id="enqueue-input")
-        yield Static(_counts_line(_EMPTY), id="queue-summary", classes="panel")
+        yield Static(_counts_line(_EMPTY), id="queue-summary", classes="panel counted")
         yield EmptyState(
             "♪",
             "No downloads yet",
@@ -89,7 +89,9 @@ class QueueScreen(SpotdlScreen):
         self.query_one("#queue-empty", EmptyState).set_class(has_jobs, "hidden")
         self.query_one(QueueTable).set_class(not has_jobs, "hidden")
         self.query_one(QueueTable).update_snapshot(snapshot)
-        self.query_one("#queue-summary", Static).update(_counts_line(snapshot))
+        summary = self.query_one("#queue-summary", Static)
+        summary.update(_counts_line(snapshot))
+        summary.border_subtitle = f"{len(snapshot.jobs)} jobs" if has_jobs else None
 
     def check_action(self, action: str, parameters: tuple[object, ...]) -> bool | None:
         """Hide the save-file fetch unless this is a self-hosted server queue (§3)."""

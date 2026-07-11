@@ -1,20 +1,43 @@
 """``SourcesPanel`` — the per-provider metadata provenance list (Task 2).
 
 The terminal equivalent of the web ``SourcesPanel``: a dumb ``Static`` that renders a
-tuple of :class:`~spotdl_cli.viewmodels.types.SourceRow` — one provider per block, a
-bold provider name over its ``(label · value)`` metric chips (followers/popularity for
-artists, label/year for albums, isrc for tracks). The owning screen fetches the rows
-from :meth:`CollectionViewModel.load_sources`; the panel never fetches. ``summary``
-exposes the rendered text so pilot tests can assert on it without scraping the tree.
+tuple of :class:`~spotdl_cli.viewmodels.types.SourceRow` as **one dense row per
+provider** — a brand-coloured dot, the provider name, and its ``(label value)`` metric
+chips (followers/popularity for artists, label/year for albums, isrc for tracks) — so a
+handful of providers reads as a compact list, not a stack of blocks. The owning screen
+fetches the rows from :meth:`CollectionViewModel.load_sources`; the panel never fetches.
+``summary`` exposes the rendered text so pilot tests can assert on it without scraping.
 """
 
 from __future__ import annotations
 
 from textual.widgets import Static
 
+from spotdl_cli.tui.theme import (
+    APPLE,
+    DEEZER,
+    FAINT,
+    MUSICBRAINZ,
+    MUTED,
+    SOUNDCLOUD,
+    SPOTIFY,
+    YOUTUBE,
+)
 from spotdl_cli.viewmodels.types import SourceRow
 
 _EMPTY = "[dim]no per-provider sources[/dim]"
+
+# Provider → brand dot colour (the same identity dots the web SourcesPanel uses).
+_DOTS = {
+    "spotify": SPOTIFY,
+    "apple": APPLE,
+    "apple_music": APPLE,
+    "deezer": DEEZER,
+    "youtube": YOUTUBE,
+    "youtube_music": YOUTUBE,
+    "soundcloud": SOUNDCLOUD,
+    "musicbrainz": MUSICBRAINZ,
+}
 
 
 class SourcesPanel(Static):
@@ -33,17 +56,20 @@ class SourcesPanel(Static):
         self.update(self._summary)
 
 
+def _dot(provider: str) -> str:
+    return _DOTS.get(provider.lower(), FAINT)
+
+
 def _render(sources: tuple[SourceRow, ...]) -> str:
     if not sources:
         return _EMPTY
-    blocks: list[str] = []
+    lines: list[str] = []
     for source in sources:
-        head = f"[b]{source.provider}[/b]"
+        row = f"[{_dot(source.provider)}]●[/] [b]{source.provider}[/b]"
         if source.name:
-            head += f"  {source.name}"
-        lines = [head]
+            row += f"  [{MUTED}]{source.name}[/]"
         if source.metrics:
-            chips = "  ·  ".join(f"[dim]{label}[/dim] {value}" for label, value in source.metrics)
-            lines.append(f"  {chips}")
-        blocks.append("\n".join(lines))
-    return "\n\n".join(blocks)
+            chips = "  ·  ".join(f"[{FAINT}]{label}[/] {value}" for label, value in source.metrics)
+            row += f"   {chips}"
+        lines.append(row)
+    return "\n".join(lines)

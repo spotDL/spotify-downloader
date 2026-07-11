@@ -7,7 +7,8 @@
    renderers; change a hex here → change it there.
 
    Identity: broadcast-console precision. Blue-ink dark surfaces (default),
-   a cool-neutral light theme, one phosphor-amber accent, IBM Plex + Space
+   a cool-neutral light theme, a phosphor-amber primary with an emerald
+   secondary, IBM Plex + Space
    Grotesk, and the segmented meter (.meter here, ▰▱ in the terminal) as the
    only progress/score language.
 
@@ -71,8 +72,10 @@
 
   --primary: #f5a623;
   --primary-foreground: #16110a;
-  --info: #56c8d8;
-  --success: #4ade80;
+  --secondary: #00d084;
+  --secondary-foreground: #06130c;
+  --info: #00d084;
+  --success: #00d084;
   --warning: #facc15;
   --destructive: #f4506c;
   --destructive-foreground: #ffffff;
@@ -96,8 +99,10 @@
 
   --primary: #c77e0a;
   --primary-foreground: #16110a;
-  --info: #0e7f92;
-  --success: #15803d;
+  --secondary: #047857;
+  --secondary-foreground: #ffffff;
+  --info: #047857;
+  --success: #047857;
   --warning: #a16207;
   --destructive: #d92643;
   --destructive-foreground: #ffffff;
@@ -120,6 +125,8 @@
 
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
   --color-info: var(--info);
   --color-success: var(--success);
   --color-warning: var(--warning);

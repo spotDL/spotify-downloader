@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { http, HttpResponse } from "msw";
 import { server } from "../test/msw/server";
 import { makeSource, makeSources } from "../test/msw/fixtures";
-import { SourcesPanel, StatsCard } from "./SourcesPanel";
+import { SourcesPanel } from "./SourcesPanel";
 
 function wrap(node: ReactNode) {
   const queryClient = new QueryClient({
@@ -17,15 +17,30 @@ function wrap(node: ReactNode) {
 }
 
 describe("SourcesPanel", () => {
-  it("lists each provider snapshot with its contributed metric", async () => {
-    // Default handler serves Spotify + Deezer artist sources.
+  it("merges every provider snapshot into one panel with its reach and popularity", async () => {
+    // Default handler serves Spotify + Deezer artist sources with follower and
+    // popularity snapshots.
     wrap(<SourcesPanel entityType="artist" id="artist-1" />);
 
+    // One merged "Sources" panel — never a separate reach card. Await a
+    // data-derived provider name so we're past the loading card (which also
+    // renders the "Sources" title).
     expect(await screen.findByText("Spotify")).toBeInTheDocument();
-    expect(screen.getByText("Metadata sources")).toBeInTheDocument();
+    expect(screen.getByText("Sources")).toBeInTheDocument();
+    expect(screen.queryByText("Reach across platforms")).not.toBeInTheDocument();
+
+    // Each provider appears exactly once, with its own follower count in mono…
     expect(screen.getByText("Deezer")).toBeInTheDocument();
-    // Spotify's 34.2M follower snapshot is shown in mono.
-    expect(screen.getByText(/34\.2M/)).toBeInTheDocument();
+    expect(screen.getByText("34.2M")).toBeInTheDocument();
+    expect(screen.getByText("4.5M")).toBeInTheDocument();
+    // …and its 0–100 popularity as a ★ chip.
+    expect(screen.getByText("★ 88")).toBeInTheDocument();
+    expect(screen.getByText("★ 90")).toBeInTheDocument();
+
+    // A public per-provider link (emerald voice) is offered when we can build one.
+    expect(
+      screen.getByRole("link", { name: "Open on Spotify" }),
+    ).toBeInTheDocument();
   });
 
   it("omits the panel when there are no sources", async () => {
@@ -41,11 +56,11 @@ describe("SourcesPanel", () => {
     // The loading shimmer shows the title first; once the empty result resolves
     // the whole panel is omitted.
     await waitFor(() =>
-      expect(screen.queryByText("Metadata sources")).not.toBeInTheDocument(),
+      expect(screen.queryByText("Sources")).not.toBeInTheDocument(),
     );
   });
 
-  it("shows a single source when only one provider contributed", async () => {
+  it("shows a single source with its contributed identifier when only one provider contributed", async () => {
     server.use(
       http.get("*/api/v1/tracks/:id/sources", ({ params }) =>
         HttpResponse.json(
@@ -60,42 +75,6 @@ describe("SourcesPanel", () => {
     wrap(<SourcesPanel entityType="track" id="track-1" />);
 
     expect(await screen.findByText("MusicBrainz")).toBeInTheDocument();
-    expect(screen.getByText(/USQX91300108/)).toBeInTheDocument();
-  });
-});
-
-describe("StatsCard (Reach)", () => {
-  it("compares provider-reported followers with an honest label", async () => {
-    wrap(<StatsCard id="artist-1" />);
-
-    expect(await screen.findByText("Reach across platforms")).toBeInTheDocument();
-    expect(
-      screen.getByText(/not licensed play counts/i),
-    ).toBeInTheDocument();
-    expect(screen.getByText("34.2M")).toBeInTheDocument();
-    expect(screen.getByText("4.5M")).toBeInTheDocument();
-  });
-
-  it("renders nothing when no source carries followers", async () => {
-    server.use(
-      http.get("*/api/v1/artists/:id/sources", ({ params }) =>
-        HttpResponse.json(
-          makeSources({
-            entity_id: String(params.id),
-            sources: [makeSource({ provider: "musicbrainz", followers: null })],
-          }),
-        ),
-      ),
-    );
-    // Render alongside SourcesPanel (same query key): once the panel resolves the
-    // shared query has settled, so a missing Reach card is a real omission.
-    wrap(
-      <>
-        <SourcesPanel entityType="artist" id="artist-1" />
-        <StatsCard id="artist-1" />
-      </>,
-    );
-    expect(await screen.findByText("MusicBrainz")).toBeInTheDocument();
-    expect(screen.queryByText("Reach across platforms")).not.toBeInTheDocument();
+    expect(screen.getByText("USQX91300108")).toBeInTheDocument();
   });
 });

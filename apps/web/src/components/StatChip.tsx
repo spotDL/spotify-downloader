@@ -19,7 +19,7 @@ export function StatChip({
         className,
       )}
     >
-      <span className="text-[11px] text-muted-foreground">{label}</span>
+      <span className="uppercase tracking-wider text-faint">{label}</span>
       {children}
     </span>
   );

@@ -121,13 +121,13 @@ function TrackDetail({ trackId, t }: { trackId: string; t: TrackOut }) {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-6 sm:flex-row sm:gap-7">
-        <div className="size-40 shrink-0 overflow-hidden rounded-lg border border-border bg-elevated sm:size-48">
+      <header className="flex flex-wrap items-center gap-x-5 gap-y-4">
+        <div className="size-28 shrink-0 overflow-hidden rounded-lg border border-border bg-elevated">
           {cover ? (
             <img src={cover} alt="" className="size-full object-cover" />
           ) : (
             <div className="grid size-full place-items-center text-faint">
-              <Music className="size-12" />
+              <Music className="size-10" />
             </div>
           )}
         </div>
@@ -135,62 +135,62 @@ function TrackDetail({ trackId, t }: { trackId: string; t: TrackOut }) {
           <p className="text-xs font-medium uppercase tracking-wider text-faint">
             Track{t.explicit ? " · Explicit" : ""}
           </p>
-          <h1 className="mt-1.5 font-display text-3xl font-bold leading-tight tracking-tight text-foreground">
+          <h1 className="mt-1 font-display text-2xl font-bold leading-tight tracking-tight text-foreground">
             {t.name}
           </h1>
-          <p className="mt-2 text-foreground">{joinArtists(t.artists)}</p>
-          <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+          <p className="mt-1 text-sm font-medium text-secondary">{joinArtists(t.artists)}</p>
+          <div className="mt-2.5 flex flex-wrap items-baseline gap-x-5 gap-y-1.5">
             <Fact label="dur">{formatDuration(t.duration_ms)}</Fact>
             {t.album?.name ? <Fact label="album">{t.album.name}</Fact> : null}
             {t.year ? <Fact label="year">{t.year}</Fact> : null}
             {popularity != null ? <Fact label="pop">{popularity}</Fact> : null}
           </div>
-          <div className="mt-5 flex flex-wrap gap-2.5">
-            <Feature flag="downloads">
-              <ActionButton
-                icon={<Download className="size-4" />}
-                disabled={enqueue.isPending}
-                onClick={() =>
-                  enqueue.mutate(
-                    // Post the bare canonical id: the server short-circuits a
-                    // UUID to the local DB and picks the best match. Prefixing
-                    // `spotify:track:` would route it to Spotify's API → 400.
-                    { body: { query: t.id } },
-                    {
-                      onSuccess: () => toast.info("Added to the download queue."),
-                      onError: (e) => reportError(e, "Couldn't enqueue this track."),
-                    },
-                  )
-                }
-              >
-                {enqueue.isPending ? "Enqueuing…" : "Download best match"}
-              </ActionButton>
-            </Feature>
-            <ActionButton
-              variant="ghost"
-              icon={<RefreshCw className="size-4" />}
-              disabled={refreshing}
-              onClick={() => {
-                refresh();
-                toast.info("Refreshing metadata from providers…");
-              }}
-            >
-              {refreshing ? "Refreshing…" : "Refresh metadata"}
-            </ActionButton>
-            <Feature flag="voting">
-              <ReportButton subjectId={t.id} />
-            </Feature>
-          </div>
         </div>
-      </div>
+        <div className="flex flex-wrap gap-2.5">
+          <Feature flag="downloads">
+            <ActionButton
+              icon={<Download className="size-4" />}
+              disabled={enqueue.isPending}
+              onClick={() =>
+                enqueue.mutate(
+                  // Post the bare canonical id: the server short-circuits a
+                  // UUID to the local DB and picks the best match. Prefixing
+                  // `spotify:track:` would route it to Spotify's API → 400.
+                  { body: { query: t.id } },
+                  {
+                    onSuccess: () => toast.info("Added to the download queue."),
+                    onError: (e) => reportError(e, "Couldn't enqueue this track."),
+                  },
+                )
+              }
+            >
+              {enqueue.isPending ? "Enqueuing…" : "Download best match"}
+            </ActionButton>
+          </Feature>
+          <ActionButton
+            variant="ghost"
+            icon={<RefreshCw className="size-4" />}
+            disabled={refreshing}
+            onClick={() => {
+              refresh();
+              toast.info("Refreshing metadata from providers…");
+            }}
+          >
+            {refreshing ? "Refreshing…" : "Refresh metadata"}
+          </ActionButton>
+          <Feature flag="voting">
+            <ReportButton subjectId={t.id} />
+          </Feature>
+        </div>
+      </header>
 
-      <div className="grid gap-5 lg:grid-cols-[1.9fr_1fr]">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="flex min-w-0 flex-col gap-5">
           <MatchesCard trackId={trackId} />
           <LyricsSection trackId={trackId} />
         </div>
 
-        <div className="flex min-w-0 flex-col gap-5">
+        <div className="flex min-w-0 flex-col gap-5 lg:sticky lg:top-20 lg:h-fit">
           {listen.length > 0 ? (
             <Card title="Listen on">
               <PlatformLinks links={listen} />

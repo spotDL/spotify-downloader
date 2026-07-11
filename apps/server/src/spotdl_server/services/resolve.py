@@ -892,13 +892,23 @@ class ResolveService:
             # primary doesn't carry (ISRC-first dedupe, then case-folded name),
             # capped so the page stays a "top tracks" list, not a full dump.
             listing: list[tuple[ResolvedEntity, Track]] = [(resolved, t) for t in resolved.tracks]
-            seen_tracks = {t.isrc or t.name.casefold() for t in resolved.tracks}
+            # Seed BOTH keys for every primary track — an ISRC-only seed let a
+            # secondary's copy of the same recording through whenever its ISRC
+            # differed (a distinct pressing/remaster) or was absent, since the
+            # name fallback never saw the primary's title (the "ECHO twice" bug).
+            seen_tracks: set[str] = set()
+            for t in resolved.tracks:
+                seen_tracks.add(t.name.casefold())
+                if t.isrc:
+                    seen_tracks.add(t.isrc)
             for source_entity, track in extra_tracks:
-                key = track.isrc or track.name.casefold()
-                if key not in seen_tracks and track.name.casefold() not in seen_tracks:
-                    seen_tracks.add(key)
-                    seen_tracks.add(track.name.casefold())
-                    listing.append((source_entity, track))
+                name_key = track.name.casefold()
+                if name_key in seen_tracks or (track.isrc and track.isrc in seen_tracks):
+                    continue  # same title, or same ISRC — the primary's copy already wins
+                seen_tracks.add(name_key)
+                if track.isrc:
+                    seen_tracks.add(track.isrc)
+                listing.append((source_entity, track))
             listing = listing[:_ARTIST_TOP_TRACKS_CAP]
             by_pos = {
                 index: [await self._persist_track_snapshot_from(container, index, track)]

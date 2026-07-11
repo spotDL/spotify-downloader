@@ -105,6 +105,14 @@ NavRail {
     border-title-color: $accent;
 }
 
+/* A section panel whose right-hand border subtitle carries a live count. Counts are
+ * positive facts, so they read in the emerald secondary — the amber accent stays
+ * reserved for focus/active/running. Focus recolours the title, never the count. */
+.counted {
+    border-subtitle-color: $success;
+    border-subtitle-style: bold;
+}
+
 /* Every table fills its pane, stripes, and shows an amber cursor row with dark
  * ink — the Control Room readout. Headers read as quiet faint labels. */
 DataTable {
@@ -630,10 +638,18 @@ EntityCard {
     margin: 1 1 0 0;
 }
 
+/* The compact side column: an Actions panel over a Sources panel, each a flat
+ * bordered card — no outer wrapper border, so the column reads as two clean panels
+ * (mirrors the web `<aside>` of stacked cards) rather than a box-in-a-box. */
 #collection-side {
     width: 32;
     height: 1fr;
+    layout: vertical;
     margin: 1 0 0 0;
+}
+
+#collection-actions {
+    height: auto;
 }
 
 #collection-main.narrow #track-table {
@@ -651,15 +667,10 @@ EntityCard {
     margin: 1 0 0 0;
 }
 
-.collection-meta {
-    height: auto;
-    color: $text;
-}
-
 .collection-note {
     height: auto;
     color: $text-muted;
-    margin: 1 0 0 0;
+    padding: 1 0 0 0;
 }
 
 /* Per-provider metadata provenance — the terminal "Sources" panel (track + collection). */

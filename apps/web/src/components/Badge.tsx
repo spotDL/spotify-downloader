@@ -1,12 +1,14 @@
 import type { ReactNode } from "react";
 import { Badge as UIBadge } from "./ui/badge";
 
-type Tone = "neutral" | "brand" | "warn" | "danger" | "muted";
+type Tone = "neutral" | "brand" | "ok" | "warn" | "danger" | "muted";
 
-// Legacy tone names map onto the ui Badge variants.
+// Legacy tone names map onto the ui Badge variants. `ok` is the emerald
+// positive voice (enabled/connected/verified states); `brand` stays amber.
 const TONE_VARIANT = {
   neutral: "default",
   brand: "premium",
+  ok: "success",
   warn: "warning",
   danger: "error",
   muted: "muted",

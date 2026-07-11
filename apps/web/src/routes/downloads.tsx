@@ -51,7 +51,7 @@ function DownloadsQueue() {
   const query = useDownloads({ limit: 100 });
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex max-w-3xl flex-col gap-6">
       <header className="flex flex-col gap-1">
         <p className="text-xs font-medium uppercase tracking-wider text-faint">
           Console
@@ -145,8 +145,8 @@ function SummaryStrip({ jobs }: { jobs: DownloadJobOut[] }) {
         }, 0) / jobs.length;
 
   return (
-    <section className="flex flex-col gap-4 rounded-lg border border-border bg-card px-5 py-4">
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+    <section className="flex flex-col gap-3 rounded-lg border border-border bg-card px-4 py-3">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
         <Stat label="Active" value={active} accent="text-primary" />
         <Stat label="Queued" value={queued} accent="text-muted-foreground" />
         <Stat label="Done" value={done} accent="text-success" />
@@ -283,9 +283,9 @@ function JobRow({ job }: { job: DownloadJobOut }) {
         isFailed && "border-l-2 border-l-destructive",
       )}
     >
-      <div className="flex items-center gap-4 p-3">
+      <div className="flex items-center gap-4 px-3 py-2.5">
         {/* The job's album cover when known, else the note-glyph placeholder. */}
-        <span className="size-11 shrink-0 overflow-hidden rounded-md border border-border">
+        <span className="size-10 shrink-0 overflow-hidden rounded-md border border-border">
           {job.cover_url ? (
             <img src={job.cover_url} alt="" className="size-full object-cover" />
           ) : (
@@ -299,7 +299,7 @@ function JobRow({ job }: { job: DownloadJobOut }) {
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <p
             className={cn(
-              "text-xs font-medium uppercase tracking-wider",
+              "text-[10px] font-medium uppercase tracking-wider",
               meta.className,
             )}
           >

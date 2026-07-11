@@ -315,7 +315,7 @@ function FileRow({ job }: { job: DownloadJobOut }) {
           <a
             href={downloadFileUrl(job.id)}
             download
-            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold text-primary transition-colors hover:bg-elevated"
+            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold text-info transition-colors hover:bg-elevated"
           >
             <Download className="size-3.5" aria-hidden />
             Download

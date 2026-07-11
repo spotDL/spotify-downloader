@@ -102,8 +102,9 @@ class CollectionScreen(SpotdlScreen):
 
     def _build_table(self, detail: CollectionDetail) -> DataTable[str]:
         table: DataTable[str] = DataTable(id="track-table", cursor_type="row", zebra_stripes=True)
-        table.add_class("panel")
+        table.add_class("panel", "counted")
         table.border_title = "Tracks"
+        table.border_subtitle = str(len(detail.tracks))
         table.add_columns("#", "Title", "Duration", "Matched?")
         for position, row in enumerate(detail.tracks, start=1):
             # Per-track match status is not in the collection payload (it would need
@@ -116,9 +117,9 @@ class CollectionScreen(SpotdlScreen):
         table: DataTable[str] = DataTable(
             id="discography-table", cursor_type="row", zebra_stripes=True
         )
-        table.add_class("panel")
+        table.add_class("panel", "counted")
         table.border_title = "Discography"
-        table.border_subtitle = "enter open"
+        table.border_subtitle = f"{len(detail.albums)} · enter open"
         table.add_columns("Album", "Type", "Year")
         for album in detail.albums:
             table.add_row(
@@ -127,28 +128,31 @@ class CollectionScreen(SpotdlScreen):
         return table
 
     def _build_side(self, detail: CollectionDetail) -> Vertical:
-        rows: list[Widget] = [Static(_metadata(detail), classes="collection-meta")]
+        # The compact, always-visible side column: an Actions panel (enqueue buttons +
+        # the kind note) over a Sources panel. The entity's title/subtitle/stats are NOT
+        # repeated here — they already read in the full-width header card above.
+        actions: list[Widget] = []
         if self._can_download() and self.KIND != "artist":
-            rows.append(Button("↧ Enqueue all", id="enqueue-all", variant="primary"))
+            actions.append(Button("↧ Enqueue all", id="enqueue-all", variant="primary"))
         if self._can_download():
-            rows.append(Button("↧ Enqueue track", id="enqueue-track"))
+            actions.append(Button("↧ Enqueue track", id="enqueue-track"))
         note = _side_note(detail.kind, can_download=self._can_download())
         if note:
-            rows.append(Static(note, classes="collection-note"))
+            actions.append(Static(note, classes="collection-note"))
+        actions_panel = Vertical(*actions, id="collection-actions", classes="panel")
+        actions_panel.border_title = "Actions"
         sources = VerticalScroll(
-            LoadingPane("Loading sources…"), id="collection-sources", classes="panel"
+            LoadingPane("Loading sources…"), id="collection-sources", classes="panel counted"
         )
         sources.border_title = "Sources"
-        rows.append(sources)
-        side = Vertical(*rows, id="collection-side", classes="panel")
-        side.border_title = "Actions"
-        return side
+        return Vertical(actions_panel, sources, id="collection-side")
 
     async def _load_sources(self) -> None:
         result = await self._vm.load_sources(self.KIND, self._entity_id)
         panel = self.query_one("#collection-sources", VerticalScroll)
         await panel.remove_children()
         rows = result.data if result.state is LoadState.READY and result.data is not None else ()
+        panel.border_subtitle = str(len(rows))
         await panel.mount(SourcesPanel(rows))
 
     # -- gating ---------------------------------------------------------------
@@ -238,14 +242,6 @@ class CollectionScreen(SpotdlScreen):
     def _can_download(self) -> bool:
         session = self.spotdl_app.session
         return session is not None and session.can_download
-
-
-def _metadata(detail: CollectionDetail) -> str:
-    lines = [f"[b]{detail.header.title}[/b]"]
-    if detail.header.subtitle:
-        lines.append(detail.header.subtitle)
-    lines.extend(f"{label}: {value}" for label, value in detail.header.stats)
-    return "\n".join(lines)
 
 
 def _side_note(kind: str, *, can_download: bool) -> str:
