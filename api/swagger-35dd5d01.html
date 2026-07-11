@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Swagger UI</title>
+  <link rel="stylesheet" type="text/css" href="../assets/stylesheets/swagger-ui.css" />
+  
+</head>
+
+<body style="overflow:hidden;">
+  <div id="swagger-ui"></div>
+  <script src="../assets/javascripts/swagger-ui-bundle.js" charset="UTF-8"> </script>
+  <script src="../assets/javascripts/swagger-ui-standalone-preset.js" charset="UTF-8"> </script>
+  <script>
+    window.onload = function () {
+      
+        var url = "openapi.json";
+        
+      
+      window.ui = SwaggerUIBundle({
+        dom_id: "#swagger-ui",
+        onComplete: onComplete,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        
+        url,
+        
+        
+        "oauth2RedirectUrl": new URL("../assets/swagger-ui/oauth2-redirect.html",window.location.href).href,
+        
+        "validatorUrl": "none",
+        
+    "docExpansion": "list",
+    "filter": false,
+    "tryItOutEnabled": false,
+    "supportedSubmitMethods": [
+        "get",
+        "put",
+        "post",
+        "delete",
+        "options",
+        "head",
+        "patch",
+        "trace"
+    ],
+    "validatorUrl": "none",
+    "extra_css": [],
+    "dark_scheme_name": "slate",
+    "filter_files": [],
+    "syntaxHighlight.theme": "agate"
+
+      })
+
+      
+
+      if (parent.__init_is_dark_mode) {
+          enable_dark_mode();
+      }
+    }
+
+    enable_dark_mode = function(){
+      document.documentElement.classList.add("dark-mode");
+    }
+
+    disable_dark_mode = function(){
+      document.documentElement.classList.remove("dark-mode");
+    }
+
+    const resize_ob = new ResizeObserver(function(entries) {
+      parent.update_swagger_ui_iframe_height("35dd5d01");
+    });
+
+    // start observing for resizing
+    resize_ob.observe(document.querySelector("body"));
+
+    // authorize modal position
+    var modal_top = 0;
+
+    const mutation_ob = new MutationObserver(function (mutations) {
+      if(mutations && mutations[0].addedNodes && mutations[0].addedNodes.length > 0){
+        update_modal_top()
+      }
+    });
+
+    onComplete = function(){
+      // start observing for auth-wrapper after Swagger UI loaded
+      const div = document.querySelector("div.auth-wrapper");
+      if(div){
+        mutation_ob.observe(div, {
+          childList: true,
+        });
+      }
+    }
+
+    update_top_val = function(top){
+      modal_top = top
+      update_modal_top()
+    }
+
+    update_modal_top = function(){
+      let modal_list = document.getElementsByClassName('modal-ux')
+      if(modal_list.length > 0){
+        let modal = modal_list.item(0)
+        const modal_height = modal.offsetHeight
+        const padding = 60
+        min = parseInt(modal_height/2 + padding)
+        max = document.body.scrollHeight - min + padding
+        if (modal_top < min) {
+          modal.style.top = `${min}px`
+        } else if (modal_top > max) {
+          modal.style.top = `${max}px`
+        } else {
+          modal.style.top = `${modal_top}px`
+        }
+      }
+    }
+  </script>
+</body>
+
+</html>

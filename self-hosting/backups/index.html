@@ -10,29 +10,31 @@
       
       
       
-        <link rel="canonical" href="https://spotdl.dev/">
+        <link rel="canonical" href="https://spotdl.dev/self-hosting/backups/">
       
       
+        <link rel="prev" href="../railway/">
       
-        <link rel="next" href="installation/">
+      
+        <link rel="next" href="../../migration/v4-to-v5/">
       
       
         
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>spotDL</title>
+        <title>Backups & restore - spotDL</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,7 +53,7 @@
       
     
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -76,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#spotdl" class="md-skip">
+        <a href="#backups-restore" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +92,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="spotDL" class="md-header__button md-logo" aria-label="spotDL" data-md-component="logo">
+    <a href="../.." title="spotDL" class="md-header__button md-logo" aria-label="spotDL" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -110,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Home
+              Backups & restore
             
           </span>
         </div>
@@ -219,11 +221,9 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="." class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
         
   
   
@@ -242,7 +242,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="installation/" class="md-tabs__link">
+      <a href="../../installation/" class="md-tabs__link">
         
   
   
@@ -263,7 +263,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="quickstart/cli/" class="md-tabs__link">
+        <a href="../../quickstart/cli/" class="md-tabs__link">
           
   
   
@@ -283,7 +283,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="community/usage/" class="md-tabs__link">
+        <a href="../../community/usage/" class="md-tabs__link">
           
   
   
@@ -299,11 +299,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="self-hosting/docker/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../docker/" class="md-tabs__link">
           
   
   
@@ -321,7 +323,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="migration/v4-to-v5/" class="md-tabs__link">
+      <a href="../../migration/v4-to-v5/" class="md-tabs__link">
         
   
   
@@ -340,7 +342,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="api/" class="md-tabs__link">
+      <a href="../../api/" class="md-tabs__link">
         
   
   
@@ -359,7 +361,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="contributing/" class="md-tabs__link">
+      <a href="../../contributing/" class="md-tabs__link">
         
   
   
@@ -394,7 +396,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="spotDL" class="md-nav__button md-logo" aria-label="spotDL" data-md-component="logo">
+    <a href="../.." title="spotDL" class="md-nav__button md-logo" aria-label="spotDL" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -421,37 +423,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Home
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -467,59 +442,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#quick-start" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Quick start
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#where-to-next" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Where to next
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#legal" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Legal
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -531,7 +453,7 @@
   
   
     <li class="md-nav__item">
-      <a href="installation/" class="md-nav__link">
+      <a href="../../installation/" class="md-nav__link">
         
   
   
@@ -610,7 +532,7 @@
   
   
     <li class="md-nav__item">
-      <a href="quickstart/cli/" class="md-nav__link">
+      <a href="../../quickstart/cli/" class="md-nav__link">
         
   
   
@@ -638,7 +560,7 @@
   
   
     <li class="md-nav__item">
-      <a href="quickstart/web/" class="md-nav__link">
+      <a href="../../quickstart/web/" class="md-nav__link">
         
   
   
@@ -666,7 +588,7 @@
   
   
     <li class="md-nav__item">
-      <a href="quickstart/selfhost/" class="md-nav__link">
+      <a href="../../quickstart/selfhost/" class="md-nav__link">
         
   
   
@@ -753,7 +675,7 @@
   
   
     <li class="md-nav__item">
-      <a href="community/usage/" class="md-nav__link">
+      <a href="../../community/usage/" class="md-nav__link">
         
   
   
@@ -781,7 +703,7 @@
   
   
     <li class="md-nav__item">
-      <a href="community/etiquette/" class="md-nav__link">
+      <a href="../../community/etiquette/" class="md-nav__link">
         
   
   
@@ -813,26 +735,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
@@ -850,7 +777,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -868,7 +795,7 @@
   
   
     <li class="md-nav__item">
-      <a href="self-hosting/docker/" class="md-nav__link">
+      <a href="../docker/" class="md-nav__link">
         
   
   
@@ -896,7 +823,7 @@
   
   
     <li class="md-nav__item">
-      <a href="self-hosting/reverse-proxy/" class="md-nav__link">
+      <a href="../reverse-proxy/" class="md-nav__link">
         
   
   
@@ -924,7 +851,7 @@
   
   
     <li class="md-nav__item">
-      <a href="self-hosting/railway/" class="md-nav__link">
+      <a href="../railway/" class="md-nav__link">
         
   
   
@@ -949,10 +876,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="self-hosting/backups/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backups & restore
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -968,6 +922,81 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#postgres-nightly-pg_dump-to-object-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Postgres: nightly pg_dump to object storage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sqlite-copy-the-volume" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SQLite: copy the volume
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-railway-backup-cron-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Railway backup cron service
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#restoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Restoring
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quarterly-restore-drill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quarterly restore drill
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -987,7 +1016,7 @@
   
   
     <li class="md-nav__item">
-      <a href="migration/v4-to-v5/" class="md-nav__link">
+      <a href="../../migration/v4-to-v5/" class="md-nav__link">
         
   
   
@@ -1014,7 +1043,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/" class="md-nav__link">
+      <a href="../../api/" class="md-nav__link">
         
   
   
@@ -1041,7 +1070,7 @@
   
   
     <li class="md-nav__item">
-      <a href="contributing/" class="md-nav__link">
+      <a href="../../contributing/" class="md-nav__link">
         
   
   
@@ -1088,10 +1117,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#quick-start" class="md-nav__link">
+  <a href="#postgres-nightly-pg_dump-to-object-storage" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Quick start
+        Postgres: nightly pg_dump to object storage
       
     </span>
   </a>
@@ -1099,10 +1128,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#where-to-next" class="md-nav__link">
+  <a href="#sqlite-copy-the-volume" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Where to next
+        SQLite: copy the volume
       
     </span>
   </a>
@@ -1110,10 +1139,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#legal" class="md-nav__link">
+  <a href="#the-railway-backup-cron-service" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Legal
+        The Railway backup cron service
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#restoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Restoring
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quarterly-restore-drill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quarterly restore drill
       
     </span>
   </a>
@@ -1140,75 +1191,113 @@
   
 
 
-<h1 id="spotdl">spotDL<a class="headerlink" href="#spotdl" title="Permanent link">&para;</a></h1>
-<p><strong>spotDL finds the music that matches your Spotify metadata and downloads it —
-with tags, album art and lyrics — from YouTube and other providers.</strong></p>
-<p>spotDL <strong>v5</strong> is a ground-up rewrite. Instead of a monolithic CLI, it is now:</p>
+<h1 id="backups-restore">Backups &amp; restore<a class="headerlink" href="#backups-restore" title="Permanent link">&para;</a></h1>
+<p>Your spotDL instance holds accounts, votes, reports and match curation — data
+you cannot re-derive. Back it up.</p>
+<p>How you back up depends on your database:</p>
 <ul>
-<li>a <strong>server</strong> that resolves metadata, searches providers, ranks audio matches
-  (with community voting) and serves lyrics;</li>
-<li>the <strong><code>spotdl</code> CLI</strong> and a built-in <strong>TUI</strong>;</li>
-<li>a <strong>web UI</strong>, bundled in the package (no runtime download).</li>
+<li><strong>Postgres</strong> (hosted / larger self-host): nightly <code>pg_dump</code> to object storage.</li>
+<li><strong>SQLite</strong> (single-container default): copy the volume file.</li>
 </ul>
-<p>You can use spotDL three ways, all from the same <code>spotdl</code> package:</p>
+<h2 id="postgres-nightly-pg_dump-to-object-storage">Postgres: nightly <code>pg_dump</code> to object storage<a class="headerlink" href="#postgres-nightly-pg_dump-to-object-storage" title="Permanent link">&para;</a></h2>
+<p>The community instance backs up nightly with a small script that dumps Postgres,
+compresses it, uploads it to object storage (Cloudflare R2 / S3 via <code>rclone</code>),
+and prunes old dumps. The script lives at <code>deploy/backup/backup.sh</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">set</span><span class="w"> </span>-euo<span class="w"> </span>pipefail
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nv">STAMP</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>date<span class="w"> </span>-u<span class="w"> </span>+%Y%m%dT%H%M%SZ<span class="k">)</span><span class="s2">&quot;</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nv">FILE</span><span class="o">=</span><span class="s2">&quot;spotdl-</span><span class="si">${</span><span class="nv">STAMP</span><span class="si">}</span><span class="s2">.sql.gz&quot;</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>pg_dump<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SPOTDL_DATABASE_URL_PSQL</span><span class="p">:?</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>gzip<span class="w"> </span>&gt;<span class="w"> </span><span class="s2">&quot;/tmp/</span><span class="si">${</span><span class="nv">FILE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">     </span><span class="c1"># libpq URL (no +asyncpg)</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>rclone<span class="w"> </span>copyto<span class="w"> </span><span class="s2">&quot;/tmp/</span><span class="si">${</span><span class="nv">FILE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SPOTDL_BACKUP_REMOTE</span><span class="p">:?</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">FILE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">    </span><span class="c1"># remote configured via env (R2/S3)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>rclone<span class="w"> </span>delete<span class="w"> </span>--min-age<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SPOTDL_BACKUP_RETENTION</span><span class="k">:-</span><span class="nv">30d</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SPOTDL_BACKUP_REMOTE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">   </span><span class="c1"># retention</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">libpq vs <code>+asyncpg</code></p>
+<p><code>pg_dump</code> speaks <strong>libpq</strong>, not SQLAlchemy. It needs a plain
+<code>postgresql://…</code> URL, so backups read a separate <code>SPOTDL_DATABASE_URL_PSQL</code>
+variable — <strong>not</strong> the app's <code>postgresql+asyncpg://…</code> <code>SPOTDL_DATABASE_URL</code>.
+Point it at the same database with the driver suffix removed.</p>
+</div>
+<p>The environment variables the script reads:</p>
 <table>
 <thead>
 <tr>
-<th>Mode</th>
-<th>What runs</th>
-<th>Best for</th>
+<th>Variable</th>
+<th>Purpose</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Community server</strong></td>
-<td>The CLI talks to the shared instance at <code>api.spotdl.dev</code></td>
-<td>Getting started, occasional use</td>
+<td><code>SPOTDL_DATABASE_URL_PSQL</code></td>
+<td>libpq Postgres URL to dump (<code>postgresql://…</code>)</td>
 </tr>
 <tr>
-<td><strong>Embedded</strong></td>
-<td>The CLI runs the server in-process on your machine</td>
-<td>Offline / private use, heavy downloading</td>
+<td><code>SPOTDL_BACKUP_REMOTE</code></td>
+<td><code>rclone</code> remote + path, e.g. <code>r2:spotdl-backups</code></td>
 </tr>
 <tr>
-<td><strong>Self-hosted</strong></td>
-<td>You run the server (Docker/Railway) for your household or team</td>
-<td>A shared instance you control</td>
+<td><code>SPOTDL_BACKUP_RETENTION</code></td>
+<td>max age before a dump is pruned (default <code>30d</code>)</td>
 </tr>
 </tbody>
 </table>
-<div class="admonition warning">
-<p class="admonition-title">Pre-release</p>
-<p>v5 is a pre-release. A plain <code>pip install spotdl</code> still installs the stable
-<strong>v4</strong> line until v5 reaches general availability (GA). See
-<a href="installation/">Installation</a> for how to try the pre-release, and
-<a href="migration/v4-to-v5/">Migrating from v4</a> if you are coming from v4.</p>
-</div>
-<h2 id="quick-start">Quick start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>--pre<span class="w"> </span>spotdl<span class="w">        </span><span class="c1"># pre-release; installs v5</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>spotdl<span class="w"> </span><span class="s2">&quot;https://open.spotify.com/track/...&quot;</span><span class="w">   </span><span class="c1"># download a track</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>spotdl<span class="w">                          </span><span class="c1"># no arguments in a terminal → launches the TUI</span>
+<p><code>rclone</code>'s remote credentials (R2/S3 keys) live in the backup service's
+environment only — never in the repo.</p>
+<h2 id="sqlite-copy-the-volume">SQLite: copy the volume<a class="headerlink" href="#sqlite-copy-the-volume" title="Permanent link">&para;</a></h2>
+<p>On the single-container SQLite default there is no database server to dump — the
+whole database is one file under the data volume. Stop the container (or accept a
+crash-consistent copy) and copy <code>spotdl.db</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>deploy/docker-compose.selfhost.yml<span class="w"> </span>stop
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span>spotdl_spotdl_data:/data<span class="w"> </span>-v<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PWD</span><span class="s2">&quot;</span>:/backup<span class="w"> </span>alpine<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>cp<span class="w"> </span>/data/spotdl.db<span class="w"> </span><span class="s2">&quot;/backup/spotdl-</span><span class="k">$(</span>date<span class="w"> </span>-u<span class="w"> </span>+%Y%m%dT%H%M%SZ<span class="k">)</span><span class="s2">.db&quot;</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>deploy/docker-compose.selfhost.yml<span class="w"> </span>start
 </code></pre></div>
-<p>The CLI defaults to the community server at <code>https://api.spotdl.dev</code> for
-metadata and matching, and downloads audio locally. No Spotify API keys are
-required — metadata is served by the server.</p>
-<h2 id="where-to-next">Where to next<a class="headerlink" href="#where-to-next" title="Permanent link">&para;</a></h2>
+<p>Ship the copy off-box on whatever schedule suits you.</p>
+<h2 id="the-railway-backup-cron-service">The Railway backup cron service<a class="headerlink" href="#the-railway-backup-cron-service" title="Permanent link">&para;</a></h2>
+<p>On the hosted instance, <code>backup.sh</code> runs as a <strong>second Railway service</strong> in the
+same project as the server:</p>
 <ul>
-<li><strong><a href="installation/">Installation</a></strong> — pip, pipx, Docker, standalone binary.</li>
-<li><strong><a href="quickstart/cli/">Quickstart: CLI</a></strong> — the everyday commands.</li>
-<li><strong><a href="quickstart/web/">Quickstart: Web UI</a></strong> — the bundled browser app.</li>
-<li><strong><a href="community/usage/">Community server</a></strong> — using the shared instance, and
-  its <strong><a href="community/etiquette/">etiquette &amp; fair use</a></strong>.</li>
-<li><strong><a href="self-hosting/docker/">Self-hosting</a></strong> — run your own with Docker, a
-  reverse proxy, or Railway, plus <a href="self-hosting/backups/">backups</a>.</li>
-<li><strong><a href="migration/v4-to-v5/">Migrating from v4</a></strong> — what changed and how the CLI
-  auto-translates v4 commands.</li>
-<li><strong><a href="api/">API reference</a></strong> — the server's HTTP API.</li>
+<li><strong>Image:</strong> a small image with <code>postgresql-client</code> (for <code>pg_dump</code>) and <code>rclone</code>
+  (for uploads); start command <code>bash deploy/backup/backup.sh</code>.</li>
+<li><strong>Schedule:</strong> <code>cronSchedule = "0 3 * * *"</code> (nightly, 03:00 UTC).</li>
+<li><strong>Healthcheck:</strong> none. <strong>Restart policy:</strong> never — it is a one-shot cron job.</li>
+<li><strong>Variables</strong> (dashboard only): <code>SPOTDL_DATABASE_URL_PSQL</code> (the <strong>libpq</strong> URL,
+  see the note above), <code>SPOTDL_BACKUP_REMOTE</code> (e.g. <code>r2:spotdl-backups</code>),
+  optional <code>SPOTDL_BACKUP_RETENTION</code> (default <code>30d</code>), and the rclone remote
+  credentials. None of these are committed.</li>
 </ul>
-<h2 id="legal">Legal<a class="headerlink" href="#legal" title="Permanent link">&para;</a></h2>
-<p>spotDL downloads metadata from the Spotify catalog and audio from providers such
-as YouTube. Use it only for content you are legally permitted to download. spotDL
-is not affiliated with Spotify or any provider. Released under the MIT license.</p>
+<h2 id="restoring">Restoring<a class="headerlink" href="#restoring" title="Permanent link">&para;</a></h2>
+<p><code>deploy/backup/restore.sh</code> streams a dump from the remote straight into a target
+database:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">SPOTDL_BACKUP_REMOTE</span><span class="o">=</span>r2:spotdl-backups
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># A specific dump into an explicit libpq target URL:</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>./deploy/backup/restore.sh<span class="w"> </span>spotdl-20260709T030000Z.sql.gz<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="s2">&quot;postgresql://user:pass@host:5432/target&quot;</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Or the most recent dump into $SPOTDL_RESTORE_TARGET_URL:</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="nb">export</span><span class="w"> </span><span class="nv">SPOTDL_RESTORE_TARGET_URL</span><span class="o">=</span><span class="s2">&quot;postgresql://user:pass@host:5432/target&quot;</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>./deploy/backup/restore.sh<span class="w"> </span>latest
+</code></pre></div>
+<p>Restore into a throwaway/target database — never the live app DB unless you
+intend to overwrite it.</p>
+<h2 id="quarterly-restore-drill">Quarterly restore drill<a class="headerlink" href="#quarterly-restore-drill" title="Permanent link">&para;</a></h2>
+<p>A backup you have never restored is a hope, not a backup. Once a quarter, prove
+recovery end-to-end and record the result:</p>
+<ol>
+<li><strong>Provision a throwaway Postgres</strong> (scratch Railway Postgres or a local
+   <code>postgres:17</code> container); note its libpq URL.</li>
+<li><strong>Restore the latest dump</strong> into it:
+   <code>SPOTDL_BACKUP_REMOTE=… SPOTDL_RESTORE_TARGET_URL=&lt;throwaway&gt; ./deploy/backup/restore.sh latest</code>.</li>
+<li><strong>Boot the server image</strong> against the throwaway DB
+   (<code>SPOTDL_DATABASE_URL=postgresql+asyncpg://…&lt;throwaway&gt;</code> — note the async
+   driver here, unlike the libpq restore URL).</li>
+<li><strong>Health:</strong> <code>curl -fsS http://&lt;host&gt;/api/v1/health</code> → <code>{"status":"ok"}</code>.</li>
+<li><strong>Function:</strong> one <code>POST /api/v1/resolve</code> with a known Spotify URL returns
+   resolved metadata (proves the restored data + schema are usable).</li>
+<li><strong>Record the outcome</strong> (date, dump, pass/fail) and tear down the throwaway DB.</li>
+</ol>
+<p>The full runbook, the drill checklist and an outcome log live alongside the
+scripts in <code>deploy/backup/README.md</code>.</p>
 
 
 
@@ -1268,10 +1357,10 @@ is not affiliated with Spotify or any provider. Released under the MIT license.<
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "content.code.copy", "content.code.annotate"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
