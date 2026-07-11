@@ -73,6 +73,7 @@ from the linked plugins at deploy time.
 | `SPOTDL_AUTH_SECRET_KEY` | `<openssl rand -hex 32>` | Token signing key; server fails fast without it. |
 | `SPOTDL_SPOTIFY_CLIENT_ID` | `<operator>` | Operator's Spotify app credential. |
 | `SPOTDL_SPOTIFY_CLIENT_SECRET` | `<operator>` | Operator's Spotify app credential. |
+| `SPOTDL_SPOTIFY_PREFER_ANONYMOUS` | `false` | **Required on datacenter IPs.** The provider defaults to the anonymous web-player token (right for residential self-hosts), but Spotify persistently 429s anonymous API calls from cloud-provider IPs — and because the anon *token fetch* still succeeds, the client-credentials fallback never engages. `false` makes the operator credentials primary; anonymous becomes the fallback. |
 | `SPOTDL_SENTRY_DSN` | `<optional>` | Error reporting; blank disables. |
 | `SPOTDL_LOG_LEVEL` | `INFO` | Structured JSON log level. |
 | `SPOTDL_CLIENT_IP_HEADER` | `cf-connecting-ip` | Trust Cloudflare's client-IP header for rate limiting + logs. |
