@@ -133,6 +133,7 @@
 
   "FFmpeg is not installed. Please run `spotdl --download-ffmpeg` to install it, or `spotdl --ffmpeg /path/to/ffmpeg` to specify the path to ffmpeg.": "FFmpeg não está instalado. Execute `spotdl --download-ffmpeg` para instalá-lo, ou `spotdl --ffmpeg /caminho/para/ffmpeg` para especificar o caminho do ffmpeg.",
   "You might be blocked by YouTube Music. If downloads fail, use a VPN, or use other audio providers. ": "Você pode estar bloqueado pelo YouTube Music. Se os downloads falharem, use uma VPN ou outros provedores de áudio. ",
+  "YouTube Music might be blocked in your region. If downloads fail, use a VPN or add other audio providers with --audio. SpotDL will try other configured providers automatically.": "O YouTube Music pode estar bloqueado na sua região. Se os downloads falharem, use uma VPN ou adicione outros provedores com --audio. O SpotDL tentará outros provedores configurados automaticamente.",
   "Save file has to end with .spotdl": "O arquivo de salvamento deve terminar com .spotdl",
   "You must be logged in to use the saved query. Log in by adding the --user-auth flag": "Você precisa estar logado para usar a consulta 'saved'. Faça login adicionando a flag --user-auth",
 

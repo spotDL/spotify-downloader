@@ -113,8 +113,9 @@ def entry_point():
     if "youtube-music" in downloader_settings["audio_providers"]:
         if not check_ytmusic_connection():
             logger.warning(_(
-                "You might be blocked by YouTube Music. "
-                "If downloads fail, use a VPN, or use other audio providers. "
+                "YouTube Music might be blocked in your region. "
+                "If downloads fail, use a VPN or add other audio providers with --audio. "
+                "SpotDL will try other configured providers automatically."
             ))
 
     # Initialize spotify client
