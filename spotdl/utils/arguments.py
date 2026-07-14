@@ -12,6 +12,7 @@ from spotdl import _version
 from spotdl.download.downloader import AUDIO_PROVIDERS, LYRICS_PROVIDERS
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
 from spotdl.utils.formatter import VARS
+from spotdl.utils.i18n import _, available_languages
 from spotdl.utils.logging import NAME_TO_LEVEL
 
 __all__ = ["OPERATIONS", "SmartFormatter", "parse_arguments"]
@@ -31,9 +32,11 @@ class SmartFormatter(argparse.HelpFormatter):
         """
 
         if text.startswith("N|"):
-            return text[2:].splitlines()
+            text = text[2:]
+            return [_(line) if line else line for line in text.splitlines()]
 
         text = self._whitespace_matcher.sub(" ", text).strip()
+        text = _(text)
 
         return textwrap.wrap(text, width)
 
@@ -728,6 +731,15 @@ def parse_misc_options(parser: _ArgumentGroup):
     - parser: The argument parser to add the options to.
     """
 
+    # Add language argument
+    parser.add_argument(
+        "--lang",
+        "--language",
+        dest="language",
+        choices=list(available_languages().keys()),
+        help="Select language for the interface.",
+    )
+
     # Add verbose argument
     parser.add_argument(
         "--log-level",
@@ -809,40 +821,40 @@ def create_parser() -> ArgumentParser:
     # Initialize argument parser
     parser = ArgumentParser(
         prog="spotdl",
-        description="Download your Spotify playlists and songs along with album art and metadata",
+        description=_("Download your Spotify playlists and songs along with album art and metadata"),
         formatter_class=SmartFormatter,
-        epilog=(
+        epilog=_(
             "For more information, visit http://spotdl.rtfd.io/ "
             "or join our Discord server: https://discord.com/invite/xCa23pwJWY"
         ),
     )
 
     # Parse main options
-    main_options = parser.add_argument_group("Main options")
+    main_options = parser.add_argument_group(_("Main options"))
     parse_main_options(main_options)
 
     # Parse spotify options
-    spotify_options = parser.add_argument_group("Spotify options")
+    spotify_options = parser.add_argument_group(_("Spotify options"))
     parse_spotify_options(spotify_options)
 
     # Parse ffmpeg options
-    ffmpeg_options = parser.add_argument_group("FFmpeg options")
+    ffmpeg_options = parser.add_argument_group(_("FFmpeg options"))
     parse_ffmpeg_options(ffmpeg_options)
 
     # Parse output options
-    output_options = parser.add_argument_group("Output options")
+    output_options = parser.add_argument_group(_("Output options"))
     parse_output_options(output_options)
 
     # Parse web options
-    web_options = parser.add_argument_group("Web options")
+    web_options = parser.add_argument_group(_("Web options"))
     parse_web_options(web_options)
 
     # Parse misc options
-    misc_options = parser.add_argument_group("Misc options")
+    misc_options = parser.add_argument_group(_("Misc options"))
     parse_misc_options(misc_options)
 
     # Parse other options
-    other_options = parser.add_argument_group("Other options")
+    other_options = parser.add_argument_group(_("Other options"))
     parse_other_options(other_options)
 
     return parser

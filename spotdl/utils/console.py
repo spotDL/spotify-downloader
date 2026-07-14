@@ -11,6 +11,7 @@ from spotdl.utils.deno import get_local_deno, is_deno_installed
 from spotdl.utils.ffmpeg import download_ffmpeg as ffmpeg_download
 from spotdl.utils.ffmpeg import get_local_ffmpeg, is_ffmpeg_installed
 from spotdl.utils.github import check_for_updates as get_update_status
+from spotdl.utils.i18n import _
 
 __all__ = [
     "is_frozen",
@@ -67,16 +68,16 @@ def generate_config():
 
     config_path = get_config_file()
     if config_path.exists():
-        overwrite_config = input("Config file already exists. Overwrite? (y/N): ")
+        overwrite_config = input(_("Config file already exists. Overwrite? (y/N): "))
 
-        if overwrite_config.lower() != "y":
-            print("Exiting...")
+        if overwrite_config.lower() not in ("y", "s"):
+            print(_("Exiting..."))
             return None
 
     with open(config_path, "w", encoding="utf-8") as config_file:
         json.dump(DEFAULT_CONFIG, config_file, indent=4)
 
-    print(f"Config file generated at {config_path}")
+    print(_("Config file generated at ") + str(config_path))
 
     return None
 
@@ -98,24 +99,24 @@ def download_ffmpeg():
 
     if get_local_ffmpeg() is not None or is_ffmpeg_installed():
         overwrite_ffmpeg = input(
-            "FFmpeg is already installed. Do you want to overwrite it? (y/N): "
+            _("FFmpeg is already installed. Do you want to overwrite it? (y/N): ")
         )
 
-        if overwrite_ffmpeg.lower() == "y":
+        if overwrite_ffmpeg.lower() in ("y", "s"):
             local_ffmpeg = ffmpeg_download()
 
             if local_ffmpeg.is_file():
-                print(f"FFmpeg successfully downloaded to {local_ffmpeg.absolute()}")
+                print(_("FFmpeg successfully downloaded to ") + str(local_ffmpeg.absolute()))
             else:
-                print("FFmpeg download failed")
+                print(_("FFmpeg download failed"))
     else:
-        print("Downloading FFmpeg...")
+        print(_("Downloading FFmpeg..."))
         download_path = ffmpeg_download()
 
         if download_path.is_file():
-            print(f"FFmpeg successfully downloaded to {download_path.absolute()}")
+            print(_("FFmpeg successfully downloaded to ") + str(download_path.absolute()))
         else:
-            print("FFmpeg download failed")
+            print(_("FFmpeg download failed"))
 
 
 def download_deno():
@@ -125,24 +126,24 @@ def download_deno():
 
     if get_local_deno() is not None or is_deno_installed():
         download_deno_anyway = input(
-            "Deno is already installed. Do you want to download it anyway? (y/N): "
+            _("Deno is already installed. Do you want to download it anyway? (y/N): ")
         )
 
-        if download_deno_anyway.lower() == "y":
+        if download_deno_anyway.lower() in ("y", "s"):
             local_deno = deno_download()
 
             if local_deno.is_file():
-                print(f"Deno successfully downloaded to {local_deno.absolute()}")
+                print(_("Deno successfully downloaded to ") + str(local_deno.absolute()))
             else:
-                print("Deno download failed")
+                print(_("Deno download failed"))
     else:
-        print("Downloading Deno...")
+        print(_("Downloading Deno..."))
         download_path = deno_download()
 
         if download_path.is_file():
-            print(f"Deno successfully downloaded to {download_path.absolute()}")
+            print(_("Deno successfully downloaded to ") + str(download_path.absolute()))
         else:
-            print("Deno download failed")
+            print(_("Deno download failed"))
 
 
 ACTIONS = {

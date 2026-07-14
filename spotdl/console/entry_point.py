@@ -21,6 +21,7 @@ from spotdl.utils.config import create_settings
 from spotdl.utils.console import ACTIONS, generate_initial_config, is_executable
 from spotdl.utils.downloader import check_ytmusic_connection
 from spotdl.utils.ffmpeg import FFmpegError, download_ffmpeg, is_ffmpeg_installed
+from spotdl.utils.i18n import _, set_language
 from spotdl.utils.logging import init_logging
 from spotdl.utils.spotify import SpotifyClient, SpotifyError, save_spotify_cache
 
@@ -58,6 +59,19 @@ def entry_point():
     Console entry point for spotdl. This is where the magic happens.
     """
 
+    # Set language early (from --lang in sys.argv or auto-detect)
+    import argparse
+    try:
+        lang_idx = None
+        for i, arg in enumerate(sys.argv):
+            if arg in ("--lang", "--language"):
+                lang_idx = i
+                break
+        if lang_idx is not None and lang_idx + 1 < len(sys.argv):
+            set_language(sys.argv[lang_idx + 1])
+    except (ValueError, IndexError):
+        pass
+
     # Create config file if it doesn't exist
     generate_initial_config()
 
@@ -90,18 +104,18 @@ def entry_point():
 
     # Check if ffmpeg is installed
     if is_ffmpeg_installed(downloader_settings["ffmpeg"]) is False:
-        raise FFmpegError(
+        raise FFmpegError(_(
             "FFmpeg is not installed. Please run `spotdl --download-ffmpeg` to install it, "
             "or `spotdl --ffmpeg /path/to/ffmpeg` to specify the path to ffmpeg."
-        )
+        ))
 
     # Check if we might be blocked by YouTube Music without stopping downloads.
     if "youtube-music" in downloader_settings["audio_providers"]:
         if not check_ytmusic_connection():
-            logger.warning(
+            logger.warning(_(
                 "You might be blocked by YouTube Music. "
                 "If downloads fail, use a VPN, or use other audio providers. "
-            )
+            ))
 
     # Initialize spotify client
     SpotifyClient.init(**spotify_settings)
@@ -125,7 +139,7 @@ def entry_point():
         not downloader_settings["save_file"].endswith(".spotdl")
         and not downloader_settings["save_file"] == "-"
     ):
-        raise DownloaderError("Save file has to end with .spotdl")
+        raise DownloaderError(_("Save file has to end with .spotdl"))
 
     # Check if the user is logged in
     if (
@@ -133,10 +147,10 @@ def entry_point():
         and "saved" in arguments.query
         and not spotify_settings["user_auth"]
     ):
-        raise SpotifyError(
+        raise SpotifyError(_(
             "You must be logged in to use the saved query. "
             "Log in by adding the --user-auth flag"
-        )
+        ))
 
     # Initialize the downloader
     # for download, load and preload operations
