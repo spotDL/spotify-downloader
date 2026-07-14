@@ -21,6 +21,8 @@
 > spotDL: The fastest, easiest and most accurate command-line music downloader.
 </div>
 
+> **Leia em [Português (pt-BR)](README.pt-BR.md)** | _Read this in [Portuguese (pt-BR)](README.pt-BR.md)_
+
 ______________________________________________________________________
 **[Read the documentation on ReadTheDocs!](https://spotdl.readthedocs.io)**
 ______________________________________________________________________
