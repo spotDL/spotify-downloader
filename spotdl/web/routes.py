@@ -21,6 +21,7 @@ from spotdl.types.song import Song
 from spotdl.utils.config import get_spotdl_path
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
 from spotdl.utils.search import get_search_results
+from spotdl.utils.i18n import _
 from spotdl.utils.web import Client, app_state, validate_search_term
 from spotdl.web.utils import Signals, handle_signals
 
@@ -29,6 +30,7 @@ __all__ = ["router"]
 router = APIRouter()
 
 templates = Jinja2Templates(directory="spotdl/web/components")
+templates.env.globals["_"] = _
 
 
 # PATHS
@@ -213,7 +215,7 @@ async def handle_post_client_settings(datastar_signals: ReadSignals):
         app_state.logger.info(f"[{signals.client_id}] Updating settings...")
         if signals.downloader_settings is not None:
             client.downloader_settings = signals.downloader_settings
-        yield SSE.patch_elements("""
+        yield SSE.patch_elements(f"""
                 <div id="settings-status">
                     <div id="settings-is-saved" class="alert alert-success shadow-lg">
                         <div>
@@ -228,7 +230,7 @@ async def handle_post_client_settings(datastar_signals: ReadSignals):
                                 stroke-width="2"
                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span>Changes saved</span>
+                            <span>{_("Changes saved")}</span>
                         </div>
                     </div>
                 </div>
@@ -245,7 +247,7 @@ async def handle_post_client_settings(datastar_signals: ReadSignals):
         yield SSE.patch_elements(
             templates.get_template("status-disconnected.html.j2").render()
         )
-        yield SSE.patch_elements("""
+        yield SSE.patch_elements(f"""
                 <div id="settings-status">
                     <div id="settings-is-not-saved" class="alert alert-error shadow-lg">
                         <div>
@@ -262,7 +264,7 @@ async def handle_post_client_settings(datastar_signals: ReadSignals):
                 d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" 
                             />
                             </svg>
-                            <span>Error! Unable to save settings</span>
+                            <span>{_("Error! Unable to save settings")}</span>
                         </div>
                     </div>
                 </div>

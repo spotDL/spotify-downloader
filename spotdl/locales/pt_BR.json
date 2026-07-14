@@ -134,5 +134,29 @@
   "FFmpeg is not installed. Please run `spotdl --download-ffmpeg` to install it, or `spotdl --ffmpeg /path/to/ffmpeg` to specify the path to ffmpeg.": "FFmpeg não está instalado. Execute `spotdl --download-ffmpeg` para instalá-lo, ou `spotdl --ffmpeg /caminho/para/ffmpeg` para especificar o caminho do ffmpeg.",
   "You might be blocked by YouTube Music. If downloads fail, use a VPN, or use other audio providers. ": "Você pode estar bloqueado pelo YouTube Music. Se os downloads falharem, use uma VPN ou outros provedores de áudio. ",
   "Save file has to end with .spotdl": "O arquivo de salvamento deve terminar com .spotdl",
-  "You must be logged in to use the saved query. Log in by adding the --user-auth flag": "Você precisa estar logado para usar a consulta 'saved'. Faça login adicionando a flag --user-auth"
+  "You must be logged in to use the saved query. Log in by adding the --user-auth flag": "Você precisa estar logado para usar a consulta 'saved'. Faça login adicionando a flag --user-auth",
+
+  "Enabeling TLS": "Habilitando TLS",
+  "Files are stored in temporary directory and will be deleted after the program exits to save them to current directory permanently enable the `web_use_output_dir` option ": "Arquivos são armazenados em diretório temporário e serão excluídos após o programa sair. Para salvá-los no diretório atual permanentemente, habilite a opção `web_use_output_dir` ",
+  "Files are stored in current directory to save them to temporary directory disable the `web_use_output_dir` option ": "Arquivos são armazenados no diretório atual. Para salvá-los em diretório temporário, desabilite a opção `web_use_output_dir` ",
+  "Starting web server \n": "Iniciando servidor web \n",
+  "Removing sessions directories": "Removendo diretórios de sessões",
+
+  "Download your Spotify songs with embedded album art and metadata": "Baixe suas músicas do Spotify com capa do álbum e metadados incorporados",
+  "This interface now can download a song or an entire album, artist, or playlist.": "Esta interface pode baixar uma música ou um álbum, artista ou playlist inteiro.",
+  "Open Source Music Downloader": "Downloader de Música Open Source",
+  "Social": "Social",
+  "Queue": "Fila",
+  "No downloads are queued. Search for a song to begin.": "Nenhum download na fila. Busque por uma música para começar.",
+  "Download Settings": "Configurações de Download",
+  "Audio Providers": "Provedores de Áudio",
+  "Lyrics Providers": "Provedores de Letras",
+  "Output Format": "Formato de Saída",
+  "Save": "Salvar",
+  "Cancel": "Cancelar",
+  "Changes saved": "Alterações salvas",
+  "Error! Unable to save settings": "Erro! Não foi possível salvar as configurações",
+  "LOADING": "CARREGANDO",
+  "Explicit": "Explícito",
+  "close": "fechar"
 }

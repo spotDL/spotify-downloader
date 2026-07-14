@@ -17,6 +17,7 @@ from uvicorn import Config, Server
 from spotdl._version import __version__
 from spotdl.types.options import DownloaderOptions, WebOptions
 from spotdl.utils.config import get_spotdl_path, get_web_ui_path
+from spotdl.utils.i18n import _
 from spotdl.utils.logging import NAME_TO_LEVEL
 from spotdl.utils.web import (
     ALLOWED_ORIGINS,
@@ -104,7 +105,7 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
         loop=app_state.loop,  # type: ignore
     )
     if web_settings["enable_tls"]:
-        logger.info("Enabeling TLS")
+        logger.info(_("Enabeling TLS"))
         protocol = "https"
         config.ssl_certfile = web_settings["cert_file"]
         config.ssl_keyfile = web_settings["key_file"]
@@ -118,20 +119,20 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     webbrowser.open(f"{protocol}://{web_settings['host']}:{web_settings['port']}/")
 
     if not web_settings["web_use_output_dir"]:
-        logger.info(
+        logger.info(_(
             "Files are stored in temporary directory "
             "and will be deleted after the program exits "
             "to save them to current directory permanently "
             "enable the `web_use_output_dir` option "
-        )
+        ))
     else:
-        logger.info(
+        logger.info(_(
             "Files are stored in current directory "
             "to save them to temporary directory "
             "disable the `web_use_output_dir` option "
-        )
+        ))
 
-    logger.info("Starting web server \n")
+    logger.info(_("Starting web server \n"))
 
     def handle_shutdown(signum, frame):  # pylint: disable=unused-argument
         """
@@ -155,6 +156,6 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
             and not app_state.web_settings["web_use_output_dir"]
         ):
             sessions_dir = Path(get_spotdl_path() / "web/sessions")
-            logger.info("Removing sessions directories")
+            logger.info(_("Removing sessions directories"))
             if sessions_dir.exists():
                 shutil.rmtree(sessions_dir)

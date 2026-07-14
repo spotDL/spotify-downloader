@@ -3,11 +3,11 @@
         <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
             data-on-click="@get('/client/settings')">✕</button>
     </form>
-    <h3 class="font-bold text-lg">Download Settings</h3>
+    <h3 class="font-bold text-lg">{{ _("Download Settings") }}</h3>
     <div class="flex flex-col justify-center my-4">
         <!-- audio_provider -->
         <fieldset class="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4 w-full">
-            <legend class="fieldset-legend">Audio Providers</legend>
+            <legend class="fieldset-legend">{{ _("Audio Providers") }}</legend>
             {% for provider in AUDIO_PROVIDERS %}
             <label class="label">
                 <input type="checkbox" {% if provider in downloader_settings.audio_providers %} checked="checked" {%
@@ -19,7 +19,7 @@
         </fieldset>
         <!-- lyrics_provider -->
         <fieldset class="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4 w-full">
-            <legend class="fieldset-legend">Lyrics Providers</legend>
+            <legend class="fieldset-legend">{{ _("Lyrics Providers") }}</legend>
             {% for provider in LYRICS_PROVIDERS %}
             <label class="label">
                 <input type="checkbox" {% if provider in downloader_settings.lyrics_providers %} checked="checked" {%
@@ -31,7 +31,7 @@
         </fieldset>
         <!-- format -->
         <fieldset class="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4 w-full">
-            <legend class="fieldset-legend">Output Format</legend>
+            <legend class="fieldset-legend">{{ _("Output Format") }}</legend>
             <select class="select w-full"
                 data-on-change="console.log(evt.target.options[evt.target.selectedIndex].value ); $downloader_settings.format = evt.target.options[evt.target.selectedIndex].value">
                 {% for format in FORMATS %}
@@ -47,11 +47,11 @@
     </div>
     <div class="modal-action">
         <form method="dialog">
-            <button class="btn" data-on-click="@get('/client/settings')">Cancel</button>
+            <button class="btn" data-on-click="@get('/client/settings')">{{ _("Cancel") }}</button>
         </form>
         {# <form method="dialog">
             <button class="btn btn-primary" data-on-click="@post('/client/settings')">Save</button>
         </form> #}
-        <button class="btn btn-primary" data-on-click="@post('/client/settings')">Save</button>
+        <button class="btn btn-primary" data-on-click="@post('/client/settings')">{{ _("Save") }}</button>
     </div>
 </div>
