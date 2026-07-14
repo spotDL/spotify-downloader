@@ -137,7 +137,9 @@ async def handle_get_client_search(datastar_signals: ReadSignals):
             f"[{signals.client_id}] Valid URL detected, redirecting to downloads..."
         )
         yield SSE.redirect("/downloads")
-        signals.song_url = signals.search_term
+        # Normalize URL: remove /intl-xxx/ prefix
+        import re
+        signals.song_url = re.sub(r"/intl-\w+/", "/", signals.search_term)
         async for update in gen_download(signals):
             yield update
 
