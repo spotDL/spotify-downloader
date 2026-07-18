@@ -117,6 +117,7 @@ class Client:
         )
 
         self.disconnect_timer = None
+        self.active_download_urls: set = set()
 
     async def connect(self):
         """
@@ -146,6 +147,7 @@ class Client:
             "Client %s will disconnect in 15 seconds of inactivity", self.client_id
         )
         self.disconnect_timer = threading.Timer(15, self.disconnect_now)
+        self.disconnect_timer.daemon = True
         self.disconnect_timer.start()
 
     def disconnect_now(self):
