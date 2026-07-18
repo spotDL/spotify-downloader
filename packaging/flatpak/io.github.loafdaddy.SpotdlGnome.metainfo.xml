@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.loafdaddy.SpotdlGnome</id>
+
+  <name>spotDL GNOME</name>
+  <summary>Download music from Spotify</summary>
+
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+
+  <developer id="io.github.loafdaddy">
+    <name>loafdaddy</name>
+  </developer>
+
+  <description>
+    <p>
+      spotDL GNOME is a native GTK4 / libadwaita desktop app for Linux that
+      finds songs from your Spotify tracks, albums and playlists and downloads
+      matching audio from YouTube, together with album art, lyrics and metadata.
+    </p>
+    <p>Features:</p>
+    <ul>
+      <li>Download tracks, albums and playlists by pasting a Spotify link</li>
+      <li>Automatic backup sources (YouTube, SoundCloud, Bandcamp) when a song fails</li>
+      <li>Per-song progress, error reasons and a retry button</li>
+      <li>Downloads organised into artist/album folders</li>
+      <li>Persistent download-history sidebar</li>
+      <li>Choose output format (MP3, FLAC, Opus, M4A, OGG, WAV) and bitrate</li>
+      <li>Optional synced lyrics (.lrc)</li>
+    </ul>
+    <p>
+      It is built on the spotDL command line engine. FFmpeg and Deno are
+      bundled, so no additional dependencies are required.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">io.github.loafdaddy.SpotdlGnome.desktop</launchable>
+
+  <categories>
+    <category>AudioVideo</category>
+    <category>Audio</category>
+  </categories>
+
+  <url type="homepage">https://github.com/loafdaddy/spotify-downloader</url>
+  <url type="bugtracker">https://github.com/loafdaddy/spotify-downloader/issues</url>
+
+  <content_rating type="oars-1.1"/>
+
+  <releases>
+    <release version="0.1.0" date="2026-07-18">
+      <description>
+        <p>Initial release: native GTK4 / libadwaita desktop GUI packaged as a Flatpak.</p>
+      </description>
+    </release>
+  </releases>
+</component>

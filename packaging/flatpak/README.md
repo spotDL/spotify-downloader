@@ -3,15 +3,15 @@
 A native GTK4 / libadwaita desktop GUI for spotDL, packaged as a Flatpak with
 FFmpeg and Deno bundled. Nothing else needs to be installed on the host.
 
-App ID: `io.github.spotdl.Spotdl`
+App ID: `io.github.loafdaddy.SpotdlGnome`
 
 ## Contents
 
 | File | Purpose |
 | --- | --- |
-| `io.github.spotdl.Spotdl.yml` | Flatpak manifest (GNOME runtime + modules) |
-| `io.github.spotdl.Spotdl.desktop` | Desktop entry |
-| `io.github.spotdl.Spotdl.metainfo.xml` | AppStream metadata |
+| `io.github.loafdaddy.SpotdlGnome.yml` | Flatpak manifest (GNOME runtime + modules) |
+| `io.github.loafdaddy.SpotdlGnome.desktop` | Desktop entry |
+| `io.github.loafdaddy.SpotdlGnome.metainfo.xml` | AppStream metadata |
 | `icons/` | Application icon |
 | `build.sh` | Convenience build + install script |
 
@@ -31,7 +31,7 @@ installs the app into the per-user Flatpak installation.
 Run it afterwards with:
 
 ```bash
-flatpak run io.github.spotdl.Spotdl
+flatpak run io.github.loafdaddy.SpotdlGnome
 ```
 
 Downloaded music is written to your `~/Music` folder by default (configurable
@@ -40,7 +40,7 @@ in Preferences), via the `xdg-music` filesystem grant.
 spotDL stores its config under `~/.config/spotdl`. Flatpak sandboxes the home
 directory, so the manifest uses `--persist=.config`, which maps the app's
 `~/.config` to persistent per-app storage at
-`~/.var/app/io.github.spotdl.Spotdl/.config/`. Settings therefore survive
+`~/.var/app/io.github.loafdaddy.SpotdlGnome/.config/`. Settings therefore survive
 between runs and are shared with the bundled `spotdl` CLI (inside the sandbox),
 but are separate from a host-installed `spotdl`.
 
@@ -85,7 +85,7 @@ requires fully offline, checksummed sources.
 
    This produces `python3-modules.json` with every wheel pinned by hash.
 
-3. In `io.github.spotdl.Spotdl.yml`, replace the network `build-args` install
+3. In `io.github.loafdaddy.SpotdlGnome.yml`, replace the network `build-args` install
    with the generated module and an offline install:
 
    ```yaml

@@ -1,4 +1,4 @@
-id: io.github.spotdl.Spotdl
+id: io.github.loafdaddy.SpotdlGnome
 runtime: org.gnome.Platform
 runtime-version: '48'
 sdk: org.gnome.Sdk
@@ -78,13 +78,13 @@ modules:
       # Some pure-Python deps (e.g. pygments) ship in the SDK but NOT in the
       # Platform runtime, so without this they would be missing at runtime.
       - pip3 install --prefix=${FLATPAK_DEST} --no-cache-dir --ignore-installed .
-      - install -Dm644 packaging/flatpak/io.github.spotdl.Spotdl.desktop
-        ${FLATPAK_DEST}/share/applications/io.github.spotdl.Spotdl.desktop
-      - install -Dm644 packaging/flatpak/io.github.spotdl.Spotdl.metainfo.xml
-        ${FLATPAK_DEST}/share/metainfo/io.github.spotdl.Spotdl.metainfo.xml
+      - install -Dm644 packaging/flatpak/io.github.loafdaddy.SpotdlGnome.desktop
+        ${FLATPAK_DEST}/share/applications/io.github.loafdaddy.SpotdlGnome.desktop
+      - install -Dm644 packaging/flatpak/io.github.loafdaddy.SpotdlGnome.metainfo.xml
+        ${FLATPAK_DEST}/share/metainfo/io.github.loafdaddy.SpotdlGnome.metainfo.xml
       - install -Dm644
-        packaging/flatpak/icons/hicolor/scalable/apps/io.github.spotdl.Spotdl.svg
-        ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/io.github.spotdl.Spotdl.svg
+        packaging/flatpak/icons/hicolor/scalable/apps/io.github.loafdaddy.SpotdlGnome.svg
+        ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/io.github.loafdaddy.SpotdlGnome.svg
     sources:
       - type: dir
         path: ../..

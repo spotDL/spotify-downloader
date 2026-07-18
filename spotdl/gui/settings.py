@@ -24,6 +24,8 @@ __all__ = [
     "load_settings",
     "save_settings",
     "build_downloader_settings",
+    "is_first_run",
+    "mark_welcomed",
 ]
 
 logger = logging.getLogger(__name__)
@@ -55,6 +57,18 @@ def default_output_dir() -> str:
     """Return the default download directory (the user's Music folder)."""
 
     return str(Path.home() / "Music")
+
+
+def is_first_run() -> bool:
+    """Return ``True`` until the user has seen the first-run welcome dialog."""
+
+    return not _read_config().get("gui_welcomed", False)
+
+
+def mark_welcomed() -> None:
+    """Record that the first-run welcome dialog has been shown."""
+
+    _write_config({"gui_welcomed": True})
 
 
 def _read_config() -> Dict[str, Any]:

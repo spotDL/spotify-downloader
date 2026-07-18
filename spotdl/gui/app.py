@@ -18,9 +18,10 @@ from spotdl.gui.window import SpotdlWindow  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["SpotdlApplication", "APP_ID"]
+__all__ = ["SpotdlApplication", "APP_ID", "APP_NAME"]
 
-APP_ID = "io.github.spotdl.Spotdl"
+APP_ID = "io.github.loafdaddy.SpotdlGnome"
+APP_NAME = "spotDL GNOME"
 
 
 class SpotdlApplication(Adw.Application):
@@ -67,16 +68,19 @@ class SpotdlApplication(Adw.Application):
 
     def _on_about(self, *_args: Any) -> None:
         about = Adw.AboutDialog(
-            application_name="spotDL",
+            application_name=APP_NAME,
             application_icon=APP_ID,
             version=__version__,
-            developer_name="spotDL Team",
-            website="https://github.com/spotDL/spotify-downloader",
-            issue_url="https://github.com/spotDL/spotify-downloader/issues",
+            developer_name="loafdaddy",
+            website="https://github.com/loafdaddy/spotify-downloader",
+            issue_url="https://github.com/loafdaddy/spotify-downloader/issues",
             license_type=Gtk.License.MIT_X11,
             comments=(
-                "Download Spotify playlists and songs along with album art "
-                "and metadata."
+                "A native GTK/libadwaita desktop app for Linux that downloads "
+                "music from Spotify, built on the spotDL engine."
             ),
+        )
+        about.add_credit_section(
+            "Based on", ["spotDL https://github.com/spotDL/spotify-downloader"]
         )
         about.present(self.window)

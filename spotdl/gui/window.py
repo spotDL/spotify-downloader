@@ -23,7 +23,12 @@ from spotdl.gui.backend import (  # noqa: E402
     EVENT_STATUS,
     DownloadManager,
 )
-from spotdl.gui.settings import build_downloader_settings, load_settings  # noqa: E402
+from spotdl.gui.settings import (  # noqa: E402
+    build_downloader_settings,
+    is_first_run,
+    load_settings,
+    mark_welcomed,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -156,7 +161,7 @@ class SpotdlWindow(Adw.ApplicationWindow):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
-        self.set_title("spotDL")
+        self.set_title("spotDL GNOME")
         self.set_default_size(900, 720)
 
         self.manager = DownloadManager()
@@ -169,6 +174,10 @@ class SpotdlWindow(Adw.ApplicationWindow):
         self._install_actions()
         self._build_ui()
         self._load_history()
+
+        if is_first_run():
+            # Show the welcome dialog once the window is on screen.
+            GLib.idle_add(self._show_welcome)
 
     # ------------------------------------------------------------------ UI
 
@@ -354,6 +363,36 @@ class SpotdlWindow(Adw.ApplicationWindow):
         open_folder = Gio.SimpleAction.new("open-folder", None)
         open_folder.connect("activate", self._on_open_folder)
         self.add_action(open_folder)
+
+    def _show_welcome(self) -> bool:
+        """First-run dialog nudging the user to set up their preferences."""
+
+        mark_welcomed()
+
+        dialog = Adw.AlertDialog(
+            heading="Welcome to spotDL GNOME",
+            body=(
+                "Before your first download, choose where music is saved and set "
+                "your format, quality, and how downloads are organised into "
+                "folders.\n\nYou can change these any time from the menu."
+            ),
+        )
+        dialog.add_response("later", "Not Now")
+        dialog.add_response("prefs", "Open Preferences")
+        dialog.set_response_appearance("prefs", Adw.ResponseAppearance.SUGGESTED)
+        dialog.set_default_response("prefs")
+        dialog.set_close_response("later")
+        dialog.connect("response", self._on_welcome_response)
+        dialog.present(self)
+
+        # One-shot idle source.
+        return False
+
+    def _on_welcome_response(self, _dialog: Adw.AlertDialog, response: str) -> None:
+        if response == "prefs":
+            app = self.get_application()
+            if app is not None:
+                app.activate_action("preferences", None)
 
     # ------------------------------------------------------------- handlers
 

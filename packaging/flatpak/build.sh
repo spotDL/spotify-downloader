@@ -8,7 +8,7 @@
 #
 set -euo pipefail
 
-APP_ID="io.github.spotdl.Spotdl"
+APP_ID="io.github.loafdaddy.SpotdlGnome"
 RUNTIME_VERSION="48"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MANIFEST="${SCRIPT_DIR}/${APP_ID}.yml"
