@@ -57,8 +57,17 @@ Homepage = "https://github.com/spotDL/spotify-downloader/"
 Repository = "https://github.com/spotDL/spotify-downloader.git"
 Documentation = "https://spotdl.rtfd.io/en/latest/"
 
+[project.optional-dependencies]
+# GTK4 + libadwaita desktop GUI. Inside the Flatpak, PyGObject/GTK4/libadwaita
+# are provided by the GNOME runtime, so this extra is only needed for running
+# the GUI outside of Flatpak (e.g. `uv run spotdl-gui` during development).
+gui = ["PyGObject>=3.50"]
+
 [project.scripts]
 spotdl = "spotdl:console_entry_point"
+
+[project.gui-scripts]
+spotdl-gui = "spotdl.gui:main"
 
 [dependency-groups]
 dev = [
@@ -79,7 +88,6 @@ dev = [
     "types-setuptools>=75.5.0.20241116,<76",
     "types-toml>=0.10.8.7,<0.11",
     "types-ujson>=5.10.0.20240515,<6",
-    "pyinstaller>=6.11.1,<7",
     "mkdocs>=1.6.1,<2",
     "isort>=5.13.2,<6",
     "dill>=0.3.7,<0.4",

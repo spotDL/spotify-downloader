@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=spotDL
+GenericName=Music Downloader
+Comment=Download Spotify playlists and songs with album art and metadata
+Exec=spotdl-gui
+Icon=io.github.spotdl.Spotdl
+Terminal=false
+Categories=AudioVideo;Audio;GTK;
+Keywords=spotify;music;download;playlist;song;audio;
+StartupNotify=true

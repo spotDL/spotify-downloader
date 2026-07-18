@@ -1,181 +1,109 @@
-
-<!--- mdformat-toc start --slug=github --->
-
-<!---
-!!! IF EDITING THE README, MOST CHANGES SHOULD ALSO BE PROPAGATED TO index.md in `/docs/`.
-!!! ADJUST FORMATTING THERE AS NEEDED, AND REMOVE README-ONLY / ReadTheDocs REFERENCES.
---->
-
 <div align="center">
 
-# spotDL v4
+# spotDL — Linux Desktop
 
-**spotDL** finds songs from Spotify playlists on YouTube and downloads them - along with album art, lyrics and metadata.
+**A native GNOME/Fedora-style desktop app for downloading music from Spotify.**
 
-[![MIT License](https://img.shields.io/github/license/spotdl/spotify-downloader?color=44CC11&style=flat-square)](https://github.com/spotDL/spotify-downloader/blob/master/LICENSE)
-[![PyPI version](https://img.shields.io/pypi/pyversions/spotDL?color=%2344CC11&style=flat-square)](https://pypi.org/project/spotdl/)
-[![PyPi downloads](https://img.shields.io/pypi/dw/spotDL?label=downloads@pypi&color=344CC11&style=flat-square)](https://pypi.org/project/spotdl/)
-![Contributors](https://img.shields.io/github/contributors/spotDL/spotify-downloader?style=flat-square)
-[![Discord](https://img.shields.io/discord/771628785447337985?label=discord&logo=discord&style=flat-square)](https://discord.gg/xCa23pwJWY)
+spotDL finds the songs from your Spotify tracks, albums, and playlists on YouTube and
+downloads them — complete with album art, lyrics, and metadata. This is a Linux fork that
+wraps the [spotDL](https://github.com/spotDL/spotify-downloader) engine in a native
+**GTK 4 / libadwaita** interface, packaged as a self-contained **Flatpak**.
 
-> spotDL: The fastest, easiest and most accurate command-line music downloader.
+[![MIT License](https://img.shields.io/github/license/spotdl/spotify-downloader?color=44CC11&style=flat-square)](LICENSE)
+
 </div>
 
 ______________________________________________________________________
-**[Read the documentation on ReadTheDocs!](https://spotdl.readthedocs.io)**
-______________________________________________________________________
 
-## Installation
+## Features
 
-Refer to our [Installation Guide](docs/installation.md) for more details.
+- **Paste a link or search** — drop in any Spotify track, album, or playlist URL, or just
+  type a song name.
+- **Clear progress feedback** — a loading screen tells you what's happening (connecting to
+  Spotify, searching, preparing) so the first download never feels frozen, followed by a
+  live per-song progress list.
+- **Automatic backup sources** — if a song can't be fetched from the default source
+  (YouTube Music), it's automatically re-attempted from YouTube, then SoundCloud, then
+  Bandcamp, so a single blocked track no longer means a failed download.
+- **Helpful errors + retry** — if a song still fails, the reason is shown inline and a
+  **Retry** button re-attempts just that track.
+- **Organised downloads** — songs are sorted into folders (by default `Album artist / Album /`)
+  instead of one giant folder. The grouping is configurable in Preferences.
+- **Download history** — a collapsible sidebar remembers what you've downloaded; click an
+  entry to open its folder.
+- **Format & quality settings** — choose the output format (mp3, flac, opus, m4a, ogg, wav),
+  bitrate, number of parallel downloads, and whether to save synced lyrics.
+- **Everything bundled** — FFmpeg and Deno ship inside the Flatpak, so there's nothing extra
+  to install and no runtime downloads.
 
-### Python (Recommended Method)
+## Install
 
-- _spotDL_ can be installed by running `pip install spotdl`.
-- To update spotDL run `pip install --upgrade spotdl`
+The app is distributed as a Flatpak that you build locally. You need `flatpak` and
+`flatpak-builder` installed, plus the GNOME runtime.
 
-  > On some systems you might have to change `pip` to `pip3`.
+```bash
+# One-time: add Flathub and install the GNOME runtime/SDK
+flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+flatpak install --user flathub org.gnome.Platform//48 org.gnome.Sdk//48
 
-<details>
-    <summary style="font-size:1.25em"><strong>Other options</strong></summary>
-
-- Prebuilt executable
-  - You can download the latest version from the
-    [Releases Tab](https://github.com/spotDL/spotify-downloader/releases)
-- On Termux
-  - `curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/scripts/termux.sh | sh`
-- Arch
-  - There is an [Arch User Repository (AUR) package](https://aur.archlinux.org/packages/spotdl/) for
-    spotDL.
-- Docker
-  - Build image:
-
-    ```bash
-    docker build -t spotdl .
-    ```
-
-  - Launch container with spotDL parameters (see section below). You need to create mapped
-    volume to access song files
-
-    ```bash
-    docker run --rm -v $(pwd):/music spotdl download [trackUrl]
-    ```
-
-  - For Docker Compose and permission-managed Docker downloads, see
-    [the Docker section in `/docs/index.md`](docs/index.md#docker).
-
-  - Build from source
-
-    ```bash
-    git clone https://github.com/spotDL/spotify-downloader && cd spotify-downloader
-    pip install uv
-    uv sync
-    uv run scripts/build.py
-    ```
-
-    An executable is created in `spotify-downloader/dist/`.
-
-</details>
-
-### Installing FFmpeg
-
-FFmpeg is required for spotDL. If using FFmpeg only for spotDL, you can simply install FFmpeg to your spotDL installation directory:
-`spotdl --download-ffmpeg`
-
-We recommend the above option, but if you want to install FFmpeg system-wide,
-follow these instructions
-
-- [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
-- OSX - `brew install ffmpeg`
-- Linux - `sudo apt install ffmpeg` or use your distro's package manager
-
-### Installing Deno
-
-We strongly recommend installing Deno. spotDL uses yt-dlp for YouTube downloads, and some
-videos require Deno to download successfully. Without Deno, spotDL may fail to download some
-songs, including videos marked as "made for kids".
-
-If using Deno only for spotDL, install Deno to your spotDL directory:
-`spotdl --download-deno`
-
-If you want to install Deno system-wide instead, follow the
-[official Deno installation guide](https://docs.deno.com/runtime/getting_started/installation/).
-
-## Usage
-
-Using SpotDL without options:
-
-```sh
-spotdl [urls]
+# Build and install spotDL
+git clone <this-repo> && cd spotify-downloader
+./packaging/flatpak/build.sh
 ```
 
-You can run _spotDL_ as a package if running it as a script doesn't work:
+See [`packaging/flatpak/README.md`](packaging/flatpak/README.md) for full build details,
+bundled dependency versions, and troubleshooting.
 
-```sh
-python -m spotdl [urls]
+## Run
+
+Launch **spotDL** from your applications menu, or from a terminal:
+
+```bash
+flatpak run io.github.spotdl.Spotdl
 ```
 
-General usage:
+Downloads go to your **Music** folder by default. You can change the location and folder
+organisation, format, and quality in **Preferences** (from the main menu). Settings are
+shared with the spotDL CLI via its standard `config.json`.
 
-```sh
-spotdl [operation] [options] QUERY
+## Where things are stored
+
+Under Flatpak, the app's configuration and history live in the persisted config directory:
+
+```
+~/.var/app/io.github.spotdl.Spotdl/config/spotdl/
+├── config.json        # shared spotDL + GUI settings
+└── gui_history.json    # download history shown in the sidebar
 ```
 
-There are different **operations** spotDL can perform. The _default_ is `download`, which simply downloads the songs from YouTube and embeds metadata.
+## Command line
 
-The **query** for spotDL is usually a list of Spotify URLs, but for some operations like **sync**, only a single link or file is required.
-For a list of all **options** use ```spotdl -h```
+The underlying spotDL command line is still fully available inside the Flatpak:
 
-<details>
-<summary style="font-size:1em"><strong>Supported operations</strong></summary>
+```bash
+flatpak run --command=spotdl io.github.spotdl.Spotdl [urls]
+```
 
-- `save`: Saves only the metadata from Spotify without downloading anything.
-    - Usage:
-        `spotdl save [query] --save-file {filename}.spotdl`
+For all CLI operations and options, see the upstream
+[spotDL documentation](https://spotdl.readthedocs.io).
 
-- `web`: Starts a web interface instead of using the command line. However, it has limited features and only supports downloading individual songs.
+## Music sourcing and audio quality
 
-- `url`: Get user-friendly URL for each song from the query.
-    - Usage:
-        `spotdl url [query]`
-
-- `sync`: Updates directories. Compares the directory with the current state of the playlist. Newly added songs will be downloaded and removed songs will be deleted. No other songs will be downloaded and no other files will be deleted.
-
-    - Usage:
-        `spotdl sync [query] --save-file {filename}.spotdl`
-
-        This creates a new **sync** file. To update the directory in the future, use:
-
-        `spotdl sync {filename}.spotdl`
-
-- `meta`: Updates metadata for the provided song files.
-
-</details>
-
-## Music Sourcing and Audio Quality
-
-spotDL uses YouTube as a source for music downloads. This method is used to avoid any issues related to downloading music from Spotify.
+spotDL uses YouTube as the source for downloads to avoid issues with downloading directly
+from Spotify. The highest available bitrate is used (128 kbps for regular YouTube, up to
+256 kbps for YouTube Music premium accounts).
 
 > **Note**
-> Users are responsible for their actions and potential legal consequences. We do not support unauthorized downloading of copyrighted material and take no responsibility for user actions.
+> Users are responsible for their actions and any potential legal consequences. We do not
+> support unauthorised downloading of copyrighted material and take no responsibility for
+> user actions.
 
-### Audio Quality
+## Credits
 
-spotDL downloads music from YouTube and is designed to always download the highest possible bitrate; which is 128 kbps for regular users and 256 kbps for YouTube Music premium users.
-
-Check the [Audio Formats](docs/usage.md#audio-formats-and-quality) page for more info.
-
-## Contributing
-
-Interested in contributing? Check out our [CONTRIBUTING.md](docs/CONTRIBUTING.md) to find
-resources around contributing along with a guide on how to set up a development environment.
-
-### Join our amazing community as a code contributor
-
-<a href="https://github.com/spotDL/spotify-downloader/graphs/contributors">
-  <img class="dark-light" src="https://contrib.rocks/image?repo=spotDL/spotify-downloader&anon=0&columns=25&max=100&r=true" />
-</a>
+This project builds on the excellent [spotDL](https://github.com/spotDL/spotify-downloader)
+engine. All the heavy lifting of matching Spotify metadata to YouTube audio, tagging, and
+lyrics comes from spotDL and its contributors.
 
 ## License
 
-This project is Licensed under the [MIT](/LICENSE) License.
+Licensed under the [MIT](LICENSE) License.
