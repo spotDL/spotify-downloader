@@ -34,6 +34,7 @@ class SpotifyOptions(TypedDict):
     no_cache: bool
     max_retries: int
     use_cache_file: bool
+    use_official_api: bool
 
 
 class DownloaderOptions(TypedDict):
@@ -106,9 +107,6 @@ class WebOptions(TypedDict):
     ca_file: Optional[str]
     allowed_origins: Optional[List[str]]
     keep_sessions: bool
-    force_update_gui: bool
-    web_gui_repo: Optional[str]
-    web_gui_location: Optional[str]
 
 
 class SpotDLOptions(SpotifyOptions, DownloaderOptions, WebOptions):
@@ -131,6 +129,7 @@ class SpotifyOptionalOptions(TypedDict, total=False):
     no_cache: bool
     max_retries: int
     use_cache_file: bool
+    use_official_api: bool
 
 
 class DownloaderOptionalOptions(TypedDict, total=False):
@@ -202,9 +201,6 @@ class WebOptionalOptions(TypedDict, total=False):
     ca_file: Optional[str]
     allowed_origins: Optional[str]
     keep_sessions: bool
-    force_update_gui: bool
-    web_gui_repo: Optional[str]
-    web_gui_location: Optional[str]
 
 
 class SpotDLOptionalOptions(

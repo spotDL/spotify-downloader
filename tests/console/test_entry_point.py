@@ -52,7 +52,7 @@ def test_show_version(capsys, monkeypatch, argument):
     assert re.match(r"\d{1,2}\.\d{1,2}\.\d{1,3}", out) is not None
 
 
-def test_download_song(capsys, monkeypatch, tmpdir):
+def test_download_song(capsys, monkeypatch, tmp_path):
     """
     This test checks if the song is downloaded correctly
     """
@@ -73,7 +73,7 @@ def test_download_song(capsys, monkeypatch, tmpdir):
 
     monkeypatch.setattr(sys, "argv", cli_args)
     monkeypatch.setattr(SpotifyClient, "init", new_initialize)
-    monkeypatch.chdir(tmpdir)
+    monkeypatch.chdir(tmp_path)
 
     console_entry_point()
 
@@ -82,7 +82,7 @@ def test_download_song(capsys, monkeypatch, tmpdir):
     assert "Downloaded" in out
 
 
-def test_preload_song(capsys, monkeypatch, tmpdir):
+def test_preload_song(capsys, monkeypatch, tmp_path):
     """
     This test checks if the song is preloaded correctly.
     """
@@ -106,7 +106,7 @@ def test_preload_song(capsys, monkeypatch, tmpdir):
 
     monkeypatch.setattr(sys, "argv", cli_args)
     monkeypatch.setattr(SpotifyClient, "init", new_initialize)
-    monkeypatch.chdir(tmpdir)
+    monkeypatch.chdir(tmp_path)
 
     console_entry_point()
 

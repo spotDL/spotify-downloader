@@ -463,7 +463,12 @@ class Downloader:
                 ]
             )
         ):
-            song = reinit_song(song)
+            try:
+                song = reinit_song(song)
+            except Exception as e:
+                logger.error("Error occurred while reinitializing song: %s", e)
+                self.errors.append(f"Error occurred while reinitializing song: {e}")
+                return song, None
 
         # Create the output file path
         output_file = create_file_name(
@@ -644,10 +649,6 @@ class Downloader:
 
             # Create the output directory if it doesn't exist
             output_file.parent.mkdir(parents=True, exist_ok=True)
-            if song.download_url is None:
-                download_url = self.search(song)
-            else:
-                download_url = song.download_url
 
             # Initialize audio downloader
             audio_downloader: Union[AudioProvider, Piped]
@@ -668,19 +669,19 @@ class Downloader:
                     yt_dlp_args=self.settings["yt_dlp_args"],
                 )
 
-            logger.debug("Downloading %s using %s", song.display_name, download_url)
-
             # Add progress hook to the audio provider
             audio_downloader.audio_handler.add_progress_hook(
                 display_progress_tracker.yt_dlp_progress_hook
             )
 
+            if song.download_url is None:
+                download_url = self.search(song)
+            else:
+                download_url = song.download_url
+
+            logger.debug("Downloading %s using %s", song.display_name, download_url)
             download_info = audio_downloader.get_download_metadata(
                 download_url, download=True
-            )
-
-            temp_file = Path(
-                temp_folder / f"{download_info['id']}.{download_info['ext']}"
             )
 
             if download_info is None:
@@ -693,6 +694,10 @@ class Downloader:
                 raise DownloaderError(
                     f"yt-dlp failed to get metadata for: {song.name} - {song.artist}"
                 )
+
+            temp_file = Path(
+                temp_folder / f"{download_info['id']}.{download_info['ext']}"
+            )
 
             display_progress_tracker.notify_download_complete()
 
@@ -838,6 +843,7 @@ class Downloader:
                 generate_lrc(song, output_file)
 
             display_progress_tracker.notify_complete()
+            display_progress_tracker.set_path(str(output_file))
 
             # Add the song to the known songs
             self.known_songs.get(song.url, []).append(output_file)

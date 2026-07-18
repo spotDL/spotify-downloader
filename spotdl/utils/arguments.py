@@ -260,6 +260,16 @@ def parse_spotify_options(parser: _ArgumentGroup):
         ),
     )
 
+    parser.add_argument(
+        "--use-official-api",
+        action="store_const",
+        const=True,
+        help=(
+            "Use the official Spotify Web API through Spotipy instead of "
+            "the default SpotipyFree client."
+        ),
+    )
+
 
 def parse_ffmpeg_options(parser: _ArgumentGroup):
     """
@@ -684,32 +694,6 @@ def parse_web_options(parser: _ArgumentGroup):
         help="Keep the session directory after the web server is closed.",
     )
 
-    # Add keep sessions argument
-    parser.add_argument(
-        "--force-update-gui",
-        action="store_const",
-        const=True,
-        default=False,
-        help="Refresh the web server directory with a fresh git checkout",
-    )
-
-    # Add custom web gui repo
-    parser.add_argument(
-        "--web-gui-repo",
-        type=str,
-        help=(
-            "Custom web gui repo to use for the web server. "
-            "Example: https://github.com/spotdl/web-ui/tree/master/dist"
-        ),
-    )
-
-    # Add custom web gui repo
-    parser.add_argument(
-        "--web-gui-location",
-        type=str,
-        help="Path to the web gui directory to use for the web server.",
-    )
-
     # Enable TLS for the web server
     parser.add_argument(
         "--enable-tls",
@@ -781,6 +765,12 @@ def parse_other_options(parser: _ArgumentGroup):
         "--download-ffmpeg",
         action="store_true",
         help="Download ffmpeg to spotdl directory.",
+    )
+
+    parser.add_argument(
+        "--download-deno",
+        action="store_true",
+        help="Download Deno to spotdl directory.",
     )
 
     parser.add_argument(

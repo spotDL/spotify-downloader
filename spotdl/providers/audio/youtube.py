@@ -1,12 +1,10 @@
 """
-Youtube module for downloading and searching songs.
+YouTube module for downloading and searching songs using yt-dlp.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
-from pytube import Search
-from pytube import YouTube as PyTube
-from pytube import innertube
+from yt_dlp import YoutubeDL
 
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.types.result import Result
@@ -16,23 +14,11 @@ __all__ = ["YouTube"]
 
 class YouTube(AudioProvider):
     """
-    YouTube audio provider class
+    YouTube audio provider class using yt-dlp.
     """
 
     SUPPORTS_ISRC = False
     GET_RESULTS_OPTS: List[Dict[str, Any]] = [{}]
-
-    def __init__(self, *args, **kwargs) -> None:
-        """
-        Initialize the YouTube audio provider
-        """
-        super().__init__(*args, **kwargs)
-
-        # Set the client version to a specific version to avoid issues with pytube
-        # See #2323 or https://github.com/pytube/pytube/issues/296
-        innertube._default_clients["WEB"]["context"]["client"][
-            "clientVersion"
-        ] = "2.20230427.04.00"
 
     def get_results(
         self, search_term: str, *_args, **_kwargs
@@ -42,43 +28,42 @@ class YouTube(AudioProvider):
 
         ### Arguments
         - search_term: The search term to search for.
-        - args: Unused.
-        - kwargs: Unused.
 
         ### Returns
-        - A list of YouTube results if found, None otherwise.
+        - A list of YouTube results, or an empty list if no results are found.
         """
+        search_opts: Dict[str, Any] = {
+            **self.audio_handler.params,
+            "skip_download": True,
+        }
 
-        search_results: Optional[List[PyTube]] = Search(search_term).results
+        with YoutubeDL(search_opts) as ydl:
+            info = ydl.extract_info(f"ytsearch10:{search_term}", download=False)
 
-        if not search_results:
+        if not info or "entries" not in info:
             return []
 
         results = []
-        for result in search_results:
-            if result.watch_url:
-                try:
-                    duration = result.length
-                except Exception:
-                    duration = 0
+        for entry in info["entries"]:
+            if not entry:
+                continue
 
-                try:
-                    views = result.views
-                except Exception:
-                    views = 0
+            video_id = entry.get("id")
+            if not video_id:
+                continue
 
-                results.append(
-                    Result(
-                        source=self.name,
-                        url=result.watch_url,
-                        verified=False,
-                        name=result.title,
-                        duration=duration,
-                        author=result.author,
-                        search_query=search_term,
-                        views=views,
-                        result_id=result.video_id,
-                    )
+            results.append(
+                Result(
+                    source=self.name,
+                    url=f"https://www.youtube.com/watch?v={video_id}",
+                    verified=False,
+                    name=entry.get("title", ""),
+                    duration=entry.get("duration") or 0,
+                    author=entry.get("uploader") or "",
+                    search_query=search_term,
+                    views=entry.get("view_count") or 0,
+                    result_id=video_id,
                 )
+            )
 
         return results

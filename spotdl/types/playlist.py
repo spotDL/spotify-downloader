@@ -87,10 +87,13 @@ class Playlist(SongList):
 
         songs = []
         for track_no, track in enumerate(tracks):
-            if not isinstance(track, dict) or track.get("track") is None:
+            if not isinstance(track, dict):
                 continue
 
-            track_meta = track["track"]
+            # Support both old API (track) and new API (item)
+            track_meta = track.get("track") or track.get("item")
+            if track_meta is None:
+                continue
 
             if track_meta.get("is_local") or track_meta.get("type") != "track":
                 logger.warning(

@@ -49,3 +49,31 @@ def test_ytm_get_results():
     results = provider.get_results("Lost Identities Moments")
 
     assert len(results) > 3
+
+
+def test_ytm_get_results_retries_with_new_client(mocker):
+    first_client = mocker.Mock()
+    first_client.search.return_value = []
+    second_client = mocker.Mock()
+    second_client.search.return_value = [
+        {
+            "videoId": "video_0",
+            "resultType": "song",
+            "title": "Test Song",
+            "artists": [{"name": "Test Artist"}],
+            "duration": "1:23",
+        }
+    ]
+    mocker.patch(
+        "spotdl.providers.audio.ytmusic.YTMusic",
+        side_effect=[first_client, second_client],
+    )
+
+    provider = YouTubeMusic()
+    results = provider.get_results("Test Song")
+
+    assert len(results) == 1
+    assert results[0].url == "https://music.youtube.com/watch?v=video_0"
+    assert results[0].name == "Test Song"
+    assert first_client.search.call_count == 1
+    assert second_client.search.call_count == 1

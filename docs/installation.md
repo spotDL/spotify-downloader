@@ -15,7 +15,7 @@ install Python & FFmpeg.
 
 - [Visual C++ 2019 redistributable](https://docs.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022)
   (on Windows)
-- Python 3.7 or above (added to PATH)
+- Python 3.10 - 3.14 (added to PATH)
 - FFmpeg 4.2 or above (added to PATH)
 
 ### Install Python to PATH
@@ -56,6 +56,21 @@ If you require further help, ask in our [Discord Server](https://discord.gg/xCa2
 
 [![Discord Server](https://img.shields.io/discord/771628785447337985?color=7289da&label=DISCORD&style=for-the-badge)](https://discord.gg/xCa23pwJWY)
 
+### Installing Deno
+
+We strongly recommend installing Deno. spotDL uses yt-dlp for YouTube downloads, and some
+videos require Deno to download successfully. Without Deno, spotDL may fail to download some
+songs, including videos marked as "made for kids".
+
+If using Deno only for spotDL, install Deno to your spotDL directory:
+
+```shell
+spotdl --download-deno
+```
+
+If you want to install Deno system-wide instead, follow the
+[official Deno installation guide](https://docs.deno.com/runtime/getting_started/installation/).
+
 ## Using Prebuilt Executable
 
 ### Download the executable
@@ -92,6 +107,9 @@ Docker documentation: <https://docs.docker.com/>
 - Download a song:
   `docker run --rm -v $(pwd):/music spotdl download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b`
 
+  If you bind-mount a host directory like `$(pwd):/music`, that directory must be writable by the
+  container `UID`/`GID`.
+
 ### Docker Hub Image
 
 - Pull docker image from Docker hub: `docker pull spotdl/spotify-downloader`
@@ -110,9 +128,28 @@ docker create \
 
 ### Docker Compose
 
-- Create a container using Docker Compose: `docker-compose up --no-start`
-- Download a song using Docker compose:
-  `docker-compose run --rm spotdl download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b`
+- Use Docker Compose if you want Docker to manage permissions for you.
+- Set your user and group IDs:
+
+```bash
+export PUID=$(id -u)
+export PGID=$(id -g)
+```
+
+- Build the image:
+  `docker compose build`
+- Download a song using Docker Compose:
+  `docker compose run --rm spotdl download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b`
+
+Docker Compose stores downloads in the named volume `spotdl_music:/music`.
+
+- Export files from the volume:
+
+```bash
+docker compose up --no-start spotdl
+mkdir -p downloads
+docker compose cp spotdl:/music/. ./downloads/
+```
 
 ## Other Installation Methods
 

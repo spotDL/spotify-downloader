@@ -95,12 +95,12 @@ def entry_point():
             "or `spotdl --ffmpeg /path/to/ffmpeg` to specify the path to ffmpeg."
         )
 
-    # Check if we are not blocked by ytm
+    # Check if we might be blocked by YouTube Music without stopping downloads.
     if "youtube-music" in downloader_settings["audio_providers"]:
         if not check_ytmusic_connection():
-            raise DownloaderError(
-                "You are blocked by YouTube Music. "
-                "Please use a VPN, change youtube-music to piped, or use other audio providers"
+            logger.warning(
+                "You might be blocked by YouTube Music. "
+                "If downloads fail, use a VPN, or use other audio providers. "
             )
 
     # Initialize spotify client

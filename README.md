@@ -2,7 +2,8 @@
 <!--- mdformat-toc start --slug=github --->
 
 <!---
-!!! IF EDITING THE README, ENSURE TO COPY THE WHOLE FILE TO index.md in `/docs/` AND REMOVE THE REFERENCES TO ReadTheDocs THERE.
+!!! IF EDITING THE README, MOST CHANGES SHOULD ALSO BE PROPAGATED TO index.md in `/docs/`.
+!!! ADJUST FORMATTING THERE AS NEEDED, AND REMOVE README-ONLY / ReadTheDocs REFERENCES.
 --->
 
 <div align="center">
@@ -60,6 +61,9 @@ Refer to our [Installation Guide](docs/installation.md) for more details.
     docker run --rm -v $(pwd):/music spotdl download [trackUrl]
     ```
 
+  - For Docker Compose and permission-managed Docker downloads, see
+    [the Docker section in `/docs/index.md`](docs/index.md#docker).
+
   - Build from source
 
     ```bash
@@ -84,6 +88,18 @@ follow these instructions
 - [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
 - OSX - `brew install ffmpeg`
 - Linux - `sudo apt install ffmpeg` or use your distro's package manager
+
+### Installing Deno
+
+We strongly recommend installing Deno. spotDL uses yt-dlp for YouTube downloads, and some
+videos require Deno to download successfully. Without Deno, spotDL may fail to download some
+songs, including videos marked as "made for kids".
+
+If using Deno only for spotDL, install Deno to your spotDL directory:
+`spotdl --download-deno`
+
+If you want to install Deno system-wide instead, follow the
+[official Deno installation guide](https://docs.deno.com/runtime/getting_started/installation/).
 
 ## Usage
 

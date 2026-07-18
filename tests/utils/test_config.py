@@ -8,10 +8,10 @@ from spotdl.utils.config import *
 
 
 @pytest.fixture()
-def setup(tmpdir, monkeypatch):
-    monkeypatch.setattr(os.path, "expanduser", lambda *_: tmpdir)
+def setup(tmp_path, monkeypatch):
+    monkeypatch.setattr(os.path, "expanduser", lambda *_: tmp_path)
     data = SimpleNamespace()
-    data.directory = tmpdir
+    data.directory = tmp_path
     yield data
 
 
@@ -55,3 +55,41 @@ def test_get_config_not_created(setup):
 
     with pytest.raises(ConfigError):
         get_config()
+
+
+def test_use_official_api_default():
+    """
+    Tests that the official API client is opt-in.
+    """
+
+    settings = create_settings_type(SimpleNamespace(), {}, SPOTIFY_OPTIONS)
+
+    assert settings["use_official_api"] is False
+
+
+def test_use_official_api_from_config():
+    """
+    Tests that config can enable the official API client.
+    """
+
+    settings = create_settings_type(
+        SimpleNamespace(),
+        {"use_official_api": True},
+        SPOTIFY_OPTIONS,
+    )
+
+    assert settings["use_official_api"] is True
+
+
+def test_use_official_api_argument_overrides_config():
+    """
+    Tests that CLI arguments take priority over config values.
+    """
+
+    settings = create_settings_type(
+        SimpleNamespace(use_official_api=True),
+        {"use_official_api": False},
+        SPOTIFY_OPTIONS,
+    )
+
+    assert settings["use_official_api"] is True

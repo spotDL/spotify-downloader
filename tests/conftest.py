@@ -53,6 +53,7 @@ def new_initialize(
     headless=True,
     max_retries=3,
     use_cache_file=False,
+    use_official_api=False,
 ):
     """This function allows calling `initialize()` multiple times"""
     try:
@@ -68,6 +69,7 @@ def new_initialize(
             headless=headless,
             max_retries=max_retries,
             use_cache_file=use_cache_file,
+            use_official_api=use_official_api,
         )
 
 

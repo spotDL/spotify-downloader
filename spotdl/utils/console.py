@@ -6,6 +6,8 @@ import json
 import sys
 
 from spotdl.utils.config import DEFAULT_CONFIG, get_config_file
+from spotdl.utils.deno import download_deno as deno_download
+from spotdl.utils.deno import get_local_deno, is_deno_installed
 from spotdl.utils.ffmpeg import download_ffmpeg as ffmpeg_download
 from spotdl.utils.ffmpeg import get_local_ffmpeg, is_ffmpeg_installed
 from spotdl.utils.github import check_for_updates as get_update_status
@@ -17,6 +19,7 @@ __all__ = [
     "generate_config",
     "check_for_updates",
     "download_ffmpeg",
+    "download_deno",
     "ACTIONS",
 ]
 
@@ -115,8 +118,36 @@ def download_ffmpeg():
             print("FFmpeg download failed")
 
 
+def download_deno():
+    """
+    Handle Deno download process and print the result.
+    """
+
+    if get_local_deno() is not None or is_deno_installed():
+        download_deno_anyway = input(
+            "Deno is already installed. Do you want to download it anyway? (y/N): "
+        )
+
+        if download_deno_anyway.lower() == "y":
+            local_deno = deno_download()
+
+            if local_deno.is_file():
+                print(f"Deno successfully downloaded to {local_deno.absolute()}")
+            else:
+                print("Deno download failed")
+    else:
+        print("Downloading Deno...")
+        download_path = deno_download()
+
+        if download_path.is_file():
+            print(f"Deno successfully downloaded to {download_path.absolute()}")
+        else:
+            print("Deno download failed")
+
+
 ACTIONS = {
     "--generate-config": generate_config,
     "--check-for-updates": check_for_updates,
     "--download-ffmpeg": download_ffmpeg,
+    "--download-deno": download_deno,
 }

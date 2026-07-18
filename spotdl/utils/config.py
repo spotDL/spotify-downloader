@@ -162,7 +162,9 @@ def get_web_ui_path() -> Path:
     - If the web-ui directory does not exist, it will be created.
     """
 
-    web_ui_path = get_spotdl_path() / "web-ui"
+    # web_ui_path = get_spotdl_path() / "web-ui"
+    # web_ui_path = get_spotdl_path() / "src" / "spotdl" / "web" / "static"
+    web_ui_path = Path(__file__).parent.parent / "web" / "static"
 
     if not web_ui_path.exists():
         os.mkdir(web_ui_path)
@@ -314,6 +316,7 @@ SPOTIFY_OPTIONS: SpotifyOptions = {
     "no_cache": False,
     "max_retries": 3,
     "use_cache_file": False,
+    "use_official_api": False,
 }
 
 DOWNLOADER_OPTIONS: DownloaderOptions = {
@@ -378,9 +381,6 @@ WEB_OPTIONS: WebOptions = {
     "ca_file": None,
     "allowed_origins": None,
     "keep_sessions": False,
-    "force_update_gui": False,
-    "web_gui_repo": None,
-    "web_gui_location": None,
 }
 
 # Type: ignore because of the issues above

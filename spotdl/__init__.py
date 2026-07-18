@@ -47,6 +47,7 @@ class Spotdl:
         cache_path: Optional[str] = None,
         no_cache: bool = False,
         headless: bool = False,
+        use_official_api: bool = False,
         downloader_settings: Optional[
             Union[DownloaderOptionalOptions, DownloaderOptions]
         ] = None,
@@ -62,6 +63,7 @@ class Spotdl:
         - cache_path: Path to cache directory
         - no_cache: If true, no cache will be used
         - headless: If true, no browser will be opened
+        - use_official_api: If true, use the official Spotify Web API client
         - downloader_settings: Settings for the downloader
         - loop: Event loop to use
         """
@@ -77,6 +79,7 @@ class Spotdl:
             cache_path=cache_path,
             no_cache=no_cache,
             headless=headless,
+            use_official_api=use_official_api,
         )
 
         # Initialize downloader
