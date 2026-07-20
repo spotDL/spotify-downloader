@@ -1,11 +1,23 @@
-import pytest
-
 from spotdl.providers.audio.youtube import YouTube
 from spotdl.types.song import Song
 
 
-@pytest.mark.vcr()
-def test_yt_search():
+def test_yt_search(mocker):
+    mocker.patch(
+        "spotdl.providers.audio.youtube.YoutubeDL.extract_info",
+        return_value={
+            "entries": [
+                {
+                    "id": "test_video_id",
+                    "title": "Abstrakt - Nobody Else",
+                    "duration": 162,
+                    "uploader": "Abstrakt",
+                    "view_count": 123456,
+                }
+            ]
+        },
+    )
+
     provider = YouTube()
 
     assert (
@@ -42,10 +54,54 @@ def test_yt_search():
     )
 
 
-@pytest.mark.vcr()
-def test_yt_get_results():
+def test_yt_get_results(mocker):
+    mocker.patch(
+        "spotdl.providers.audio.youtube.YoutubeDL.extract_info",
+        return_value={
+            "entries": [
+                {
+                    "id": f"video_{index}",
+                    "title": f"Lost Identities Moments {index}",
+                    "duration": 180 + index,
+                    "uploader": "Lost Identities",
+                    "view_count": 1000 + index,
+                }
+                for index in range(6)
+            ]
+        },
+    )
+
     provider = YouTube()
 
     results = provider.get_results("Lost Identities Moments")
 
     assert results and len(results) > 5
+    assert results[0].url == "https://www.youtube.com/watch?v=video_0"
+    assert results[0].duration == 180
+    assert results[0].author == "Lost Identities"
+
+
+def test_yt_get_results_normalizes_null_metadata(mocker):
+    mocker.patch(
+        "spotdl.providers.audio.youtube.YoutubeDL.extract_info",
+        return_value={
+            "entries": [
+                {
+                    "id": "video_0",
+                    "title": "Live Stream",
+                    "duration": None,
+                    "uploader": None,
+                    "view_count": None,
+                }
+            ]
+        },
+    )
+
+    provider = YouTube()
+
+    results = provider.get_results("live stream")
+
+    assert len(results) == 1
+    assert results[0].duration == 0
+    assert results[0].author == ""
+    assert results[0].views == 0

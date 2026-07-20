@@ -77,6 +77,12 @@ class MusixMatch(LyricsProvider):
             timeout=10,
             proxies=GlobalConfig.get_parameter("proxies"),
         )
+
+        if not search_resp.ok:
+            raise RuntimeError(
+                f"Received HTTP {search_resp.status_code} from {search_url}"
+            )
+
         search_soup = BeautifulSoup(search_resp.text, "html.parser")
         song_url_tag = search_soup.select("a[href^='/lyrics/']")
 

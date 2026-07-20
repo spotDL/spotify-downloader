@@ -7,8 +7,8 @@ As common issues or questions are encountered solutions will be added to this gu
     Python/(site packages) is not added to PATH correctly. You need to install Python from
     <https://www.python.org/downloads/>
 
-    Or you are using python from microsoft store. If so uninstall it and restart cmd. If this
-    doesn't work reinstall python.
+    Or you are using Python from the Microsoft Store. If so, uninstall it and restart cmd. If this
+    doesn't work, reinstall Python.
 
     ### Error message
 
@@ -24,7 +24,7 @@ As common issues or questions are encountered solutions will be added to this gu
 ??? "spotdl: command not found"
 
     If you see this error after installing spotdl, that means that the bin (Binaries) folder is not
-    on `$PATH`
+    in `$PATH`.
 
     ### Solution
 
@@ -40,8 +40,8 @@ As common issues or questions are encountered solutions will be added to this gu
 
 ??? "pkg_resources.DistributionNotFound"
 
-    Sometimes not all packages are installed but are required by yt-dlp for example: `brotli` or
-    `websockets`
+    Sometimes not all packages are installed but are required by yt-dlp, for example: `brotli` or
+    `websockets`.
 
     ### Error Message
 
@@ -50,6 +50,26 @@ As common issues or questions are encountered solutions will be added to this gu
     ### Solution
 
     `pip install brotli websockets yt-dlp -U`
+
+??? "AudioProviderError: YT-DLP download error"
+
+    This can happen when Deno is not installed. spotDL uses yt-dlp for YouTube downloads, and some
+    videos require Deno to download successfully, including videos marked as "made for kids".
+
+    ### Error Message
+
+    `AudioProviderError: YT-DLP download error`
+
+    ### Solution
+
+    Install Deno for spotDL:
+
+    ```bash
+    spotdl --download-deno
+    ```
+
+    If you prefer a system-wide Deno install, follow the
+    [official Deno installation guide](https://docs.deno.com/runtime/getting_started/installation/).
 
 ??? "HTTP Error 404"
 
@@ -61,7 +81,7 @@ As common issues or questions are encountered solutions will be added to this gu
 
     ### Solution
 
-    Update spotdl to the latest version which contains workaround.
+    Update spotdl to the latest version which contains a workaround.
 
     `pip install -U spotdl`
 
@@ -87,7 +107,7 @@ As common issues or questions are encountered solutions will be added to this gu
 
     ### Solution
 
-    Update spotdl
+    Update spotdl:
 
     `pip install spotdl -U`
 
@@ -105,11 +125,11 @@ As common issues or questions are encountered solutions will be added to this gu
 
     ### Solution
 
-    You can ignore this error or just run spotdl directly
+    You can ignore this error or just run spotdl directly.
 
 ??? "Not found '\_raw_ecb.so'"
 
-    This error is specific for M1 Macs only.
+    This error is specific to M1 Macs only.
 
     https://discord.com/channels/771628785447337985/871006150357823498
     https://discord.com/channels/771628785447337985/939475659238043738
@@ -130,3 +150,33 @@ As common issues or questions are encountered solutions will be added to this gu
 
     <https://discord.com/channels/771628785447337985/871006150357823498>
     <https://discord.com/channels/771628785447337985/939475659238043738>
+
+??? "KeyError: 'header' - YouTube Music API error"
+
+    This error occurs when YouTube Music's API response structure changes intermittently. The error has been fixed in ytmusicapi v1.11.1, which is the minimum version required by spotdl v4.4.3.
+
+    ### Error Message
+
+    ```
+    KeyError: "Unable to find 'header' using path ['header', 'musicCardShelfHeaderBasicRenderer', 'title', 'runs', 0, 'text']"
+    ```
+
+    ### Solution
+
+    1. Update ytmusicapi to v1.11.1 or later:
+
+        ```bash
+        pip install -U ytmusicapi
+        ```
+
+    2. If the error persists, reinstall spotdl:
+
+        ```bash
+        pip install -U --force spotdl
+        ```
+
+    3. If you're still experiencing issues, the error may be intermittent due to YouTube's anti-bot mechanisms. Wait a few minutes and try again.
+
+    ### Background
+
+    YouTube Music occasionally returns different response structures from their API. Version 1.11.1 of ytmusicapi includes a fallback mechanism that handles cases where the `header` field is missing from search results. This fix was implemented in PR #800 (https://github.com/sigma67/ytmusicapi/pull/800) to address issue #799.

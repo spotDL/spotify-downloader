@@ -50,13 +50,10 @@ FORBIDDEN_WORDS = [
     "acoustic",
     "8daudio",
     "concert",
-    "live",
     "acapella",
     "slowed",
     "instrumental",
-    "remix",
     "cover",
-    "reverb",
 ]
 
 
@@ -290,14 +287,14 @@ def get_best_matches(
 
 def calc_main_artist_match(song: Song, result: Result) -> float:
     """
-    Check if main artist is present in list of artists
+    Calculate how well the song's main artist matches the result artists.
 
     ### Arguments
-    - main_artist: main artist to check
-    - artists: list of artists to check
+    - song: song to match
+    - result: result to match
 
     ### Returns
-    - True if main artist is present in list of artists, False otherwise
+    - artist match percentage (0.0 to 100.0)
     """
 
     main_artist_match = 0.0
@@ -644,7 +641,7 @@ def calc_album_match(song: Song, result: Result) -> float:
     - album match percentage
     """
 
-    if not result.album:
+    if not result.album or not song.album_name:
         return 0.0
 
     return ratio(slugify(song.album_name), slugify(result.album))

@@ -1,6 +1,6 @@
 # spotDL Installation Guide
 
-spotDL is a free and open source tool that downloads your Spotify playlists & music
+spotDL is a free and open-source tool that downloads your Spotify playlists & music
 
 > **The fastest, easiest, and most accurate command-line music downloader**
 
@@ -8,14 +8,14 @@ spotDL is a free and open source tool that downloads your Spotify playlists & mu
 
 > This is our recommended installation method.
 
-If you are on Windows, Install Visual C++ Redistributable (link below) and then proceed to
-install Python & FFmpeg
+If you are on Windows, install Visual C++ Redistributable (link below) and then proceed to
+install Python & FFmpeg.
 
 ### Prerequisites to spotDL
 
 - [Visual C++ 2019 redistributable](https://docs.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022)
   (on Windows)
-- Python 3.7 or above (added to PATH)
+- Python 3.10 - 3.14 (added to PATH)
 - FFmpeg 4.2 or above (added to PATH)
 
 ### Install Python to PATH
@@ -31,11 +31,11 @@ When installing [Python](https://python.org/), ensure to select "**Add to PATH**
 > If you are not on Windows (e.g. OSX/UNIX), replace `pip` with `pip3` and `python` with
 > `python3` in all commands.
 
-Firstly, open a terminal. On Windows: Command Prompt, OSX: "Terminal", \*UNIX: Bash or Zsh.
+First, open a terminal. On Windows: Command Prompt, macOS: "Terminal", *UNIX: Bash or Zsh.
 
 Verify you have installed Python correctly via `python -V`. Ensure you have v3.7 or greater.
 
-Next, install spotDL by typing the following
+Next, install spotDL by typing the following:
 
 ```shell
 pip install spotdl
@@ -56,6 +56,21 @@ If you require further help, ask in our [Discord Server](https://discord.gg/xCa2
 
 [![Discord Server](https://img.shields.io/discord/771628785447337985?color=7289da&label=DISCORD&style=for-the-badge)](https://discord.gg/xCa23pwJWY)
 
+### Installing Deno
+
+We strongly recommend installing Deno. spotDL uses yt-dlp for YouTube downloads, and some
+videos require Deno to download successfully. Without Deno, spotDL may fail to download some
+songs, including videos marked as "made for kids".
+
+If using Deno only for spotDL, install Deno to your spotDL directory:
+
+```shell
+spotdl --download-deno
+```
+
+If you want to install Deno system-wide instead, follow the
+[official Deno installation guide](https://docs.deno.com/runtime/getting_started/installation/).
+
 ## Using Prebuilt Executable
 
 ### Download the executable
@@ -65,15 +80,15 @@ You can download the latest version from the
 
 ### Running Web UI
 
-Web UI will start by default if no arguments are passed to the command line (after
-double-clicking for example)
+The Web UI will start by default if no arguments are passed to the command line (after
+double-clicking, for example).
 
 ![Web UI](images/WEB_UI.png)
 
 ### Running the CLI
 
-To use the command line interface just open your terminal and run
-`./spotdl-vX.X.X operation [urls]`
+To use the command line interface, just open your terminal and run
+`./spotdl-vX.X.X operation [urls]`.
 
 ## Docker Setup
 
@@ -91,6 +106,9 @@ Docker documentation: <https://docs.docker.com/>
 - List spotdl options: `docker run --rm spotdl --help`
 - Download a song:
   `docker run --rm -v $(pwd):/music spotdl download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b`
+
+  If you bind-mount a host directory like `$(pwd):/music`, that directory must be writable by the
+  container `UID`/`GID`.
 
 ### Docker Hub Image
 
@@ -110,15 +128,34 @@ docker create \
 
 ### Docker Compose
 
-- Create a container using Docker Compose: `docker-compose up --no-start`
-- Download a song using Docker compose:
-  `docker-compose run --rm spotdl download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b`
+- Use Docker Compose if you want Docker to manage permissions for you.
+- Set your user and group IDs:
+
+```bash
+export PUID=$(id -u)
+export PGID=$(id -g)
+```
+
+- Build the image:
+  `docker compose build`
+- Download a song using Docker Compose:
+  `docker compose run --rm spotdl download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b`
+
+Docker Compose stores downloads in the named volume `spotdl_music:/music`.
+
+- Export files from the volume:
+
+```bash
+docker compose up --no-start spotdl
+mkdir -p downloads
+docker compose cp spotdl:/music/. ./downloads/
+```
 
 ## Other Installation Methods
 
 ### Termux
 
-We have a dedicated Termux installation script
+We have a dedicated Termux installation script:
 `curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/scripts/termux.sh | sh`
 
 ### Arch User Repository (AUR) package
@@ -129,7 +166,7 @@ We have a dedicated Termux installation script
 
 spotDL downloads files to the folder where you ran spotDL from.
 
-Open pwsh/powershell/cmd/terminal/similar in the folder you want files to download to, or cd to
+Open pwsh/powershell/cmd/terminal/similar in the folder you want files to download to, or cd to the
 desired folder.
 
 **Windows Shortcut:** Navigate to the folder you want the files to download to.

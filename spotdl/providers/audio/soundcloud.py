@@ -40,7 +40,7 @@ class SoundCloud(AudioProvider):
 
     def get_results(self, search_term: str, *_args, **_kwargs) -> List[Result]:
         """
-        Get results from slider.kz
+        Get results from SoundCloud
 
         ### Arguments
         - search_term: The search term to search for.
@@ -48,7 +48,7 @@ class SoundCloud(AudioProvider):
         - kwargs: Unused.
 
         ### Returns
-        - A list of slider.kz results if found, None otherwise.
+        - A list of SoundCloud results if found, None otherwise.
         """
 
         results = list(islice(self.client.search(search_term), 20))
@@ -81,8 +81,11 @@ class SoundCloud(AudioProvider):
                     url=result.permalink_url,
                     name=result.title,
                     verified=result.user.verified,
-                    duration=result.full_duration,
+                    # SoundCloud reports duration in milliseconds, but the
+                    # matcher (and every other provider) works in seconds.
+                    duration=result.full_duration / 1000,
                     author=result.user.username,
+                    artists=(result.user.username,),
                     result_id=str(result.id),
                     isrc_search=False,
                     search_query=search_term,

@@ -3,9 +3,11 @@ BandCamp module for downloading and searching songs.
 """
 
 import logging
+from collections.abc import Mapping
 from typing import Any, Dict, List, Optional, Tuple
 
 import requests
+from requests.exceptions import JSONDecodeError
 
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.types.result import Result
@@ -87,27 +89,48 @@ class BandCampTrack:
 
         # getting lyrics, if there is any
         if self.has_lyrics is True:
-            resp = requests.get(
-                "https://bandcamp.com/api/mobile/25/tralbum_lyrics?tralbum_id="
-                + str(self.track_id)
-                + "&tralbum_type=t",
-                timeout=10,
-                proxies=GlobalConfig.get_parameter("proxies"),
-            )
-            rjson = resp.json()
-            self.lyrics = rjson["lyrics"][str(self.track_id)]
+            try:
+                resp = requests.get(
+                    "https://bandcamp.com/api/mobile/25/tralbum_lyrics?tralbum_id="
+                    + str(self.track_id)
+                    + "&tralbum_type=t",
+                    timeout=10,
+                    proxies=GlobalConfig.get_parameter("proxies"),
+                )
+                rjson = resp.json()
+                lyrics = rjson["lyrics"]
+                if isinstance(lyrics, Mapping):
+                    self.lyrics = lyrics.get(str(self.track_id)) or ""
+            except (
+                requests.RequestException,
+                JSONDecodeError,
+                KeyError,
+                TypeError,
+            ) as exc:
+                logger.debug(
+                    "Failed to get lyrics for BandCamp track %s: %s",
+                    self.track_id,
+                    exc,
+                )
+                self.lyrics = ""
 
-        self.is_price_set = result["is_set_price"]
-        self.price = {"currency": result["currency"], "amount": result["price"]}
-        self.require_email = result["require_email"]
-        self.is_purchasable = result["is_purchasable"]
-        self.is_free = result["free_download"]
-        self.is_preorder = result["is_preorder"]
+        self.is_price_set = result.get("is_set_price")
+        self.price = {
+            "currency": result.get("currency"),
+            "amount": result.get("price"),
+        }
+        self.require_email = result.get("require_email")
+        self.is_purchasable = result.get("is_purchasable")
+        self.is_free = result.get("free_download")
+        self.is_preorder = result.get("is_preorder")
 
-        for tag in result["tags"]:
-            self.tags.append(tag["name"])
+        tags = result.get("tags", [])
+        if isinstance(tags, list):
+            for tag in tags:
+                if isinstance(tag, Mapping) and "name" in tag:
+                    self.tags.append(tag["name"])
 
-        self.art_id = result["art_id"]
+        self.art_id = result.get("art_id") or 0
         self.art_url = "https://f4.bcbits.com/img/a" + str(self.art_id) + "_0.jpg"
 
         self.artist_id = result["band"]["band_id"]
@@ -116,13 +139,13 @@ class BandCampTrack:
         self.album_id = result["album_id"]
         self.album_title = result["album_title"]
 
-        self.label_id = result["label_id"]
-        self.label_title = result["label"]
+        self.label_id = result.get("label_id") or 0
+        self.label_title = result.get("label") or ""
 
-        self.about = result["about"]
-        self.credits = result["credits"]
+        self.about = result.get("about") or ""
+        self.credits = result.get("credits") or ""
 
-        self.date_released_unix = result["release_date"]
+        self.date_released_unix = result.get("release_date") or 0
 
         self.track_url = result["bandcamp_url"]
 
@@ -141,21 +164,30 @@ def search(search_string: str = ""):
     - A list of artist and track ids if found
     """
 
-    response = requests.get(
-        "https://bandcamp.com/api/fuzzysearch/2/app_autocomplete?q="
-        + search_string
-        + "&param_with_locations=true",
-        timeout=10,
-        proxies=GlobalConfig.get_parameter("proxies"),
-    )
-
-    results = response.json()["results"]
+    try:
+        response = requests.get(
+            "https://bandcamp.com/api/fuzzysearch/2/app_autocomplete?q="
+            + search_string
+            + "&param_with_locations=true",
+            timeout=10,
+            proxies=GlobalConfig.get_parameter("proxies"),
+        )
+        results = response.json()["results"]
+    except (requests.RequestException, JSONDecodeError, KeyError, TypeError) as exc:
+        logger.debug("BandCamp search failed for query %s: %s", search_string, exc)
+        return []
 
     return_results: List[Tuple[str, str]] = []
 
     for item in results:
-        if item["type"] == "t":
-            return_results.append((item["band_id"], item["id"]))
+        if not isinstance(item, Mapping):
+            continue
+
+        if item.get("type") == "t":
+            try:
+                return_results.append((item["band_id"], item["id"]))
+            except KeyError:
+                continue
 
     return return_results
 
@@ -170,7 +202,7 @@ class BandCamp(AudioProvider):
 
     def get_results(self, search_term: str, *_args, **_kwargs) -> List[Result]:
         """
-        Get results from slider.kz
+        Get results from BandCamp
 
         ### Arguments
         - search_term: The search term to search for.
@@ -178,20 +210,38 @@ class BandCamp(AudioProvider):
         - kwargs: Unused.
 
         ### Returns
-        - A list of slider.kz results if found, None otherwise.
+        - A list of BandCamp results if found, None otherwise.
         """
 
         try:
             results = search(search_term)
-        except KeyError:
-            return []
         except Exception as exc:
             logger.error("Failed to get results from BandCamp", exc_info=exc)
             return []
 
         simplified_results: List[Result] = []
         for result in results:
-            track = BandCampTrack(int(result[0]), int(result[1]))
+            try:
+                track = BandCampTrack(int(result[0]), int(result[1]))
+            except (
+                requests.RequestException,
+                JSONDecodeError,
+                KeyError,
+                IndexError,
+                TypeError,
+                ValueError,
+            ) as exc:
+                logger.debug("Failed to get BandCamp track %s: %s", result, exc)
+                continue
+
+            if not all(
+                isinstance(value, str)
+                for value in (track.track_url, track.track_title, track.artist_title)
+            ):
+                continue
+
+            if not isinstance(track.track_duration_seconds, (int, float)):
+                continue
 
             simplified_results.append(
                 Result(

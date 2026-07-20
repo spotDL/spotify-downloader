@@ -20,13 +20,13 @@ from spotdl.utils.metadata import embed_metadata, get_file_metadata
         "m4a",
     ],
 )
-def test_embed_metadata(tmpdir, monkeypatch, output_format):
+def test_embed_metadata(tmp_path, monkeypatch, output_format):
     """
     Test convert function.
     """
 
-    monkeypatch.chdir(tmpdir)
-    monkeypatch.setattr(spotdl.utils.ffmpeg, "get_spotdl_path", lambda *_: tmpdir)
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(spotdl.utils.ffmpeg, "get_spotdl_path", lambda *_: tmp_path)
 
     youtube = YoutubeDL(
         {
@@ -67,7 +67,7 @@ def test_embed_metadata(tmpdir, monkeypatch, output_format):
     }
 
     song = Song.from_dict(song_obj)
-    output_file = Path(tmpdir / f"test.{output_format}")
+    output_file = Path(tmp_path / f"test.{output_format}")
 
     assert download_info is not None
     assert convert(

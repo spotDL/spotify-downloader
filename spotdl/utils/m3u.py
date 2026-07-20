@@ -2,6 +2,7 @@
 Module for creating m3u content and writing it to a file.
 """
 
+import logging
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -13,6 +14,8 @@ __all__ = [
     "gen_m3u_files",
     "create_m3u_file",
 ]
+
+logger = logging.getLogger(__name__)
 
 
 def create_m3u_content(
@@ -59,7 +62,8 @@ def create_m3u_content(
                 if file_name.exists():
                     text += str(file_name) + "\n"
                     break
-
+            else:
+                # Runs if no existing file was found (no break)
                 file_name = create_file_name(
                     song, template, file_extension, restrict, short
                 )
@@ -117,12 +121,18 @@ def gen_m3u_files(
 
         lists_object[song.list_name].append(song)
 
+    if not lists_object and "{list" in file_name:
+        logger.warning(
+            "M3U file name contains '{list}' but no lists were provided. Specify a filename."
+        )
+        return
+
     if "{list}" in file_name:
         # Create multiple m3u files if there are multiple lists
         for list_name, song_list in lists_object.items():
             create_m3u_file(
                 file_name.format(
-                    list=list_name,
+                    list=sanitize_string(list_name),
                 ),
                 song_list,
                 template,
@@ -134,7 +144,9 @@ def gen_m3u_files(
     elif "{list[" in file_name and "]}" in file_name:
         # Create a single m3u file for specified song list name
         create_m3u_file(
-            file_name.format(list=list(lists_object.keys())),
+            file_name.format(
+                list=[sanitize_string(key) for key in lists_object.keys()]
+            ),
             songs,
             template,
             file_extension,
@@ -192,6 +204,8 @@ def create_m3u_file(
     file_path = Path(
         *(sanitize_string(part) for part in Path(file_name).parts)
     ).absolute()
+
+    file_path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(file_path, "w", encoding="utf-8") as m3u_file:
         m3u_file.write(m3u_content)

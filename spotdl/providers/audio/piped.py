@@ -3,21 +3,16 @@ Piped module for downloading and searching songs.
 """
 
 import logging
-import shlex
+from collections.abc import Mapping
 from typing import Any, Dict, List, Optional
+from urllib.parse import parse_qs, urlparse
 
 import requests
-from yt_dlp import YoutubeDL
+from requests.exceptions import JSONDecodeError
 
-from spotdl.providers.audio.base import (
-    ISRC_REGEX,
-    AudioProvider,
-    AudioProviderError,
-    YTDLLogger,
-)
+from spotdl.providers.audio.base import ISRC_REGEX, AudioProvider
 from spotdl.types.result import Result
-from spotdl.utils.config import GlobalConfig, get_temp_path
-from spotdl.utils.formatter import args_to_ytdlp_options
+from spotdl.utils.config import GlobalConfig
 
 __all__ = ["Piped"]
 logger = logging.getLogger(__name__)
@@ -25,6 +20,22 @@ logger = logging.getLogger(__name__)
 HEADERS = {
     "accept": "*/*",
 }
+API_BASE_URL = "https://api.piped.private.coffee"
+
+
+def _legacy_piped_watch_url_to_youtube(url: str) -> str:
+    parsed_url = urlparse(url)
+    if parsed_url.hostname not in {"piped.video", "www.piped.video"}:
+        return url
+
+    if parsed_url.path != "/watch":
+        return url
+
+    video_ids = parse_qs(parsed_url.query).get("v")
+    if not video_ids:
+        return url
+
+    return f"https://www.youtube.com/watch?v={video_ids[0]}"
 
 
 class Piped(AudioProvider):
@@ -38,7 +49,7 @@ class Piped(AudioProvider):
         {"filter": "music_videos"},
     ]
 
-    def __init__(  # pylint: disable=super-init-not-called
+    def __init__(  # pylint: disable=too-many-positional-arguments
         self,
         output_format: str = "mp3",
         cookie_file: Optional[str] = None,
@@ -57,34 +68,13 @@ class Piped(AudioProvider):
         - filter_results: Whether to filter results.
         """
 
-        self.output_format = output_format
-        self.cookie_file = cookie_file
-        self.search_query = search_query
-        self.filter_results = filter_results
-
-        if self.output_format == "m4a":
-            ytdl_format = "best[ext=m4a]/best"
-        elif self.output_format == "opus":
-            ytdl_format = "best[ext=webm]/best"
-        else:
-            ytdl_format = "best"
-
-        yt_dlp_options = {
-            "format": ytdl_format,
-            "quiet": True,
-            "no_warnings": True,
-            "encoding": "UTF-8",
-            "logger": YTDLLogger(),
-            "cookiefile": self.cookie_file,
-            "outtmpl": f"{get_temp_path()}/%(id)s.%(ext)s",
-            "retries": 5,
-        }
-
-        if yt_dlp_args:
-            user_options = args_to_ytdlp_options(shlex.split(yt_dlp_args))
-            yt_dlp_options.update(user_options)
-
-        self.audio_handler = YoutubeDL(yt_dlp_options)
+        super().__init__(
+            output_format=output_format,
+            cookie_file=cookie_file,
+            search_query=search_query,
+            filter_results=filter_results,
+            yt_dlp_args=yt_dlp_args,
+        )
         self.session = requests.Session()
 
     def get_results(self, search_term: str, **kwargs) -> List[Result]:
@@ -102,48 +92,101 @@ class Piped(AudioProvider):
         if kwargs is None:
             kwargs = {}
 
+        isrc_result = ISRC_REGEX.search(search_term)
+
         params = {"q": search_term, **kwargs}
         if params.get("filter") is None:
-            params["filter"] = "music_videos"
+            params["filter"] = "music_songs" if isrc_result else "music_videos"
 
-        response = self.session.get(
-            "https://piped.video/search",
-            params=params,
-            headers=HEADERS,
-            timeout=20,
-        )
+        try:
+            response = self.session.get(
+                f"{API_BASE_URL}/search",
+                params=params,
+                headers=HEADERS,
+                proxies=GlobalConfig.get_parameter("proxies"),
+                timeout=20,
+            )
+        except requests.RequestException as exc:
+            logger.debug("Piped search failed for query %s: %s", search_term, exc)
+            return []
 
         if response.status_code != 200:
-            raise AudioProviderError(
-                f"Failed to get results for {search_term} from Piped: {response.text}"
+            logger.debug(
+                "Piped search for query %s returned status code %s",
+                search_term,
+                response.status_code,
             )
+            return []
 
-        search_results = response.json()
+        try:
+            search_results = response.json()
+        except JSONDecodeError:
+            logger.debug("Piped search for query %s returned invalid JSON", search_term)
+            return []
 
-        # Simplify results
+        if not isinstance(search_results, Mapping):
+            logger.debug(
+                "Piped search for query %s returned a malformed response", search_term
+            )
+            return []
+
+        items = search_results.get("items", [])
+        if not isinstance(items, list):
+            logger.debug(
+                "Piped search for query %s returned a malformed response", search_term
+            )
+            return []
+
         results = []
-        for result in search_results["items"]:
-            if result["type"] != "stream":
+        for result in items:
+            if not isinstance(result, Mapping):
                 continue
 
-            isrc_result = ISRC_REGEX.search(search_term)
+            if result.get("type") != "stream":
+                continue
+
+            try:
+                result_url = result["url"]
+                title = result["title"]
+                duration = result["duration"]
+                uploader_name = result["uploaderName"]
+            except KeyError:
+                continue
+
+            if not all(
+                isinstance(value, str) for value in (result_url, title, uploader_name)
+            ):
+                continue
+
+            if not isinstance(duration, (int, float)):
+                continue
+
+            result_id = parse_qs(urlparse(result_url).query).get("v")
+            if result_id is None:
+                continue
+
+            views = result.get("views")
+            if views is not None:
+                try:
+                    views = int(views)
+                except (TypeError, ValueError):
+                    views = None
 
             results.append(
                 Result(
                     source="piped",
-                    url=f"https://piped.video{result['url']}",
-                    verified=kwargs.get("filter") == "music_songs",
-                    name=result["title"],
-                    duration=result["duration"],
-                    author=result["uploaderName"],
-                    result_id=result["url"].split("?v=")[1],
+                    url=f"https://www.youtube.com/watch?v={result_id[0]}",
+                    verified=params["filter"] == "music_songs",
+                    name=title,
+                    duration=duration,
+                    author=uploader_name,
+                    result_id=result_id[0],
                     artists=(
-                        (result["uploaderName"],)
-                        if kwargs.get("filter") == "music_songs"
-                        else None
+                        (uploader_name,) if params["filter"] == "music_songs" else None
                     ),
                     isrc_search=isrc_result is not None,
                     search_query=search_term,
+                    views=views,
                 )
             )
 
@@ -160,36 +203,12 @@ class Piped(AudioProvider):
         - A dictionary containing the metadata.
         """
 
-        url_id = url.split("?v=")[1]
-        piped_response = requests.get(
-            f"https://piped.video/streams/{url_id}",
-            timeout=10,
-            proxies=GlobalConfig.get_parameter("proxies"),
+        proxies = GlobalConfig.get_parameter("proxies")
+        if proxies:
+            proxy = proxies.get("https") or proxies.get("http")
+            if proxy:
+                self.audio_handler.params["proxy"] = proxy
+
+        return super().get_download_metadata(
+            _legacy_piped_watch_url_to_youtube(url), download
         )
-
-        if piped_response.status_code != 200:
-            raise AudioProviderError(
-                f"Failed to get metadata for {url} from Piped: {piped_response.text}"
-            )
-
-        piped_data = piped_response.json()
-
-        yt_dlp_json = {
-            "title": piped_data["title"],
-            "id": url_id,
-            "view_count": piped_data["views"],
-            "extractor": "Generic",
-            "formats": [],
-        }
-
-        for audio_stream in piped_data["audioStreams"]:
-            yt_dlp_json["formats"].append(
-                {
-                    "url": audio_stream["url"],
-                    "ext": "webm" if audio_stream["codec"] == "opus" else "m4a",
-                    "abr": audio_stream["quality"].split(" ")[0],
-                    "filesize": audio_stream["contentLength"],
-                }
-            )
-
-        return self.audio_handler.process_video_result(yt_dlp_json, download=download)

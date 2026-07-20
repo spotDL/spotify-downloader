@@ -13,6 +13,7 @@
 [![MIT License](https://img.shields.io/github/license/spotdl/spotify-downloader?color=44CC11&style=flat-square)](https://github.com/spotDL/spotify-downloader/blob/master/LICENSE)
 [![PyPI version](https://img.shields.io/pypi/pyversions/spotDL?color=%2344CC11&style=flat-square)](https://pypi.org/project/spotdl/)
 [![PyPi downloads](https://img.shields.io/pypi/dw/spotDL?label=downloads@pypi&color=344CC11&style=flat-square)](https://pypi.org/project/spotdl/)
+![GitHub Repo stars](https://img.shields.io/github/stars/spotDL/spotify-downloader)
 ![Contributors](https://img.shields.io/github/contributors/spotDL/spotify-downloader?style=flat-square)
 [![Discord](https://img.shields.io/discord/771628785447337985?label=discord&logo=discord&style=flat-square)](https://discord.gg/xCa23pwJWY)
 
@@ -21,7 +22,7 @@
 
 ## Installation
 
-Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/) for more details.
+Refer to our [Installation Guide](installation.md) for more details.
 
 ### Python (Recommended Method)
 
@@ -50,6 +51,32 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
 
       ```bash
       docker run --rm -v $(pwd):/music spotdl download [trackUrl]
+      ```
+
+      If you bind-mount `$(pwd):/music`, that host directory must be writable by the container
+      `UID`/`GID`.
+
+    - Use Docker Compose if you want Docker to manage permissions for you:
+
+      ```bash
+      # Set your user ID and group ID (recommended)
+      # This ensures downloaded files are owned by your user instead of root
+      # If you don't set this, files will be owned by user 1000
+      export PUID=$(id -u)
+      export PGID=$(id -g)
+
+      # Build and download
+      docker compose build
+      docker compose run --rm spotdl download [trackUrl]
+      ```
+
+      Docker Compose mounts `spotdl_music:/music` and stores downloads in that volume.
+      Export files:
+
+      ```bash
+      docker compose up --no-start spotdl
+      mkdir -p downloads
+      docker compose cp spotdl:/music/. ./downloads/
       ```
 
 - Build from source

@@ -4,7 +4,8 @@ Web module for the console.
 
 import asyncio
 import logging
-import os
+import shutil
+import signal
 import sys
 import webbrowser
 from pathlib import Path
@@ -15,8 +16,7 @@ from uvicorn import Config, Server
 
 from spotdl._version import __version__
 from spotdl.types.options import DownloaderOptions, WebOptions
-from spotdl.utils.config import get_web_ui_path
-from spotdl.utils.github import download_github_dir
+from spotdl.utils.config import get_spotdl_path, get_web_ui_path
 from spotdl.utils.logging import NAME_TO_LEVEL
 from spotdl.utils.web import (
     ALLOWED_ORIGINS,
@@ -24,8 +24,8 @@ from spotdl.utils.web import (
     app_state,
     fix_mime_types,
     get_current_state,
-    router,
 )
+from spotdl.web import api, routes
 
 __all__ = ["web"]
 
@@ -64,33 +64,6 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
 
     downloader_settings["simple_tui"] = True
 
-    # Download web app from GitHub if not already downloaded or force flag set
-    web_app_dir = get_web_ui_path()
-    dist_dir = web_app_dir / "dist"
-    if (not dist_dir.exists() or web_settings["force_update_gui"]) and web_settings[
-        "web_gui_location"
-    ] is None:
-        if web_settings["web_gui_repo"] is None:
-            gui_repo = "https://github.com/spotdl/web-ui/tree/master/dist"
-        else:
-            gui_repo = web_settings["web_gui_repo"]
-
-        logger.info("Updating web app from %s", gui_repo)
-
-        download_github_dir(
-            gui_repo,
-            output_dir=str(web_app_dir),
-        )
-        web_app_dir = Path(os.path.join(web_app_dir, "dist")).resolve()
-    elif web_settings["web_gui_location"]:
-        web_app_dir = Path(web_settings["web_gui_location"]).resolve()
-        logger.info("Using custom web app location: %s", web_app_dir)
-    else:
-        logger.info(
-            "Using cached web app. To update use the `--force-update-gui` flag."
-        )
-        web_app_dir = Path(os.path.join(web_app_dir, "dist")).resolve()
-
     app_state.api = FastAPI(
         title="spotDL",
         description="Download music from Spotify",
@@ -98,7 +71,8 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
         dependencies=[Depends(get_current_state)],
     )
 
-    app_state.api.include_router(router)
+    app_state.api.include_router(api.router)
+    app_state.api.include_router(routes.router)
 
     # Add the CORS middleware
     app_state.api.add_middleware(
@@ -114,9 +88,10 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     )
 
     # Add the static files
+    web_app_dir = get_web_ui_path()
     app_state.api.mount(
-        "/",
-        SPAStaticFiles(directory=web_app_dir, html=True),
+        "/assets",
+        SPAStaticFiles(directory=web_app_dir / "assets", html=True),
         name="static",
     )
     protocol = "http"
@@ -124,7 +99,7 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
         app=app_state.api,
         host=web_settings["host"],
         port=web_settings["port"],
-        workers=1,
+        # workers=1,
         log_level=NAME_TO_LEVEL[downloader_settings["log_level"]],
         loop=app_state.loop,  # type: ignore
     )
@@ -158,5 +133,28 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
 
     logger.info("Starting web server \n")
 
+    def handle_shutdown(signum, frame):  # pylint: disable=unused-argument
+        """
+        Signal handler to gracefully shut down the web server.
+
+        signum (int): The signal number received (e.g., SIGINT, SIGTERM).
+        frame (FrameType): The current stack frame.
+
+        """
+        app_state.server.should_exit = True
+
+    signal.signal(signal.SIGINT, handle_shutdown)
+    signal.signal(signal.SIGTERM, handle_shutdown)
+
     # Start the web server
-    app_state.loop.run_until_complete(app_state.server.serve())
+    try:
+        app_state.loop.run_until_complete(app_state.server.serve())
+    finally:
+        if (
+            not app_state.web_settings["keep_sessions"]
+            and not app_state.web_settings["web_use_output_dir"]
+        ):
+            sessions_dir = Path(get_spotdl_path() / "web/sessions")
+            logger.info("Removing sessions directories")
+            if sessions_dir.exists():
+                shutil.rmtree(sessions_dir)

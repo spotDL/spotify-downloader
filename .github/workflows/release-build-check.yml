@@ -1,0 +1,64 @@
+name: Release Build Check
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch, tag, or SHA to build"
+        required: true
+        default: "dev"
+
+jobs:
+  build-executable:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: |
+          uv venv --python 3.10
+          uv sync
+
+      - name: Build executable
+        run: uv run python ./scripts/build.py
+
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: executable-${{ matrix.platform }}
+          path: dist/*
+
+  build-zipapp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Build cross-platform binary
+        run: |
+          chmod u+x ./scripts/make_binzip.sh
+          ./scripts/make_binzip.sh
+
+      - name: Upload cross-platform binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: spotDL
+          path: spotDL

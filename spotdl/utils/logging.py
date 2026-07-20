@@ -64,22 +64,13 @@ NAME_TO_LEVEL = {
 
 THEME = Theme(
     {
-        "bar.back": "grey23",
         "bar.complete": "rgb(165,66,129)",
-        "bar.finished": "rgb(114,156,31)",
         "bar.pulse": "rgb(165,66,129)",
-        "general": "green",
-        "nonimportant": "rgb(40,100,40)",
-        "progress.data.speed": "red",
-        "progress.description": "none",
-        "progress.download": "green",
-        "progress.filesize": "green",
-        "progress.filesize.total": "green",
+        "nonimportant": "dark_sea_green4",
         "progress.percentage": "green",
-        "progress.remaining": "rgb(40,100,40)",
+        "progress.remaining": "dark_sea_green4",
         "logging.level.debug": "blue",
         "logging.level.info": "green",
-        "logging.level.warning": "yellow",
         "logging.level.error": "red",
         "logging.level.critical": "bold red",
     }
@@ -176,7 +167,6 @@ def init_logging(log_level: str, log_format: Optional[str] = None):
     logging.getLogger("syncedlyrics").setLevel(logging.WARNING)
     logging.getLogger("bandcamp_api").setLevel(logging.WARNING)
     logging.getLogger("beautifulsoup4").setLevel(logging.WARNING)
-    logging.getLogger("pytube").setLevel(logging.ERROR)
 
     # Create console
     console = get_console()

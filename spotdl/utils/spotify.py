@@ -10,12 +10,13 @@ spotify.Spotify.init(client_id, client_secret)
 
 import json
 import logging
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import requests
 from spotipy import Spotify
 from spotipy.cache_handler import CacheFileHandler, MemoryCacheHandler
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
+from SpotipyFree import Spotify as FreeSpotify
 
 from spotdl.utils.config import get_cache_path, get_spotify_cache_path
 
@@ -27,6 +28,12 @@ __all__ = [
 
 logger = logging.getLogger(__name__)
 
+OFFICIAL_API_ONLY_OPTIONS = {
+    "auth_token": "--auth-token",
+    "user_auth": "--user-auth",
+    "use_cache_file": "--use-cache-file",
+}
+
 
 class SpotifyError(Exception):
     """
@@ -34,32 +41,16 @@ class SpotifyError(Exception):
     """
 
 
-class Singleton(type):
+class _OfficialSpotifyClient(Spotify):
     """
-    Singleton metaclass for SpotifyClient. Ensures that SpotifyClient is not
-    instantiated without prior initialization. Every other instantiation of
-    SpotifyClient will return the same instance.
+    Spotipy-backed Spotify client used when the official API is requested.
     """
 
-    _instance = None
+    cache: Dict[str, Optional[Dict]] = {}
 
-    def __call__(self):  # pylint: disable=bad-mcs-method-argument
-        """
-        Call method for Singleton metaclass.
-
-        ### Returns
-        - The instance of the SpotifyClient.
-        """
-
-        if self._instance is None:
-            raise SpotifyError(
-                "Spotify client not created. Call SpotifyClient.init"
-                "(client_id, client_secret, user_auth, cache_path, no_cache, open_browser) first."
-            )
-        return self._instance
-
-    def init(  # pylint: disable=bad-mcs-method-argument
-        self,
+    @classmethod
+    def init(
+        cls,
         client_id: str,
         client_secret: str,
         user_auth: bool = False,
@@ -69,26 +60,10 @@ class Singleton(type):
         use_cache_file: bool = False,
         auth_token: Optional[str] = None,
         cache_path: Optional[str] = None,
-    ) -> "Singleton":
+    ) -> "_OfficialSpotifyClient":
         """
-        Initializes the SpotifyClient.
-
-        ### Arguments
-        - client_id: The client ID of the application.
-        - client_secret: The client secret of the application.
-        - auth_token: The access token to use.
-        - user_auth: Whether or not to use user authentication.
-        - cache_path: The path to the cache file.
-        - no_cache: Whether or not to use the cache.
-        - open_browser: Whether or not to open the browser.
-
-        ### Returns
-        - The instance of the SpotifyClient.
+        Initializes the official SpotifyClient implementation.
         """
-
-        # check if initialization has been completed, if yes, raise an Exception
-        if isinstance(self._instance, self):
-            raise SpotifyError("A spotify client has already been initialized")
 
         credential_manager = None
 
@@ -97,7 +72,6 @@ class Singleton(type):
             if not no_cache
             else MemoryCacheHandler()
         )
-        # Use SpotifyOAuth as auth manager
         if user_auth:
             credential_manager = SpotifyOAuth(
                 client_id=client_id,
@@ -107,68 +81,40 @@ class Singleton(type):
                 cache_handler=cache_handler,
                 open_browser=not headless,
             )
-        # Use SpotifyClientCredentials as auth manager
         else:
             credential_manager = SpotifyClientCredentials(
                 client_id=client_id,
                 client_secret=client_secret,
                 cache_handler=cache_handler,
             )
+
         if auth_token is not None:
             credential_manager = None
 
-        self.user_auth = user_auth
-        self.no_cache = no_cache
-        self.max_retries = max_retries
-        self.use_cache_file = use_cache_file
-
-        # Create instance
-        self._instance = super().__call__(
+        client = cls(
             auth=auth_token,
             auth_manager=credential_manager,
             status_forcelist=(429, 500, 502, 503, 504, 404),
         )
+        client.user_auth = user_auth
+        client.no_cache = no_cache
+        client.max_retries = max_retries
+        client.use_cache_file = use_cache_file
 
-        # Return instance
-        return self._instance
-
-
-class SpotifyClient(Spotify, metaclass=Singleton):
-    """
-    This is the Spotify client meant to be used in the app.
-    Has to be initialized first by calling
-    `SpotifyClient.init(client_id, client_secret, user_auth, cache_path, no_cache, open_browser)`.
-    """
-
-    _initialized = False
-    cache: Dict[str, Optional[Dict]] = {}
-
-    def __init__(self, *args, **kwargs):
-        """
-        Initializes the SpotifyClient.
-
-        ### Arguments
-        - auth: The access token to use.
-        - auth_manager: The auth manager to use.
-        """
-
-        super().__init__(*args, **kwargs)
-        self._initialized = True
-
-        use_cache_file: bool = self.use_cache_file  # type: ignore # pylint: disable=E1101
         cache_file_loc = get_spotify_cache_path()
-
         if use_cache_file and cache_file_loc.exists():
             with open(cache_file_loc, "r", encoding="utf-8") as cache_file:
-                self.cache = json.load(cache_file)
+                client.cache = json.load(cache_file)
         elif use_cache_file:
             with open(cache_file_loc, "w", encoding="utf-8") as cache_file:
-                json.dump(self.cache, cache_file)
+                json.dump(client.cache, cache_file)
+
+        return client
 
     def _get(self, url, args=None, payload=None, **kwargs):
         """
         Overrides the get method of the SpotifyClient.
-        Allows us to cache requests
+        Allows us to cache requests.
         """
 
         use_cache = not self.no_cache  # type: ignore # pylint: disable=E1101
@@ -187,7 +133,6 @@ class SpotifyClient(Spotify, metaclass=Singleton):
             if self.cache.get(cache_key) is not None:
                 return self.cache[cache_key]
 
-        # Wrap in a try-except and retry up to `retries` times.
         response = None
         retries = self.max_retries  # type: ignore # pylint: disable=E1101
         while response is None:
@@ -204,19 +149,131 @@ class SpotifyClient(Spotify, metaclass=Singleton):
         return response
 
 
+def _init_official_spotify_client(**kwargs) -> _OfficialSpotifyClient:
+    """
+    Initialize the official Spotipy client.
+    """
+
+    return _OfficialSpotifyClient.init(**kwargs)
+
+
+def _init_free_spotify_client(**kwargs) -> Any:
+    """
+    Initialize the default SpotipyFree client.
+    """
+
+    return FreeSpotify(**kwargs)
+
+
+class SpotifyClient:
+    """
+    Runtime-selected Spotify client facade.
+    """
+
+    _instance: Optional[Any] = None
+    _use_official_api = False
+
+    def __new__(cls):
+        """
+        Return the initialized Spotify client implementation.
+        """
+
+        if cls._instance is None:
+            raise SpotifyError(
+                "Spotify client not created. Call SpotifyClient.init"
+                "("
+                "client_id, client_secret, user_auth=False, no_cache=False, "
+                "headless=False, max_retries=3, use_cache_file=False, "
+                "use_official_api=False, auth_token=None, cache_path=None"
+                ") first."
+            )
+
+        return cls._instance
+
+    def __getattr__(self, name: str) -> Any:
+        """
+        The selected backend provides Spotify API methods at runtime.
+        """
+
+        raise AttributeError(name)
+
+    @classmethod
+    def is_using_official_api(cls) -> bool:
+        """
+        Returns whether the active client uses the official Spotify Web API.
+        """
+
+        return cls._use_official_api
+
+    @classmethod
+    def init(
+        cls,
+        client_id: str,
+        client_secret: str,
+        user_auth: bool = False,
+        no_cache: bool = False,
+        headless: bool = False,
+        max_retries: int = 3,
+        use_cache_file: bool = False,
+        use_official_api: bool = False,
+        auth_token: Optional[str] = None,
+        cache_path: Optional[str] = None,
+    ) -> Any:
+        """
+        Initializes the selected SpotifyClient implementation.
+        """
+
+        if cls._instance is not None:
+            raise SpotifyError("A spotify client has already been initialized")
+
+        kwargs = {
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "user_auth": user_auth,
+            "no_cache": no_cache,
+            "headless": headless,
+            "max_retries": max_retries,
+            "use_cache_file": use_cache_file,
+            "auth_token": auth_token,
+            "cache_path": cache_path,
+        }
+
+        official_only_options = [
+            option for key, option in OFFICIAL_API_ONLY_OPTIONS.items() if kwargs[key]
+        ]
+        if official_only_options and not use_official_api:
+            logger.info(
+                "Using the official Spotify Web API because %s %s requested.",
+                ", ".join(official_only_options),
+                "was" if len(official_only_options) == 1 else "were",
+            )
+            use_official_api = True
+
+        if use_official_api:
+            cls._instance = _init_official_spotify_client(**kwargs)
+        else:
+            cls._instance = _init_free_spotify_client(**kwargs)
+
+        cls._use_official_api = use_official_api
+
+        return cls._instance
+
+
 def save_spotify_cache(cache: Dict[str, Optional[Dict]]):
     """
-    Saves the Spotify cache to a file.
+    Saves the Spotify cache to a file when the official API client is active.
 
     ### Arguments
     - cache: The cache to save.
     """
 
+    if not SpotifyClient.is_using_official_api():
+        return
+
     cache_file_loc = get_spotify_cache_path()
 
     logger.debug("Saving Spotify cache to %s", cache_file_loc)
 
-    # Only cache tracks
     cache = {
         key: value
         for key, value in cache.items()

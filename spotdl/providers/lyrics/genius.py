@@ -58,10 +58,15 @@ class Genius(LyricsProvider):
             headers=self.headers,
             timeout=10,
             proxies=GlobalConfig.get_parameter("proxies"),
-        )
+        ).json()
+
+        if "response" not in search_response:
+            raise RuntimeError(
+                search_response.get("meta", {}).get("message", "Unknown API error")
+            )
 
         results: Dict[str, str] = {}
-        for hit in search_response.json()["response"]["hits"]:
+        for hit in search_response["response"]["hits"]:
             results[hit["result"]["full_title"]] = hit["result"]["id"]
 
         return results
@@ -111,13 +116,21 @@ class Genius(LyricsProvider):
             return None
 
         lyrics_div = soup.select_one("div.lyrics")
-        lyrics_containers = soup.select("div[class^=Lyrics__Container]")
+        lyrics_container = soup.select("div[class^=Lyrics__Container]")
+
+        # As of Aug 2025, Genius has added a lyrics header div. Remove it if present.
+        # <div data-exclude-from-selection="true"
+        # class="LyricsHeader__Container-sc-5e4b7146-1 hFsUgC">
+        lyrics_header = soup.select_one("div[class^=LyricsHeader__Container]")
+
+        if lyrics_header:
+            lyrics_header.decompose()
 
         # Get lyrics
         if lyrics_div:
             lyrics = lyrics_div.get_text()
-        elif lyrics_containers:
-            lyrics = "\n".join(con.get_text() for con in lyrics_containers)
+        elif lyrics_container:
+            lyrics = "\n".join(con.get_text() for con in lyrics_container)
         else:
             return None
 

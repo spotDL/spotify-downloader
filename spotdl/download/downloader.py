@@ -38,7 +38,7 @@ from spotdl.utils.config import (
     get_temp_path,
     modernize_settings,
 )
-from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
+from spotdl.utils.ffmpeg import FFmpegError, async_convert, get_ffmpeg_path
 from spotdl.utils.formatter import create_file_name
 from spotdl.utils.lrc import generate_lrc
 from spotdl.utils.m3u import gen_m3u_files
@@ -366,13 +366,14 @@ class Downloader:
         - tuple with the song and the path to the downloaded file if successful.
 
         ### Notes
-        - This method calls `self.search_and_download` in a new thread.
+        - This method awaits `self.async_search_and_download` on the event loop,
+            limited by the semaphore.
         """
 
         # tasks that cannot acquire semaphore will wait here until it's free
         # only certain amount of tasks can acquire the semaphore at the same time
         async with self.semaphore:
-            return await self.loop.run_in_executor(None, self.search_and_download, song)
+            return await self.async_search_and_download(song)
 
     def search(self, song: Song) -> str:
         """
@@ -422,11 +423,21 @@ class Downloader:
 
         return None
 
-    def search_and_download(  # pylint: disable=R0911
+    def search_and_download(self, song: Song) -> Tuple[Song, Optional[Path]]:
+        """
+        Synchronous wrapper for async_search_and_download.
+        """
+        if self.loop.is_running():
+            return asyncio.run_coroutine_threadsafe(
+                self.async_search_and_download(song), self.loop
+            ).result()
+        return self.loop.run_until_complete(self.async_search_and_download(song))
+
+    async def async_search_and_download(  # pylint: disable=R0911
         self, song: Song
     ) -> Tuple[Song, Optional[Path]]:
         """
-        Search for the song and download it.
+        Search for the song and download it asynchronously.
 
         ### Arguments
         - song: The song to download.
@@ -435,7 +446,7 @@ class Downloader:
         - tuple with the song and the path to the downloaded file if successful.
 
         ### Notes
-        - This function is synchronous.
+        - This function is asynchronous.
         """
 
         # Check if song has name/artist and url/song_id
@@ -444,32 +455,41 @@ class Downloader:
         ):
             logger.error("Song is missing required fields: %s", song.display_name)
             self.errors.append(f"Song is missing required fields: {song.display_name}")
-
             return song, None
 
-        reinitialized = False
-        try:
-            # Create the output file path
-            output_file = create_file_name(
-                song=song,
-                template=self.settings["output"],
-                file_extension=self.settings["format"],
-                restrict=self.settings["restrict"],
-                file_name_length=self.settings["max_filename_length"],
+        # Reinitialize the song object if it's missing metadata
+        # Or if we are fetching albums
+        if (
+            (song.name is None and song.url)
+            or self.settings["fetch_albums"]
+            or any(
+                x is None
+                for x in [
+                    song.genres,
+                    song.disc_count,
+                    song.tracks_count,
+                    song.track_number,
+                    song.album_id,
+                    song.album_artist,
+                ]
             )
+        ):
+            try:
+                song = await self.loop.run_in_executor(None, reinit_song, song)
 
-        except Exception:
-            song = reinit_song(song)
+            except Exception as e:
+                logger.error("Error occurred while reinitializing song: %s", e)
+                self.errors.append(f"Error occurred while reinitializing song: {e}")
+                return song, None
 
-            output_file = create_file_name(
-                song=song,
-                template=self.settings["output"],
-                file_extension=self.settings["format"],
-                restrict=self.settings["restrict"],
-                file_name_length=self.settings["max_filename_length"],
-            )
-
-            reinitialized = True
+        # Create the output file path
+        output_file = create_file_name(
+            song=song,
+            template=self.settings["output"],
+            file_extension=self.settings["format"],
+            restrict=self.settings["restrict"],
+            file_name_length=self.settings["max_filename_length"],
+        )
 
         if song.explicit is True and self.settings["skip_explicit"] is True:
             logger.info("Skipping explicit song: %s", song.display_name)
@@ -495,7 +515,7 @@ class Downloader:
             ]
 
             # Checking if file already exists in all subfolders of output directory
-            file_exists = file_exists = output_file.exists() or dup_song_paths
+            file_exists = output_file.exists() or dup_song_paths
             if not self.settings["scan_for_songs"]:
                 for file_extension in self.scan_formats:
                     ext_path = output_file.with_suffix(f".{file_extension}")
@@ -535,28 +555,6 @@ class Downloader:
                 display_progress_tracker.notify_download_skip()
                 return song, output_file
 
-            # Check if we have all the metadata
-            # and that the song object is not a placeholder
-            # If it's None extract the current metadata
-            # And reinitialize the song object
-            # Force song reinitialization if we are fetching albums
-            # they have most metadata but not all
-            if (
-                (song.name is None and song.url)
-                or (self.settings["fetch_albums"] and reinitialized is False)
-                or None
-                in [
-                    song.genres,
-                    song.disc_count,
-                    song.tracks_count,
-                    song.track_number,
-                    song.album_id,
-                    song.album_artist,
-                ]
-            ):
-                song = reinit_song(song)
-                reinitialized = True
-
             # Don't skip if the file exists and overwrite is set to force
             if file_exists and self.settings["overwrite"] == "force":
                 logger.info(
@@ -580,7 +578,7 @@ class Downloader:
 
             # Find song lyrics and add them to the song object
             try:
-                lyrics = self.search_lyrics(song)
+                lyrics = await self.loop.run_in_executor(None, self.search_lyrics, song)
                 if lyrics is None:
                     logger.debug(
                         "No lyrics found for %s, lyrics providers: %s",
@@ -644,10 +642,13 @@ class Downloader:
                     return song, None
 
                 # Update the metadata
-                embed_metadata(
-                    output_file=output_file,
-                    song=song,
-                    skip_album_art=self.settings["skip_album_art"],
+                await self.loop.run_in_executor(
+                    None,
+                    lambda: embed_metadata(
+                        output_file=output_file,
+                        song=song,
+                        skip_album_art=self.settings["skip_album_art"],
+                    ),
                 )
 
                 logger.info(
@@ -663,10 +664,6 @@ class Downloader:
 
             # Create the output directory if it doesn't exist
             output_file.parent.mkdir(parents=True, exist_ok=True)
-            if song.download_url is None:
-                download_url = self.search(song)
-            else:
-                download_url = song.download_url
 
             # Initialize audio downloader
             audio_downloader: Union[AudioProvider, Piped]
@@ -687,19 +684,25 @@ class Downloader:
                     yt_dlp_args=self.settings["yt_dlp_args"],
                 )
 
-            logger.debug("Downloading %s using %s", song.display_name, download_url)
-
             # Add progress hook to the audio provider
             audio_downloader.audio_handler.add_progress_hook(
                 display_progress_tracker.yt_dlp_progress_hook
             )
 
-            download_info = audio_downloader.get_download_metadata(
-                download_url, download=True
-            )
+            if song.download_url is None:
+                display_progress_tracker.notify_searching()
+                download_url = await self.loop.run_in_executor(None, self.search, song)
+            else:
+                download_url = song.download_url
 
-            temp_file = Path(
-                temp_folder / f"{download_info['id']}.{download_info['ext']}"
+            display_progress_tracker.notify_getting_meta()
+
+            logger.debug("Downloading %s using %s", song.display_name, download_url)
+            download_info = await self.loop.run_in_executor(
+                None,
+                lambda: audio_downloader.get_download_metadata(
+                    download_url, download=True
+                ),
             )
 
             if download_info is None:
@@ -713,21 +716,20 @@ class Downloader:
                     f"yt-dlp failed to get metadata for: {song.name} - {song.artist}"
                 )
 
-            display_progress_tracker.notify_download_complete()
+            temp_file = Path(
+                temp_folder / f"{download_info['id']}.{download_info['ext']}"
+            )
 
             # Copy the downloaded file to the output file
             # if the temp file and output file have the same extension
             # and the bitrate is set to auto or disable
-            # Don't copy if the audio provider is piped
-            # unless the bitrate is set to disable
             if (
                 self.settings["bitrate"] in ["auto", "disable", None]
                 and temp_file.suffix == output_file.suffix
-            ) and not (
-                self.settings["audio_providers"][0] == "piped"
-                and self.settings["bitrate"] != "disable"
             ):
-                shutil.move(str(temp_file), output_file)
+                await self.loop.run_in_executor(
+                    None, shutil.move, str(temp_file), str(output_file)
+                )
                 success = True
                 result = None
             else:
@@ -745,7 +747,7 @@ class Downloader:
                     bitrate = str(self.settings["bitrate"])
 
                 # Convert the downloaded file to the output format
-                success, result = convert(
+                success, result = await async_convert(
                     input_file=temp_file,
                     output_file=output_file,
                     ffmpeg=self.ffmpeg,
@@ -816,7 +818,9 @@ class Downloader:
                 )
 
                 # Run the post processor to get the sponsor segments
-                _, download_info = post_processor.run(download_info)
+                _, download_info = await self.loop.run_in_executor(
+                    None, post_processor.run, download_info
+                )
                 chapters = download_info["sponsorblock_chapters"]
 
                 # If there are sponsor segments, remove them
@@ -835,18 +839,23 @@ class Downloader:
 
                     # Run the post processor to remove the sponsor segments
                     # this returns a list of files to delete
-                    files_to_delete, download_info = modify_chapters.run(download_info)
+                    files_to_delete, download_info = await self.loop.run_in_executor(
+                        None, modify_chapters.run, download_info
+                    )
 
                     # Delete the files that were created by the post processor
                     for file_to_delete in files_to_delete:
                         Path(file_to_delete).unlink()
 
             try:
-                embed_metadata(
-                    output_file,
-                    song,
-                    id3_separator=self.settings["id3_separator"],
-                    skip_album_art=self.settings["skip_album_art"],
+                await self.loop.run_in_executor(
+                    None,
+                    lambda: embed_metadata(
+                        output_file,
+                        song,
+                        id3_separator=self.settings["id3_separator"],
+                        skip_album_art=self.settings["skip_album_art"],
+                    ),
                 )
             except Exception as exception:
                 raise MetadataError(
@@ -854,9 +863,10 @@ class Downloader:
                 ) from exception
 
             if self.settings["generate_lrc"]:
-                generate_lrc(song, output_file)
+                await self.loop.run_in_executor(None, generate_lrc, song, output_file)
 
             display_progress_tracker.notify_complete()
+            display_progress_tracker.set_path(str(output_file))
 
             # Add the song to the known songs
             self.known_songs.get(song.url, []).append(output_file)

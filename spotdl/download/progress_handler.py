@@ -3,6 +3,7 @@ Module that holds the ProgressHandler class and Song Tracker class.
 """
 
 import logging
+from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional
 
 from rich import get_console
@@ -99,6 +100,64 @@ class SizedTextColumn(ProgressColumn):
         return text
 
 
+@dataclass
+class ClientSongDownload:
+    """
+    Represents the download progress of a single song for a client.
+    """
+
+    song: Song
+    progress: int
+    message: str
+    path: Optional[str] = None
+
+
+class ProgressTracker:
+    """
+    Tracks the progress of each song download.
+    Similar to Rich Progress but without any TUI elements.
+    """
+
+    songs: Dict[str, ClientSongDownload] = {}
+
+    def add(self, song: Song):
+        """
+        Add a song to the progress tracker.
+        """
+        # check if exists
+        if song.url in self.songs:
+            return
+        self.songs[song.url] = ClientSongDownload(
+            song=song, progress=0, message="Getting lyrics"
+        )
+
+    def update(self, song: Song, progress: int, message: str):
+        """
+        Update the progress of a song in the progress tracker.
+        """
+        if song.url in self.songs:
+            self.songs[song.url].progress = progress
+            self.songs[song.url].message = message
+        else:
+            self.songs[song.url] = ClientSongDownload(
+                song=song, progress=progress, message=message
+            )
+
+    def remove(self, song: Song):
+        """
+        Remove a song from the progress tracker.
+        """
+        if song.url in self.songs:
+            del self.songs[song.url]
+
+    def set_path(self, song: Song, path: str):
+        """
+        Set the download path for a song.
+        """
+        if song.url in self.songs:
+            self.songs[song.url].path = path
+
+
 class ProgressHandler:
     """
     Class for handling the progress of a download, including the progress bar.
@@ -131,12 +190,14 @@ class ProgressHandler:
         self.quiet = logger.getEffectiveLevel() < 10
         self.overall_task_id: Optional[TaskID] = None
 
+        self.progress_tracker = ProgressTracker()
+
         if not self.simple_tui:
             console = get_console()
 
             self.rich_progress_bar = Progress(
                 SizedTextColumn(
-                    "[white]{task.description}",
+                    "{task.description}",
                     overflow="ellipsis",
                     width=int(console.width / 3),
                 ),
@@ -274,11 +335,13 @@ class SongTracker:
         self.progress: int = 0
         self.old_progress: int = 0
         self.status = ""
+        self.path: Optional[str] = None
 
+        self.parent.progress_tracker.add(self.song)
         if not self.parent.simple_tui:
             self.task_id = self.parent.rich_progress_bar.add_task(
                 description=escape(self.song_name),
-                message="Processing",
+                message="Getting lyrics",
                 total=100,
                 completed=self.progress,
                 start=False,
@@ -299,9 +362,14 @@ class SongTracker:
         # The change in progress since last update
         delta = self.progress - self.old_progress
 
+        self.parent.progress_tracker.update(self.song, self.progress, message)
+        if self.progress == 100 or message == "Error":
+            if not self.parent.web_ui:
+                self.parent.progress_tracker.remove(self.song)
+
         if not self.parent.simple_tui:
             # Update the progress bar
-            # `start_task` called everytime to ensure progress is remove from indeterminate state
+            # `start_task` called every time to ensure progress is remove from indeterminate state
             self.parent.rich_progress_bar.start_task(self.task_id)
             self.parent.rich_progress_bar.update(
                 self.task_id,
@@ -309,6 +377,9 @@ class SongTracker:
                 message=message,
                 completed=self.progress,
             )
+
+            # Refresh the progress bar to show the changes before it gets removed in case of 100%
+            self.parent.rich_progress_bar.refresh()
 
             # If task is complete
             if self.progress == 100 or message == "Error":
@@ -359,16 +430,21 @@ class SongTracker:
         else:
             logger.error("%s: %s", traceback.__class__.__name__, traceback)
 
-    def notify_download_complete(self, status="Converting") -> None:
+    def notify_searching(self) -> None:
         """
-        Notifies the progress handler that the song has been downloaded.
-
-        ### Arguments
-        - status: The status to display.
+        Notifies the progress handler that the song is being searched for on the audio provider(s).
         """
 
-        self.progress = 50
-        self.update(status)
+        self.progress = 25
+        self.update("Searching for song")
+
+    def notify_getting_meta(self) -> None:
+        """
+        Notifies the progress handler that the song's download metadata is being downloaded.
+        """
+
+        self.progress = 40
+        self.update("Getting audio meta")
 
     def notify_conversion_complete(self, status="Embedding metadata") -> None:
         """
@@ -412,9 +488,9 @@ class SongTracker:
         """
 
         if self.parent.simple_tui and not self.parent.web_ui:
-            self.progress = 50
+            self.progress = 70
         else:
-            self.progress = 50 + int(progress * 0.45)
+            self.progress = 70 + int(progress * 0.25)
 
         self.update("Converting")
 
@@ -433,8 +509,19 @@ class SongTracker:
 
             downloaded_bytes = data.get("downloaded_bytes")
             if self.parent.simple_tui and not self.parent.web_ui:
-                self.progress = 50
+                self.progress = 70
             elif file_bytes and downloaded_bytes:
-                self.progress = downloaded_bytes / file_bytes * 50
+                self.progress = 40 + downloaded_bytes / file_bytes * 30
 
             self.update("Downloading")
+
+    def set_path(self, path: str) -> None:
+        """
+        Sets the path of the song.
+
+        ### Arguments
+        - path: The path to set.
+        """
+
+        self.path = path
+        self.parent.progress_tracker.set_path(self.song, path)

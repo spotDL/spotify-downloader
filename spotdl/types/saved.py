@@ -59,10 +59,14 @@ class Saved(SongList):
 
         songs = []
         for track in saved_tracks:
-            if not isinstance(track, dict) or track.get("track", {}).get("is_local"):
+            if not isinstance(track, dict):
                 continue
 
-            track_meta = track["track"]
+            # Support both old API (track) and new API (item)
+            track_meta = track.get("track") or track.get("item")
+            if track_meta is None or track_meta.get("is_local"):
+                continue
+
             album_meta = track_meta["album"]
 
             release_date = album_meta["release_date"]

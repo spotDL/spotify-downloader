@@ -2,7 +2,8 @@
 <!--- mdformat-toc start --slug=github --->
 
 <!---
-!!! IF EDITING THE README, ENSURE TO COPY THE WHOLE FILE TO index.md in `/docs/` AND REMOVE THE REFERENCES TO ReadTheDocs THERE.
+!!! IF EDITING THE README, MOST CHANGES SHOULD ALSO BE PROPAGATED TO index.md in `/docs/`.
+!!! ADJUST FORMATTING THERE AS NEEDED, AND REMOVE README-ONLY / ReadTheDocs REFERENCES.
 --->
 
 <div align="center">
@@ -14,6 +15,7 @@
 [![MIT License](https://img.shields.io/github/license/spotdl/spotify-downloader?color=44CC11&style=flat-square)](https://github.com/spotDL/spotify-downloader/blob/master/LICENSE)
 [![PyPI version](https://img.shields.io/pypi/pyversions/spotDL?color=%2344CC11&style=flat-square)](https://pypi.org/project/spotdl/)
 [![PyPi downloads](https://img.shields.io/pypi/dw/spotDL?label=downloads@pypi&color=344CC11&style=flat-square)](https://pypi.org/project/spotdl/)
+![GitHub Repo stars](https://img.shields.io/github/stars/spotDL/spotify-downloader)
 ![Contributors](https://img.shields.io/github/contributors/spotDL/spotify-downloader?style=flat-square)
 [![Discord](https://img.shields.io/discord/771628785447337985?label=discord&logo=discord&style=flat-square)](https://discord.gg/xCa23pwJWY)
 
@@ -26,7 +28,7 @@ ______________________________________________________________________
 
 ## Installation
 
-Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/) for more details.
+Refer to our [Installation Guide](docs/installation.md) for more details.
 
 ### Python (Recommended Method)
 
@@ -60,6 +62,9 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
     docker run --rm -v $(pwd):/music spotdl download [trackUrl]
     ```
 
+  - For Docker Compose and permission-managed Docker downloads, see
+    [the Docker section in `/docs/index.md`](docs/index.md#docker).
+
   - Build from source
 
     ```bash
@@ -84,6 +89,18 @@ follow these instructions
 - [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
 - OSX - `brew install ffmpeg`
 - Linux - `sudo apt install ffmpeg` or use your distro's package manager
+
+### Installing Deno
+
+We strongly recommend installing Deno. spotDL uses yt-dlp for YouTube downloads, and some
+videos require Deno to download successfully. Without Deno, spotDL may fail to download some
+songs, including videos marked as "made for kids".
+
+If using Deno only for spotDL, install Deno to your spotDL directory:
+`spotdl --download-deno`
+
+If you want to install Deno system-wide instead, follow the
+[official Deno installation guide](https://docs.deno.com/runtime/getting_started/installation/).
 
 ## Usage
 
@@ -117,9 +134,9 @@ For a list of all **options** use ```spotdl -h```
     - Usage:
         `spotdl save [query] --save-file {filename}.spotdl`
 
-- `web`: Starts a web interface instead of using the command line. However, it has limited features and only supports downloading single songs.
+- `web`: Starts a web interface instead of using the command line. However, it has limited features and only supports downloading individual songs.
 
-- `url`: Get direct download link for each song from the query.
+- `url`: Get user-friendly URL for each song from the query.
     - Usage:
         `spotdl url [query]`
 
@@ -128,7 +145,7 @@ For a list of all **options** use ```spotdl -h```
     - Usage:
         `spotdl sync [query] --save-file {filename}.spotdl`
 
-        This create a new **sync** file, to update the directory in the future, use:
+        This creates a new **sync** file. To update the directory in the future, use:
 
         `spotdl sync {filename}.spotdl`
 
