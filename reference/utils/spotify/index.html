@@ -12,29 +12,31 @@
         <meta name="author" content="xnetcat">
       
       
-        <link rel="canonical" href="https://spotdl.github.io/spotify-downloader/">
+        <link rel="canonical" href="https://spotdl.github.io/spotify-downloader/reference/utils/spotify/">
       
       
+        <link rel="prev" href="../formatter/">
       
-        <link rel="next" href="installation/">
+      
+        <link rel="next" href="../search/">
       
       
         
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>spotDL</title>
+        <title>spotify - spotDL</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -53,9 +55,9 @@
       
     
     
-      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -80,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#spotdl-v4" class="md-skip">
+        <a href="#spotdl.utils.spotify" class="md-skip">
           Skip to content
         </a>
       
@@ -94,7 +96,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="spotDL" class="md-header__button md-logo" aria-label="spotDL" data-md-component="logo">
+    <a href="../../.." title="spotDL" class="md-header__button md-logo" aria-label="spotDL" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -114,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Home
+              spotify
             
           </span>
         </div>
@@ -223,11 +225,9 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="." class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
         
   
   
@@ -246,7 +246,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="installation/" class="md-tabs__link">
+      <a href="../../../installation/" class="md-tabs__link">
         
   
   
@@ -267,7 +267,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="usage/" class="md-tabs__link">
+        <a href="../../../usage/" class="md-tabs__link">
           
   
   
@@ -287,7 +287,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="CODE_OF_CONDUCT/" class="md-tabs__link">
+        <a href="../../../CODE_OF_CONDUCT/" class="md-tabs__link">
           
   
   
@@ -303,11 +303,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="reference/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
           
   
   
@@ -343,7 +345,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="spotDL" class="md-nav__button md-logo" aria-label="spotDL" data-md-component="logo">
+    <a href="../../.." title="spotDL" class="md-nav__button md-logo" aria-label="spotDL" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -370,37 +372,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Home
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -416,171 +391,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Installation
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Installation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#python-recommended-method" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Python (Recommended Method)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#other-options" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Other options
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#installing-ffmpeg" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Installing FFmpeg
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Usage
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#refer-to-usage-for-more-info" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Refer to Usage for more info.
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#music-sourcing-and-audio-quality" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Music Sourcing and Audio Quality
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Music Sourcing and Audio Quality">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#audio-quality" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Audio Quality
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#contributing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Contributing
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Contributing">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#join-our-amazing-community-as-a-code-contributor" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Join our amazing community as a code contributor
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#license" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        License
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -592,7 +402,7 @@
   
   
     <li class="md-nav__item">
-      <a href="installation/" class="md-nav__link">
+      <a href="../../../installation/" class="md-nav__link">
         
   
   
@@ -669,7 +479,7 @@
   
   
     <li class="md-nav__item">
-      <a href="usage/" class="md-nav__link">
+      <a href="../../../usage/" class="md-nav__link">
         
   
   
@@ -697,7 +507,7 @@
   
   
     <li class="md-nav__item">
-      <a href="troubleshooting/" class="md-nav__link">
+      <a href="../../../troubleshooting/" class="md-nav__link">
         
   
   
@@ -782,7 +592,7 @@
   
   
     <li class="md-nav__item">
-      <a href="CODE_OF_CONDUCT/" class="md-nav__link">
+      <a href="../../../CODE_OF_CONDUCT/" class="md-nav__link">
         
   
   
@@ -810,7 +620,7 @@
   
   
     <li class="md-nav__item">
-      <a href="CONTRIBUTING/" class="md-nav__link">
+      <a href="../../../CONTRIBUTING/" class="md-nav__link">
         
   
   
@@ -842,24 +652,29 @@
       
   
   
+    
   
   
+  
     
     
     
     
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
@@ -877,7 +692,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -895,7 +710,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/" class="md-nav__link">
+      <a href="../../" class="md-nav__link">
         
   
   
@@ -920,6 +735,8 @@
                 
   
   
+    
+  
   
   
     
@@ -930,15 +747,15 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="reference/utils/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -962,7 +779,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -980,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils/ffmpeg/" class="md-nav__link">
+      <a href="../ffmpeg/" class="md-nav__link">
         
   
   
@@ -1008,7 +825,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils/logging/" class="md-nav__link">
+      <a href="../logging/" class="md-nav__link">
         
   
   
@@ -1036,7 +853,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils/static/" class="md-nav__link">
+      <a href="../static/" class="md-nav__link">
         
   
   
@@ -1064,7 +881,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils/github/" class="md-nav__link">
+      <a href="../github/" class="md-nav__link">
         
   
   
@@ -1092,7 +909,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils/arguments/" class="md-nav__link">
+      <a href="../arguments/" class="md-nav__link">
         
   
   
@@ -1120,7 +937,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils/console/" class="md-nav__link">
+      <a href="../console/" class="md-nav__link">
         
   
   
@@ -1148,7 +965,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils/matching/" class="md-nav__link">
+      <a href="../matching/" class="md-nav__link">
         
   
   
@@ -1176,7 +993,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils/formatter/" class="md-nav__link">
+      <a href="../formatter/" class="md-nav__link">
         
   
   
@@ -1201,10 +1018,35 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="reference/utils/spotify/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    spotify
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1220,6 +1062,135 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.spotify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        spotify
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.spotify.SpotifyClient" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SpotifyClient
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SpotifyClient">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.spotify.SpotifyClient.__getattr__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __getattr__
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.spotify.SpotifyClient.__new__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __new__
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.spotify.SpotifyClient.init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.spotify.SpotifyClient.is_using_official_api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_using_official_api
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.spotify.SpotifyError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SpotifyError
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.spotify.save_spotify_cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        save_spotify_cache
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="save_spotify_cache">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.spotify.save_spotify_cache--arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1232,7 +1203,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils/search/" class="md-nav__link">
+      <a href="../search/" class="md-nav__link">
         
   
   
@@ -1260,7 +1231,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils/config/" class="md-nav__link">
+      <a href="../config/" class="md-nav__link">
         
   
   
@@ -1288,7 +1259,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils/deno/" class="md-nav__link">
+      <a href="../deno/" class="md-nav__link">
         
   
   
@@ -1316,7 +1287,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils/archive/" class="md-nav__link">
+      <a href="../archive/" class="md-nav__link">
         
   
   
@@ -1344,7 +1315,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils/metadata/" class="md-nav__link">
+      <a href="../metadata/" class="md-nav__link">
         
   
   
@@ -1372,7 +1343,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils/lrc/" class="md-nav__link">
+      <a href="../lrc/" class="md-nav__link">
         
   
   
@@ -1400,7 +1371,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils/m3u/" class="md-nav__link">
+      <a href="../m3u/" class="md-nav__link">
         
   
   
@@ -1428,7 +1399,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils/web/" class="md-nav__link">
+      <a href="../web/" class="md-nav__link">
         
   
   
@@ -1456,7 +1427,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils/downloader/" class="md-nav__link">
+      <a href="../downloader/" class="md-nav__link">
         
   
   
@@ -1507,7 +1478,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="reference/types/" class="md-nav__link ">
+            <a href="../../types/" class="md-nav__link ">
               
   
   
@@ -1549,7 +1520,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/types/album/" class="md-nav__link">
+      <a href="../../types/album/" class="md-nav__link">
         
   
   
@@ -1577,7 +1548,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/types/song/" class="md-nav__link">
+      <a href="../../types/song/" class="md-nav__link">
         
   
   
@@ -1605,7 +1576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/types/saved/" class="md-nav__link">
+      <a href="../../types/saved/" class="md-nav__link">
         
   
   
@@ -1633,7 +1604,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/types/playlist/" class="md-nav__link">
+      <a href="../../types/playlist/" class="md-nav__link">
         
   
   
@@ -1661,7 +1632,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/types/result/" class="md-nav__link">
+      <a href="../../types/result/" class="md-nav__link">
         
   
   
@@ -1689,7 +1660,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/types/artist/" class="md-nav__link">
+      <a href="../../types/artist/" class="md-nav__link">
         
   
   
@@ -1717,7 +1688,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/types/options/" class="md-nav__link">
+      <a href="../../types/options/" class="md-nav__link">
         
   
   
@@ -1768,7 +1739,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="reference/web/" class="md-nav__link ">
+            <a href="../../web/" class="md-nav__link ">
               
   
   
@@ -1810,7 +1781,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/web/api/" class="md-nav__link">
+      <a href="../../web/api/" class="md-nav__link">
         
   
   
@@ -1838,7 +1809,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/web/routes/" class="md-nav__link">
+      <a href="../../web/routes/" class="md-nav__link">
         
   
   
@@ -1866,7 +1837,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/web/utils/" class="md-nav__link">
+      <a href="../../web/utils/" class="md-nav__link">
         
   
   
@@ -1917,7 +1888,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="reference/console/" class="md-nav__link ">
+            <a href="../../console/" class="md-nav__link ">
               
   
   
@@ -1959,7 +1930,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/console/meta/" class="md-nav__link">
+      <a href="../../console/meta/" class="md-nav__link">
         
   
   
@@ -1987,7 +1958,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/console/entry_point/" class="md-nav__link">
+      <a href="../../console/entry_point/" class="md-nav__link">
         
   
   
@@ -2015,7 +1986,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/console/save/" class="md-nav__link">
+      <a href="../../console/save/" class="md-nav__link">
         
   
   
@@ -2043,7 +2014,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/console/sync/" class="md-nav__link">
+      <a href="../../console/sync/" class="md-nav__link">
         
   
   
@@ -2071,7 +2042,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/console/url/" class="md-nav__link">
+      <a href="../../console/url/" class="md-nav__link">
         
   
   
@@ -2099,7 +2070,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/console/web/" class="md-nav__link">
+      <a href="../../console/web/" class="md-nav__link">
         
   
   
@@ -2127,7 +2098,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/console/download/" class="md-nav__link">
+      <a href="../../console/download/" class="md-nav__link">
         
   
   
@@ -2178,7 +2149,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="reference/download/" class="md-nav__link ">
+            <a href="../../download/" class="md-nav__link ">
               
   
   
@@ -2220,7 +2191,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/download/progress_handler/" class="md-nav__link">
+      <a href="../../download/progress_handler/" class="md-nav__link">
         
   
   
@@ -2248,7 +2219,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/download/downloader/" class="md-nav__link">
+      <a href="../../download/downloader/" class="md-nav__link">
         
   
   
@@ -2299,7 +2270,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="reference/providers/" class="md-nav__link ">
+            <a href="../../providers/" class="md-nav__link ">
               
   
   
@@ -2356,7 +2327,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="reference/providers/lyrics/" class="md-nav__link ">
+            <a href="../../providers/lyrics/" class="md-nav__link ">
               
   
   
@@ -2398,7 +2369,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/providers/lyrics/base/" class="md-nav__link">
+      <a href="../../providers/lyrics/base/" class="md-nav__link">
         
   
   
@@ -2426,7 +2397,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/providers/lyrics/azlyrics/" class="md-nav__link">
+      <a href="../../providers/lyrics/azlyrics/" class="md-nav__link">
         
   
   
@@ -2454,7 +2425,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/providers/lyrics/synced/" class="md-nav__link">
+      <a href="../../providers/lyrics/synced/" class="md-nav__link">
         
   
   
@@ -2482,7 +2453,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/providers/lyrics/genius/" class="md-nav__link">
+      <a href="../../providers/lyrics/genius/" class="md-nav__link">
         
   
   
@@ -2510,7 +2481,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/providers/lyrics/musixmatch/" class="md-nav__link">
+      <a href="../../providers/lyrics/musixmatch/" class="md-nav__link">
         
   
   
@@ -2561,7 +2532,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="reference/providers/audio/" class="md-nav__link ">
+            <a href="../../providers/audio/" class="md-nav__link ">
               
   
   
@@ -2603,7 +2574,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/providers/audio/base/" class="md-nav__link">
+      <a href="../../providers/audio/base/" class="md-nav__link">
         
   
   
@@ -2631,7 +2602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/providers/audio/ytmusic/" class="md-nav__link">
+      <a href="../../providers/audio/ytmusic/" class="md-nav__link">
         
   
   
@@ -2659,7 +2630,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/providers/audio/bandcamp/" class="md-nav__link">
+      <a href="../../providers/audio/bandcamp/" class="md-nav__link">
         
   
   
@@ -2687,7 +2658,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/providers/audio/piped/" class="md-nav__link">
+      <a href="../../providers/audio/piped/" class="md-nav__link">
         
   
   
@@ -2715,7 +2686,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/providers/audio/sliderkz/" class="md-nav__link">
+      <a href="../../providers/audio/sliderkz/" class="md-nav__link">
         
   
   
@@ -2743,7 +2714,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/providers/audio/youtube/" class="md-nav__link">
+      <a href="../../providers/audio/youtube/" class="md-nav__link">
         
   
   
@@ -2771,7 +2742,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/providers/audio/soundcloud/" class="md-nav__link">
+      <a href="../../providers/audio/soundcloud/" class="md-nav__link">
         
   
   
@@ -2835,135 +2806,435 @@
   
 
 
-<!--- mdformat-toc start --slug=github --->
+  <h1>spotify</h1>
 
-<!---
-!!! IF EDITING THE README, ENSURE TO COPY THE WHOLE FILE TO index.md in `/docs/` AND REMOVE THE REFERENCES TO ReadTheDocs THERE.
-!!! ENSURE TO UPDATE LINKS AND REMOVE HTML FORMATTING
---->
+<div class="doc doc-object doc-module">
 
-<h1 id="spotdl-v4">spotDL v4<a class="headerlink" href="#spotdl-v4" title="Permanent link">¤</a></h1>
-<p><strong>spotDL</strong> finds songs from Spotify playlists on YouTube and downloads them - along with album art, lyrics and metadata.</p>
-<p><a href="https://github.com/spotDL/spotify-downloader/blob/master/LICENSE"><img alt="MIT License" src="https://img.shields.io/github/license/spotdl/spotify-downloader?color=44CC11&amp;style=flat-square" /></a>
-<a href="https://pypi.org/project/spotdl/"><img alt="PyPI version" src="https://img.shields.io/pypi/pyversions/spotDL?color=%2344CC11&amp;style=flat-square" /></a>
-<a href="https://pypi.org/project/spotdl/"><img alt="PyPi downloads" src="https://img.shields.io/pypi/dw/spotDL?label=downloads@pypi&amp;color=344CC11&amp;style=flat-square" /></a>
-<img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/spotDL/spotify-downloader" />
-<img alt="Contributors" src="https://img.shields.io/github/contributors/spotDL/spotify-downloader?style=flat-square" />
-<a href="https://discord.gg/xCa23pwJWY"><img alt="Discord" src="https://img.shields.io/discord/771628785447337985?label=discord&amp;logo=discord&amp;style=flat-square" /></a></p>
-<blockquote>
-<p>spotDL: The fastest, easiest and most accurate command-line music downloader.</p>
-</blockquote>
-<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">¤</a></h2>
-<p>Refer to our <a href="installation/">Installation Guide</a> for more details.</p>
-<h3 id="python-recommended-method">Python (Recommended Method)<a class="headerlink" href="#python-recommended-method" title="Permanent link">¤</a></h3>
-<ul>
-<li><em>spotDL</em> can be installed by running <code>pip install spotdl</code>.</li>
-<li>To update spotDL run <code>pip install --upgrade spotdl</code></li>
-</ul>
-<blockquote>
-<p>On some systems you might have to change <code>pip</code> to <code>pip3</code>.</p>
-</blockquote>
-<h3 id="other-options">Other options<a class="headerlink" href="#other-options" title="Permanent link">¤</a></h3>
-<ul>
-<li>Prebuilt executable<ul>
-<li>Download the latest version from the <a href="https://github.com/spotDL/spotify-downloader/releases">Releases Tab</a>.</li>
-</ul>
-</li>
-<li>On Termux<ul>
-<li><code>curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/scripts/termux.sh | sh</code></li>
-</ul>
-</li>
-<li>Arch<ul>
-<li>There is an <a href="https://aur.archlinux.org/packages/spotdl/">Arch User Repository (AUR) package</a> for spotDL.</li>
-</ul>
-</li>
-<li>
-<p>Docker</p>
-<ul>
-<li>Build image:</li>
-</ul>
-<div class="language-bash highlight"><pre><span></span><code>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>spotdl<span class="w"> </span>.
-</code></pre></div>
-<ul>
-<li>Launch container with spotDL parameters (see section below). You need to create mapped
-  volume to access song files</li>
-</ul>
-<div class="language-bash highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/music<span class="w"> </span>spotdl<span class="w"> </span>download<span class="w"> </span><span class="o">[</span>trackUrl<span class="o">]</span>
-</code></pre></div>
-<p>If you bind-mount <code>$(pwd):/music</code>, that host directory must be writable by the container
-  <code>UID</code>/<code>GID</code>.</p>
-<ul>
-<li>Use Docker Compose if you want Docker to manage permissions for you:</li>
-</ul>
-<div class="language-bash highlight"><pre><span></span><code><span class="c1"># Set your user ID and group ID (recommended)</span>
-<span class="c1"># This ensures downloaded files are owned by your user instead of root</span>
-<span class="c1"># If you don&#39;t set this, files will be owned by user 1000</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">PUID</span><span class="o">=</span><span class="k">$(</span>id<span class="w"> </span>-u<span class="k">)</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">PGID</span><span class="o">=</span><span class="k">$(</span>id<span class="w"> </span>-g<span class="k">)</span>
 
-<span class="c1"># Build and download</span>
-docker<span class="w"> </span>compose<span class="w"> </span>build
-docker<span class="w"> </span>compose<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>spotdl<span class="w"> </span>download<span class="w"> </span><span class="o">[</span>trackUrl<span class="o">]</span>
+
+<a id="spotdl.utils.spotify"></a>
+    <div class="doc doc-contents first">
+
+        <p>Module for interacting with Spotify API.
+To use this module, you must have a Spotify API key and Spotify API secret.</p>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">spotdl.utils.spotify</span>
+<span class="n">spotify</span><span class="o">.</span><span class="n">Spotify</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">client_id</span><span class="p">,</span> <span class="n">client_secret</span><span class="p">)</span>
 </code></pre></div>
-<p>Docker Compose mounts <code>spotdl_music:/music</code> and stores downloads in that volume.
-  Export files:</p>
-<div class="language-bash highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>--no-start<span class="w"> </span>spotdl
-mkdir<span class="w"> </span>-p<span class="w"> </span>downloads
-docker<span class="w"> </span>compose<span class="w"> </span>cp<span class="w"> </span>spotdl:/music/.<span class="w"> </span>./downloads/
-</code></pre></div>
-</li>
-<li>
-<p>Build from source</p>
-<div class="language-bash highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/spotDL/spotify-downloader<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>spotify-downloader
-pip<span class="w"> </span>install<span class="w"> </span>uv
-uv<span class="w"> </span>sync
-uv<span class="w"> </span>run<span class="w"> </span>scripts/build.py
-</code></pre></div>
-<p>An executable is created in <code>spotify-downloader/dist/</code>.</p>
-</li>
-</ul>
-<h3 id="installing-ffmpeg">Installing FFmpeg<a class="headerlink" href="#installing-ffmpeg" title="Permanent link">¤</a></h3>
-<p>FFmpeg is required for spotDL. If using FFmpeg only for spotDL, you can simply install FFmpeg to your spotDL installation directory:
-<code>spotdl --download-ffmpeg</code></p>
-<p>We recommend the above option, but if you want to install FFmpeg system-wide,
-follow these instructions</p>
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="spotdl.utils.spotify.SpotifyClient" class="doc doc-heading">
+            <code>SpotifyClient</code>
+
+
+<a href="#spotdl.utils.spotify.SpotifyClient" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+
+        <p>Runtime-selected Spotify client facade.</p>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="spotdl.utils.spotify.SpotifyClient.__getattr__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__getattr__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.spotify.SpotifyClient.__getattr__" class="headerlink" title="Permanent link">¤</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>The selected backend provides Spotify API methods at runtime.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>spotdl/utils/spotify.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The selected backend provides Spotify API methods at runtime.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="spotdl.utils.spotify.SpotifyClient.__new__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__new__</span><span class="p">()</span></code>
+
+<a href="#spotdl.utils.spotify.SpotifyClient.__new__" class="headerlink" title="Permanent link">¤</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return the initialized Spotify client implementation.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>spotdl/utils/spotify.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the initialized Spotify client implementation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">SpotifyError</span><span class="p">(</span>
+            <span class="s2">&quot;Spotify client not created. Call SpotifyClient.init&quot;</span>
+            <span class="s2">&quot;(&quot;</span>
+            <span class="s2">&quot;client_id, client_secret, user_auth=False, no_cache=False, &quot;</span>
+            <span class="s2">&quot;headless=False, max_retries=3, use_cache_file=False, &quot;</span>
+            <span class="s2">&quot;use_official_api=False, auth_token=None, cache_path=None&quot;</span>
+            <span class="s2">&quot;) first.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_instance</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="spotdl.utils.spotify.SpotifyClient.init" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">init</span><span class="p">(</span><span class="n">client_id</span><span class="p">,</span> <span class="n">client_secret</span><span class="p">,</span> <span class="n">user_auth</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">no_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">headless</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_retries</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">use_cache_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_official_api</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">auth_token</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+<a href="#spotdl.utils.spotify.SpotifyClient.init" class="headerlink" title="Permanent link">¤</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Initializes the selected SpotifyClient implementation.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>spotdl/utils/spotify.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">init</span><span class="p">(</span>
+    <span class="bp">cls</span><span class="p">,</span>
+    <span class="n">client_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">client_secret</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">user_auth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">no_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">headless</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="n">use_cache_file</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">use_official_api</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">auth_token</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">cache_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initializes the selected SpotifyClient implementation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_instance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">SpotifyError</span><span class="p">(</span><span class="s2">&quot;A spotify client has already been initialized&quot;</span><span class="p">)</span>
+
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;client_id&quot;</span><span class="p">:</span> <span class="n">client_id</span><span class="p">,</span>
+        <span class="s2">&quot;client_secret&quot;</span><span class="p">:</span> <span class="n">client_secret</span><span class="p">,</span>
+        <span class="s2">&quot;user_auth&quot;</span><span class="p">:</span> <span class="n">user_auth</span><span class="p">,</span>
+        <span class="s2">&quot;no_cache&quot;</span><span class="p">:</span> <span class="n">no_cache</span><span class="p">,</span>
+        <span class="s2">&quot;headless&quot;</span><span class="p">:</span> <span class="n">headless</span><span class="p">,</span>
+        <span class="s2">&quot;max_retries&quot;</span><span class="p">:</span> <span class="n">max_retries</span><span class="p">,</span>
+        <span class="s2">&quot;use_cache_file&quot;</span><span class="p">:</span> <span class="n">use_cache_file</span><span class="p">,</span>
+        <span class="s2">&quot;auth_token&quot;</span><span class="p">:</span> <span class="n">auth_token</span><span class="p">,</span>
+        <span class="s2">&quot;cache_path&quot;</span><span class="p">:</span> <span class="n">cache_path</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">official_only_options</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">option</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">OFFICIAL_API_ONLY_OPTIONS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">official_only_options</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">use_official_api</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Using the official Spotify Web API because </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> requested.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">official_only_options</span><span class="p">),</span>
+            <span class="s2">&quot;was&quot;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">official_only_options</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;were&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">use_official_api</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="n">use_official_api</span><span class="p">:</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_instance</span> <span class="o">=</span> <span class="n">_init_official_spotify_client</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_instance</span> <span class="o">=</span> <span class="n">_init_free_spotify_client</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="bp">cls</span><span class="o">.</span><span class="n">_use_official_api</span> <span class="o">=</span> <span class="n">use_official_api</span>
+
+    <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_instance</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="spotdl.utils.spotify.SpotifyClient.is_using_official_api" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">is_using_official_api</span><span class="p">()</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+<a href="#spotdl.utils.spotify.SpotifyClient.is_using_official_api" class="headerlink" title="Permanent link">¤</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Returns whether the active client uses the official Spotify Web API.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>spotdl/utils/spotify.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_using_official_api</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns whether the active client uses the official Spotify Web API.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_use_official_api</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="spotdl.utils.spotify.SpotifyError" class="doc doc-heading">
+            <code>SpotifyError</code>
+
+
+<a href="#spotdl.utils.spotify.SpotifyError" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="Exception">Exception</span></code></p>
+
+
+        <p>Base class for all exceptions related to SpotifyClient.</p>
+
+
+
+
+
+
+
+    </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="spotdl.utils.spotify.save_spotify_cache" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">save_spotify_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.spotify.save_spotify_cache" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Saves the Spotify cache to a file when the official API client is active.</p>
+<h5 id="spotdl.utils.spotify.save_spotify_cache--arguments">Arguments<a class="headerlink" href="#spotdl.utils.spotify.save_spotify_cache--arguments" title="Permanent link">¤</a></h5>
 <ul>
-<li><a href="https://windowsloop.com/install-ffmpeg-windows-10/">Windows Tutorial</a></li>
-<li>OSX - <code>brew install ffmpeg</code></li>
-<li>Linux - <code>sudo apt install ffmpeg</code> or use your distro's package manager</li>
+<li>cache: The cache to save.</li>
 </ul>
-<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¤</a></h2>
-<p>Using SpotDL without options:</p>
-<div class="language-sh highlight"><pre><span></span><code>spotdl<span class="w"> </span><span class="o">[</span>urls<span class="o">]</span>
-</code></pre></div>
-<p>You can run <em>spotDL</em> as a package if running it as a script doesn't work:</p>
-<div class="language-sh highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>spotdl<span class="w"> </span><span class="o">[</span>urls<span class="o">]</span>
-</code></pre></div>
-<p>General usage:</p>
-<div class="language-sh highlight"><pre><span></span><code>spotdl<span class="w"> </span><span class="o">[</span>operation<span class="o">]</span><span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span>QUERY
-</code></pre></div>
-<p>There are different <strong>operations</strong> spotDL can perform. The <em>default</em> is <code>download</code>, which simply downloads the songs from YouTube and embeds metadata.</p>
-<p>The <strong>query</strong> for spotDL is usually a list of Spotify URLs, but for some operations like <strong>sync</strong>, only a single link or file is required.
-For a list of all <strong>options</strong> use <code>spotdl -h</code></p>
-<h3 id="refer-to-usage-for-more-info">Refer to <a href="usage/">Usage</a> for more info.<a class="headerlink" href="#refer-to-usage-for-more-info" title="Permanent link">¤</a></h3>
-<h2 id="music-sourcing-and-audio-quality">Music Sourcing and Audio Quality<a class="headerlink" href="#music-sourcing-and-audio-quality" title="Permanent link">¤</a></h2>
-<p>spotDL uses YouTube as a source for music downloads. This method is used to avoid any issues related to downloading music from Spotify.</p>
-<blockquote>
-<p><strong>Note</strong>
-Users are responsible for their actions and potential legal consequences. We do not support unauthorized downloading of copyrighted material and take no responsibility for user actions.</p>
-</blockquote>
-<h3 id="audio-quality">Audio Quality<a class="headerlink" href="#audio-quality" title="Permanent link">¤</a></h3>
-<p>spotDL downloads music from YouTube and is designed to always download the highest possible bitrate; which is 128 kbps for regular users and 256 kbps for YouTube Music premium users.</p>
-<p>Check the <a href="usage/#audio-formats-and-quality">Audio Formats</a> page for more info.</p>
-<h2 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">¤</a></h2>
-<p>Interested in contributing? Check out our <a href="CONTRIBUTING/">CONTRIBUTING.md</a> to find
-resources around contributing along with a guide on how to set up a development environment.</p>
-<h3 id="join-our-amazing-community-as-a-code-contributor">Join our amazing community as a code contributor<a class="headerlink" href="#join-our-amazing-community-as-a-code-contributor" title="Permanent link">¤</a></h3>
-<p><a href="https://github.com/spotDL/spotify-downloader/graphs/contributors">
-  <img class="dark-light" src="https://contrib.rocks/image?repo=spotDL/spotify-downloader&anon=0&columns=25&max=100&r=true" />
-</a></p>
-<h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">¤</a></h2>
-<p>This project is Licensed under the <a href="https://github.com/spotDL/spotify-downloader/blob/master/LICENSE">MIT</a> License.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>spotdl/utils/spotify.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">save_spotify_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Saves the Spotify cache to a file when the official API client is active.</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - cache: The cache to save.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">SpotifyClient</span><span class="o">.</span><span class="n">is_using_official_api</span><span class="p">():</span>
+        <span class="k">return</span>
+
+    <span class="n">cache_file_loc</span> <span class="o">=</span> <span class="n">get_spotify_cache_path</span><span class="p">()</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Saving Spotify cache to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">cache_file_loc</span><span class="p">)</span>
+
+    <span class="n">cache</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">key</span><span class="p">:</span> <span class="n">value</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">cache</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;tracks/&quot;</span> <span class="ow">in</span> <span class="n">key</span>
+    <span class="p">}</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_file_loc</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cache_file</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">cache_file</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
 
 
 
@@ -3019,10 +3290,10 @@ resources around contributing along with a guide on how to set up a development 
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["content.code.annotate", "navigation.tabs", "navigation.top", "toc.integrate"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.annotate", "navigation.tabs", "navigation.top", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
