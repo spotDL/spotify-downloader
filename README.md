@@ -37,14 +37,15 @@ Refer to our [Installation Guide](docs/installation.md) for more details.
 
   > On some systems you might have to change `pip` to `pip3`.
 
-<details>
-    <summary style="font-size:1.25em"><strong>Other options</strong></summary>
-
-- Prebuilt executable
+### Prebuilt executable
   - You can download the latest version from the
     [Releases Tab](https://github.com/spotDL/spotify-downloader/releases)
-- On Termux
+
+### On Termux
   - `curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/scripts/termux.sh | sh`
+  
+<details>
+    <summary style="font-size:1.25em"><strong>Other options</strong></summary>
 - Arch
   - There is an [Arch User Repository (AUR) package](https://aur.archlinux.org/packages/spotdl/) for
     spotDL.
