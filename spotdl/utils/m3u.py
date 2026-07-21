@@ -100,11 +100,7 @@ def gen_m3u_files(
 
     # If file_name ends with a slash. Does not have a m3u8 name with extension
     # at the end of the template, append `{list[0]}`` to it
-    if (
-        file_name.endswith("/")
-        or file_name.endswith(r"\\")
-        or file_name.endswith("\\\\")
-    ):
+    if file_name.endswith("/") or file_name.endswith("\\"):
         file_name += "/{list[0]}.m3u8"
 
     # Check if the file name ends with .m3u or .m3u8
