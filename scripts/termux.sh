@@ -1,12 +1,12 @@
 # setup-storage
 termux-setup-storage
 
-# update packages
+# update packages and add python3.13 to available packages
 pkg update -y
 pkg install tur-repo -y
 pkg update -y
 
-# install python and ffmpeg
+# install python3.13, ffmpeg, and libs needed for compiling spotdl deps
 pkg install -y python3.13 ffmpeg rust binutils
 
 # install spotdl
