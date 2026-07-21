@@ -11,6 +11,7 @@ pkg install -y python3.13 ffmpeg rust binutils
 
 # install spotdl
 pip3.13 install -U spotdl
+pip3.13 install -U --pre curl_cffi
 
 if [ ! -d "$HOME/bin" ]; then
     mkdir "$HOME/bin"
