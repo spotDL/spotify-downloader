@@ -3,12 +3,14 @@ termux-setup-storage
 
 # update packages
 pkg update -y
+pkg install tur-repo -y
+pkg update -y
 
 # install python and ffmpeg
-pkg install -y python ffmpeg rust binutils
+pkg install -y python3.13 ffmpeg rust binutils
 
 # install spotdl
-pip install -U spotdl
+pip3.13 install -U spotdl
 
 if [ ! -d "$HOME/bin" ]; then
     mkdir "$HOME/bin"
