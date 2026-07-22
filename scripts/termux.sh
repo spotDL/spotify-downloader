@@ -21,7 +21,7 @@ if [ ! -f "$HOME/bin/termux-url-opener" ]; then
     touch $HOME/bin/termux-url-opener
 fi
 
-cat > $HOME/bin/termux-url-opener <<EOL
+cat > $HOME/bin/termux-url-opener <<'EOL'
 #!/data/data/com.termux/files/usr/bin/bash
 SONGS="$HOME/storage/shared/songs"
 SPOTDL="/data/data/com.termux/files/usr/bin/spotdl"
