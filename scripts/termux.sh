@@ -3,7 +3,7 @@ termux-setup-storage
 
 # update packages and add python3.13 to available packages
 pkg update -y
-pkg install tur-repo -y
+pkg install -y tur-repo
 pkg update -y
 
 # install python3.13 and ffmpeg
