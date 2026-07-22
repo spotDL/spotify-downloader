@@ -6,7 +6,7 @@ pkg update -y
 pkg install tur-repo -y
 pkg update -y
 
-# install python3.13, ffmpeg, and libs needed for compiling spotdl deps
+# install python3.13 and ffmpeg
 pkg install -y python3.13 ffmpeg rust binutils
 
 # install spotdl
