@@ -10,7 +10,8 @@ pkg update -y
 pkg install -y python3.13 ffmpeg rust binutils
 
 # install spotdl
-pip3.13 install -U spotdl
+python3.13 -m ensurepip --upgrade
+python3.13 -m pip install -U spotdl
 
 if [ ! -d "$HOME/bin" ]; then
     mkdir "$HOME/bin"
