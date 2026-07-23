@@ -83,7 +83,9 @@ def test_song_from_url():
     Tests if Song.from_url() works correctly.
     """
 
-    song = Song.from_url("https://open.spotify.com/track/1t2qKa8K72IBC8yQlhD9bU")
+    song = Song.from_url(
+        "https://open.spotify.com/intl-pt/track/1t2qKa8K72IBC8yQlhD9bU"
+    )
 
     assert song.name == "Ropes"
     assert song.artists == ["Dirty Palm", "Chandler Jewels"]

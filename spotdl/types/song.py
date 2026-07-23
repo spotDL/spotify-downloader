@@ -3,6 +3,7 @@ Song module that hold the Song and SongList classes.
 """
 
 import json
+import re
 from dataclasses import asdict, dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -76,7 +77,7 @@ class Song:
 
         if "open.spotify.com" not in url or "track" not in url:
             raise SongError(f"Invalid URL: {url}")
-
+        url = re.sub(r"\/intl-\w+\/", "/", url)
         # query spotify for song, artist, album details
         spotify_client = SpotifyClient()
 
