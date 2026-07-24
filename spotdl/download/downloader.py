@@ -99,6 +99,7 @@ class Downloader:
         self,
         settings: Optional[Union[DownloaderOptionalOptions, DownloaderOptions]] = None,
         loop: Optional[asyncio.AbstractEventLoop] = None,
+        skip_ffmpeg_check: bool = False,
     ):
         """
         Initialize the Downloader class.
@@ -106,6 +107,7 @@ class Downloader:
         ### Arguments
         - settings: The settings to use.
         - loop: The event loop to use.
+        - skip_ffmpeg_check: Whether to skip FFmpeg installation check.
 
         ### Notes
         - `search-query` uses the same format as `output`.
@@ -123,6 +125,9 @@ class Downloader:
                 Namespace(config=False), dict(settings), DOWNLOADER_OPTIONS
             )  # type: ignore
         )
+        
+        # Skip FFmpeg check if requested (e.g., for remove command)
+        self.skip_ffmpeg_check = skip_ffmpeg_check
 
         # Handle deprecated values in config file
         modernize_settings(self.settings)
@@ -137,7 +142,7 @@ class Downloader:
         # If ffmpeg is the default value and it's not installed
         # try to use the spotdl's ffmpeg
         self.ffmpeg = self.settings["ffmpeg"]
-        if self.ffmpeg == "ffmpeg" and shutil.which("ffmpeg") is None:
+        if not self.skip_ffmpeg_check and self.ffmpeg == "ffmpeg" and shutil.which("ffmpeg") is None:
             ffmpeg_exec = get_ffmpeg_path()
             if ffmpeg_exec is None:
                 raise DownloaderError("ffmpeg is not installed")
