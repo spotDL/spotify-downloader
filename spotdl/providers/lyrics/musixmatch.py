@@ -5,8 +5,8 @@ MusixMatch lyrics provider.
 from typing import Dict, List, Optional
 from urllib.parse import quote
 
-import requests
 from bs4 import BeautifulSoup
+from curl_cffi import requests
 
 from spotdl.providers.lyrics.base import LyricsProvider
 from spotdl.utils.config import GlobalConfig
@@ -31,11 +31,16 @@ class MusixMatch(LyricsProvider):
         - The lyrics of the song or None if no lyrics were found.
         """
 
+        # Headers are intentionally not overridden here: curl_cffi's Chrome
+        # impersonation already sends a coherent, up-to-date header set that
+        # matches the TLS/JA3 fingerprint it presents. Pinning our own static
+        # (and increasingly stale) header dict on top would reintroduce the
+        # UA/TLS mismatch that got these requests blocked in the first place.
         lyrics_resp = requests.get(
             url,
-            headers=self.headers,
             timeout=10,
             proxies=GlobalConfig.get_parameter("proxies"),
+            impersonate="chrome",
         )
 
         lyrics_soup = BeautifulSoup(lyrics_resp.text, "html.parser")
@@ -71,11 +76,13 @@ class MusixMatch(LyricsProvider):
             query += "/tracks"
 
         search_url = f"https://www.musixmatch.com/search/{query}"
+        # See the comment in extract_lyrics() about not overriding headers
+        # when impersonating a browser's TLS/JA3 fingerprint.
         search_resp = requests.get(
             search_url,
-            headers=self.headers,
             timeout=10,
             proxies=GlobalConfig.get_parameter("proxies"),
+            impersonate="chrome",
         )
 
         if not search_resp.ok:
