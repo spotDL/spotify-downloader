@@ -2,11 +2,10 @@
 MusixMatch lyrics provider.
 """
 
+import time
 from typing import Dict, List, Optional
-from urllib.parse import quote
 
-from bs4 import BeautifulSoup
-from curl_cffi import requests
+import requests
 
 from spotdl.providers.lyrics.base import LyricsProvider
 from spotdl.utils.config import GlobalConfig
@@ -17,37 +16,73 @@ __all__ = ["MusixMatch"]
 class MusixMatch(LyricsProvider):
     """
     MusixMatch lyrics provider class.
+
+    Uses MusixMatch's internal desktop-app API instead of scraping
+    musixmatch.com: the public site's search page sits behind a WAF that
+    blocks non-browser requests regardless of TLS fingerprint or headers
+    (see #2741), but the desktop API used by other unofficial MusixMatch
+    clients (e.g. syncedlyrics) is not affected.
     """
 
-    def extract_lyrics(self, url: str, **_) -> Optional[str]:
-        """
-        Extracts the lyrics from the given url.
+    ROOT_URL = "https://apic-desktop.musixmatch.com/ws/1.1/"
+    APP_ID = "web-desktop-app-v1.0"
 
-        ### Arguments
-        - url: The url to extract the lyrics from.
-        - kwargs: Additional arguments.
+    def __init__(self) -> None:
+        super().__init__()
+        self._token: Optional[str] = None
 
-        ### Returns
-        - The lyrics of the song or None if no lyrics were found.
-        """
+    def _call(self, action: str, params: List[tuple]) -> dict:
+        query = [*params, ("app_id", self.APP_ID)]
+        if self._token is not None:
+            query.append(("usertoken", self._token))
+        query.append(("t", str(int(time.time() * 1000))))
 
-        # Headers are intentionally not overridden here: curl_cffi's Chrome
-        # impersonation already sends a coherent, up-to-date header set that
-        # matches the TLS/JA3 fingerprint it presents. Pinning our own static
-        # (and increasingly stale) header dict on top would reintroduce the
-        # UA/TLS mismatch that got these requests blocked in the first place.
-        lyrics_resp = requests.get(
-            url,
+        response = requests.get(
+            self.ROOT_URL + action,
+            params=query,
             timeout=10,
             proxies=GlobalConfig.get_parameter("proxies"),
-            impersonate="chrome",
         )
+        response.raise_for_status()
+        return response.json()["message"]
 
-        lyrics_soup = BeautifulSoup(lyrics_resp.text, "html.parser")
-        lyrics_paragraphs = lyrics_soup.select("p.mxm-lyrics__content")
-        lyrics = "\n".join(i.get_text() for i in lyrics_paragraphs)
+    def _get_token(self) -> Optional[str]:
+        """
+        Fetches a fresh usertoken. MusixMatch occasionally answers the
+        first attempt or two with a "captcha" hint; retrying after a short
+        delay (the same workaround other MusixMatch API clients use)
+        resolves it.
+        """
+        for _ in range(3):
+            message = self._call("token.get", [("user_language", "en")])
+            header = message["header"]
+            if header["status_code"] == 200:
+                return message["body"]["user_token"]
+            if header.get("hint") != "captcha":
+                return None
+            time.sleep(10)
+        return None
 
-        return lyrics
+    def _call_authenticated(self, action: str, params: List[tuple]) -> dict:
+        """
+        Like `_call`, but makes sure a usertoken is set first, and retries
+        once with a freshly fetched token if MusixMatch reports that the
+        current one needs renewing (tokens appear to be short-lived/
+        single-use on this API).
+        """
+        if self._token is None:
+            self._token = self._get_token()
+        if self._token is None:
+            return {"header": {"status_code": 401}}
+
+        message = self._call(action, params)
+        if message["header"]["status_code"] == 401:
+            self._token = self._get_token()
+            if self._token is None:
+                return message
+            message = self._call(action, params)
+
+        return message
 
     def get_results(self, name: str, artists: List[str], **kwargs) -> Dict[str, str]:
         """
@@ -59,55 +94,61 @@ class MusixMatch(LyricsProvider):
         - kwargs: Additional arguments.
 
         ### Returns
-        - A dictionary with the results. (The key is the title and the value is the url.)
+        - A dictionary with the results. (The key is the title and the
+          value is the MusixMatch track id.)
         """
 
-        track_search = kwargs.get("track_search", False)
         artists_str = ", ".join(
             artist for artist in artists if artist.lower() not in name.lower()
         )
-
-        # quote the query so that it's safe to use in a url
-        # e.g "Au/Ra" -> "Au%2FRa"
-        query = quote(f"{name} - {artists_str}", safe="")
-
-        # search the `tracks page` if track_search is True
-        if track_search:
-            query += "/tracks"
-
-        search_url = f"https://www.musixmatch.com/search/{query}"
-        # See the comment in extract_lyrics() about not overriding headers
-        # when impersonating a browser's TLS/JA3 fingerprint.
-        search_resp = requests.get(
-            search_url,
-            timeout=10,
-            proxies=GlobalConfig.get_parameter("proxies"),
-            impersonate="chrome",
+        message = self._call_authenticated(
+            "track.search",
+            [
+                ("q", f"{name} {artists_str}".strip()),
+                ("page_size", "20"),
+                ("page", "1"),
+            ],
         )
 
-        if not search_resp.ok:
-            raise RuntimeError(
-                f"Received HTTP {search_resp.status_code} from {search_url}"
-            )
+        if message["header"]["status_code"] != 200:
+            return {}
 
-        search_soup = BeautifulSoup(search_resp.text, "html.parser")
-        song_url_tag = search_soup.select("a[href^='/lyrics/']")
-
-        if not song_url_tag:
-            # song_url_tag being None means no results were found on the
-            # All Results page, therefore, we use `track_search` to
-            # search the tracks page.
-
-            # track_serach being True means we are already searching the tracks page.
-            if track_search:
-                return {}
-
-            return self.get_results(name, artists, track_search=True)
+        body = message.get("body")
+        track_list = body.get("track_list") if isinstance(body, dict) else None
+        if not track_list:
+            return {}
 
         results: Dict[str, str] = {}
-        for tag in song_url_tag:
-            results[tag.get_text()] = "https://www.musixmatch.com" + str(
-                tag.get("href", "")
-            )
+        for entry in track_list:
+            track = entry["track"]
+            # Plenty of user-uploaded remixes/speed-ups show up in search
+            # with no lyrics attached; skip those rather than matching on
+            # title alone and getting an empty result from extract_lyrics.
+            if not track.get("has_lyrics"):
+                continue
+            title = f"{track['track_name']} - {track['artist_name']}"
+            results[title] = str(track["track_id"])
 
         return results
+
+    def extract_lyrics(self, url: str, **_) -> Optional[str]:
+        """
+        Extracts the lyrics for the given song.
+
+        ### Arguments
+        - url: The MusixMatch track id, as returned by `get_results`.
+        - kwargs: Additional arguments.
+
+        ### Returns
+        - The lyrics of the song or None if no lyrics were found.
+        """
+
+        message = self._call_authenticated("track.lyrics.get", [("track_id", url)])
+        if message["header"]["status_code"] != 200:
+            return None
+
+        body = message.get("body")
+        if not body:
+            return None
+
+        return body["lyrics"]["lyrics_body"]
