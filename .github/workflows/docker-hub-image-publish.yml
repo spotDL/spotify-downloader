@@ -25,7 +25,7 @@ env:
 jobs:
   publish:
     name: Publish Docker Image to DockerHub
-    if: ${{ github.repository == 'spotDL/spotify-downloader' }}
+    if: ${{ github.event_name != 'schedule' || github.repository == 'spotDL/spotify-downloader' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
