@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple
 
 from spotdl.types.song import Song, SongList
-from spotdl.utils.spotify import SpotifyClient
+from spotdl.utils.spotify import SpotifyClient, SpotifyError
 
 __all__ = ["Playlist", "PlaylistError"]
 
@@ -45,7 +45,14 @@ class Playlist(SongList):
 
         spotify_client = SpotifyClient()
 
-        playlist = spotify_client.playlist(url)
+        try:
+            playlist = spotify_client.playlist(url)
+        except KeyError as exc:
+            raise SpotifyError(
+                f"Unable to locate your playlist {url}. Please make sure it"
+                " exists and is publicly available."
+            ) from exc
+
         if playlist is None:
             raise PlaylistError("Invalid playlist URL.")
 
