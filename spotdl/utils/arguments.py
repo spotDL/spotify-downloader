@@ -93,6 +93,7 @@ def parse_main_options(parser: _ArgumentGroup):
         is_web = False
 
     is_frozen = getattr(sys, "frozen", False)
+    has_from_csv = "--from-csv" in sys.argv
 
     # If the program is frozen, we and user didn't pass any arguments,
     # or if the user is using the web interface, we don't need to parse
@@ -105,6 +106,11 @@ def parse_main_options(parser: _ArgumentGroup):
             parser._remove_action(operation)  # pylint: disable=protected-access
 
         parser._remove_action(query)  # pylint: disable=protected-access
+
+    # If --from-csv is used, make query optional (nargs="*" instead of "+")
+    if has_from_csv:
+        query.nargs = "*"
+        query.default = []
 
     # Audio provider argument
     parser.add_argument(
@@ -160,6 +166,23 @@ def parse_main_options(parser: _ArgumentGroup):
         const=False,
         help="Disable filtering results.",
     )
+
+    # Add CSV import argument (Exportify workaround)
+    parser.add_argument(
+        "--from-csv",
+        dest="from_csv",
+        type=str,
+        help=(
+            "N|Path to an Exportify CSV file to import songs from.\n"
+            "This is a workaround for the Spotify API's /me/tracks endpoint\n"
+            "which requires Premium on the app owner's account.\n\n"
+            "Usage:\n"
+            "  1. Go to https://exportify.net\n"
+            "  2. Export your liked songs as CSV\n"
+            "  3. Run: spotdl download --from-csv exported.csv\n"
+        ),
+    )
+
 
     # Add use only verified results argument
     parser.add_argument(
