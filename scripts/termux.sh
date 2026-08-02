@@ -15,6 +15,8 @@ pkg install -y python3.13 ffmpeg rust binutils
 export ANDROID_API_LEVEL=$(getprop ro.build.version.sdk 2>/dev/null || echo 24)
 python3.13 -m ensurepip --upgrade
 python3.13 -m pip install -U spotdl
+apt upgrade -y -o Dpkg::Options::="--force-confold"
+
 
 if [ ! -d "$HOME/bin" ]; then
     mkdir "$HOME/bin"
