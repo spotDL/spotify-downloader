@@ -83,9 +83,7 @@ def test_song_from_url():
     Tests if Song.from_url() works correctly.
     """
 
-    song = Song.from_url(
-        "https://open.spotify.com/intl-pt/track/1t2qKa8K72IBC8yQlhD9bU"
-    )
+    song = Song.from_url("https://open.spotify.com/track/1t2qKa8K72IBC8yQlhD9bU")
 
     assert song.name == "Ropes"
     assert song.artists == ["Dirty Palm", "Chandler Jewels"]
@@ -108,6 +106,21 @@ def test_song_from_url():
     assert song.explicit == False
     assert song.download_url == None
     assert song.popularity == 0
+
+
+@pytest.mark.vcr()
+@pytest.mark.default_cassette("test_song_from_url")
+def test_localized_song_url():
+    """
+    Tests if localized spotify urls work
+    """
+
+    song = Song.from_url(
+        "https://open.spotify.com/intl-pt/track/1t2qKa8K72IBC8yQlhD9bU"
+    )
+
+    assert song.name == "Ropes"
+    assert song.song_id == "1t2qKa8K72IBC8yQlhD9bU"
 
 
 # @pytest.mark.vcr()
