@@ -108,6 +108,21 @@ def test_song_from_url():
     assert song.popularity == 0
 
 
+@pytest.mark.vcr()
+@pytest.mark.default_cassette("test_song_from_url")
+def test_localized_song_url():
+    """
+    Tests if localized spotify urls work
+    """
+
+    song = Song.from_url(
+        "https://open.spotify.com/intl-pt/track/1t2qKa8K72IBC8yQlhD9bU"
+    )
+
+    assert song.name == "Ropes"
+    assert song.song_id == "1t2qKa8K72IBC8yQlhD9bU"
+
+
 # @pytest.mark.vcr()
 # def test_song_from_search_term():
 #     """
