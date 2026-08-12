@@ -78,6 +78,7 @@ class Song:
         if "open.spotify.com" not in url or "track" not in url:
             raise SongError(f"Invalid URL: {url}")
         url = re.sub(r"\/intl-\w+\/", "/", url)
+
         # query spotify for song, artist, album details
         spotify_client = SpotifyClient()
 
