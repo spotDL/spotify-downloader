@@ -110,6 +110,7 @@ def meta(query: List[str], downloader: Downloader) -> None:
                 return None
 
             song = search_results[0]
+            song.fetch_album_data()
         else:
             # Song has metadata, so we use it to reinitialize the song object
             # and fill in the missing metadata
