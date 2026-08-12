@@ -319,6 +319,13 @@ def calc_main_artist_match(song: Song, result: Result) -> float:
     # Result has only one artist, but song has multiple artists
     # we can assume that other artists are in the main artist name
     if len(song.artists) > 1 and len(result.artists) == 1:
+        # Credit the main artist first, otherwise an exact main artist match
+        # scores 0.0 whenever the other artists are not folded into the
+        # result's single artist name (they are often in the title instead)
+        main_artist_match = ratio(slug_song_main_artist, slug_result_main_artist) / len(
+            song.artists
+        )
+
         for artist in map(slugify, song.artists[1:]):
             artist = sort_string(slugify(artist).split("-"), "-")
 
