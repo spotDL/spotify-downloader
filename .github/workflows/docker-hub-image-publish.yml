@@ -1,11 +1,13 @@
 name: Publish Docker Image to DockerHub
 
 on:
+  push:
+    branches:
+      - dev
+      - master
   release:
     types:
       - published
-  schedule:
-    - cron: "0 0 * * *"
   workflow_dispatch:
     inputs:
       wants_production_build:
@@ -32,7 +34,7 @@ jobs:
     steps:
       - name: Checkout dev branch for nightly build
         uses: actions/checkout@v3
-        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.wants_production_build) }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/dev' || (github.event_name == 'workflow_dispatch' && !inputs.wants_production_build) }}
         with:
           ref: "refs/heads/dev"
 
@@ -50,7 +52,7 @@ jobs:
           tags: |
             type=raw,value=latest,priority=100,enable=${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.wants_production_build) }}
             type=semver,priority=200,pattern={{raw}},enable=${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.wants_production_build) }}
-            type=raw,value=nightly,priority=300,enable=${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.wants_production_build) }}
+            type=raw,value=nightly,priority=300,enable=${{ github.event_name == 'push' && github.ref == 'refs/heads/dev' || (github.event_name == 'workflow_dispatch' && !inputs.wants_production_build) }}
 
       - name: Set up QEMU for multi-arch builds
         uses: docker/setup-qemu-action@v2
