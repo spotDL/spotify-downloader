@@ -1,33 +1,35 @@
 # setup-storage
 termux-setup-storage
 
-# update packages
+# update packages and add python3.13 to available packages
+pkg update -y
+pkg install -y tur-repo
 pkg update -y
 
-# install python and ffmpeg
-pkg install -y python ffmpeg rust binutils
+# install python3.13 and ffmpeg
+pkg install -y python3.13 ffmpeg rust binutils
 
 # install spotdl
-pip install -U spotdl
+# maturin needs the Android API level to build native deps (e.g. pydantic-core);
+# real devices auto-detect it via getprop, the fallback covers WSL/docker testing
+export ANDROID_API_LEVEL=$(getprop ro.build.version.sdk 2>/dev/null || echo 24)
+python3.13 -m ensurepip --upgrade
+python3.13 -m pip install -U spotdl
+apt upgrade -y -o Dpkg::Options::="--force-confold"
+
 
 if [ ! -d "$HOME/bin" ]; then
     mkdir "$HOME/bin"
 fi
 
-if [ ! -f "$HOME/bin/termux-url-opener" ]; then
-    touch $HOME/bin/termux-url-opener
-fi
-
-cat > $HOME/bin/termux-url-opener <<EOL
+cat > "$HOME/bin/termux-url-opener" <<'EOL'
 #!/data/data/com.termux/files/usr/bin/bash
 SONGS="$HOME/storage/shared/songs"
 SPOTDL="/data/data/com.termux/files/usr/bin/spotdl"
 if [[ $1 == *"open.spotify.com"* ]]; then
-    if [[ ! -d $SONGS ]]; then
-        mkdir $SONGS
-    fi
-    cd $SONGS
-    $SPOTDL "$1"
+    mkdir -p "$SONGS"
+    cd "$SONGS" || exit 1
+    "$SPOTDL" "$1"
     read -n 1 -s -p "Press Any Key To Exit."
 fi
 EOL
