@@ -34,6 +34,27 @@ class AppBar(Horizontal):
         except Exception:
             pass
 
+    def refresh_labels(self) -> None:
+        try:
+            self.query_one("#appbar-menu", Button).label = TR("appbar.menu")
+            self.query_one("#appbar-help", Button).label = TR("appbar.help")
+        except Exception:
+            pass
+
+
+def refresh_all_screens(app: Any) -> None:
+    for screen in app.screen_stack:
+        try:
+            screen.query_one(AppBar).refresh_labels()
+        except Exception:
+            pass
+        refresh_language = getattr(screen, "refresh_language", None)
+        if callable(refresh_language):
+            try:
+                refresh_language()
+            except Exception:
+                pass
+
 
 def handle_appbar(screen: Any, event: Button.Pressed) -> bool:
     button_id = event.button.id

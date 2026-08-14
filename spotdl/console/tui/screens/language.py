@@ -38,8 +38,6 @@ class LanguageScreen(Screen):
             TR("language.saved", lang=i18n.LANGUAGES[code])
         )
         self.app.pop_screen()
-        top_screen = self.app.screen
-        from spotdl.console.tui.screens.menu import MainMenuScreen
+        from spotdl.console.tui.bar.appbar import refresh_all_screens
 
-        if isinstance(top_screen, MainMenuScreen):
-            top_screen.refresh_language()
+        refresh_all_screens(self.app)

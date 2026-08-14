@@ -14,6 +14,13 @@ home:
   welcome: "Menu principal"
   new_download: "Nueva descarga"
   recent_empty: "Sin descargas recientes"
+  recent_urls_title: "URLs recientes"
+  recent_downloads_title: "Descargas recientes"
+  version_line: "spotDL base {upstream} | Fork {fork}"
+  upstream_update_available: "(disponible upstream {version})"
+
+history:
+  track_count: "{count} pistas"
 
 popover:
   language: "Idioma"

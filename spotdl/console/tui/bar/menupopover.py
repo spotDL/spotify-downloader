@@ -125,11 +125,6 @@ class MenuPopover(ModalScreen[Any]):
         self.dismiss(None)
 
     def _refresh_home(self) -> None:
-        from spotdl.console.tui.screens.menu import MainMenuScreen
+        from spotdl.console.tui.bar.appbar import refresh_all_screens
 
-        for screen in self.app.screen_stack:
-            if isinstance(screen, MainMenuScreen) and hasattr(
-                screen, "refresh_language"
-            ):
-                screen.refresh_language()
-                break
+        refresh_all_screens(self.app)

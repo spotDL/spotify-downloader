@@ -6,9 +6,19 @@ from textual.widgets import Button, Static
 
 from spotdl.console.tui import i18n
 from spotdl.console.tui.bar import AppBar, handle_appbar
+from spotdl.console.tui.history import load_history
 from spotdl.console.tui.screens.query import QueryScreen
 from spotdl.console.tui.screens.simple_op import SimpleOpScreen
 from spotdl.console.tui.screens.web import WebScreen
+from spotdl.console.tui.versions import (
+    FORK_VERSION,
+    UPSTREAM_BASE_VERSION,
+    fetch_upstream_latest_version,
+    get_cached_upstream_latest_version,
+    get_latest_fork_changelog_version,
+    parse_version,
+    set_cached_upstream_latest_version,
+)
 from spotdl.utils.ffmpeg import is_ffmpeg_installed
 
 TR = i18n.tr
@@ -20,6 +30,47 @@ _CARDS = [
     ("url", "card-url", "\u29c9", SimpleOpScreen, "url"),
     ("web", "card-web", "\u2302", WebScreen, None),
 ]
+
+_HISTORY_LIMIT = 5
+
+
+def _format_recent(history) -> str:
+    urls = history.get("urls", [])[:_HISTORY_LIMIT]
+    downloads = history.get("downloads", [])[:_HISTORY_LIMIT]
+    if not urls and not downloads:
+        return TR("home.recent_empty")
+
+    lines = []
+    if urls:
+        lines.append(TR("home.recent_urls_title"))
+        for entry in urls:
+            lines.append(f"  - {entry.get('query', '')}")
+    if downloads:
+        lines.append(TR("home.recent_downloads_title"))
+        for entry in downloads:
+            name = entry.get("name", "")
+            url = entry.get("url", "")
+            ok = entry.get("ok", 0)
+            err = entry.get("err", 0)
+            if url:
+                lines.append(f"  - {name} ({url}) [{ok} OK, {err} err]")
+            else:
+                lines.append(f"  - {name} [{ok} OK, {err} err]")
+    return "\n".join(lines)
+
+
+def _format_version_line(upstream_latest) -> str:
+    fork_version = get_latest_fork_changelog_version() or FORK_VERSION
+    line = TR(
+        "home.version_line",
+        upstream=UPSTREAM_BASE_VERSION,
+        fork=fork_version,
+    )
+    if upstream_latest and parse_version(upstream_latest) > parse_version(
+        UPSTREAM_BASE_VERSION
+    ):
+        line += " " + TR("home.upstream_update_available", version=upstream_latest)
+    return line
 
 
 class MainMenuScreen(Screen):
@@ -52,13 +103,42 @@ class MainMenuScreen(Screen):
                 id="home-new-download",
                 classes="primary-action",
             )
-            yield Static(TR("home.recent_empty"), id="home-recent")
+            yield Static(_format_recent(load_history()), id="home-recent")
             if not is_ffmpeg_installed():
                 yield Static(TR("query.no_ffmpeg"), id="ffmpeg-warn")
             yield Static("", id="status")
+            yield Static(_format_version_line(None), id="home-version")
 
     def on_mount(self) -> None:
         self.refresh_language()
+        self.refresh_history()
+        self.run_worker(self._check_upstream_version, thread=True, group="version")
+
+    def _check_upstream_version(self) -> None:
+        cached = get_cached_upstream_latest_version()
+        if cached is None:
+            cached = fetch_upstream_latest_version()
+            if cached:
+                set_cached_upstream_latest_version(cached)
+        if cached:
+            self.app.call_from_thread(self._apply_upstream_version, cached)
+
+    def _apply_upstream_version(self, upstream_latest: str) -> None:
+        try:
+            self.query_one("#home-version", Static).update(
+                _format_version_line(upstream_latest)
+            )
+        except Exception:
+            pass
+
+    def on_screen_resume(self) -> None:
+        self.refresh_history()
+
+    def refresh_history(self) -> None:
+        try:
+            self.query_one("#home-recent", Static).update(_format_recent(load_history()))
+        except Exception:
+            pass
 
     def refresh_language(self) -> None:
         try:
@@ -68,7 +148,7 @@ class MainMenuScreen(Screen):
             pass
         try:
             self.query_one("#home-welcome", Static).update(TR("home.welcome"))
-            self.query_one("#home-recent", Static).update(TR("home.recent_empty"))
+            self.refresh_history()
             for key, card_id, icon, _, _ in _CARDS:
                 label = TR(f"menu.{key}")
                 button = self.query_one(f"#{card_id}", Button)

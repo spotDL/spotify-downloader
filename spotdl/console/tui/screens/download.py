@@ -15,6 +15,7 @@ from textual.widgets.data_table import RowKey
 from spotdl.console.save import save
 from spotdl.console.tui import i18n
 from spotdl.console.tui.bar import AppBar, handle_appbar
+from spotdl.console.tui.history import add_download_entry
 from spotdl.console.tui.log_handler import BufferLogHandler
 
 if TYPE_CHECKING:
@@ -319,6 +320,21 @@ class DownloadScreen(Screen):
             )
         )
         self.query_one("#stop-btn", Button).disabled = True
+        add_download_entry(
+            self._history_name(),
+            (self.options.get("query") or [None])[0],
+            len(self.songs),
+            max(0, ok),
+            self._error_count,
+        )
+
+    def _history_name(self) -> str:
+        if len(self.songs) == 1:
+            return self.songs[0].display_name
+        album_names = {getattr(song, "album_name", None) for song in self.songs}
+        if len(album_names) == 1 and next(iter(album_names)):
+            return str(next(iter(album_names)))
+        return TR("history.track_count", count=str(len(self.songs)))
 
     def _flush_pending(self) -> None:
         table = self.query_one(DataTable)

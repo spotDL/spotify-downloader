@@ -294,6 +294,15 @@ DirectoryTree {
     margin-top: 1;
 }
 
+#home-version {
+    dock: bottom;
+    color: $text-muted;
+    text-style: dim;
+    height: 1;
+    padding: 0 1;
+    border-top: solid $panel;
+}
+
 #add-download {
     height: 1fr;
 }

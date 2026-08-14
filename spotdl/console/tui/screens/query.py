@@ -28,6 +28,7 @@ from spotdl.console.tui.constants import (
     FORMATS,
     LYRICS_PROVIDERS,
 )
+from spotdl.console.tui.history import add_url_entry
 from spotdl.console.tui.screens.tracklist import TrackListScreen
 from spotdl.console.tui.widgets import DirModal
 from spotdl.utils.search import get_simple_songs
@@ -548,6 +549,7 @@ class QueryScreen(Screen):
 
         self.query_one("#search-btn", Button).disabled = True
         self.query_one("#status", Static).update(TR("query.searching"))
+        add_url_entry(options["query"][0], self.operation)
 
         screen = self
 
