@@ -85,10 +85,7 @@ class YouTubeMusic(AudioProvider):
                 results.append(
                     Result(
                         source=self.name,
-                        url=(
-                            f'https://{"music" if result["resultType"] == "song" else "www"}'
-                            f".youtube.com/watch?v={result['videoId']}"
-                        ),
+                        url=f"https://www.youtube.com/watch?v={result['videoId']}",
                         verified=result.get("resultType") == "song",
                         name=result["title"],
                         result_id=result["videoId"],

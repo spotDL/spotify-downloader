@@ -20,6 +20,7 @@ from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 from spotdl.download.progress_handler import ProgressHandler
 from spotdl.providers.audio import (
     AudioProvider,
+    AudioProviderError,
     BandCamp,
     Piped,
     SoundCloud,
@@ -395,6 +396,33 @@ class Downloader:
 
         raise LookupError(f"No results found for song: {song.display_name}")
 
+    def search_all(self, song: Song) -> List[str]:
+        search_query = f"{song.name} {song.artist or ''}".strip()
+        primaries: List[str] = []
+        secondaries: List[str] = []
+
+        for audio_provider in self.audio_providers:
+            primary = audio_provider.search(
+                song, self.settings["only_verified_results"]
+            )
+            search_results = audio_provider.get_results(search_query)
+
+            if self.settings["only_verified_results"]:
+                result_urls = [
+                    result.url for result in search_results if result.verified
+                ]
+            else:
+                result_urls = [result.url for result in search_results]
+
+            if primary in result_urls:
+                result_urls.remove(primary)
+            if primary is not None:
+                primaries.append(primary)
+            secondaries.extend(result_urls)
+
+        result: List[str] = primaries + secondaries
+        return result if result else ["_none_"]
+
     def search_lyrics(self, song: Song) -> Optional[str]:
         """
         Search for lyrics using all available providers.
@@ -707,27 +735,47 @@ class Downloader:
 
             if song.download_url is None:
                 display_progress_tracker.notify_searching()
-                download_url = await loop.run_in_executor(None, self.search, song)
+                candidate_urls = await loop.run_in_executor(None, self.search_all, song)
             else:
-                download_url = song.download_url
+                candidate_urls = [song.download_url]
 
             display_progress_tracker.notify_getting_meta()
 
-            logger.debug("Downloading %s using %s", song.display_name, download_url)
-            download_info = await loop.run_in_executor(
-                None,
-                lambda: audio_downloader.get_download_metadata(
-                    download_url, download=True
-                ),
-            )
+            download_info = None
+            last_error = None
+            download_url: Optional[str] = None
+            for candidate_url in candidate_urls:
+                if candidate_url == "_none_":
+                    continue
+                logger.debug(
+                    "Downloading %s using %s", song.display_name, candidate_url
+                )
+                try:
+                    download_info = await loop.run_in_executor(
+                        None,
+                        lambda: audio_downloader.get_download_metadata(
+                            candidate_url, download=True
+                        ),
+                    )
+                    download_url = candidate_url
+                    break
+                except AudioProviderError as exc:
+                    logger.info(
+                        "yt-dlp failed for %s, trying next URL. Error: %s",
+                        candidate_url,
+                        exc,
+                    )
+                    last_error = exc
+                    continue
 
             if download_info is None:
+                if last_error:
+                    raise last_error
                 logger.debug(
                     "No download info found for %s, url: %s",
                     song.display_name,
-                    download_url,
+                    candidate_url if candidate_urls else "search",
                 )
-
                 raise DownloaderError(
                     f"yt-dlp failed to get metadata for: {song.name} - {song.artist}"
                 )

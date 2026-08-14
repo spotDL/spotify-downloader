@@ -10,7 +10,33 @@ from rapidfuzz import fuzz
 
 from spotdl.utils.spotify import SpotifyClient
 
-__all__ = ["Song", "SongList", "SongError"]
+__all__ = ["Song", "SongList", "SongError", "upgrade_cover_url"]
+
+_COVER_URL_UPGRADES = {
+    "ab67616d00004851": "ab67616d00001e02",
+    "ab67616d0000b273": "ab67616d00001e02",
+}
+
+
+def upgrade_cover_url(url: Optional[str]) -> Optional[str]:
+    """
+    Upgrade a Spotify cover URL to the highest available resolution.
+
+    ### Arguments
+    - url: The cover URL to upgrade.
+
+    ### Returns
+    - The upgraded cover URL, or the original URL if no upgrade applies.
+    """
+
+    if not url:
+        return url
+
+    for low_res, high_res in _COVER_URL_UPGRADES.items():
+        if low_res in url:
+            return url.replace(low_res, high_res)
+
+    return url
 
 
 class SongError(Exception):
@@ -129,9 +155,12 @@ class Song:
             url=raw_track_meta["external_urls"]["spotify"],
             popularity=raw_track_meta.get("popularity"),
             cover_url=(
-                max(raw_album_meta["images"], key=lambda i: i["width"] * i["height"])[
-                    "url"
-                ]
+                upgrade_cover_url(
+                    max(
+                        raw_album_meta["images"],
+                        key=lambda i: i["width"] * i["height"],
+                    )["url"]
+                )
                 if raw_album_meta["images"]
                 else None
             ),

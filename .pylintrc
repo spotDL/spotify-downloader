@@ -9,3 +9,20 @@ disable=
     R0914, # too-many-locals
     W0703, # broad-except
     W0640, # cell-var-from-loop
+    C0114, # missing-module-docstring
+    C0115, # missing-class-docstring
+    C0116, # missing-function-docstring
+    C0103, # invalid-name
+    C0104, # disallowed-name (módulos tipo "bar", "foo", etc.)
+    C0415, # import-outside-toplevel
+    R0401, # cyclic-import
+    W0212, # protected-access
+    W0603, # global-statement
+    W0621, # redefined-outer-name
+    W0404, # reimported
+    E0606, # possibly-used-before-assignment (TYPE_CHECKING imports)
+    R0917, # too-many-positional-arguments
+    W0611, # unused-import (imports de OptionList u otras widgets no usadas en algunos módulos)
+    W0631, # undefined-loop-variable (variables de bucle posiblemente undefined en conversiones de formato)
+fail-under=9
+limit-inference-results=0

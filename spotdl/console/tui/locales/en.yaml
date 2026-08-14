@@ -1,0 +1,364 @@
+app:
+  title: "spotDL {version} - Interactive"
+  subtitle: "High precision music downloader with smart metadata matching"
+  footer_quit: "Quit"
+  footer_menu: "Menu"
+  footer_back: "Back"
+
+appbar:
+  title: "spotDL"
+  menu: "Menu"
+  help: "Help"
+
+home:
+  welcome: "Main menu"
+  new_download: "New download"
+  recent_empty: "No recent downloads"
+
+popover:
+  language: "Language"
+  actions: "Actions"
+  help: "Help / Commands"
+  builder: "CLI builder"
+  quit: "Quit"
+  close: "Close"
+
+section:
+  audio_format: "Audio & format"
+  output_playlist: "Output & playlist"
+  filtering: "Filtering & matching"
+  network_auth: "Network & auth"
+  finetuning: "Fine Tuning / Logging"
+
+lyrics:
+  title: "Lyrics - {name} - {artist}"
+  title_no_text: "No lyrics for {name}"
+  loading: "Loading lyrics..."
+  empty: "No lyrics found for this song."
+  copy: "Copy to clipboard"
+  copied: "Lyrics copied to clipboard."
+  copy_failed: "Could not copy the lyrics."
+
+menu:
+  title: "Main menu"
+  download: "Download music (tracks, albums, playlists or searches)"
+  sync: "Sync directory with a playlist"
+  save: "Save metadata state (.spotdl)"
+  meta: "Update metadata of local files"
+  url: "Get direct download URLs"
+  web: "Start the web interface"
+  help: "Help / Commands"
+  language: "Language"
+  quit: "Exit"
+  hint: "Navigate with arrow keys or mouse, confirm with Enter"
+
+query:
+  title: "New download"
+  url_label: "Spotify/YouTube URL or search:"
+  url_placeholder: "https://open.spotify.com/...  |  artist:Dua Lipa  |  YouTubeURL|SpotifyURL"
+  format: "Audio format"
+  bitrate: "Bitrate"
+  audio_provider: "Audio provider"
+  template: "Preset template"
+  template_custom: "Custom (no changes)"
+  template_light: "Lightest (opus, smallest files, lyrics on)"
+  template_efficient: "Efficient (small files, fast)"
+  template_balanced: "Balanced (default quality)"
+  template_studio: "Studio (maximum quality)"
+  lyrics_provider: "Lyrics provider"
+  threads: "Threads"
+  dir_label: "Output directory"
+  dir_browse: "Browse..."
+  btn_search: "Search"
+  btn_back: "Back"
+  searching: "Searching on Spotify, this may take a moment..."
+  found: "{count} songs found"
+  error: "Error: {message}"
+  no_ffmpeg: "Warning: FFmpeg is not installed. Run `spotdl --download-ffmpeg` to install it."
+  empty_query: "Enter a URL or search term first."
+  no_results: "No songs were found for that query."
+  custom_output: "Use custom output template"
+  tab_basic: "Basic"
+  tab_advanced: "Advanced"
+  output_template: "Output template"
+  overwrite: "Overwrite mode"
+  overwrite_force: "Force"
+  overwrite_skip: "Skip"
+  overwrite_metadata: "Metadata only"
+  m3u: "M3U playlist file"
+  archive: "Archive file"
+  save_file: "Save file (.spotdl)"
+  save_file_label: "Save file name"
+  preload: "Preload URLs"
+  user_auth: "User authentication (OAuth)"
+  client_id: "Spotify Client ID"
+  client_secret: "Spotify Client Secret"
+  genius_token: "Genius access token"
+  cookie_file: "Cookie file"
+  sponsor_block: "SponsorBlock (remove non-music)"
+  proxy: "Proxy URL"
+  yt_dlp_args: "yt-dlp extra args"
+  search_query: "Custom search query template"
+  dont_filter_results: "Don't filter results"
+  only_verified_results: "Only verified results"
+  album_type: "Album type"
+  album_type_album: "Album"
+  album_type_single: "Single"
+  album_type_compilation: "Compilation"
+  scan_for_songs: "Scan output folder for existing songs"
+  detect_formats: "Detect other formats"
+  restrict: "Restrict filenames"
+  restrict_strict: "Strict (ASCII only)"
+  restrict_ascii: "ASCII"
+  restrict_none: "None"
+  max_filename_length: "Max filename length"
+  id3_separator: "ID3 separator"
+  generate_lrc: "Generate .lrc files"
+  add_unavailable: "Add unavailable to M3U/Archive"
+  playlist_numbering: "Playlist numbering (playlist as album)"
+  playlist_retain_track_cover: "Retain track cover art"
+  fetch_albums: "Fetch albums from songs"
+  ytm_data: "Use YouTube Music data"
+  force_update_metadata: "Force update metadata"
+  skip_album_art: "Skip album art"
+  ignore_albums: "Ignore albums (comma-separated)"
+  skip_explicit: "Skip explicit songs"
+  create_skip_file: "Create .skip files"
+  respect_skip_file: "Respect .skip files"
+  print_errors: "Print errors on exit"
+  save_errors: "Save errors to file"
+  log_level: "Log level"
+  log_format: "Log format"
+  simple_tui: "Simple TUI output"
+  section_audio_providers: "Audio & Providers"
+  section_playlists_output: "Playlists & Output"
+  section_logging: "Logging"
+  save_hint: "Save file must end with .spotdl"
+  search_failed: "Search failed"
+  ph_save_file: "list.spotdl"
+  ph_threads: "4"
+  ph_m3u: "playlist.m3u8"
+  ph_cookie: "cookies.txt"
+  ph_proxy: "http://host:port"
+  ph_ytdlp_args: "--no-check-certificate"
+  ph_lyrics_template: "{artist} - {title} audio"
+  ph_output_template: "{artists} - {title}.{output-ext}"
+  ph_archive: "archive.txt"
+  ph_max_filename: "255"
+  ph_separator: "/"
+  ph_ignore_albums: "Album A, Album B"
+  ph_errors: "errors.log"
+  ph_log_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  ph_dir: "C:\\Music"
+
+tracklist:
+  title: "Detected songs ({count})"
+  col_sel: "Sel"
+  col_title: "Title"
+  col_artist: "Artist"
+  col_album: "Album"
+  col_duration: "Duration"
+  col_explicit: "Explicit"
+  btn_all: "All"
+  btn_none: "None"
+  btn_invert: "Invert"
+  btn_proceed: "Proceed to download ({n})"
+  btn_back: "Back"
+  total: "{count} selected | total duration {duration}"
+  none_selected: "Select at least one song."
+  duplicates_removed: "Removed {count} duplicate track(s) from the list (same Spotify URL)."
+
+confirm:
+  title: "Confirm settings - {count} song(s)"
+  hint: "Review the selected settings, then download or modify them."
+  yes: "Yes"
+  no: "No"
+  line_format: "Format: {format} at {bitrate}"
+  line_audio: "Audio provider: {provider}"
+  line_lyrics: "Lyrics: {enabled} ({provider})"
+  line_lrc: "Save .lrc lyrics file: {enabled}"
+  line_threads: "Threads: {threads}"
+  line_overwrite: "Overwrite mode: {overwrite}"
+  line_output: "Output directory: {dir}"
+  line_m3u: "M3U playlist: {path}"
+  line_sponsor_block: "SponsorBlock: enabled"
+  line_verified_only: "Only verified results: enabled"
+  btn_download: "Download"
+  btn_modify: "Modify"
+
+download:
+  title: "Downloads in progress"
+  col_song: "Song"
+  col_status: "Status"
+  col_detail: "Detail"
+  status_pending: "Pending"
+  status_searching: "Searching"
+  status_downloading: "Downloading"
+  status_converting: "Converting"
+  status_embedding: "Embedding metadata"
+  status_done: "Done"
+  status_error: "Error"
+  status_skipped: "Skipped"
+  status_lyrics: "Getting lyrics"
+  status_partial: "Partial"
+  btn_stop: "Stop"
+  btn_copy_log: "Copy log"
+  btn_menu: "Back to menu"
+  overall: "Overall progress: {done} / {total}"
+  waiting: "Waiting..."
+  summary_ok: "{ok} downloaded, {err} with errors"
+  stopped: "Stopped by the user. Remaining songs were marked as stopped."
+  background_note: "Note: already-started downloads may finish in the background."
+  log_copied: "Log copied to clipboard."
+  log_empty: "Log is empty."
+  log_copy_failed: "Could not copy log."
+  failed: "Download failed"
+  badge_ok: "OK"
+
+meta:
+  title: "Update metadata of local files"
+  path_label: "File or folder path:"
+  btn_run: "Apply metadata"
+  running: "Applying metadata..."
+  done: "Metadata applied."
+  no_path: "Enter a file or folder path first."
+  ph_path: "C:\\Music\\song.mp3"
+
+url:
+  title: "Get direct download URLs"
+  btn_run: "Get URLs"
+  running: "Looking for audio sources..."
+  done: "URLs obtained."
+  no_query: "Enter a query first."
+  ph_query: "https://open.spotify.com/track/..."
+
+web:
+  title: "Web interface"
+  starting: "Starting web server at http://{host}:{port} ..."
+  info: "The web UI opens outside this TUI (default: http://127.0.0.1:8080). Close the TUI to stop the server."
+
+language:
+  title: "Language"
+  hint: "Select the interface language"
+  saved: "Language saved: {lang}"
+
+help:
+  title: "Help - CLI commands"
+  body: |-
+    # spotDL commands
+
+    ## Operations
+    | Command | Description |
+    |---|---|
+    | `spotdl download <query>` | Download songs with full metadata (default operation) |
+    | `spotdl sync <query>` | Sync a local folder with a Spotify list |
+    | `spotdl save <query>` | Save song metadata to a `.spotdl` file |
+    | `spotdl meta <files>` | Update ID3/Vorbis metadata of local audio files |
+    | `spotdl url <query>` | Print the direct download URLs |
+    | `spotdl web` | Start the web interface |
+    | `spotdl interactive` | Start this TUI |
+
+    ## Disable the TUI
+    `spotdl -nogui download <query>` (or `--no-gui`) runs the standard CLI
+    without launching the TUI.
+
+    ## Common flags
+    | Flag | Description |
+    |---|---|
+    | `--format mp3/flac/m4a/opus/ogg/wav` | Output audio format |
+    | `--bitrate auto/320k/192k/...` | Conversion bitrate |
+    | `--audio <providers...>` | Audio sources in fallback order |
+    | `--lyrics <providers...>` | Lyrics sources |
+    | `--threads <n>` | Parallel download threads |
+    | `--output <template>` | Output path template |
+    | `--overwrite force/skip/metadata` | Existing file behavior |
+    | `--user-auth` | Spotify OAuth login |
+    | `--client-id / --client-secret` | Your Spotify developer credentials |
+    | `--save-file <file.spotdl>` | State file (required for save/sync) |
+    | `--m3u <name>` | Generate an m3u playlist |
+    | `--archive <file>` | Archive of already downloaded songs |
+    | `--generate-lrc` | Generate synced `.lrc` files |
+    | `--sponsor-block` | Remove non-music segments |
+    | `--search-query <template>` | Custom search query template |
+    | `--dont-filter-results` | Disable result filtering |
+    | `--only-verified-results` | Only accept verified results |
+    | `--preload` | Preload download URLs |
+    | `--scan-for-songs` | Scan the output folder |
+    | `--fetch-albums` | Fetch all albums from the query |
+    | `--simple-tui` | Simpler progress output in the CLI |
+    | `--log-level <level>` | Logging verbosity |
+    | `--download-ffmpeg` | Install FFmpeg into the spotdl folder |
+    | `--download-deno` | Install Deno for complex downloads |
+    | `--check-for-updates` | Check for newer versions |
+    | `--generate-config` | Generate the default `config.json` |
+    | `--version` / `-v` | Show the version |
+
+    ## Special queries
+    `saved`, `all-user-playlists`, `all-saved-playlists`,
+    `all-user-followed-artists`, `all-user-saved-albums` (require `--user-auth`),
+    plus prefixed searches: `album:`, `artist:`, `playlist:`,
+    and manual matching `YouTubeURL|SpotifyURL`.
+
+    ## Environment
+    `SPOTIPY_CLIENT_ID` / `SPOTIPY_CLIENT_SECRET`: custom Spotify credentials.
+    `SPOTDL_LANG`: force the TUI language ("es" or "en").
+
+cmdbuilder:
+  tab_label: "Command Builder"
+  title: "CLI Command Builder"
+  hint: "Build your spotdl command by selecting options below:"
+  operation: "Operation:"
+  op_download_default: "Download (default)"
+  op_save: "Save metadata"
+  op_sync: "Sync"
+  op_meta: "Metadata update"
+  op_url: "Get URLs"
+  query: "Query / URL:"
+  query_placeholder: "https://open.spotify.com/... or search term"
+  format: "Format:"
+  bitrate: "Bitrate:"
+  audio_providers: "Audio Provider(s):"
+  lyrics_providers: "Lyrics Provider(s):"
+  threads: "Threads:"
+  output_template: "Output Template:"
+  overwrite: "Overwrite:"
+  ow_skip: "Skip (default)"
+  ow_force: "Force"
+  ow_metadata: "Metadata only"
+  output_directory: "Output Directory:"
+  playlist_options: "Playlist Options:"
+  playlist_numbering: "Playlist numbering"
+  retain_track_cover: "Retain track cover"
+  fetch_albums: "Fetch albums"
+  output_options: "Output Options:"
+  generate_m3u: "Generate M3U"
+  generate_lrc: "Generate .lrc files"
+  sponsor_block: "SponsorBlock"
+  scan_for_songs: "Scan for songs"
+  generate_skip: "Generate .skip files"
+  save_file: "Save file (required for save/sync):"
+  network: "Network:"
+  spotify_auth: "Spotify Auth (for private playlists):"
+  user_auth: "User auth (OAuth)"
+  client_id: "Client ID"
+  client_secret: "Client Secret"
+  placeholder_m3u: "{list[0]}.m3u8"
+  placeholder_save_file: "list.spotdl"
+  placeholder_proxy: "http://host:port"
+  placeholder_cookie: "cookies.txt"
+  placeholder_ytdlp: "--no-check-certificate"
+  placeholder_threads: "4"
+  placeholder_template: "{artists} - {title}.{output-ext}"
+  generated_command: "Generated Command:"
+  btn_copy: "Copy to Clipboard"
+  btn_test: "Test Run (dry)"
+  no_cmd_copy: "No command to copy yet."
+  copied: "Command copied to clipboard!"
+  copy_failed: "Copy failed: {exc}"
+  no_cmd_test: "No command to test yet."
+  would_execute: "Command would execute: {cmd}"
+
+common:
+  back: "Back"
+  cancel: "Cancel"
+  ok: "OK"

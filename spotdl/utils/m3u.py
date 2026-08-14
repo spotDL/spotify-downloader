@@ -201,9 +201,12 @@ def create_m3u_file(
         detect_formats,
     )
 
-    file_path = Path(
-        *(sanitize_string(part) for part in Path(file_name).parts)
-    ).absolute()
+    raw_path = Path(file_name)
+    if raw_path.is_absolute():
+        parts = [sanitize_string(part) for part in raw_path.parts[1:]]
+        file_path = Path(raw_path.anchor, *parts)
+    else:
+        file_path = Path(*(sanitize_string(part) for part in raw_path.parts)).absolute()
 
     file_path.parent.mkdir(parents=True, exist_ok=True)
 

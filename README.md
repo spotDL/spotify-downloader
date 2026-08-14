@@ -1,4 +1,9 @@
 
+> **FORK NOTICE**: This repository is a personal fork of [spotDL](https://github.com/spotdl/spotify-downloader).
+> It adds an interactive **TUI** (`spotdl interactive`) and includes a few fixes and improvements
+> detected while using the upstream project. This is a fork with improvements only:
+> no pull requests, no contributions, and no affiliation with the upstream project.
+
 <!--- mdformat-toc start --slug=github --->
 
 <!---

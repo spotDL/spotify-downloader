@@ -41,19 +41,36 @@ logger = logging.getLogger(__name__)
 
 FORBIDDEN_WORDS = [
     "bassboosted",
+    "bassboost",
     "remix",
     "remastered",
     "remaster",
     "reverb",
-    "bassboost",
+    "reverbed",
     "live",
     "acoustic",
     "8daudio",
+    "8d",
     "concert",
     "acapella",
     "slowed",
+    "slow",
     "instrumental",
     "cover",
+    "edit",
+    "nightcore",
+    "spedup",
+    "speedup",
+    "tiktok",
+    "bootleg",
+    "fanmade",
+    "remake",
+    "karaoke",
+    "tutorial",
+    "lofi",
+    "slowedreverb",
+    "reverbedit",
+    "pitched",
 ]
 
 
@@ -200,22 +217,27 @@ def check_common_word(song: Song, result: Result) -> bool:
 
 def check_forbidden_words(song: Song, result: Result) -> Tuple[bool, List[str]]:
     """
-    Check if a forbidden word is present in the result name
+    Check if a forbidden word is present in the result name or author,
+    which is NOT present in the song name or album name.
 
     ### Arguments
     - song: song to match
     - result: result to match
 
     ### Returns
-    - True if forbidden word is present in result name, False otherwise
+    - True if forbidden word is present in result name or author, False otherwise
     """
 
     song_name = slugify(song.name).replace("-", "")
-    to_check = slugify(result.name).replace("-", "")
+    song_album = slugify(song.album_name).replace("-", "") if song.album_name else ""
+    to_check_name = slugify(result.name).replace("-", "")
+    to_check_author = slugify(result.author).replace("-", "") if result.author else ""
 
     words = []
     for word in FORBIDDEN_WORDS:
-        if word in to_check and word not in song_name:
+        in_result = (word in to_check_name) or (word in to_check_author)
+        in_song = (word in song_name) or (word in song_album)
+        if in_result and not in_song:
             words.append(word)
 
     return len(words) > 0, words
@@ -732,11 +754,10 @@ def order_results(
         name_match = calc_name_match(song, result, search_query)
         debug(song.song_id, result.result_id, f"Initial name match: {name_match}")
 
-        # Check if result contains forbidden words
         contains_fwords, found_fwords = check_forbidden_words(song, result)
         if contains_fwords:
             for _ in found_fwords:
-                name_match -= 15
+                name_match -= 35
 
         debug(
             song.song_id,
@@ -774,6 +795,73 @@ def order_results(
         # Calculate total match
         average_match = (artists_match + name_match) / 2
         debug(song.song_id, result.result_id, f"Average match: {average_match}")
+
+        if contains_fwords:
+            average_match -= 25.0 * len(found_fwords)
+            debug(
+                song.song_id,
+                result.result_id,
+                f"Average match after forbidden words penalty: {average_match}",
+            )
+
+        if "instrumental" in found_fwords:
+            average_match -= 30.0
+            debug(
+                song.song_id,
+                result.result_id,
+                "Additional penalty for instrumental result on non-instrumental song",
+            )
+
+        song_slug = slugify(song.name + " " + (song.album_name or "")).split("-")
+        res_slug = slugify(result.name).split("-")
+        live_kw = {"live", "concert", "envivo"}
+        song_is_live = bool(live_kw.intersection(set(song_slug)))
+        res_is_live = bool(live_kw.intersection(set(res_slug)))
+
+        if song_is_live and not res_is_live:
+            average_match -= 25.0
+            debug(
+                song.song_id,
+                result.result_id,
+                "Lowering match: Song is Live but Result is not Live",
+            )
+        elif not song_is_live and res_is_live:
+            average_match -= 35.0
+            debug(
+                song.song_id,
+                result.result_id,
+                "Lowering match: Result is Live but Song is not Live",
+            )
+
+        author_name = result.author or ""
+        is_topic_channel = author_name.endswith(" - Topic") or "topic" in slugify(
+            author_name
+        ).split("-")
+        is_verified_ytm = result.verified and (
+            "music" in result.source.lower() or result.source == "YouTubeMusic"
+        )
+
+        if is_topic_channel:
+            average_match += 15.0
+            debug(
+                song.song_id, result.result_id, "Boosting match for '- Topic' channel"
+            )
+
+        if is_verified_ytm:
+            average_match += 10.0
+            debug(
+                song.song_id,
+                result.result_id,
+                "Boosting match for verified YouTube Music result",
+            )
+
+        if album_match >= 80:
+            average_match += 5.0
+            debug(
+                song.song_id,
+                result.result_id,
+                f"Boosting match for album match: {album_match}",
+            )
 
         if (
             result.verified

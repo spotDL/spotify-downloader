@@ -175,8 +175,7 @@ def test_piped_uses_local_deno_yt_dlp_options(monkeypatch, tmp_path):
     Test Piped passes spotDL's local Deno options to yt-dlp.
     """
 
-    from spotdl.providers.audio import base
-    from spotdl.providers.audio import piped
+    from spotdl.providers.audio import base, piped
 
     captured_options = {}
 
