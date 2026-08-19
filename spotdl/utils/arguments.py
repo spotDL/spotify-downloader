@@ -780,6 +780,19 @@ def parse_other_options(parser: _ArgumentGroup):
     )
 
     parser.add_argument(
+        "--setup",
+        metavar="PATH",
+        nargs="?",
+        const="",
+        help=(
+            "Interactive setup: choose one directory for ffmpeg, Deno, config, "
+            "cache and history, then install or update them there. "
+            "Pass a PATH (spotdl --setup /my/dir) to run without the TUI and "
+            "use that directory directly."
+        ),
+    )
+
+    parser.add_argument(
         "--generate-config",
         action="store_true",
         help="Generate a config file. This will overwrite current config if present.",

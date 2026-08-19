@@ -5,6 +5,7 @@ from textual.containers import Horizontal
 from textual.widgets import Button, Static
 
 from spotdl.console.tui import i18n
+from spotdl.console.tui.bar.footer import VersionFooter
 
 TR = i18n.tr
 
@@ -54,6 +55,10 @@ def refresh_all_screens(app: Any) -> None:
                 refresh_language()
             except Exception:
                 pass
+        try:
+            screen.query_one(VersionFooter).refresh_language()
+        except Exception:
+            pass
 
 
 def handle_appbar(screen: Any, event: Button.Pressed) -> bool:

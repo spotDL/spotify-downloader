@@ -1,32 +1,42 @@
+import os
 import signal
 from typing import List, Optional
 
 from textual.app import App
 from textual.screen import Screen
-from textual.theme import Theme
 
 from spotdl._version import __version__
 from spotdl.console.tui import i18n
+from spotdl.console.tui.constants import SPOTDL_THEME
 from spotdl.console.tui.css import CSS
 from spotdl.console.tui.screens import MainMenuScreen, QueryScreen
 from spotdl.console.tui.state import AppState
 
 __all__ = ["SpotdlApp", "run_interactive"]
 
-SPOTDL_THEME = Theme(
-    name="spotdl",
-    dark=True,
-    primary="#1DB954",
-    secondary="#1ED760",
-    accent="#1ED760",
-    foreground="#FFFFFF",
-    background="#121212",
-    surface="#181818",
-    panel="#282828",
-    warning="#FFB020",
-    error="#F15E5E",
-    success="#1DB954",
-)
+
+def _needs_first_run_setup() -> bool:
+    if os.environ.get("SPOTDL_SKIP_AUTO_SETUP"):
+        return False
+
+    from spotdl.utils.config import get_configured_data_dir
+    from spotdl.utils.deno import is_deno_installed
+    from spotdl.utils.ffmpeg import is_ffmpeg_installed
+
+    if get_configured_data_dir() is not None:
+        return False
+
+    return not is_ffmpeg_installed() or not is_deno_installed()
+
+
+def _maybe_run_first_run_setup() -> None:
+    if not _needs_first_run_setup():
+        return
+
+    from spotdl.console.tui.setup_app import run_setup_ui
+    from spotdl.utils.config import get_configured_data_dir
+
+    run_setup_ui(get_configured_data_dir())
 
 
 class SpotdlApp(App):
@@ -50,6 +60,7 @@ class SpotdlApp(App):
 
 def run_interactive(query: Optional[List[str]] = None) -> None:
     i18n.init()
+    _maybe_run_first_run_setup()
     app = SpotdlApp(query=query)
 
     def _handle_signal(_signum, _frame) -> None:

@@ -341,6 +341,8 @@ def calc_main_artist_match(song: Song, result: Result) -> float:
     # Result has only one artist, but song has multiple artists
     # we can assume that other artists are in the main artist name
     if len(song.artists) > 1 and len(result.artists) == 1:
+        main_artist_match = ratio(slug_song_main_artist, slug_result_main_artist)
+
         for artist in map(slugify, song.artists[1:]):
             artist = sort_string(slugify(artist).split("-"), "-")
 
@@ -721,7 +723,12 @@ def order_results(
 
         # Calculate initial artist match value
         debug(song.song_id, result.result_id, f"Initial artists match: {artists_match}")
-        artists_match = artists_match / (2 if len(song.artists) > 1 else 1)
+        # Don't divide by 2 when result has only 1 artist because
+        # calc_artists_match returns 0 for single-result-artist case,
+        # making the max possible score 50 instead of 100.
+        result_artists_len = len(result.artists) if result.artists else 0
+        divide = 2 if len(song.artists) > 1 and result_artists_len > 1 else 1
+        artists_match = artists_match / divide
         debug(song.song_id, result.result_id, f"First artists match: {artists_match}")
 
         # First attempt to fix artist match

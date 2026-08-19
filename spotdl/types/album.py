@@ -97,7 +97,7 @@ class Album(SongList):
                 tracks_count=album_metadata["total_tracks"],
                 song_id=track["id"],
                 explicit=track["explicit"],
-                publisher=album_metadata["label"],
+                publisher=album_metadata.get("label", ""),
                 url=track["external_urls"]["spotify"],
                 cover_url=upgrade_cover_url(
                     max(

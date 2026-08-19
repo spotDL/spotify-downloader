@@ -1,6 +1,7 @@
 import pytest
 
 from spotdl.types.artist import Artist
+from spotdl.types.song import Song
 
 
 def test_artist_init():
@@ -53,6 +54,52 @@ def test_artist_from_url():
     assert artist.url == "https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6"
     assert len(artist.songs) > 1
     assert len(artist.albums) > 2
+
+
+def test_song_duplicate_key_keeps_live_and_album_variants_distinct():
+    """Same song title should stay distinct when the album or version differs."""
+
+    studio_variant = Song.from_missing_data(
+        name="No Surprises",
+        artist="Radiohead",
+        album_name="OK Computer",
+        artists=["Radiohead"],
+    )
+    live_variant = Song.from_missing_data(
+        name="No Surprises (Live)",
+        artist="Radiohead",
+        album_name="OK Computer",
+        artists=["Radiohead"],
+    )
+    other_album_variant = Song.from_missing_data(
+        name="No Surprises",
+        artist="Radiohead",
+        album_name="Live in Berlin",
+        artists=["Radiohead"],
+    )
+
+    assert studio_variant.duplicate_key != live_variant.duplicate_key
+    assert studio_variant.duplicate_key != other_album_variant.duplicate_key
+    assert live_variant.duplicate_key != other_album_variant.duplicate_key
+
+
+def test_song_duplicate_key_matches_identical_tracks():
+    """Identical title, album and artist should produce the same key."""
+
+    first = Song.from_missing_data(
+        name="No Surprises",
+        artist="Radiohead",
+        album_name="OK Computer",
+        artists=["Radiohead"],
+    )
+    second = Song.from_missing_data(
+        name="No Surprises",
+        artist="Radiohead",
+        album_name="OK Computer",
+        artists=["Radiohead"],
+    )
+
+    assert first.duplicate_key == second.duplicate_key
 
 
 @pytest.mark.vcr()

@@ -11,6 +11,7 @@ from spotdl.utils.deno import get_local_deno, is_deno_installed
 from spotdl.utils.ffmpeg import download_ffmpeg as ffmpeg_download
 from spotdl.utils.ffmpeg import get_local_ffmpeg, is_ffmpeg_installed
 from spotdl.utils.github import check_for_updates as get_update_status
+from spotdl.utils.setup import run_setup
 
 __all__ = [
     "is_frozen",
@@ -20,6 +21,7 @@ __all__ = [
     "check_for_updates",
     "download_ffmpeg",
     "download_deno",
+    "run_setup",
     "ACTIONS",
 ]
 
@@ -150,4 +152,5 @@ ACTIONS = {
     "--check-for-updates": check_for_updates,
     "--download-ffmpeg": download_ffmpeg,
     "--download-deno": download_deno,
+    "--setup": run_setup,
 }

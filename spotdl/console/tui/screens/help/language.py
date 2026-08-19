@@ -6,6 +6,7 @@ from textual.widgets import Header, OptionList, Static
 from textual.widgets.option_list import Option
 
 from spotdl.console.tui import i18n
+from spotdl.console.tui.bar import VersionFooter
 
 TR = i18n.tr
 
@@ -27,6 +28,7 @@ class LanguageScreen(Screen):
                 yield OptionList(*options)
                 yield Static(TR("language.hint"), classes="menu-hint")
                 yield Static("", id="status")
+        yield VersionFooter()
 
     def action_back(self) -> None:
         self.app.pop_screen()

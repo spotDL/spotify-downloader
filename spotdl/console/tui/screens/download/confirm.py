@@ -7,10 +7,10 @@ from textual.screen import Screen
 from textual.widgets import Button, Static
 
 from spotdl.console.tui import i18n
-from spotdl.console.tui.bar import AppBar, handle_appbar
+from spotdl.console.tui.bar import AppBar, VersionFooter, handle_appbar
 
 if TYPE_CHECKING:
-    from spotdl.console.tui.screens.download import DownloadScreen
+    from spotdl.console.tui.screens.download.download import DownloadScreen
 
 TR = i18n.tr
 
@@ -88,6 +88,7 @@ class ConfirmScreen(Screen):
                         id="confirm-download-btn",
                     )
                     yield Button(TR("confirm.btn_modify"), id="confirm-modify-btn")
+        yield VersionFooter()
 
     def action_modify(self) -> None:
         self._modify()
@@ -105,8 +106,6 @@ class ConfirmScreen(Screen):
         self.app.pop_screen()
 
     def _download(self) -> None:
-        from spotdl.console.tui.screens.download import DownloadScreen
+        from spotdl.console.tui.screens.download.download import DownloadScreen
 
-        self.app.switch_screen(
-            DownloadScreen(self.operation, self.songs, self.options)
-        )
+        self.app.switch_screen(DownloadScreen(self.operation, self.songs, self.options))

@@ -14,7 +14,7 @@ from textual.widgets.data_table import RowKey
 
 from spotdl.console.save import save
 from spotdl.console.tui import i18n
-from spotdl.console.tui.bar import AppBar, handle_appbar
+from spotdl.console.tui.bar import AppBar, VersionFooter, handle_appbar
 from spotdl.console.tui.history import add_download_entry
 from spotdl.console.tui.log_handler import BufferLogHandler
 
@@ -73,7 +73,9 @@ class DownloadScreen(Screen):
     def compose(self) -> ComposeResult:
         yield AppBar(TR("appbar.title"))
         with Vertical(id="track-box", classes="box"):
-            yield Static(TR("download.title"), classes="menu-title")
+            yield Static(
+                TR("download.title"), id="download-title", classes="menu-title"
+            )
             table: DataTable = DataTable(zebra_stripes=True, cursor_type="row")
             table.add_column(TR("download.col_song"), key="song")
             table.add_column(TR("download.col_status"), key="status", width=22)
@@ -92,6 +94,7 @@ class DownloadScreen(Screen):
                 yield Button(TR("download.btn_menu"), variant="primary", id="menu-btn")
             yield Static("", id="status")
             yield Static("", id="status-bar", classes="status-bar")
+        yield VersionFooter()
 
     def on_mount(self) -> None:
         table = self.query_one(DataTable)

@@ -5,8 +5,8 @@ from textual.screen import Screen
 from textual.widgets import Markdown, TabbedContent, TabPane
 
 from spotdl.console.tui import i18n
-from spotdl.console.tui.bar import AppBar
-from spotdl.console.tui.screens.builder import CommandBuilder
+from spotdl.console.tui.bar import AppBar, VersionFooter
+from spotdl.console.tui.screens.download.builder import CommandBuilder
 
 TR = i18n.tr
 
@@ -30,6 +30,7 @@ class HelpScreen(Screen):
             with TabPane(TR("cmdbuilder.tab_label"), id="help-builder"):
                 with VerticalScroll(classes="tab-scroll"):
                     yield CommandBuilder()
+        yield VersionFooter()
 
     def action_back(self) -> None:
         self.app.pop_screen()
@@ -38,5 +39,30 @@ class HelpScreen(Screen):
         try:
             tabs = self.query_one("#help-tabs", TabbedContent)
             tabs.active = "help-builder"
+        except Exception:
+            pass
+
+    def refresh_language(self) -> None:
+        try:
+            appbar = self.query_one(AppBar)
+            appbar.set_title(TR("appbar.title"))
+        except Exception:
+            pass
+        try:
+            tabs = self.query_one("#help-tabs", TabbedContent)
+            tabs.get_tab("help-reference").label = TR("help.title")
+            tabs.get_tab("help-builder").label = TR("cmdbuilder.tab_label")
+        except Exception:
+            pass
+        try:
+            self.query_one(Markdown).update(TR("help.body"))
+        except Exception:
+            pass
+        try:
+            self.query_one(CommandBuilder).refresh_language()
+        except Exception:
+            pass
+        try:
+            self.query_one(VersionFooter).refresh_language()
         except Exception:
             pass

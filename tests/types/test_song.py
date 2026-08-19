@@ -140,8 +140,7 @@ def test_song_from_data_dump():
     """
 
     # Loads from str
-    song = Song.from_data_dump(
-        """
+    song = Song.from_data_dump("""
         {
             "name": "Ropes",
             "artists": ["Dirty Palm", "Chandler Jewels"],
@@ -168,8 +167,7 @@ def test_song_from_data_dump():
             "url": "https://open.spotify.com/track/1t2qKa8K72IBC8yQlhD9bU",
             "popularity": 0
         }
-        """
-    )
+        """)
 
     assert song.name == "Ropes"
     assert song.artists == ["Dirty Palm", "Chandler Jewels"]

@@ -21,7 +21,7 @@ from textual.widgets import (
 )
 
 from spotdl.console.tui import i18n
-from spotdl.console.tui.bar import AppBar, handle_appbar
+from spotdl.console.tui.bar import AppBar, VersionFooter, handle_appbar
 from spotdl.console.tui.constants import (
     AUDIO_PROVIDERS,
     BITRATES,
@@ -29,7 +29,7 @@ from spotdl.console.tui.constants import (
     LYRICS_PROVIDERS,
 )
 from spotdl.console.tui.history import add_url_entry
-from spotdl.console.tui.screens.tracklist import TrackListScreen
+from spotdl.console.tui.screens.download.tracklist import TrackListScreen
 from spotdl.console.tui.widgets import DirModal
 from spotdl.utils.search import get_simple_songs
 
@@ -56,7 +56,7 @@ TEMPLATES = {
         "dont-filter-results-checkbox": False,
         "only-verified-results-checkbox": False,
         "preload-checkbox": True,
-        "generate-lrc-checkbox": True,
+        "generate-lrc-checkbox": False,
     },
     _TEMPLATE_EFFICIENT: {
         "format": "mp3",
@@ -83,7 +83,7 @@ TEMPLATES = {
         "dont-filter-results-checkbox": False,
         "only-verified-results-checkbox": True,
         "preload-checkbox": False,
-        "generate-lrc-checkbox": True,
+        "generate-lrc-checkbox": False,
     },
 }
 
@@ -345,6 +345,8 @@ class QueryScreen(Screen):
                         variant="primary",
                         id="search-btn",
                     )
+
+        yield VersionFooter()
 
     def action_back(self) -> None:
         self.app.pop_screen()

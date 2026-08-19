@@ -75,6 +75,7 @@ class MenuPopover(ModalScreen[Any]):
             with Vertical(id="popover-actions"):
                 yield Button(TR("popover.help"), id="popover-help-btn")
                 yield Button(TR("popover.builder"), id="popover-builder-btn")
+                yield Button(TR("popover.setup"), id="popover-setup-btn")
                 yield Button(TR("popover.quit"), id="popover-quit-btn")
 
     @staticmethod
@@ -108,6 +109,8 @@ class MenuPopover(ModalScreen[Any]):
             self._open_screen("help-reference")
         elif button_id == "popover-builder-btn":
             self._open_screen("help-builder")
+        elif button_id == "popover-setup-btn":
+            self._open_setup()
         elif button_id == "popover-quit-btn":
             self.app.exit()
 
@@ -120,6 +123,12 @@ class MenuPopover(ModalScreen[Any]):
 
         self.app.pop_screen()
         self.app.push_screen(HelpScreen(initial_tab=tab))
+
+    def _open_setup(self) -> None:
+        from spotdl.console.tui.setup_app import open_setup_screen
+
+        self.dismiss(None)
+        open_setup_screen(self.app)
 
     def action_back(self) -> None:
         self.dismiss(None)

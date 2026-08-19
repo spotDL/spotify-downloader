@@ -8,7 +8,7 @@ from textual.screen import Screen
 from textual.widgets import Button, Static
 
 from spotdl.console.tui import i18n
-from spotdl.console.tui.bar import AppBar, handle_appbar
+from spotdl.console.tui.bar import AppBar, VersionFooter, handle_appbar
 from spotdl.console.tui.settings import build_downloader_settings
 from spotdl.console.web import web
 from spotdl.types.options import DownloaderOptions, WebOptions
@@ -25,12 +25,16 @@ class WebScreen(Screen):
         yield AppBar(TR("appbar.title"))
         with Center():
             with Vertical(classes="box"):
-                yield Static(TR("web.title"), classes="menu-title")
-                yield Static(TR("web.info"))
-                yield Static(TR("web.starting", host="127.0.0.1", port="8080"))
+                yield Static(TR("web.title"), id="web-title", classes="menu-title")
+                yield Static(TR("web.info"), id="web-info")
+                yield Static(
+                    TR("web.starting", host="127.0.0.1", port="8080"),
+                    id="web-starting",
+                )
                 with Horizontal(classes="row"):
                     yield Button(TR("common.back"), id="back-btn")
                 yield Static("", id="status")
+        yield VersionFooter()
 
     def on_mount(self) -> None:
         def run_web() -> None:
@@ -69,3 +73,23 @@ class WebScreen(Screen):
             return
         if event.button.id == "back-btn":
             self.action_back()
+
+    def refresh_language(self) -> None:
+        try:
+            appbar = self.query_one(AppBar)
+            appbar.set_title(TR("appbar.title"))
+        except Exception:
+            pass
+        try:
+            self.query_one("#web-title", Static).update(TR("web.title"))
+            self.query_one("#web-info", Static).update(TR("web.info"))
+            self.query_one("#web-starting", Static).update(
+                TR("web.starting", host="127.0.0.1", port="8080")
+            )
+            self.query_one("#back-btn", Button).label = TR("common.back")
+        except Exception:
+            pass
+        try:
+            self.query_one(VersionFooter).refresh_language()
+        except Exception:
+            pass

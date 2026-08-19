@@ -12,7 +12,7 @@ from textual.widgets import Button, Input, Label, RichLog, Static
 
 from spotdl.console.meta import meta
 from spotdl.console.tui import i18n
-from spotdl.console.tui.bar import AppBar, handle_appbar
+from spotdl.console.tui.bar import AppBar, VersionFooter, handle_appbar
 from spotdl.console.url import url
 
 if TYPE_CHECKING:
@@ -45,14 +45,15 @@ class SimpleOpScreen(Screen):
                     placeholder = TR("url.ph_query")
                     run_label = TR("url.btn_run")
 
-                yield Static(title, classes="menu-title")
-                yield Label(label)
+                yield Static(title, id="simple-title", classes="menu-title")
+                yield Label(label, id="simple-label")
                 yield Input(placeholder=placeholder, id="op-input")
                 with Horizontal(classes="row"):
                     yield Button(run_label, variant="primary", id="run-btn")
                     yield Button(TR("query.btn_back"), id="back-btn")
                 yield RichLog(highlight=True, id="op-log", wrap=True)
                 yield Static("", id="status")
+        yield VersionFooter()
 
     def action_back(self) -> None:
         self.app.pop_screen()
@@ -130,3 +131,34 @@ class SimpleOpScreen(Screen):
         self.query_one("#status", Static).update(
             TR("meta.done" if self.operation == "meta" else "url.done")
         )
+
+    def refresh_language(self) -> None:
+        try:
+            appbar = self.query_one(AppBar)
+            appbar.set_title(TR("appbar.title"))
+        except Exception:
+            pass
+
+        if self.operation == "meta":
+            title = TR("meta.title")
+            label = TR("meta.path_label")
+            placeholder = TR("meta.ph_path")
+            run_label = TR("meta.btn_run")
+        else:
+            title = TR("url.title")
+            label = TR("query.url_label")
+            placeholder = TR("url.ph_query")
+            run_label = TR("url.btn_run")
+
+        try:
+            self.query_one("#simple-title", Static).update(title)
+            self.query_one("#simple-label", Label).update(label)
+            self.query_one("#op-input", Input).placeholder = placeholder
+            self.query_one("#run-btn", Button).label = run_label
+            self.query_one("#back-btn", Button).label = TR("query.btn_back")
+        except Exception:
+            pass
+        try:
+            self.query_one(VersionFooter).refresh_language()
+        except Exception:
+            pass

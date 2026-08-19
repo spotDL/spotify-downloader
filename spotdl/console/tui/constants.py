@@ -1,3 +1,20 @@
+from textual.theme import Theme
+
+SPOTDL_THEME = Theme(
+    name="spotdl",
+    dark=True,
+    primary="#1DB954",
+    secondary="#1ED760",
+    accent="#1ED760",
+    foreground="#FFFFFF",
+    background="#121212",
+    surface="#181818",
+    panel="#282828",
+    warning="#FFB020",
+    error="#F15E5E",
+    success="#1DB954",
+)
+
 FORMATS = ["mp3", "flac", "m4a", "opus", "ogg", "wav"]
 BITRATES = ["auto", "320k", "256k", "192k", "128k", "96k", "disable"]
 AUDIO_PROVIDERS = ["youtube-music", "youtube", "soundcloud", "bandcamp", "slider.kz"]

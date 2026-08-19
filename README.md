@@ -4,6 +4,69 @@
 > detected while using the upstream project. This is a fork with improvements only:
 > no pull requests, no contributions, and no affiliation with the upstream project.
 
+## Installing the fork
+
+Everything for the fork lands in a single directory, chosen by you.
+
+1. Pick a directory and clone the fork into it:
+
+   ```sh
+   git clone https://github.com/VictorGugug/spotify-downloader ~/spotdl-fork
+   cd ~/spotdl-fork
+   ```
+
+2. Install it from that same directory with `uv` (recommended) or `pip`:
+
+   ```sh
+   pip install uv
+   uv sync
+   ```
+
+   or, without `uv`:
+
+   ```sh
+   pip install -e .
+   ```
+
+3. Run the interactive setup once. It asks where to keep ffmpeg, Deno,
+   config, cache and history (the current directory, a new subfolder, or a
+   custom path you type), then downloads what is needed there:
+
+   ```sh
+   uv run spotdl --setup
+   ```
+
+   or, without `uv`:
+
+   ```sh
+   spotdl --setup
+   ```
+
+4. Launch the interactive TUI:
+
+   ```sh
+   uv run spotdl interactive
+   ```
+
+   or, without `uv`:
+
+   ```sh
+   spotdl interactive
+   ```
+
+To update later, from that same `~/spotdl-fork` directory:
+
+```sh
+git pull
+uv sync
+spotdl --setup
+```
+
+`git pull` updates the fork's own code, `uv sync` updates its Python
+dependencies, and `spotdl --setup` re-checks ffmpeg and Deno, downloading a
+newer build only if one is available. Run `spotdl` or `spotdl interactive`
+normally afterwards, nothing else changes.
+
 <!--- mdformat-toc start --slug=github --->
 
 <!---

@@ -188,7 +188,7 @@ TabPane {
 
 #track-box {
     width: 100%;
-    height: 100%;
+    height: 1fr;
 }
 
 DataTable {
@@ -294,13 +294,12 @@ DirectoryTree {
     margin-top: 1;
 }
 
-#home-version {
+#version-footer {
     dock: bottom;
+    height: 1;
     color: $text-muted;
     text-style: dim;
-    height: 1;
     padding: 0 1;
-    border-top: solid $panel;
 }
 
 #add-download {
@@ -394,5 +393,55 @@ Screen.-wide .home-cards Button {
 
 Screen.-very-wide #add-download .dir-browse-row {
     width: 1fr;
+}
+
+#setup-box {
+    width: 74;
+    max-height: 90%;
+    overflow-y: auto;
+}
+
+#setup-current {
+    color: $text-muted;
+    margin-bottom: 1;
+}
+
+#setup-choices {
+    height: auto;
+    max-height: 12;
+    margin-bottom: 1;
+}
+
+#setup-custom-row {
+    height: auto;
+    margin-bottom: 1;
+}
+
+#setup-custom-row Input {
+    width: 1fr;
+}
+
+#setup-btns Button {
+    margin-right: 1;
+}
+
+#setup-progress-box {
+    width: 74;
+    max-height: 90%;
+    overflow-y: auto;
+}
+
+#setup-progress-table {
+    height: auto;
+    margin-bottom: 1;
+}
+
+#setup-progress-log {
+    height: 10;
+    margin: 1 0;
+}
+
+#setup-progress-btns Button {
+    margin-right: 1;
 }
 """

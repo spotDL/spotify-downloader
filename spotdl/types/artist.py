@@ -90,14 +90,13 @@ class Artist(SongList):
             album_obj = Album.from_url(album, fetch_songs=False)
             songs.extend(album_obj.songs)
 
-        # Very aggressive deduplication
         songs_list = []
-        songs_names = set()
+        seen_keys: Set[str] = set()
         for song in songs:
-            slug_name = slugify(song.name)
-            if song.name not in songs_names:
+            key = song.duplicate_key
+            if key not in seen_keys:
                 songs_list.append(song)
-                songs_names.add(slug_name)
+                seen_keys.add(key)
 
         metadata = {
             "name": raw_artist_meta["name"],

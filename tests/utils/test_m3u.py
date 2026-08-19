@@ -1,5 +1,3 @@
-import pytest
-
 from spotdl.types.playlist import Playlist
 from spotdl.types.song import Song
 from spotdl.utils.m3u import create_m3u_content, create_m3u_file, gen_m3u_files
@@ -34,6 +32,15 @@ def test_gen_m3u_files(tmp_path, monkeypatch):
     gen_m3u_files(songs, "./{list}", "", "mp3")
 
     assert (tmp_path / "something or other.m3u8").is_file()
+
+
+def test_gen_m3u_files_default_template_uses_playlist_name(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    songs = [_song(list_name="My Awesome Playlist")]
+
+    gen_m3u_files(songs, "{list[0]}.m3u8", "", "mp3")
+
+    assert (tmp_path / "My Awesome Playlist.m3u8").is_file()
 
 
 def _song(list_name):

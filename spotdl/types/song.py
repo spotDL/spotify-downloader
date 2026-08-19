@@ -3,6 +3,7 @@ Song module that hold the Song and SongList classes.
 """
 
 import json
+import re
 from dataclasses import asdict, dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -295,6 +296,28 @@ class Song:
         """
 
         return f"{self.artist} - {self.name}"
+
+    @property
+    def duplicate_key(self) -> str:
+        """
+        Returns a key used to detect duplicate songs. The full title, album
+        name and artist are kept (including markers like "(Live)" or
+        "(feat. ...)") so different versions of the same song are treated
+        as distinct.
+
+        ### Returns
+        - The duplicate detection key.
+        """
+        title = self.name or ""
+        album = self.album_name or ""
+
+        def normalize(value: str) -> str:
+            normalized = value.strip()
+            normalized = normalized.replace("_", " ")
+            normalized = re.sub(r"\s+", " ", normalized)
+            return normalized.lower()
+
+        return f"{normalize(title)}|{normalize(album)}|{normalize(self.artist)}"
 
     @property
     def json(self) -> Dict[str, Any]:

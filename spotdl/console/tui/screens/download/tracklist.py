@@ -2,6 +2,7 @@ import asyncio
 import logging
 from typing import TYPE_CHECKING, Any, Dict, List, Set, cast
 
+from rich.text import Text
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
@@ -11,8 +12,8 @@ from textual.widgets.data_table import RowKey
 
 from spotdl.console.save import save
 from spotdl.console.tui import i18n
-from spotdl.console.tui.bar import AppBar, handle_appbar
-from spotdl.console.tui.screens.confirm import ConfirmScreen
+from spotdl.console.tui.bar import AppBar, VersionFooter, handle_appbar
+from spotdl.console.tui.screens.download.confirm import ConfirmScreen
 from spotdl.console.tui.settings import format_duration
 
 if TYPE_CHECKING:
@@ -57,6 +58,7 @@ class TrackListScreen(Screen):
         with Vertical(id="track-box", classes="box"):
             yield Static(
                 TR("tracklist.title", count=str(len(self.songs))),
+                id="track-title",
                 classes="menu-title",
             )
             table: DataTable = DataTable(zebra_stripes=True, cursor_type="row")
@@ -79,6 +81,7 @@ class TrackListScreen(Screen):
                 )
                 yield Button(TR("tracklist.btn_back"), id="back-btn")
             yield Static("", id="status")
+        yield VersionFooter()
 
     def on_mount(self) -> None:
         table = self.query_one(DataTable)
@@ -202,3 +205,43 @@ class TrackListScreen(Screen):
                 app.call_from_thread(screen.app.notify, str(exc), severity="error")
 
         self.run_worker(run_save, thread=True, exclusive=True, group="save")
+
+    def refresh_language(self) -> None:
+        try:
+            appbar = self.query_one(AppBar)
+            appbar.set_title(TR("appbar.title"))
+        except Exception:
+            pass
+        try:
+            self.query_one("#track-title", Static).update(
+                TR("tracklist.title", count=str(len(self.songs)))
+            )
+        except Exception:
+            pass
+        try:
+            table = self.query_one(DataTable)
+            column_keys = {
+                "sel": "tracklist.col_sel",
+                "title": "tracklist.col_title",
+                "artist": "tracklist.col_artist",
+                "album": "tracklist.col_album",
+                "duration": "tracklist.col_duration",
+                "explicit": "tracklist.col_explicit",
+            }
+            for key, tr_key in column_keys.items():
+                table.columns[key].label = Text(TR(tr_key))  # type: ignore[index]
+            table.refresh()
+        except Exception:
+            pass
+        try:
+            self.query_one("#all-btn", Button).label = TR("tracklist.btn_all")
+            self.query_one("#none-btn", Button).label = TR("tracklist.btn_none")
+            self.query_one("#invert-btn", Button).label = TR("tracklist.btn_invert")
+            self.query_one("#back-btn", Button).label = TR("tracklist.btn_back")
+        except Exception:
+            pass
+        try:
+            self.query_one(VersionFooter).refresh_language()
+        except Exception:
+            pass
+        self._refresh_selected()

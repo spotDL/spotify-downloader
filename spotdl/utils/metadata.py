@@ -289,7 +289,7 @@ def embed_cover(audio_file, song: Song, encoding: str):
     # Try to download the cover art
     try:
         cover_data = requests.get(
-            upgrade_cover_url(song.cover_url),
+            upgrade_cover_url(song.cover_url) or "",
             timeout=10,
             proxies=GlobalConfig.get_parameter("proxies"),
         ).content
@@ -601,7 +601,7 @@ def embed_wav_file(output_file: Path, song: Song):
     if song.cover_url:
         try:
             cover_data = requests.get(
-                upgrade_cover_url(song.cover_url), timeout=10
+                upgrade_cover_url(song.cover_url) or "", timeout=10
             ).content
             audio.tags.add(  # type: ignore
                 APIC(

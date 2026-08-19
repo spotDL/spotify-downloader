@@ -5,18 +5,14 @@ from textual.screen import Screen
 from textual.widgets import Button, Static
 
 from spotdl.console.tui import i18n
-from spotdl.console.tui.bar import AppBar, handle_appbar
+from spotdl.console.tui.bar import AppBar, VersionFooter, handle_appbar
 from spotdl.console.tui.history import load_history
-from spotdl.console.tui.screens.query import QueryScreen
-from spotdl.console.tui.screens.simple_op import SimpleOpScreen
-from spotdl.console.tui.screens.web import WebScreen
+from spotdl.console.tui.screens.download.query import QueryScreen
+from spotdl.console.tui.screens.download.simple_op import SimpleOpScreen
+from spotdl.console.tui.screens.web.web import WebScreen
 from spotdl.console.tui.versions import (
-    FORK_VERSION,
-    UPSTREAM_BASE_VERSION,
     fetch_upstream_latest_version,
     get_cached_upstream_latest_version,
-    get_latest_fork_changelog_version,
-    parse_version,
     set_cached_upstream_latest_version,
 )
 from spotdl.utils.ffmpeg import is_ffmpeg_installed
@@ -59,20 +55,6 @@ def _format_recent(history) -> str:
     return "\n".join(lines)
 
 
-def _format_version_line(upstream_latest) -> str:
-    fork_version = get_latest_fork_changelog_version() or FORK_VERSION
-    line = TR(
-        "home.version_line",
-        upstream=UPSTREAM_BASE_VERSION,
-        fork=fork_version,
-    )
-    if upstream_latest and parse_version(upstream_latest) > parse_version(
-        UPSTREAM_BASE_VERSION
-    ):
-        line += " " + TR("home.upstream_update_available", version=upstream_latest)
-    return line
-
-
 class MainMenuScreen(Screen):
     BINDINGS = [
         Binding("escape", "quit_app", "quit"),
@@ -107,7 +89,7 @@ class MainMenuScreen(Screen):
             if not is_ffmpeg_installed():
                 yield Static(TR("query.no_ffmpeg"), id="ffmpeg-warn")
             yield Static("", id="status")
-            yield Static(_format_version_line(None), id="home-version")
+        yield VersionFooter()
 
     def on_mount(self) -> None:
         self.refresh_language()
@@ -125,9 +107,7 @@ class MainMenuScreen(Screen):
 
     def _apply_upstream_version(self, upstream_latest: str) -> None:
         try:
-            self.query_one("#home-version", Static).update(
-                _format_version_line(upstream_latest)
-            )
+            self.query_one(VersionFooter).apply_upstream(upstream_latest)
         except Exception:
             pass
 
@@ -136,7 +116,9 @@ class MainMenuScreen(Screen):
 
     def refresh_history(self) -> None:
         try:
-            self.query_one("#home-recent", Static).update(_format_recent(load_history()))
+            self.query_one("#home-recent", Static).update(
+                _format_recent(load_history())
+            )
         except Exception:
             pass
 
@@ -155,6 +137,7 @@ class MainMenuScreen(Screen):
                 button.label = f"{icon} {label}"
                 button.tooltip = label
             self.query_one("#home-new-download", Button).label = TR("home.new_download")
+            self.query_one(VersionFooter).refresh_language()
         except Exception:
             pass
 
