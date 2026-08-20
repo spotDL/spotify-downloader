@@ -80,7 +80,7 @@ class LyricsProvider:
         try:
             results = self.get_results(name, artists, **kwargs)
         except Exception as exc:
-            logger.debug(
+            logger.warning(
                 "%s: Failed to get results for %s - %s: %s",
                 self.name,
                 name,

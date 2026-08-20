@@ -2,15 +2,16 @@
 MusixMatch lyrics provider.
 """
 
+import logging
 from typing import Dict, List, Optional
 from urllib.parse import quote
 
-import requests
+# import requests
 from bs4 import BeautifulSoup
 
 from spotdl.providers.lyrics.base import LyricsProvider
 from spotdl.utils.config import GlobalConfig
-
+from curl_cffi import requests
 __all__ = ["MusixMatch"]
 
 
@@ -33,9 +34,11 @@ class MusixMatch(LyricsProvider):
 
         lyrics_resp = requests.get(
             url,
-            headers=self.headers,
+            impersonate=chrome110,
+            # headers=self.headers,
             timeout=10,
             proxies=GlobalConfig.get_parameter("proxies"),
+
         )
 
         lyrics_soup = BeautifulSoup(lyrics_resp.text, "html.parser")
@@ -67,13 +70,13 @@ class MusixMatch(LyricsProvider):
         query = quote(f"{name} - {artists_str}", safe="")
 
         # search the `tracks page` if track_search is True
-        if track_search:
-            query += "/tracks"
+        # if track_search:
+        #     query += "%20tracks"
 
-        search_url = f"https://www.musixmatch.com/search/{query}"
+        search_url = f"https://www.musixmatch.com/search?query={query}"
         search_resp = requests.get(
             search_url,
-            headers=self.headers,
+            impersonate="chrome110",
             timeout=10,
             proxies=GlobalConfig.get_parameter("proxies"),
         )
@@ -87,11 +90,19 @@ class MusixMatch(LyricsProvider):
         song_url_tag = search_soup.select("a[href^='/lyrics/']")
 
         if not song_url_tag:
+            # If Musixmatch returned a valid page but no lyrics links, it's likely the unauthenticated SPA
+            if search_soup.find("script", id="__NEXT_DATA__"):
+                logger = logging.getLogger(__name__)
+                logger.warning(
+                    f"MusixMatch: Received {search_resp.status_code} for {name}, but search results are hidden by Musixmatch authentication."
+                )
+                return {}
+
             # song_url_tag being None means no results were found on the
             # All Results page, therefore, we use `track_search` to
             # search the tracks page.
 
-            # track_serach being True means we are already searching the tracks page.
+            # track_search being True means we are already searching the tracks page.
             if track_search:
                 return {}
 
