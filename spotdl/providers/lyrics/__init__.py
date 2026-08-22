@@ -13,7 +13,7 @@ __all__ = [
     "AzLyrics",
     "Genius",
     "Lrclib",
+    "LyricsProvider",
     "MusixMatch",
     "Synced",
-    "LyricsProvider",
 ]
