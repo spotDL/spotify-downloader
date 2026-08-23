@@ -63,9 +63,9 @@ class TrackListScreen(Screen):
             )
             table: DataTable = DataTable(zebra_stripes=True, cursor_type="row")
             table.add_column(TR("tracklist.col_sel"), key="sel", width=5)
-            table.add_column(TR("tracklist.col_title"), key="title", width=30)
-            table.add_column(TR("tracklist.col_artist"), key="artist", width=22)
-            table.add_column(TR("tracklist.col_album"), key="album", width=20)
+            table.add_column(TR("tracklist.col_title"), key="title", width=38)
+            table.add_column(TR("tracklist.col_artist"), key="artist", width=25)
+            table.add_column(TR("tracklist.col_album"), key="album", width=25)
             table.add_column(TR("tracklist.col_duration"), key="duration", width=10)
             table.add_column(TR("tracklist.col_explicit"), key="explicit", width=6)
             yield table
@@ -74,6 +74,7 @@ class TrackListScreen(Screen):
                 yield Button(TR("tracklist.btn_all"), id="all-btn")
                 yield Button(TR("tracklist.btn_none"), id="none-btn")
                 yield Button(TR("tracklist.btn_invert"), id="invert-btn")
+                yield Button(TR("tracklist.btn_lyrics"), id="lyrics-btn")
                 yield Button(
                     TR("tracklist.btn_proceed", n=0),
                     variant="primary",
@@ -90,11 +91,27 @@ class TrackListScreen(Screen):
             icon = (
                 Text("[✓]", style="bold green") if is_sel else Text("[ ]", style="dim")
             )
+            raw_title = song.name or ""
+            artist_str = (
+                ", ".join(song.artists) if song.artists else (song.artist or "")
+            )
+            clean_title = raw_title
+            if song.artist and clean_title.lower().startswith(
+                f"{song.artist.lower()} - "
+            ):
+                clean_title = clean_title[len(song.artist) + 3 :].strip()
+            elif song.artists:
+                for a in song.artists:
+                    if clean_title.lower().startswith(f"{a.lower()} - "):
+                        clean_title = clean_title[len(a) + 3 :].strip()
+                        break
+
+            album_str = song.album_name or getattr(song, "list_name", "") or "-"
             row_key = table.add_row(
                 icon,
-                song.display_name or song.name or "",
-                ", ".join(song.artists) if song.artists else "",
-                song.album_name or "",
+                clean_title,
+                artist_str,
+                album_str,
                 format_duration(song.duration),
                 "Y" if getattr(song, "explicit", False) else "",
                 key=song.url,
@@ -114,7 +131,7 @@ class TrackListScreen(Screen):
         url = getattr(row_key, "value", None) or str(row_key)
         song = next((s for s in self.songs if s.url == url), None)
         if song is not None:
-            from spotdl.console.tui.lyrics import LyricsScreen
+            from spotdl.console.tui.lyrics.lyricspanel import LyricsScreen
 
             self.app.push_screen(LyricsScreen(song))
 
@@ -159,6 +176,9 @@ class TrackListScreen(Screen):
             return
         if event.button.id == "back-btn":
             self.action_back()
+            return
+        if event.button.id == "lyrics-btn":
+            self.action_view_lyrics()
             return
 
         if event.button.id == "all-btn":
@@ -257,6 +277,7 @@ class TrackListScreen(Screen):
             self.query_one("#all-btn", Button).label = TR("tracklist.btn_all")
             self.query_one("#none-btn", Button).label = TR("tracklist.btn_none")
             self.query_one("#invert-btn", Button).label = TR("tracklist.btn_invert")
+            self.query_one("#lyrics-btn", Button).label = TR("tracklist.btn_lyrics")
             self.query_one("#back-btn", Button).label = TR("tracklist.btn_back")
         except Exception:
             pass

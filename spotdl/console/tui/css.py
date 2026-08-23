@@ -429,6 +429,35 @@ Screen.-very-wide #add-download .dir-browse-row {
     overflow-y: auto;
 }
 
+#setup-header-row {
+    height: auto;
+    width: 1fr;
+    margin-bottom: 1;
+}
+
+#setup-title {
+    width: 1fr;
+}
+
+#setup-lang-bar {
+    width: auto;
+    height: auto;
+}
+
+#setup-lang-bar Button {
+    min-width: 5;
+    height: 1;
+    margin-left: 1;
+    border: none;
+    background: $surface;
+    color: $text;
+}
+
+#setup-lang-bar Button:hover {
+    background: $primary;
+    color: $text;
+}
+
 #setup-current {
     color: $text-muted;
     margin-bottom: 1;

@@ -89,6 +89,7 @@ class DownloadScreen(Screen):
             yield RichLog(highlight=True, markup=True, id="log", wrap=True)
 
             with Horizontal(classes="row"):
+                yield Button(TR("download.btn_lyrics"), id="lyrics-btn")
                 yield Button(TR("download.btn_stop"), id="stop-btn")
                 yield Button(TR("download.btn_copy_log"), id="copy-log-btn")
                 yield Button(TR("download.btn_menu"), variant="primary", id="menu-btn")
@@ -177,7 +178,7 @@ class DownloadScreen(Screen):
         url = getattr(row_key, "value", None) or str(row_key)
         song = next((s for s in self.songs if s.url == url), None)
         if song is not None:
-            from spotdl.console.tui.lyrics import LyricsScreen
+            from spotdl.console.tui.lyrics.lyricspanel import LyricsScreen
 
             self.app.push_screen(LyricsScreen(song))
 
@@ -200,6 +201,9 @@ class DownloadScreen(Screen):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if handle_appbar(self, event):
+            return
+        if event.button.id == "lyrics-btn":
+            self.action_view_lyrics()
             return
         if event.button.id == "stop-btn" and self._active:
             self._active = False

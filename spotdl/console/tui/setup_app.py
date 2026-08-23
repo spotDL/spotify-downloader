@@ -47,7 +47,13 @@ class SetupChooseScreen(Screen):
     def compose(self) -> ComposeResult:
         with Center():
             with Vertical(id="setup-box", classes="box"):
-                yield Static(TR("setup.title"), classes="menu-title", id="setup-title")
+                with Horizontal(id="setup-header-row"):
+                    yield Static(
+                        TR("setup.title"), classes="menu-title", id="setup-title"
+                    )
+                    with Horizontal(id="setup-lang-bar"):
+                        yield Button("EN", id="setup-lang-en")
+                        yield Button("ES", id="setup-lang-es")
                 if self.current is not None:
                     yield Static(
                         TR("setup.current", path=str(self.current)),
@@ -74,8 +80,15 @@ class SetupChooseScreen(Screen):
     def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
         if event.option.id == "3":
             self.query_one("#setup-custom", Input).focus()
-        else:
-            self._confirm()
+
+    def on_option_list_option_highlighted(
+        self, event: OptionList.OptionHighlighted
+    ) -> None:
+        if event.option and event.option.id == "3":
+            try:
+                self.query_one("#setup-custom", Input).focus()
+            except Exception:
+                pass
 
     def refresh_language(self) -> None:
         try:
@@ -108,6 +121,14 @@ class SetupChooseScreen(Screen):
             pass
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "setup-lang-en":
+            i18n.set_language("en")
+            self.refresh_language()
+            return
+        if event.button.id == "setup-lang-es":
+            i18n.set_language("es")
+            self.refresh_language()
+            return
         if event.button.id == "setup-quit":
             self._close()
             return

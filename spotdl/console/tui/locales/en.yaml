@@ -84,6 +84,8 @@ lyrics:
   copy: "Copy to clipboard"
   copied: "Lyrics copied to clipboard."
   copy_failed: "Could not copy the lyrics."
+  save_lrc: "Save .LRC"
+  saved: "Saved to {path}"
 
 menu:
   title: "Main menu"
@@ -215,6 +217,7 @@ tracklist:
   btn_all: "All"
   btn_none: "None"
   btn_invert: "Invert"
+  btn_lyrics: "Lyrics"
   btn_proceed: "Proceed to download ({n})"
   btn_back: "Back"
   total: "{count} selected | total duration {duration}"
@@ -254,6 +257,7 @@ download:
   status_skipped: "Skipped"
   status_lyrics: "Getting lyrics"
   status_partial: "Partial"
+  btn_lyrics: "Lyrics"
   btn_stop: "Stop"
   btn_copy_log: "Copy log"
   btn_menu: "Back to menu"

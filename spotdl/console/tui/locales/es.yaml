@@ -84,6 +84,8 @@ lyrics:
   copy: "Copiar al portapapeles"
   copied: "Letras copiadas al portapapeles."
   copy_failed: "No se pudieron copiar las letras."
+  save_lrc: "Guardar .LRC"
+  saved: "Guardado en {path}"
 
 menu:
   title: "Menu principal"
@@ -215,6 +217,7 @@ tracklist:
   btn_all: "Todo"
   btn_none: "Ninguno"
   btn_invert: "Invertir"
+  btn_lyrics: "Letra"
   btn_proceed: "Proceder a descargar ({n})"
   btn_back: "Volver"
   total: "{count} seleccionadas | duracion total {duration}"
@@ -254,6 +257,7 @@ download:
   status_skipped: "Omitido"
   status_lyrics: "Obteniendo letras"
   status_partial: "Parcial"
+  btn_lyrics: "Letra"
   btn_stop: "Detener"
   btn_copy_log: "Copiar log"
   btn_menu: "Volver al menu"
