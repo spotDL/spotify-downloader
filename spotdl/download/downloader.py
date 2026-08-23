@@ -26,7 +26,14 @@ from spotdl.providers.audio import (
     YouTube,
     YouTubeMusic,
 )
-from spotdl.providers.lyrics import AzLyrics, Genius, LyricsProvider, MusixMatch, Synced
+from spotdl.providers.lyrics import (
+    AzLyrics,
+    Genius,
+    Lrclib,
+    LyricsProvider,
+    MusixMatch,
+    Synced,
+)
 from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
 from spotdl.types.song import Song
 from spotdl.utils.archive import Archive
@@ -62,6 +69,7 @@ AUDIO_PROVIDERS: Dict[str, Type[AudioProvider]] = {
 }
 
 LYRICS_PROVIDERS: Dict[str, Type[LyricsProvider]] = {
+    "lrclib": Lrclib,
     "genius": Genius,
     "musixmatch": MusixMatch,
     "azlyrics": AzLyrics,
