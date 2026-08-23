@@ -6,6 +6,7 @@ import asyncio
 import logging
 import shutil
 import signal
+import socket
 import sys
 import webbrowser
 from pathlib import Path
@@ -32,6 +33,18 @@ __all__ = ["web"]
 logger = logging.getLogger(__name__)
 
 
+def _get_available_port(host: str, port: int) -> int:
+    """Check if the port is free; if not, find the next available port."""
+    for p in range(port, port + 100):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            try:
+                sock.bind((host, p))
+                return p
+            except OSError:
+                continue
+    return port
+
+
 def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     """
     Run the web server.
@@ -43,6 +56,16 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
 
     # Apply the fix for mime types
     fix_mime_types()
+
+    # Automatically resolve port conflicts
+    target_port = _get_available_port(web_settings["host"], web_settings["port"])
+    if target_port != web_settings["port"]:
+        logger.warning(
+            "Port %s is already in use by another application. Using port %s instead.",
+            web_settings["port"],
+            target_port,
+        )
+        web_settings["port"] = target_port
 
     # Set up the app loggers
     uvicorn_logger = logging.getLogger("uvicorn")
