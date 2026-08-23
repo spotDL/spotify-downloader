@@ -87,7 +87,9 @@ class TrackListScreen(Screen):
         table = self.query_one(DataTable)
         for song in self.songs:
             is_sel = song.url in self._selected
-            icon = Text("[✓]", style="bold green") if is_sel else Text("[ ]", style="dim")
+            icon = (
+                Text("[✓]", style="bold green") if is_sel else Text("[ ]", style="dim")
+            )
             row_key = table.add_row(
                 icon,
                 song.display_name or song.name or "",
@@ -130,7 +132,9 @@ class TrackListScreen(Screen):
         self._toggle_song(url)
 
     def on_data_table_cell_selected(self, event: DataTable.CellSelected) -> None:
-        url = getattr(event.cell_key.row_key, "value", None) or str(event.cell_key.row_key)
+        url = getattr(event.cell_key.row_key, "value", None) or str(
+            event.cell_key.row_key
+        )
         self._toggle_song(url)
 
     def _toggle_song(self, url: str) -> None:
@@ -145,7 +149,9 @@ class TrackListScreen(Screen):
         table = self.query_one(DataTable)
         if url in self._row_keys:
             is_sel = url in self._selected
-            icon = Text("[✓]", style="bold green") if is_sel else Text("[ ]", style="dim")
+            icon = (
+                Text("[✓]", style="bold green") if is_sel else Text("[ ]", style="dim")
+            )
             table.update_cell(self._row_keys[url], "sel", icon)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:

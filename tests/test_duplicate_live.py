@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from spotdl.download.downloader import Downloader, is_matching_song_file
 from spotdl.types.song import Song
 from spotdl.utils.config import DOWNLOADER_OPTIONS
@@ -84,7 +85,10 @@ def test_claimed_paths_disambiguation():
     # Check that studio song recognizes base_path is claimed by another song and finds alternative
     candidate = base_path
     counter = 1
-    while candidate in downloader._claimed_paths and downloader._claimed_paths[candidate] != studio_song.url:
+    while (
+        candidate in downloader._claimed_paths
+        and downloader._claimed_paths[candidate] != studio_song.url
+    ):
         candidate = base_path.parent / f"{base_path.stem} ({counter}){base_path.suffix}"
         counter += 1
 

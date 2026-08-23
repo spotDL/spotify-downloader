@@ -118,9 +118,13 @@ def gen_m3u_files(
     elif file_name in ["playlist.m3u8", "playlist.m3u", "playlist"]:
         file_name = "{list[0]}.m3u8"
     elif file_name.replace("\\", "/").endswith("/playlist.m3u8"):
-        file_name = file_name.replace("\\", "/")[:-len("playlist.m3u8")] + "{list[0]}.m3u8"
+        file_name = (
+            file_name.replace("\\", "/")[: -len("playlist.m3u8")] + "{list[0]}.m3u8"
+        )
     elif file_name.replace("\\", "/").endswith("/playlist.m3u"):
-        file_name = file_name.replace("\\", "/")[:-len("playlist.m3u")] + "{list[0]}.m3u8"
+        file_name = (
+            file_name.replace("\\", "/")[: -len("playlist.m3u")] + "{list[0]}.m3u8"
+        )
 
     # If file_name ends with a slash. Does not have a m3u8 name with extension
     # at the end of the template, append `{list[0]}`` to it
@@ -148,10 +152,10 @@ def gen_m3u_files(
     if not lists_object:
         # Fallback to album name or first song name if no list name is present
         fallback_name = (
-            songs[0].album_name
-            or songs[0].name
-            or "playlist"
-        ) if songs else "playlist"
+            (songs[0].album_name or songs[0].name or "playlist")
+            if songs
+            else "playlist"
+        )
         lists_object[fallback_name] = list(songs)
 
     if "{list}" in file_name:

@@ -595,7 +595,10 @@ class Downloader:
                 if matches and not is_claimed_other:
                     output_file = candidate_file
                     break
-            candidate_file = base_output.parent / f"{base_output.stem} ({counter}){base_output.suffix}"
+            candidate_file = (
+                base_output.parent
+                / f"{base_output.stem} ({counter}){base_output.suffix}"
+            )
             counter += 1
 
         self._claimed_paths[output_file] = song.url
@@ -628,7 +631,10 @@ class Downloader:
             if not self.settings["scan_for_songs"]:
                 for file_extension in self.scan_formats:
                     ext_path = output_file.with_suffix(f".{file_extension}")
-                    if ext_path.exists() and ext_path.absolute() != output_file.absolute():
+                    if (
+                        ext_path.exists()
+                        and ext_path.absolute() != output_file.absolute()
+                    ):
                         matches_ext = await loop.run_in_executor(
                             None,
                             is_matching_song_file,

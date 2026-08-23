@@ -36,7 +36,7 @@ _CARDS = [
 
 
 def _get_recent_summary(
-    history: Dict[str, List[Dict[str, Any]]]
+    history: Dict[str, List[Dict[str, Any]]],
 ) -> tuple[str, Optional[str]]:
     downloads = history.get("downloads", [])
     if downloads:
@@ -92,17 +92,15 @@ class MainMenuScreen(Screen):
 
             with Horizontal(classes="home-cards"):
                 for key, card_id, icon, _, _ in _CARDS:
-                    yield Button(f"{icon} {TR(f'home.card_{key}')}", id=card_id, classes="card")
+                    yield Button(
+                        f"{icon} {TR(f'home.card_{key}')}", id=card_id, classes="card"
+                    )
 
             with Vertical(id="home-recent-box"):
-                yield Static(
-                    TR("home.recent_downloads_title"), id="home-recent-title"
-                )
+                yield Static(TR("home.recent_downloads_title"), id="home-recent-title")
                 yield Static("", id="home-recent-summary")
                 with Horizontal(id="home-recent-actions"):
-                    yield Button(
-                        TR("home.view_history"), id="home-view-history"
-                    )
+                    yield Button(TR("home.view_history"), id="home-view-history")
                     yield Button(
                         TR("history.btn_redownload"),
                         variant="primary",
@@ -117,9 +115,7 @@ class MainMenuScreen(Screen):
     def on_mount(self) -> None:
         self.refresh_language()
         self.refresh_history()
-        self.run_worker(
-            self._check_upstream_version, thread=True, group="version"
-        )
+        self.run_worker(self._check_upstream_version, thread=True, group="version")
 
     def _check_upstream_version(self) -> None:
         cached = get_cached_upstream_latest_version()
@@ -146,9 +142,7 @@ class MainMenuScreen(Screen):
             self._last_recent_url = last_url
             self.query_one("#home-recent-summary", Static).update(summary_text)
             has_history = bool(history.get("downloads") or history.get("urls"))
-            self.query_one("#home-recent-redownload", Button).display = bool(
-                last_url
-            )
+            self.query_one("#home-recent-redownload", Button).display = bool(last_url)
             self.query_one("#home-view-history", Button).display = has_history
         except Exception:
             pass
@@ -160,21 +154,15 @@ class MainMenuScreen(Screen):
         except Exception:
             pass
         try:
-            self.query_one("#home-hero-title", Static).update(
-                TR("home.hero_title")
-            )
-            self.query_one("#home-subtitle", Static).update(
-                TR("home.subtitle")
-            )
+            self.query_one("#home-hero-title", Static).update(TR("home.hero_title"))
+            self.query_one("#home-subtitle", Static).update(TR("home.subtitle"))
             self.query_one("#home-new-download", Button).label = TR(
                 "home.btn_add_download"
             )
             self.query_one("#home-recent-title", Static).update(
                 TR("home.recent_downloads_title")
             )
-            self.query_one("#home-view-history", Button).label = TR(
-                "home.view_history"
-            )
+            self.query_one("#home-view-history", Button).label = TR("home.view_history")
             self.query_one("#home-recent-redownload", Button).label = TR(
                 "history.btn_redownload"
             )

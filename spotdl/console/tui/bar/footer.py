@@ -14,9 +14,7 @@ def format_version_line(latest_version: Optional[str] = None) -> str:
         "home.version_line",
         version=SPOTDL_VERSION,
     )
-    if latest_version and parse_version(latest_version) > parse_version(
-        SPOTDL_VERSION
-    ):
+    if latest_version and parse_version(latest_version) > parse_version(SPOTDL_VERSION):
         line += " " + TR("home.upstream_update_available", version=latest_version)
     return line
 

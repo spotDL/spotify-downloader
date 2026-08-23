@@ -353,19 +353,21 @@ class CommandBuilder(Vertical):
                 if "threads" in tmpl:
                     self.query_one("#cmd-threads", Input).value = str(tmpl["threads"])
                 if "dont-filter-results" in tmpl:
-                    self.query_one("#cmd-dont-filter-results", Checkbox).value = tmpl[
-                        "dont-filter-results"
-                    ]
+                    self.query_one("#cmd-dont-filter-results", Checkbox).value = bool(
+                        tmpl["dont-filter-results"]
+                    )
                 if "only-verified-results" in tmpl:
-                    self.query_one("#cmd-only-verified-results", Checkbox).value = tmpl[
-                        "only-verified-results"
-                    ]
+                    self.query_one("#cmd-only-verified-results", Checkbox).value = bool(
+                        tmpl["only-verified-results"]
+                    )
                 if "preload" in tmpl:
-                    self.query_one("#cmd-preload", Checkbox).value = tmpl["preload"]
+                    self.query_one("#cmd-preload", Checkbox).value = bool(
+                        tmpl["preload"]
+                    )
                 if "generate-lrc" in tmpl:
-                    self.query_one("#cmd-generate-lrc", Checkbox).value = tmpl[
-                        "generate-lrc"
-                    ]
+                    self.query_one("#cmd-generate-lrc", Checkbox).value = bool(
+                        tmpl["generate-lrc"]
+                    )
         self.update_command()
 
     def on_input_changed(self, _event: Input.Changed) -> None:
@@ -498,9 +500,9 @@ class CommandBuilder(Vertical):
                 client_id = self.query_one("#cmd-client-id", Input).value.strip()
                 if client_id:
                     parts.append(f'--client-id "{client_id}"')
-                client_secret = (
-                    self.query_one("#cmd-client-secret", Input).value.strip()
-                )
+                client_secret = self.query_one(
+                    "#cmd-client-secret", Input
+                ).value.strip()
                 if client_secret:
                     parts.append(f'--client-secret "{client_secret}"')
 

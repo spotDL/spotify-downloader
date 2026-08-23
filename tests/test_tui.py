@@ -55,8 +55,14 @@ async def test_menu_screen_starts(app):
         await pilot.pause()
         assert MainMenuScreen in [type(s) for s in app.screen_stack]
         labels = [b.label.plain for b in app.screen.query(Button)]
-        assert i18n.tr("home.btn_add_download") in labels or i18n.tr("home.new_download") in labels
-        assert any(i18n.tr("home.card_sync") in lbl or i18n.tr("menu.sync") in lbl for lbl in labels)
+        assert (
+            i18n.tr("home.btn_add_download") in labels
+            or i18n.tr("home.new_download") in labels
+        )
+        assert any(
+            i18n.tr("home.card_sync") in lbl or i18n.tr("menu.sync") in lbl
+            for lbl in labels
+        )
 
 
 @pytest.mark.asyncio
@@ -96,10 +102,12 @@ async def test_query_screen_template_applies(app):
 
 @pytest.mark.asyncio
 async def test_history_screen_navigation(app):
-    from spotdl.console.tui.screens.download.history_screen import HistoryScreen
     from spotdl.console.tui.history import add_download_entry
+    from spotdl.console.tui.screens.download.history_screen import HistoryScreen
 
-    add_download_entry("Test Playlist", "https://open.spotify.com/playlist/test", 10, 10, 0)
+    add_download_entry(
+        "Test Playlist", "https://open.spotify.com/playlist/test", 10, 10, 0
+    )
 
     async with app.run_test() as pilot:
         await pilot.pause()
@@ -113,7 +121,10 @@ async def test_history_screen_navigation(app):
         await pilot.pause()
         await pilot.pause()
         assert isinstance(app.screen, QueryScreen)
-        assert app.screen.query_one("#query-input").value == "https://open.spotify.com/playlist/test"
+        assert (
+            app.screen.query_one("#query-input").value
+            == "https://open.spotify.com/playlist/test"
+        )
 
 
 @pytest.mark.asyncio
@@ -145,7 +156,10 @@ async def test_language_selection_rebuilds_menu(app):
         await pilot.pause()
         assert i18n.get_language() == "es"
         labels = [b.label.plain for b in app.screen.query(Button)]
-        assert i18n.tr("home.btn_add_download") in labels or i18n.tr("home.new_download") in labels
+        assert (
+            i18n.tr("home.btn_add_download") in labels
+            or i18n.tr("home.new_download") in labels
+        )
 
 
 @pytest.mark.asyncio
@@ -233,8 +247,9 @@ def test_downloader_settings_simple_tui():
 
 @pytest.mark.asyncio
 async def test_command_builder_live_update(app):
-    from spotdl.console.tui.screens.download.builder import CommandBuilder
     from textual.widgets import Checkbox, Input, Select
+
+    from spotdl.console.tui.screens.download.builder import CommandBuilder
 
     async with app.run_test() as pilot:
         await pilot.pause()
@@ -242,7 +257,9 @@ async def test_command_builder_live_update(app):
         await pilot.pause()
         await pilot.pause()
         builder = app.screen.query_one(CommandBuilder)
-        builder.query_one("#cmd-query", Input).value = "https://open.spotify.com/track/123"
+        builder.query_one("#cmd-query", Input).value = (
+            "https://open.spotify.com/track/123"
+        )
         builder.query_one("#cmd-format", Select).value = "flac"
         builder.query_one("#cmd-generate-lrc", Checkbox).value = True
         builder.update_command()
@@ -256,8 +273,9 @@ async def test_command_builder_live_update(app):
 
 @pytest.mark.asyncio
 async def test_query_screen_operation_titles(app):
-    from spotdl.console.tui.screens.download.query import QueryScreen
     from textual.widgets import Static
+
+    from spotdl.console.tui.screens.download.query import QueryScreen
 
     i18n.set_language("es", persist=False)
     save_screen = QueryScreen("save")
@@ -270,9 +288,10 @@ async def test_query_screen_operation_titles(app):
 
 @pytest.mark.asyncio
 async def test_history_search_filter(app):
+    from textual.widgets import DataTable, Input
+
     from spotdl.console.tui.history import add_download_entry, clear_history
     from spotdl.console.tui.screens.download.history_screen import HistoryScreen
-    from textual.widgets import DataTable, Input
 
     clear_history()
     add_download_entry("Alpha Song", "https://open.spotify.com/track/alpha", 1, 1, 0)
@@ -294,5 +313,3 @@ async def test_history_search_filter(app):
         await pilot.pause()
         await pilot.pause()
         assert table.row_count == 1
-
-

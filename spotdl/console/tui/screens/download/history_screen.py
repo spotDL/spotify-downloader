@@ -136,9 +136,7 @@ class HistoryScreen(Screen):
             self._filtered_entries = list(self._all_entries)
 
         if self._sort_mode == 1:
-            self._filtered_entries.sort(
-                key=lambda x: str(x.get("name", "")).lower()
-            )
+            self._filtered_entries.sort(key=lambda x: str(x.get("name", "")).lower())
         elif self._sort_mode == 2:
             self._filtered_entries.sort(
                 key=lambda x: int(x.get("count", 0)), reverse=True
@@ -299,12 +297,8 @@ class HistoryScreen(Screen):
             self.query_one("#history-delete-btn", Button).label = TR(
                 "history.btn_delete"
             )
-            self.query_one("#history-clear-btn", Button).label = TR(
-                "history.btn_clear"
-            )
-            self.query_one("#history-back-btn", Button).label = TR(
-                "history.btn_close"
-            )
+            self.query_one("#history-clear-btn", Button).label = TR("history.btn_clear")
+            self.query_one("#history-back-btn", Button).label = TR("history.btn_close")
             self.query_one(VersionFooter).refresh_language()
             self._reload_data()
         except Exception:
