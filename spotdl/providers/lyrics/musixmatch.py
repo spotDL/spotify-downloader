@@ -27,8 +27,15 @@ class MusixMatch(LyricsProvider):
 
         super().__init__()
         self.email=input("enter email for musixmatch ")
-        self.password=getpass("Enter Password")
-        self.cookies = asyncio.run(self.login_and_get_cookies())
+        self.password=input("Enter Password")
+        try:
+            loop=asyncio.get_event_loop()
+        except RuntimeError:
+             loop=asyncio.new_event_loop()
+             asyncio.set_event_loop(loop)
+
+
+        self.cookies = loop.run_until_complete(self.login_and_get_cookies())
 
         print(self.cookies)
 
@@ -72,32 +79,42 @@ class MusixMatch(LyricsProvider):
             return cookies_dict
      
 
-    # def extract_lyrics(self, url: str, **_) -> Optional[str]:
-    #     """
-    #     Extracts the lyrics from the given url.
+    def extract_lyrics(self, url: str, **_) -> Optional[str]:
+        """
+        Extracts the lyrics from the given url.
 
-    #     ### Arguments
-    #     - url: The url to extract the lyrics from.
-    #     - kwargs: Additional arguments.
+        ### Arguments
+        - url: The url to extract the lyrics from.
+        - kwargs: Additional arguments.
 
-    #     ### Returns
-    #     - The lyrics of the song or None if no lyrics were found.
-    #     """
+        ### Returns
+        - The lyrics of the song or None if no lyrics were found.
+        """
 
-    #     lyrics_resp = requests.get(
-    #         url,
-    #         impersonate=chrome110,
-    #         # headers=self.headers,
-    #         timeout=10,
-    #         proxies=GlobalConfig.get_parameter("proxies"),
+        lyrics_resp = requests.get(
+            url,
+            impersonate="chrome110",
+            cookies=self.cookies,
+            # headers=self.headers,
+            timeout=10,
+            proxies=GlobalConfig.get_parameter("proxies"),
 
-    #     )
+        )
 
-    #     lyrics_soup = BeautifulSoup(lyrics_resp.text, "html.parser")
-    #     lyrics_paragraphs = lyrics_soup.select("p.mxm-lyrics__content")
-    #     lyrics = "\n".join(i.get_text() for i in lyrics_paragraphs)
+        lyrics_soup = BeautifulSoup(lyrics_resp.text, "html.parser")
+        script_tag=lyrics_soup.find("script",id="__NEXT_DATA__")
+        if not script_tag:
+            return None
+        data=json.loads(script_tag.string)
+        page_data=data["props"]["pageProps"]["data"]
+        track_info = page_data.get("trackInfo", {})
+        lyrics = track_info.get("data", {}).get("lyrics", {}).get("body", "")
 
-    #     return lyrics
+
+        # lyrics_paragraphs = lyrics_soup.select("p.mxm-lyrics__content")
+        # lyrics = "\n".join(i.get_text() for i in lyrics_paragraphs)
+
+        return lyrics
 
     def get_results(self, name: str, artists: List[str], **kwargs) -> Dict[str, str]:
         """
@@ -144,24 +161,41 @@ class MusixMatch(LyricsProvider):
         soup= BeautifulSoup(search_resp.text, "html.parser")
         script_tag = soup.find("script", id="__NEXT_DATA__")
 
-        if script_tag:
-            json_text=script_tag.string
+        if not script_tag:
+            return {}
+        json_text=script_tag.string
 
-            data =json.loads(json_text)
+        data =json.loads(json_text)
 
         print(data)
         page_data = data["props"]["pageProps"]["data"]
 
         body = page_data["openSearch"]["data"]["opensearchTrackSearch"]["body"]
 
-        best_match = body["bestMatch"]
-
-        print(best_match["track_name"])
-        print(best_match["artist_name"])
-        print(best_match["lyrics_id"])
-        print(best_match["track_share_url"])
+        results={}
 
 
+        best_match = body.get("bestMatch")
+
+        if best_match:
+            title=f"{best_match.get('track_name','')} - {best_match.get('artist_name','')}"
+
+            url=best_match.get("track_share_url")
+            if url: 
+                results[title] = url
+
+        track_list=body.get("track_list",[])
+        for item in track_list:
+            track=item.get('track',{})
+
+            title=f"{track.get('track_name','')} - {track.get('artist_name','')}"
+            url=track.get("track_share_url")
+            if url:
+                results[title]=url
+
+        return results
+
+      
         # search_soup = BeautifulSoup(search_resp.text, "html.parser")
         # song_url_tag = search_soup.select("a[href^='/lyrics/']")
 
@@ -191,7 +225,3 @@ class MusixMatch(LyricsProvider):
         #     )
 
         # return results
-
-if __name__ == "__main__":
-    mxm=MusixMatch()
-    mxm.get_results("Lay All Your Love On Me",["ABBA"])
