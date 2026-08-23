@@ -432,11 +432,13 @@ Screen.-very-wide #add-download .dir-browse-row {
 #setup-header-row {
     height: auto;
     width: 1fr;
+    align: right middle;
     margin-bottom: 1;
 }
 
 #setup-title {
     width: 1fr;
+    height: auto;
 }
 
 #setup-lang-bar {
@@ -445,17 +447,9 @@ Screen.-very-wide #add-download .dir-browse-row {
 }
 
 #setup-lang-bar Button {
-    min-width: 5;
-    height: 1;
+    min-width: 6;
+    height: 3;
     margin-left: 1;
-    border: none;
-    background: $surface;
-    color: $text;
-}
-
-#setup-lang-bar Button:hover {
-    background: $primary;
-    color: $text;
 }
 
 #setup-current {
