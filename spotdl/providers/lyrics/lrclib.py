@@ -61,9 +61,7 @@ class Lrclib(LyricsProvider):
         results: Dict[str, str] = {}
         for item in search_resp.json():
             track = item.get("trackName") or item.get("name") or name
-            results[f"{item.get('artistName', artist)} - {track}"] = str(
-                item.get("id")
-            )
+            results[f"{item.get('artistName', artist)} - {track}"] = str(item.get("id"))
 
         return results
 
