@@ -371,8 +371,9 @@ async def gen_download_from_query(signals: Signals):
             f"[{signals.client_id}] Download requested: {normalized_url}"
         )
 
-        # Parse the query to get all songs (handles playlists, albums, artists, tracks)
-        songs = get_simple_songs(
+        # Parse the query in a separate thread to avoid event loop collisions
+        songs = await asyncio.to_thread(
+            get_simple_songs,
             [normalized_url],
             playlist_numbering=client.downloader.settings.get(
                 "playlist_numbering", False
@@ -390,8 +391,8 @@ async def gen_download_from_query(signals: Signals):
             f"[{signals.client_id}] Found {len(songs)} songs, starting download..."
         )
 
-        # Download all songs
-        client.downloader.download_multiple_songs(songs)
+        # Download all songs in a separate thread
+        await asyncio.to_thread(client.downloader.download_multiple_songs, songs)
 
     except Exception as exception:
         app_state.logger.error(f"Error downloading! {exception}")
