@@ -134,10 +134,18 @@ async def handle_get_client_search(datastar_signals: ReadSignals):
         app_state.logger.info(
             f"[{signals.client_id}] Valid URL detected, redirecting to downloads..."
         )
+        client = Client.get_instance(signals.client_id)
+        if client is not None:
+            if app_state.web_settings.get("web_use_output_dir", False):
+                client.downloader.settings["output"] = client.downloader_settings[
+                    "output"
+                ]
+            else:
+                client.downloader.settings["output"] = str(
+                    (get_spotdl_path() / f"web/sessions/{client.client_id}").absolute()
+                )
+            asyncio.create_task(run_download_from_query(client, signals.search_term))
         yield SSE.redirect("/downloads")
-        signals.song_url = signals.search_term
-        async for update in gen_download_from_query(signals):
-            yield update
         return
 
     songs = get_search_results(signals.search_term)
@@ -342,33 +350,15 @@ async def gen_download(signals: Signals):
         app_state.logger.error(f"Error downloading! {exception}")
 
 
-async def gen_download_from_query(signals: Signals):
+async def run_download_from_query(client: Client, url: str) -> None:
     """
-    Generate the download process for the client from a query that may
-    contain a playlist, album, artist, or single track.
+    Run the download process in the background for a URL query.
     """
-    client = Client.get_instance(signals.client_id)
-    if client is None:
-        app_state.logger.warning(
-            f"Client {signals.client_id} not found, cannot load downloads."
-        )
-        yield SSE.patch_elements(
-            templates.get_template("status-disconnected.html.j2").render()
-        )
-        return
-
-    if app_state.web_settings.get("web_use_output_dir", False):
-        client.downloader.settings["output"] = client.downloader_settings["output"]
-    else:
-        client.downloader.settings["output"] = str(
-            (get_spotdl_path() / f"web/sessions/{client.client_id}").absolute()
-        )
-
     try:
         # Normalize Spotify URLs with /intl-xx/ locale prefix (issue #2737)
-        normalized_url = re.sub(r"\/intl-\w+\/", "/", signals.song_url)
+        normalized_url = re.sub(r"\/intl-\w+\/", "/", url)
         app_state.logger.info(
-            f"[{signals.client_id}] Download requested: {normalized_url}"
+            f"[{client.client_id}] Download requested: {normalized_url}"
         )
 
         # Parse the query in a separate thread to avoid event loop collisions
@@ -388,8 +378,11 @@ async def gen_download_from_query(signals: Signals):
             return
 
         app_state.logger.info(
-            f"[{signals.client_id}] Found {len(songs)} songs, starting download..."
+            f"[{client.client_id}] Found {len(songs)} songs, starting download..."
         )
+
+        # Register songs in downloader progress tracker so the web queue displays them
+        client.downloader.progress_handler.set_songs(songs)
 
         # Download all songs in a separate thread
         await asyncio.to_thread(client.downloader.download_multiple_songs, songs)
