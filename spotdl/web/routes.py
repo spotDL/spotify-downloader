@@ -3,14 +3,15 @@ Module which contains the web client routes and functions.
 """
 
 import asyncio
-import re
 import uuid
 from pathlib import Path
 from typing import Any, Optional, cast
 
 # from datastar_py.sse import DatastarEvent
 from datastar_py.fastapi import ReadSignals
-from datastar_py.fastapi import ServerSentEventGenerator as SSE
+from datastar_py.fastapi import (
+    ServerSentEventGenerator as SSE,  # DatastarResponse,; read_signals,
+)
 from datastar_py.fastapi import datastar_response
 from fastapi import APIRouter, Request
 from fastapi.templating import Jinja2Templates
@@ -20,7 +21,7 @@ from spotdl.download.downloader import AUDIO_PROVIDERS, LYRICS_PROVIDERS
 from spotdl.types.song import Song
 from spotdl.utils.config import get_spotdl_path
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
-from spotdl.utils.search import get_search_results, get_simple_songs
+from spotdl.utils.search import get_search_results
 from spotdl.utils.web import Client, app_state, validate_search_term
 from spotdl.web.utils import Signals, handle_signals
 
@@ -134,19 +135,10 @@ async def handle_get_client_search(datastar_signals: ReadSignals):
         app_state.logger.info(
             f"[{signals.client_id}] Valid URL detected, redirecting to downloads..."
         )
-        client = Client.get_instance(signals.client_id)
-        if client is not None:
-            if app_state.web_settings.get("web_use_output_dir", False):
-                client.downloader.settings["output"] = client.downloader_settings[
-                    "output"
-                ]
-            else:
-                client.downloader.settings["output"] = str(
-                    (get_spotdl_path() / f"web/sessions/{client.client_id}").absolute()
-                )
-            asyncio.create_task(run_download_from_query(client, signals.search_term))
         yield SSE.redirect("/downloads")
-        return
+        signals.song_url = signals.search_term
+        async for update in gen_download(signals):
+            yield update
 
     songs = get_search_results(signals.search_term)
     yield SSE.patch_elements(
@@ -327,10 +319,8 @@ async def gen_download(signals: Signals):
         )
 
     try:
-        # Normalize Spotify URLs with /intl-xx/ locale prefix (issue #2737)
-        normalized_url = re.sub(r"\/intl-\w+\/", "/", signals.song_url)
         # Fetch song metadata
-        song = Song.from_url(normalized_url)
+        song = Song.from_url(signals.song_url)
         app_state.logger.info(f"Downloading song: {song}")
 
         # Download Song
@@ -345,47 +335,6 @@ async def gen_download(signals: Signals):
             app_state.logger.error(f"Failure downloading {song.name}")
 
         # return str(path.absolute())
-
-    except Exception as exception:
-        app_state.logger.error(f"Error downloading! {exception}")
-
-
-async def run_download_from_query(client: Client, url: str) -> None:
-    """
-    Run the download process in the background for a URL query.
-    """
-    try:
-        # Normalize Spotify URLs with /intl-xx/ locale prefix (issue #2737)
-        normalized_url = re.sub(r"\/intl-\w+\/", "/", url)
-        app_state.logger.info(
-            f"[{client.client_id}] Download requested: {normalized_url}"
-        )
-
-        # Parse the query in a separate thread to avoid event loop collisions
-        songs = await asyncio.to_thread(
-            get_simple_songs,
-            [normalized_url],
-            playlist_numbering=client.downloader.settings.get(
-                "playlist_numbering", False
-            ),
-            playlist_retain_track_cover=client.downloader.settings.get(
-                "playlist_retain_track_cover", False
-            ),
-        )
-
-        if not songs:
-            app_state.logger.warning(f"No songs found for query: {normalized_url}")
-            return
-
-        app_state.logger.info(
-            f"[{client.client_id}] Found {len(songs)} songs, starting download..."
-        )
-
-        # Register songs in downloader progress tracker so the web queue displays them
-        client.downloader.progress_handler.set_songs(songs)
-
-        # Download all songs in a separate thread
-        await asyncio.to_thread(client.downloader.download_multiple_songs, songs)
 
     except Exception as exception:
         app_state.logger.error(f"Error downloading! {exception}")
