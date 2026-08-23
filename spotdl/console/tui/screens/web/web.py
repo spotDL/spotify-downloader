@@ -1,3 +1,4 @@
+import socket
 import threading
 from typing import cast
 
@@ -16,10 +17,25 @@ from spotdl.types.options import DownloaderOptions, WebOptions
 TR = i18n.tr
 
 
+def _find_available_port(start_port: int = 8080) -> int:
+    for port in range(start_port, start_port + 100):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            try:
+                sock.bind(("127.0.0.1", port))
+                return port
+            except OSError:
+                continue
+    return start_port
+
+
 class WebScreen(Screen):
     BINDINGS = [
         Binding("escape", "back", "back"),
     ]
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.port = _find_available_port(8080)
 
     def compose(self) -> ComposeResult:
         yield AppBar(TR("appbar.title"))
@@ -28,7 +44,7 @@ class WebScreen(Screen):
                 yield Static(TR("web.title"), id="web-title", classes="menu-title")
                 yield Static(TR("web.info"), id="web-info")
                 yield Static(
-                    TR("web.starting", host="127.0.0.1", port="8080"),
+                    TR("web.starting", host="127.0.0.1", port=str(self.port)),
                     id="web-starting",
                 )
                 with Horizontal(classes="row"):
@@ -40,7 +56,7 @@ class WebScreen(Screen):
         def run_web() -> None:
             web_settings: WebOptions = {
                 "host": "127.0.0.1",
-                "port": 8080,
+                "port": self.port,
                 "keep_alive": False,
                 "enable_tls": False,
                 "allowed_origins": None,
@@ -84,7 +100,7 @@ class WebScreen(Screen):
             self.query_one("#web-title", Static).update(TR("web.title"))
             self.query_one("#web-info", Static).update(TR("web.info"))
             self.query_one("#web-starting", Static).update(
-                TR("web.starting", host="127.0.0.1", port="8080")
+                TR("web.starting", host="127.0.0.1", port=str(self.port))
             )
             self.query_one("#back-btn", Button).label = TR("common.back")
         except Exception:
