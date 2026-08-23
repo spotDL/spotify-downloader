@@ -73,3 +73,12 @@ class DirModal(ModalScreen):
             self.app.notify(str(exc), severity="error")
             return
         self.dismiss(path)
+
+    def refresh_language(self) -> None:
+        try:
+            self.query_one(".menu-title", Static).update(TR("query.dir_label"))
+            self.query_one("#dir-input", Input).placeholder = TR("query.ph_dir")
+            self.query_one("#ok-btn", Button).label = TR("common.ok")
+            self.query_one("#cancel-btn", Button).label = TR("common.cancel")
+        except Exception:
+            pass

@@ -2,9 +2,10 @@ import asyncio
 import concurrent.futures
 import logging
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Set, Tuple, cast
 
 from pyperclip import copy as clipboard_copy
+from rich.text import Text
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
@@ -49,6 +50,58 @@ _COLOR_MAP = {
 }
 
 
+def _build_colored_bar(
+    progress: int, status_type: str = "pending", width: int = 12
+) -> Tuple[str, str]:
+    pct = max(0, min(100, int(progress)))
+    if status_type == "error":
+        color = "red"
+    elif status_type == "skipped":
+        color = "orange"
+    elif pct >= 100 or status_type == "done":
+        color = "bold green"
+    elif pct >= 75:
+        color = "magenta"
+    elif pct >= 45:
+        color = "yellow"
+    elif pct >= 25:
+        color = "blue"
+    else:
+        color = "cyan"
+
+    filled = int((pct / 100.0) * width)
+    empty = width - filled
+    bar_str = "=" * filled + "-" * empty
+    return f"[{color}]{bar_str}[/{color}]", color
+
+
+def _format_process_desc(raw_message: str, status_type: str, progress: int) -> str:
+    raw = (raw_message or "").strip()
+    if not raw:
+        return TR("download.status_pending")
+    lower = raw.lower()
+    if "searching in" in lower:
+        provider = raw.split("in ", 1)[-1].strip().strip('"')
+        return f'buscando en "{provider}"'
+    if "searching" in lower:
+        return "buscando audio"
+    if "downloading" in lower:
+        return f"descargando ({progress}%)"
+    if "converting" in lower:
+        return f"convirtiendo ({progress}%)"
+    if "embedding" in lower or "metadata" in lower:
+        return "incrustando metadatos"
+    if "lyrics" in lower:
+        return "obteniendo letras"
+    if "done" in lower or status_type == "done" or progress >= 100:
+        return "listo"
+    if "error" in lower or status_type == "error":
+        return "error"
+    if "skip" in lower or status_type == "skipped":
+        return "omitido"
+    return raw
+
+
 class DownloadScreen(Screen):
     BINDINGS = [
         Binding("escape", "back_menu", "menu"),
@@ -67,6 +120,8 @@ class DownloadScreen(Screen):
         self._error_count = 0
         self._skip_count = 0
         self._active = True
+        self._completed_urls: Set[str] = set()
+        self._song_stages: Dict[str, str] = {}
         self._pending_updates: List[tuple] = []
         self._pending_logs: List[str] = []
 
@@ -78,8 +133,8 @@ class DownloadScreen(Screen):
             )
             table: DataTable = DataTable(zebra_stripes=True, cursor_type="row")
             table.add_column(TR("download.col_song"), key="song")
-            table.add_column(TR("download.col_status"), key="status", width=22)
-            table.add_column(TR("download.col_detail"), key="detail", width=12)
+            table.add_column(TR("download.col_status"), key="status", width=24)
+            table.add_column(TR("download.col_detail"), key="detail", width=22)
             yield table
 
             with Vertical(id="overall-box"):
@@ -99,13 +154,14 @@ class DownloadScreen(Screen):
 
     def on_mount(self) -> None:
         table = self.query_one(DataTable)
+        bar_zero, _ = _build_colored_bar(0, "pending")
         for song in self.songs:
             if song.url in self._row_keys:
                 continue
             row_key = table.add_row(
                 song.display_name,
                 "[white]" + TR("download.status_pending") + "[/white]",
-                "0%",
+                f"{bar_zero} 0%",
                 key=song.url,
             )
             self._row_keys[song.url] = row_key
@@ -180,7 +236,9 @@ class DownloadScreen(Screen):
         if song is not None:
             from spotdl.console.tui.lyrics.lyricspanel import LyricsScreen
 
-            self.app.push_screen(LyricsScreen(song))
+            self.app.push_screen(
+                LyricsScreen(song, output_dir=self.options.get("output_dir"))
+            )
 
     def copy_log(self) -> None:
         log_widget = self.query_one("#log", RichLog)
@@ -278,17 +336,39 @@ class DownloadScreen(Screen):
                                 status_type = stype
                                 status_text = TR(label_key)
                                 break
-                        color = _COLOR_MAP.get(status_type, "white")
-                        colored_status = f"[{color}]{status_text}[/{color}]"
-                        screen._pending_updates.append(
-                            (row_key, colored_status, f"{int(tracker.progress or 0)}%")
+
+                        progress = int(tracker.progress or 0)
+                        bar_markup, color = _build_colored_bar(progress, status_type)
+                        process_desc = _format_process_desc(
+                            message or tracker.status, status_type, progress
                         )
+
+                        colored_status = f"[{color}]{status_text}[/{color}]"
+                        detail_markup = f"{bar_markup} [{color}]{progress}%[/{color}]"
+                        screen._pending_updates.append(
+                            (row_key, colored_status, detail_markup)
+                        )
+
+                        last_stage = screen._song_stages.get(url)
+                        stage_bucket = int(progress // 25)
+                        curr_stage = f"{status_type}_{stage_bucket}"
+                        if curr_stage != last_stage or status_type in (
+                            "done",
+                            "error",
+                            "skipped",
+                        ):
+                            screen._song_stages[url] = curr_stage
+                            log_line = f"[bold white]{tracker.song.display_name}[/bold white] - {bar_markup} [{color}]{process_desc}[/{color}]"
+                            screen._pending_logs.append(log_line)
+
                         if status_type in ("done", "error", "skipped"):
-                            screen._done_count += 1
-                            if status_type == "error":
-                                screen._error_count += 1
-                            elif status_type == "skipped":
-                                screen._skip_count += 1
+                            if url not in screen._completed_urls:
+                                screen._completed_urls.add(url)
+                                screen._done_count += 1
+                                if status_type == "error":
+                                    screen._error_count += 1
+                                elif status_type == "skipped":
+                                    screen._skip_count += 1
                     except Exception:
                         pass
 
@@ -374,3 +454,24 @@ class DownloadScreen(Screen):
         self.query_one("#status", Static).update(TR("query.error", message=str(exc)))
         self.query_one("#log", RichLog).write(str(exc))
         self.query_one("#stop-btn", Button).disabled = True
+
+    def refresh_language(self) -> None:
+        try:
+            self.query_one(AppBar).set_title(TR("appbar.title"))
+            self.query_one("#download-title", Static).update(TR("download.title"))
+            table = self.query_one(DataTable)
+            if "song" in table.columns:
+                table.columns["song"].label = Text(TR("download.col_song"))
+            if "status" in table.columns:
+                table.columns["status"].label = Text(TR("download.col_status"))
+            if "detail" in table.columns:
+                table.columns["detail"].label = Text(TR("download.col_detail"))
+            table.refresh()
+            self._refresh_overall()
+            self.query_one("#lyrics-btn", Button).label = TR("download.btn_lyrics")
+            self.query_one("#stop-btn", Button).label = TR("download.btn_stop")
+            self.query_one("#copy-log-btn", Button).label = TR("download.btn_copy_log")
+            self.query_one("#menu-btn", Button).label = TR("download.btn_menu")
+            self.query_one(VersionFooter).refresh_language()
+        except Exception:
+            pass

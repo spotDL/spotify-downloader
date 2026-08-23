@@ -14,7 +14,6 @@ from spotdl.console.tui.screens.download.query import QueryScreen
 from spotdl.console.tui.screens.download.simple_op import SimpleOpScreen
 from spotdl.console.tui.screens.help import HelpScreen
 from spotdl.console.tui.screens.web.web import WebScreen
-from spotdl.console.tui.setup_app import open_setup_screen
 from spotdl.console.tui.versions import (
     fetch_upstream_latest_version,
     get_cached_upstream_latest_version,

@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 from pyperclip import copy as clipboard_copy
 from textual.app import ComposeResult
@@ -11,7 +11,6 @@ from textual.widgets import Button, RichLog, Static
 
 from spotdl.console.tui import i18n
 from spotdl.console.tui.lyrics.lrclib import fetch_lyrics
-from spotdl.utils.formatter import create_file_name
 
 TR = i18n.tr
 
@@ -25,9 +24,12 @@ class LyricsScreen(Screen):
         Binding("s", "save_lrc", "save"),
     ]
 
-    def __init__(self, song: Any) -> None:
+    def __init__(
+        self, song: Any, output_dir: Optional[Union[str, Path]] = None
+    ) -> None:
         super().__init__()
         self.song = song
+        self.output_dir = Path(output_dir) if output_dir else None
         self._text: Optional[str] = None
 
     def compose(self) -> ComposeResult:
@@ -114,8 +116,24 @@ class LyricsScreen(Screen):
             artist = getattr(self.song, "artist", "artist")
             filename = f"{artist} - {name}.lrc"
             filename = "".join(c for c in filename if c not in '<>:"/\\|?*')
-            out_path = Path.cwd() / filename
+            target_dir = self.output_dir if self.output_dir else Path.cwd()
+            target_dir.mkdir(parents=True, exist_ok=True)
+            out_path = target_dir / filename
             out_path.write_text(self._text, encoding="utf-8")
             status.update(TR("lyrics.saved", path=out_path.name))
         except Exception as exc:
             status.update(f"Error: {exc}")
+
+    def refresh_language(self) -> None:
+        try:
+            name = getattr(self.song, "name", "") or ""
+            artist = getattr(self.song, "artist", "") or ""
+            if self._text:
+                self.query_one("#lyrics-title", Static).update(
+                    TR("lyrics.title", name=name, artist=artist)
+                )
+            self.query_one("#lyrics-copy-btn", Button).label = TR("lyrics.copy")
+            self.query_one("#lyrics-save-btn", Button).label = TR("lyrics.save_lrc")
+            self.query_one("#lyrics-back-btn", Button).label = TR("common.back")
+        except Exception:
+            pass

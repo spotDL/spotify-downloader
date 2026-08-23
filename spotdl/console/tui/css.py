@@ -564,4 +564,47 @@ Screen.-very-wide #add-download .dir-browse-row {
 #history-details-body {
     color: $text;
 }
+
+#confirm-box {
+    width: 86;
+    max-width: 95%;
+    height: auto;
+    max-height: 92%;
+    padding: 1 2;
+    border: round $primary;
+    background: $surface;
+}
+
+#confirm-grid {
+    layout: grid;
+    grid-size: 2;
+    grid-gutter: 1;
+    height: auto;
+    margin: 1 0;
+}
+
+.confirm-card {
+    border: round $primary 40%;
+    background: $surface-darken-1;
+    padding: 0 1;
+    height: auto;
+    min-height: 3;
+}
+
+.confirm-card-label {
+    text-style: bold;
+    color: $accent;
+    height: 1;
+}
+
+.confirm-card-val {
+    color: $text;
+    text-style: bold;
+    height: auto;
+}
+
+.confirm-card-sub {
+    color: $text-muted;
+    text-style: dim;
+}
 """

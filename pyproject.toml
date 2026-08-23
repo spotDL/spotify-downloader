@@ -53,6 +53,7 @@ dependencies = [
     "textual>=8.0.0,<9",
     "pyyaml>=6.0.0,<7",
     "pyperclip>=1.8.2,<3",
+    "pyside6>=6.11.2",
 ]
 
 [project.urls]

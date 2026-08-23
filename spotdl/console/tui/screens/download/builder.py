@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Optional, cast
+from typing import cast
 
 from pyperclip import copy as clipboard_copy
 from textual.app import ComposeResult
@@ -118,9 +118,9 @@ _CHECKBOX_IDS = {
 
 _INPUT_PLACEHOLDER_IDS = {
     "cmd-query": "cmdbuilder.query_placeholder",
-    "cmd-threads": "cmdbuilder.placeholder_threads",
+    "cmd-threads": "query.ph_threads",
     "cmd-search-query": "query.ph_lyrics_template",
-    "cmd-output-template": "cmdbuilder.placeholder_template",
+    "cmd-output-template": "query.ph_output_template",
     "cmd-save-file": "query.ph_save_file",
     "cmd-archive": "query.ph_archive",
     "cmd-m3u-name": "cmdbuilder.placeholder_m3u",

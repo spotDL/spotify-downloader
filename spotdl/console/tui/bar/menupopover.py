@@ -138,3 +138,18 @@ class MenuPopover(ModalScreen[Any]):
         from spotdl.console.tui.bar.appbar import refresh_all_screens
 
         refresh_all_screens(self.app)
+
+    def refresh_language(self) -> None:
+        try:
+            self.query_one("#popover-title", Static).update(TR("appbar.menu"))
+            self.query_one("#popover-close-btn", Button).label = TR("popover.close")
+            self.query_one("#popover-help-btn", Button).label = TR("popover.help")
+            self.query_one("#popover-builder-btn", Button).label = TR("popover.builder")
+            self.query_one("#popover-setup-btn", Button).label = TR("popover.setup")
+            self.query_one("#popover-quit-btn", Button).label = TR("popover.quit")
+            langs = self.query_one("#popover-langs", OptionList)
+            langs.clear_options()
+            for opt in self._build_lang_options():
+                langs.add_option(opt)
+        except Exception:
+            pass

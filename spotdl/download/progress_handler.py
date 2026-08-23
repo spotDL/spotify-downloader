@@ -430,13 +430,16 @@ class SongTracker:
         else:
             logger.error("%s: %s", traceback.__class__.__name__, traceback)
 
-    def notify_searching(self) -> None:
+    def notify_searching(self, provider: str = "") -> None:
         """
         Notifies the progress handler that the song is being searched for on the audio provider(s).
         """
 
         self.progress = 25
-        self.update("Searching for song")
+        if provider:
+            self.update(f'Searching in "{provider}"')
+        else:
+            self.update("Searching for song")
 
     def notify_getting_meta(self) -> None:
         """
@@ -489,10 +492,10 @@ class SongTracker:
 
         if self.parent.simple_tui and not self.parent.web_ui:
             self.progress = 70
+            self.update("Converting")
         else:
             self.progress = 70 + int(progress * 0.25)
-
-        self.update("Converting")
+            self.update(f"Converting ({int(progress)}%)")
 
     def yt_dlp_progress_hook(self, data: Dict[str, Any]) -> None:
         """
@@ -510,10 +513,13 @@ class SongTracker:
             downloaded_bytes = data.get("downloaded_bytes")
             if self.parent.simple_tui and not self.parent.web_ui:
                 self.progress = 70
+                self.update("Downloading")
             elif file_bytes and downloaded_bytes:
-                self.progress = 40 + downloaded_bytes / file_bytes * 30
-
-            self.update("Downloading")
+                pct = downloaded_bytes / file_bytes
+                self.progress = 40 + int(pct * 30)
+                self.update(f"Downloading ({int(pct * 100)}%)")
+            else:
+                self.update("Downloading")
 
     def set_path(self, path: str) -> None:
         """

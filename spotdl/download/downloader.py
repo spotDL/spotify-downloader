@@ -9,6 +9,7 @@ import logging
 import re
 import shutil
 import sys
+import threading
 import traceback
 from argparse import Namespace
 from pathlib import Path
@@ -27,7 +28,14 @@ from spotdl.providers.audio import (
     YouTube,
     YouTubeMusic,
 )
-from spotdl.providers.lyrics import AzLyrics, Genius, LyricsProvider, MusixMatch, Synced
+from spotdl.providers.lyrics import (
+    AzLyrics,
+    Genius,
+    Lrclib,
+    LyricsProvider,
+    MusixMatch,
+    Synced,
+)
 from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
 from spotdl.types.song import Song
 from spotdl.utils.archive import Archive
@@ -68,6 +76,7 @@ AUDIO_PROVIDERS: Dict[str, Type[AudioProvider]] = {
 }
 
 LYRICS_PROVIDERS: Dict[str, Type[LyricsProvider]] = {
+    "lrclib": Lrclib,
     "genius": Genius,
     "musixmatch": MusixMatch,
     "azlyrics": AzLyrics,
@@ -271,6 +280,7 @@ class Downloader:
         self.url_archive = Archive()
         if self.settings["archive"]:
             self.url_archive.load(self.settings["archive"])
+        self._archive_lock = threading.Lock()
 
         logger.debug("Archive: %d urls", len(self.url_archive))
 
@@ -355,13 +365,8 @@ class Downloader:
 
         # Save archive
         if self.settings["archive"]:
-            for result in results:
-                if result[1] or self.settings["add_unavailable"]:
-                    self.url_archive.add(result[0].url)
-
-            self.url_archive.save(self.settings["archive"])
             logger.info(
-                "Saved archive with %d urls to %s",
+                "Archive contains %d urls (saved to %s)",
                 len(self.url_archive),
                 self.settings["archive"],
             )
@@ -442,22 +447,23 @@ class Downloader:
             primary = audio_provider.search(
                 song, self.settings["only_verified_results"]
             )
-            search_results = audio_provider.get_results(search_query)
+            if primary is not None:
+                primaries.append(primary)
 
+        if primaries:
+            return primaries
+
+        for audio_provider in self.audio_providers:
+            search_results = audio_provider.get_results(search_query)
             if self.settings["only_verified_results"]:
                 result_urls = [
                     result.url for result in search_results if result.verified
                 ]
             else:
                 result_urls = [result.url for result in search_results]
-
-            if primary in result_urls:
-                result_urls.remove(primary)
-            if primary is not None:
-                primaries.append(primary)
             secondaries.extend(result_urls)
 
-        result: List[str] = primaries + secondaries
+        result: List[str] = secondaries
         return result if result else ["_none_"]
 
     def search_lyrics(self, song: Song) -> Optional[str]:
@@ -813,7 +819,12 @@ class Downloader:
             )
 
             if song.download_url is None:
-                display_progress_tracker.notify_searching()
+                provider_name = (
+                    self.audio_providers[0].name
+                    if self.audio_providers
+                    else "audio provider"
+                )
+                display_progress_tracker.notify_searching(provider_name)
                 candidate_urls = await loop.run_in_executor(None, self.search_all, song)
             else:
                 candidate_urls = [song.download_url]
@@ -1014,6 +1025,12 @@ class Downloader:
             # Add the song to the known songs
             self.known_songs.get(song.url, []).append(output_file)
 
+            if self.settings["archive"]:
+                with self._archive_lock:
+                    self.url_archive.add(song.url)
+                    self.url_archive.save(self.settings["archive"])
+                logger.debug("Archived %s", song.url)
+
             logger.info('Downloaded "%s": %s', song.display_name, song.download_url)
 
             return song, output_file
@@ -1032,4 +1049,11 @@ class Downloader:
             self.errors.append(
                 f"{song.url} - {exception.__class__.__name__}: {exception}"
             )
+
+            if self.settings["archive"] and self.settings["add_unavailable"]:
+                with self._archive_lock:
+                    self.url_archive.add(song.url)
+                    self.url_archive.save(self.settings["archive"])
+                logger.debug("Archived unavailable %s", song.url)
+
             return song, None

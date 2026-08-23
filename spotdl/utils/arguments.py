@@ -62,7 +62,8 @@ def parse_main_options(parser: _ArgumentGroup):
             "meta: Update your audio files with metadata\n"
             "url: Get the download URL for songs\n"
             "interactive: Starts the interactive TUI (menu with mouse support); "
-            "optionally prefilled with a query\n\n"
+            "optionally prefilled with a query\n"
+            "gui: Starts the standalone Desktop GUI application (Parabolic style)\n\n"
         ),
     )
 

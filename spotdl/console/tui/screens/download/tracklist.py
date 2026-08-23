@@ -133,7 +133,9 @@ class TrackListScreen(Screen):
         if song is not None:
             from spotdl.console.tui.lyrics.lyricspanel import LyricsScreen
 
-            self.app.push_screen(LyricsScreen(song))
+            self.app.push_screen(
+                LyricsScreen(song, output_dir=self.options.get("output_dir"))
+            )
 
     def action_toggle_select(self) -> None:
         table = self.query_one(DataTable)

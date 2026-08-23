@@ -62,7 +62,10 @@ VARS = [
     "{output-ext}",
 ]
 
-KKS = pykakasi.kakasi()
+try:
+    KKS = pykakasi.kakasi()
+except Exception:
+    KKS = None
 
 JAP_REGEX = re.compile(
     "[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]"
@@ -148,20 +151,23 @@ def slugify(string: str) -> str:
         regex_pattern=JAP_REGEX.pattern,
     )
 
-    results = KKS.convert(normal_slug)
+    if KKS is not None:
+        results = KKS.convert(normal_slug)
 
-    result = ""
-    for index, item in enumerate(results):
-        result += item["hepburn"]
-        if not (
-            item["kana"] == item["hepburn"]
-            or item["kana"] == item["hepburn"]
-            or (
-                item == results[-1]
-                or results[index + 1]["kana"] == results[index + 1]["hepburn"]
-            )
-        ):
-            result += "-"
+        result = ""
+        for index, item in enumerate(results):
+            result += item["hepburn"]
+            if not (
+                item["kana"] == item["hepburn"]
+                or item["kana"] == item["hepburn"]
+                or (
+                    item == results[-1]
+                    or results[index + 1]["kana"] == results[index + 1]["hepburn"]
+                )
+            ):
+                result += "-"
+    else:
+        result = normal_slug
 
     return py_slugify(result, regex_pattern=DISALLOWED_REGEX.pattern)
 

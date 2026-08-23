@@ -1,6 +1,5 @@
 import logging
 import os
-import re
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, cast
 
@@ -8,17 +7,7 @@ from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import Screen
-from textual.widgets import (
-    Button,
-    Collapsible,
-    Input,
-    Label,
-    OptionList,
-    RichLog,
-    Select,
-    Static,
-    Switch,
-)
+from textual.widgets import Button, Collapsible, Input, Label, Select, Static, Switch
 
 from spotdl.console.tui import i18n
 from spotdl.console.tui.bar import AppBar, VersionFooter, handle_appbar
@@ -88,6 +77,71 @@ TEMPLATES = {
 }
 
 
+_QUERY_LABELS = {
+    "lbl-query-url": "query.url_label",
+    "lbl-query-dir": "query.dir_label",
+    "lbl-query-save-file": "query.save_file_label",
+    "lbl-query-template": "query.template",
+    "lbl-query-format": "query.format",
+    "lbl-query-bitrate": "query.bitrate",
+    "lbl-query-audio-provider": "query.audio_provider",
+    "lbl-query-threads": "query.threads",
+    "lbl-query-preload": "query.preload",
+    "lbl-query-generate-lrc": "query.generate_lrc",
+    "lbl-query-lyrics-provider": "query.lyrics_provider",
+    "lbl-query-search-query": "query.search_query",
+    "lbl-query-force-update": "query.force_update_metadata",
+    "lbl-query-skip-album-art": "query.skip_album_art",
+    "lbl-query-skip-explicit": "query.skip_explicit",
+    "lbl-query-only-verified": "query.only_verified_results",
+    "lbl-query-dont-filter": "query.dont_filter_results",
+    "lbl-query-album-type": "query.album_type",
+    "lbl-query-ignore-albums": "query.ignore_albums",
+    "lbl-query-output-template": "query.output_template",
+    "lbl-query-overwrite": "query.overwrite",
+    "lbl-query-m3u": "query.m3u",
+    "lbl-query-playlist-numbering": "query.playlist_numbering",
+    "lbl-query-retain-cover": "query.playlist_retain_track_cover",
+    "lbl-query-fetch-albums": "query.fetch_albums",
+    "lbl-query-archive": "query.archive",
+    "lbl-query-sponsor-block": "query.sponsor_block",
+    "lbl-query-cookie-file": "query.cookie_file",
+    "lbl-query-proxy": "query.proxy",
+    "lbl-query-ytdlp-args": "query.yt_dlp_args",
+    "lbl-query-restrict": "query.restrict",
+    "lbl-query-max-filename": "query.max_filename_length",
+    "lbl-query-scan-songs": "query.scan_for_songs",
+    "lbl-query-detect-formats": "query.detect_formats",
+    "lbl-query-id3-sep": "query.id3_separator",
+    "lbl-query-ytm-data": "query.ytm_data",
+    "lbl-query-create-skip": "query.create_skip_file",
+    "lbl-query-respect-skip": "query.respect_skip_file",
+    "lbl-query-log-level": "query.log_level",
+    "lbl-query-print-errors": "query.print_errors",
+    "lbl-query-save-errors": "query.save_errors",
+    "lbl-query-log-format": "query.log_format",
+    "lbl-query-simple-tui": "query.simple_tui",
+}
+
+_QUERY_PLACEHOLDERS = {
+    "query-input": "query.url_placeholder",
+    "save-file-input": "query.ph_save_file",
+    "threads-input": "query.ph_threads",
+    "search-query-input": "query.ph_lyrics_template",
+    "ignore-albums-input": "query.ph_ignore_albums",
+    "output-template-input": "query.ph_output_template",
+    "m3u-input": "query.ph_m3u",
+    "archive-input": "query.ph_archive",
+    "cookie-file-input": "query.ph_cookie",
+    "proxy-input": "query.ph_proxy",
+    "yt-dlp-args-input": "query.ph_ytdlp_args",
+    "max-filename-length-input": "query.ph_max_filename",
+    "id3-separator-input": "query.ph_separator",
+    "save-errors-input": "query.ph_errors",
+    "log-format-input": "query.ph_log_format",
+}
+
+
 class QueryScreen(Screen):
     BINDINGS = [
         Binding("escape", "back", "back"),
@@ -114,25 +168,25 @@ class QueryScreen(Screen):
         with Vertical(id="add-download"):
             with VerticalScroll(id="ad-scroll"):
                 yield Static(self._get_title(), id="query-title", classes="menu-title")
-                yield Label(TR("query.url_label"))
+                yield Label(TR("query.url_label"), id="lbl-query-url")
                 yield Input(
                     placeholder=TR("query.url_placeholder"),
                     value=self.prefill or "",
                     id="query-input",
                 )
-                yield Label(TR("query.dir_label"))
+                yield Label(TR("query.dir_label"), id="lbl-query-dir")
                 with Horizontal(classes="dir-browse-row"):
                     yield Input(value=str(Path.cwd()), id="dir-input")
                     yield Button("...", id="dir-browse")
                 if self.operation in ("save", "sync"):
-                    yield Label(TR("query.save_file_label"))
+                    yield Label(TR("query.save_file_label"), id="lbl-query-save-file")
                     yield Input(
                         placeholder=TR("query.ph_save_file"),
                         id="save-file-input",
                     )
 
                 with Collapsible(title=TR("section.audio_format"), collapsed=False):
-                    yield Label(TR("query.template"))
+                    yield Label(TR("query.template"), id="lbl-query-template")
                     yield Select(
                         [
                             (TR("query.template_custom"), _TEMPLATE_CUSTOM),
@@ -145,62 +199,74 @@ class QueryScreen(Screen):
                         allow_blank=False,
                         id="template-select",
                     )
-                    yield Label(TR("query.format"))
+                    yield Label(TR("query.format"), id="lbl-query-format")
                     yield Select(
                         [(f.upper(), f) for f in FORMATS],
                         value="mp3",
                         allow_blank=False,
                         id="format-select",
                     )
-                    yield Label(TR("query.bitrate"))
+                    yield Label(TR("query.bitrate"), id="lbl-query-bitrate")
                     yield Select(
                         [(b, b) for b in BITRATES],
                         value="auto",
                         allow_blank=False,
                         id="bitrate-select",
                     )
-                    yield Label(TR("query.audio_provider"))
+                    yield Label(
+                        TR("query.audio_provider"), id="lbl-query-audio-provider"
+                    )
                     yield Select(
                         [(p, p) for p in AUDIO_PROVIDERS],
                         value="youtube-music",
                         allow_blank=False,
                         id="audio-select",
                     )
-                    yield Label(TR("query.threads"))
+                    yield Label(TR("query.threads"), id="lbl-query-threads")
                     yield Input(
                         value="4",
                         placeholder=TR("query.ph_threads"),
                         id="threads-input",
                     )
-                    yield Label(TR("query.preload"))
+                    yield Label(TR("query.preload"), id="lbl-query-preload")
                     yield Switch(id="preload-checkbox")
 
                 with Collapsible(title=TR("section.filtering"), collapsed=False):
-                    yield Label(TR("query.generate_lrc"))
+                    yield Label(TR("query.generate_lrc"), id="lbl-query-generate-lrc")
                     yield Switch(id="generate-lrc-checkbox")
-                    yield Label(TR("query.lyrics_provider"))
+                    yield Label(
+                        TR("query.lyrics_provider"), id="lbl-query-lyrics-provider"
+                    )
                     yield Select(
                         [(p, p) for p in LYRICS_PROVIDERS],
                         value="genius",
                         allow_blank=False,
                         id="lyrics-select",
                     )
-                    yield Label(TR("query.search_query"))
+                    yield Label(TR("query.search_query"), id="lbl-query-search-query")
                     yield Input(
                         placeholder=TR("query.ph_lyrics_template"),
                         id="search-query-input",
                     )
-                    yield Label(TR("query.force_update_metadata"))
+                    yield Label(
+                        TR("query.force_update_metadata"), id="lbl-query-force-update"
+                    )
                     yield Switch(id="force-update-metadata-checkbox")
-                    yield Label(TR("query.skip_album_art"))
+                    yield Label(
+                        TR("query.skip_album_art"), id="lbl-query-skip-album-art"
+                    )
                     yield Switch(id="skip-album-art-checkbox")
-                    yield Label(TR("query.skip_explicit"))
+                    yield Label(TR("query.skip_explicit"), id="lbl-query-skip-explicit")
                     yield Switch(id="skip-explicit-checkbox")
-                    yield Label(TR("query.only_verified_results"))
+                    yield Label(
+                        TR("query.only_verified_results"), id="lbl-query-only-verified"
+                    )
                     yield Switch(id="only-verified-results-checkbox")
-                    yield Label(TR("query.dont_filter_results"))
+                    yield Label(
+                        TR("query.dont_filter_results"), id="lbl-query-dont-filter"
+                    )
                     yield Switch(id="dont-filter-results-checkbox")
-                    yield Label(TR("query.album_type"))
+                    yield Label(TR("query.album_type"), id="lbl-query-album-type")
                     yield Select(
                         [
                             (TR("query.album_type_album"), "album"),
@@ -211,20 +277,22 @@ class QueryScreen(Screen):
                         allow_blank=True,
                         id="album-type-select",
                     )
-                    yield Label(TR("query.ignore_albums"))
+                    yield Label(TR("query.ignore_albums"), id="lbl-query-ignore-albums")
                     yield Input(
                         placeholder=TR("query.ph_ignore_albums"),
                         id="ignore-albums-input",
                     )
 
                 with Collapsible(title=TR("section.output_playlist"), collapsed=False):
-                    yield Label(TR("query.output_template"))
+                    yield Label(
+                        TR("query.output_template"), id="lbl-query-output-template"
+                    )
                     yield Input(
                         placeholder=TR("query.ph_output_template"),
                         value="{artists} - {title}.{output-ext}",
                         id="output-template-input",
                     )
-                    yield Label(TR("query.overwrite"))
+                    yield Label(TR("query.overwrite"), id="lbl-query-overwrite")
                     yield Select(
                         [
                             (TR("query.overwrite_force"), "force"),
@@ -235,44 +303,50 @@ class QueryScreen(Screen):
                         allow_blank=False,
                         id="overwrite-select",
                     )
-                    yield Label(TR("query.m3u"))
+                    yield Label(TR("query.m3u"), id="lbl-query-m3u")
                     yield Switch(id="m3u-checkbox")
                     yield Input(
                         placeholder=TR("query.ph_m3u"),
                         id="m3u-input",
                         disabled=True,
                     )
-                    yield Label(TR("query.playlist_numbering"))
+                    yield Label(
+                        TR("query.playlist_numbering"),
+                        id="lbl-query-playlist-numbering",
+                    )
                     yield Switch(id="playlist-numbering-checkbox")
-                    yield Label(TR("query.playlist_retain_track_cover"))
+                    yield Label(
+                        TR("query.playlist_retain_track_cover"),
+                        id="lbl-query-retain-cover",
+                    )
                     yield Switch(id="playlist-retain-track-cover-checkbox")
-                    yield Label(TR("query.fetch_albums"))
+                    yield Label(TR("query.fetch_albums"), id="lbl-query-fetch-albums")
                     yield Switch(id="fetch-albums-checkbox")
-                    yield Label(TR("query.archive"))
+                    yield Label(TR("query.archive"), id="lbl-query-archive")
                     yield Input(
                         placeholder=TR("query.ph_archive"),
                         id="archive-input",
                     )
 
                 with Collapsible(title=TR("section.network_auth"), collapsed=False):
-                    yield Label(TR("query.sponsor_block"))
+                    yield Label(TR("query.sponsor_block"), id="lbl-query-sponsor-block")
                     yield Switch(id="sponsor-block-checkbox")
-                    yield Label(TR("query.cookie_file"))
+                    yield Label(TR("query.cookie_file"), id="lbl-query-cookie-file")
                     yield Input(
                         placeholder=TR("query.ph_cookie"),
                         id="cookie-file-input",
                     )
-                    yield Label(TR("query.proxy"))
+                    yield Label(TR("query.proxy"), id="lbl-query-proxy")
                     yield Input(
                         placeholder=TR("query.ph_proxy"),
                         id="proxy-input",
                     )
-                    yield Label(TR("query.yt_dlp_args"))
+                    yield Label(TR("query.yt_dlp_args"), id="lbl-query-ytdlp-args")
                     yield Input(
                         placeholder=TR("query.ph_ytdlp_args"),
                         id="yt-dlp-args-input",
                     )
-                    yield Label(TR("query.restrict"))
+                    yield Label(TR("query.restrict"), id="lbl-query-restrict")
                     yield Select(
                         [
                             (TR("query.restrict_none"), "none"),
@@ -283,35 +357,43 @@ class QueryScreen(Screen):
                         allow_blank=False,
                         id="restrict-select",
                     )
-                    yield Label(TR("query.max_filename_length"))
+                    yield Label(
+                        TR("query.max_filename_length"), id="lbl-query-max-filename"
+                    )
                     yield Input(
                         placeholder=TR("query.ph_max_filename"),
                         id="max-filename-length-input",
                     )
-                    yield Label(TR("query.scan_for_songs"))
+                    yield Label(TR("query.scan_for_songs"), id="lbl-query-scan-songs")
                     yield Switch(id="scan-for-songs-checkbox")
-                    yield Label(TR("query.detect_formats"))
+                    yield Label(
+                        TR("query.detect_formats"), id="lbl-query-detect-formats"
+                    )
                     yield Select(
                         [(f, f) for f in _DETECT_FORMAT_CHOICES],
                         value="mp3",
                         allow_blank=True,
                         id="detect-formats-select",
                     )
-                    yield Label(TR("query.id3_separator"))
+                    yield Label(TR("query.id3_separator"), id="lbl-query-id3-sep")
                     yield Input(
                         value="/",
                         placeholder=TR("query.ph_separator"),
                         id="id3-separator-input",
                     )
-                    yield Label(TR("query.ytm_data"))
+                    yield Label(TR("query.ytm_data"), id="lbl-query-ytm-data")
                     yield Switch(id="ytm-data-checkbox")
-                    yield Label(TR("query.create_skip_file"))
+                    yield Label(
+                        TR("query.create_skip_file"), id="lbl-query-create-skip"
+                    )
                     yield Switch(id="create-skip-file-checkbox")
-                    yield Label(TR("query.respect_skip_file"))
+                    yield Label(
+                        TR("query.respect_skip_file"), id="lbl-query-respect-skip"
+                    )
                     yield Switch(id="respect-skip-file-checkbox")
 
                 with Collapsible(title=TR("section.finetuning"), collapsed=False):
-                    yield Label(TR("query.log_level"))
+                    yield Label(TR("query.log_level"), id="lbl-query-log-level")
                     yield Select(
                         [
                             ("DEBUG", "DEBUG"),
@@ -323,19 +405,19 @@ class QueryScreen(Screen):
                         allow_blank=False,
                         id="log-level-select",
                     )
-                    yield Label(TR("query.print_errors"))
+                    yield Label(TR("query.print_errors"), id="lbl-query-print-errors")
                     yield Switch(id="print-errors-checkbox")
-                    yield Label(TR("query.save_errors"))
+                    yield Label(TR("query.save_errors"), id="lbl-query-save-errors")
                     yield Input(
                         placeholder=TR("query.ph_errors"),
                         id="save-errors-input",
                     )
-                    yield Label(TR("query.log_format"))
+                    yield Label(TR("query.log_format"), id="lbl-query-log-format")
                     yield Input(
                         placeholder=TR("query.ph_log_format"),
                         id="log-format-input",
                     )
-                    yield Label(TR("query.simple_tui"))
+                    yield Label(TR("query.simple_tui"), id="lbl-query-simple-tui")
                     yield Switch(id="simple-tui-checkbox")
 
             with Vertical(id="ad-bottom"):
@@ -553,16 +635,27 @@ class QueryScreen(Screen):
             app = cast("SpotdlApp", screen.app)
             try:
                 app.state.ensure_spotify(user_auth=False)
+
+                def search_status(msg: str) -> None:
+                    app.call_from_thread(screen._update_search_status, msg)
+
                 songs = get_simple_songs(
                     options["query"],
                     use_ytm_data=options.get("ytm_data", False),
                     playlist_numbering=options.get("playlist_numbering", False),
+                    status_callback=search_status,
                 )
                 app.call_from_thread(screen._search_done, songs, options, cache_key)
             except Exception as exc:
                 app.call_from_thread(screen._search_failed, exc)
 
         self.run_worker(run_search, thread=True, exclusive=True, group="search")
+
+    def _update_search_status(self, msg: str) -> None:
+        try:
+            self.query_one("#status", Static).update(f"{TR('query.searching')}: {msg}")
+        except Exception:
+            pass
 
     def _search_done(
         self,
@@ -599,6 +692,88 @@ class QueryScreen(Screen):
             self.query_one("#back-btn", Button).label = TR("query.btn_back")
         except Exception:
             pass
+
+        for lbl_id, tr_key in _QUERY_LABELS.items():
+            try:
+                self.query_one(f"#{lbl_id}", Label).update(TR(tr_key))
+            except Exception:
+                pass
+
+        for input_id, tr_key in _QUERY_PLACEHOLDERS.items():
+            try:
+                self.query_one(f"#{input_id}", Input).placeholder = TR(tr_key)
+            except Exception:
+                pass
+
+        try:
+            collapsibles = list(self.query(Collapsible))
+            if len(collapsibles) >= 5:
+                collapsibles[0].title = TR("section.audio_format")
+                collapsibles[1].title = TR("section.filtering")
+                collapsibles[2].title = TR("section.output_playlist")
+                collapsibles[3].title = TR("section.network_auth")
+                collapsibles[4].title = TR("section.finetuning")
+        except Exception:
+            pass
+
+        try:
+            template_select = self.query_one("#template-select", Select)
+            curr_tmpl = template_select.value
+            template_select.set_options(
+                [
+                    (TR("query.template_custom"), _TEMPLATE_CUSTOM),
+                    (TR("query.template_light"), _TEMPLATE_LIGHT),
+                    (TR("query.template_efficient"), _TEMPLATE_EFFICIENT),
+                    (TR("query.template_balanced"), _TEMPLATE_BALANCED),
+                    (TR("query.template_studio"), _TEMPLATE_STUDIO),
+                ]
+            )
+            template_select.value = curr_tmpl
+        except Exception:
+            pass
+
+        try:
+            overwrite_select = self.query_one("#overwrite-select", Select)
+            curr_ow = overwrite_select.value
+            overwrite_select.set_options(
+                [
+                    (TR("query.overwrite_force"), "force"),
+                    (TR("query.overwrite_skip"), "skip"),
+                    (TR("query.overwrite_metadata"), "metadata"),
+                ]
+            )
+            overwrite_select.value = curr_ow
+        except Exception:
+            pass
+
+        try:
+            album_type_select = self.query_one("#album-type-select", Select)
+            curr_at = album_type_select.value
+            album_type_select.set_options(
+                [
+                    (TR("query.album_type_album"), "album"),
+                    (TR("query.album_type_single"), "single"),
+                    (TR("query.album_type_compilation"), "compilation"),
+                ]
+            )
+            album_type_select.value = curr_at
+        except Exception:
+            pass
+
+        try:
+            restrict_select = self.query_one("#restrict-select", Select)
+            curr_res = restrict_select.value
+            restrict_select.set_options(
+                [
+                    (TR("query.restrict_none"), "none"),
+                    (TR("query.restrict_ascii"), "ascii"),
+                    (TR("query.restrict_strict"), "strict"),
+                ]
+            )
+            restrict_select.value = curr_res
+        except Exception:
+            pass
+
         try:
             self.query_one(VersionFooter).refresh_language()
         except Exception:

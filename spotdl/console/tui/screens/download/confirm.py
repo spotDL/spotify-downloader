@@ -1,10 +1,11 @@
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List
 
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Center, Vertical
+from textual.containers import Center, Vertical, VerticalScroll
 from textual.screen import Screen
-from textual.widgets import Button, Static
+from textual.widgets import Button, Label, Static
 
 from spotdl.console.tui import i18n
 from spotdl.console.tui.bar import AppBar, VersionFooter, handle_appbar
@@ -22,39 +23,70 @@ def _bool_label(value: bool) -> str:
     return TR(_YES) if value else TR(_NO)
 
 
-def build_summary_lines(options: Dict[str, Any]) -> List[str]:
+@dataclass
+class OptionCardData:
+    label: str
+    value: str
+    sub: str = ""
+
+
+def build_option_cards(options: Dict[str, Any]) -> List[OptionCardData]:
     audio_providers = options.get("audio_providers") or ["youtube-music"]
     lyrics_providers = options.get("lyrics_providers") or []
+    lrc_status = _bool_label(bool(options.get("generate_lrc")))
 
-    lines = [
-        TR(
-            "confirm.line_format",
-            format=str(options.get("format", "mp3")).upper(),
-            bitrate=str(options.get("bitrate", "auto")),
+    cards = [
+        OptionCardData(
+            label=TR("confirm.card_format"),
+            value=f"{str(options.get('format', 'mp3')).upper()} @ {str(options.get('bitrate', 'auto'))}",
+            sub=TR(
+                "confirm.sub_output",
+                template=str(
+                    options.get("output_template", "{artists} - {title}.{output-ext}")
+                ),
+            ),
         ),
-        TR("confirm.line_audio", provider=", ".join(audio_providers)),
-        TR(
-            "confirm.line_lyrics",
-            enabled=_bool_label(bool(lyrics_providers)),
-            provider=", ".join(lyrics_providers) if lyrics_providers else "-",
+        OptionCardData(
+            label=TR("confirm.card_audio"),
+            value=", ".join(audio_providers),
+            sub=TR("confirm.sub_audio_provider"),
         ),
-        TR(
-            "confirm.line_lrc",
-            enabled=_bool_label(bool(options.get("generate_lrc"))),
+        OptionCardData(
+            label=TR("confirm.card_lyrics"),
+            value=", ".join(lyrics_providers) if lyrics_providers else TR(_NO),
+            sub=f"LRC: {lrc_status}",
         ),
-        TR("confirm.line_threads", threads=str(options.get("threads", 4))),
-        TR("confirm.line_overwrite", overwrite=str(options.get("overwrite", "skip"))),
-        TR("confirm.line_output", dir=str(options.get("output_dir", ""))),
+        OptionCardData(
+            label=TR("confirm.card_threads"),
+            value=TR("confirm.val_threads", count=str(options.get("threads", 4))),
+            sub=TR(
+                "confirm.sub_overwrite",
+                mode=str(options.get("overwrite", "skip")),
+            ),
+        ),
+        OptionCardData(
+            label=TR("confirm.card_output"),
+            value=str(options.get("output_dir", "")),
+        ),
     ]
 
+    extras = []
     if options.get("m3u"):
-        lines.append(TR("confirm.line_m3u", path=str(options["m3u"])))
+        extras.append(f"M3U: {options['m3u']}")
     if options.get("sponsor_block"):
-        lines.append(TR("confirm.line_sponsor_block"))
+        extras.append("SponsorBlock")
     if options.get("only_verified_results"):
-        lines.append(TR("confirm.line_verified_only"))
+        extras.append(TR("confirm.extra_verified"))
 
-    return lines
+    if extras:
+        cards.append(
+            OptionCardData(
+                label=TR("confirm.card_filters"),
+                value=" | ".join(extras),
+            )
+        )
+
+    return cards
 
 
 class ConfirmScreen(Screen):
@@ -78,8 +110,14 @@ class ConfirmScreen(Screen):
                     TR("confirm.title", count=str(len(self.songs))),
                     classes="menu-title",
                 )
-                for line in build_summary_lines(self.options):
-                    yield Static(f"- {line}", classes="menu-hint")
+                with VerticalScroll():
+                    with Vertical(id="confirm-grid"):
+                        for card in build_option_cards(self.options):
+                            with Vertical(classes="confirm-card"):
+                                yield Label(card.label, classes="confirm-card-label")
+                                yield Static(card.value, classes="confirm-card-val")
+                                if card.sub:
+                                    yield Static(card.sub, classes="confirm-card-sub")
                 yield Static(TR("confirm.hint"), classes="menu-hint")
                 with Center(classes="row"):
                     yield Button(
@@ -109,3 +147,29 @@ class ConfirmScreen(Screen):
         from spotdl.console.tui.screens.download.download import DownloadScreen
 
         self.app.switch_screen(DownloadScreen(self.operation, self.songs, self.options))
+
+    def refresh_language(self) -> None:
+        try:
+            self.query_one(AppBar).set_title(TR("appbar.title"))
+            self.query_one(".menu-title", Static).update(
+                TR("confirm.title", count=str(len(self.songs)))
+            )
+            self.query_one(".menu-hint", Static).update(TR("confirm.hint"))
+            self.query_one("#confirm-download-btn", Button).label = TR(
+                "confirm.btn_download"
+            )
+            self.query_one("#confirm-modify-btn", Button).label = TR(
+                "confirm.btn_modify"
+            )
+            grid = self.query_one("#confirm-grid", Vertical)
+            grid.remove_children()
+            for card in build_option_cards(self.options):
+                card_box = Vertical(classes="confirm-card")
+                card_box.mount(Label(card.label, classes="confirm-card-label"))
+                card_box.mount(Static(card.value, classes="confirm-card-val"))
+                if card.sub:
+                    card_box.mount(Static(card.sub, classes="confirm-card-sub"))
+                grid.mount(card_box)
+            self.query_one(VersionFooter).refresh_language()
+        except Exception:
+            pass

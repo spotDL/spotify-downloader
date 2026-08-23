@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from pyperclip import copy as clipboard_copy
+from rich.text import Text
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
@@ -299,6 +300,29 @@ class HistoryScreen(Screen):
             )
             self.query_one("#history-clear-btn", Button).label = TR("history.btn_clear")
             self.query_one("#history-back-btn", Button).label = TR("history.btn_close")
+
+            sort_labels = [
+                TR("history.btn_sort_date"),
+                TR("history.btn_sort_name"),
+                TR("history.btn_sort_tracks"),
+            ]
+            self.query_one("#history-sort-btn", Button).label = sort_labels[
+                self._sort_mode
+            ]
+
+            table = self.query_one(DataTable)
+            if "time" in table.columns:
+                table.columns["time"].label = Text(TR("history.col_time"))
+            if "name" in table.columns:
+                table.columns["name"].label = Text(TR("history.col_name"))
+            if "count" in table.columns:
+                table.columns["count"].label = Text(TR("history.col_count"))
+            if "status" in table.columns:
+                table.columns["status"].label = Text(TR("history.col_status"))
+            if "url" in table.columns:
+                table.columns["url"].label = Text(TR("history.col_url"))
+            table.refresh()
+
             self.query_one(VersionFooter).refresh_language()
             self._reload_data()
         except Exception:

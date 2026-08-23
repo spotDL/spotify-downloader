@@ -1,12 +1,10 @@
 import json
 import re
 import time
-from pathlib import Path
 from typing import List, Optional, Tuple
 
 import requests
 
-from spotdl._version import __version__ as UPSTREAM_BASE_VERSION
 from spotdl.utils.config import get_spotdl_path
 
 UPSTREAM_RELEASES_URL = (

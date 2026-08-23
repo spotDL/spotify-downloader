@@ -18,11 +18,11 @@ SPOTDL_THEME = Theme(
 FORMATS = ["mp3", "flac", "m4a", "opus", "ogg", "wav"]
 BITRATES = ["auto", "320k", "256k", "192k", "128k", "96k", "disable"]
 AUDIO_PROVIDERS = ["youtube-music", "youtube", "soundcloud", "bandcamp", "slider.kz"]
-LYRICS_PROVIDERS = ["genius", "musixmatch", "azlyrics", "synced"]
+LYRICS_PROVIDERS = ["lrclib", "genius", "musixmatch", "azlyrics", "synced"]
 
 DOWNLOADER_OPTIONS_DEFAULTS = {
-    "audio_providers": ["youtube-music"],
-    "lyrics_providers": ["genius", "azlyrics", "musixmatch"],
+    "audio_providers": ["youtube-music", "youtube"],
+    "lyrics_providers": ["lrclib", "genius", "azlyrics", "musixmatch"],
     "format": "mp3",
     "bitrate": "128k",
     "threads": 4,

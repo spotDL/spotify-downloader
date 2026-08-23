@@ -39,5 +39,4 @@ def build_downloader_settings(options: Dict[str, Any]) -> Dict[str, Any]:
         if key in settings and value is not None:
             settings[key] = value
 
-    settings["output"] = settings["output"]
     return settings

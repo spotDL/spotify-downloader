@@ -43,3 +43,11 @@ class LanguageScreen(Screen):
         from spotdl.console.tui.bar.appbar import refresh_all_screens
 
         refresh_all_screens(self.app)
+
+    def refresh_language(self) -> None:
+        try:
+            self.query_one(".menu-title", Static).update(TR("language.title"))
+            self.query_one(".menu-hint", Static).update(TR("language.hint"))
+            self.query_one(VersionFooter).refresh_language()
+        except Exception:
+            pass
