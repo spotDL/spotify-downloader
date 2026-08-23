@@ -1,11 +1,11 @@
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import VerticalScroll
+from textual.containers import Horizontal, VerticalScroll
 from textual.screen import Screen
-from textual.widgets import Markdown, TabbedContent, TabPane
+from textual.widgets import Button, Markdown, TabbedContent, TabPane
 
 from spotdl.console.tui import i18n
-from spotdl.console.tui.bar import AppBar, VersionFooter
+from spotdl.console.tui.bar import AppBar, VersionFooter, handle_appbar
 from spotdl.console.tui.screens.download.builder import CommandBuilder
 
 TR = i18n.tr
@@ -27,9 +27,10 @@ class HelpScreen(Screen):
             with TabPane(TR("help.title"), id="help-reference"):
                 with VerticalScroll(classes="tab-scroll"):
                     yield Markdown(TR("help.body"))
+                    with Horizontal(classes="row"):
+                        yield Button(TR("common.back"), id="help-back-btn")
             with TabPane(TR("cmdbuilder.tab_label"), id="help-builder"):
-                with VerticalScroll(classes="tab-scroll"):
-                    yield CommandBuilder()
+                yield CommandBuilder()
         yield VersionFooter()
 
     def action_back(self) -> None:
@@ -41,6 +42,12 @@ class HelpScreen(Screen):
             tabs.active = "help-builder"
         except Exception:
             pass
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if handle_appbar(self, event):
+            return
+        if event.button.id in ("help-back-btn", "cmd-back"):
+            self.action_back()
 
     def refresh_language(self) -> None:
         try:
@@ -56,6 +63,7 @@ class HelpScreen(Screen):
             pass
         try:
             self.query_one(Markdown).update(TR("help.body"))
+            self.query_one("#help-back-btn", Button).label = TR("common.back")
         except Exception:
             pass
         try:

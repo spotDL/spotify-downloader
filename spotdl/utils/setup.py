@@ -15,7 +15,7 @@ from spotdl.utils.ffmpeg import get_local_ffmpeg
 
 __all__ = ["run_setup"]
 
-_MANIFEST_NAME = "fork_setup_manifest.json"
+_MANIFEST_NAME = "setup_manifest.json"
 
 _STEP_NONE = 0
 _STEP_CHECK = 1

@@ -1,10 +1,11 @@
 import json
 import time
+import uuid
 from typing import Any, Dict, List, Optional
 
 from spotdl.utils.config import get_spotdl_path
 
-MAX_ENTRIES = 15
+MAX_ENTRIES = 30
 
 HISTORY_FILE = get_spotdl_path() / "tui_history.json"
 
@@ -45,6 +46,7 @@ def add_url_entry(query: str, operation: str) -> None:
     data["urls"].insert(
         0,
         {
+            "id": str(uuid.uuid4())[:8],
             "query": query,
             "operation": operation,
             "time": time.time(),
@@ -55,19 +57,40 @@ def add_url_entry(query: str, operation: str) -> None:
 
 
 def add_download_entry(
-    name: str, url: Optional[str], count: int, ok: int, err: int
+    name: str,
+    url: Optional[str],
+    count: int,
+    ok: int,
+    err: int,
+    skipped: int = 0,
+    operation: str = "download",
+    log_summary: Optional[str] = None,
 ) -> None:
     data = load_history()
     data["downloads"].insert(
         0,
         {
+            "id": str(uuid.uuid4())[:8],
             "name": name,
             "url": url or "",
             "count": count,
             "ok": ok,
             "err": err,
+            "skipped": skipped,
+            "operation": operation,
             "time": time.time(),
+            "log_summary": log_summary or "",
         },
     )
     data["downloads"] = data["downloads"][:MAX_ENTRIES]
+    _save_history(data)
+
+
+def clear_history() -> None:
+    _save_history(_empty_history())
+
+
+def delete_download_entry(entry_id: str) -> None:
+    data = load_history()
+    data["downloads"] = [e for e in data["downloads"] if e.get("id") != entry_id]
     _save_history(data)

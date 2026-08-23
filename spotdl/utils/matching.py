@@ -71,6 +71,11 @@ FORBIDDEN_WORDS = [
     "slowedreverb",
     "reverbedit",
     "pitched",
+    "parody",
+    "parodia",
+    "amv",
+    "animatic",
+    "mashup",
 ]
 
 
@@ -648,8 +653,11 @@ def calc_time_match(song: Song, result: Result) -> float:
     - time difference between song and result
     """
 
+    if not result.duration or not song.duration:
+        return 50.0
+
     time_diff = abs(song.duration - result.duration)
-    score = exp(-0.1 * time_diff)
+    score = exp(-0.05 * time_diff)
     return score * 100
 
 
@@ -885,23 +893,24 @@ def order_results(
                 f"Average match /w album match: {average_match}",
             )
 
-        # Skip results with time match lower than 25%
-        if time_match < 25:
+        # Skip results with time match lower than 15%
+        # (unless name and artist match are both exceptionally high >= 75%)
+        if time_match < 15 and not (name_match >= 75 and artists_match >= 75):
             debug(
                 song.song_id,
                 result.result_id,
-                "Skipping result due to time match lower than 25%",
+                "Skipping result due to time match lower than 15%",
             )
             continue
 
-        # If the time match is lower than 50%
-        # and the average match is lower than 75%
+        # If the time match is lower than 35%
+        # and the average match is lower than 70%
         # we skip the result
-        if time_match < 50 and average_match < 75:
+        if time_match < 35 and average_match < 70:
             debug(
                 song.song_id,
                 result.result_id,
-                "Skipping result due to time match < 50% and average match < 75%",
+                "Skipping result due to time match < 35% and average match < 70%",
             )
             continue
 

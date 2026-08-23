@@ -112,9 +112,15 @@ def gen_m3u_files(
     - detect_formats: the formats to detect
     """
 
-    # If no file name is provided, use the first list's name
+    # If no file name is provided or a generic playlist default is used, use the first list's name
     if not file_name:
         file_name = "{list[0]}.m3u8"
+    elif file_name in ["playlist.m3u8", "playlist.m3u", "playlist"]:
+        file_name = "{list[0]}.m3u8"
+    elif file_name.replace("\\", "/").endswith("/playlist.m3u8"):
+        file_name = file_name.replace("\\", "/")[:-len("playlist.m3u8")] + "{list[0]}.m3u8"
+    elif file_name.replace("\\", "/").endswith("/playlist.m3u"):
+        file_name = file_name.replace("\\", "/")[:-len("playlist.m3u")] + "{list[0]}.m3u8"
 
     # If file_name ends with a slash. Does not have a m3u8 name with extension
     # at the end of the template, append `{list[0]}`` to it
@@ -139,11 +145,14 @@ def gen_m3u_files(
 
         lists_object[song.list_name].append(song)
 
-    if not lists_object and "{list" in file_name:
-        logger.warning(
-            "M3U file name contains '{list}' but no lists were provided. Specify a filename."
-        )
-        return
+    if not lists_object:
+        # Fallback to album name or first song name if no list name is present
+        fallback_name = (
+            songs[0].album_name
+            or songs[0].name
+            or "playlist"
+        ) if songs else "playlist"
+        lists_object[fallback_name] = list(songs)
 
     if "{list}" in file_name:
         # Create multiple m3u files if there are multiple lists

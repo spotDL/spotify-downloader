@@ -43,6 +43,25 @@ def test_gen_m3u_files_default_template_uses_playlist_name(tmp_path, monkeypatch
     assert (tmp_path / "My Awesome Playlist.m3u8").is_file()
 
 
+def test_gen_m3u_files_generic_playlist_converts_to_playlist_name(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    songs = [_song(list_name="Top 50 Global")]
+
+    gen_m3u_files(songs, "playlist.m3u8", "", "mp3")
+
+    assert (tmp_path / "Top 50 Global.m3u8").is_file()
+
+
+def test_gen_m3u_files_fallback_album_when_no_list_name(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    song = _song(list_name=None)
+    song.album_name = "Greatest Hits"
+
+    gen_m3u_files([song], None, "", "mp3")
+
+    assert (tmp_path / "Greatest Hits.m3u8").is_file()
+
+
 def _song(list_name):
     return Song(
         name="test",

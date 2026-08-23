@@ -7,7 +7,7 @@ from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
 from textual.screen import Screen
-from textual.widgets import Button, Checkbox, DataTable, Static
+from textual.widgets import Button, DataTable, Static
 from textual.widgets.data_table import RowKey
 
 from spotdl.console.save import save
@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 class TrackListScreen(Screen):
     BINDINGS = [
         Binding("escape", "back", "back"),
+        Binding("space", "toggle_select", "toggle"),
         Binding("l", "view_lyrics", "lyrics"),
     ]
 
@@ -50,8 +51,7 @@ class TrackListScreen(Screen):
         self.songs = unique_songs
         self.options = options
         self._row_keys: Dict[str, RowKey] = {}
-        self._sel_ids: Dict[str, str] = {}
-        self._selected: Set[str] = set()
+        self._selected: Set[str] = {song.url for song in self.songs}
 
     def compose(self) -> ComposeResult:
         yield AppBar(TR("appbar.title"))
@@ -63,11 +63,11 @@ class TrackListScreen(Screen):
             )
             table: DataTable = DataTable(zebra_stripes=True, cursor_type="row")
             table.add_column(TR("tracklist.col_sel"), key="sel", width=5)
-            table.add_column(TR("tracklist.col_title"), key="title")
-            table.add_column(TR("tracklist.col_artist"), key="artist")
-            table.add_column(TR("tracklist.col_album"), key="album")
+            table.add_column(TR("tracklist.col_title"), key="title", width=30)
+            table.add_column(TR("tracklist.col_artist"), key="artist", width=22)
+            table.add_column(TR("tracklist.col_album"), key="album", width=20)
             table.add_column(TR("tracklist.col_duration"), key="duration", width=10)
-            table.add_column(TR("tracklist.col_explicit"), key="explicit", width=5)
+            table.add_column(TR("tracklist.col_explicit"), key="explicit", width=6)
             yield table
 
             with Horizontal(classes="row"):
@@ -85,10 +85,12 @@ class TrackListScreen(Screen):
 
     def on_mount(self) -> None:
         table = self.query_one(DataTable)
-        for index, song in enumerate(self.songs):
+        for song in self.songs:
+            is_sel = song.url in self._selected
+            icon = Text("[✓]", style="bold green") if is_sel else Text("[ ]", style="dim")
             row_key = table.add_row(
-                Checkbox(id=f"sel_{index}"),
-                song.display_name,
+                icon,
+                song.display_name or song.name or "",
                 ", ".join(song.artists) if song.artists else "",
                 song.album_name or "",
                 format_duration(song.duration),
@@ -96,7 +98,6 @@ class TrackListScreen(Screen):
                 key=song.url,
             )
             self._row_keys[song.url] = row_key
-            self._sel_ids[f"sel_{index}"] = song.url
         self._refresh_selected()
 
     def action_back(self) -> None:
@@ -114,6 +115,38 @@ class TrackListScreen(Screen):
             from spotdl.console.tui.lyrics import LyricsScreen
 
             self.app.push_screen(LyricsScreen(song))
+
+    def action_toggle_select(self) -> None:
+        table = self.query_one(DataTable)
+        try:
+            row_key, _ = table.coordinate_to_cell_key(table.cursor_coordinate)
+            url = getattr(row_key, "value", None) or str(row_key)
+            self._toggle_song(url)
+        except Exception:
+            pass
+
+    def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
+        url = getattr(event.row_key, "value", None) or str(event.row_key)
+        self._toggle_song(url)
+
+    def on_data_table_cell_selected(self, event: DataTable.CellSelected) -> None:
+        url = getattr(event.cell_key.row_key, "value", None) or str(event.cell_key.row_key)
+        self._toggle_song(url)
+
+    def _toggle_song(self, url: str) -> None:
+        if url in self._selected:
+            self._selected.remove(url)
+        else:
+            self._selected.add(url)
+        self._update_row_icon(url)
+        self._refresh_selected()
+
+    def _update_row_icon(self, url: str) -> None:
+        table = self.query_one(DataTable)
+        if url in self._row_keys:
+            is_sel = url in self._selected
+            icon = Text("[✓]", style="bold green") if is_sel else Text("[ ]", style="dim")
+            table.update_cell(self._row_keys[url], "sel", icon)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if handle_appbar(self, event):
@@ -134,28 +167,9 @@ class TrackListScreen(Screen):
         if event.button.id == "proceed-btn":
             self._proceed()
 
-    def on_checkbox_changed(self, event: Checkbox.Changed) -> None:
-        song_url = self._sel_ids.get(event.checkbox.id or "")
-        if song_url is None:
-            return
-        if event.checkbox.value:
-            self._selected.add(song_url)
-        else:
-            self._selected.discard(song_url)
-        self._refresh_selected()
-
     def _rebuild_checkboxes(self) -> None:
-        table = self.query_one(DataTable)
-        for index, song in enumerate(self.songs):
-            if song.url in self._row_keys:
-                table.update_cell(
-                    self._row_keys[song.url],
-                    "sel",
-                    Checkbox(
-                        value=song.url in self._selected,
-                        id=f"sel_{index}",
-                    ),
-                )
+        for song in self.songs:
+            self._update_row_icon(song.url)
         self._refresh_selected()
 
     def _refresh_selected(self) -> None:

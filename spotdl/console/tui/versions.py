@@ -9,9 +9,6 @@ import requests
 from spotdl._version import __version__ as UPSTREAM_BASE_VERSION
 from spotdl.utils.config import get_spotdl_path
 
-FORK_VERSION = "1.0.0"
-
-FORK_CHANGELOG_DIR = Path(__file__).resolve().parents[3] / "docs" / "Fork"
 UPSTREAM_RELEASES_URL = (
     "https://api.github.com/repos/spotDL/spotify-downloader/releases/latest"
 )
@@ -27,27 +24,6 @@ def parse_version(value: str) -> Tuple[int, ...]:
         else:
             break
     return tuple(numbers) or (0,)
-
-
-def list_fork_changelog_versions() -> List[str]:
-    if not FORK_CHANGELOG_DIR.exists():
-        return []
-    versions = []
-    for entry in FORK_CHANGELOG_DIR.glob("*-FORK-CHANGELOG.md"):
-        match = re.match(r"^(.+)-FORK-CHANGELOG\.md$", entry.name)
-        if match:
-            versions.append(match.group(1))
-    versions.sort(key=parse_version, reverse=True)
-    return versions
-
-
-def get_latest_fork_changelog_version() -> Optional[str]:
-    versions = list_fork_changelog_versions()
-    return versions[0] if versions else None
-
-
-def get_fork_changelog_path(version: str) -> Path:
-    return FORK_CHANGELOG_DIR / f"{version}-FORK-CHANGELOG.md"
 
 
 def fetch_upstream_latest_version() -> Optional[str]:

@@ -330,15 +330,6 @@ class Song:
 
         return asdict(self)
 
-    # def __json__(self) -> str:
-    #     """
-    #     Returns a JSON string of the song's data.
-
-    #     ### Returns
-    #     - The JSON string.
-    #     """
-    #     return json.dumps(self.json)
-
 
 @dataclass(frozen=True)
 class SongList:

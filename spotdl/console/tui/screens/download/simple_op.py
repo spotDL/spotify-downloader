@@ -2,7 +2,7 @@ import asyncio
 import io
 import logging
 import sys
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from textual.app import ComposeResult
 from textual.binding import Binding
@@ -19,6 +19,32 @@ if TYPE_CHECKING:
     from spotdl.console.tui.app import SpotdlApp
 
 TR = i18n.tr
+
+
+class LiveLogHandler(logging.Handler):
+    def __init__(self, callback: Any) -> None:
+        super().__init__()
+        self.callback = callback
+
+    def emit(self, record: logging.LogRecord) -> None:
+        try:
+            msg = self.format(record)
+            self.callback(msg)
+        except Exception:
+            pass
+
+
+class LiveStreamWriter(io.TextIOBase):
+    def __init__(self, callback: Any) -> None:
+        super().__init__()
+        self.callback = callback
+
+    def write(self, s: str) -> int:
+        if s and s.strip():
+            for line in s.splitlines():
+                if line.strip():
+                    self.callback(line.strip())
+        return len(s)
 
 
 class SimpleOpScreen(Screen):
@@ -66,6 +92,14 @@ class SimpleOpScreen(Screen):
         elif event.button.id == "run-btn":
             self.run_operation()
 
+    def _stream_message(self, message: str) -> None:
+        try:
+            log = self.query_one("#op-log", RichLog)
+            log.write(message)
+            self.query_one("#status", Static).update(message[:80])
+        except Exception:
+            pass
+
     def run_operation(self) -> None:
         value = self.query_one("#op-input", Input).value.strip()
         if not value:
@@ -86,9 +120,17 @@ class SimpleOpScreen(Screen):
 
         def run_operation() -> None:
             app = cast("SpotdlApp", screen.app)
-            buffer = io.StringIO()
-            stream_handler = logging.StreamHandler(buffer)
-            logging.getLogger("spotdl").addHandler(stream_handler)
+
+            def log_callback(msg: str) -> None:
+                app.call_from_thread(screen._stream_message, msg)
+
+            log_handler = LiveLogHandler(log_callback)
+            log_handler.setFormatter(logging.Formatter("%(name)s: %(message)s"))
+            spotdl_logger = logging.getLogger("spotdl")
+            spotdl_logger.addHandler(log_handler)
+
+            stream_writer = LiveStreamWriter(log_callback)
+            old_stdout = sys.stdout
 
             try:
                 app.state.ensure_spotify(user_auth=False)
@@ -105,8 +147,7 @@ class SimpleOpScreen(Screen):
                 )
                 asyncio.set_event_loop(downloader.loop)
 
-                old_stdout = sys.stdout
-                sys.stdout = buffer
+                sys.stdout = stream_writer
                 try:
                     if operation == "meta":
                         meta(query=[value], downloader=downloader)
@@ -115,18 +156,14 @@ class SimpleOpScreen(Screen):
                 finally:
                     sys.stdout = old_stdout
             except Exception as exc:
-                buffer.write(f"{type(exc).__name__}: {exc}\n")
+                app.call_from_thread(screen._stream_message, f"Error: {exc}")
             finally:
-                logging.getLogger("spotdl").removeHandler(stream_handler)
-                output = buffer.getvalue()
-                app.call_from_thread(screen._op_done, output)
+                spotdl_logger.removeHandler(log_handler)
+                app.call_from_thread(screen._op_done)
 
         self.run_worker(run_operation, thread=True, exclusive=True, group="simple")
 
-    def _op_done(self, output: str) -> None:
-        log = self.query_one("#op-log", RichLog)
-        for line in output.splitlines():
-            log.write(line)
+    def _op_done(self) -> None:
         self.query_one("#run-btn", Button).disabled = False
         self.query_one("#status", Static).update(
             TR("meta.done" if self.operation == "meta" else "url.done")

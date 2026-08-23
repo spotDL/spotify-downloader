@@ -28,18 +28,18 @@ class MenuPopover(ModalScreen[Any]):
         min-width: 36;
         max-width: 60;
         height: auto;
-        border: round $primary;
+        border: solid $primary;
         background: $surface;
         padding: 1 2;
     }
     #popover-title {
         text-style: bold;
         color: $accent;
-        margin-bottom: 1;
     }
     #popover-title-row {
         height: auto;
         align: center middle;
+        margin-bottom: 1;
     }
     #popover-title-row #popover-title {
         width: 1fr;
@@ -56,9 +56,10 @@ class MenuPopover(ModalScreen[Any]):
     }
     #popover-actions {
         height: auto;
+        width: 100%;
     }
     #popover-actions Button {
-        width: 100%;
+        width: 1fr;
         margin: 0 0 1 0;
     }
     """
@@ -121,7 +122,7 @@ class MenuPopover(ModalScreen[Any]):
     def _open_screen(self, tab: str) -> None:
         from spotdl.console.tui.screens.help import HelpScreen
 
-        self.app.pop_screen()
+        self.dismiss(None)
         self.app.push_screen(HelpScreen(initial_tab=tab))
 
     def _open_setup(self) -> None:

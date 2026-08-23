@@ -1,25 +1,41 @@
 CSS = """
+CommandBuilder {
+    height: 1fr;
+    width: 100%;
+}
+
 .split-pane {
     width: 100%;
-    height: 100%;
+    height: 1fr;
 }
 
 .left-pane {
-    width: 42%;
-    min-width: 38;
-    height: auto;
-    max-height: 100%;
-    border-right: solid $primary;
-    padding: 1;
-    overflow-y: auto;
+    width: 50%;
+    height: 100%;
+    border-right: solid $primary 40%;
+    padding: 0 1;
 }
 
 .right-pane {
-    width: 1fr;
+    width: 50%;
+    height: 100%;
+    padding: 0 1;
+}
+
+#cmdbuilder-bottom {
     height: auto;
-    max-height: 100%;
-    padding: 1;
-    overflow-y: auto;
+    border-top: solid $primary 40%;
+    padding: 0 1;
+    margin-top: 1;
+}
+
+#cmd-output {
+    height: 3;
+    min-height: 3;
+    max-height: 5;
+    border: round $primary;
+    background: $surface-darken-1;
+    margin-bottom: 1;
 }
 
 .box {
@@ -261,32 +277,49 @@ DirectoryTree {
     overflow-y: auto;
 }
 
-#home-welcome {
+#home-hero-title {
     text-style: bold;
     color: $accent;
+    margin-top: 1;
+}
+
+#home-subtitle {
+    color: $text-muted;
     margin-bottom: 1;
 }
 
 .home-cards {
+    layout: grid;
+    grid-size: 2;
+    grid-gutter: 1;
     height: auto;
+    margin-top: 1;
     margin-bottom: 1;
 }
 
 .home-cards Button {
-    width: 1fr;
-    min-width: 18;
-    max-width: 40;
-    margin: 0 1 1 0;
+    width: 100%;
     height: 3;
+    margin: 0;
+}
+
+#home-secondary-actions {
+    height: auto;
+    margin-bottom: 1;
+}
+
+.secondary-card {
+    margin-right: 1;
 }
 
 .primary-action {
-    width: auto;
-    margin-top: 1;
+    width: 100%;
+    height: 3;
+    margin-bottom: 1;
 }
 
 #home-new-download {
-    min-width: 30;
+    width: 100%;
 }
 
 #home-recent {
@@ -378,17 +411,12 @@ DirectoryTree {
     margin: 1 0;
 }
 
-Screen.-normal .home-cards,
 Screen.-wide .home-cards {
-    layout: vertical;
+    grid-size: 3;
 }
 
-Screen.-normal .home-cards Button,
-Screen.-wide .home-cards Button {
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
-    margin: 0 0 1 0;
+Screen.-very-wide .home-cards {
+    grid-size: 4;
 }
 
 Screen.-very-wide #add-download .dir-browse-row {
@@ -443,5 +471,74 @@ Screen.-very-wide #add-download .dir-browse-row {
 
 #setup-progress-btns Button {
     margin-right: 1;
+}
+
+#home-recent-box {
+    margin-top: 1;
+    padding: 1;
+    border: solid $primary 40%;
+    background: $surface;
+    height: auto;
+}
+
+#home-recent-title {
+    text-style: bold;
+    color: $accent;
+}
+
+#home-recent-summary {
+    color: $text-muted;
+    margin: 1 0;
+}
+
+#home-recent-actions {
+    height: auto;
+}
+
+#home-recent-actions Button {
+    margin-right: 1;
+}
+
+#history-container {
+    width: 1fr;
+    height: 1fr;
+    padding: 1 2;
+}
+
+#history-toolbar {
+    height: auto;
+    margin-bottom: 1;
+}
+
+#history-search-input {
+    width: 1fr;
+    margin-right: 1;
+}
+
+#history-toolbar Button {
+    margin-left: 1;
+}
+
+#history-table {
+    height: 1fr;
+    min-height: 4;
+    margin-bottom: 1;
+}
+
+#history-details-box {
+    height: auto;
+    border: solid $primary 30%;
+    background: $surface-darken-1;
+    padding: 1;
+    margin-bottom: 1;
+}
+
+#history-details-title {
+    text-style: bold;
+    color: $accent;
+}
+
+#history-details-body {
+    color: $text;
 }
 """

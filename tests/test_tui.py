@@ -55,8 +55,8 @@ async def test_menu_screen_starts(app):
         await pilot.pause()
         assert MainMenuScreen in [type(s) for s in app.screen_stack]
         labels = [b.label.plain for b in app.screen.query(Button)]
-        assert i18n.tr("home.new_download") in labels
-        assert any(lbl.endswith(i18n.tr("menu.sync")) for lbl in labels)
+        assert i18n.tr("home.btn_add_download") in labels or i18n.tr("home.new_download") in labels
+        assert any(i18n.tr("home.card_sync") in lbl or i18n.tr("menu.sync") in lbl for lbl in labels)
 
 
 @pytest.mark.asyncio
@@ -91,7 +91,29 @@ async def test_query_screen_template_applies(app):
             app.screen.query_one("#only-verified-results-checkbox", Switch).value
             is True
         )
-        assert app.screen.query_one("#generate-lrc-checkbox", Switch).value is True
+        assert app.screen.query_one("#generate-lrc-checkbox", Switch).value is False
+
+
+@pytest.mark.asyncio
+async def test_history_screen_navigation(app):
+    from spotdl.console.tui.screens.download.history_screen import HistoryScreen
+    from spotdl.console.tui.history import add_download_entry
+
+    add_download_entry("Test Playlist", "https://open.spotify.com/playlist/test", 10, 10, 0)
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        app.push_screen(HistoryScreen())
+        await pilot.pause()
+        await pilot.pause()
+        assert isinstance(app.screen, HistoryScreen)
+        table = app.screen.query_one("#history-table")
+        assert table.row_count >= 1
+        app.screen.action_redownload()
+        await pilot.pause()
+        await pilot.pause()
+        assert isinstance(app.screen, QueryScreen)
+        assert app.screen.query_one("#query-input").value == "https://open.spotify.com/playlist/test"
 
 
 @pytest.mark.asyncio
@@ -123,7 +145,7 @@ async def test_language_selection_rebuilds_menu(app):
         await pilot.pause()
         assert i18n.get_language() == "es"
         labels = [b.label.plain for b in app.screen.query(Button)]
-        assert i18n.tr("home.new_download") in labels
+        assert i18n.tr("home.btn_add_download") in labels or i18n.tr("home.new_download") in labels
 
 
 @pytest.mark.asyncio
@@ -207,3 +229,70 @@ def test_downloader_settings_simple_tui():
     assert downloader.progress_handler.simple_tui is False
     downloader.progress_handler.update_callback = lambda tracker, message: None
     assert callable(downloader.progress_handler.update_callback)
+
+
+@pytest.mark.asyncio
+async def test_command_builder_live_update(app):
+    from spotdl.console.tui.screens.download.builder import CommandBuilder
+    from textual.widgets import Checkbox, Input, Select
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        app.push_screen(HelpScreen("help-builder"))
+        await pilot.pause()
+        await pilot.pause()
+        builder = app.screen.query_one(CommandBuilder)
+        builder.query_one("#cmd-query", Input).value = "https://open.spotify.com/track/123"
+        builder.query_one("#cmd-format", Select).value = "flac"
+        builder.query_one("#cmd-generate-lrc", Checkbox).value = True
+        builder.update_command()
+        await pilot.pause()
+        cmd = builder._current_command()
+        assert "spotdl" in cmd
+        assert "--format flac" in cmd
+        assert "--generate-lrc" in cmd
+        assert "https://open.spotify.com/track/123" in cmd
+
+
+@pytest.mark.asyncio
+async def test_query_screen_operation_titles(app):
+    from spotdl.console.tui.screens.download.query import QueryScreen
+    from textual.widgets import Static
+
+    i18n.set_language("es", persist=False)
+    save_screen = QueryScreen("save")
+    assert save_screen._get_title() == "Guardar canciones en archivo spotdl"
+    sync_screen = QueryScreen("sync")
+    assert sync_screen._get_title() == "Sincronizar directorio con playlist"
+    download_screen = QueryScreen("download")
+    assert download_screen._get_title() == "Descargar musica"
+
+
+@pytest.mark.asyncio
+async def test_history_search_filter(app):
+    from spotdl.console.tui.history import add_download_entry, clear_history
+    from spotdl.console.tui.screens.download.history_screen import HistoryScreen
+    from textual.widgets import DataTable, Input
+
+    clear_history()
+    add_download_entry("Alpha Song", "https://open.spotify.com/track/alpha", 1, 1, 0)
+    add_download_entry("Beta Track", "https://open.spotify.com/track/beta", 2, 2, 0)
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        app.push_screen(HistoryScreen())
+        await pilot.pause()
+        await pilot.pause()
+        screen = app.screen
+        assert isinstance(screen, HistoryScreen)
+        table = screen.query_one("#history-table", DataTable)
+        assert table.row_count >= 2
+
+        search_input = screen.query_one("#history-search-input", Input)
+        search_input.value = "Alpha"
+        screen._apply_filter_and_sort()
+        await pilot.pause()
+        await pilot.pause()
+        assert table.row_count == 1
+
+

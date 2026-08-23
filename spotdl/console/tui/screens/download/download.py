@@ -324,11 +324,13 @@ class DownloadScreen(Screen):
         )
         self.query_one("#stop-btn", Button).disabled = True
         add_download_entry(
-            self._history_name(),
-            (self.options.get("query") or [None])[0],
-            len(self.songs),
-            max(0, ok),
-            self._error_count,
+            name=self._history_name(),
+            url=(self.options.get("query") or [None])[0],
+            count=len(self.songs),
+            ok=max(0, ok),
+            err=self._error_count,
+            skipped=self._skip_count,
+            operation=self.operation,
         )
 
     def _history_name(self) -> str:
