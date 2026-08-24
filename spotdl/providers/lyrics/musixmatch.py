@@ -1,21 +1,26 @@
 """
 MusixMatch lyrics provider.
 """
+
 import json
 import logging
+import time
+from getpass import getpass
 from typing import Dict, List, Optional
 from urllib.parse import quote
-from playwright.async_api import async_playwright
+
 # import requests
 from bs4 import BeautifulSoup
-from getpass import getpass 
-import time
+from curl_cffi import requests
+from playwright.async_api import async_playwright
+
 from spotdl.providers.lyrics.base import LyricsProvider
 from spotdl.utils.config import GlobalConfig
-from curl_cffi import requests
+
 __all__ = ["MusixMatch"]
 
 import asyncio
+
 
 class MusixMatch(LyricsProvider):
     """
@@ -23,27 +28,34 @@ class MusixMatch(LyricsProvider):
 
 
     """
+
+    ## email : Email address used to authenticate using Musixmatch
+    ##password: Password used to authenticate using Musixmatch
+    ## cookies : Cookies obtained from the authenticated browser session.
+
     def __init__(self):
 
         super().__init__()
-        self.email=input("enter email for musixmatch ")
-        self.password=input("Enter Password")
+        self.email = input("enter email for musixmatch ")
+        self.password = input("Enter Password")
         try:
-            loop=asyncio.get_event_loop()
+            loop = asyncio.get_event_loop()
         except RuntimeError:
-             loop=asyncio.new_event_loop()
-             asyncio.set_event_loop(loop)
-
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
 
         self.cookies = loop.run_until_complete(self.login_and_get_cookies())
 
         print(self.cookies)
 
-    async def login_and_get_cookies(self) -> dict:
+    async def login_and_get_cookies(self) -> dict[str, str]:
 
-        async with async_playwright( ) as p:
-            browser= await p.chromium.launch(headless=False)
-            page= await browser.new_page()
+        async with async_playwright() as p:
+
+            # Going to musixmatch to log in and get cookies for later use
+
+            browser = await p.chromium.launch(headless=True)
+            page = await browser.new_page()
 
             await page.goto("https://www.musixmatch.com/")
 
@@ -54,13 +66,13 @@ class MusixMatch(LyricsProvider):
 
             await card.click()
 
-            email_btn=page.get_by_text("Continue with email")
+            email_btn = page.get_by_text("Continue with email")
 
             await email_btn.wait_for(state="visible")
 
             await email_btn.click()
 
-            await page.wait_for_selector("input[type='email']",state="visible")
+            await page.wait_for_selector("input[type='email']", state="visible")
 
             await page.fill("input[type ='Email']", self.email)
 
@@ -68,16 +80,16 @@ class MusixMatch(LyricsProvider):
 
             await page.get_by_text("Sign in", exact=True).click()
 
-
-            await page.wait_for_url(lambda url: "auth.musixmatch.com" not in url, timeout=10000)
+            await page.wait_for_url(
+                lambda url: "auth.musixmatch.com" not in url, timeout=10000
+            )
 
             playwright_cookies = await page.context.cookies()
 
-            cookies_dict = {c['name']: c['value'] for c in playwright_cookies}
+            cookies_dict = {c["name"]: c["value"] for c in playwright_cookies}
 
             await browser.close()
             return cookies_dict
-     
 
     def extract_lyrics(self, url: str, **_) -> Optional[str]:
         """
@@ -95,24 +107,18 @@ class MusixMatch(LyricsProvider):
             url,
             impersonate="chrome110",
             cookies=self.cookies,
-            # headers=self.headers,
             timeout=10,
             proxies=GlobalConfig.get_parameter("proxies"),
-
         )
 
         lyrics_soup = BeautifulSoup(lyrics_resp.text, "html.parser")
-        script_tag=lyrics_soup.find("script",id="__NEXT_DATA__")
+        script_tag = lyrics_soup.find("script", id="__NEXT_DATA__")
         if not script_tag:
             return None
-        data=json.loads(script_tag.string)
-        page_data=data["props"]["pageProps"]["data"]
+        data = json.loads(script_tag.string)
+        page_data = data["props"]["pageProps"]["data"]
         track_info = page_data.get("trackInfo", {})
         lyrics = track_info.get("data", {}).get("lyrics", {}).get("body", "")
-
-
-        # lyrics_paragraphs = lyrics_soup.select("p.mxm-lyrics__content")
-        # lyrics = "\n".join(i.get_text() for i in lyrics_paragraphs)
 
         return lyrics
 
@@ -158,70 +164,38 @@ class MusixMatch(LyricsProvider):
                 f"Received HTTP {search_resp.status_code} from {search_url}"
             )
 
-        soup= BeautifulSoup(search_resp.text, "html.parser")
+        soup = BeautifulSoup(search_resp.text, "html.parser")
         script_tag = soup.find("script", id="__NEXT_DATA__")
 
         if not script_tag:
             return {}
-        json_text=script_tag.string
+        json_text = script_tag.string
 
-        data =json.loads(json_text)
+        data = json.loads(json_text)
 
         print(data)
         page_data = data["props"]["pageProps"]["data"]
 
         body = page_data["openSearch"]["data"]["opensearchTrackSearch"]["body"]
 
-        results={}
-
+        results = {}
 
         best_match = body.get("bestMatch")
 
         if best_match:
-            title=f"{best_match.get('track_name','')} - {best_match.get('artist_name','')}"
+            title = f"{best_match.get('track_name','')} - {best_match.get('artist_name','')}"
 
-            url=best_match.get("track_share_url")
-            if url: 
+            url = best_match.get("track_share_url")
+            if url:
                 results[title] = url
 
-        track_list=body.get("track_list",[])
+        track_list = body.get("track_list", [])
         for item in track_list:
-            track=item.get('track',{})
+            track = item.get("track", {})
 
-            title=f"{track.get('track_name','')} - {track.get('artist_name','')}"
-            url=track.get("track_share_url")
+            title = f"{track.get('track_name','')} - {track.get('artist_name','')}"
+            url = track.get("track_share_url")
             if url:
-                results[title]=url
+                results[title] = url
 
         return results
-
-      
-        # search_soup = BeautifulSoup(search_resp.text, "html.parser")
-        # song_url_tag = search_soup.select("a[href^='/lyrics/']")
-
-        # if not song_url_tag:
-        #     # If Musixmatch returned a valid page but no lyrics links, it's likely the unauthenticated SPA
-        #     if search_soup.find("script", id="__NEXT_DATA__"):
-        #         logger = logging.getLogger(__name__)
-        #         logger.warning(
-        #             f"MusixMatch: Received {search_resp.status_code} for {name}, but search results are hidden by Musixmatch authentication."
-        #         )
-        #         return {}
-
-        #     # song_url_tag being None means no results were found on the
-        #     # All Results page, therefore, we use `track_search` to
-        #     # search the tracks page.
-
-        #     # track_search being True means we are already searching the tracks page.
-        #     if track_search:
-        #         return {}
-
-        #     return self.get_results(name, artists, track_search=True)
-
-        # results: Dict[str, str] = {}
-        # for tag in song_url_tag:
-        #     results[tag.get_text()] = "https://www.musixmatch.com" + str(
-        #         tag.get("href", "")
-        #     )
-
-        # return results
