@@ -93,3 +93,13 @@ def test_use_official_api_argument_overrides_config():
     )
 
     assert settings["use_official_api"] is True
+
+
+def test_default_audio_providers_include_youtube_fallback():
+    """
+    Tests that downloads prefer YouTube Music but fall back to YouTube by default.
+    """
+
+    settings = create_settings_type(SimpleNamespace(), {}, DOWNLOADER_OPTIONS)
+
+    assert settings["audio_providers"] == ["youtube-music", "youtube"]
