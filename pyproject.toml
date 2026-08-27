@@ -50,6 +50,7 @@ dependencies = [
     "datastar-py>=0.6.3",
     "jinja2>=3.1.5",
     "python-multipart>=0.0.20",
+    "pytest-playwright>=0.9.0",
 ]
 
 [project.urls]
