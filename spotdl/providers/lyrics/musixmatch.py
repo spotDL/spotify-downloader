@@ -177,7 +177,6 @@ class MusixMatch(LyricsProvider):
 
         data = json.loads(json_text)
 
-        print(data)
         page_data = data["props"]["pageProps"]["data"]
 
         body = page_data["openSearch"]["data"]["opensearchTrackSearch"]["body"]
