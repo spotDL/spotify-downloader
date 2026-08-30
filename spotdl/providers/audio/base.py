@@ -18,7 +18,12 @@ from spotdl.utils.formatter import (
     create_search_query,
     create_song_title,
 )
-from spotdl.utils.matching import get_best_matches, order_results
+from spotdl.utils.matching import (
+    calc_time_match,
+    check_common_word,
+    get_best_matches,
+    order_results,
+)
 
 __all__ = ["AudioProviderError", "AudioProvider", "ISRC_REGEX", "YTDLLogger"]
 
@@ -116,7 +121,16 @@ class AudioProvider:
             "cookiefile": self.cookie_file,
             "outtmpl": str((get_temp_path() / "%(id)s.%(ext)s").resolve()),
             "retries": 5,
-            "extractor_args": {},
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["android", "web"],
+                },
+            },
+            "user_agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/120.0.0.0 Safari/537.36"
+            ),
         }
 
         yt_dlp_options.update(get_local_deno_yt_dlp_options())
@@ -280,9 +294,20 @@ class AudioProvider:
                 # Order results
                 new_results = order_results(search_results, song, self.search_query)
             else:
+                # When filtering is disabled, do not take the first result blindly:
+                # it is often unrelated (e.g. another song by the same artist).
+                # Pick the first result that shares a word with the song title
+                # and has a plausible duration instead.
                 new_results = {}
-                if len(search_results) > 0:
-                    new_results = {search_results[0]: 100.0}
+                for result in search_results:
+                    if not check_common_word(song, result):
+                        continue
+
+                    if result.duration and calc_time_match(song, result) < 50:
+                        continue
+
+                    new_results = {result: 100.0}
+                    break
 
             logger.debug("[%s] Filtered to %s results", song.song_id, len(new_results))
 
@@ -354,10 +379,24 @@ class AudioProvider:
         if best_result[1] > 80 and best_result[0].isrc_search:
             return best_result[0], best_result[1]
 
-        # If we have more than one result,
-        # return the one with the highest score
-        # and most views
         if len(best_results) > 1:
+            official_candidates = [
+                res
+                for res in best_results
+                if (res[0].author and res[0].author.endswith(" - Topic"))
+                or (res[0].verified and "music" in res[0].source.lower())
+            ]
+
+            if official_candidates:
+                top_official = max(official_candidates, key=lambda x: x[1])
+                if (best_result[1] - top_official[1]) <= 12.0:
+                    logger.debug(
+                        "Selecting official topic/verified result %s with score %s",
+                        top_official[0].url,
+                        top_official[1],
+                    )
+                    return top_official[0], top_official[1]
+
             views: List[int] = []
             for best_result in best_results:
                 if best_result[0].views:
@@ -406,7 +445,9 @@ class AudioProvider:
                 warn_if_deno_missing()
 
             logger.debug(exception)
-            raise AudioProviderError(f"YT-DLP download error - {url}") from exception
+            raise AudioProviderError(
+                f"YT-DLP download error - {url}: {exception}"
+            ) from exception
 
         raise AudioProviderError(f"No metadata found for the provided url {url}")
 

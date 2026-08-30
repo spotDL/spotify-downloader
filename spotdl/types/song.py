@@ -3,6 +3,7 @@ Song module that hold the Song and SongList classes.
 """
 
 import json
+import re
 from dataclasses import asdict, dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -10,7 +11,33 @@ from rapidfuzz import fuzz
 
 from spotdl.utils.spotify import SpotifyClient
 
-__all__ = ["Song", "SongList", "SongError"]
+__all__ = ["Song", "SongList", "SongError", "upgrade_cover_url"]
+
+_COVER_URL_UPGRADES = {
+    "ab67616d00004851": "ab67616d00001e02",
+    "ab67616d0000b273": "ab67616d00001e02",
+}
+
+
+def upgrade_cover_url(url: Optional[str]) -> Optional[str]:
+    """
+    Upgrade a Spotify cover URL to the highest available resolution.
+
+    ### Arguments
+    - url: The cover URL to upgrade.
+
+    ### Returns
+    - The upgraded cover URL, or the original URL if no upgrade applies.
+    """
+
+    if not url:
+        return url
+
+    for low_res, high_res in _COVER_URL_UPGRADES.items():
+        if low_res in url:
+            return url.replace(low_res, high_res)
+
+    return url
 
 
 class SongError(Exception):
@@ -77,18 +104,24 @@ class Song:
         if "open.spotify.com" not in url or "track" not in url:
             raise SongError(f"Invalid URL: {url}")
 
+        url = re.sub(r"open\.spotify\.com/intl-[a-zA-Z-]+/", "open.spotify.com/", url)
+
         # query spotify for song, artist, album details
         spotify_client = SpotifyClient()
 
         # get track info
-        raw_track_meta = spotify_client.track(url)
+        try:
+            raw_track_meta = spotify_client.track(url)
+        except Exception as exc:
+            raise SongError(f"Couldn't fetch metadata for {url}: {exc}") from exc
 
-        if raw_track_meta is None:
-            raise SongError(
-                "Couldn't get metadata, check if you have passed correct track id"
-            )
+        if raw_track_meta is None or not isinstance(raw_track_meta, dict):
+            raise SongError(f"Couldn't get metadata, check if track exists: {url}")
 
-        if raw_track_meta["duration_ms"] == 0 or raw_track_meta["name"].strip() == "":
+        if (
+            raw_track_meta.get("duration_ms", 0) == 0
+            or raw_track_meta.get("name", "").strip() == ""
+        ):
             raise SongError(f"Track no longer exists: {url}")
 
         # get artist info
@@ -129,9 +162,12 @@ class Song:
             url=raw_track_meta["external_urls"]["spotify"],
             popularity=raw_track_meta.get("popularity"),
             cover_url=(
-                max(raw_album_meta["images"], key=lambda i: i["width"] * i["height"])[
-                    "url"
-                ]
+                upgrade_cover_url(
+                    max(
+                        raw_album_meta["images"],
+                        key=lambda i: i["width"] * i["height"],
+                    )["url"]
+                )
                 if raw_album_meta["images"]
                 else None
             ),
@@ -157,51 +193,99 @@ class Song:
         return raw_search_results
 
     @classmethod
-    def from_search_term(cls, search_term: str) -> "Song":
-        """
-        Creates a list of Song objects from a search term.
+    def from_track_dict(cls, track_dict: Dict[str, Any]) -> "Song":
+        album = track_dict.get("album") or {}
+        artists = track_dict.get("artists") or []
+        artist_names = [
+            artist.get("name", "") for artist in artists if isinstance(artist, dict)
+        ]
+        primary_artist = artist_names[0] if artist_names else ""
+        primary_artist_id = (
+            artists[0].get("id") if artists and isinstance(artists[0], dict) else None
+        )
 
-        ### Arguments
-        - search_term: The search term to use.
+        album_artists = album.get("artists") or []
+        album_artist = (
+            album_artists[0].get("name")
+            if album_artists and isinstance(album_artists[0], dict)
+            else primary_artist
+        )
 
-        ### Returns
-        - The Song object.
-        """
+        release_date = album.get("release_date") or ""
+        year = (
+            int(release_date[:4])
+            if len(release_date) >= 4 and release_date[:4].isdigit()
+            else 1970
+        )
+        duration_ms = track_dict.get("duration_ms") or 0
 
-        raw_search_results = Song.search(search_term)
+        images = album.get("images") or []
+        cover_url = None
+        if images:
+            try:
+                cover_url = upgrade_cover_url(
+                    max(
+                        images,
+                        key=lambda i: (i.get("width") or 0) * (i.get("height") or 0),
+                    ).get("url")
+                )
+            except Exception:
+                cover_url = (
+                    images[0].get("url") if isinstance(images[0], dict) else None
+                )
 
-        if len(raw_search_results["tracks"]["items"]) == 0:
-            raise SongError(f"No results found for: {search_term}")
+        copyrights = album.get("copyrights") or []
+        copyright_text = (
+            copyrights[0].get("text")
+            if copyrights and isinstance(copyrights[0], dict)
+            else None
+        )
 
-        return Song.from_url(
-            "http://open.spotify.com/track/"
-            + raw_search_results["tracks"]["items"][0]["id"]
+        return cls(
+            name=track_dict.get("name", ""),
+            artists=artist_names,
+            artist=primary_artist,
+            artist_id=primary_artist_id,
+            album_id=album.get("id"),
+            album_name=album.get("name", ""),
+            album_artist=album_artist or primary_artist,
+            album_type=album.get("album_type"),
+            copyright_text=copyright_text,
+            genres=[],
+            disc_number=track_dict.get("disc_number", 1),
+            disc_count=1,
+            duration=int(duration_ms / 1000),
+            year=year,
+            date=release_date,
+            track_number=track_dict.get("track_number", 1),
+            tracks_count=album.get("total_tracks", 1),
+            isrc=track_dict.get("external_ids", {}).get("isrc"),
+            song_id=track_dict.get("id", ""),
+            explicit=bool(track_dict.get("explicit", False)),
+            publisher=album.get("label", ""),
+            url=track_dict.get("external_urls", {}).get(
+                "spotify", f"https://open.spotify.com/track/{track_dict.get('id', '')}"
+            ),
+            popularity=track_dict.get("popularity"),
+            cover_url=cover_url,
         )
 
     @classmethod
-    def list_from_search_term(cls, search_term: str) -> "List[Song]":
-        """
-        Creates a list of Song objects from a search term.
-
-        ### Arguments
-        - search_term: The search term to use.
-
-        ### Returns
-        - The list of Song objects.
-        """
-
+    def from_search_term(cls, search_term: str) -> "Song":
         raw_search_results = Song.search(search_term)
 
-        songs = []
-        for idx, _ in enumerate(raw_search_results.get("tracks", []).get("items", [])):
-            songs.append(
-                Song.from_url(
-                    "http://open.spotify.com/track/"
-                    + raw_search_results["tracks"]["items"][idx]["id"]
-                )
-            )
+        items = raw_search_results.get("tracks", {}).get("items", [])
+        if len(items) == 0:
+            raise SongError(f"No results found for: {search_term}")
 
-        return songs
+        return cls.from_track_dict(items[0])
+
+    @classmethod
+    def list_from_search_term(cls, search_term: str) -> "List[Song]":
+        raw_search_results = Song.search(search_term)
+
+        items = raw_search_results.get("tracks", {}).get("items", [])
+        return [cls.from_track_dict(item) for item in items]
 
     @classmethod
     def from_data_dump(cls, data: str) -> "Song":
@@ -268,6 +352,28 @@ class Song:
         return f"{self.artist} - {self.name}"
 
     @property
+    def duplicate_key(self) -> str:
+        """
+        Returns a key used to detect duplicate songs. The full title, album
+        name and artist are kept (including markers like "(Live)" or
+        "(feat. ...)") so different versions of the same song are treated
+        as distinct.
+
+        ### Returns
+        - The duplicate detection key.
+        """
+        title = self.name or ""
+        album = self.album_name or ""
+
+        def normalize(value: str) -> str:
+            normalized = value.strip()
+            normalized = normalized.replace("_", " ")
+            normalized = re.sub(r"\s+", " ", normalized)
+            return normalized.lower()
+
+        return f"{normalize(title)}|{normalize(album)}|{normalize(self.artist)}"
+
+    @property
     def json(self) -> Dict[str, Any]:
         """
         Returns a dictionary of the song's data.
@@ -277,15 +383,6 @@ class Song:
         """
 
         return asdict(self)
-
-    # def __json__(self) -> str:
-    #     """
-    #     Returns a JSON string of the song's data.
-
-    #     ### Returns
-    #     - The JSON string.
-    #     """
-    #     return json.dumps(self.json)
 
 
 @dataclass(frozen=True)

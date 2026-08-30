@@ -47,7 +47,7 @@ class YouTubeMusic(AudioProvider):
         Create a YTMusic API client.
         """
 
-        return YTMusic(language="de")
+        return YTMusic(language="en")
 
     def get_results(
         self, search_term: str, log_search_failures: bool = True, **kwargs
@@ -65,9 +65,6 @@ class YouTubeMusic(AudioProvider):
         """
 
         is_isrc_result = ISRC_REGEX.search(search_term) is not None
-        # if is_isrc_result:
-        #     print("FORCEFULLY SETTING FILTER TO SONGS")
-        #     kwargs["filter"] = "songs"
 
         for attempt in range(self.SEARCH_ATTEMPTS):
             search_results = self.client.search(search_term, **kwargs)
@@ -82,19 +79,26 @@ class YouTubeMusic(AudioProvider):
                 ):
                     continue
 
+                duration_val = result.get("duration")
+                duration_sec = result.get("duration_seconds")
+                if duration_sec is not None:
+                    try:
+                        duration = float(duration_sec)
+                    except (ValueError, TypeError):
+                        duration = parse_duration(duration_val)
+                else:
+                    duration = parse_duration(duration_val)
+
                 results.append(
                     Result(
                         source=self.name,
-                        url=(
-                            f'https://{"music" if result["resultType"] == "song" else "www"}'
-                            f".youtube.com/watch?v={result['videoId']}"
-                        ),
+                        url=f"https://www.youtube.com/watch?v={result['videoId']}",
                         verified=result.get("resultType") == "song",
                         name=result["title"],
                         result_id=result["videoId"],
                         author=result["artists"][0]["name"],
                         artists=tuple(map(lambda a: a["name"], result["artists"])),
-                        duration=parse_duration(result.get("duration")),
+                        duration=duration,
                         isrc_search=is_isrc_result,
                         search_query=search_term,
                         explicit=result.get("isExplicit"),

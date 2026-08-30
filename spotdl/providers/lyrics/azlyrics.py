@@ -29,7 +29,6 @@ class AzLyrics(LyricsProvider):
         # normally (see #2682).
         self.session.headers.update(
             {
-                "Host": "www.azlyrics.com",
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                 "Accept-Language": "en-US,en;q=0.5",
                 "Accept-Encoding": "gzip, deflate, br, zstd",
@@ -45,6 +44,17 @@ class AzLyrics(LyricsProvider):
         )
 
         self.x_code = None
+
+    @staticmethod
+    def _blocked(text: str, url: str) -> bool:
+        if "b.azlyrics.com" in url:
+            return True
+        low = text.lower() if text else ""
+        return (
+            "request for access" in low
+            or "detected unusual activity" in low
+            or "az_unblock" in low
+        )
 
     def get_results(self, name: str, artists: List[str], **_) -> Dict[str, str]:
         """
@@ -134,6 +144,12 @@ class AzLyrics(LyricsProvider):
         """
 
         response = self.session.get(url)
+        if self._blocked(response.text, response.url):
+            logger.debug(
+                "AZLyrics: bot-check interstitial present on lyrics page (%s).",
+                response.url,
+            )
+            return None
         soup = BeautifulSoup(response.content, "html.parser")
 
         # Find all divs that don't have a class
@@ -160,7 +176,13 @@ class AzLyrics(LyricsProvider):
         js_code = None
 
         try:
-            self.session.get("https://www.azlyrics.com/")
+            home = self.session.get("https://www.azlyrics.com/")
+            if self._blocked(home.text, home.url):
+                logger.debug(
+                    "AZLyrics: bot-check interstitial present on home page (%s).",
+                    home.url,
+                )
+                return None
 
             resp = self.session.get("https://www.azlyrics.com/geo.js")
             js_code = resp.text

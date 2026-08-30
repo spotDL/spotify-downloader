@@ -1,4 +1,3 @@
-
 <!--- mdformat-toc start --slug=github --->
 
 <!---
@@ -40,6 +39,8 @@ Refer to our [Installation Guide](docs/installation.md) for more details.
 <details>
     <summary style="font-size:1.25em"><strong>Other options</strong></summary>
 
+- Interactive Terminal UI (TUI)
+  - You can launch the visual terminal interface with `spotdl interactive` (or `spotdl --setup` for automated dependency installation). Refer to the [TUI User Guide](docs/TUI_USER_GUIDE.md) for complete details.
 - Prebuilt executable
   - You can download the latest version from the
     [Releases Tab](https://github.com/spotDL/spotify-downloader/releases)
@@ -129,6 +130,8 @@ For a list of all **options** use ```spotdl -h```
 
 <details>
 <summary style="font-size:1em"><strong>Supported operations</strong></summary>
+
+- `interactive`: Starts the interactive Terminal User Interface (TUI) with responsive menu, track selection, presets, and history. See the [TUI User Guide](docs/TUI_USER_GUIDE.md) for details.
 
 - `save`: Saves only the metadata from Spotify without downloading anything.
     - Usage:

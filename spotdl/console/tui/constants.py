@@ -1,0 +1,66 @@
+from textual.theme import Theme
+
+SPOTDL_THEME = Theme(
+    name="spotdl",
+    dark=True,
+    primary="#1DB954",
+    secondary="#1ED760",
+    accent="#1ED760",
+    foreground="#FFFFFF",
+    background="#121212",
+    surface="#181818",
+    panel="#282828",
+    warning="#FFB020",
+    error="#F15E5E",
+    success="#1DB954",
+)
+
+FORMATS = ["mp3", "flac", "m4a", "opus", "ogg", "wav"]
+BITRATES = ["auto", "320k", "256k", "192k", "128k", "96k", "disable"]
+AUDIO_PROVIDERS = ["youtube-music", "youtube", "soundcloud", "bandcamp", "slider.kz"]
+LYRICS_PROVIDERS = ["lrclib", "genius", "musixmatch", "azlyrics", "synced"]
+
+DOWNLOADER_OPTIONS_DEFAULTS = {
+    "audio_providers": ["youtube-music", "youtube"],
+    "lyrics_providers": ["lrclib", "genius", "azlyrics", "musixmatch"],
+    "format": "mp3",
+    "bitrate": "128k",
+    "threads": 4,
+    "simple_tui": True,
+    "log_level": "INFO",
+    "overwrite": "skip",
+    "m3u": False,
+    "archive": False,
+    "preload": False,
+    "scan_for_songs": False,
+    "detect_formats": None,
+    "restrict": None,
+    "max_filename_length": None,
+    "id3_separator": "/",
+    "generate_lrc": False,
+    "add_unavailable": False,
+    "playlist_numbering": False,
+    "playlist_retain_track_cover": False,
+    "fetch_albums": False,
+    "ytm_data": False,
+    "force_update_metadata": False,
+    "skip_album_art": False,
+    "ignore_albums": None,
+    "skip_explicit": False,
+    "create_skip_file": False,
+    "respect_skip_file": False,
+    "sponsor_block": False,
+    "cookie_file": None,
+    "proxy": None,
+    "yt_dlp_args": None,
+    "search_query": None,
+    "filter_results": True,
+    "only_verified_results": False,
+    "album_type": None,
+    "print_errors": False,
+    "save_errors": False,
+    "log_format": "%(name)s - %(levelname)s - %(message)s",
+    "genius_token": None,
+    "user_auth": False,
+    "client_id": None,
+}

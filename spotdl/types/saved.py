@@ -5,7 +5,7 @@ Saved module for handing the saved tracks from user library
 from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple
 
-from spotdl.types.song import Song, SongList
+from spotdl.types.song import Song, SongList, upgrade_cover_url
 from spotdl.utils.spotify import SpotifyClient
 
 __all__ = ["Saved", "SavedError"]
@@ -90,7 +90,7 @@ class Saved(SongList):
                 explicit=track_meta["explicit"],
                 url=track_meta["external_urls"]["spotify"],
                 isrc=track_meta.get("external_ids", {}).get("isrc"),
-                cover_url=(
+                cover_url=upgrade_cover_url(
                     max(album_meta["images"], key=lambda i: i["width"] * i["height"])[
                         "url"
                     ]

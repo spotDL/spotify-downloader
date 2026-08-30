@@ -13,6 +13,7 @@ from spotdl.console.download import download
 from spotdl.console.meta import meta
 from spotdl.console.save import save
 from spotdl.console.sync import sync
+from spotdl.console.tui import run_interactive
 from spotdl.console.url import url
 from spotdl.console.web import web
 from spotdl.download.downloader import Downloader, DownloaderError
@@ -58,6 +59,10 @@ def entry_point():
     Console entry point for spotdl. This is where the magic happens.
     """
 
+    no_gui = "-nogui" in sys.argv or "--no-gui" in sys.argv
+    if no_gui:
+        sys.argv = [arg for arg in sys.argv if arg not in ("-nogui", "--no-gui")]
+
     # Create config file if it doesn't exist
     generate_initial_config()
 
@@ -74,6 +79,10 @@ def entry_point():
         action_to_run()
         return None
 
+    if not no_gui and len(sys.argv) == 1 and sys.stdin.isatty():
+        run_interactive()
+        return None
+
     # Parse the arguments
     arguments = parse_arguments()
 
@@ -81,6 +90,10 @@ def entry_point():
     spotify_settings, downloader_settings, web_settings = create_settings(arguments)
 
     init_logging(downloader_settings["log_level"], downloader_settings["log_format"])
+
+    if arguments.operation == "interactive":
+        run_interactive(getattr(arguments, "query", None))
+        return None
 
     # If the application is frozen, we check for ffmpeg
     # if it's not present download it create config file

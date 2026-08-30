@@ -9,6 +9,7 @@ import logging
 import re
 import shutil
 import sys
+import threading
 import traceback
 from argparse import Namespace
 from pathlib import Path
@@ -20,13 +21,21 @@ from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 from spotdl.download.progress_handler import ProgressHandler
 from spotdl.providers.audio import (
     AudioProvider,
+    AudioProviderError,
     BandCamp,
     Piped,
     SoundCloud,
     YouTube,
     YouTubeMusic,
 )
-from spotdl.providers.lyrics import AzLyrics, Genius, LyricsProvider, MusixMatch, Synced
+from spotdl.providers.lyrics import (
+    AzLyrics,
+    Genius,
+    Lrclib,
+    LyricsProvider,
+    MusixMatch,
+    Synced,
+)
 from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
 from spotdl.types.song import Song
 from spotdl.utils.archive import Archive
@@ -43,7 +52,12 @@ from spotdl.utils.formatter import create_file_name
 from spotdl.utils.lrc import generate_lrc
 from spotdl.utils.m3u import gen_m3u_files
 from spotdl.utils.metadata import MetadataError, embed_metadata
-from spotdl.utils.search import gather_known_songs, reinit_song, songs_from_albums
+from spotdl.utils.search import (
+    gather_known_songs,
+    get_song_from_file_metadata,
+    reinit_song,
+    songs_from_albums,
+)
 
 __all__ = [
     "AUDIO_PROVIDERS",
@@ -62,6 +76,7 @@ AUDIO_PROVIDERS: Dict[str, Type[AudioProvider]] = {
 }
 
 LYRICS_PROVIDERS: Dict[str, Type[LyricsProvider]] = {
+    "lrclib": Lrclib,
     "genius": Genius,
     "musixmatch": MusixMatch,
     "azlyrics": AzLyrics,
@@ -87,6 +102,37 @@ class DownloaderError(Exception):
     """
     Base class for all exceptions related to downloaders.
     """
+
+
+def is_matching_song_file(
+    existing_path: Path, song: Song, id3_separator: str = "/"
+) -> bool:
+    """
+    Check whether an existing audio file on disk actually contains metadata for `song`.
+    Returns False if the file has metadata for a different song (e.g. Live vs Studio,
+    different track URL or different album name), indicating a filename collision.
+    """
+    try:
+        file_song = get_song_from_file_metadata(existing_path, id3_separator)
+        if file_song is None:
+            return True
+        if file_song.url and song.url and file_song.url == song.url:
+            return True
+        if file_song.song_id and song.song_id and file_song.song_id == song.song_id:
+            return True
+        if file_song.duplicate_key == song.duplicate_key:
+            return True
+        if (
+            file_song.name
+            and song.name
+            and file_song.name.strip().lower() == song.name.strip().lower()
+            and (file_song.album_name or "").strip().lower()
+            == (song.album_name or "").strip().lower()
+        ):
+            return True
+        return False
+    except Exception:
+        return True
 
 
 class Downloader:
@@ -163,6 +209,7 @@ class Downloader:
         # Gather already present songs
         self.scan_formats = self.settings["detect_formats"] or [self.settings["format"]]
         self.known_songs: Dict[str, List[Path]] = {}
+        self._claimed_paths: Dict[Path, str] = {}
         if self.settings["scan_for_songs"]:
             logger.info("Scanning for known songs, this might take a while...")
             for scan_format in self.scan_formats:
@@ -233,6 +280,7 @@ class Downloader:
         self.url_archive = Archive()
         if self.settings["archive"]:
             self.url_archive.load(self.settings["archive"])
+        self._archive_lock = threading.Lock()
 
         logger.debug("Archive: %d urls", len(self.url_archive))
 
@@ -317,13 +365,8 @@ class Downloader:
 
         # Save archive
         if self.settings["archive"]:
-            for result in results:
-                if result[1] or self.settings["add_unavailable"]:
-                    self.url_archive.add(result[0].url)
-
-            self.url_archive.save(self.settings["archive"])
             logger.info(
-                "Saved archive with %d urls to %s",
+                "Archive contains %d urls (saved to %s)",
                 len(self.url_archive),
                 self.settings["archive"],
             )
@@ -394,6 +437,34 @@ class Downloader:
             logger.debug("%s failed to find %s", audio_provider.name, song.display_name)
 
         raise LookupError(f"No results found for song: {song.display_name}")
+
+    def search_all(self, song: Song) -> List[str]:
+        search_query = f"{song.name} {song.artist or ''}".strip()
+        primaries: List[str] = []
+        secondaries: List[str] = []
+
+        for audio_provider in self.audio_providers:
+            primary = audio_provider.search(
+                song, self.settings["only_verified_results"]
+            )
+            if primary is not None:
+                primaries.append(primary)
+
+        if primaries:
+            return primaries
+
+        for audio_provider in self.audio_providers:
+            search_results = audio_provider.get_results(search_query)
+            if self.settings["only_verified_results"]:
+                result_urls = [
+                    result.url for result in search_results if result.verified
+                ]
+            else:
+                result_urls = [result.url for result in search_results]
+            secondaries.extend(result_urls)
+
+        result: List[str] = secondaries
+        return result if result else ["_none_"]
 
     def search_lyrics(self, song: Song) -> Optional[str]:
         """
@@ -507,6 +578,37 @@ class Downloader:
             file_name_length=self.settings["max_filename_length"],
         )
 
+        # Resolve filename collisions when distinct songs produce the same path template
+        base_output = output_file
+        candidate_file = output_file
+        counter = 1
+        while True:
+            is_claimed_other = (
+                candidate_file in self._claimed_paths
+                and self._claimed_paths[candidate_file] != song.url
+            )
+            if not candidate_file.exists() and not is_claimed_other:
+                output_file = candidate_file
+                break
+            if candidate_file.exists():
+                matches = await loop.run_in_executor(
+                    None,
+                    is_matching_song_file,
+                    candidate_file,
+                    song,
+                    self.settings.get("id3_separator", "/"),
+                )
+                if matches and not is_claimed_other:
+                    output_file = candidate_file
+                    break
+            candidate_file = (
+                base_output.parent
+                / f"{base_output.stem} ({counter}){base_output.suffix}"
+            )
+            counter += 1
+
+        self._claimed_paths[output_file] = song.url
+
         if song.explicit is True and self.settings["skip_explicit"] is True:
             logger.info("Skipping explicit song: %s", song.display_name)
             return song, None
@@ -531,12 +633,23 @@ class Downloader:
             ]
 
             # Checking if file already exists in all subfolders of output directory
-            file_exists = output_file.exists() or dup_song_paths
+            file_exists = output_file.exists() or bool(dup_song_paths)
             if not self.settings["scan_for_songs"]:
                 for file_extension in self.scan_formats:
                     ext_path = output_file.with_suffix(f".{file_extension}")
-                    if ext_path.exists():
-                        dup_song_paths.append(ext_path)
+                    if (
+                        ext_path.exists()
+                        and ext_path.absolute() != output_file.absolute()
+                    ):
+                        matches_ext = await loop.run_in_executor(
+                            None,
+                            is_matching_song_file,
+                            ext_path,
+                            song,
+                            self.settings.get("id3_separator", "/"),
+                        )
+                        if matches_ext:
+                            dup_song_paths.append(ext_path)
 
             if dup_song_paths:
                 logger.debug(
@@ -706,28 +819,53 @@ class Downloader:
             )
 
             if song.download_url is None:
-                display_progress_tracker.notify_searching()
-                download_url = await loop.run_in_executor(None, self.search, song)
+                provider_name = (
+                    self.audio_providers[0].name
+                    if self.audio_providers
+                    else "audio provider"
+                )
+                display_progress_tracker.notify_searching(provider_name)
+                candidate_urls = await loop.run_in_executor(None, self.search_all, song)
             else:
-                download_url = song.download_url
+                candidate_urls = [song.download_url]
 
             display_progress_tracker.notify_getting_meta()
 
-            logger.debug("Downloading %s using %s", song.display_name, download_url)
-            download_info = await loop.run_in_executor(
-                None,
-                lambda: audio_downloader.get_download_metadata(
-                    download_url, download=True
-                ),
-            )
+            download_info = None
+            last_error = None
+            download_url: Optional[str] = None
+            for candidate_url in candidate_urls:
+                if candidate_url == "_none_":
+                    continue
+                logger.debug(
+                    "Downloading %s using %s", song.display_name, candidate_url
+                )
+                try:
+                    download_info = await loop.run_in_executor(
+                        None,
+                        lambda: audio_downloader.get_download_metadata(
+                            candidate_url, download=True
+                        ),
+                    )
+                    download_url = candidate_url
+                    break
+                except AudioProviderError as exc:
+                    logger.info(
+                        "yt-dlp failed for %s, trying next URL. Error: %s",
+                        candidate_url,
+                        exc,
+                    )
+                    last_error = exc
+                    continue
 
             if download_info is None:
+                if last_error:
+                    raise last_error
                 logger.debug(
                     "No download info found for %s, url: %s",
                     song.display_name,
-                    download_url,
+                    candidate_url if candidate_urls else "search",
                 )
-
                 raise DownloaderError(
                     f"yt-dlp failed to get metadata for: {song.name} - {song.artist}"
                 )
@@ -887,6 +1025,12 @@ class Downloader:
             # Add the song to the known songs
             self.known_songs.get(song.url, []).append(output_file)
 
+            if self.settings["archive"]:
+                with self._archive_lock:
+                    self.url_archive.add(song.url)
+                    self.url_archive.save(self.settings["archive"])
+                logger.debug("Archived %s", song.url)
+
             logger.info('Downloaded "%s": %s', song.display_name, song.download_url)
 
             return song, output_file
@@ -905,4 +1049,11 @@ class Downloader:
             self.errors.append(
                 f"{song.url} - {exception.__class__.__name__}: {exception}"
             )
+
+            if self.settings["archive"] and self.settings["add_unavailable"]:
+                with self._archive_lock:
+                    self.url_archive.add(song.url)
+                    self.url_archive.save(self.settings["archive"])
+                logger.debug("Archived unavailable %s", song.url)
+
             return song, None

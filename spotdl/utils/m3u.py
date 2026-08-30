@@ -3,6 +3,7 @@ Module for creating m3u content and writing it to a file.
 """
 
 import logging
+import os
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -18,6 +19,17 @@ __all__ = [
 logger = logging.getLogger(__name__)
 
 
+def _m3u_entry(file_name: Path, m3u_dir: Optional[Path]) -> str:
+    raw = str(file_name)
+    if m3u_dir is not None:
+        try:
+            rel = os.path.relpath(raw, str(m3u_dir))
+        except ValueError:
+            rel = raw
+        raw = rel
+    return raw.replace("\\", "/")
+
+
 def create_m3u_content(
     song_list: List[Song],
     template: str,
@@ -25,6 +37,7 @@ def create_m3u_content(
     restrict: Optional[str] = None,
     short: bool = False,
     detect_formats: Optional[List[str]] = None,
+    m3u_file: Optional[str] = None,
 ) -> str:
     """
     Create m3u content and return it as a string.
@@ -36,11 +49,16 @@ def create_m3u_content(
     - restrict: sanitization to apply to the filename
     - short: whether to use the short version of the template
     - detect_formats: the formats to detect for existing files
+    - m3u_file: the path of the m3u file being written. When provided,
+        song entries are written relative to the m3u file's directory and
+        use forward slashes, so the playlist stays portable across operating
+        systems (e.g. plays correctly in Apple/Android players such as flacbox).
 
     ### Returns
     - the m3u content as a string
     """
 
+    m3u_dir = Path(m3u_file).resolve().parent if m3u_file else None
     text = "#EXTM3U\n"
 
     for song in song_list:
@@ -54,20 +72,20 @@ def create_m3u_content(
                 song, template, file_extension, restrict, short
             )
 
-            text += str(file_name) + "\n"
+            text += _m3u_entry(file_name, m3u_dir) + "\n"
         else:
             for file_ext in detect_formats:
                 file_name = create_file_name(song, template, file_ext, restrict, short)
 
                 if file_name.exists():
-                    text += str(file_name) + "\n"
+                    text += _m3u_entry(file_name, m3u_dir) + "\n"
                     break
             else:
                 # Runs if no existing file was found (no break)
                 file_name = create_file_name(
                     song, template, file_extension, restrict, short
                 )
-                text += str(file_name) + "\n"
+                text += _m3u_entry(file_name, m3u_dir) + "\n"
 
     return text
 
@@ -94,9 +112,19 @@ def gen_m3u_files(
     - detect_formats: the formats to detect
     """
 
-    # If no file name is provided, use the first list's name
+    # If no file name is provided or a generic playlist default is used, use the first list's name
     if not file_name:
         file_name = "{list[0]}.m3u8"
+    elif file_name in ["playlist.m3u8", "playlist.m3u", "playlist"]:
+        file_name = "{list[0]}.m3u8"
+    elif file_name.replace("\\", "/").endswith("/playlist.m3u8"):
+        file_name = (
+            file_name.replace("\\", "/")[: -len("playlist.m3u8")] + "{list[0]}.m3u8"
+        )
+    elif file_name.replace("\\", "/").endswith("/playlist.m3u"):
+        file_name = (
+            file_name.replace("\\", "/")[: -len("playlist.m3u")] + "{list[0]}.m3u8"
+        )
 
     # If file_name ends with a slash. Does not have a m3u8 name with extension
     # at the end of the template, append `{list[0]}`` to it
@@ -121,11 +149,14 @@ def gen_m3u_files(
 
         lists_object[song.list_name].append(song)
 
-    if not lists_object and "{list" in file_name:
-        logger.warning(
-            "M3U file name contains '{list}' but no lists were provided. Specify a filename."
+    if not lists_object:
+        # Fallback to album name or first song name if no list name is present
+        fallback_name = (
+            (songs[0].album_name or songs[0].name or "playlist")
+            if songs
+            else "playlist"
         )
-        return
+        lists_object[fallback_name] = list(songs)
 
     if "{list}" in file_name:
         # Create multiple m3u files if there are multiple lists
@@ -199,11 +230,15 @@ def create_m3u_file(
         restrict,
         short,
         detect_formats,
+        file_name,
     )
 
-    file_path = Path(
-        *(sanitize_string(part) for part in Path(file_name).parts)
-    ).absolute()
+    raw_path = Path(file_name)
+    if raw_path.is_absolute():
+        parts = [sanitize_string(part) for part in raw_path.parts[1:]]
+        file_path = Path(raw_path.anchor, *parts)
+    else:
+        file_path = Path(*(sanitize_string(part) for part in raw_path.parts)).absolute()
 
     file_path.parent.mkdir(parents=True, exist_ok=True)
 

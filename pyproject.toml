@@ -34,7 +34,7 @@ dependencies = [
     "ytmusicapi>=1.12.1,<2",
     "yt-dlp[default]>=2026.07.04,<2027",
     "mutagen>=1.47.0,<2",
-    "rich>=13.9.4,<14",
+    "rich>=14.2.0,<16",
     "beautifulsoup4>=4.12.3,<5",
     "requests>=2.32.3,<3",
     "rapidfuzz>=3.10.1,<4",
@@ -50,6 +50,10 @@ dependencies = [
     "datastar-py>=0.6.3",
     "jinja2>=3.1.5",
     "python-multipart>=0.0.20",
+    "textual>=8.0.0,<9",
+    "pyyaml>=6.0.0,<7",
+    "pyperclip>=1.8.2,<3",
+    "pyside6>=6.11.2",
 ]
 
 [project.urls]
@@ -107,9 +111,8 @@ build-backend = "hatchling.build"
 [tool.isort]
 profile = "black"
 
-[tool.pylint.format]
-limit-inference-results = 0
-fail-under = 9
+[tool.mypy]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
