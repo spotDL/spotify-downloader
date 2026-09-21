@@ -45,6 +45,8 @@ class DownloaderOptions(TypedDict):
     audio_providers: List[str]
     lyrics_providers: List[str]
     genius_token: str
+    musixmatch_email: Optional[str]
+    musixmatch_password: Optional[str]
     playlist_numbering: bool
     playlist_retain_track_cover: bool
     scan_for_songs: bool
@@ -140,6 +142,8 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     audio_providers: List[str]
     lyrics_providers: List[str]
     genius_token: str
+    musixmatch_email: Optional[str]
+    musixmatch_password: Optional[str]
     playlist_numbering: bool
     playlist_retain_track_cover: bool
     scan_for_songs: bool
