@@ -23,6 +23,11 @@ class YouTubeMusic(AudioProvider):
 
     SUPPORTS_ISRC = True
     SEARCH_ATTEMPTS = 3
+    # YTM search ranking is locale-dependent: some catalogs return zero
+    # `songs` results under one locale but full results under another
+    # (e.g. obscure artists empty under "de" but fine under "en").
+    # Retries cycle through these locales instead of retrying the same one.
+    SEARCH_LANGUAGES = ["en", "de"]
     GET_RESULTS_OPTS: List[Dict[str, Any]] = [
         {"filter": "songs", "ignore_spelling": True, "limit": 50},
         {"filter": "videos", "ignore_spelling": True, "limit": 50},
@@ -42,12 +47,15 @@ class YouTubeMusic(AudioProvider):
         self.client = self._create_client()
 
     @staticmethod
-    def _create_client() -> YTMusic:
+    def _create_client(language: str = "en") -> YTMusic:
         """
         Create a YTMusic API client.
+
+        ### Arguments
+        - language: BCP-47 language code used for search ranking.
         """
 
-        return YTMusic(language="de")
+        return YTMusic(language=language)
 
     def get_results(
         self, search_term: str, log_search_failures: bool = True, **kwargs
@@ -114,20 +122,31 @@ class YouTubeMusic(AudioProvider):
                     return []
 
                 logger.info(
-                    "YouTube Music returned no usable results for %s after %s attempts",
+                    "YouTube Music returned no usable results for %s after %s attempts "
+                    "(locales tried: %s)",
                     search_term,
                     self.SEARCH_ATTEMPTS,
+                    ", ".join(
+                        self.SEARCH_LANGUAGES[
+                            attempt % len(self.SEARCH_LANGUAGES)
+                        ]
+                        for attempt in range(self.SEARCH_ATTEMPTS)
+                    ),
                 )
                 return []
 
+            next_language = self.SEARCH_LANGUAGES[
+                (attempt + 1) % len(self.SEARCH_LANGUAGES)
+            ]
             if log_search_failures:
                 logger.debug(
                     "YouTube Music returned no usable results for %s on attempt %s/%s, "
-                    "retrying with a new client",
+                    "retrying with a new client (language=%s)",
                     search_term,
                     attempt + 1,
                     self.SEARCH_ATTEMPTS,
+                    next_language,
                 )
-            self.client = self._create_client()
+            self.client = self._create_client(next_language)
 
         return []
