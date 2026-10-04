@@ -16,7 +16,7 @@ from spotdl.utils.logging import NAME_TO_LEVEL
 
 __all__ = ["OPERATIONS", "SmartFormatter", "parse_arguments"]
 
-OPERATIONS = ["download", "save", "web", "sync", "meta", "url"]
+OPERATIONS = ["download", "save", "web", "sync", "meta", "url", "interactive"]
 
 
 class SmartFormatter(argparse.HelpFormatter):
@@ -60,7 +60,9 @@ def parse_main_options(parser: _ArgumentGroup):
             "web: Starts a web interface to simplify the download process.\n"
             "sync: Removes songs that are no longer present, downloads new ones\n"
             "meta: Update your audio files with metadata\n"
-            "url: Get the download URL for songs\n\n"
+            "url: Get the download URL for songs\n"
+            "interactive: Starts the interactive terminal interface, "
+            "optionally with a query already filled in\n\n"
         ),
     )
 
@@ -105,6 +107,9 @@ def parse_main_options(parser: _ArgumentGroup):
             parser._remove_action(operation)  # pylint: disable=protected-access
 
         parser._remove_action(query)  # pylint: disable=protected-access
+    elif len(sys.argv) > 1 and sys.argv[1] == "interactive":
+        query.nargs = "*"
+        query.required = False
 
     # Audio provider argument
     parser.add_argument(
@@ -743,6 +748,13 @@ def parse_misc_options(parser: _ArgumentGroup):
         help="Use a simple tui.",
     )
 
+    parser.add_argument(
+        "-nogui",
+        "--no-gui",
+        action="store_true",
+        help="Disable the interactive TUI and run the standard CLI.",
+    )
+
     # Add log format argument
     parser.add_argument(
         "--log-format",
@@ -771,6 +783,19 @@ def parse_other_options(parser: _ArgumentGroup):
         "--download-deno",
         action="store_true",
         help="Download Deno to spotdl directory.",
+    )
+
+    parser.add_argument(
+        "--setup",
+        metavar="PATH",
+        nargs="?",
+        const="",
+        help=(
+            "Interactive setup: choose one directory for ffmpeg, Deno, config, "
+            "cache and history, then install or update them there. "
+            "Pass a PATH (spotdl --setup /my/dir) to run without the TUI and "
+            "use that directory directly."
+        ),
     )
 
     parser.add_argument(

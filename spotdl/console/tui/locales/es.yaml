@@ -1,0 +1,456 @@
+appbar:
+  title: "spotDL"
+  menu: "Menú"
+  help: "Ayuda"
+  exit: "Salir"
+
+home:
+  hero_title: "Descargar medios"
+  subtitle: "Añade una URL de vídeo, audio o lista de reproducción para iniciar la descarga"
+  btn_add_download: "+ Añadir descarga"
+  recent_empty: "No hay descargas recientes"
+  recent_downloads_title: "Actividad reciente"
+  view_history: "Ver historial completo"
+  version_line: "spotDL v{version}"
+  upstream_update_available: "(v{version} disponible)"
+  card_history: "Historial"
+  card_sync: "Sincronizar"
+  card_save: "Guardar"
+  card_builder: "Constructor"
+  card_meta: "Metadatos"
+  card_url: "URLs directas"
+  card_web: "Interfaz web"
+
+history:
+  title: "Historial"
+  search_placeholder: "Buscar..."
+  btn_sort: "Ordenar"
+  btn_sort_date: "Ordenar por fecha"
+  btn_sort_name: "Ordenar por nombre"
+  btn_sort_tracks: "Ordenar por pistas"
+  btn_delete: "Eliminar"
+  btn_close: "Cerrar"
+  deleted: "Entrada eliminada del historial."
+  track_count: "{count} pistas"
+  empty: "Aún no hay descargas registradas."
+  col_date: "Fecha / Hora"
+  col_name: "Nombre / Título"
+  col_tracks: "Pistas"
+  col_status: "Estado"
+  col_query: "Consulta / URL"
+  btn_redownload: "Volver a descargar"
+  btn_copy_url: "Copiar URL"
+  btn_clear: "Limpiar todo"
+  cleared: "Historial de descargas limpiado."
+  copied: "¡URL copiada al portapapeles!"
+  copy_failed: "Error al copiar la URL."
+  details_title: "Detalles de la descarga"
+  details_summary: "{name} ({date})"
+  details_tracks: "{ok}/{total} OK ({err} errores, {skipped} omitidas)"
+  details_query: "Origen: {query}"
+
+popover:
+  language: "Idioma"
+  actions: "Acciones"
+  help: "Ayuda / Comandos"
+  builder: "Constructor CLI"
+  setup: "Configuración"
+  quit: "Salir"
+  close: "Cerrar"
+
+section:
+  audio_format: "Audio y formato"
+  output_playlist: "Salida y playlist"
+  filtering: "Filtrado y coincidencia"
+  network_auth: "Red y autenticación"
+  finetuning: "Ajuste fino / Registro"
+
+lyrics:
+  title: "Letras - {name} - {artist}"
+  title_no_text: "Sin letras para {name}"
+  loading: "Cargando letras..."
+  empty: "No se encontraron letras para esta canción."
+  copy: "Copiar al portapapeles"
+  copied: "Letras copiadas al portapapeles."
+  copy_failed: "No se pudieron copiar las letras."
+  save_lrc: "Guardar .LRC"
+  saved: "Guardado en {path}"
+  save_failed: "No se pudieron guardar las letras: {error}"
+
+menu:
+  title: "Menú principal"
+  download: "Descargar música (canciones, álbumes, playlists o búsquedas)"
+  history: "Historial de descargas"
+  sync: "Sincronizar directorio con una playlist"
+  save: "Guardar estado de metadatos (.spotdl)"
+  meta: "Actualizar metadatos de archivos locales"
+  url: "Consultar URLs directas de descarga"
+  builder: "Constructor de comandos CLI"
+  web: "Iniciar la interfaz web"
+  help: "Ayuda / Comandos"
+  language: "Idioma"
+  quit: "Salir"
+  hint: "Navega con las flechas o el ratón, confirma con Enter"
+
+query:
+  title: "Descarga"
+  title_download: "Descargar música"
+  title_save: "Guardar canciones en un archivo spotdl"
+  title_sync: "Sincronizar directorio con una playlist"
+  url_label: "URL de Spotify/YouTube o búsqueda:"
+  url_placeholder: "https://open.spotify.com/...  |  artist:Dua Lipa  |  YouTubeURL|SpotifyURL"
+  format: "Formato de audio"
+  bitrate: "Tasa de bits"
+  audio_provider: "Proveedor de audio principal"
+  fallback_audio_provider: "Proveedor de audio de respaldo"
+  none: "Ninguno"
+  template: "Plantilla predefinida"
+  template_custom: "Personalizada (sin cambios)"
+  template_light: "Más ligera (opus, archivos compactos)"
+  template_efficient: "Eficiente (archivos pequeños, rápida)"
+  template_balanced: "Equilibrada (calidad por defecto)"
+  template_studio: "Estudio (máxima calidad)"
+  lyrics_provider: "Proveedor de letras"
+  threads: "Hilos"
+  dir_label: "Directorio de salida"
+  btn_search: "Buscar"
+  btn_back: "Volver"
+  searching: "Buscando en Spotify, esto puede tardar un momento..."
+  found: "{count} canciones encontradas"
+  error: "Error: {message}"
+  no_ffmpeg: "Aviso: FFmpeg no está instalado. Ejecuta `spotdl --download-ffmpeg` para instalarlo."
+  empty_query: "Introduce primero una URL o una búsqueda."
+  no_results: "No se encontraron canciones para esa búsqueda."
+  output_template: "Plantilla de salida"
+  overwrite: "Modo de sobrescritura"
+  overwrite_force: "Forzar"
+  overwrite_skip: "Omitir"
+  overwrite_metadata: "Solo metadatos"
+  m3u: "Archivo de playlist M3U"
+  archive: "Archivo de registro"
+  save_file_label: "Nombre del archivo de guardado"
+  preload: "Precargar URLs"
+  cookie_file: "Archivo de cookies"
+  sponsor_block: "SponsorBlock (eliminar partes no musicales)"
+  proxy: "URL del proxy"
+  yt_dlp_args: "Argumentos extra de yt-dlp"
+  search_query: "Plantilla de búsqueda personalizada"
+  dont_filter_results: "No filtrar resultados"
+  only_verified_results: "Solo resultados verificados"
+  album_type: "Tipo de álbum"
+  album_type_album: "Álbum"
+  album_type_single: "Single"
+  album_type_compilation: "Recopilatorio"
+  scan_for_songs: "Buscar canciones existentes en la carpeta de salida"
+  detect_formats: "Detectar otros formatos"
+  restrict: "Restringir nombres de archivo"
+  restrict_strict: "Estricto (solo ASCII)"
+  restrict_ascii: "ASCII"
+  restrict_none: "Ninguno"
+  max_filename_length: "Longitud máxima del nombre de archivo"
+  id3_separator: "Separador ID3"
+  generate_lrc: "Generar archivos .lrc"
+  playlist_numbering: "Numeración de playlist (playlist como álbum)"
+  playlist_retain_track_cover: "Conservar la portada de cada pista"
+  fetch_albums: "Obtener los álbumes de las canciones"
+  ytm_data: "Usar datos de YouTube Music"
+  force_update_metadata: "Forzar actualización de metadatos"
+  skip_album_art: "Omitir portada del álbum"
+  ignore_albums: "Ignorar álbumes (separados por comas)"
+  skip_explicit: "Omitir canciones explícitas"
+  create_skip_file: "Crear archivos .skip"
+  respect_skip_file: "Respetar archivos .skip"
+  print_errors: "Mostrar errores al salir"
+  save_errors: "Guardar errores en un archivo"
+  log_level: "Nivel de registro"
+  log_format: "Formato de registro"
+  simple_tui: "Salida TUI simple"
+  save_hint: "El archivo de guardado debe terminar en .spotdl"
+  search_failed: "La búsqueda falló"
+  ph_save_file: "list.spotdl"
+  ph_threads: "4"
+  ph_m3u: "{list[0]}.m3u8"
+  ph_cookie: "cookies.txt"
+  ph_proxy: "http://host:port"
+  ph_ytdlp_args: "--no-check-certificate"
+  ph_lyrics_template: "{artist} - {title} audio"
+  ph_output_template: "{artists} - {title}.{output-ext}"
+  ph_archive: "archive.txt"
+  ph_max_filename: "255"
+  ph_separator: "/"
+  ph_ignore_albums: "Álbum A, Álbum B"
+  ph_errors: "errors.log"
+  ph_log_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  ph_dir: "C:\\Music"
+
+tracklist:
+  title: "Canciones encontradas ({count})"
+  col_sel: "Sel"
+  col_title: "Título"
+  col_artist: "Artista"
+  col_album: "Álbum"
+  col_duration: "Duración"
+  col_explicit: "Expl."
+  btn_all: "Todo"
+  btn_none: "Ninguno"
+  btn_invert: "Invertir"
+  btn_lyrics: "Letra"
+  btn_proceed: "Descargar ({n})"
+  btn_back: "Volver"
+  total: "{count} seleccionadas | duración total {duration}"
+  none_selected: "Selecciona al menos una canción."
+  duplicates_removed: "Se eliminaron {count} pista(s) duplicada(s) de la lista (misma URL de Spotify)."
+
+confirm:
+  title: "Confirmar ajustes ({count} canción(es))"
+  hint: "Revisa los ajustes seleccionados y descarga o modifícalos."
+  'yes': "Sí"
+  'no': "No"
+  card_format: "FORMATO Y CALIDAD"
+  card_audio: "FUENTE DE AUDIO"
+  card_lyrics: "LETRAS Y LRC"
+  card_threads: "RENDIMIENTO (HILOS)"
+  card_output: "CARPETA DE DESTINO"
+  card_filters: "FILTROS Y EXTRAS"
+  sub_output: "Salida: {template}"
+  sub_audio_provider: "Proveedor de audio"
+  val_threads: "{count} hilos en paralelo"
+  sub_overwrite: "Sobrescritura: {mode}"
+  extra_verified: "Solo verificados"
+  btn_download: "Descargar"
+  btn_modify: "Modificar"
+
+download:
+  title: "Descargas en curso"
+  col_song: "Canción"
+  col_status: "Estado"
+  col_detail: "Detalle"
+  status_pending: "Pendiente"
+  status_searching: "Buscando"
+  status_downloading: "Descargando"
+  status_converting: "Convirtiendo"
+  status_embedding: "Aplicando metadatos"
+  status_done: "Listo"
+  status_error: "Error"
+  status_skipped: "Omitido"
+  status_lyrics: "Obteniendo letras"
+  btn_lyrics: "Letra"
+  btn_stop: "Detener"
+  btn_copy_log: "Copiar registro"
+  btn_menu: "Volver al menú"
+  overall: "Progreso total: {done} / {total}"
+  waiting: "Esperando..."
+  summary_ok: "{ok} descargadas, {err} con error"
+  stopped: "Detenido por el usuario. Las canciones restantes se marcaron como detenidas."
+  background_note: "Nota: las descargas ya iniciadas pueden terminar en segundo plano."
+  log_copied: "Registro copiado al portapapeles."
+  log_empty: "El registro está vacío."
+  log_copy_failed: "No se pudo copiar el registro."
+  log_start: "Iniciando la descarga de {count} canciones con {threads} hilos..."
+  log_done: "Listo: {name}"
+  log_skipped: "Omitido: {name} (el archivo ya existe)"
+  log_error: "Error en {name}: {error}"
+  log_finish: "Descarga terminada: {ok} descargadas, {err} con error, {skipped} omitidas."
+  failed: "La descarga falló"
+  badge_ok: "OK"
+
+meta:
+  title: "Actualizar metadatos de archivos"
+  path_label: "Ruta del archivo o carpeta:"
+  btn_run: "Aplicar metadatos"
+  running: "Aplicando metadatos..."
+  done: "Metadatos aplicados."
+  no_path: "Introduce primero la ruta de un archivo o carpeta."
+  ph_path: "C:\\Music\\song.mp3"
+
+url:
+  title: "Consultar URLs directas"
+  btn_run: "Consultar URLs"
+  running: "Buscando fuentes de audio..."
+  done: "URLs obtenidas."
+  no_query: "Introduce primero una búsqueda."
+  ph_query: "https://open.spotify.com/track/..."
+
+web:
+  title: "Interfaz web"
+  starting: "Iniciando el servidor web en http://{host}:{port} ..."
+  info: "La interfaz web se abre fuera de esta TUI (por defecto: http://127.0.0.1:8080). Cierra la TUI para detener el servidor."
+
+language:
+  title: "Idioma"
+  hint: "Selecciona el idioma de la interfaz"
+  saved: "Idioma guardado: {lang}"
+
+help:
+  title: "Ayuda - Comandos"
+  body: |-
+    # Comandos de spotDL
+
+    ## Operaciones
+    | Comando | Descripción |
+    |---|---|
+    | `spotdl download <consulta>` | Descarga canciones con metadatos completos (operación por defecto) |
+    | `spotdl sync <consulta>` | Sincroniza una carpeta local con una lista de Spotify |
+    | `spotdl save <consulta>` | Guarda los metadatos de las canciones en un archivo `.spotdl` |
+    | `spotdl meta <archivos>` | Actualiza los metadatos ID3/Vorbis de archivos locales |
+    | `spotdl url <consulta>` | Muestra las URLs directas de descarga |
+    | `spotdl web` | Inicia la interfaz web |
+    | `spotdl interactive` | Inicia esta TUI |
+
+    ## Desactivar la TUI
+    `spotdl -nogui download <consulta>` (o `--no-gui`) ejecuta el CLI estándar
+    sin abrir la TUI.
+
+    ## Opciones comunes
+    | Opción | Descripción |
+    |---|---|
+    | `--format mp3/flac/m4a/opus/ogg/wav` | Formato de audio de salida |
+    | `--bitrate auto/320k/192k/...` | Tasa de bits de la conversión |
+    | `--audio <proveedores...>` | Fuentes de audio en orden de respaldo |
+    | `--lyrics <proveedores...>` | Fuentes de letras |
+    | `--threads <n>` | Hilos de descarga en paralelo |
+    | `--output <plantilla>` | Plantilla de la ruta de salida |
+    | `--overwrite force/skip/metadata` | Qué hacer con archivos existentes |
+    | `--user-auth` | Inicio de sesión OAuth de Spotify |
+    | `--client-id / --client-secret` | Tus credenciales de desarrollador de Spotify |
+    | `--save-file <archivo.spotdl>` | Archivo de estado (necesario para save/sync) |
+    | `--m3u <nombre>` | Genera una lista m3u |
+    | `--archive <archivo>` | Archivo con las canciones ya descargadas |
+    | `--generate-lrc` | Genera archivos `.lrc` sincronizados |
+    | `--sponsor-block` | Elimina los segmentos no musicales |
+    | `--search-query <plantilla>` | Plantilla de búsqueda personalizada |
+    | `--dont-filter-results` | Desactiva el filtrado de resultados |
+    | `--only-verified-results` | Acepta solo resultados verificados |
+    | `--preload` | Precarga las URLs de descarga |
+    | `--scan-for-songs` | Revisa la carpeta de salida |
+    | `--fetch-albums` | Obtiene todos los álbumes de la consulta |
+    | `--simple-tui` | Progreso más simple en el CLI |
+    | `--log-level <nivel>` | Nivel de detalle del registro |
+    | `--download-ffmpeg` | Instala FFmpeg en la carpeta de spotdl |
+    | `--download-deno` | Instala Deno para descargas complejas |
+    | `--check-for-updates` | Comprueba si hay versiones nuevas |
+    | `--generate-config` | Genera el `config.json` por defecto |
+    | `--version` / `-v` | Muestra la versión |
+
+    ## Consultas especiales
+    `saved`, `all-user-playlists`, `all-saved-playlists`,
+    `all-user-followed-artists`, `all-user-saved-albums` (requieren `--user-auth`),
+    además de búsquedas con prefijo: `album:`, `artist:`, `playlist:`,
+    y emparejamiento manual `YouTubeURL|SpotifyURL`.
+
+    ## Variables de entorno
+    `SPOTIPY_CLIENT_ID` / `SPOTIPY_CLIENT_SECRET`: credenciales propias de Spotify.
+    `SPOTDL_LANG`: fuerza el idioma de la TUI ("es" o "en").
+
+cmdbuilder:
+  tab_label: "Constructor de comandos"
+  title: "Constructor de comandos CLI"
+  hint: "Construye tu comando spotdl eligiendo las opciones de abajo:"
+  operation: "Operación:"
+  op_download_default: "Descargar (por defecto)"
+  op_save: "Guardar metadatos"
+  op_sync: "Sincronizar"
+  op_meta: "Actualizar metadatos"
+  op_url: "Obtener URLs"
+  query: "Consulta / URL:"
+  query_placeholder: "https://open.spotify.com/... o término de búsqueda"
+  format: "Formato:"
+  bitrate: "Tasa de bits:"
+  audio_providers: "Proveedor de audio principal:"
+  fallback_audio_provider: "Proveedor de audio de respaldo:"
+  lyrics_providers: "Proveedor(es) de letras:"
+  none: "Ninguno"
+  threads: "Hilos:"
+  output_template: "Plantilla de salida:"
+  overwrite: "Sobrescritura:"
+  ow_skip: "Omitir (por defecto)"
+  ow_force: "Forzar"
+  ow_metadata: "Solo metadatos"
+  output_directory: "Directorio de salida:"
+  playlist_options: "Opciones de playlist:"
+  playlist_numbering: "Numeración de playlist"
+  retain_track_cover: "Conservar la portada de cada pista"
+  fetch_albums: "Obtener álbumes"
+  output_options: "Opciones de salida:"
+  generate_m3u: "Generar M3U"
+  generate_lrc: "Generar archivos .lrc"
+  sponsor_block: "SponsorBlock"
+  scan_for_songs: "Buscar canciones existentes"
+  generate_skip: "Generar archivos .skip"
+  save_file: "Archivo de guardado (necesario para save/sync):"
+  network: "Red:"
+  spotify_auth: "Autenticación de Spotify (para playlists privadas):"
+  user_auth: "Inicio de sesión (OAuth)"
+  client_id: "Client ID"
+  client_secret: "Client Secret"
+  placeholder_m3u: "{list[0]}.m3u8"
+  template: "Plantilla predefinida:"
+  template_custom: "Personalizada (sin cambios)"
+  template_light: "Más ligera (opus, compacta)"
+  template_efficient: "Eficiente (archivos pequeños, rápida)"
+  template_balanced: "Equilibrada (calidad por defecto)"
+  template_studio: "Estudio (máxima calidad)"
+  preload: "Precargar URLs"
+  only_verified_results: "Solo resultados verificados"
+  dont_filter_results: "No filtrar resultados"
+  skip_explicit: "Omitir pistas explícitas"
+  force_update_metadata: "Forzar actualización de metadatos"
+  skip_album_art: "Omitir la carátula del álbum"
+  archive: "Archivo de registro:"
+  search_query: "Plantilla de búsqueda personalizada:"
+  generated_command: "Comando generado:"
+  btn_copy: "Copiar al portapapeles"
+  btn_test: "Probar (sin ejecutar)"
+  btn_back: "Volver"
+  no_cmd_copy: "Aún no hay ningún comando que copiar."
+  copied: "¡Comando copiado al portapapeles!"
+  copy_failed: "No se pudo copiar: {exc}"
+  no_cmd_test: "Aún no hay ningún comando que probar."
+  would_execute: "Se ejecutaría: {cmd}"
+
+common:
+  back: "Volver"
+  cancel: "Cancelar"
+  ok: "Aceptar"
+
+setup:
+  title: "Configuración inicial"
+  current: "Directorio de datos actual: {path}"
+  choice_here: "Aquí mismo: {path}"
+  choice_sub: "Una subcarpeta nueva: {path}"
+  choice_custom: "Escribir una ruta personalizada"
+  custom_label: "Ruta personalizada:"
+  custom_ph: "C:\\spotdl-data o /home/me/spotdl"
+  btn_confirm: "Confirmar"
+  btn_quit: "Salir"
+  btn_done: "Finalizar"
+  no_custom: "Escribe una ruta válida o elige la opción 1 o 2."
+  progress_title: "Preparando tu directorio de datos"
+  target: "Destino: {path}"
+  step_ffmpeg: "FFmpeg"
+  step_deno: "Deno"
+  step_ffmpeg_ready: "FFmpeg listo"
+  step_ffmpeg_downloading: "Descargando FFmpeg"
+  step_deno_ready: "Deno listo"
+  step_deno_downloading: "Descargando Deno"
+  step_skipped: "Omitido"
+  step_failed: "Falló"
+  status_0: "{step}: nada que hacer"
+  status_2: "{step}: descargando"
+  status_3: "{step}: ya actualizado"
+  ffmpeg_unavailable: "FFmpeg: no hay binario precompilado para este sistema, se omite."
+  ffmpeg_uptodate: "FFmpeg: ya está actualizado."
+  ffmpeg_download: "FFmpeg: descargando"
+  ffmpeg_update: "FFmpeg: hay una actualización, descargando"
+  ffmpeg_ready: "FFmpeg listo en {path}"
+  ffmpeg_failed: "FFmpeg: falló la descarga."
+  deno_uptodate: "Deno: ya está actualizado."
+  deno_unknown: "Deno: ya instalado, no se pudo comprobar si hay una versión más reciente."
+  deno_download: "Deno: descargando"
+  deno_update: "Deno: hay una actualización, descargando"
+  deno_ready: "Deno listo en {path}"
+  deno_failed: "Deno: falló la descarga."
+  dir_set: "Directorio de datos establecido en {path}"
+  done: "Configuración completa. Ejecuta `spotdl` o `spotdl interactive` como siempre."
+  done_with_errors: "La configuración terminó, pero algunos pasos fallaron. Revisa el registro de arriba."
+  error: "Error: {message}"
