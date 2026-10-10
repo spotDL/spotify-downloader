@@ -1,4 +1,4 @@
-<input id="input-rotating-placeholder" type="text" placeholder="{{ placeholder_item }}"
-    class="input input-bordered w-full text-base-content" data-bind="search_term"
-    data-on-keydown="evt.key === 'Enter' && goto('/search?q=' + $search_term )">
+<input id="input-rotating-placeholder" type="search" aria-label="Song, artist or Spotify URL" placeholder="{{ placeholder_item }}"
+    class="input input-bordered w-full text-base-content min-w-0" data-bind="search_term"
+    data-on-keydown="evt.key === 'Enter' && goto('/search?q=' + encodeURIComponent($search_term))">
 </input>

@@ -1,4 +1,13 @@
 <div id="download-list">
+    {% if download_status %}
+    <section class="alert my-4" role="status" aria-live="polite"><div>
+        <strong>{{ download_status.phase }}</strong><br>
+        {{ download_status.song }}<br>
+        {{ download_status.processed }} / {{ download_status.total }} processed · {{ download_status.failures }} failures<br>
+        {% if download_status.total %}<progress class="progress progress-primary" max="{{ download_status.total }}" value="{{ download_status.processed }}"></progress>{% else %}<span class="loading loading-spinner"></span>{% endif %}
+        <small>Destination: {{ download_status.output }}</small>
+    </div></section>
+    {% endif %}
     {# {% for client_song_download in client_song_downloads %}
     <div class="song">
         <h2>{{ client_song_download.song.title }}</h2>

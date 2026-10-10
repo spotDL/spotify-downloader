@@ -17,6 +17,9 @@ class Signals:
     search_term: str = ""
     downloader_settings: Optional["DownloaderOptions"] = None
     song_url: str = ""
+    music_folder: str = ""
+    new_music_folder: str = ""
+    download_output: Optional[str] = None
 
 
 def handle_signals(datastar_signals: dict | None) -> Signals:
@@ -34,4 +37,6 @@ def handle_signals(datastar_signals: dict | None) -> Signals:
     signals.search_term = datastar_signals.get("search_term", "")
     signals.downloader_settings = datastar_signals.get("downloader_settings", {})
     signals.song_url = datastar_signals.get("song_url", "")
+    signals.music_folder = datastar_signals.get("music_folder", "")
+    signals.new_music_folder = datastar_signals.get("new_music_folder", "")
     return signals

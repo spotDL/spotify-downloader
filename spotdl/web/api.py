@@ -3,6 +3,7 @@ Module for handling API requests.
 """
 
 import argparse
+import asyncio
 import os
 import shutil
 from pathlib import Path
@@ -135,6 +136,18 @@ async def shutdown_event():
     """
     Called when the server is shutting down.
     """
+
+    # Stop background queues before removing their session directories.
+    clients = list(app_state.clients.values())
+    tasks = [task for client in clients for task in client.download_tasks]
+    for client in clients:
+        if client.disconnect_timer is not None:
+            client.disconnect_timer.cancel()
+            client.disconnect_timer = None
+    for task in tasks:
+        task.cancel()
+    if tasks:
+        await asyncio.gather(*tasks, return_exceptions=True)
 
     if (
         not app_state.web_settings["keep_sessions"]

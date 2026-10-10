@@ -1,4 +1,4 @@
-<div id="search-list" data-signals="{'song_url': {}}">
+<div id="search-list" data-signals="{'song_url': ''}">
     <script>
         function download(client_id, song) {
             console.log("Downloading song:", song);
@@ -21,6 +21,7 @@
             });
         }
     </script>
+    {% if not songs %}<p role="status">No songs found. Try a song title and artist.</p>{% endif %}
     {% for song in songs %}
     <div key="{{loop.index0}}" class="card md:card-side card-bordered m-2 shadow-lg card-compact bg-base-100">
         <figure class="aspect-square md:max-h-fit">

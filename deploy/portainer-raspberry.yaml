@@ -1,0 +1,36 @@
+services:
+  spotdl:
+    image: spotdl-local:unified-v2
+    pull_policy: never
+    container_name: spotdl
+    restart: unless-stopped
+    working_dir: /music
+    command:
+      - web
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8800"
+      - --web-use-output-dir
+      - --threads
+      - "1"
+      - --output
+      - "/music/{artist}/{album}/{title}.{output-ext}"
+    ports:
+      - "127.0.0.1:8800:8800"
+    environment:
+      TZ: Europe/Madrid
+    volumes:
+      - type: bind
+        source: /mnt/wd/public/Shared Music
+        target: /music
+        bind:
+          create_host_path: false
+    networks:
+      - default
+      - caddy-admin
+
+networks:
+  default: {}
+  caddy-admin:
+    external: true

@@ -5,6 +5,18 @@
     </form>
     <h3 class="font-bold text-lg">Download Settings</h3>
     <div class="flex flex-col justify-center my-4">
+        {% if folder_picker %}
+        <fieldset class="fieldset border rounded-box p-4" data-signals='{ "music_folder": {{ selected_music_folder|tojson }}, "new_music_folder": "" }'>
+            <legend class="fieldset-legend">Download folder</legend>
+            <select class="select w-full" data-bind="music_folder">
+                <option value="">Default destination</option>
+                {% for folder in music_folders %}<option value="{{ folder }}" {% if folder == selected_music_folder %}selected{% endif %}>{{ folder }}</option>{% endfor %}
+            </select>
+            <input class="input w-full" placeholder="New folder name (optional)" data-bind="new_music_folder">
+            <button type="button" class="btn" data-on-click="@post('/client/music-folder')">Apply folder / create</button>
+            <div id="folder-status" role="status">Applies to new downloads in this session.</div>
+        </fieldset>
+        {% endif %}
         <!-- audio_provider -->
         <fieldset class="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4 w-full">
             <legend class="fieldset-legend">Audio Providers</legend>

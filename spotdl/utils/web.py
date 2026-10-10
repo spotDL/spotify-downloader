@@ -6,9 +6,10 @@ FastAPI routes/classes etc.
 import asyncio
 import logging
 import mimetypes
-import threading
+import re
 from argparse import Namespace
-from typing import Any, Dict, Optional, Union
+from typing import Any, Coroutine, Dict, Optional, Set, Union
+from urllib.parse import urlsplit, urlunsplit
 
 from fastapi import FastAPI, HTTPException, Query, Response
 from fastapi.staticfiles import StaticFiles
@@ -77,7 +78,7 @@ class Client:
     client_id: str
     downloader: Downloader
     downloader_settings: DownloaderOptions
-    disconnect_timer: Optional[threading.Timer] = None
+    disconnect_timer: Optional[asyncio.TimerHandle] = None
     # update_callback: Optional[Callable] = None
     # update_stack: list[Dict[str, Any]] = []
 
@@ -117,6 +118,32 @@ class Client:
         )
 
         self.disconnect_timer = None
+        self.download_tasks: Set[asyncio.Task] = set()
+        self.download_lock = asyncio.Lock()
+        self.music_output: Optional[str] = None
+        self.download_status: Dict[str, Any] = {}
+
+    def start_download(self, coroutine: Coroutine[Any, Any, None]) -> asyncio.Task:
+        """Keep a download alive independently of its HTTP request."""
+        task = asyncio.create_task(coroutine)
+        self.download_tasks.add(task)
+        task.add_done_callback(self._download_finished)
+        return task
+
+    def _download_finished(self, task: asyncio.Task) -> None:
+        """Release completed tasks and retrieve unhandled exceptions."""
+        self.download_tasks.discard(task)
+        if not task.cancelled():
+            exception = task.exception()
+            if exception is not None:
+                app_state.logger.error(
+                    "Background download failed",
+                    exc_info=(
+                        type(exception),
+                        exception,
+                        exception.__traceback__,
+                    ),
+                )
 
     async def connect(self):
         """
@@ -126,7 +153,7 @@ class Client:
         # await self.websocket.accept()
 
         # Add the connection to the list of connections
-        if self.disconnect_timer and self.disconnect_timer.is_alive():
+        if self.disconnect_timer is not None:
             self.disconnect_timer.cancel()
             self.disconnect_timer = None
         app_state.clients[self.client_id] = self
@@ -138,20 +165,28 @@ class Client:
         """
 
         # If the disconnect timer is running, cancel it
-        if self.disconnect_timer and self.disconnect_timer.is_alive():
+        if self.disconnect_timer is not None:
             self.disconnect_timer.cancel()
 
         # Schedule the disconnect now
         app_state.logger.info(
             "Client %s will disconnect in 15 seconds of inactivity", self.client_id
         )
-        self.disconnect_timer = threading.Timer(15, self.disconnect_now)
-        self.disconnect_timer.start()
+        self.disconnect_timer = asyncio.get_running_loop().call_later(
+            15, self.disconnect_now
+        )
 
     def disconnect_now(self):
         """
         Disconnect the client.
         """
+        # Retain an inactive client until its downloads finish.
+        if any(not task.done() for task in self.download_tasks):
+            self.disconnect_timer = asyncio.get_running_loop().call_later(
+                15, self.disconnect_now
+            )
+            return
+
         # Remove the connection from the list of connections
         if self.client_id in app_state.clients:
             # app_state.clients.pop(client_id, None)
@@ -288,6 +323,24 @@ def fix_mime_types():
     mimetypes.add_type("text/css", ".css")
     mimetypes.add_type("image/svg+xml", ".svg")
     mimetypes.add_type("text/html", ".html")
+
+
+def normalize_spotify_url(value: str) -> str:
+    """Remove the locale prefix from public Spotify URLs."""
+    stripped = value.strip()
+    try:
+        parts = urlsplit(stripped)
+    except ValueError:
+        return value
+
+    if (
+        parts.scheme not in ("http", "https")
+        or parts.netloc.lower() != "open.spotify.com"
+    ):
+        return value
+
+    path = re.sub(r"^/intl-[A-Za-z0-9-]+/", "/", parts.path)
+    return urlunsplit((parts.scheme, parts.netloc, path, parts.query, parts.fragment))
 
 
 def validate_search_term(search_term: str) -> bool:

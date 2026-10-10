@@ -3,6 +3,26 @@
 
 <head>
     <title>spotdl</title>
+    <style>
+      .spotdl-navbar { display:flex; flex-wrap:wrap; gap:.5rem; }
+      .spotdl-brand { width:auto; flex:0 0 auto; }
+      .spotdl-actions { width:auto; margin-left:auto; flex:0 0 auto; }
+      .spotdl-search { display:flex; flex:1 1 18rem; min-width:0; }
+      .spotdl-search #search-input { min-width:0; gap:.5rem; }
+      .spotdl-search #search-button { flex-shrink:0; }
+      #download-list { min-width:0; overflow-wrap:anywhere; }
+      #download-list .carousel { max-width:100%; }
+      #component-settings-content { width:min(36rem,calc(100vw - 2rem)); max-width:100%; }
+      #component-settings-content fieldset { min-width:0; width:100%; }
+      @media (max-width:767px) {
+        .spotdl-search { order:3; flex-basis:100%; width:100%; padding-bottom:.5rem; }
+        .spotdl-brand { margin:0; padding:0 .25rem; }
+        .spotdl-actions .btn { margin:.125rem; }
+        .spotdl-actions .indicator { margin:0 .25rem; }
+        #input-rotating-placeholder { font-size:16px; }
+        #download-list .card-body { min-width:0; }
+      }
+    </style>
     <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 

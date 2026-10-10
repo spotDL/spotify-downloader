@@ -4,13 +4,13 @@
 
 <div data-signals='{"search_term": {{ search_term|tojson }}}'>
     <div class="min-h-screen">
-        <span id="search-list" class="hero-content">
+        <div id="search-list" class="hero-content">
             <button class="btn btn-sm btn-ghost" data-on-load="@get('/client/search')">
                 <span class="loading loading-spinner">
-                </span>
+                </div>
                 LOADING
             </button>
-        </span>
+        </div>
         {# <div v-if="props.error" class="alert alert-error">
             <div class="flex-1">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
