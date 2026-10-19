@@ -10,7 +10,7 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Callable, Dict, List, Optional
 
 import requests
 from ytmusicapi import YTMusic
@@ -83,6 +83,7 @@ def parse_query(
     playlist_numbering: bool = False,
     album_type=None,
     playlist_retain_track_cover: bool = False,
+    status_callback: Optional[Callable[[str], None]] = None,
 ) -> List[Song]:
     """
     Parse query and return list containing song object
@@ -101,6 +102,7 @@ def parse_query(
         playlist_numbering=playlist_numbering,
         album_type=album_type,
         playlist_retain_track_cover=playlist_retain_track_cover,
+        status_callback=status_callback,
     )
 
     results = []
@@ -123,6 +125,7 @@ def get_simple_songs(
     albums_to_ignore=None,
     album_type=None,
     playlist_retain_track_cover: bool = False,
+    status_callback: Optional[Callable[[str], None]] = None,
 ) -> List[Song]:
     """
     Parse query and return list containing simple song objects
@@ -138,6 +141,8 @@ def get_simple_songs(
     lists: List[SongList] = []
     for request in query:
         logger.info("Processing query: %s", request)
+        if status_callback:
+            status_callback(request)
 
         # Remove /intl-xxx/ from Spotify URLs with regex
         request = re.sub(r"\/intl-\w+\/", "/", request)

@@ -394,7 +394,7 @@ class SongTracker:
             # only one time when downloading/converting/embedding
             if self.parent.web_ui and old_message != self.status:
                 logger.info("%s: %s", self.song_name, message)
-            elif not self.parent.web_ui and delta:
+            elif not self.parent.web_ui and not self.parent.update_callback and delta:
                 logger.info("%s: %s", self.song_name, message)
 
         # Update the overall progress bar

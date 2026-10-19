@@ -104,6 +104,28 @@ If you want to install Deno system-wide instead, follow the
 
 ## Usage
 
+### Interactive Mode (Terminal UI)
+
+spotDL includes an interactive terminal interface built with Textual. It lets you interactively search, select specific songs before downloading, view synchronized lyrics, monitor live download progress, and run operations (`save`, `sync`, `meta`, `url`, `web`) without memorizing command-line flags.
+
+To launch the interactive interface, run `spotdl` without arguments in an interactive terminal:
+
+```sh
+spotdl
+```
+
+Or run the `interactive` operation explicitly with an optional search query or playlist URL:
+
+```sh
+spotdl interactive [query]
+```
+
+Use `--no-gui` to bypass the interactive interface when running without arguments (e.g. in automated scripts).
+
+For details, controls, and features, see the [Interactive Mode Guide](docs/TUI_USER_GUIDE.md).
+
+### Command Line Usage
+
 Using SpotDL without options:
 
 ```sh
@@ -129,6 +151,10 @@ For a list of all **options** use ```spotdl -h```
 
 <details>
 <summary style="font-size:1em"><strong>Supported operations</strong></summary>
+
+- `interactive`: Starts an interactive terminal interface to pick the songs and options. Running `spotdl` without arguments in a terminal also opens it. See [Interactive mode](docs/TUI_USER_GUIDE.md).
+    - Usage:
+        `spotdl interactive [query]`
 
 - `save`: Saves only the metadata from Spotify without downloading anything.
     - Usage:

@@ -104,6 +104,28 @@ follow these instructions
 
 ## Usage
 
+### Interactive Mode (Terminal UI)
+
+spotDL includes an interactive terminal interface built with Textual. It lets you interactively search, select specific songs before downloading, view synchronized lyrics, monitor live download progress, and run operations (`save`, `sync`, `meta`, `url`, `web`) without memorizing command-line flags.
+
+To launch the interactive interface, run `spotdl` without arguments in an interactive terminal:
+
+```sh
+spotdl
+```
+
+Or run the `interactive` operation explicitly with an optional search query or playlist URL:
+
+```sh
+spotdl interactive [query]
+```
+
+Use `--no-gui` to bypass the interactive interface when running without arguments (e.g. in automated scripts).
+
+For details, controls, and features, see the [Interactive Mode Guide](TUI_USER_GUIDE.md).
+
+### Command Line Usage
+
 Using SpotDL without options:
 
 ```sh
