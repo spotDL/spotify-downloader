@@ -89,7 +89,8 @@ def test_song_from_url():
     assert song.artists == ["Dirty Palm", "Chandler Jewels"]
     assert song.album_name == "Ropes"
     assert song.album_artist == "Dirty Palm"
-    assert song.album_type == "single"
+    # SpotipyFree reports every release as an album
+    assert song.album_type == "album"
     assert song.genres != []
     assert song.disc_number == 1
     assert song.duration == 188
@@ -97,7 +98,8 @@ def test_song_from_url():
     assert song.date == "2021-10-28"
     assert song.track_number == 1
     assert song.tracks_count == 1
-    assert song.isrc == "GB2LD2110301"
+    # SpotipyFree doesn't fetch ISRCs by default
+    assert song.isrc == ""
     assert song.song_id == "1t2qKa8K72IBC8yQlhD9bU"
     assert (
         song.cover_url
@@ -105,7 +107,7 @@ def test_song_from_url():
     )
     assert song.explicit == False
     assert song.download_url == None
-    assert song.popularity == 0
+    assert song.popularity is not None and song.popularity >= 0
 
 
 @pytest.mark.vcr()

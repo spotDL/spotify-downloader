@@ -1,0 +1,3900 @@
+{
+ "16815b8467cec13475969f0b788595657fc76b5c": {
+  "request": "[\"album\", [\"1JgiUpuR8UgX1TzTCQ7J9h\"], {}]",
+  "response": {
+   "__typename": "Album",
+   "album_type": "album",
+   "artists": [
+    {
+     "external_urls": {
+      "spotify": "https://open.spotify.com/artist/19TPpTWkgX13Qc2stbqVoP"
+     },
+     "genres": [
+      ""
+     ],
+     "href": "https://api.spotify.com/v1/artists/19TPpTWkgX13Qc2stbqVoP",
+     "id": "19TPpTWkgX13Qc2stbqVoP",
+     "images": [
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab6761610000e5eb76d54ff80c6fe7f94ad85e38",
+       "width": 640
+      },
+      {
+       "height": 160,
+       "url": "https://i.scdn.co/image/ab6761610000f17876d54ff80c6fe7f94ad85e38",
+       "width": 160
+      },
+      {
+       "height": 320,
+       "url": "https://i.scdn.co/image/ab6761610000517476d54ff80c6fe7f94ad85e38",
+       "width": 320
+      }
+     ],
+     "name": "Terrian",
+     "uri": "spotify:artist:19TPpTWkgX13Qc2stbqVoP"
+    }
+   ],
+   "copyright": {
+    "items": [
+     {
+      "text": "2025 Gotee Records",
+      "type": "C"
+     },
+     {
+      "text": "2025 Gotee Records",
+      "type": "P"
+     }
+    ],
+    "totalCount": 2
+   },
+   "copyrights": [
+    {
+     "text": "",
+     "type": ""
+    }
+   ],
+   "courtesyLine": "",
+   "coverArt": {
+    "extractedColors": {
+     "colorDark": {
+      "hex": "#502820"
+     },
+     "colorLight": {
+      "hex": "#B95C4A"
+     },
+     "colorRaw": {
+      "hex": "#502820"
+     }
+    },
+    "sources": [
+     {
+      "height": 300,
+      "url": "https://i.scdn.co/image/ab67616d00001e020b8a88d6f88d595f106cae91",
+      "width": 300
+     },
+     {
+      "height": 64,
+      "url": "https://i.scdn.co/image/ab67616d000048510b8a88d6f88d595f106cae91",
+      "width": 64
+     },
+     {
+      "height": 640,
+      "url": "https://i.scdn.co/image/ab67616d0000b2730b8a88d6f88d595f106cae91",
+      "width": 640
+     }
+    ]
+   },
+   "date": {
+    "isoString": "2025-09-26T00:00:00Z",
+    "precision": "DAY"
+   },
+   "discs": {
+    "items": [
+     {
+      "number": 1,
+      "tracks": {
+       "totalCount": 1
+      }
+     }
+    ],
+    "totalCount": 1
+   },
+   "external_urls": {
+    "spotify": "https://open.spotify.com/album/1JgiUpuR8UgX1TzTCQ7J9h"
+   },
+   "genres": [
+    ""
+   ],
+   "id": "1JgiUpuR8UgX1TzTCQ7J9h",
+   "images": [
+    {
+     "height": 300,
+     "url": "https://i.scdn.co/image/ab67616d00001e020b8a88d6f88d595f106cae91",
+     "width": 300
+    },
+    {
+     "height": 64,
+     "url": "https://i.scdn.co/image/ab67616d000048510b8a88d6f88d595f106cae91",
+     "width": 64
+    },
+    {
+     "height": 640,
+     "url": "https://i.scdn.co/image/ab67616d0000b2730b8a88d6f88d595f106cae91",
+     "width": 640
+    }
+   ],
+   "isPreRelease": false,
+   "label": "Gotee Records",
+   "moreAlbumsByArtist": {
+    "items": [
+     {
+      "discography": {
+       "popularReleasesAlbums": {
+        "items": [
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e026531af509721a8801b2beeb5",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d000048516531af509721a8801b2beeb5",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b2736531af509721a8801b2beeb5",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2024
+          },
+          "id": "36TqkiS7AIf2u2dG4fQymd",
+          "name": "Give It Time",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "CwDAGL0xTlGfJGXeA1mN9w",
+           "shareUrl": "https://open.spotify.com/album/36TqkiS7AIf2u2dG4fQymd?si=CwDAGL0xTlGfJGXeA1mN9w"
+          },
+          "type": "ALBUM",
+          "uri": "spotify:album:36TqkiS7AIf2u2dG4fQymd"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e028e0a44f89666bbd22198769f",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d000048518e0a44f89666bbd22198769f",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b2738e0a44f89666bbd22198769f",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2026
+          },
+          "id": "5VgEHVAxaBrWLJIkFHHll4",
+          "name": "Mad Big World",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "Z8ASRZ3iSBecM2kaIXdEMA",
+           "shareUrl": "https://open.spotify.com/album/5VgEHVAxaBrWLJIkFHHll4?si=Z8ASRZ3iSBecM2kaIXdEMA"
+          },
+          "type": "ALBUM",
+          "uri": "spotify:album:5VgEHVAxaBrWLJIkFHHll4"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02819c9ec0a165abada0fd767b",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851819c9ec0a165abada0fd767b",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273819c9ec0a165abada0fd767b",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2026
+          },
+          "id": "5U2jgBcYY2ajkqFfzGvAsc",
+          "name": "Testimony",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "86kWC6ziROaTYUkgDZCuEQ",
+           "shareUrl": "https://open.spotify.com/album/5U2jgBcYY2ajkqFfzGvAsc?si=86kWC6ziROaTYUkgDZCuEQ"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:5U2jgBcYY2ajkqFfzGvAsc"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02d2d61057848d98801853323d",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851d2d61057848d98801853323d",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273d2d61057848d98801853323d",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2021
+          },
+          "id": "2fGd7TWmDcPRW9Y45CKcx0",
+          "name": "Genesis of Terrian",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "DboJJHAOSlitXcVK2hdXrw",
+           "shareUrl": "https://open.spotify.com/album/2fGd7TWmDcPRW9Y45CKcx0?si=DboJJHAOSlitXcVK2hdXrw"
+          },
+          "type": "EP",
+          "uri": "spotify:album:2fGd7TWmDcPRW9Y45CKcx0"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e020b8a88d6f88d595f106cae91",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d000048510b8a88d6f88d595f106cae91",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b2730b8a88d6f88d595f106cae91",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2025
+          },
+          "id": "1JgiUpuR8UgX1TzTCQ7J9h",
+          "name": "Testimony",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "iqMJU-fdT8Wbx4u0RtpNYw",
+           "shareUrl": "https://open.spotify.com/album/1JgiUpuR8UgX1TzTCQ7J9h?si=iqMJU-fdT8Wbx4u0RtpNYw"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:1JgiUpuR8UgX1TzTCQ7J9h"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02b263f7044779d78e1ea9bf81",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851b263f7044779d78e1ea9bf81",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273b263f7044779d78e1ea9bf81",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2025
+          },
+          "id": "11EHl3HcQlvBlTniWjt6Ld",
+          "name": "Give It More Time",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "v9bbQwZNRxW-zfz27qKg9g",
+           "shareUrl": "https://open.spotify.com/album/11EHl3HcQlvBlTniWjt6Ld?si=v9bbQwZNRxW-zfz27qKg9g"
+          },
+          "type": "ALBUM",
+          "uri": "spotify:album:11EHl3HcQlvBlTniWjt6Ld"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e026aec1ec8020e7572d5e70dfb",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d000048516aec1ec8020e7572d5e70dfb",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b2736aec1ec8020e7572d5e70dfb",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2025
+          },
+          "id": "6f8eCGU8Pf9rI0OTP6HTAU",
+          "name": "God Is For Me",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "9cBHef8tQDC_7-iFsa7rBg",
+           "shareUrl": "https://open.spotify.com/album/6f8eCGU8Pf9rI0OTP6HTAU?si=9cBHef8tQDC_7-iFsa7rBg"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:6f8eCGU8Pf9rI0OTP6HTAU"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e021fb9134c066f01a810bfc0a4",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d000048511fb9134c066f01a810bfc0a4",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b2731fb9134c066f01a810bfc0a4",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2021
+          },
+          "id": "3OMCDx9TtoSUZTYwQ6MxBe",
+          "name": "Wake Up",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "50gRIe91TgmW4uSmzFF2QQ",
+           "shareUrl": "https://open.spotify.com/album/3OMCDx9TtoSUZTYwQ6MxBe?si=50gRIe91TgmW4uSmzFF2QQ"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:3OMCDx9TtoSUZTYwQ6MxBe"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02269254840838ae85d6612126",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851269254840838ae85d6612126",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273269254840838ae85d6612126",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2019
+          },
+          "id": "2gybUUpxYO2SyDa3CbgX4P",
+          "name": "In the Arms",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "OXmeXfgyQcuYRHM5kujzYw",
+           "shareUrl": "https://open.spotify.com/album/2gybUUpxYO2SyDa3CbgX4P?si=OXmeXfgyQcuYRHM5kujzYw"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:2gybUUpxYO2SyDa3CbgX4P"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02fcb9188913f8204386ea2c27",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851fcb9188913f8204386ea2c27",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273fcb9188913f8204386ea2c27",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2026
+          },
+          "id": "5qPnxyUvCXfUFS3i3qqoQq",
+          "name": "Joy Is Coming",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "p3YzQpfgTzmbAnrMRfDrDQ",
+           "shareUrl": "https://open.spotify.com/album/5qPnxyUvCXfUFS3i3qqoQq?si=p3YzQpfgTzmbAnrMRfDrDQ"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:5qPnxyUvCXfUFS3i3qqoQq"
+         }
+        ]
+       }
+      }
+     }
+    ]
+   },
+   "name": "Testimony",
+   "playability": {
+    "playable": true,
+    "reason": "PLAYABLE"
+   },
+   "preReleaseEndDateTime": null,
+   "release_date": "2025-09-26",
+   "releases": {
+    "items": [],
+    "totalCount": 0
+   },
+   "saved": false,
+   "sharingInfo": {
+    "shareId": "Np9q89joT5G6QN7iKvrtkg",
+    "shareUrl": "https://open.spotify.com/album/1JgiUpuR8UgX1TzTCQ7J9h?si=Np9q89joT5G6QN7iKvrtkg"
+   },
+   "total_tracks": 1,
+   "tracks": {
+    "items": [
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/19TPpTWkgX13Qc2stbqVoP"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/19TPpTWkgX13Qc2stbqVoP",
+        "id": "19TPpTWkgX13Qc2stbqVoP",
+        "images": [],
+        "name": "Terrian",
+        "uri": "spotify:artist:19TPpTWkgX13Qc2stbqVoP"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 242088,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/4I01JiotzjG0twezQt1xqX"
+      },
+      "id": "4I01JiotzjG0twezQt1xqX",
+      "name": "Testimony",
+      "popularity": 10,
+      "track_id": "4I01JiotzjG0twezQt1xqX",
+      "track_number": 1,
+      "type": "track"
+     }
+    ]
+   },
+   "tracksV2": {
+    "items": [
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Terrian"
+          },
+          "uri": "spotify:artist:19TPpTWkgX13Qc2stbqVoP"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 242088
+       },
+       "mediaType": "AUDIO",
+       "name": "Testimony",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "7890069",
+       "relinkingInformation": null,
+       "saved": false,
+       "trackNumber": 1,
+       "uri": "spotify:track:4I01JiotzjG0twezQt1xqX"
+      },
+      "uid": "e5394e46a06b17590b1f"
+     }
+    ],
+    "totalCount": 1
+   },
+   "type": "SINGLE",
+   "uri": "spotify:album:1JgiUpuR8UgX1TzTCQ7J9h",
+   "visualIdentity": {
+    "squareCoverImage": {
+     "__typename": "VisualIdentityImage",
+     "extractedColorSet": {
+      "encoreBaseSetTextColor": {
+       "alpha": 255,
+       "blue": 164,
+       "green": 175,
+       "red": 226
+      },
+      "highContrast": {
+       "backgroundBase": {
+        "alpha": 255,
+        "blue": 32,
+        "green": 40,
+        "red": 80
+       },
+       "backgroundTintedBase": {
+        "alpha": 255,
+        "blue": 64,
+        "green": 74,
+        "red": 117
+       },
+       "textBase": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textBrightAccent": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textSubdued": {
+        "alpha": 255,
+        "blue": 182,
+        "green": 193,
+        "red": 245
+       }
+      },
+      "higherContrast": {
+       "backgroundBase": {
+        "alpha": 255,
+        "blue": 32,
+        "green": 40,
+        "red": 80
+       },
+       "backgroundTintedBase": {
+        "alpha": 255,
+        "blue": 64,
+        "green": 74,
+        "red": 117
+       },
+       "textBase": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textBrightAccent": {
+        "alpha": 255,
+        "blue": 96,
+        "green": 215,
+        "red": 30
+       },
+       "textSubdued": {
+        "alpha": 255,
+        "blue": 182,
+        "green": 193,
+        "red": 245
+       }
+      },
+      "minContrast": {
+       "backgroundBase": {
+        "alpha": 255,
+        "blue": 32,
+        "green": 40,
+        "red": 80
+       },
+       "backgroundTintedBase": {
+        "alpha": 255,
+        "blue": 64,
+        "green": 74,
+        "red": 117
+       },
+       "textBase": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textBrightAccent": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textSubdued": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       }
+      }
+     }
+    }
+   },
+   "watchFeedEntrypoint": null
+  }
+ },
+ "46cbae92c237a811f605951153fab1ee5125f1e5": {
+  "request": "[\"track\", [\"http://open.spotify.com/track/4I01JiotzjG0twezQt1xqX\"], {}]",
+  "response": {
+   "album": {
+    "album_type": "album",
+    "artists": [
+     {
+      "external_urls": {
+       "spotify": "https://open.spotify.com/artist/19TPpTWkgX13Qc2stbqVoP"
+      },
+      "genres": [
+       ""
+      ],
+      "href": "https://api.spotify.com/v1/artists/19TPpTWkgX13Qc2stbqVoP",
+      "id": "19TPpTWkgX13Qc2stbqVoP",
+      "images": [
+       {
+        "height": 640,
+        "url": "https://i.scdn.co/image/ab6761610000e5eb76d54ff80c6fe7f94ad85e38",
+        "width": 640
+       },
+       {
+        "height": 160,
+        "url": "https://i.scdn.co/image/ab6761610000f17876d54ff80c6fe7f94ad85e38",
+        "width": 160
+       },
+       {
+        "height": 320,
+        "url": "https://i.scdn.co/image/ab6761610000517476d54ff80c6fe7f94ad85e38",
+        "width": 320
+       }
+      ],
+      "name": "Terrian",
+      "uri": "spotify:artist:19TPpTWkgX13Qc2stbqVoP"
+     }
+    ],
+    "copyright": {
+     "items": [
+      {
+       "text": "2025 Gotee Records",
+       "type": "C"
+      },
+      {
+       "text": "2025 Gotee Records",
+       "type": "P"
+      }
+     ],
+     "totalCount": 2
+    },
+    "copyrights": [
+     {
+      "text": "",
+      "type": ""
+     }
+    ],
+    "courtesyLine": "",
+    "coverArt": {
+     "extractedColors": {
+      "colorRaw": {
+       "hex": "#502820"
+      }
+     },
+     "sources": [
+      {
+       "height": 300,
+       "url": "https://i.scdn.co/image/ab67616d00001e020b8a88d6f88d595f106cae91",
+       "width": 300
+      },
+      {
+       "height": 64,
+       "url": "https://i.scdn.co/image/ab67616d000048510b8a88d6f88d595f106cae91",
+       "width": 64
+      },
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab67616d0000b2730b8a88d6f88d595f106cae91",
+       "width": 640
+      }
+     ]
+    },
+    "date": {
+     "isoString": "2025-09-26T00:00:00Z",
+     "precision": "DAY",
+     "year": 2025
+    },
+    "external_urls": {
+     "spotify": "https://open.spotify.com/album/1JgiUpuR8UgX1TzTCQ7J9h"
+    },
+    "genres": [
+     ""
+    ],
+    "id": "1JgiUpuR8UgX1TzTCQ7J9h",
+    "images": [
+     {
+      "height": 300,
+      "url": "https://i.scdn.co/image/ab67616d00001e020b8a88d6f88d595f106cae91",
+      "width": 300
+     },
+     {
+      "height": 64,
+      "url": "https://i.scdn.co/image/ab67616d000048510b8a88d6f88d595f106cae91",
+      "width": 64
+     },
+     {
+      "height": 640,
+      "url": "https://i.scdn.co/image/ab67616d0000b2730b8a88d6f88d595f106cae91",
+      "width": 640
+     }
+    ],
+    "name": "Testimony",
+    "playability": {
+     "playable": true
+    },
+    "release_date": "2025-09-26",
+    "sharingInfo": {
+     "shareId": "LyyTWbitQgemoElIVYexzQ",
+     "shareUrl": "https://open.spotify.com/album/1JgiUpuR8UgX1TzTCQ7J9h?si=LyyTWbitQgemoElIVYexzQ"
+    },
+    "total_tracks": 1,
+    "tracks": {
+     "items": [
+      {
+       "track": {
+        "trackNumber": 1,
+        "uri": "spotify:track:4I01JiotzjG0twezQt1xqX"
+       }
+      }
+     ]
+    },
+    "type": "SINGLE",
+    "uri": "spotify:album:1JgiUpuR8UgX1TzTCQ7J9h"
+   },
+   "artists": [
+    {
+     "external_urls": {
+      "spotify": "https://open.spotify.com/artist/19TPpTWkgX13Qc2stbqVoP"
+     },
+     "genres": [
+      ""
+     ],
+     "href": "https://api.spotify.com/v1/artists/19TPpTWkgX13Qc2stbqVoP",
+     "id": "19TPpTWkgX13Qc2stbqVoP",
+     "images": [
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab6761610000e5eb76d54ff80c6fe7f94ad85e38",
+       "width": 640
+      },
+      {
+       "height": 160,
+       "url": "https://i.scdn.co/image/ab6761610000f17876d54ff80c6fe7f94ad85e38",
+       "width": 160
+      },
+      {
+       "height": 320,
+       "url": "https://i.scdn.co/image/ab6761610000517476d54ff80c6fe7f94ad85e38",
+       "width": 320
+      }
+     ],
+     "name": "Terrian",
+     "uri": "spotify:artist:19TPpTWkgX13Qc2stbqVoP"
+    }
+   ],
+   "disc_number": 1,
+   "duration_ms": 242088,
+   "explicit": false,
+   "external_ids": {
+    "isrc": ""
+   },
+   "external_urls": {
+    "spotify": "https://open.spotify.com/track/4I01JiotzjG0twezQt1xqX"
+   },
+   "id": "4I01JiotzjG0twezQt1xqX",
+   "name": "Testimony",
+   "popularity": 10,
+   "track_id": "4I01JiotzjG0twezQt1xqX",
+   "track_number": 1,
+   "type": "track"
+  }
+ },
+ "563af0090dd8e90c35f31b2ca239f1c1d60adfe3": {
+  "request": "[\"search\", [\"test\"], {}]",
+  "response": {
+   "tracks": {
+    "items": [
+     {
+      "album": {
+       "album_type": "album",
+       "artists": [
+        {
+         "external_urls": {
+          "spotify": "https://open.spotify.com/artist/4lCsf6uYTVnWSKm99eKkdY"
+         },
+         "genres": [
+          ""
+         ],
+         "href": "https://api.spotify.com/v1/artists/4lCsf6uYTVnWSKm99eKkdY",
+         "id": "4lCsf6uYTVnWSKm99eKkdY",
+         "images": [],
+         "name": "Seekae",
+         "uri": "spotify:artist:4lCsf6uYTVnWSKm99eKkdY"
+        },
+        {
+         "external_urls": {
+          "spotify": "https://open.spotify.com/artist/6nxWCVXbOlEVRexSbLsTer"
+         },
+         "genres": [
+          ""
+         ],
+         "href": "https://api.spotify.com/v1/artists/6nxWCVXbOlEVRexSbLsTer",
+         "id": "6nxWCVXbOlEVRexSbLsTer",
+         "images": [],
+         "name": "Flume",
+         "uri": "spotify:artist:6nxWCVXbOlEVRexSbLsTer"
+        }
+       ],
+       "copyrights": [
+        {
+         "text": "",
+         "type": ""
+        }
+       ],
+       "coverArt": {
+        "extractedColors": {
+         "colorDark": {
+          "hex": "#535353",
+          "isFallback": true
+         }
+        },
+        "sources": [
+         {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e02b32c686873f16b3adb71f4ac",
+          "width": 300
+         },
+         {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d00004851b32c686873f16b3adb71f4ac",
+          "width": 64
+         },
+         {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b273b32c686873f16b3adb71f4ac",
+          "width": 640
+         }
+        ]
+       },
+       "external_urls": {
+        "spotify": "https://open.spotify.com/album/4RxAye8brXQJHgw1wF1l8j"
+       },
+       "genres": [
+        ""
+       ],
+       "id": "4RxAye8brXQJHgw1wF1l8j",
+       "images": [
+        {
+         "height": 300,
+         "url": "https://i.scdn.co/image/ab67616d00001e02b32c686873f16b3adb71f4ac",
+         "width": 300
+        },
+        {
+         "height": 64,
+         "url": "https://i.scdn.co/image/ab67616d00004851b32c686873f16b3adb71f4ac",
+         "width": 64
+        },
+        {
+         "height": 640,
+         "url": "https://i.scdn.co/image/ab67616d0000b273b32c686873f16b3adb71f4ac",
+         "width": 640
+        }
+       ],
+       "name": "Test & Recognise (Remixes)",
+       "release_date": "0000-00-00",
+       "total_tracks": 0,
+       "tracks": {
+        "items": []
+       },
+       "uri": "spotify:album:4RxAye8brXQJHgw1wF1l8j",
+       "visualIdentity": {
+        "squareCoverImage": {
+         "__typename": "VisualIdentityImage",
+         "extractedColorSet": {
+          "encoreBaseSetTextColor": {
+           "alpha": 255,
+           "blue": 187,
+           "green": 187,
+           "red": 187
+          },
+          "highContrast": {
+           "backgroundBase": {
+            "alpha": 255,
+            "blue": 83,
+            "green": 83,
+            "red": 83
+           },
+           "backgroundTintedBase": {
+            "alpha": 255,
+            "blue": 51,
+            "green": 51,
+            "red": 51
+           },
+           "textBase": {
+            "alpha": 255,
+            "blue": 255,
+            "green": 255,
+            "red": 255
+           },
+           "textBrightAccent": {
+            "alpha": 255,
+            "blue": 255,
+            "green": 255,
+            "red": 255
+           },
+           "textSubdued": {
+            "alpha": 255,
+            "blue": 205,
+            "green": 205,
+            "red": 205
+           }
+          },
+          "higherContrast": {
+           "backgroundBase": {
+            "alpha": 255,
+            "blue": 53,
+            "green": 53,
+            "red": 53
+           },
+           "backgroundTintedBase": {
+            "alpha": 255,
+            "blue": 86,
+            "green": 86,
+            "red": 86
+           },
+           "textBase": {
+            "alpha": 255,
+            "blue": 255,
+            "green": 255,
+            "red": 255
+           },
+           "textBrightAccent": {
+            "alpha": 255,
+            "blue": 96,
+            "green": 215,
+            "red": 30
+           },
+           "textSubdued": {
+            "alpha": 255,
+            "blue": 205,
+            "green": 205,
+            "red": 205
+           }
+          },
+          "minContrast": {
+           "backgroundBase": {
+            "alpha": 255,
+            "blue": 83,
+            "green": 83,
+            "red": 83
+           },
+           "backgroundTintedBase": {
+            "alpha": 255,
+            "blue": 51,
+            "green": 51,
+            "red": 51
+           },
+           "textBase": {
+            "alpha": 255,
+            "blue": 255,
+            "green": 255,
+            "red": 255
+           },
+           "textBrightAccent": {
+            "alpha": 255,
+            "blue": 255,
+            "green": 255,
+            "red": 255
+           },
+           "textSubdued": {
+            "alpha": 255,
+            "blue": 255,
+            "green": 255,
+            "red": 255
+           }
+          }
+         }
+        }
+       }
+      },
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/4lCsf6uYTVnWSKm99eKkdY"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/4lCsf6uYTVnWSKm99eKkdY",
+        "id": "4lCsf6uYTVnWSKm99eKkdY",
+        "images": [],
+        "name": "Seekae",
+        "uri": "spotify:artist:4lCsf6uYTVnWSKm99eKkdY"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/6nxWCVXbOlEVRexSbLsTer"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/6nxWCVXbOlEVRexSbLsTer",
+        "id": "6nxWCVXbOlEVRexSbLsTer",
+        "images": [],
+        "name": "Flume",
+        "uri": "spotify:artist:6nxWCVXbOlEVRexSbLsTer"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 303660,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/3FijoNKGof7pCn7oddecOQ"
+      },
+      "id": "3FijoNKGof7pCn7oddecOQ",
+      "name": "Test & Recognise - Flume Re-work",
+      "popularity": 10,
+      "track_id": "3FijoNKGof7pCn7oddecOQ",
+      "track_number": 1,
+      "type": "track"
+     },
+     {
+      "album": {
+       "album_type": "album",
+       "artists": [
+        {
+         "external_urls": {
+          "spotify": "https://open.spotify.com/artist/19TPpTWkgX13Qc2stbqVoP"
+         },
+         "genres": [
+          ""
+         ],
+         "href": "https://api.spotify.com/v1/artists/19TPpTWkgX13Qc2stbqVoP",
+         "id": "19TPpTWkgX13Qc2stbqVoP",
+         "images": [],
+         "name": "Terrian",
+         "uri": "spotify:artist:19TPpTWkgX13Qc2stbqVoP"
+        }
+       ],
+       "copyrights": [
+        {
+         "text": "",
+         "type": ""
+        }
+       ],
+       "coverArt": {
+        "extractedColors": {
+         "colorDark": {
+          "hex": "#502820",
+          "isFallback": false
+         }
+        },
+        "sources": [
+         {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e020b8a88d6f88d595f106cae91",
+          "width": 300
+         },
+         {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d000048510b8a88d6f88d595f106cae91",
+          "width": 64
+         },
+         {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b2730b8a88d6f88d595f106cae91",
+          "width": 640
+         }
+        ]
+       },
+       "external_urls": {
+        "spotify": "https://open.spotify.com/album/1JgiUpuR8UgX1TzTCQ7J9h"
+       },
+       "genres": [
+        ""
+       ],
+       "id": "1JgiUpuR8UgX1TzTCQ7J9h",
+       "images": [
+        {
+         "height": 300,
+         "url": "https://i.scdn.co/image/ab67616d00001e020b8a88d6f88d595f106cae91",
+         "width": 300
+        },
+        {
+         "height": 64,
+         "url": "https://i.scdn.co/image/ab67616d000048510b8a88d6f88d595f106cae91",
+         "width": 64
+        },
+        {
+         "height": 640,
+         "url": "https://i.scdn.co/image/ab67616d0000b2730b8a88d6f88d595f106cae91",
+         "width": 640
+        }
+       ],
+       "name": "Testimony",
+       "release_date": "0000-00-00",
+       "total_tracks": 0,
+       "tracks": {
+        "items": []
+       },
+       "uri": "spotify:album:1JgiUpuR8UgX1TzTCQ7J9h",
+       "visualIdentity": {
+        "squareCoverImage": {
+         "__typename": "VisualIdentityImage",
+         "extractedColorSet": {
+          "encoreBaseSetTextColor": {
+           "alpha": 255,
+           "blue": 164,
+           "green": 175,
+           "red": 226
+          },
+          "highContrast": {
+           "backgroundBase": {
+            "alpha": 255,
+            "blue": 32,
+            "green": 40,
+            "red": 80
+           },
+           "backgroundTintedBase": {
+            "alpha": 255,
+            "blue": 64,
+            "green": 74,
+            "red": 117
+           },
+           "textBase": {
+            "alpha": 255,
+            "blue": 255,
+            "green": 255,
+            "red": 255
+           },
+           "textBrightAccent": {
+            "alpha": 255,
+            "blue": 255,
+            "green": 255,
+            "red": 255
+           },
+           "textSubdued": {
+            "alpha": 255,
+            "blue": 182,
+            "green": 193,
+            "red": 245
+           }
+          },
+          "higherContrast": {
+           "backgroundBase": {
+            "alpha": 255,
+            "blue": 32,
+            "green": 40,
+            "red": 80
+           },
+           "backgroundTintedBase": {
+            "alpha": 255,
+            "blue": 64,
+            "green": 74,
+            "red": 117
+           },
+           "textBase": {
+            "alpha": 255,
+            "blue": 255,
+            "green": 255,
+            "red": 255
+           },
+           "textBrightAccent": {
+            "alpha": 255,
+            "blue": 96,
+            "green": 215,
+            "red": 30
+           },
+           "textSubdued": {
+            "alpha": 255,
+            "blue": 182,
+            "green": 193,
+            "red": 245
+           }
+          },
+          "minContrast": {
+           "backgroundBase": {
+            "alpha": 255,
+            "blue": 32,
+            "green": 40,
+            "red": 80
+           },
+           "backgroundTintedBase": {
+            "alpha": 255,
+            "blue": 64,
+            "green": 74,
+            "red": 117
+           },
+           "textBase": {
+            "alpha": 255,
+            "blue": 255,
+            "green": 255,
+            "red": 255
+           },
+           "textBrightAccent": {
+            "alpha": 255,
+            "blue": 255,
+            "green": 255,
+            "red": 255
+           },
+           "textSubdued": {
+            "alpha": 255,
+            "blue": 255,
+            "green": 255,
+            "red": 255
+           }
+          }
+         }
+        }
+       }
+      },
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/19TPpTWkgX13Qc2stbqVoP"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/19TPpTWkgX13Qc2stbqVoP",
+        "id": "19TPpTWkgX13Qc2stbqVoP",
+        "images": [],
+        "name": "Terrian",
+        "uri": "spotify:artist:19TPpTWkgX13Qc2stbqVoP"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 242088,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/4I01JiotzjG0twezQt1xqX"
+      },
+      "id": "4I01JiotzjG0twezQt1xqX",
+      "name": "Testimony",
+      "popularity": 10,
+      "track_id": "4I01JiotzjG0twezQt1xqX",
+      "track_number": 1,
+      "type": "track"
+     },
+     {
+      "album": {
+       "album_type": "album",
+       "artists": [
+        {
+         "external_urls": {
+          "spotify": "https://open.spotify.com/artist/19TPpTWkgX13Qc2stbqVoP"
+         },
+         "genres": [
+          ""
+         ],
+         "href": "https://api.spotify.com/v1/artists/19TPpTWkgX13Qc2stbqVoP",
+         "id": "19TPpTWkgX13Qc2stbqVoP",
+         "images": [],
+         "name": "Terrian",
+         "uri": "spotify:artist:19TPpTWkgX13Qc2stbqVoP"
+        },
+        {
+         "external_urls": {
+          "spotify": "https://open.spotify.com/artist/3qfrrrSO7utFdJkM2tvMRb"
+         },
+         "genres": [
+          ""
+         ],
+         "href": "https://api.spotify.com/v1/artists/3qfrrrSO7utFdJkM2tvMRb",
+         "id": "3qfrrrSO7utFdJkM2tvMRb",
+         "images": [],
+         "name": "CeCe Winans",
+         "uri": "spotify:artist:3qfrrrSO7utFdJkM2tvMRb"
+        }
+       ],
+       "copyrights": [
+        {
+         "text": "",
+         "type": ""
+        }
+       ],
+       "coverArt": {
+        "extractedColors": {
+         "colorDark": {
+          "hex": "#382028",
+          "isFallback": false
+         }
+        },
+        "sources": [
+         {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e02819c9ec0a165abada0fd767b",
+          "width": 300
+         },
+         {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d00004851819c9ec0a165abada0fd767b",
+          "width": 64
+         },
+         {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b273819c9ec0a165abada0fd767b",
+          "width": 640
+         }
+        ]
+       },
+       "external_urls": {
+        "spotify": "https://open.spotify.com/album/5U2jgBcYY2ajkqFfzGvAsc"
+       },
+       "genres": [
+        ""
+       ],
+       "id": "5U2jgBcYY2ajkqFfzGvAsc",
+       "images": [
+        {
+         "height": 300,
+         "url": "https://i.scdn.co/image/ab67616d00001e02819c9ec0a165abada0fd767b",
+         "width": 300
+        },
+        {
+         "height": 64,
+         "url": "https://i.scdn.co/image/ab67616d00004851819c9ec0a165abada0fd767b",
+         "width": 64
+        },
+        {
+         "height": 640,
+         "url": "https://i.scdn.co/image/ab67616d0000b273819c9ec0a165abada0fd767b",
+         "width": 640
+        }
+       ],
+       "name": "Testimony",
+       "release_date": "0000-00-00",
+       "total_tracks": 0,
+       "tracks": {
+        "items": []
+       },
+       "uri": "spotify:album:5U2jgBcYY2ajkqFfzGvAsc",
+       "visualIdentity": {
+        "squareCoverImage": {
+         "__typename": "VisualIdentityImage",
+         "extractedColorSet": {
+          "encoreBaseSetTextColor": {
+           "alpha": 255,
+           "blue": 188,
+           "green": 179,
+           "red": 211
+          },
+          "highContrast": {
+           "backgroundBase": {
+            "alpha": 255,
+            "blue": 40,
+            "green": 32,
+            "red": 56
+           },
+           "backgroundTintedBase": {
+            "alpha": 255,
+            "blue": 79,
+            "green": 70,
+            "red": 97
+           },
+           "textBase": {
+            "alpha": 255,
+            "blue": 255,
+            "green": 255,
+            "red": 255
+           },
+           "textBrightAccent": {
+            "alpha": 255,
+            "blue": 255,
+            "green": 255,
+            "red": 255
+           },
+           "textSubdued": {
+            "alpha": 255,
+            "blue": 207,
+            "green": 197,
+            "red": 230
+           }
+          },
+          "higherContrast": {
+           "backgroundBase": {
+            "alpha": 255,
+            "blue": 40,
+            "green": 32,
+            "red": 56
+           },
+           "backgroundTintedBase": {
+            "alpha": 255,
+            "blue": 79,
+            "green": 70,
+            "red": 97
+           },
+           "textBase": {
+            "alpha": 255,
+            "blue": 255,
+            "green": 255,
+            "red": 255
+           },
+           "textBrightAccent": {
+            "alpha": 255,
+            "blue": 96,
+            "green": 215,
+            "red": 30
+           },
+           "textSubdued": {
+            "alpha": 255,
+            "blue": 207,
+            "green": 197,
+            "red": 230
+           }
+          },
+          "minContrast": {
+           "backgroundBase": {
+            "alpha": 255,
+            "blue": 40,
+            "green": 32,
+            "red": 56
+           },
+           "backgroundTintedBase": {
+            "alpha": 255,
+            "blue": 79,
+            "green": 70,
+            "red": 97
+           },
+           "textBase": {
+            "alpha": 255,
+            "blue": 255,
+            "green": 255,
+            "red": 255
+           },
+           "textBrightAccent": {
+            "alpha": 255,
+            "blue": 255,
+            "green": 255,
+            "red": 255
+           },
+           "textSubdued": {
+            "alpha": 255,
+            "blue": 255,
+            "green": 255,
+            "red": 255
+           }
+          }
+         }
+        }
+       }
+      },
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/19TPpTWkgX13Qc2stbqVoP"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/19TPpTWkgX13Qc2stbqVoP",
+        "id": "19TPpTWkgX13Qc2stbqVoP",
+        "images": [],
+        "name": "Terrian",
+        "uri": "spotify:artist:19TPpTWkgX13Qc2stbqVoP"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/3qfrrrSO7utFdJkM2tvMRb"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/3qfrrrSO7utFdJkM2tvMRb",
+        "id": "3qfrrrSO7utFdJkM2tvMRb",
+        "images": [],
+        "name": "CeCe Winans",
+        "uri": "spotify:artist:3qfrrrSO7utFdJkM2tvMRb"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 242088,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/57raDV5u2fktsZTXZTqnpI"
+      },
+      "id": "57raDV5u2fktsZTXZTqnpI",
+      "name": "Testimony",
+      "popularity": 10,
+      "track_id": "57raDV5u2fktsZTXZTqnpI",
+      "track_number": 1,
+      "type": "track"
+     }
+    ],
+    "limit": 100,
+    "next": false,
+    "offset": 0,
+    "previous": null,
+    "total": 100
+   }
+  }
+ },
+ "9fccc0055dfc657665e3ed96f5305765c0107776": {
+  "request": "[\"album\", [\"5U2jgBcYY2ajkqFfzGvAsc\"], {}]",
+  "response": {
+   "__typename": "Album",
+   "album_type": "album",
+   "artists": [
+    {
+     "external_urls": {
+      "spotify": "https://open.spotify.com/artist/19TPpTWkgX13Qc2stbqVoP"
+     },
+     "genres": [
+      ""
+     ],
+     "href": "https://api.spotify.com/v1/artists/19TPpTWkgX13Qc2stbqVoP",
+     "id": "19TPpTWkgX13Qc2stbqVoP",
+     "images": [
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab6761610000e5eb76d54ff80c6fe7f94ad85e38",
+       "width": 640
+      },
+      {
+       "height": 160,
+       "url": "https://i.scdn.co/image/ab6761610000f17876d54ff80c6fe7f94ad85e38",
+       "width": 160
+      },
+      {
+       "height": 320,
+       "url": "https://i.scdn.co/image/ab6761610000517476d54ff80c6fe7f94ad85e38",
+       "width": 320
+      }
+     ],
+     "name": "Terrian",
+     "uri": "spotify:artist:19TPpTWkgX13Qc2stbqVoP"
+    }
+   ],
+   "copyright": {
+    "items": [
+     {
+      "text": "2026 Gotee Records",
+      "type": "C"
+     },
+     {
+      "text": "2026 Gotee Records",
+      "type": "P"
+     }
+    ],
+    "totalCount": 2
+   },
+   "copyrights": [
+    {
+     "text": "",
+     "type": ""
+    }
+   ],
+   "courtesyLine": "",
+   "coverArt": {
+    "extractedColors": {
+     "colorDark": {
+      "hex": "#382028"
+     },
+     "colorLight": {
+      "hex": "#A96179"
+     },
+     "colorRaw": {
+      "hex": "#382028"
+     }
+    },
+    "sources": [
+     {
+      "height": 300,
+      "url": "https://i.scdn.co/image/ab67616d00001e02819c9ec0a165abada0fd767b",
+      "width": 300
+     },
+     {
+      "height": 64,
+      "url": "https://i.scdn.co/image/ab67616d00004851819c9ec0a165abada0fd767b",
+      "width": 64
+     },
+     {
+      "height": 640,
+      "url": "https://i.scdn.co/image/ab67616d0000b273819c9ec0a165abada0fd767b",
+      "width": 640
+     }
+    ]
+   },
+   "date": {
+    "isoString": "2026-03-13T00:00:00Z",
+    "precision": "DAY"
+   },
+   "discs": {
+    "items": [
+     {
+      "number": 1,
+      "tracks": {
+       "totalCount": 1
+      }
+     }
+    ],
+    "totalCount": 1
+   },
+   "external_urls": {
+    "spotify": "https://open.spotify.com/album/5U2jgBcYY2ajkqFfzGvAsc"
+   },
+   "genres": [
+    ""
+   ],
+   "id": "5U2jgBcYY2ajkqFfzGvAsc",
+   "images": [
+    {
+     "height": 300,
+     "url": "https://i.scdn.co/image/ab67616d00001e02819c9ec0a165abada0fd767b",
+     "width": 300
+    },
+    {
+     "height": 64,
+     "url": "https://i.scdn.co/image/ab67616d00004851819c9ec0a165abada0fd767b",
+     "width": 64
+    },
+    {
+     "height": 640,
+     "url": "https://i.scdn.co/image/ab67616d0000b273819c9ec0a165abada0fd767b",
+     "width": 640
+    }
+   ],
+   "isPreRelease": false,
+   "label": "Gotee Records",
+   "moreAlbumsByArtist": {
+    "items": [
+     {
+      "discography": {
+       "popularReleasesAlbums": {
+        "items": [
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e026531af509721a8801b2beeb5",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d000048516531af509721a8801b2beeb5",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b2736531af509721a8801b2beeb5",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2024
+          },
+          "id": "36TqkiS7AIf2u2dG4fQymd",
+          "name": "Give It Time",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "QYPzVOcrQDizfOuJLNy0jQ",
+           "shareUrl": "https://open.spotify.com/album/36TqkiS7AIf2u2dG4fQymd?si=QYPzVOcrQDizfOuJLNy0jQ"
+          },
+          "type": "ALBUM",
+          "uri": "spotify:album:36TqkiS7AIf2u2dG4fQymd"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e028e0a44f89666bbd22198769f",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d000048518e0a44f89666bbd22198769f",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b2738e0a44f89666bbd22198769f",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2026
+          },
+          "id": "5VgEHVAxaBrWLJIkFHHll4",
+          "name": "Mad Big World",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "fjCWMfuMRa-z7bKRdDqYJw",
+           "shareUrl": "https://open.spotify.com/album/5VgEHVAxaBrWLJIkFHHll4?si=fjCWMfuMRa-z7bKRdDqYJw"
+          },
+          "type": "ALBUM",
+          "uri": "spotify:album:5VgEHVAxaBrWLJIkFHHll4"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02819c9ec0a165abada0fd767b",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851819c9ec0a165abada0fd767b",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273819c9ec0a165abada0fd767b",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2026
+          },
+          "id": "5U2jgBcYY2ajkqFfzGvAsc",
+          "name": "Testimony",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "tAbjp62XTouRyGYoc1fKbQ",
+           "shareUrl": "https://open.spotify.com/album/5U2jgBcYY2ajkqFfzGvAsc?si=tAbjp62XTouRyGYoc1fKbQ"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:5U2jgBcYY2ajkqFfzGvAsc"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02d2d61057848d98801853323d",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851d2d61057848d98801853323d",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273d2d61057848d98801853323d",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2021
+          },
+          "id": "2fGd7TWmDcPRW9Y45CKcx0",
+          "name": "Genesis of Terrian",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "27KCpqchQ7CzcYEgelIz5w",
+           "shareUrl": "https://open.spotify.com/album/2fGd7TWmDcPRW9Y45CKcx0?si=27KCpqchQ7CzcYEgelIz5w"
+          },
+          "type": "EP",
+          "uri": "spotify:album:2fGd7TWmDcPRW9Y45CKcx0"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e020b8a88d6f88d595f106cae91",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d000048510b8a88d6f88d595f106cae91",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b2730b8a88d6f88d595f106cae91",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2025
+          },
+          "id": "1JgiUpuR8UgX1TzTCQ7J9h",
+          "name": "Testimony",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "eBbryRA7SXKXfkOu_K_acw",
+           "shareUrl": "https://open.spotify.com/album/1JgiUpuR8UgX1TzTCQ7J9h?si=eBbryRA7SXKXfkOu_K_acw"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:1JgiUpuR8UgX1TzTCQ7J9h"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02b263f7044779d78e1ea9bf81",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851b263f7044779d78e1ea9bf81",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273b263f7044779d78e1ea9bf81",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2025
+          },
+          "id": "11EHl3HcQlvBlTniWjt6Ld",
+          "name": "Give It More Time",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "lcR0LHNcSLO3vzcfueUvkg",
+           "shareUrl": "https://open.spotify.com/album/11EHl3HcQlvBlTniWjt6Ld?si=lcR0LHNcSLO3vzcfueUvkg"
+          },
+          "type": "ALBUM",
+          "uri": "spotify:album:11EHl3HcQlvBlTniWjt6Ld"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e026aec1ec8020e7572d5e70dfb",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d000048516aec1ec8020e7572d5e70dfb",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b2736aec1ec8020e7572d5e70dfb",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2025
+          },
+          "id": "6f8eCGU8Pf9rI0OTP6HTAU",
+          "name": "God Is For Me",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "bIDe2YKgRJKlyRKbELGB-g",
+           "shareUrl": "https://open.spotify.com/album/6f8eCGU8Pf9rI0OTP6HTAU?si=bIDe2YKgRJKlyRKbELGB-g"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:6f8eCGU8Pf9rI0OTP6HTAU"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e021fb9134c066f01a810bfc0a4",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d000048511fb9134c066f01a810bfc0a4",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b2731fb9134c066f01a810bfc0a4",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2021
+          },
+          "id": "3OMCDx9TtoSUZTYwQ6MxBe",
+          "name": "Wake Up",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "lH4_xZ25SYGRy5L2iH9Z6A",
+           "shareUrl": "https://open.spotify.com/album/3OMCDx9TtoSUZTYwQ6MxBe?si=lH4_xZ25SYGRy5L2iH9Z6A"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:3OMCDx9TtoSUZTYwQ6MxBe"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02269254840838ae85d6612126",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851269254840838ae85d6612126",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273269254840838ae85d6612126",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2019
+          },
+          "id": "2gybUUpxYO2SyDa3CbgX4P",
+          "name": "In the Arms",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "REJzXgSJRCWiZx6NdA4NQw",
+           "shareUrl": "https://open.spotify.com/album/2gybUUpxYO2SyDa3CbgX4P?si=REJzXgSJRCWiZx6NdA4NQw"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:2gybUUpxYO2SyDa3CbgX4P"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02fcb9188913f8204386ea2c27",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851fcb9188913f8204386ea2c27",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273fcb9188913f8204386ea2c27",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2026
+          },
+          "id": "5qPnxyUvCXfUFS3i3qqoQq",
+          "name": "Joy Is Coming",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "WAgSdU32T62ZKz--IbMWTA",
+           "shareUrl": "https://open.spotify.com/album/5qPnxyUvCXfUFS3i3qqoQq?si=WAgSdU32T62ZKz--IbMWTA"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:5qPnxyUvCXfUFS3i3qqoQq"
+         }
+        ]
+       }
+      }
+     }
+    ]
+   },
+   "name": "Testimony",
+   "playability": {
+    "playable": true,
+    "reason": "PLAYABLE"
+   },
+   "preReleaseEndDateTime": null,
+   "release_date": "2026-03-13",
+   "releases": {
+    "items": [],
+    "totalCount": 0
+   },
+   "saved": false,
+   "sharingInfo": {
+    "shareId": "j8EkEvi4RVSBZ7F_KeDg4g",
+    "shareUrl": "https://open.spotify.com/album/5U2jgBcYY2ajkqFfzGvAsc?si=j8EkEvi4RVSBZ7F_KeDg4g"
+   },
+   "total_tracks": 1,
+   "tracks": {
+    "items": [
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/19TPpTWkgX13Qc2stbqVoP"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/19TPpTWkgX13Qc2stbqVoP",
+        "id": "19TPpTWkgX13Qc2stbqVoP",
+        "images": [],
+        "name": "Terrian",
+        "uri": "spotify:artist:19TPpTWkgX13Qc2stbqVoP"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/3qfrrrSO7utFdJkM2tvMRb"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/3qfrrrSO7utFdJkM2tvMRb",
+        "id": "3qfrrrSO7utFdJkM2tvMRb",
+        "images": [],
+        "name": "CeCe Winans",
+        "uri": "spotify:artist:3qfrrrSO7utFdJkM2tvMRb"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 242088,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/57raDV5u2fktsZTXZTqnpI"
+      },
+      "id": "57raDV5u2fktsZTXZTqnpI",
+      "name": "Testimony",
+      "popularity": 10,
+      "track_id": "57raDV5u2fktsZTXZTqnpI",
+      "track_number": 1,
+      "type": "track"
+     }
+    ]
+   },
+   "tracksV2": {
+    "items": [
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Terrian"
+          },
+          "uri": "spotify:artist:19TPpTWkgX13Qc2stbqVoP"
+         },
+         {
+          "profile": {
+           "name": "CeCe Winans"
+          },
+          "uri": "spotify:artist:3qfrrrSO7utFdJkM2tvMRb"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 242088
+       },
+       "mediaType": "AUDIO",
+       "name": "Testimony",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "3587671",
+       "relinkingInformation": null,
+       "saved": false,
+       "trackNumber": 1,
+       "uri": "spotify:track:57raDV5u2fktsZTXZTqnpI"
+      },
+      "uid": "acd43f729513f6d23fa1"
+     }
+    ],
+    "totalCount": 1
+   },
+   "type": "SINGLE",
+   "uri": "spotify:album:5U2jgBcYY2ajkqFfzGvAsc",
+   "visualIdentity": {
+    "squareCoverImage": {
+     "__typename": "VisualIdentityImage",
+     "extractedColorSet": {
+      "encoreBaseSetTextColor": {
+       "alpha": 255,
+       "blue": 188,
+       "green": 179,
+       "red": 211
+      },
+      "highContrast": {
+       "backgroundBase": {
+        "alpha": 255,
+        "blue": 40,
+        "green": 32,
+        "red": 56
+       },
+       "backgroundTintedBase": {
+        "alpha": 255,
+        "blue": 79,
+        "green": 70,
+        "red": 97
+       },
+       "textBase": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textBrightAccent": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textSubdued": {
+        "alpha": 255,
+        "blue": 207,
+        "green": 197,
+        "red": 230
+       }
+      },
+      "higherContrast": {
+       "backgroundBase": {
+        "alpha": 255,
+        "blue": 40,
+        "green": 32,
+        "red": 56
+       },
+       "backgroundTintedBase": {
+        "alpha": 255,
+        "blue": 79,
+        "green": 70,
+        "red": 97
+       },
+       "textBase": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textBrightAccent": {
+        "alpha": 255,
+        "blue": 96,
+        "green": 215,
+        "red": 30
+       },
+       "textSubdued": {
+        "alpha": 255,
+        "blue": 207,
+        "green": 197,
+        "red": 230
+       }
+      },
+      "minContrast": {
+       "backgroundBase": {
+        "alpha": 255,
+        "blue": 40,
+        "green": 32,
+        "red": 56
+       },
+       "backgroundTintedBase": {
+        "alpha": 255,
+        "blue": 79,
+        "green": 70,
+        "red": 97
+       },
+       "textBase": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textBrightAccent": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textSubdued": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       }
+      }
+     }
+    }
+   },
+   "watchFeedEntrypoint": null
+  }
+ },
+ "ab39f9a7f010a8d46c6b023b21038e08b6ea2b95": {
+  "request": "[\"track\", [\"http://open.spotify.com/track/3FijoNKGof7pCn7oddecOQ\"], {}]",
+  "response": {
+   "album": {
+    "album_type": "album",
+    "artists": [
+     {
+      "external_urls": {
+       "spotify": "https://open.spotify.com/artist/4lCsf6uYTVnWSKm99eKkdY"
+      },
+      "genres": [
+       ""
+      ],
+      "href": "https://api.spotify.com/v1/artists/4lCsf6uYTVnWSKm99eKkdY",
+      "id": "4lCsf6uYTVnWSKm99eKkdY",
+      "images": [
+       {
+        "height": 640,
+        "url": "https://i.scdn.co/image/ab6761610000e5eba873e66600c0ed251d3643ab",
+        "width": 640
+       },
+       {
+        "height": 160,
+        "url": "https://i.scdn.co/image/ab6761610000f178a873e66600c0ed251d3643ab",
+        "width": 160
+       },
+       {
+        "height": 320,
+        "url": "https://i.scdn.co/image/ab67616100005174a873e66600c0ed251d3643ab",
+        "width": 320
+       }
+      ],
+      "name": "Seekae",
+      "uri": "spotify:artist:4lCsf6uYTVnWSKm99eKkdY"
+     },
+     {
+      "external_urls": {
+       "spotify": "https://open.spotify.com/artist/6nxWCVXbOlEVRexSbLsTer"
+      },
+      "genres": [
+       ""
+      ],
+      "href": "https://api.spotify.com/v1/artists/6nxWCVXbOlEVRexSbLsTer",
+      "id": "6nxWCVXbOlEVRexSbLsTer",
+      "images": [
+       {
+        "height": 640,
+        "url": "https://i.scdn.co/image/ab6761610000e5ebd6ec6e1162ee709ad829cf82",
+        "width": 640
+       },
+       {
+        "height": 160,
+        "url": "https://i.scdn.co/image/ab6761610000f178d6ec6e1162ee709ad829cf82",
+        "width": 160
+       },
+       {
+        "height": 320,
+        "url": "https://i.scdn.co/image/ab67616100005174d6ec6e1162ee709ad829cf82",
+        "width": 320
+       }
+      ],
+      "name": "Flume",
+      "uri": "spotify:artist:6nxWCVXbOlEVRexSbLsTer"
+     }
+    ],
+    "copyright": {
+     "items": [
+      {
+       "text": "© 2014 Future Classic",
+       "type": "C"
+      },
+      {
+       "text": "℗ 2014 Future Classic",
+       "type": "P"
+      }
+     ],
+     "totalCount": 2
+    },
+    "copyrights": [
+     {
+      "text": "",
+      "type": ""
+     }
+    ],
+    "courtesyLine": "",
+    "coverArt": {
+     "extractedColors": {
+      "colorRaw": {
+       "hex": "#535353"
+      }
+     },
+     "sources": [
+      {
+       "height": 300,
+       "url": "https://i.scdn.co/image/ab67616d00001e02b32c686873f16b3adb71f4ac",
+       "width": 300
+      },
+      {
+       "height": 64,
+       "url": "https://i.scdn.co/image/ab67616d00004851b32c686873f16b3adb71f4ac",
+       "width": 64
+      },
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab67616d0000b273b32c686873f16b3adb71f4ac",
+       "width": 640
+      }
+     ]
+    },
+    "date": {
+     "isoString": "2014-08-14T00:00:00Z",
+     "precision": "DAY",
+     "year": 2014
+    },
+    "external_urls": {
+     "spotify": "https://open.spotify.com/album/4RxAye8brXQJHgw1wF1l8j"
+    },
+    "genres": [
+     ""
+    ],
+    "id": "4RxAye8brXQJHgw1wF1l8j",
+    "images": [
+     {
+      "height": 300,
+      "url": "https://i.scdn.co/image/ab67616d00001e02b32c686873f16b3adb71f4ac",
+      "width": 300
+     },
+     {
+      "height": 64,
+      "url": "https://i.scdn.co/image/ab67616d00004851b32c686873f16b3adb71f4ac",
+      "width": 64
+     },
+     {
+      "height": 640,
+      "url": "https://i.scdn.co/image/ab67616d0000b273b32c686873f16b3adb71f4ac",
+      "width": 640
+     }
+    ],
+    "name": "Test & Recognise (Remixes)",
+    "playability": {
+     "playable": true
+    },
+    "release_date": "2014-08-14",
+    "sharingInfo": {
+     "shareId": "mRSR2rqdSby7VH42Fclnrg",
+     "shareUrl": "https://open.spotify.com/album/4RxAye8brXQJHgw1wF1l8j?si=mRSR2rqdSby7VH42Fclnrg"
+    },
+    "total_tracks": 4,
+    "tracks": {
+     "items": [
+      {
+       "track": {
+        "trackNumber": 1,
+        "uri": "spotify:track:2AyouiqAr0MtEwlsD6eQkk"
+       }
+      },
+      {
+       "track": {
+        "trackNumber": 2,
+        "uri": "spotify:track:3FijoNKGof7pCn7oddecOQ"
+       }
+      },
+      {
+       "track": {
+        "trackNumber": 3,
+        "uri": "spotify:track:1fryvezVSTjY0dyuCvioRJ"
+       }
+      },
+      {
+       "track": {
+        "trackNumber": 4,
+        "uri": "spotify:track:29SmTkZ5htUW1p8poXwxql"
+       }
+      }
+     ]
+    },
+    "type": "EP",
+    "uri": "spotify:album:4RxAye8brXQJHgw1wF1l8j"
+   },
+   "artists": [
+    {
+     "external_urls": {
+      "spotify": "https://open.spotify.com/artist/4lCsf6uYTVnWSKm99eKkdY"
+     },
+     "genres": [
+      ""
+     ],
+     "href": "https://api.spotify.com/v1/artists/4lCsf6uYTVnWSKm99eKkdY",
+     "id": "4lCsf6uYTVnWSKm99eKkdY",
+     "images": [
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab6761610000e5eba873e66600c0ed251d3643ab",
+       "width": 640
+      },
+      {
+       "height": 160,
+       "url": "https://i.scdn.co/image/ab6761610000f178a873e66600c0ed251d3643ab",
+       "width": 160
+      },
+      {
+       "height": 320,
+       "url": "https://i.scdn.co/image/ab67616100005174a873e66600c0ed251d3643ab",
+       "width": 320
+      }
+     ],
+     "name": "Seekae",
+     "uri": "spotify:artist:4lCsf6uYTVnWSKm99eKkdY"
+    },
+    {
+     "external_urls": {
+      "spotify": "https://open.spotify.com/artist/6nxWCVXbOlEVRexSbLsTer"
+     },
+     "genres": [
+      ""
+     ],
+     "href": "https://api.spotify.com/v1/artists/6nxWCVXbOlEVRexSbLsTer",
+     "id": "6nxWCVXbOlEVRexSbLsTer",
+     "images": [
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab6761610000e5ebd6ec6e1162ee709ad829cf82",
+       "width": 640
+      },
+      {
+       "height": 160,
+       "url": "https://i.scdn.co/image/ab6761610000f178d6ec6e1162ee709ad829cf82",
+       "width": 160
+      },
+      {
+       "height": 320,
+       "url": "https://i.scdn.co/image/ab67616100005174d6ec6e1162ee709ad829cf82",
+       "width": 320
+      }
+     ],
+     "name": "Flume",
+     "uri": "spotify:artist:6nxWCVXbOlEVRexSbLsTer"
+    }
+   ],
+   "disc_number": 1,
+   "duration_ms": 303660,
+   "explicit": false,
+   "external_ids": {
+    "isrc": ""
+   },
+   "external_urls": {
+    "spotify": "https://open.spotify.com/track/3FijoNKGof7pCn7oddecOQ"
+   },
+   "id": "3FijoNKGof7pCn7oddecOQ",
+   "name": "Test & Recognise - Flume Re-work",
+   "popularity": 10,
+   "track_id": "3FijoNKGof7pCn7oddecOQ",
+   "track_number": 2,
+   "type": "track"
+  }
+ },
+ "e1aa3a5e4b6cfab44c59017ce63daf6bce12d342": {
+  "request": "[\"album\", [\"4RxAye8brXQJHgw1wF1l8j\"], {}]",
+  "response": {
+   "__typename": "Album",
+   "album_type": "album",
+   "artists": [
+    {
+     "external_urls": {
+      "spotify": "https://open.spotify.com/artist/4lCsf6uYTVnWSKm99eKkdY"
+     },
+     "genres": [
+      ""
+     ],
+     "href": "https://api.spotify.com/v1/artists/4lCsf6uYTVnWSKm99eKkdY",
+     "id": "4lCsf6uYTVnWSKm99eKkdY",
+     "images": [
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab6761610000e5eba873e66600c0ed251d3643ab",
+       "width": 640
+      },
+      {
+       "height": 160,
+       "url": "https://i.scdn.co/image/ab6761610000f178a873e66600c0ed251d3643ab",
+       "width": 160
+      },
+      {
+       "height": 320,
+       "url": "https://i.scdn.co/image/ab67616100005174a873e66600c0ed251d3643ab",
+       "width": 320
+      }
+     ],
+     "name": "Seekae",
+     "uri": "spotify:artist:4lCsf6uYTVnWSKm99eKkdY"
+    }
+   ],
+   "copyright": {
+    "items": [
+     {
+      "text": "© 2014 Future Classic",
+      "type": "C"
+     },
+     {
+      "text": "℗ 2014 Future Classic",
+      "type": "P"
+     }
+    ],
+    "totalCount": 2
+   },
+   "copyrights": [
+    {
+     "text": "",
+     "type": ""
+    }
+   ],
+   "courtesyLine": "",
+   "coverArt": {
+    "extractedColors": {
+     "colorDark": {
+      "hex": "#535353"
+     },
+     "colorLight": {
+      "hex": "#7F7F7F"
+     },
+     "colorRaw": {
+      "hex": "#535353"
+     }
+    },
+    "sources": [
+     {
+      "height": 300,
+      "url": "https://i.scdn.co/image/ab67616d00001e02b32c686873f16b3adb71f4ac",
+      "width": 300
+     },
+     {
+      "height": 64,
+      "url": "https://i.scdn.co/image/ab67616d00004851b32c686873f16b3adb71f4ac",
+      "width": 64
+     },
+     {
+      "height": 640,
+      "url": "https://i.scdn.co/image/ab67616d0000b273b32c686873f16b3adb71f4ac",
+      "width": 640
+     }
+    ]
+   },
+   "date": {
+    "isoString": "2014-08-14T00:00:00Z",
+    "precision": "DAY"
+   },
+   "discs": {
+    "items": [
+     {
+      "number": 1,
+      "tracks": {
+       "totalCount": 4
+      }
+     }
+    ],
+    "totalCount": 1
+   },
+   "external_urls": {
+    "spotify": "https://open.spotify.com/album/4RxAye8brXQJHgw1wF1l8j"
+   },
+   "genres": [
+    ""
+   ],
+   "id": "4RxAye8brXQJHgw1wF1l8j",
+   "images": [
+    {
+     "height": 300,
+     "url": "https://i.scdn.co/image/ab67616d00001e02b32c686873f16b3adb71f4ac",
+     "width": 300
+    },
+    {
+     "height": 64,
+     "url": "https://i.scdn.co/image/ab67616d00004851b32c686873f16b3adb71f4ac",
+     "width": 64
+    },
+    {
+     "height": 640,
+     "url": "https://i.scdn.co/image/ab67616d0000b273b32c686873f16b3adb71f4ac",
+     "width": 640
+    }
+   ],
+   "isPreRelease": false,
+   "label": "Future Classic",
+   "moreAlbumsByArtist": {
+    "items": [
+     {
+      "discography": {
+       "popularReleasesAlbums": {
+        "items": [
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02b32c686873f16b3adb71f4ac",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851b32c686873f16b3adb71f4ac",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273b32c686873f16b3adb71f4ac",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2014
+          },
+          "id": "4RxAye8brXQJHgw1wF1l8j",
+          "name": "Test & Recognise (Remixes)",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "E3WDjc6HS5anWo7lTMIqGA",
+           "shareUrl": "https://open.spotify.com/album/4RxAye8brXQJHgw1wF1l8j?si=E3WDjc6HS5anWo7lTMIqGA"
+          },
+          "type": "EP",
+          "uri": "spotify:album:4RxAye8brXQJHgw1wF1l8j"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02bf44296ba30207f6a54c91ee",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851bf44296ba30207f6a54c91ee",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273bf44296ba30207f6a54c91ee",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2024
+          },
+          "id": "1U4soeLIIbUosLNMeu1DOT",
+          "name": "The Worry (10th Anniversary Edition)",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "PH90U3TNSg6NxX-trZ0Chg",
+           "shareUrl": "https://open.spotify.com/album/1U4soeLIIbUosLNMeu1DOT?si=PH90U3TNSg6NxX-trZ0Chg"
+          },
+          "type": "ALBUM",
+          "uri": "spotify:album:1U4soeLIIbUosLNMeu1DOT"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e0203d4c4553511cdb63e67af6a",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d0000485103d4c4553511cdb63e67af6a",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b27303d4c4553511cdb63e67af6a",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2014
+          },
+          "id": "7ytIchDIk21osbT3cuVp8n",
+          "name": "The Worry",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "6_tkS1bEThWh_VZHj68f4g",
+           "shareUrl": "https://open.spotify.com/album/7ytIchDIk21osbT3cuVp8n?si=6_tkS1bEThWh_VZHj68f4g"
+          },
+          "type": "ALBUM",
+          "uri": "spotify:album:7ytIchDIk21osbT3cuVp8n"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02116c680302bdc72c18eb72a2",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851116c680302bdc72c18eb72a2",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273116c680302bdc72c18eb72a2",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2009
+          },
+          "id": "2jQaXpmaoRQDQLViaR41AR",
+          "name": "The Sound Of Trees Falling On People",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "k7Zm-e1FS_m21BrFHIBcxQ",
+           "shareUrl": "https://open.spotify.com/album/2jQaXpmaoRQDQLViaR41AR?si=k7Zm-e1FS_m21BrFHIBcxQ"
+          },
+          "type": "ALBUM",
+          "uri": "spotify:album:2jQaXpmaoRQDQLViaR41AR"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e0298244d644e5123d13d5687d0",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d0000485198244d644e5123d13d5687d0",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b27398244d644e5123d13d5687d0",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2016
+          },
+          "id": "32Jtd5DHnLWJxePLrU3odi",
+          "name": "Turbine Blue",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "RdqoUBAdT-a2W5Ib52e2pg",
+           "shareUrl": "https://open.spotify.com/album/32Jtd5DHnLWJxePLrU3odi?si=RdqoUBAdT-a2W5Ib52e2pg"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:32Jtd5DHnLWJxePLrU3odi"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02c06543d5ab1eaa555d5e9765",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851c06543d5ab1eaa555d5e9765",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273c06543d5ab1eaa555d5e9765",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2015
+          },
+          "id": "4riy8uEVKJbBeDmyU3XoMj",
+          "name": "The Worry (Remixes)",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "QhCje0Q2TpGiN3BcBG1ZUA",
+           "shareUrl": "https://open.spotify.com/album/4riy8uEVKJbBeDmyU3XoMj?si=QhCje0Q2TpGiN3BcBG1ZUA"
+          },
+          "type": "EP",
+          "uri": "spotify:album:4riy8uEVKJbBeDmyU3XoMj"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e0221e71136bddca8c7ebdf6746",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d0000485121e71136bddca8c7ebdf6746",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b27321e71136bddca8c7ebdf6746",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2011
+          },
+          "id": "40pQ74BMqkiiHaNuuTgJJi",
+          "name": "+DOME",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "ERUmFokYSyOMs1khWub6YA",
+           "shareUrl": "https://open.spotify.com/album/40pQ74BMqkiiHaNuuTgJJi?si=ERUmFokYSyOMs1khWub6YA"
+          },
+          "type": "ALBUM",
+          "uri": "spotify:album:40pQ74BMqkiiHaNuuTgJJi"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e0295975155a9ca53f002ab7b1c",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d0000485195975155a9ca53f002ab7b1c",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b27395975155a9ca53f002ab7b1c",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2024
+          },
+          "id": "0uurrOFrR4gxyodiG3KKU4",
+          "name": "Another (Cut Copy high on e-bow mix)",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "bBWBGtG7RR-RbKdHwuozlA",
+           "shareUrl": "https://open.spotify.com/album/0uurrOFrR4gxyodiG3KKU4?si=bBWBGtG7RR-RbKdHwuozlA"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:0uurrOFrR4gxyodiG3KKU4"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02923d536bba8d61ba538d5a38",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851923d536bba8d61ba538d5a38",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273923d536bba8d61ba538d5a38",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2016
+          },
+          "id": "7L2uy6f9WKc5AdXggByMoY",
+          "name": "Turbine Blue (Remixes)",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "TeBwE1JARNuOxfPsDMKSqA",
+           "shareUrl": "https://open.spotify.com/album/7L2uy6f9WKc5AdXggByMoY?si=TeBwE1JARNuOxfPsDMKSqA"
+          },
+          "type": "EP",
+          "uri": "spotify:album:7L2uy6f9WKc5AdXggByMoY"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e0277de574ef448d95f14cf6563",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d0000485177de574ef448d95f14cf6563",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b27377de574ef448d95f14cf6563",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2024
+          },
+          "id": "2KnHR1aACK9e5XDaKNYMty",
+          "name": "The Worry (1tbsp Remix)",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "ZMLNBcMAT82u2lS5VdOc0Q",
+           "shareUrl": "https://open.spotify.com/album/2KnHR1aACK9e5XDaKNYMty?si=ZMLNBcMAT82u2lS5VdOc0Q"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:2KnHR1aACK9e5XDaKNYMty"
+         }
+        ]
+       }
+      }
+     }
+    ]
+   },
+   "name": "Test & Recognise (Remixes)",
+   "playability": {
+    "playable": true,
+    "reason": "PLAYABLE"
+   },
+   "preReleaseEndDateTime": null,
+   "release_date": "2014-08-14",
+   "releases": {
+    "items": [],
+    "totalCount": 0
+   },
+   "saved": false,
+   "sharingInfo": {
+    "shareId": "8dbCGHz_T7yjfEcKJgdTGA",
+    "shareUrl": "https://open.spotify.com/album/4RxAye8brXQJHgw1wF1l8j?si=8dbCGHz_T7yjfEcKJgdTGA"
+   },
+   "total_tracks": 4,
+   "tracks": {
+    "items": [
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/4lCsf6uYTVnWSKm99eKkdY"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/4lCsf6uYTVnWSKm99eKkdY",
+        "id": "4lCsf6uYTVnWSKm99eKkdY",
+        "images": [],
+        "name": "Seekae",
+        "uri": "spotify:artist:4lCsf6uYTVnWSKm99eKkdY"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 215208,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/2AyouiqAr0MtEwlsD6eQkk"
+      },
+      "id": "2AyouiqAr0MtEwlsD6eQkk",
+      "name": "Test & Recognise",
+      "popularity": 10,
+      "track_id": "2AyouiqAr0MtEwlsD6eQkk",
+      "track_number": 1,
+      "type": "track"
+     },
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/4lCsf6uYTVnWSKm99eKkdY"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/4lCsf6uYTVnWSKm99eKkdY",
+        "id": "4lCsf6uYTVnWSKm99eKkdY",
+        "images": [],
+        "name": "Seekae",
+        "uri": "spotify:artist:4lCsf6uYTVnWSKm99eKkdY"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/6nxWCVXbOlEVRexSbLsTer"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/6nxWCVXbOlEVRexSbLsTer",
+        "id": "6nxWCVXbOlEVRexSbLsTer",
+        "images": [],
+        "name": "Flume",
+        "uri": "spotify:artist:6nxWCVXbOlEVRexSbLsTer"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 303660,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/3FijoNKGof7pCn7oddecOQ"
+      },
+      "id": "3FijoNKGof7pCn7oddecOQ",
+      "name": "Test & Recognise - Flume Re-work",
+      "popularity": 10,
+      "track_id": "3FijoNKGof7pCn7oddecOQ",
+      "track_number": 2,
+      "type": "track"
+     },
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/4lCsf6uYTVnWSKm99eKkdY"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/4lCsf6uYTVnWSKm99eKkdY",
+        "id": "4lCsf6uYTVnWSKm99eKkdY",
+        "images": [],
+        "name": "Seekae",
+        "uri": "spotify:artist:4lCsf6uYTVnWSKm99eKkdY"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/3ANxMohX86hAwLMGhIJd7B"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/3ANxMohX86hAwLMGhIJd7B",
+        "id": "3ANxMohX86hAwLMGhIJd7B",
+        "images": [],
+        "name": "Cassius Select",
+        "uri": "spotify:artist:3ANxMohX86hAwLMGhIJd7B"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 343030,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/1fryvezVSTjY0dyuCvioRJ"
+      },
+      "id": "1fryvezVSTjY0dyuCvioRJ",
+      "name": "Test & Recognise - Cassius Select Remix",
+      "popularity": 10,
+      "track_id": "1fryvezVSTjY0dyuCvioRJ",
+      "track_number": 3,
+      "type": "track"
+     },
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/4lCsf6uYTVnWSKm99eKkdY"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/4lCsf6uYTVnWSKm99eKkdY",
+        "id": "4lCsf6uYTVnWSKm99eKkdY",
+        "images": [],
+        "name": "Seekae",
+        "uri": "spotify:artist:4lCsf6uYTVnWSKm99eKkdY"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/4ODo634wVqDxqgVSlXE2LO"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/4ODo634wVqDxqgVSlXE2LO",
+        "id": "4ODo634wVqDxqgVSlXE2LO",
+        "images": [],
+        "name": "HWLS",
+        "uri": "spotify:artist:4ODo634wVqDxqgVSlXE2LO"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 223020,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/29SmTkZ5htUW1p8poXwxql"
+      },
+      "id": "29SmTkZ5htUW1p8poXwxql",
+      "name": "Test & Recognise - HWLS Remix",
+      "popularity": 10,
+      "track_id": "29SmTkZ5htUW1p8poXwxql",
+      "track_number": 4,
+      "type": "track"
+     }
+    ]
+   },
+   "tracksV2": {
+    "items": [
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Seekae"
+          },
+          "uri": "spotify:artist:4lCsf6uYTVnWSKm99eKkdY"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 215208
+       },
+       "mediaType": "AUDIO",
+       "name": "Test & Recognise",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "3966327",
+       "relinkingInformation": null,
+       "saved": false,
+       "trackNumber": 1,
+       "uri": "spotify:track:2AyouiqAr0MtEwlsD6eQkk"
+      },
+      "uid": "2c6e94cf44c01a708e68"
+     },
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Seekae"
+          },
+          "uri": "spotify:artist:4lCsf6uYTVnWSKm99eKkdY"
+         },
+         {
+          "profile": {
+           "name": "Flume"
+          },
+          "uri": "spotify:artist:6nxWCVXbOlEVRexSbLsTer"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 303660
+       },
+       "mediaType": "AUDIO",
+       "name": "Test & Recognise - Flume Re-work",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "156425781",
+       "relinkingInformation": null,
+       "saved": false,
+       "trackNumber": 2,
+       "uri": "spotify:track:3FijoNKGof7pCn7oddecOQ"
+      },
+      "uid": "3650f8f002c7f860fa7d"
+     },
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Seekae"
+          },
+          "uri": "spotify:artist:4lCsf6uYTVnWSKm99eKkdY"
+         },
+         {
+          "profile": {
+           "name": "Cassius Select"
+          },
+          "uri": "spotify:artist:3ANxMohX86hAwLMGhIJd7B"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 343030
+       },
+       "mediaType": "AUDIO",
+       "name": "Test & Recognise - Cassius Select Remix",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "713985",
+       "relinkingInformation": null,
+       "saved": false,
+       "trackNumber": 3,
+       "uri": "spotify:track:1fryvezVSTjY0dyuCvioRJ"
+      },
+      "uid": "94aca43c2fb24b6a4f52"
+     },
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Seekae"
+          },
+          "uri": "spotify:artist:4lCsf6uYTVnWSKm99eKkdY"
+         },
+         {
+          "profile": {
+           "name": "HWLS"
+          },
+          "uri": "spotify:artist:4ODo634wVqDxqgVSlXE2LO"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 223020
+       },
+       "mediaType": "AUDIO",
+       "name": "Test & Recognise - HWLS Remix",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "2085696",
+       "relinkingInformation": null,
+       "saved": false,
+       "trackNumber": 4,
+       "uri": "spotify:track:29SmTkZ5htUW1p8poXwxql"
+      },
+      "uid": "c299a60fc231fbf8a9ff"
+     }
+    ],
+    "totalCount": 4
+   },
+   "type": "EP",
+   "uri": "spotify:album:4RxAye8brXQJHgw1wF1l8j",
+   "visualIdentity": {
+    "squareCoverImage": {
+     "__typename": "VisualIdentityImage",
+     "extractedColorSet": {
+      "encoreBaseSetTextColor": {
+       "alpha": 255,
+       "blue": 187,
+       "green": 187,
+       "red": 187
+      },
+      "highContrast": {
+       "backgroundBase": {
+        "alpha": 255,
+        "blue": 83,
+        "green": 83,
+        "red": 83
+       },
+       "backgroundTintedBase": {
+        "alpha": 255,
+        "blue": 51,
+        "green": 51,
+        "red": 51
+       },
+       "textBase": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textBrightAccent": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textSubdued": {
+        "alpha": 255,
+        "blue": 205,
+        "green": 205,
+        "red": 205
+       }
+      },
+      "higherContrast": {
+       "backgroundBase": {
+        "alpha": 255,
+        "blue": 53,
+        "green": 53,
+        "red": 53
+       },
+       "backgroundTintedBase": {
+        "alpha": 255,
+        "blue": 86,
+        "green": 86,
+        "red": 86
+       },
+       "textBase": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textBrightAccent": {
+        "alpha": 255,
+        "blue": 96,
+        "green": 215,
+        "red": 30
+       },
+       "textSubdued": {
+        "alpha": 255,
+        "blue": 205,
+        "green": 205,
+        "red": 205
+       }
+      },
+      "minContrast": {
+       "backgroundBase": {
+        "alpha": 255,
+        "blue": 83,
+        "green": 83,
+        "red": 83
+       },
+       "backgroundTintedBase": {
+        "alpha": 255,
+        "blue": 51,
+        "green": 51,
+        "red": 51
+       },
+       "textBase": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textBrightAccent": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textSubdued": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       }
+      }
+     }
+    }
+   },
+   "watchFeedEntrypoint": null
+  }
+ },
+ "f0334c460d020e4e468c42eb3764316b4cc40706": {
+  "request": "[\"track\", [\"http://open.spotify.com/track/57raDV5u2fktsZTXZTqnpI\"], {}]",
+  "response": {
+   "album": {
+    "album_type": "album",
+    "artists": [
+     {
+      "external_urls": {
+       "spotify": "https://open.spotify.com/artist/19TPpTWkgX13Qc2stbqVoP"
+      },
+      "genres": [
+       ""
+      ],
+      "href": "https://api.spotify.com/v1/artists/19TPpTWkgX13Qc2stbqVoP",
+      "id": "19TPpTWkgX13Qc2stbqVoP",
+      "images": [
+       {
+        "height": 640,
+        "url": "https://i.scdn.co/image/ab6761610000e5eb76d54ff80c6fe7f94ad85e38",
+        "width": 640
+       },
+       {
+        "height": 160,
+        "url": "https://i.scdn.co/image/ab6761610000f17876d54ff80c6fe7f94ad85e38",
+        "width": 160
+       },
+       {
+        "height": 320,
+        "url": "https://i.scdn.co/image/ab6761610000517476d54ff80c6fe7f94ad85e38",
+        "width": 320
+       }
+      ],
+      "name": "Terrian",
+      "uri": "spotify:artist:19TPpTWkgX13Qc2stbqVoP"
+     },
+     {
+      "external_urls": {
+       "spotify": "https://open.spotify.com/artist/3qfrrrSO7utFdJkM2tvMRb"
+      },
+      "genres": [
+       ""
+      ],
+      "href": "https://api.spotify.com/v1/artists/3qfrrrSO7utFdJkM2tvMRb",
+      "id": "3qfrrrSO7utFdJkM2tvMRb",
+      "images": [
+       {
+        "height": 640,
+        "url": "https://i.scdn.co/image/ab6761610000e5eb572e0f70b3990fb63129077a",
+        "width": 640
+       },
+       {
+        "height": 160,
+        "url": "https://i.scdn.co/image/ab6761610000f178572e0f70b3990fb63129077a",
+        "width": 160
+       },
+       {
+        "height": 320,
+        "url": "https://i.scdn.co/image/ab67616100005174572e0f70b3990fb63129077a",
+        "width": 320
+       }
+      ],
+      "name": "CeCe Winans",
+      "uri": "spotify:artist:3qfrrrSO7utFdJkM2tvMRb"
+     }
+    ],
+    "copyright": {
+     "items": [
+      {
+       "text": "2026 Gotee Records",
+       "type": "C"
+      },
+      {
+       "text": "2026 Gotee Records",
+       "type": "P"
+      }
+     ],
+     "totalCount": 2
+    },
+    "copyrights": [
+     {
+      "text": "",
+      "type": ""
+     }
+    ],
+    "courtesyLine": "",
+    "coverArt": {
+     "extractedColors": {
+      "colorRaw": {
+       "hex": "#382028"
+      }
+     },
+     "sources": [
+      {
+       "height": 300,
+       "url": "https://i.scdn.co/image/ab67616d00001e02819c9ec0a165abada0fd767b",
+       "width": 300
+      },
+      {
+       "height": 64,
+       "url": "https://i.scdn.co/image/ab67616d00004851819c9ec0a165abada0fd767b",
+       "width": 64
+      },
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab67616d0000b273819c9ec0a165abada0fd767b",
+       "width": 640
+      }
+     ]
+    },
+    "date": {
+     "isoString": "2026-03-13T00:00:00Z",
+     "precision": "DAY",
+     "year": 2026
+    },
+    "external_urls": {
+     "spotify": "https://open.spotify.com/album/5U2jgBcYY2ajkqFfzGvAsc"
+    },
+    "genres": [
+     ""
+    ],
+    "id": "5U2jgBcYY2ajkqFfzGvAsc",
+    "images": [
+     {
+      "height": 300,
+      "url": "https://i.scdn.co/image/ab67616d00001e02819c9ec0a165abada0fd767b",
+      "width": 300
+     },
+     {
+      "height": 64,
+      "url": "https://i.scdn.co/image/ab67616d00004851819c9ec0a165abada0fd767b",
+      "width": 64
+     },
+     {
+      "height": 640,
+      "url": "https://i.scdn.co/image/ab67616d0000b273819c9ec0a165abada0fd767b",
+      "width": 640
+     }
+    ],
+    "name": "Testimony",
+    "playability": {
+     "playable": true
+    },
+    "release_date": "2026-03-13",
+    "sharingInfo": {
+     "shareId": "fRvVNG9iQyiTdTdIqdJFew",
+     "shareUrl": "https://open.spotify.com/album/5U2jgBcYY2ajkqFfzGvAsc?si=fRvVNG9iQyiTdTdIqdJFew"
+    },
+    "total_tracks": 1,
+    "tracks": {
+     "items": [
+      {
+       "track": {
+        "trackNumber": 1,
+        "uri": "spotify:track:57raDV5u2fktsZTXZTqnpI"
+       }
+      }
+     ]
+    },
+    "type": "SINGLE",
+    "uri": "spotify:album:5U2jgBcYY2ajkqFfzGvAsc"
+   },
+   "artists": [
+    {
+     "external_urls": {
+      "spotify": "https://open.spotify.com/artist/19TPpTWkgX13Qc2stbqVoP"
+     },
+     "genres": [
+      ""
+     ],
+     "href": "https://api.spotify.com/v1/artists/19TPpTWkgX13Qc2stbqVoP",
+     "id": "19TPpTWkgX13Qc2stbqVoP",
+     "images": [
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab6761610000e5eb76d54ff80c6fe7f94ad85e38",
+       "width": 640
+      },
+      {
+       "height": 160,
+       "url": "https://i.scdn.co/image/ab6761610000f17876d54ff80c6fe7f94ad85e38",
+       "width": 160
+      },
+      {
+       "height": 320,
+       "url": "https://i.scdn.co/image/ab6761610000517476d54ff80c6fe7f94ad85e38",
+       "width": 320
+      }
+     ],
+     "name": "Terrian",
+     "uri": "spotify:artist:19TPpTWkgX13Qc2stbqVoP"
+    },
+    {
+     "external_urls": {
+      "spotify": "https://open.spotify.com/artist/3qfrrrSO7utFdJkM2tvMRb"
+     },
+     "genres": [
+      ""
+     ],
+     "href": "https://api.spotify.com/v1/artists/3qfrrrSO7utFdJkM2tvMRb",
+     "id": "3qfrrrSO7utFdJkM2tvMRb",
+     "images": [
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab6761610000e5eb572e0f70b3990fb63129077a",
+       "width": 640
+      },
+      {
+       "height": 160,
+       "url": "https://i.scdn.co/image/ab6761610000f178572e0f70b3990fb63129077a",
+       "width": 160
+      },
+      {
+       "height": 320,
+       "url": "https://i.scdn.co/image/ab67616100005174572e0f70b3990fb63129077a",
+       "width": 320
+      }
+     ],
+     "name": "CeCe Winans",
+     "uri": "spotify:artist:3qfrrrSO7utFdJkM2tvMRb"
+    }
+   ],
+   "disc_number": 1,
+   "duration_ms": 242088,
+   "explicit": false,
+   "external_ids": {
+    "isrc": ""
+   },
+   "external_urls": {
+    "spotify": "https://open.spotify.com/track/57raDV5u2fktsZTXZTqnpI"
+   },
+   "id": "57raDV5u2fktsZTXZTqnpI",
+   "name": "Testimony",
+   "popularity": 10,
+   "track_id": "57raDV5u2fktsZTXZTqnpI",
+   "track_number": 1,
+   "type": "track"
+  }
+ },
+ "f89644585c6c07b6327f1c84ce3b2090d61b099e": {
+  "request": "[\"artist\", [\"19TPpTWkgX13Qc2stbqVoP\"], {}]",
+  "response": {
+   "external_urls": {
+    "spotify": "https://open.spotify.com/artist/19TPpTWkgX13Qc2stbqVoP"
+   },
+   "genres": [
+    ""
+   ],
+   "href": "https://api.spotify.com/v1/artists/19TPpTWkgX13Qc2stbqVoP",
+   "id": "19TPpTWkgX13Qc2stbqVoP",
+   "images": [
+    {
+     "height": 640,
+     "url": "https://i.scdn.co/image/ab6761610000e5eb76d54ff80c6fe7f94ad85e38",
+     "width": 640
+    },
+    {
+     "height": 160,
+     "url": "https://i.scdn.co/image/ab6761610000f17876d54ff80c6fe7f94ad85e38",
+     "width": 160
+    },
+    {
+     "height": 320,
+     "url": "https://i.scdn.co/image/ab6761610000517476d54ff80c6fe7f94ad85e38",
+     "width": 320
+    }
+   ],
+   "name": "Terrian",
+   "uri": "spotify:artist:19TPpTWkgX13Qc2stbqVoP"
+  }
+ },
+ "f8f2f053d6d1ee81f56c229c306bfce311585c3e": {
+  "request": "[\"artist\", [\"4lCsf6uYTVnWSKm99eKkdY\"], {}]",
+  "response": {
+   "external_urls": {
+    "spotify": "https://open.spotify.com/artist/4lCsf6uYTVnWSKm99eKkdY"
+   },
+   "genres": [
+    ""
+   ],
+   "href": "https://api.spotify.com/v1/artists/4lCsf6uYTVnWSKm99eKkdY",
+   "id": "4lCsf6uYTVnWSKm99eKkdY",
+   "images": [
+    {
+     "height": 640,
+     "url": "https://i.scdn.co/image/ab6761610000e5eba873e66600c0ed251d3643ab",
+     "width": 640
+    },
+    {
+     "height": 160,
+     "url": "https://i.scdn.co/image/ab6761610000f178a873e66600c0ed251d3643ab",
+     "width": 160
+    },
+    {
+     "height": 320,
+     "url": "https://i.scdn.co/image/ab67616100005174a873e66600c0ed251d3643ab",
+     "width": 320
+    }
+   ],
+   "name": "Seekae",
+   "uri": "spotify:artist:4lCsf6uYTVnWSKm99eKkdY"
+  }
+ }
+}

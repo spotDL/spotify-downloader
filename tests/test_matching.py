@@ -6,6 +6,9 @@ from spotdl.types.song import Song
 from spotdl.utils.spotify import SpotifyClient
 from tests.conftest import new_initialize
 
+# Needs real YouTube/Spotify access, see tests/README.md
+pytestmark = pytest.mark.live
+
 
 @pytest.mark.parametrize(
     "query, expected",

@@ -1,0 +1,1037 @@
+{
+ "3de430fc081a0c22e6ccc1bca8c396c3330e9cc8": {
+  "request": "[\"album\", [\"0Lt1PzvVZoslDNI2Jsq6pW\"], {}]",
+  "response": {
+   "__typename": "Album",
+   "album_type": "album",
+   "artists": [
+    {
+     "external_urls": {
+      "spotify": "https://open.spotify.com/artist/2sf28o6euxEDpYkG9dMtuM"
+     },
+     "genres": [
+      ""
+     ],
+     "href": "https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM",
+     "id": "2sf28o6euxEDpYkG9dMtuM",
+     "images": [
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab6761610000e5ebedae9400f938bd85f5c08cb7",
+       "width": 640
+      },
+      {
+       "height": 160,
+       "url": "https://i.scdn.co/image/ab6761610000f178edae9400f938bd85f5c08cb7",
+       "width": 160
+      },
+      {
+       "height": 320,
+       "url": "https://i.scdn.co/image/ab67616100005174edae9400f938bd85f5c08cb7",
+       "width": 320
+      }
+     ],
+     "name": "Cartoon",
+     "uri": "spotify:artist:2sf28o6euxEDpYkG9dMtuM"
+    },
+    {
+     "external_urls": {
+      "spotify": "https://open.spotify.com/artist/0cA0C4yBNRaN2EZsE2wT3Y"
+     },
+     "genres": [
+      ""
+     ],
+     "href": "https://api.spotify.com/v1/artists/0cA0C4yBNRaN2EZsE2wT3Y",
+     "id": "0cA0C4yBNRaN2EZsE2wT3Y",
+     "images": [
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab6761610000e5eb257fc533f1865146c0837216",
+       "width": 640
+      },
+      {
+       "height": 160,
+       "url": "https://i.scdn.co/image/ab6761610000f178257fc533f1865146c0837216",
+       "width": 160
+      },
+      {
+       "height": 320,
+       "url": "https://i.scdn.co/image/ab67616100005174257fc533f1865146c0837216",
+       "width": 320
+      }
+     ],
+     "name": "Daniel Levi",
+     "uri": "spotify:artist:0cA0C4yBNRaN2EZsE2wT3Y"
+    }
+   ],
+   "copyright": {
+    "items": [
+     {
+      "text": "2015 NCS Ltd.",
+      "type": "C"
+     },
+     {
+      "text": "2015 NCS Ltd.",
+      "type": "P"
+     }
+    ],
+    "totalCount": 2
+   },
+   "copyrights": [
+    {
+     "text": "",
+     "type": ""
+    }
+   ],
+   "courtesyLine": "",
+   "coverArt": {
+    "extractedColors": {
+     "colorDark": {
+      "hex": "#AA6633"
+     },
+     "colorLight": {
+      "hex": "#F09048"
+     },
+     "colorRaw": {
+      "hex": "#F09048"
+     }
+    },
+    "sources": [
+     {
+      "height": 300,
+      "url": "https://i.scdn.co/image/ab67616d00001e022773b7d6ca91258a83d06783",
+      "width": 300
+     },
+     {
+      "height": 64,
+      "url": "https://i.scdn.co/image/ab67616d000048512773b7d6ca91258a83d06783",
+      "width": 64
+     },
+     {
+      "height": 640,
+      "url": "https://i.scdn.co/image/ab67616d0000b2732773b7d6ca91258a83d06783",
+      "width": 640
+     }
+    ]
+   },
+   "date": {
+    "isoString": "2015-07-09T00:00:00Z",
+    "precision": "DAY"
+   },
+   "discs": {
+    "items": [
+     {
+      "number": 1,
+      "tracks": {
+       "totalCount": 1
+      }
+     }
+    ],
+    "totalCount": 1
+   },
+   "external_urls": {
+    "spotify": "https://open.spotify.com/album/0Lt1PzvVZoslDNI2Jsq6pW"
+   },
+   "genres": [
+    ""
+   ],
+   "id": "0Lt1PzvVZoslDNI2Jsq6pW",
+   "images": [
+    {
+     "height": 300,
+     "url": "https://i.scdn.co/image/ab67616d00001e022773b7d6ca91258a83d06783",
+     "width": 300
+    },
+    {
+     "height": 64,
+     "url": "https://i.scdn.co/image/ab67616d000048512773b7d6ca91258a83d06783",
+     "width": 64
+    },
+    {
+     "height": 640,
+     "url": "https://i.scdn.co/image/ab67616d0000b2732773b7d6ca91258a83d06783",
+     "width": 640
+    }
+   ],
+   "isPreRelease": false,
+   "label": "NCS",
+   "moreAlbumsByArtist": {
+    "items": [
+     {
+      "discography": {
+       "popularReleasesAlbums": {
+        "items": [
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02cddf36938e728faddac61d96",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851cddf36938e728faddac61d96",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273cddf36938e728faddac61d96",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2015
+          },
+          "id": "2Ms3svRNQf0jFryjT2HKCQ",
+          "name": "On & On",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "FRuBLXfuTjawSFraEnPINA",
+           "shareUrl": "https://open.spotify.com/album/2Ms3svRNQf0jFryjT2HKCQ?si=FRuBLXfuTjawSFraEnPINA"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:2Ms3svRNQf0jFryjT2HKCQ"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e024c1c945fdbd7c6878f81b0e6",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d000048514c1c945fdbd7c6878f81b0e6",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b2734c1c945fdbd7c6878f81b0e6",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2015
+          },
+          "id": "4NOpJmOAWCEWqv9ZOROhrj",
+          "name": "Why We Lose",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "q7dZSLheQyexdwRkE_zwQw",
+           "shareUrl": "https://open.spotify.com/album/4NOpJmOAWCEWqv9ZOROhrj?si=q7dZSLheQyexdwRkE_zwQw"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:4NOpJmOAWCEWqv9ZOROhrj"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e0247fd684a7a0995e5a029071b",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d0000485147fd684a7a0995e5a029071b",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b27347fd684a7a0995e5a029071b",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2020
+          },
+          "id": "4wSl89oUitDWYz0QYxhQ0p",
+          "name": "Howling",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "-PT2X0laTYKf8dXjXK2tIQ",
+           "shareUrl": "https://open.spotify.com/album/4wSl89oUitDWYz0QYxhQ0p?si=-PT2X0laTYKf8dXjXK2tIQ"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:4wSl89oUitDWYz0QYxhQ0p"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02ab007bff50e5d0c4cb2bb089",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851ab007bff50e5d0c4cb2bb089",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273ab007bff50e5d0c4cb2bb089",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2023
+          },
+          "id": "1bhXtgCy7Qh2FBEJttOz9y",
+          "name": "Flashback",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "kVnlCvT7Tb6NNVELZ7PopQ",
+           "shareUrl": "https://open.spotify.com/album/1bhXtgCy7Qh2FBEJttOz9y?si=kVnlCvT7Tb6NNVELZ7PopQ"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:1bhXtgCy7Qh2FBEJttOz9y"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02dbaa8ebf60372dc362795fb1",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851dbaa8ebf60372dc362795fb1",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273dbaa8ebf60372dc362795fb1",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2020
+          },
+          "id": "06gSGcdeB8DyqzIx0EbbNF",
+          "name": "Howling (Andromedik Remix)",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "z6sfI9C1QsO-KE5nLA8Q_w",
+           "shareUrl": "https://open.spotify.com/album/06gSGcdeB8DyqzIx0EbbNF?si=z6sfI9C1QsO-KE5nLA8Q_w"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:06gSGcdeB8DyqzIx0EbbNF"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e025189468e8b7857bd5e80ba41",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d000048515189468e8b7857bd5e80ba41",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b2735189468e8b7857bd5e80ba41",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2025
+          },
+          "id": "2qLRsQiFPLFlY617SSwkPd",
+          "name": "Cartoon & Friends",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "Toe1_n0VR4C2l92D4ZnDtA",
+           "shareUrl": "https://open.spotify.com/album/2qLRsQiFPLFlY617SSwkPd?si=Toe1_n0VR4C2l92D4ZnDtA"
+          },
+          "type": "ALBUM",
+          "uri": "spotify:album:2qLRsQiFPLFlY617SSwkPd"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02a8507969ab05b261b77f5516",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851a8507969ab05b261b77f5516",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273a8507969ab05b261b77f5516",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2016
+          },
+          "id": "7mSbTWSwY6hA9DmFQLe5sh",
+          "name": "I Remember U",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "ikh8KwgHTKGPuDI3wT7Vtw",
+           "shareUrl": "https://open.spotify.com/album/7mSbTWSwY6hA9DmFQLe5sh?si=ikh8KwgHTKGPuDI3wT7Vtw"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:7mSbTWSwY6hA9DmFQLe5sh"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02957786c0611208608ecae3b6",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851957786c0611208608ecae3b6",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273957786c0611208608ecae3b6",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2021
+          },
+          "id": "12LWPrgDqwuKlvgu4RZ5JM",
+          "name": "Omen",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "Cn6ZA7IcQG6222tgW6wbqw",
+           "shareUrl": "https://open.spotify.com/album/12LWPrgDqwuKlvgu4RZ5JM?si=Cn6ZA7IcQG6222tgW6wbqw"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:12LWPrgDqwuKlvgu4RZ5JM"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e0203392fd48d52618f8b4ef341",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d0000485103392fd48d52618f8b4ef341",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b27303392fd48d52618f8b4ef341",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2019
+          },
+          "id": "0mzR1lXE8NKltXPsS4yTOa",
+          "name": "Más Y Más / On & On",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "S4yMGSANSM-3lOIC--Qp6w",
+           "shareUrl": "https://open.spotify.com/album/0mzR1lXE8NKltXPsS4yTOa?si=S4yMGSANSM-3lOIC--Qp6w"
+          },
+          "type": "EP",
+          "uri": "spotify:album:0mzR1lXE8NKltXPsS4yTOa"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02a3b20317e39d61e3c66222b4",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851a3b20317e39d61e3c66222b4",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273a3b20317e39d61e3c66222b4",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2021
+          },
+          "id": "1mfQ7evkLmvMp5HLJAEBqV",
+          "name": "Don't Be A Stranger",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "qDfYO3xvRGCfOTI-mLCqcQ",
+           "shareUrl": "https://open.spotify.com/album/1mfQ7evkLmvMp5HLJAEBqV?si=qDfYO3xvRGCfOTI-mLCqcQ"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:1mfQ7evkLmvMp5HLJAEBqV"
+         }
+        ]
+       }
+      }
+     }
+    ]
+   },
+   "name": "On & On",
+   "playability": {
+    "playable": true,
+    "reason": "PLAYABLE"
+   },
+   "preReleaseEndDateTime": null,
+   "release_date": "2015-07-09",
+   "releases": {
+    "items": [],
+    "totalCount": 0
+   },
+   "saved": false,
+   "sharingInfo": {
+    "shareId": "wl4cMEysQxiR2cjmGukNaA",
+    "shareUrl": "https://open.spotify.com/album/0Lt1PzvVZoslDNI2Jsq6pW?si=wl4cMEysQxiR2cjmGukNaA"
+   },
+   "total_tracks": 1,
+   "tracks": {
+    "items": [
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/2sf28o6euxEDpYkG9dMtuM"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM",
+        "id": "2sf28o6euxEDpYkG9dMtuM",
+        "images": [],
+        "name": "Cartoon",
+        "uri": "spotify:artist:2sf28o6euxEDpYkG9dMtuM"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/0cA0C4yBNRaN2EZsE2wT3Y"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/0cA0C4yBNRaN2EZsE2wT3Y",
+        "id": "0cA0C4yBNRaN2EZsE2wT3Y",
+        "images": [],
+        "name": "Daniel Levi",
+        "uri": "spotify:artist:0cA0C4yBNRaN2EZsE2wT3Y"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 207068,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/4B2kkxg3wKSTZw5JPaUtzQ"
+      },
+      "id": "4B2kkxg3wKSTZw5JPaUtzQ",
+      "name": "On & On",
+      "popularity": 10,
+      "track_id": "4B2kkxg3wKSTZw5JPaUtzQ",
+      "track_number": 1,
+      "type": "track"
+     }
+    ]
+   },
+   "tracksV2": {
+    "items": [
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Cartoon"
+          },
+          "uri": "spotify:artist:2sf28o6euxEDpYkG9dMtuM"
+         },
+         {
+          "profile": {
+           "name": "Daniel Levi"
+          },
+          "uri": "spotify:artist:0cA0C4yBNRaN2EZsE2wT3Y"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 207068
+       },
+       "mediaType": "AUDIO",
+       "name": "On & On",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "601153476",
+       "relinkingInformation": {
+        "linkedTrack": {
+         "__typename": "Track",
+         "uri": "spotify:track:4uukXoeAUxow3aV9kVkcjY"
+        }
+       },
+       "saved": false,
+       "trackNumber": 1,
+       "uri": "spotify:track:4B2kkxg3wKSTZw5JPaUtzQ"
+      },
+      "uid": "2bf12cf5f8716096e7d8"
+     }
+    ],
+    "totalCount": 1
+   },
+   "type": "SINGLE",
+   "uri": "spotify:album:0Lt1PzvVZoslDNI2Jsq6pW",
+   "visualIdentity": {
+    "squareCoverImage": {
+     "__typename": "VisualIdentityImage",
+     "extractedColorSet": {
+      "encoreBaseSetTextColor": {
+       "alpha": 255,
+       "blue": 95,
+       "green": 166,
+       "red": 255
+      },
+      "highContrast": {
+       "backgroundBase": {
+        "alpha": 255,
+        "blue": 0,
+        "green": 57,
+        "red": 137
+       },
+       "backgroundTintedBase": {
+        "alpha": 255,
+        "blue": 0,
+        "green": 23,
+        "red": 93
+       },
+       "textBase": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textBrightAccent": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textSubdued": {
+        "alpha": 255,
+        "blue": 146,
+        "green": 192,
+        "red": 255
+       }
+      },
+      "higherContrast": {
+       "backgroundBase": {
+        "alpha": 255,
+        "blue": 0,
+        "green": 25,
+        "red": 97
+       },
+       "backgroundTintedBase": {
+        "alpha": 255,
+        "blue": 40,
+        "green": 63,
+        "red": 137
+       },
+       "textBase": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textBrightAccent": {
+        "alpha": 255,
+        "blue": 96,
+        "green": 215,
+        "red": 30
+       },
+       "textSubdued": {
+        "alpha": 255,
+        "blue": 146,
+        "green": 192,
+        "red": 255
+       }
+      },
+      "minContrast": {
+       "backgroundBase": {
+        "alpha": 255,
+        "blue": 54,
+        "green": 128,
+        "red": 223
+       },
+       "backgroundTintedBase": {
+        "alpha": 255,
+        "blue": 19,
+        "green": 103,
+        "red": 195
+       },
+       "textBase": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textBrightAccent": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textSubdued": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       }
+      }
+     }
+    }
+   },
+   "watchFeedEntrypoint": null
+  }
+ },
+ "56307b7f99bb69062d0a1c753628eb39653218bb": {
+  "request": "[\"artist\", [\"2sf28o6euxEDpYkG9dMtuM\"], {}]",
+  "response": {
+   "external_urls": {
+    "spotify": "https://open.spotify.com/artist/2sf28o6euxEDpYkG9dMtuM"
+   },
+   "genres": [
+    ""
+   ],
+   "href": "https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM",
+   "id": "2sf28o6euxEDpYkG9dMtuM",
+   "images": [
+    {
+     "height": 640,
+     "url": "https://i.scdn.co/image/ab6761610000e5ebedae9400f938bd85f5c08cb7",
+     "width": 640
+    },
+    {
+     "height": 160,
+     "url": "https://i.scdn.co/image/ab6761610000f178edae9400f938bd85f5c08cb7",
+     "width": 160
+    },
+    {
+     "height": 320,
+     "url": "https://i.scdn.co/image/ab67616100005174edae9400f938bd85f5c08cb7",
+     "width": 320
+    }
+   ],
+   "name": "Cartoon",
+   "uri": "spotify:artist:2sf28o6euxEDpYkG9dMtuM"
+  }
+ },
+ "e1769b1f2e171d7a15e414334d7232b9ba32aa7d": {
+  "request": "[\"track\", [\"https://open.spotify.com/track/4B2kkxg3wKSTZw5JPaUtzQ\"], {}]",
+  "response": {
+   "album": {
+    "album_type": "album",
+    "artists": [
+     {
+      "external_urls": {
+       "spotify": "https://open.spotify.com/artist/2sf28o6euxEDpYkG9dMtuM"
+      },
+      "genres": [
+       ""
+      ],
+      "href": "https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM",
+      "id": "2sf28o6euxEDpYkG9dMtuM",
+      "images": [
+       {
+        "height": 640,
+        "url": "https://i.scdn.co/image/ab6761610000e5ebedae9400f938bd85f5c08cb7",
+        "width": 640
+       },
+       {
+        "height": 160,
+        "url": "https://i.scdn.co/image/ab6761610000f178edae9400f938bd85f5c08cb7",
+        "width": 160
+       },
+       {
+        "height": 320,
+        "url": "https://i.scdn.co/image/ab67616100005174edae9400f938bd85f5c08cb7",
+        "width": 320
+       }
+      ],
+      "name": "Cartoon",
+      "uri": "spotify:artist:2sf28o6euxEDpYkG9dMtuM"
+     },
+     {
+      "external_urls": {
+       "spotify": "https://open.spotify.com/artist/0cA0C4yBNRaN2EZsE2wT3Y"
+      },
+      "genres": [
+       ""
+      ],
+      "href": "https://api.spotify.com/v1/artists/0cA0C4yBNRaN2EZsE2wT3Y",
+      "id": "0cA0C4yBNRaN2EZsE2wT3Y",
+      "images": [
+       {
+        "height": 640,
+        "url": "https://i.scdn.co/image/ab6761610000e5eb257fc533f1865146c0837216",
+        "width": 640
+       },
+       {
+        "height": 160,
+        "url": "https://i.scdn.co/image/ab6761610000f178257fc533f1865146c0837216",
+        "width": 160
+       },
+       {
+        "height": 320,
+        "url": "https://i.scdn.co/image/ab67616100005174257fc533f1865146c0837216",
+        "width": 320
+       }
+      ],
+      "name": "Daniel Levi",
+      "uri": "spotify:artist:0cA0C4yBNRaN2EZsE2wT3Y"
+     }
+    ],
+    "copyright": {
+     "items": [
+      {
+       "text": "2015 NCS Ltd.",
+       "type": "C"
+      },
+      {
+       "text": "2015 NCS Ltd.",
+       "type": "P"
+      }
+     ],
+     "totalCount": 2
+    },
+    "copyrights": [
+     {
+      "text": "",
+      "type": ""
+     }
+    ],
+    "courtesyLine": "",
+    "coverArt": {
+     "extractedColors": {
+      "colorRaw": {
+       "hex": "#F09048"
+      }
+     },
+     "sources": [
+      {
+       "height": 300,
+       "url": "https://i.scdn.co/image/ab67616d00001e022773b7d6ca91258a83d06783",
+       "width": 300
+      },
+      {
+       "height": 64,
+       "url": "https://i.scdn.co/image/ab67616d000048512773b7d6ca91258a83d06783",
+       "width": 64
+      },
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab67616d0000b2732773b7d6ca91258a83d06783",
+       "width": 640
+      }
+     ]
+    },
+    "date": {
+     "isoString": "2015-07-09T00:00:00Z",
+     "precision": "DAY",
+     "year": 2015
+    },
+    "external_urls": {
+     "spotify": "https://open.spotify.com/album/0Lt1PzvVZoslDNI2Jsq6pW"
+    },
+    "genres": [
+     ""
+    ],
+    "id": "0Lt1PzvVZoslDNI2Jsq6pW",
+    "images": [
+     {
+      "height": 300,
+      "url": "https://i.scdn.co/image/ab67616d00001e022773b7d6ca91258a83d06783",
+      "width": 300
+     },
+     {
+      "height": 64,
+      "url": "https://i.scdn.co/image/ab67616d000048512773b7d6ca91258a83d06783",
+      "width": 64
+     },
+     {
+      "height": 640,
+      "url": "https://i.scdn.co/image/ab67616d0000b2732773b7d6ca91258a83d06783",
+      "width": 640
+     }
+    ],
+    "name": "On & On",
+    "playability": {
+     "playable": true
+    },
+    "release_date": "2015-07-09",
+    "sharingInfo": {
+     "shareId": "KpANXbcORTWX5DcUD-hkNA",
+     "shareUrl": "https://open.spotify.com/album/0Lt1PzvVZoslDNI2Jsq6pW?si=KpANXbcORTWX5DcUD-hkNA"
+    },
+    "total_tracks": 1,
+    "tracks": {
+     "items": [
+      {
+       "track": {
+        "trackNumber": 1,
+        "uri": "spotify:track:4B2kkxg3wKSTZw5JPaUtzQ"
+       }
+      }
+     ]
+    },
+    "type": "SINGLE",
+    "uri": "spotify:album:0Lt1PzvVZoslDNI2Jsq6pW"
+   },
+   "artists": [
+    {
+     "external_urls": {
+      "spotify": "https://open.spotify.com/artist/2sf28o6euxEDpYkG9dMtuM"
+     },
+     "genres": [
+      ""
+     ],
+     "href": "https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM",
+     "id": "2sf28o6euxEDpYkG9dMtuM",
+     "images": [
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab6761610000e5ebedae9400f938bd85f5c08cb7",
+       "width": 640
+      },
+      {
+       "height": 160,
+       "url": "https://i.scdn.co/image/ab6761610000f178edae9400f938bd85f5c08cb7",
+       "width": 160
+      },
+      {
+       "height": 320,
+       "url": "https://i.scdn.co/image/ab67616100005174edae9400f938bd85f5c08cb7",
+       "width": 320
+      }
+     ],
+     "name": "Cartoon",
+     "uri": "spotify:artist:2sf28o6euxEDpYkG9dMtuM"
+    },
+    {
+     "external_urls": {
+      "spotify": "https://open.spotify.com/artist/0cA0C4yBNRaN2EZsE2wT3Y"
+     },
+     "genres": [
+      ""
+     ],
+     "href": "https://api.spotify.com/v1/artists/0cA0C4yBNRaN2EZsE2wT3Y",
+     "id": "0cA0C4yBNRaN2EZsE2wT3Y",
+     "images": [
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab6761610000e5eb257fc533f1865146c0837216",
+       "width": 640
+      },
+      {
+       "height": 160,
+       "url": "https://i.scdn.co/image/ab6761610000f178257fc533f1865146c0837216",
+       "width": 160
+      },
+      {
+       "height": 320,
+       "url": "https://i.scdn.co/image/ab67616100005174257fc533f1865146c0837216",
+       "width": 320
+      }
+     ],
+     "name": "Daniel Levi",
+     "uri": "spotify:artist:0cA0C4yBNRaN2EZsE2wT3Y"
+    }
+   ],
+   "disc_number": 1,
+   "duration_ms": 207068,
+   "explicit": false,
+   "external_ids": {
+    "isrc": ""
+   },
+   "external_urls": {
+    "spotify": "https://open.spotify.com/track/4B2kkxg3wKSTZw5JPaUtzQ"
+   },
+   "id": "4B2kkxg3wKSTZw5JPaUtzQ",
+   "name": "On & On",
+   "popularity": 10,
+   "track_id": "4B2kkxg3wKSTZw5JPaUtzQ",
+   "track_number": 1,
+   "type": "track"
+  }
+ }
+}
