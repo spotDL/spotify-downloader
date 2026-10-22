@@ -158,6 +158,11 @@ class SpotifyCassette:
                 self._mode = "record"
 
     def __getattr__(self, name):
+        attribute = getattr(self._client, name)
+        if not callable(attribute):
+            # Plain attributes (e.g. user_auth) don't make requests
+            return attribute
+
         def call(*args, **kwargs):
             request = json.dumps([name, args, kwargs], sort_keys=True, default=str)
             key = hashlib.sha1(request.encode("utf-8")).hexdigest()
@@ -182,7 +187,7 @@ class SpotifyCassette:
 
             entry = {"request": request[:200]}
             try:
-                response = getattr(self._client, name)(*args, **kwargs)
+                response = attribute(*args, **kwargs)
                 entry["response"] = json.loads(json.dumps(response))
             except Exception as exc:
                 entry["error"] = f"{type(exc).__name__}: {exc}"
