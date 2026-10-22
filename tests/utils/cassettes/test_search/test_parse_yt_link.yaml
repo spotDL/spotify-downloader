@@ -43,8 +43,8 @@ interactions:
       - '604800'
       cache-control:
       - public, max-age=0
-      content-encoding:
-      - gzip
+      content-length:
+      - '2328'
       content-type:
       - application/json; charset=utf-8
       date:
@@ -103,8 +103,8 @@ interactions:
       - '604800'
       cache-control:
       - public, max-age=0
-      content-encoding:
-      - gzip
+      content-length:
+      - '654'
       content-type:
       - application/json; charset=utf-8
       date:
@@ -167,8 +167,8 @@ interactions:
       - '604800'
       cache-control:
       - public, max-age=0
-      content-encoding:
-      - gzip
+      content-length:
+      - '2841'
       content-type:
       - application/json; charset=utf-8
       date:

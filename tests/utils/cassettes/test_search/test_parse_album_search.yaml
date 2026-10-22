@@ -400,8 +400,8 @@ interactions:
       - '604800'
       cache-control:
       - public, max-age=7200
-      content-encoding:
-      - gzip
+      content-length:
+      - '25070'
       content-type:
       - application/json; charset=utf-8
       date:
@@ -481,8 +481,8 @@ interactions:
       - '604800'
       cache-control:
       - public, max-age=0
-      content-encoding:
-      - gzip
+      content-length:
+      - '19292'
       content-type:
       - application/json; charset=utf-8
       date:
@@ -560,8 +560,8 @@ interactions:
       - '604800'
       cache-control:
       - public, max-age=0
-      content-encoding:
-      - gzip
+      content-length:
+      - '6825'
       content-type:
       - application/json; charset=utf-8
       date:
@@ -622,8 +622,8 @@ interactions:
       - '604800'
       cache-control:
       - public, max-age=0
-      content-encoding:
-      - gzip
+      content-length:
+      - '3533'
       content-type:
       - application/json; charset=utf-8
       date:
@@ -683,8 +683,8 @@ interactions:
       - '604800'
       cache-control:
       - public, max-age=0
-      content-encoding:
-      - gzip
+      content-length:
+      - '676'
       content-type:
       - application/json; charset=utf-8
       date:
@@ -745,8 +745,8 @@ interactions:
       - '604800'
       cache-control:
       - public, max-age=0
-      content-encoding:
-      - gzip
+      content-length:
+      - '3539'
       content-type:
       - application/json; charset=utf-8
       date:
@@ -807,8 +807,8 @@ interactions:
       - '604800'
       cache-control:
       - public, max-age=0
-      content-encoding:
-      - gzip
+      content-length:
+      - '3535'
       content-type:
       - application/json; charset=utf-8
       date:
@@ -869,8 +869,8 @@ interactions:
       - '604800'
       cache-control:
       - public, max-age=0
-      content-encoding:
-      - gzip
+      content-length:
+      - '3535'
       content-type:
       - application/json; charset=utf-8
       date:
@@ -931,8 +931,8 @@ interactions:
       - '604800'
       cache-control:
       - public, max-age=0
-      content-encoding:
-      - gzip
+      content-length:
+      - '3539'
       content-type:
       - application/json; charset=utf-8
       date:
@@ -993,8 +993,8 @@ interactions:
       - '604800'
       cache-control:
       - public, max-age=0
-      content-encoding:
-      - gzip
+      content-length:
+      - '3534'
       content-type:
       - application/json; charset=utf-8
       date:
@@ -1055,8 +1055,8 @@ interactions:
       - '604800'
       cache-control:
       - public, max-age=0
-      content-encoding:
-      - gzip
+      content-length:
+      - '3544'
       content-type:
       - application/json; charset=utf-8
       date:
@@ -1117,8 +1117,8 @@ interactions:
       - '604800'
       cache-control:
       - public, max-age=0
-      content-encoding:
-      - gzip
+      content-length:
+      - '3535'
       content-type:
       - application/json; charset=utf-8
       date:
@@ -1179,8 +1179,8 @@ interactions:
       - '604800'
       cache-control:
       - public, max-age=0
-      content-encoding:
-      - gzip
+      content-length:
+      - '3535'
       content-type:
       - application/json; charset=utf-8
       date:
@@ -1241,8 +1241,8 @@ interactions:
       - '604800'
       cache-control:
       - public, max-age=0
-      content-encoding:
-      - gzip
+      content-length:
+      - '3533'
       content-type:
       - application/json; charset=utf-8
       date:
