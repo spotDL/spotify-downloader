@@ -80,6 +80,19 @@ def fake_create_subprocess_exec(*args, stdout=None, stderr=None, **kwargs):
     return FakeProcess(args)
 
 
+@pytest.fixture(scope="module")
+def vcr_config():
+    """
+    Store response bodies decoded, newer vcrpy/urllib3 don't decompress
+    recorded gzip bodies on replay.
+    """
+
+    return {
+        "decode_compressed_response": True,
+        "filter_headers": ["authorization", "cookie"],
+    }
+
+
 @pytest.fixture()
 def patch_dependencies(mocker, monkeypatch):
     """
@@ -199,10 +212,10 @@ class SpotifyCassette:
 def spotify_cassette(request, monkeypatch, record_mode, disable_recording):
     """
     Route Spotify calls through a SpotifyCassette for every test.
-    `--disable-recording` talks to Spotify directly.
+    `live` tests and `--disable-recording` talk to Spotify directly.
     """
 
-    if disable_recording:
+    if disable_recording or request.node.get_closest_marker("live") is not None:
         yield None
         return
 

@@ -7,6 +7,7 @@ from spotdl.utils.m3u import create_m3u_content, create_m3u_file, gen_m3u_files
 PLAYLIST = "https://open.spotify.com/playlist/5LkNhFidYyyjRWwnkcMbQs"
 
 
+@pytest.mark.vcr()
 def test_create_m3u_content():
     playlist = Playlist.from_url(PLAYLIST)
     content = create_m3u_content(
@@ -20,6 +21,7 @@ def test_create_m3u_content():
     assert content.split("\n")[2].endswith(".mp3")
 
 
+@pytest.mark.vcr()
 def test_create_m3u_file(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     playlist = Playlist.from_url(PLAYLIST)

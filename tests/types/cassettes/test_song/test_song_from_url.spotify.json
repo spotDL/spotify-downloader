@@ -1,0 +1,1008 @@
+{
+ "02c95ccd1b056de1d81184439497f1e0c3d7071f": {
+  "request": "[\"album\", [\"0cgpcZCPvGGXOCpXVqPrvJ\"], {}]",
+  "response": {
+   "__typename": "Album",
+   "album_type": "album",
+   "artists": [
+    {
+     "external_urls": {
+      "spotify": "https://open.spotify.com/artist/4cZvsAtZm91PBC0tXlDrP0"
+     },
+     "genres": [
+      ""
+     ],
+     "href": "https://api.spotify.com/v1/artists/4cZvsAtZm91PBC0tXlDrP0",
+     "id": "4cZvsAtZm91PBC0tXlDrP0",
+     "images": [
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab6761610000e5ebbe5fa23d87b2772cdbac60f7",
+       "width": 640
+      },
+      {
+       "height": 160,
+       "url": "https://i.scdn.co/image/ab6761610000f178be5fa23d87b2772cdbac60f7",
+       "width": 160
+      },
+      {
+       "height": 320,
+       "url": "https://i.scdn.co/image/ab67616100005174be5fa23d87b2772cdbac60f7",
+       "width": 320
+      }
+     ],
+     "name": "Dirty Palm",
+     "uri": "spotify:artist:4cZvsAtZm91PBC0tXlDrP0"
+    }
+   ],
+   "copyright": {
+    "items": [
+     {
+      "text": "2021 NCS",
+      "type": "C"
+     },
+     {
+      "text": "2021 NCS",
+      "type": "P"
+     }
+    ],
+    "totalCount": 2
+   },
+   "copyrights": [
+    {
+     "text": "",
+     "type": ""
+    }
+   ],
+   "courtesyLine": "",
+   "coverArt": {
+    "extractedColors": {
+     "colorDark": {
+      "hex": "#A04848"
+     },
+     "colorLight": {
+      "hex": "#BF5656"
+     },
+     "colorRaw": {
+      "hex": "#A04848"
+     }
+    },
+    "sources": [
+     {
+      "height": 300,
+      "url": "https://i.scdn.co/image/ab67616d00001e02fe2cb38e4d2412dbb0e54332",
+      "width": 300
+     },
+     {
+      "height": 64,
+      "url": "https://i.scdn.co/image/ab67616d00004851fe2cb38e4d2412dbb0e54332",
+      "width": 64
+     },
+     {
+      "height": 640,
+      "url": "https://i.scdn.co/image/ab67616d0000b273fe2cb38e4d2412dbb0e54332",
+      "width": 640
+     }
+    ]
+   },
+   "date": {
+    "isoString": "2021-10-28T00:00:00Z",
+    "precision": "DAY"
+   },
+   "discs": {
+    "items": [
+     {
+      "number": 1,
+      "tracks": {
+       "totalCount": 1
+      }
+     }
+    ],
+    "totalCount": 1
+   },
+   "external_urls": {
+    "spotify": "https://open.spotify.com/album/0cgpcZCPvGGXOCpXVqPrvJ"
+   },
+   "genres": [
+    ""
+   ],
+   "id": "0cgpcZCPvGGXOCpXVqPrvJ",
+   "images": [
+    {
+     "height": 300,
+     "url": "https://i.scdn.co/image/ab67616d00001e02fe2cb38e4d2412dbb0e54332",
+     "width": 300
+    },
+    {
+     "height": 64,
+     "url": "https://i.scdn.co/image/ab67616d00004851fe2cb38e4d2412dbb0e54332",
+     "width": 64
+    },
+    {
+     "height": 640,
+     "url": "https://i.scdn.co/image/ab67616d0000b273fe2cb38e4d2412dbb0e54332",
+     "width": 640
+    }
+   ],
+   "isPreRelease": false,
+   "label": "NCS",
+   "moreAlbumsByArtist": {
+    "items": [
+     {
+      "discography": {
+       "popularReleasesAlbums": {
+        "items": [
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e024100bb8f3298a25a2abc6366",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d000048514100bb8f3298a25a2abc6366",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b2734100bb8f3298a25a2abc6366",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2018
+          },
+          "id": "15e8s5zbX41lx52uOrbOlT",
+          "name": "Freakshow",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "7kqpDVzeQOCWZqeKuRYZrA",
+           "shareUrl": "https://open.spotify.com/album/15e8s5zbX41lx52uOrbOlT?si=7kqpDVzeQOCWZqeKuRYZrA"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:15e8s5zbX41lx52uOrbOlT"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02f0fafbcd7b4a4e135c31580b",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851f0fafbcd7b4a4e135c31580b",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273f0fafbcd7b4a4e135c31580b",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2017
+          },
+          "id": "00lyx8l46fkJTxxkU03i3R",
+          "name": "Oblivion",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "tIu2NYJ-RQaiJxijgxzWbQ",
+           "shareUrl": "https://open.spotify.com/album/00lyx8l46fkJTxxkU03i3R?si=tIu2NYJ-RQaiJxijgxzWbQ"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:00lyx8l46fkJTxxkU03i3R"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02f1f4de6e0069ed8b87e31c46",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851f1f4de6e0069ed8b87e31c46",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273f1f4de6e0069ed8b87e31c46",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2019
+          },
+          "id": "2aUcqcBK91ylti6090yjpe",
+          "name": "No Stopping Love",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "cjx0gDWSRL2IZOgsuaK3IQ",
+           "shareUrl": "https://open.spotify.com/album/2aUcqcBK91ylti6090yjpe?si=cjx0gDWSRL2IZOgsuaK3IQ"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:2aUcqcBK91ylti6090yjpe"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02c5510a100da65e8b7d1e0507",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851c5510a100da65e8b7d1e0507",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273c5510a100da65e8b7d1e0507",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2019
+          },
+          "id": "64IPUJRODSSHCwq4xvVpRI",
+          "name": "Flowers",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "w2sP7v3oRrm_DVEZKvWxbg",
+           "shareUrl": "https://open.spotify.com/album/64IPUJRODSSHCwq4xvVpRI?si=w2sP7v3oRrm_DVEZKvWxbg"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:64IPUJRODSSHCwq4xvVpRI"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02e1a143c1c51bc8dc58a36f9e",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851e1a143c1c51bc8dc58a36f9e",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273e1a143c1c51bc8dc58a36f9e",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2024
+          },
+          "id": "7zjQAeiHLJJ8OB7MftaFjz",
+          "name": "Vibe",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "kN7y1AesTyuYd2ufvTduBg",
+           "shareUrl": "https://open.spotify.com/album/7zjQAeiHLJJ8OB7MftaFjz?si=kN7y1AesTyuYd2ufvTduBg"
+          },
+          "type": "EP",
+          "uri": "spotify:album:7zjQAeiHLJJ8OB7MftaFjz"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02f8fe7438f00d948abf95fe27",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851f8fe7438f00d948abf95fe27",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273f8fe7438f00d948abf95fe27",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2020
+          },
+          "id": "7xzbDlEcGjcWtIvIOE6VAl",
+          "name": "To The Back",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "CRikoCJCTSKcT-Qpu_VqHQ",
+           "shareUrl": "https://open.spotify.com/album/7xzbDlEcGjcWtIvIOE6VAl?si=CRikoCJCTSKcT-Qpu_VqHQ"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:7xzbDlEcGjcWtIvIOE6VAl"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e023c33ef5441975ea14ccd2507",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d000048513c33ef5441975ea14ccd2507",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b2733c33ef5441975ea14ccd2507",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2023
+          },
+          "id": "73wAIZyDZFmcidGsNYjjJt",
+          "name": "Paris",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "_O4G6tr2SE-7eP7v_nQZWg",
+           "shareUrl": "https://open.spotify.com/album/73wAIZyDZFmcidGsNYjjJt?si=_O4G6tr2SE-7eP7v_nQZWg"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:73wAIZyDZFmcidGsNYjjJt"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02b3cae7e95234b05c379e511a",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851b3cae7e95234b05c379e511a",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273b3cae7e95234b05c379e511a",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2021
+          },
+          "id": "0QIbqQD86KixC4Eo62ukY0",
+          "name": "Legacy",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "_sI4l7UBRcGidlI6lrbIfA",
+           "shareUrl": "https://open.spotify.com/album/0QIbqQD86KixC4Eo62ukY0?si=_sI4l7UBRcGidlI6lrbIfA"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:0QIbqQD86KixC4Eo62ukY0"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02b0860821589f69b4a4230774",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851b0860821589f69b4a4230774",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273b0860821589f69b4a4230774",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2023
+          },
+          "id": "0JYLSd6iU8nxptmrB6r9qN",
+          "name": "King Of The Hill",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "Y9iO_XZiQuGHyRLzhHbe7A",
+           "shareUrl": "https://open.spotify.com/album/0JYLSd6iU8nxptmrB6r9qN?si=Y9iO_XZiQuGHyRLzhHbe7A"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:0JYLSd6iU8nxptmrB6r9qN"
+         },
+         {
+          "coverArt": {
+           "sources": [
+            {
+             "height": 300,
+             "url": "https://i.scdn.co/image/ab67616d00001e02a6821102e37e04181bd0e3f1",
+             "width": 300
+            },
+            {
+             "height": 64,
+             "url": "https://i.scdn.co/image/ab67616d00004851a6821102e37e04181bd0e3f1",
+             "width": 64
+            },
+            {
+             "height": 640,
+             "url": "https://i.scdn.co/image/ab67616d0000b273a6821102e37e04181bd0e3f1",
+             "width": 640
+            }
+           ]
+          },
+          "date": {
+           "year": 2026
+          },
+          "id": "5lCtCa5qSetEtT6ApHLU3H",
+          "name": "Clarity",
+          "playability": {
+           "playable": true,
+           "reason": "PLAYABLE"
+          },
+          "sharingInfo": {
+           "shareId": "U3dKf01HQPWptm8p1vwjOA",
+           "shareUrl": "https://open.spotify.com/album/5lCtCa5qSetEtT6ApHLU3H?si=U3dKf01HQPWptm8p1vwjOA"
+          },
+          "type": "SINGLE",
+          "uri": "spotify:album:5lCtCa5qSetEtT6ApHLU3H"
+         }
+        ]
+       }
+      }
+     }
+    ]
+   },
+   "name": "Ropes",
+   "playability": {
+    "playable": true,
+    "reason": "PLAYABLE"
+   },
+   "preReleaseEndDateTime": null,
+   "release_date": "2021-10-28",
+   "releases": {
+    "items": [],
+    "totalCount": 0
+   },
+   "saved": false,
+   "sharingInfo": {
+    "shareId": "XlkbIs_dQxOegWU_dzE_sA",
+    "shareUrl": "https://open.spotify.com/album/0cgpcZCPvGGXOCpXVqPrvJ?si=XlkbIs_dQxOegWU_dzE_sA"
+   },
+   "total_tracks": 1,
+   "tracks": {
+    "items": [
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/4cZvsAtZm91PBC0tXlDrP0"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/4cZvsAtZm91PBC0tXlDrP0",
+        "id": "4cZvsAtZm91PBC0tXlDrP0",
+        "images": [],
+        "name": "Dirty Palm",
+        "uri": "spotify:artist:4cZvsAtZm91PBC0tXlDrP0"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/3Jd7z115OQPFsb8W96yPjv"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/3Jd7z115OQPFsb8W96yPjv",
+        "id": "3Jd7z115OQPFsb8W96yPjv",
+        "images": [],
+        "name": "Chandler Jewels",
+        "uri": "spotify:artist:3Jd7z115OQPFsb8W96yPjv"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 188000,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/1t2qKa8K72IBC8yQlhD9bU"
+      },
+      "id": "1t2qKa8K72IBC8yQlhD9bU",
+      "name": "Ropes",
+      "popularity": 10,
+      "track_id": "1t2qKa8K72IBC8yQlhD9bU",
+      "track_number": 1,
+      "type": "track"
+     }
+    ]
+   },
+   "tracksV2": {
+    "items": [
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Dirty Palm"
+          },
+          "uri": "spotify:artist:4cZvsAtZm91PBC0tXlDrP0"
+         },
+         {
+          "profile": {
+           "name": "Chandler Jewels"
+          },
+          "uri": "spotify:artist:3Jd7z115OQPFsb8W96yPjv"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 188000
+       },
+       "mediaType": "AUDIO",
+       "name": "Ropes",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "1759423",
+       "relinkingInformation": {
+        "linkedTrack": {
+         "__typename": "Track",
+         "uri": "spotify:track:75CWFACFUi0aLZmjaDKj2b"
+        }
+       },
+       "saved": false,
+       "trackNumber": 1,
+       "uri": "spotify:track:1t2qKa8K72IBC8yQlhD9bU"
+      },
+      "uid": "800b874d9ef64ee3d09a"
+     }
+    ],
+    "totalCount": 1
+   },
+   "type": "SINGLE",
+   "uri": "spotify:album:0cgpcZCPvGGXOCpXVqPrvJ",
+   "visualIdentity": {
+    "squareCoverImage": {
+     "__typename": "VisualIdentityImage",
+     "extractedColorSet": {
+      "encoreBaseSetTextColor": {
+       "alpha": 255,
+       "blue": 158,
+       "green": 161,
+       "red": 255
+      },
+      "highContrast": {
+       "backgroundBase": {
+        "alpha": 255,
+        "blue": 55,
+        "green": 53,
+        "red": 139
+       },
+       "backgroundTintedBase": {
+        "alpha": 255,
+        "blue": 20,
+        "green": 9,
+        "red": 96
+       },
+       "textBase": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textBrightAccent": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textSubdued": {
+        "alpha": 255,
+        "blue": 185,
+        "green": 189,
+        "red": 255
+       }
+      },
+      "higherContrast": {
+       "backgroundBase": {
+        "alpha": 255,
+        "blue": 23,
+        "green": 14,
+        "red": 100
+       },
+       "backgroundTintedBase": {
+        "alpha": 255,
+        "blue": 57,
+        "green": 56,
+        "red": 142
+       },
+       "textBase": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textBrightAccent": {
+        "alpha": 255,
+        "blue": 96,
+        "green": 215,
+        "red": 30
+       },
+       "textSubdued": {
+        "alpha": 255,
+        "blue": 185,
+        "green": 189,
+        "red": 255
+       }
+      },
+      "minContrast": {
+       "backgroundBase": {
+        "alpha": 255,
+        "blue": 72,
+        "green": 72,
+        "red": 160
+       },
+       "backgroundTintedBase": {
+        "alpha": 255,
+        "blue": 43,
+        "green": 40,
+        "red": 124
+       },
+       "textBase": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textBrightAccent": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textSubdued": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       }
+      }
+     }
+    }
+   },
+   "watchFeedEntrypoint": null
+  }
+ },
+ "cc739e6fcc7f055fda0446ae0ac8fd2ce87e6e32": {
+  "request": "[\"artist\", [\"4cZvsAtZm91PBC0tXlDrP0\"], {}]",
+  "response": {
+   "external_urls": {
+    "spotify": "https://open.spotify.com/artist/4cZvsAtZm91PBC0tXlDrP0"
+   },
+   "genres": [
+    ""
+   ],
+   "href": "https://api.spotify.com/v1/artists/4cZvsAtZm91PBC0tXlDrP0",
+   "id": "4cZvsAtZm91PBC0tXlDrP0",
+   "images": [
+    {
+     "height": 640,
+     "url": "https://i.scdn.co/image/ab6761610000e5ebbe5fa23d87b2772cdbac60f7",
+     "width": 640
+    },
+    {
+     "height": 160,
+     "url": "https://i.scdn.co/image/ab6761610000f178be5fa23d87b2772cdbac60f7",
+     "width": 160
+    },
+    {
+     "height": 320,
+     "url": "https://i.scdn.co/image/ab67616100005174be5fa23d87b2772cdbac60f7",
+     "width": 320
+    }
+   ],
+   "name": "Dirty Palm",
+   "uri": "spotify:artist:4cZvsAtZm91PBC0tXlDrP0"
+  }
+ },
+ "e97d97fe56948d2c0288e7eead5bd733bb632db6": {
+  "request": "[\"track\", [\"https://open.spotify.com/track/1t2qKa8K72IBC8yQlhD9bU\"], {}]",
+  "response": {
+   "album": {
+    "album_type": "album",
+    "artists": [
+     {
+      "external_urls": {
+       "spotify": "https://open.spotify.com/artist/4cZvsAtZm91PBC0tXlDrP0"
+      },
+      "genres": [
+       ""
+      ],
+      "href": "https://api.spotify.com/v1/artists/4cZvsAtZm91PBC0tXlDrP0",
+      "id": "4cZvsAtZm91PBC0tXlDrP0",
+      "images": [
+       {
+        "height": 640,
+        "url": "https://i.scdn.co/image/ab6761610000e5ebbe5fa23d87b2772cdbac60f7",
+        "width": 640
+       },
+       {
+        "height": 160,
+        "url": "https://i.scdn.co/image/ab6761610000f178be5fa23d87b2772cdbac60f7",
+        "width": 160
+       },
+       {
+        "height": 320,
+        "url": "https://i.scdn.co/image/ab67616100005174be5fa23d87b2772cdbac60f7",
+        "width": 320
+       }
+      ],
+      "name": "Dirty Palm",
+      "uri": "spotify:artist:4cZvsAtZm91PBC0tXlDrP0"
+     },
+     {
+      "external_urls": {
+       "spotify": "https://open.spotify.com/artist/3Jd7z115OQPFsb8W96yPjv"
+      },
+      "genres": [
+       ""
+      ],
+      "href": "https://api.spotify.com/v1/artists/3Jd7z115OQPFsb8W96yPjv",
+      "id": "3Jd7z115OQPFsb8W96yPjv",
+      "images": [
+       {
+        "height": 640,
+        "url": "https://i.scdn.co/image/ab6761610000e5eb1476395d8f8a6a3a010618d8",
+        "width": 640
+       },
+       {
+        "height": 160,
+        "url": "https://i.scdn.co/image/ab6761610000f1781476395d8f8a6a3a010618d8",
+        "width": 160
+       },
+       {
+        "height": 320,
+        "url": "https://i.scdn.co/image/ab676161000051741476395d8f8a6a3a010618d8",
+        "width": 320
+       }
+      ],
+      "name": "Chandler Jewels",
+      "uri": "spotify:artist:3Jd7z115OQPFsb8W96yPjv"
+     }
+    ],
+    "copyright": {
+     "items": [
+      {
+       "text": "2021 NCS",
+       "type": "C"
+      },
+      {
+       "text": "2021 NCS",
+       "type": "P"
+      }
+     ],
+     "totalCount": 2
+    },
+    "copyrights": [
+     {
+      "text": "",
+      "type": ""
+     }
+    ],
+    "courtesyLine": "",
+    "coverArt": {
+     "extractedColors": {
+      "colorRaw": {
+       "hex": "#A04848"
+      }
+     },
+     "sources": [
+      {
+       "height": 300,
+       "url": "https://i.scdn.co/image/ab67616d00001e02fe2cb38e4d2412dbb0e54332",
+       "width": 300
+      },
+      {
+       "height": 64,
+       "url": "https://i.scdn.co/image/ab67616d00004851fe2cb38e4d2412dbb0e54332",
+       "width": 64
+      },
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab67616d0000b273fe2cb38e4d2412dbb0e54332",
+       "width": 640
+      }
+     ]
+    },
+    "date": {
+     "isoString": "2021-10-28T00:00:00Z",
+     "precision": "DAY",
+     "year": 2021
+    },
+    "external_urls": {
+     "spotify": "https://open.spotify.com/album/0cgpcZCPvGGXOCpXVqPrvJ"
+    },
+    "genres": [
+     ""
+    ],
+    "id": "0cgpcZCPvGGXOCpXVqPrvJ",
+    "images": [
+     {
+      "height": 300,
+      "url": "https://i.scdn.co/image/ab67616d00001e02fe2cb38e4d2412dbb0e54332",
+      "width": 300
+     },
+     {
+      "height": 64,
+      "url": "https://i.scdn.co/image/ab67616d00004851fe2cb38e4d2412dbb0e54332",
+      "width": 64
+     },
+     {
+      "height": 640,
+      "url": "https://i.scdn.co/image/ab67616d0000b273fe2cb38e4d2412dbb0e54332",
+      "width": 640
+     }
+    ],
+    "name": "Ropes",
+    "playability": {
+     "playable": true
+    },
+    "release_date": "2021-10-28",
+    "sharingInfo": {
+     "shareId": "iAV_7Ne-S4SxodC4MKCuPQ",
+     "shareUrl": "https://open.spotify.com/album/0cgpcZCPvGGXOCpXVqPrvJ?si=iAV_7Ne-S4SxodC4MKCuPQ"
+    },
+    "total_tracks": 1,
+    "tracks": {
+     "items": [
+      {
+       "track": {
+        "trackNumber": 1,
+        "uri": "spotify:track:1t2qKa8K72IBC8yQlhD9bU"
+       }
+      }
+     ]
+    },
+    "type": "SINGLE",
+    "uri": "spotify:album:0cgpcZCPvGGXOCpXVqPrvJ"
+   },
+   "artists": [
+    {
+     "external_urls": {
+      "spotify": "https://open.spotify.com/artist/4cZvsAtZm91PBC0tXlDrP0"
+     },
+     "genres": [
+      ""
+     ],
+     "href": "https://api.spotify.com/v1/artists/4cZvsAtZm91PBC0tXlDrP0",
+     "id": "4cZvsAtZm91PBC0tXlDrP0",
+     "images": [
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab6761610000e5ebbe5fa23d87b2772cdbac60f7",
+       "width": 640
+      },
+      {
+       "height": 160,
+       "url": "https://i.scdn.co/image/ab6761610000f178be5fa23d87b2772cdbac60f7",
+       "width": 160
+      },
+      {
+       "height": 320,
+       "url": "https://i.scdn.co/image/ab67616100005174be5fa23d87b2772cdbac60f7",
+       "width": 320
+      }
+     ],
+     "name": "Dirty Palm",
+     "uri": "spotify:artist:4cZvsAtZm91PBC0tXlDrP0"
+    },
+    {
+     "external_urls": {
+      "spotify": "https://open.spotify.com/artist/3Jd7z115OQPFsb8W96yPjv"
+     },
+     "genres": [
+      ""
+     ],
+     "href": "https://api.spotify.com/v1/artists/3Jd7z115OQPFsb8W96yPjv",
+     "id": "3Jd7z115OQPFsb8W96yPjv",
+     "images": [
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab6761610000e5eb1476395d8f8a6a3a010618d8",
+       "width": 640
+      },
+      {
+       "height": 160,
+       "url": "https://i.scdn.co/image/ab6761610000f1781476395d8f8a6a3a010618d8",
+       "width": 160
+      },
+      {
+       "height": 320,
+       "url": "https://i.scdn.co/image/ab676161000051741476395d8f8a6a3a010618d8",
+       "width": 320
+      }
+     ],
+     "name": "Chandler Jewels",
+     "uri": "spotify:artist:3Jd7z115OQPFsb8W96yPjv"
+    }
+   ],
+   "disc_number": 1,
+   "duration_ms": 188000,
+   "explicit": false,
+   "external_ids": {
+    "isrc": ""
+   },
+   "external_urls": {
+    "spotify": "https://open.spotify.com/track/1t2qKa8K72IBC8yQlhD9bU"
+   },
+   "id": "1t2qKa8K72IBC8yQlhD9bU",
+   "name": "Ropes",
+   "popularity": 10,
+   "track_id": "1t2qKa8K72IBC8yQlhD9bU",
+   "track_number": 1,
+   "type": "track"
+  }
+ }
+}

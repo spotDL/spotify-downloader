@@ -18,30 +18,46 @@ After installing all the required modules, just call the following command from 
 directory:
 
 ```shell
-pytest
+pytest -m "not live" --record-mode=none --block-network
 ```
+
+This is what CI runs. It needs no network access: tests marked `@pytest.mark.vcr()` replay
+recorded responses, and any other network access fails the test.
 
 To see code coverage use:
 
 ```shell
-pytest --cov=spotdl
+pytest -m "not live" --record-mode=none --block-network --cov=spotdl
 ```
 
-## Enable network communication
+## Recorded responses
 
-To speed up the test execution, the network requests are mocked. That means that each HTTP
-request does not reach the server, and the response is faked by the
-[vcrpy](https://vcrpy.readthedocs.io/en/latest/index.html) module. This greatly increases the
-test performance, but also may cause a problem whenever something changes in the real server
-response. It is recommended to run the test suite without mocked network from time to time
-(preferably on CI).
+HTTP requests made through `requests`/`urllib3` (YouTube Music, Genius, GitHub, ...) are
+recorded by [vcrpy](https://vcrpy.readthedocs.io/en/latest/index.html), via
+[pytest-recording](https://github.com/kiwicom/pytest-recording), to
+`tests/**/cassettes/<test module>/<test name>.yaml`.
 
-To run tests with a real network communication use this command:
+The default Spotify client talks to Spotify through `curl_cffi`, which vcrpy can't intercept,
+so `SpotifyClient` calls are recorded separately to `<test name>.spotify.json` next to the
+cassette (see `SpotifyCassette` in [conftest.py](conftest.py)). A test without the `vcr` marker
+that calls Spotify fails, instead of silently hitting the network.
+
+To record responses for a new test, or one whose requests changed, run it with:
 
 ```shell
-pytest --disable-vcr
+pytest --record-mode=once tests/path/to/test_file.py::test_name
 ```
 
-Whenever the server response will change and affect the tests behavior, the stored responses
-can be updated by wiping the [tests/\*/cassettes](tests/*/cassettes) directory and running `pytest`
-again (without `--disable-vcr`).
+To re-record everything for a test from scratch, use `--record-mode=rewrite`.
+
+## Live tests
+
+Tests marked `@pytest.mark.live` (downloads, ffmpeg conversion, matching) need real access to
+YouTube and Spotify and can't be replayed. They're skipped by `-m "not live"` and run by the
+weekly `live` CI job and the `matching` CI job.
+
+To run the whole suite against the real services, ignoring recorded responses:
+
+```shell
+pytest --disable-recording
+```
