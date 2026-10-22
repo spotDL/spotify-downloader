@@ -1,6 +1,7 @@
 import pytest
 
 from spotdl.types.artist import Artist
+from spotdl.types.song import SongListError
 
 
 def test_artist_init():
@@ -55,6 +56,11 @@ def test_artist_from_url():
     assert len(artist.albums) > 2
 
 
+@pytest.mark.xfail(
+    raises=SongListError,
+    strict=True,
+    reason="SpotipyFree's search() ignores type= and only returns tracks",
+)
 @pytest.mark.vcr()
 def test_artist_from_string():
     """
