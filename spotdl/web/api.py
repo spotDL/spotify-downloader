@@ -4,6 +4,7 @@ Module for handling API requests.
 
 import argparse
 import os
+import re
 import shutil
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -20,6 +21,7 @@ from spotdl.types.playlist import Playlist
 from spotdl.types.song import Song
 from spotdl.utils.arguments import create_parser
 from spotdl.utils.config import get_spotdl_path
+from spotdl.utils.ffmpeg import FFMPEG_FORMATS
 from spotdl.utils.github import RateLimitError, get_latest_version, get_status
 from spotdl.utils.search import get_search_results
 from spotdl.utils.web import (
@@ -39,6 +41,93 @@ __all__ = [
 ]
 
 router = APIRouter()
+
+# Settings that clients are allowed to view and change through the web UI.
+# Anything else (executable paths, extra yt-dlp/ffmpeg arguments, file paths,
+# proxies, ...) can only be set by whoever started the server, because a
+# client able to change them could run commands or touch arbitrary files.
+WEB_EDITABLE_SETTINGS = {
+    "audio_providers",
+    "lyrics_providers",
+    "genius_token",
+    "search_query",
+    "filter_results",
+    "album_type",
+    "only_verified_results",
+    "threads",
+    "bitrate",
+    "format",
+    "preload",
+    "overwrite",
+    "restrict",
+    "print_errors",
+    "sponsor_block",
+    "playlist_numbering",
+    "playlist_retain_track_cover",
+    "scan_for_songs",
+    "fetch_albums",
+    "id3_separator",
+    "ytm_data",
+    "add_unavailable",
+    "generate_lrc",
+    "force_update_metadata",
+    "sync_without_deleting",
+    "max_filename_length",
+    "detect_formats",
+    "redownload",
+    "skip_album_art",
+    "ignore_albums",
+    "skip_explicit",
+    "create_skip_file",
+    "respect_skip_file",
+    "sync_remove_lrc",
+}
+
+# Inclusive (min, max) bounds for integer settings, None means unbounded
+INT_SETTING_BOUNDS = {
+    "threads": (1, 64),
+    "max_filename_length": (1, None),
+}
+
+# Client ids are used in session directory names, so keep them path-safe.
+# The web UI generates UUIDs.
+CLIENT_ID_REGEX = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
+
+
+def validate_setting(key: str, value: Any, action: argparse.Action) -> Optional[str]:
+    """
+    Validate a setting value against its command line argument definition.
+
+    ### Arguments
+    - key: The setting name.
+    - value: The new value.
+    - action: The argparse action that defines the setting.
+
+    ### Returns
+    - returns an error message, or None if the value is valid.
+    """
+
+    if action.choices is not None:
+        values = value if action.nargs == "*" else [value]
+        if not isinstance(values, list):
+            return f"{key} must be a list"
+
+        invalid = [item for item in values if str(item) not in action.choices]
+        if invalid:
+            return f"Invalid value for {key}: {invalid}"
+
+    if key in INT_SETTING_BOUNDS:
+        minimum, maximum = INT_SETTING_BOUNDS[key]
+        if not isinstance(value, int) or isinstance(value, bool):
+            return f"{key} must be an integer"
+
+        if value < minimum:
+            return f"{key} must be at least {minimum}"
+
+        if maximum is not None and value > maximum:
+            return f"{key} must be at most {maximum}"
+
+    return None
 
 
 # @router.websocket("/api/ws")
@@ -87,6 +176,9 @@ async def connect_endpoint(client_id: str):
     ### Arguments
     - websocket: The WebSocket instance.
     """
+
+    if not CLIENT_ID_REGEX.match(client_id):
+        raise HTTPException(status_code=400, detail="Invalid client_id.")
 
     await Client(client_id).connect()
 
@@ -225,20 +317,26 @@ async def download_file(
     - returns the file response, filename specified to return as attachment.
     """
 
-    expected_path = str((get_spotdl_path() / "web/sessions").absolute())
     if state.web_settings.get("web_use_output_dir", False):
-        expected_path = str(
-            Path(client.downloader_settings["output"].split("{", 1)[0]).absolute()
-        )
+        # Use the static part of the output template, if it ends partway
+        # through a file name, use the directory that file would be in
+        output_prefix = client.downloader_settings["output"].split("{", 1)[0]
+        expected_dir = Path(output_prefix)
+        if not output_prefix.endswith(("/", os.sep)):
+            expected_dir = expected_dir.parent
+    else:
+        expected_dir = get_spotdl_path() / f"web/sessions/{client.client_id}"
 
-    if (not file.endswith(client.downloader_settings["format"])) or (
-        not file.startswith(expected_path)
+    # Resolve both paths so ".." segments and symlinks can't escape the directory
+    file_path = Path(file).resolve()
+    if (file_path.suffix[1:] not in FFMPEG_FORMATS) or (
+        not file_path.is_relative_to(expected_dir.resolve())
     ):
         raise HTTPException(status_code=400, detail="Invalid download path.")
 
     return FileResponse(
-        file,
-        filename=os.path.basename(file),
+        file_path,
+        filename=file_path.name,
     )
 
 
@@ -277,11 +375,35 @@ def update_settings(
     - returns True if the settings were changed.
     """
 
+    actions = {
+        action.dest: action
+        for action in create_parser()._actions  # pylint: disable=protected-access
+    }
+
+    changes = {}
+    for key, value in settings.items():
+        # The web UI sends back every setting it received, so unchanged values
+        # (including ones it isn't allowed to change) are expected and skipped
+        if value is None or value == client.downloader_settings.get(key):
+            continue
+
+        if key not in WEB_EDITABLE_SETTINGS:
+            state.logger.warning(
+                f"Ignoring setting that can't be changed from the web UI: {key}"
+            )
+            continue
+
+        error = validate_setting(key, value, actions[key])
+        if error is not None:
+            raise HTTPException(status_code=400, detail=error)
+
+        changes[key] = value
+
     # Create shallow copy of settings
     settings_cpy = client.downloader_settings.copy()
 
-    # Update settings with new settings that are not None
-    settings_cpy.update({k: v for k, v in settings.items() if v is not None})  # type: ignore
+    # Update settings with the allowed changes
+    settings_cpy.update(changes)  # type: ignore
 
     state.logger.info(f"Applying settings: {settings_cpy}")
 
@@ -333,46 +455,9 @@ def get_options() -> Dict[str, Any]:
 
     parser = create_parser()
 
-    # Forbidden actions
-    forbidden_actions = [
-        "help",
-        "operation",
-        "version",
-        "config",
-        "user_auth",
-        "use_official_api",
-        "client_id",
-        "client_secret",
-        "auth_token",
-        "cache_path",
-        "no_cache",
-        "cookie_file",
-        "ffmpeg",
-        "archive",
-        "host",
-        "port",
-        "keep_alive",
-        "enable_tls",
-        "key_file",
-        "cert_file",
-        "ca_file",
-        "allowed_origins",
-        "web_use_output_dir",
-        "keep_sessions",
-        "log_level",
-        "simple_tui",
-        "headless",
-        "download_ffmpeg",
-        "download_deno",
-        "generate_config",
-        "check_for_updates",
-        "profile",
-        "version",
-    ]
-
     options = {}
     for action in parser._actions:  # pylint: disable=protected-access
-        if action.dest in forbidden_actions:
+        if action.dest not in WEB_EDITABLE_SETTINGS:
             continue
 
         default = app_state.downloader_settings.get(action.dest, None)
