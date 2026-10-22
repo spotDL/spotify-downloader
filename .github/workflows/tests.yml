@@ -105,11 +105,6 @@ jobs:
           uv venv --python 3.11
           uv sync
 
-      - uses: FedericoCarboni/setup-ffmpeg@v1
-        id: setup-ffmpeg
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Run tests
         timeout-minutes: 10
         run: |
