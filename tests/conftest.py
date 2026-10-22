@@ -85,11 +85,14 @@ def vcr_config():
     """
     Store response bodies decoded, newer vcrpy/urllib3 don't decompress
     recorded gzip bodies on replay.
+    spotapi fetches its secrets from code.thetadev.de on login, which only
+    happens when recording Spotify responses, so don't record it.
     """
 
     return {
         "decode_compressed_response": True,
         "filter_headers": ["authorization", "cookie"],
+        "ignore_hosts": ["code.thetadev.de"],
     }
 
 
