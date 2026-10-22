@@ -39,11 +39,6 @@ jobs:
           uv venv --python ${{ matrix.python-version }}
           uv sync
 
-      - uses: FedericoCarboni/setup-ffmpeg@v2
-        id: setup-ffmpeg
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Run tests
         timeout-minutes: 10
         run: |
