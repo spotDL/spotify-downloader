@@ -32,6 +32,6 @@ def handle_signals(datastar_signals: dict | None) -> Signals:
     signals = Signals()
     signals.client_id = datastar_signals.get("client_id", "")
     signals.search_term = datastar_signals.get("search_term", "")
-    signals.downloader_settings = datastar_signals.get("downloader_settings", {})
+    signals.downloader_settings = datastar_signals.get("downloader_settings")
     signals.song_url = datastar_signals.get("song_url", "")
     return signals

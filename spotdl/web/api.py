@@ -13,7 +13,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
 
 from spotdl._version import __version__
-from spotdl.download.downloader import Downloader
 from spotdl.types.album import Album
 from spotdl.types.artist import Artist
 from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
@@ -25,6 +24,7 @@ from spotdl.utils.ffmpeg import FFMPEG_FORMATS
 from spotdl.utils.github import RateLimitError, get_latest_version, get_status
 from spotdl.utils.search import get_search_results
 from spotdl.utils.web import (
+    WEB_EDITABLE_SETTINGS,
     ApplicationState,
     Client,
     app_state,
@@ -42,92 +42,9 @@ __all__ = [
 
 router = APIRouter()
 
-# Settings that clients are allowed to view and change through the web UI.
-# Anything else (executable paths, extra yt-dlp/ffmpeg arguments, file paths,
-# proxies, ...) can only be set by whoever started the server, because a
-# client able to change them could run commands or touch arbitrary files.
-WEB_EDITABLE_SETTINGS = {
-    "audio_providers",
-    "lyrics_providers",
-    "genius_token",
-    "search_query",
-    "filter_results",
-    "album_type",
-    "only_verified_results",
-    "threads",
-    "bitrate",
-    "format",
-    "preload",
-    "overwrite",
-    "restrict",
-    "print_errors",
-    "sponsor_block",
-    "playlist_numbering",
-    "playlist_retain_track_cover",
-    "scan_for_songs",
-    "fetch_albums",
-    "id3_separator",
-    "ytm_data",
-    "add_unavailable",
-    "generate_lrc",
-    "force_update_metadata",
-    "sync_without_deleting",
-    "max_filename_length",
-    "detect_formats",
-    "redownload",
-    "skip_album_art",
-    "ignore_albums",
-    "skip_explicit",
-    "create_skip_file",
-    "respect_skip_file",
-    "sync_remove_lrc",
-}
-
-# Inclusive (min, max) bounds for integer settings, None means unbounded
-INT_SETTING_BOUNDS = {
-    "threads": (1, 64),
-    "max_filename_length": (1, None),
-}
-
 # Client ids are used in session directory names, so keep them path-safe.
 # The web UI generates UUIDs.
 CLIENT_ID_REGEX = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
-
-
-def validate_setting(key: str, value: Any, action: argparse.Action) -> Optional[str]:
-    """
-    Validate a setting value against its command line argument definition.
-
-    ### Arguments
-    - key: The setting name.
-    - value: The new value.
-    - action: The argparse action that defines the setting.
-
-    ### Returns
-    - returns an error message, or None if the value is valid.
-    """
-
-    if action.choices is not None:
-        values = value if action.nargs == "*" else [value]
-        if not isinstance(values, list):
-            return f"{key} must be a list"
-
-        invalid = [item for item in values if str(item) not in action.choices]
-        if invalid:
-            return f"Invalid value for {key}: {invalid}"
-
-    if key in INT_SETTING_BOUNDS:
-        minimum, maximum = INT_SETTING_BOUNDS[key]
-        if not isinstance(value, int) or isinstance(value, bool):
-            return f"{key} must be an integer"
-
-        if value < minimum:
-            return f"{key} must be at least {minimum}"
-
-        if maximum is not None and value > maximum:
-            return f"{key} must be at most {maximum}"
-
-    return None
 
 
 # @router.websocket("/api/ws")
@@ -269,8 +186,9 @@ async def download_url(
     - returns the file path if the song was downloaded.
     """
 
+    # Use the server's output setting, clients can't choose where files go
     if state.web_settings.get("web_use_output_dir", False):
-        client.downloader.settings["output"] = client.downloader_settings["output"]
+        client.downloader.settings["output"] = state.downloader_settings["output"]
     else:
         client.downloader.settings["output"] = str(
             (get_spotdl_path() / f"web/sessions/{client.client_id}").absolute()
@@ -318,9 +236,9 @@ async def download_file(
     """
 
     if state.web_settings.get("web_use_output_dir", False):
-        # Use the static part of the output template, if it ends partway
-        # through a file name, use the directory that file would be in
-        output_prefix = client.downloader_settings["output"].split("{", 1)[0]
+        # Use the static part of the server's output template, if it ends
+        # partway through a file name, use the directory that file would be in
+        output_prefix = state.downloader_settings["output"].split("{", 1)[0]
         expected_dir = Path(output_prefix)
         if not output_prefix.endswith(("/", os.sep)):
             expected_dir = expected_dir.parent
@@ -361,7 +279,6 @@ def get_settings(
 def update_settings(
     settings: DownloaderOptionalOptions,
     client: Client = Depends(get_client),
-    state: ApplicationState = Depends(get_current_state),
 ) -> DownloaderOptions:
     """
     Update client settings, and re-initialize downloader.
@@ -369,54 +286,15 @@ def update_settings(
     ### Arguments
     - settings: The settings to change.
     - client: The client's state.
-    - state: The application state.
 
     ### Returns
-    - returns True if the settings were changed.
+    - returns the new settings.
     """
 
-    actions = {
-        action.dest: action
-        for action in create_parser()._actions  # pylint: disable=protected-access
-    }
-
-    changes = {}
-    for key, value in settings.items():
-        # The web UI sends back every setting it received, so unchanged values
-        # (including ones it isn't allowed to change) are expected and skipped
-        if value is None or value == client.downloader_settings.get(key):
-            continue
-
-        if key not in WEB_EDITABLE_SETTINGS:
-            state.logger.warning(
-                f"Ignoring setting that can't be changed from the web UI: {key}"
-            )
-            continue
-
-        error = validate_setting(key, value, actions[key])
-        if error is not None:
-            raise HTTPException(status_code=400, detail=error)
-
-        changes[key] = value
-
-    # Create shallow copy of settings
-    settings_cpy = client.downloader_settings.copy()
-
-    # Update settings with the allowed changes
-    settings_cpy.update(changes)  # type: ignore
-
-    state.logger.info(f"Applying settings: {settings_cpy}")
-
-    new_settings = DownloaderOptions(**settings_cpy)  # type: ignore
-
-    # Re-initialize downloader
-    client.downloader_settings = new_settings
-    client.downloader = Downloader(
-        new_settings,
-        loop=state.loop,
-    )
-
-    return new_settings
+    try:
+        return client.update_settings(settings)
+    except ValueError as exception:
+        raise HTTPException(status_code=400, detail=str(exception)) from exception
 
 
 @router.get("/api/check_update")

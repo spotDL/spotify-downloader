@@ -6,19 +6,40 @@ import pytest
 from fastapi import HTTPException
 
 from spotdl.types.options import DownloaderOptions
+from spotdl.utils import web as web_utils
 from spotdl.utils.arguments import create_parser
 from spotdl.utils.config import DOWNLOADER_OPTIONS
-from spotdl.utils.web import app_state
+from spotdl.utils.web import WEB_EDITABLE_SETTINGS, Client, app_state
 from spotdl.web import api
+
+
+@pytest.fixture(autouse=True)
+def fake_app_state(monkeypatch):
+    """Set up the parts of the app state that clients use"""
+
+    monkeypatch.setattr(
+        app_state,
+        "downloader_settings",
+        DownloaderOptions(**DOWNLOADER_OPTIONS),  # type: ignore
+        raising=False,
+    )
+    monkeypatch.setattr(app_state, "loop", None, raising=False)
+
+
+@pytest.fixture(autouse=True)
+def fake_downloader(monkeypatch):
+    """Don't create a real downloader, it needs ffmpeg"""
+
+    monkeypatch.setattr(
+        web_utils,
+        "Downloader",
+        lambda settings, loop=None: SimpleNamespace(settings=dict(settings)),
+    )
 
 
 @pytest.fixture()
 def client():
-    return SimpleNamespace(
-        client_id="test-client",
-        downloader_settings=DownloaderOptions(**DOWNLOADER_OPTIONS),  # type: ignore
-        downloader=None,
-    )
+    return Client("test-client")
 
 
 @pytest.fixture()
@@ -27,21 +48,15 @@ def state():
         logger=logging.getLogger("spotdl-test"),
         loop=None,
         web_settings={"web_use_output_dir": False},
+        downloader_settings=DownloaderOptions(**DOWNLOADER_OPTIONS),  # type: ignore
     )
-
-
-@pytest.fixture(autouse=True)
-def fake_downloader(monkeypatch):
-    """Don't create a real downloader, it needs ffmpeg"""
-
-    monkeypatch.setattr(api, "Downloader", lambda settings, loop=None: None)
 
 
 def test_editable_settings_are_valid_options():
     dests = {action.dest for action in create_parser()._actions}
 
-    assert api.WEB_EDITABLE_SETTINGS <= dests
-    assert api.WEB_EDITABLE_SETTINGS <= set(DOWNLOADER_OPTIONS)
+    assert WEB_EDITABLE_SETTINGS <= dests
+    assert WEB_EDITABLE_SETTINGS <= set(DOWNLOADER_OPTIONS)
 
 
 @pytest.mark.parametrize(
@@ -60,34 +75,35 @@ def test_editable_settings_are_valid_options():
         ("log_level", "DEBUG"),
     ],
 )
-def test_update_settings_ignores_restricted(client, state, key, value):
+def test_update_settings_ignores_restricted(client, key, value):
     original = client.downloader_settings[key]
 
-    new_settings = api.update_settings({key: value}, client, state)  # type: ignore
+    new_settings = api.update_settings({key: value}, client)  # type: ignore
 
     assert new_settings[key] == original
     assert client.downloader_settings[key] == original
 
 
-def test_update_settings_applies_allowed(client, state):
+def test_update_settings_applies_allowed(client):
     new_settings = api.update_settings(
         {"format": "flac", "threads": 2, "audio_providers": ["youtube"]},  # type: ignore
         client,
-        state,
     )
 
     assert new_settings["format"] == "flac"
     assert new_settings["threads"] == 2
     assert new_settings["audio_providers"] == ["youtube"]
+    # The downloader is re-initialized with the new settings
+    assert client.downloader.settings["format"] == "flac"
 
 
-def test_update_settings_accepts_full_settings_round_trip(client, state):
+def test_update_settings_accepts_full_settings_round_trip(client):
     """The web UI posts back every setting it got from /api/settings"""
 
     settings = dict(client.downloader_settings)
     settings["format"] = "opus"
 
-    new_settings = api.update_settings(settings, client, state)  # type: ignore
+    new_settings = api.update_settings(settings, client)  # type: ignore
 
     assert new_settings["format"] == "opus"
 
@@ -104,21 +120,17 @@ def test_update_settings_accepts_full_settings_round_trip(client, state):
         ("max_filename_length", -1),
     ],
 )
-def test_update_settings_rejects_invalid_values(client, state, key, value):
+def test_update_settings_rejects_invalid_values(client, key, value):
     with pytest.raises(HTTPException) as exc_info:
-        api.update_settings({key: value}, client, state)  # type: ignore
+        api.update_settings({key: value}, client)  # type: ignore
 
     assert exc_info.value.status_code == 400
 
 
-def test_get_options_only_returns_editable(monkeypatch):
-    monkeypatch.setattr(
-        app_state, "downloader_settings", dict(DOWNLOADER_OPTIONS), raising=False
-    )
-
+def test_get_options_only_returns_editable():
     options = api.get_options()
 
-    assert set(options) == api.WEB_EDITABLE_SETTINGS
+    assert set(options) == WEB_EDITABLE_SETTINGS
 
 
 @pytest.mark.parametrize("client_id", ["../../etc", "a/b", "a\\b", "", "x" * 65])
@@ -170,7 +182,7 @@ def test_download_file_rejects_invalid_paths(client, state, session_dir, relativ
 def test_download_file_with_output_dir(client, state, tmp_path):
     state.web_settings["web_use_output_dir"] = True
     music_dir = tmp_path / "music"
-    client.downloader_settings["output"] = str(music_dir / "{artists} - {title}")
+    state.downloader_settings["output"] = str(music_dir / "{artists} - {title}")
 
     song = music_dir / "Artist - Title.mp3"
     response = asyncio.run(api.download_file(str(song), client, state))
@@ -178,3 +190,16 @@ def test_download_file_with_output_dir(client, state, tmp_path):
 
     with pytest.raises(HTTPException):
         asyncio.run(api.download_file(str(tmp_path / "outside.mp3"), client, state))
+
+
+def test_download_file_with_output_dir_ignores_client_output(client, state, tmp_path):
+    """The allowed directory comes from the server's settings, not the client's"""
+
+    state.web_settings["web_use_output_dir"] = True
+    state.downloader_settings["output"] = str(tmp_path / "music" / "{title}")
+    client.downloader_settings["output"] = str(tmp_path.anchor)
+
+    with pytest.raises(HTTPException) as exc_info:
+        asyncio.run(api.download_file(str(tmp_path / "outside.mp3"), client, state))
+
+    assert exc_info.value.status_code == 400
