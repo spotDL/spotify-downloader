@@ -47,7 +47,7 @@ class YouTubeMusic(AudioProvider):
         Create a YTMusic API client.
         """
 
-        return YTMusic(language="de")
+        return YTMusic()
 
     def get_results(
         self, search_term: str, log_search_failures: bool = True, **kwargs
