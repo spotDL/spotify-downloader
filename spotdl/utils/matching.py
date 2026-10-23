@@ -54,6 +54,7 @@ FORBIDDEN_WORDS = [
     "slowed",
     "instrumental",
     "cover",
+    "karaoke",
 ]
 
 
