@@ -13,6 +13,7 @@ pkg install -y python3.13 ffmpeg rust binutils
 # maturin needs the Android API level to build native deps (e.g. pydantic-core);
 # real devices auto-detect it via getprop, the fallback covers WSL/docker testing
 export ANDROID_API_LEVEL=$(getprop ro.build.version.sdk 2>/dev/null || echo 24)
+export CARGO_BUILD_JOBS=1
 python3.13 -m ensurepip --upgrade
 python3.13 -m pip install -U spotdl
 apt upgrade -y -o Dpkg::Options::="--force-confold"
