@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1705,6 +1705,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#spotdl.web.utils.datastar_response" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        datastar_response
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="datastar_response">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.web.utils.datastar_response--arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.web.utils.datastar_response--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Returns
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#spotdl.web.utils.handle_signals" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2801,6 +2840,105 @@
 <div class="doc doc-object doc-function">
 
 
+<h2 id="spotdl.web.utils.datastar_response" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">datastar_response</span><span class="p">(</span><span class="n">func</span><span class="p">)</span></code>
+
+<a href="#spotdl.web.utils.datastar_response" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Wrap a route handler's result in a DatastarResponse.</p>
+<p>datastar_py's decorator uses functools.wraps, so newer FastAPI versions
+follow <strong>wrapped</strong> to the original async generator and try to stream it
+as JSON Lines instead of awaiting the wrapper, which crashes every
+datastar route. Keep the handler's signature so FastAPI still sees its
+parameters, but drop <strong>wrapped</strong>.</p>
+<p>Without <strong>wrapped</strong>, FastAPI resolves string annotations against the
+wrapper's module, so resolve them here against the handler's module. The
+return annotation is DatastarResponse so FastAPI doesn't build a response
+model from the handler's own return annotation.</p>
+<h5 id="spotdl.web.utils.datastar_response--arguments">Arguments<a class="headerlink" href="#spotdl.web.utils.datastar_response--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>func: The route handler, a function or generator function.</li>
+</ul>
+<h5 id="spotdl.web.utils.datastar_response--returns">Returns<a class="headerlink" href="#spotdl.web.utils.datastar_response--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>returns the wrapped route handler.</li>
+</ul>
+
+            <details class="quote">
+              <summary>Source code in <code>spotdl/web/utils.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">datastar_response</span><span class="p">(</span>
+    <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">DatastarResponse</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrap a route handler&#39;s result in a DatastarResponse.</span>
+
+<span class="sd">    datastar_py&#39;s decorator uses functools.wraps, so newer FastAPI versions</span>
+<span class="sd">    follow __wrapped__ to the original async generator and try to stream it</span>
+<span class="sd">    as JSON Lines instead of awaiting the wrapper, which crashes every</span>
+<span class="sd">    datastar route. Keep the handler&#39;s signature so FastAPI still sees its</span>
+<span class="sd">    parameters, but drop __wrapped__.</span>
+
+<span class="sd">    Without __wrapped__, FastAPI resolves string annotations against the</span>
+<span class="sd">    wrapper&#39;s module, so resolve them here against the handler&#39;s module. The</span>
+<span class="sd">    return annotation is DatastarResponse so FastAPI doesn&#39;t build a response</span>
+<span class="sd">    model from the handler&#39;s own return annotation.</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - func: The route handler, a function or generator function.</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - returns the wrapped route handler.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">wrapper</span> <span class="o">=</span> <span class="n">_datastar_response</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="n">wrapper</span><span class="o">.</span><span class="n">__signature__</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span>  <span class="c1"># type: ignore[attr-defined]</span>
+        <span class="n">func</span><span class="p">,</span> <span class="n">eval_str</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">return_annotation</span><span class="o">=</span><span class="n">DatastarResponse</span><span class="p">)</span>
+    <span class="n">wrapper</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;__wrapped__&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wrapper</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h2 id="spotdl.web.utils.handle_signals" class="doc doc-heading">
             <code class="highlight language-python"><span class="n">handle_signals</span><span class="p">(</span><span class="n">datastar_signals</span><span class="p">)</span></code>
 
@@ -2814,11 +2952,7 @@ This function can be used to process or validate the signals before they are use
 
             <details class="quote">
               <summary>Source code in <code>spotdl/web/utils.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">26</span>
 <span class="normal">27</span>
 <span class="normal">28</span>
 <span class="normal">29</span>
@@ -2829,7 +2963,11 @@ This function can be used to process or validate the signals before they are use
 <span class="normal">34</span>
 <span class="normal">35</span>
 <span class="normal">36</span>
-<span class="normal">37</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">handle_signals</span><span class="p">(</span><span class="n">datastar_signals</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Signals</span><span class="p">:</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">handle_signals</span><span class="p">(</span><span class="n">datastar_signals</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Signals</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Handle the signals received from the client.</span>
 <span class="sd">    This function can be used to process or validate the signals before they are used.</span>
@@ -2916,7 +3054,7 @@ This function can be used to process or validate the signals before they are use
       <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.annotate", "navigation.tabs", "navigation.top", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>
