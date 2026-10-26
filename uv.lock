@@ -2487,7 +2487,7 @@ requires-dist = [
     { name = "uvicorn", specifier = ">=0.23.2,<0.24" },
     { name = "websockets", specifier = "~=14.1" },
     { name = "yt-dlp", extras = ["default"], specifier = ">=2026.10.21,<2027" },
-    { name = "ytmusicapi", specifier = ">=1.12.1,<2" },
+    { name = "ytmusicapi", specifier = ">=1.12.1,!=1.12.2,!=1.12.3,<2" },
 ]
 
 [package.metadata.requires-dev]
