@@ -18,7 +18,7 @@ jobs:
           submodules: recursive
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v7
         with:
           python-version: "3.11"
 
