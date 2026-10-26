@@ -2402,7 +2402,7 @@ wheels = [
 
 [[package]]
 name = "spotdl"
-version = "4.5.2"
+version = "4.6.0"
 source = { editable = "." }
 dependencies = [
     { name = "beautifulsoup4", marker = "platform_python_implementation == 'CPython'" },
