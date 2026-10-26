@@ -83,8 +83,10 @@ jobs:
           uv run pytest -vvv --disable-recording --ignore tests/test_matching.py
 
   matching:
+    # Live like the `live` job, so it can be bot-checked too: report, don't block.
     if: "!contains(github.event.commits[0].message, '[skip ci]')"
     runs-on: "ubuntu-latest"
+    continue-on-error: true
 
     steps:
       - uses: actions/checkout@v4

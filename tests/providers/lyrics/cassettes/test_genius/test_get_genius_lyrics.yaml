@@ -133,9 +133,6 @@ interactions:
       - heroku-nel=https://nel.heroku.com/reports?ts=1755315207&sid=929419e7-33ea-4e2f-85f0-7d8b7cd5cbd6&s=XH%2Bc0YTAVor8waLVfk7R%2Bt%2FLhjqWavQsqVeQtrTyHOU%3D
       Server:
       - cloudflare
-      Set-Cookie:
-      - _cfuvid=UWydq5lhhk02tJclfmIJlBZdKBi.gh1IhsdReuNhfZY-1755315207730-0.0.1.1-604800000;
-        path=/; domain=.genius.com; HttpOnly; Secure; SameSite=None
       Status:
       - 200 OK
       Transfer-Encoding:
@@ -1534,8 +1531,6 @@ interactions:
       - default="https://chrome-reporting-server-qiu4epv3ia-uc.a.run.app/report"
       Server:
       - cloudflare
-      Set-Cookie:
-      - _genius_ab_test_cohort=27; Max-Age=2147483647; Path=/
       Status:
       - 200 OK
       Transfer-Encoding:

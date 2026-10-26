@@ -22,6 +22,7 @@ def test_create_m3u_content():
 
 
 @pytest.mark.vcr()
+@pytest.mark.default_cassette("test_create_m3u_content")
 def test_create_m3u_file(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     playlist = Playlist.from_url(PLAYLIST)

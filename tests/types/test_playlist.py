@@ -77,6 +77,7 @@ def test_playlist_from_string():
 
 
 @pytest.mark.vcr()
+@pytest.mark.default_cassette("test_playlist_from_url")
 def test_playlist_length():
     """
     Tests if Playlist.length works correctly.

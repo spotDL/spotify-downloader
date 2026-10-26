@@ -40,21 +40,29 @@ recorded by [vcrpy](https://vcrpy.readthedocs.io/en/latest/index.html), via
 The default Spotify client talks to Spotify through `curl_cffi`, which vcrpy can't intercept,
 so `SpotifyClient` calls are recorded separately to `<test name>.spotify.json` next to the
 cassette (see `SpotifyCassette` in [conftest.py](conftest.py)). A test without the `vcr` marker
-that calls Spotify fails, instead of silently hitting the network.
+that calls Spotify fails, instead of silently hitting the network. Tests that make the same
+Spotify calls can share recordings with `@pytest.mark.default_cassette("<other test name>")`,
+which applies to both files.
 
 To record responses for a new test, or one whose requests changed, run it with:
 
 ```shell
-pytest --record-mode=once tests/path/to/test_file.py::test_name
+pytest --record-mode=new_episodes tests/path/to/test_file.py::test_name
 ```
 
-To re-record everything for a test from scratch, use `--record-mode=rewrite`.
+This keeps existing recordings and adds the missing ones (`--record-mode=once` only records
+when the test has no recordings yet). To re-record everything for a test from scratch, use
+`--record-mode=rewrite`.
+
+Failed Spotify calls aren't recorded, since they're usually rate limits or network errors. A
+test of error handling should mock the client instead.
 
 ## Live tests
 
 Tests marked `@pytest.mark.live` (downloads, ffmpeg conversion, matching) need real access to
 YouTube and Spotify and can't be replayed. They're skipped by `-m "not live"` and run by the
-weekly `live` CI job and the `matching` CI job.
+weekly `live` CI job and the `matching` CI job. Both are informational: they don't fail the
+build, since the services rate limit and bot-check CI runners.
 
 To run the whole suite against the real services, ignoring recorded responses:
 

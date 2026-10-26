@@ -87,13 +87,27 @@ def vcr_config():
     recorded gzip bodies on replay.
     spotapi fetches its secrets from code.thetadev.de on login, which only
     happens when recording Spotify responses, so don't record it.
+    filter_headers only covers requests, so session cookies set by responses
+    are dropped in before_record_response.
     """
 
     return {
         "decode_compressed_response": True,
         "filter_headers": ["authorization", "cookie"],
         "ignore_hosts": ["code.thetadev.de"],
+        "before_record_response": strip_response_cookies,
     }
+
+
+def strip_response_cookies(response):
+    """
+    Remove Set-Cookie headers from a response before it's recorded.
+    """
+
+    for header in [h for h in response["headers"] if h.lower() == "set-cookie"]:
+        del response["headers"][header]
+
+    return response
 
 
 @pytest.fixture()
@@ -124,7 +138,7 @@ def clean_ansi_sequence(text):
 
 class SpotifyCassetteError(SpotifyError):
     """
-    Raised when a Spotify call has no recorded response, or replays a recorded error.
+    Raised when a Spotify call has no recorded response.
     """
 
 
@@ -168,11 +182,7 @@ class SpotifyCassette:
             key = hashlib.sha1(request.encode("utf-8")).hexdigest()
 
             if key in self._entries:
-                entry = self._entries[key]
-                if "error" in entry:
-                    raise SpotifyCassetteError(entry["error"])
-
-                return copy.deepcopy(entry["response"])
+                return copy.deepcopy(self._entries[key]["response"])
 
             if self._mode == "blocked":
                 raise SpotifyCassetteError(
@@ -182,19 +192,20 @@ class SpotifyCassette:
             if self._mode == "replay":
                 raise SpotifyCassetteError(
                     f"No recorded Spotify response for {request[:200]} in "
-                    f"{self._path}. Re-run with --record-mode=once to record it."
+                    f"{self._path}. Re-run with --record-mode=new_episodes "
+                    "to record it."
                 )
 
-            entry = {"request": request[:200]}
-            try:
-                response = attribute(*args, **kwargs)
-                entry["response"] = json.loads(json.dumps(response))
-            except Exception as exc:
-                entry["error"] = f"{type(exc).__name__}: {exc}"
-                raise
-            finally:
-                self._entries[key] = entry
-                self._dirty = True
+            # Errors aren't recorded: they're often transient (rate limits,
+            # network), and replaying them would bake the failure in for good.
+            # Tests of error handling should mock the client instead.
+            response = attribute(*args, **kwargs)
+            entry = {
+                "request": request[:200],
+                "response": json.loads(json.dumps(response)),
+            }
+            self._entries[key] = entry
+            self._dirty = True
 
             return copy.deepcopy(entry["response"])
 
@@ -217,10 +228,18 @@ class SpotifyCassette:
 
 
 @pytest.fixture(autouse=True)
-def spotify_cassette(request, monkeypatch, record_mode, disable_recording):
+def spotify_cassette(
+    request,
+    monkeypatch,
+    record_mode,
+    disable_recording,
+    vcr_cassette_dir,
+    default_cassette_name,
+):
     """
     Route Spotify calls through a SpotifyCassette for every test.
     `live` tests and `--disable-recording` talk to Spotify directly.
+    The file is named like the VCR cassette, so `default_cassette` applies to both.
     """
 
     if disable_recording or request.node.get_closest_marker("live") is not None:
@@ -229,13 +248,8 @@ def spotify_cassette(request, monkeypatch, record_mode, disable_recording):
 
     path = None
     if request.node.get_closest_marker("vcr") is not None:
-        name = re.sub(r"[^\w.-]+", "_", request.node.name).strip("_")
-        path = Path(
-            request.node.path.parent,
-            "cassettes",
-            request.node.path.stem,
-            f"{name}.spotify.json",
-        )
+        name = default_cassette_name.removesuffix(".yaml")
+        path = Path(vcr_cassette_dir, f"{name}.spotify.json")
 
     cassette = SpotifyCassette(SpotifyClient(), path, record_mode)
     monkeypatch.setattr(SpotifyClient, "_instance", cassette)

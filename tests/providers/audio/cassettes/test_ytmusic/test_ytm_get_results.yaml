@@ -548,18 +548,6 @@ interactions:
       - '{"group":"youtube_music","max_age":2592000,"endpoints":[{"url":"https://csp.withgoogle.com/csp/report-to/youtube_music"}]}'
       Server:
       - ESF
-      Set-Cookie:
-      - __Secure-YNID=Cs8BCAUSgQEB8QZuZtw5vl_MV-OeRHRGOc5KH64Eup64MaJ0dpnLMSPIpLI3Bb-eh3qjMdxVe2S2BxqEOnWb9tmRgie1Dn5ypOvelNMElo2bNZV1Qa3_lmOzS5pRSvywU0-BGJ91ywhRFM67U_RR7cAoO_BC3T5Wey9pmLIcrfX5Uqvo6UyCImAoBTJFAd6pnU9-UFyBrfQjN76O-jOaHsacRk-slh-gDZ-xHNUN2XTJYg3TqShoKEXIFADkGessG-qFX9a1KTSfCzRmJU96GJcA;
-        expires=Tue, 20-Apr-2027 11:03:04 GMT; path=/; domain=.youtube.com; Secure;
-        HttpOnly; SameSite=none
-      - YSC=cughqAtcLU0; Domain=.youtube.com; Path=/; Secure; HttpOnly; SameSite=none
-      - __Secure-ROLLOUT_TOKEN=CNb2t4nat9msmAEQ9uDO9rzNlwMY9uDO9rzNlwM%3D; Domain=youtube.com;
-        Expires=Tue, 20-Apr-2027 11:03:04 GMT; Path=/; Secure; HttpOnly; SameSite=none;
-        Partitioned
-      - __Secure-YEC=; Domain=.youtube.com; Expires=Fri, 26-Jan-2024 11:03:04 GMT;
-        Path=/; Secure; HttpOnly; SameSite=lax
-      - VISITOR_INFO1_LIVE=E0mWmrxTAFc; Domain=.youtube.com; Expires=Tue, 20-Apr-2027
-        11:03:04 GMT; Path=/; Secure; HttpOnly; SameSite=none
       Strict-Transport-Security:
       - max-age=31536000
       Transfer-Encoding:

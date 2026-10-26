@@ -89,8 +89,6 @@ def test_song_from_url():
     assert song.artists == ["Dirty Palm", "Chandler Jewels"]
     assert song.album_name == "Ropes"
     assert song.album_artist == "Dirty Palm"
-    # SpotipyFree reports every release as an album
-    assert song.album_type == "album"
     assert song.genres != []
     assert song.disc_number == 1
     assert song.duration == 188
@@ -98,8 +96,6 @@ def test_song_from_url():
     assert song.date == "2021-10-28"
     assert song.track_number == 1
     assert song.tracks_count == 1
-    # SpotipyFree doesn't fetch ISRCs by default
-    assert song.isrc == ""
     assert song.song_id == "1t2qKa8K72IBC8yQlhD9bU"
     assert (
         song.cover_url
@@ -107,7 +103,25 @@ def test_song_from_url():
     )
     assert song.explicit == False
     assert song.download_url == None
-    assert song.popularity is not None and song.popularity >= 0
+    # Popularity changes over time, so only check its type
+    assert isinstance(song.popularity, int)
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason="SpotipyFree reports every release as an album and doesn't fetch ISRCs",
+)
+@pytest.mark.vcr()
+@pytest.mark.default_cassette("test_song_from_url")
+def test_song_from_url_full_metadata():
+    """
+    Tests that Song.from_url() gets the album type and ISRC right.
+    """
+
+    song = Song.from_url("https://open.spotify.com/track/1t2qKa8K72IBC8yQlhD9bU")
+
+    assert song.album_type == "single"
+    assert song.isrc == "GB2LD2110301"
 
 
 @pytest.mark.vcr()
