@@ -99,9 +99,11 @@ def gen_m3u_files(
         file_name = "{list[0]}.m3u8"
 
     # If file_name ends with a slash. Does not have a m3u8 name with extension
-    # at the end of the template, append `{list[0]}`` to it
+    # at the end of the template, append the list name to it. Use `{list}` if the
+    # directory already uses it, since `{list[0]}` would index into that string
     if file_name.endswith("/") or file_name.endswith("\\"):
-        file_name += "/{list[0]}.m3u8"
+        list_name = "{list}" if "{list}" in file_name else "{list[0]}"
+        file_name = file_name.rstrip("/\\") + f"/{list_name}.m3u8"
 
     # Check if the file name ends with .m3u or .m3u8
     if not file_name.endswith(".m3u") and not file_name.endswith(".m3u8"):
@@ -197,9 +199,11 @@ def create_m3u_file(
         detect_formats,
     )
 
-    file_path = Path(
-        *(sanitize_string(part) for part in Path(file_name).parts)
-    ).absolute()
+    # Keep the anchor (e.g. "C:\\" or "/") as is, sanitizing it would turn an
+    # absolute path into a relative one
+    path = Path(file_name)
+    parts = path.parts[1:] if path.anchor else path.parts
+    file_path = Path(path.anchor, *(sanitize_string(part) for part in parts)).absolute()
 
     file_path.parent.mkdir(parents=True, exist_ok=True)
 
