@@ -88,6 +88,13 @@ def test_calc_main_artist_match_single_result_artist(mocker):
     result = mocker.Mock(result_id="result", artists=["ASAP Rocky"])
     assert calc_main_artist_match(song, result) >= 85
 
+    # Artist named like part of another artist doesn't break up the longer name
+    result = mocker.Mock(result_id="result", artists=["Alpha Bravo & Alpha"])
+    song = mocker.Mock(song_id="song", artists=["Alpha Bravo", "Alpha"])
+    assert calc_main_artist_match(song, result) == 100.0
+    song = mocker.Mock(song_id="song", artists=["Alpha", "Alpha Bravo"])
+    assert calc_main_artist_match(song, result) == 100.0
+
 
 def test_calc_artists_match_single_result_artist(mocker):
     """
@@ -153,6 +160,30 @@ def test_calc_artists_match_single_result_artist(mocker):
     # Song name not in the title, other artist after the German "mit"
     song.name = "Wasted - Remix"
     result.name = "Wasted (mit Alice Gray) [Remix]"
+    assert calc_artists_match(song, result) == 100.0
+
+    # Other artist named like part of the main artist isn't found in its name
+    song = mocker.Mock(artists=["DJ Khalid", "Khalid"])
+    song.name = "Song"
+    result = mocker.Mock(artists=["DJ Khalid"])
+    result.name = "Song"
+    assert calc_artists_match(song, result) == 0.0
+    result.name = "DJ Khalid - Song"
+    assert calc_artists_match(song, result) == 0.0
+
+    # but is found when credited too
+    result.artists = ["DJ Khalid & Khalid"]
+    result.name = "Song"
+    assert calc_artists_match(song, result) == 100.0
+    result.artists = ["DJ Khalid"]
+    result.name = "Song (feat. Khalid)"
+    assert calc_artists_match(song, result) == 100.0
+
+    # Other artist whose name contains the main artist is still found
+    song = mocker.Mock(artists=["Khalid", "DJ Khalid"])
+    song.name = "Song"
+    result.artists = ["DJ Khalid"]
+    result.name = "Song"
     assert calc_artists_match(song, result) == 100.0
 
 

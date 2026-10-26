@@ -359,8 +359,10 @@ def calc_main_artist_match(song: Song, result: Result) -> float:
     # and that every other word is a song artist or a joining word,
     # the other artists are scored in calc_artists_match
     if len(song.artists) > 1 and len(result.artists) == 1:
+        # Longest first, so an artist named like part of another one
+        # (e.g. "alpha" and "alpha-bravo") doesn't break up the longer name
         leftover = f"-{slug_result_main_artist}-"
-        for artist in song_artists:
+        for artist in sorted(song_artists, key=len, reverse=True):
             if artist:
                 leftover = leftover.replace(f"-{artist}-", "-", 1)
 
@@ -472,11 +474,28 @@ def calc_artists_match(song: Song, result: Result) -> float:
             )
             slug_title_artists = "-".join(title_words[join_index + 1 :])
 
-        found_artists = sum(
-            contains_words(artist, slug_result_artist)
-            or contains_words(artist, slug_title_artists)
-            for artist in map(slugify, song.artists[1:])
+        # Remove the main artist, so that an other artist named like part of it
+        # (e.g. "khalid" in "dj-khalid") isn't found in the main artist's name.
+        # Not when the other artist's name contains the main artist instead
+        # (e.g. "dj-khalid" with main artist "khalid"), it would be broken up
+        slug_main_artist = slugify(song.artists[0])
+        slug_other_artists = f"-{slug_result_artist}-".replace(
+            f"-{slug_main_artist}-", "-", 1
         )
+        slug_other_title_artists = f"-{slug_title_artists}-".replace(
+            f"-{slug_main_artist}-", "-", 1
+        )
+
+        found_artists = 0
+        for artist in map(slugify, song.artists[1:]):
+            if contains_words(slug_main_artist, artist):
+                found_artists += contains_words(
+                    artist, slug_result_artist
+                ) or contains_words(artist, slug_title_artists)
+            else:
+                found_artists += contains_words(
+                    artist, slug_other_artists
+                ) or contains_words(artist, slug_other_title_artists)
 
         return found_artists / (len(song.artists) - 1) * 100
 
