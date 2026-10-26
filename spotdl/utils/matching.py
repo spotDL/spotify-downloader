@@ -3,6 +3,7 @@ Module for all things matching related
 """
 
 import logging
+import re
 from itertools import product, zip_longest
 from math import exp
 from typing import Dict, List, Optional, Tuple
@@ -426,21 +427,39 @@ def calc_artists_match(song: Song, result: Result) -> float:
         return artist_match_number
 
     # Result has only one artist, the other song artists are usually
-    # folded into the result's artist name or title (e.g. "Song (feat. Artist)"),
-    # only the part of the title after a joining word is checked so that artists
-    # named like a word of the song name are not matched
+    # folded into the result's artist name or title (e.g. "Song (feat. Artist)"
+    # or "Artist/Artist - Song"), the song name is removed from the title so that
+    # artists named like a word of the song name are not matched
     if len(result.artists) == 1:
         slug_result_artist = slugify(result.artists[0])
-        title_words = slugify(result.name).split("-")
-        join_index = next(
-            (
-                index
-                for index, word in enumerate(title_words)
-                if word in ARTIST_JOIN_WORDS
-            ),
-            len(title_words),
+        slug_result_name = slugify(result.name)
+
+        # Song name without its own features (e.g. "Wasted (feat. Alice Gray)")
+        slug_song_name = slugify(
+            re.split(
+                r"\s(?:[(\[]\s*(?:feat|ft|featuring|with)\b|(?:feat|ft|featuring)\b)",
+                song.name,
+                maxsplit=1,
+                flags=re.IGNORECASE,
+            )[0]
         )
-        slug_title_artists = "-".join(title_words[join_index + 1 :])
+
+        if contains_words(slug_song_name, slug_result_name):
+            slug_title_artists = f"-{slug_result_name}-".replace(
+                f"-{slug_song_name}-", "-", 1
+            )
+        else:
+            # Song name not in the title, only check the part after a joining word
+            title_words = slug_result_name.split("-")
+            join_index = next(
+                (
+                    index
+                    for index, word in enumerate(title_words)
+                    if word in ARTIST_JOIN_WORDS
+                ),
+                len(title_words),
+            )
+            slug_title_artists = "-".join(title_words[join_index + 1 :])
 
         found_artists = sum(
             contains_words(artist, slug_result_artist)
