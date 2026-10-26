@@ -2468,7 +2468,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.12.3,<5" },
-    { name = "datastar-py", specifier = ">=0.6.3" },
+    { name = "datastar-py", specifier = ">=1.0.0,<2" },
     { name = "fastapi", specifier = ">=0.162.0,<1" },
     { name = "jinja2", specifier = ">=3.1.5" },
     { name = "mutagen", specifier = ">=1.47.0,<2" },

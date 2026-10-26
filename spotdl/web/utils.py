@@ -69,6 +69,6 @@ def datastar_response(
     wrapper.__signature__ = inspect.signature(  # type: ignore[attr-defined]
         func, eval_str=True
     ).replace(return_annotation=DatastarResponse)
-    del wrapper.__wrapped__  # type: ignore[attr-defined]
+    wrapper.__dict__.pop("__wrapped__", None)
 
     return wrapper
