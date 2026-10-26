@@ -101,6 +101,7 @@ def test_get_local_ffmpeg(monkeypatch):
         assert str(local_ffmpeg).endswith("ffmpeg.exe")
 
 
+@pytest.mark.live
 def test_download_ffmpeg(monkeypatch, tmp_path):
     """
     Test download_ffmpeg function.
@@ -111,6 +112,7 @@ def test_download_ffmpeg(monkeypatch, tmp_path):
     assert download_ffmpeg() is not None
 
 
+@pytest.mark.live
 def test_convert(tmp_path, monkeypatch):
     """
     Test convert function.

@@ -1,0 +1,2211 @@
+{
+ "218619b5f15c19ea77ce7e4e006ffd3b7b167e8a": {
+  "request": "[\"artist\", [\"40HDiLfKm0tXk2FxlJx6aO\"], {}]",
+  "response": {
+   "external_urls": {
+    "spotify": "https://open.spotify.com/artist/40HDiLfKm0tXk2FxlJx6aO"
+   },
+   "genres": [
+    ""
+   ],
+   "href": "https://api.spotify.com/v1/artists/40HDiLfKm0tXk2FxlJx6aO",
+   "id": "40HDiLfKm0tXk2FxlJx6aO",
+   "images": [
+    {
+     "height": 640,
+     "url": "https://i.scdn.co/image/ab6761610000e5eb09e762803cd6db59cc952bb5",
+     "width": 640
+    },
+    {
+     "height": 160,
+     "url": "https://i.scdn.co/image/ab6761610000f17809e762803cd6db59cc952bb5",
+     "width": 160
+    },
+    {
+     "height": 320,
+     "url": "https://i.scdn.co/image/ab6761610000517409e762803cd6db59cc952bb5",
+     "width": 320
+    }
+   ],
+   "name": "Jim Yosef",
+   "uri": "spotify:artist:40HDiLfKm0tXk2FxlJx6aO"
+  }
+ },
+ "50919214b6eb46e998ef0c5e80901fabc12b90d4": {
+  "request": "[\"album\", [\"4MQnUDGXmHOvnsWCpzeqWT\"], {}]",
+  "response": {
+   "__typename": "Album",
+   "album_type": "album",
+   "artists": [
+    {
+     "external_urls": {
+      "spotify": "https://open.spotify.com/artist/0LyfQWJT6nXafLPZqxe9Of"
+     },
+     "genres": [
+      ""
+     ],
+     "href": "https://api.spotify.com/v1/artists/0LyfQWJT6nXafLPZqxe9Of",
+     "id": "0LyfQWJT6nXafLPZqxe9Of",
+     "images": [
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab6761610000e5eb6b134287e3095d2c84b7932a",
+       "width": 640
+      },
+      {
+       "height": 160,
+       "url": "https://i.scdn.co/image/ab6761610000f1786b134287e3095d2c84b7932a",
+       "width": 160
+      },
+      {
+       "height": 320,
+       "url": "https://i.scdn.co/image/ab676161000051746b134287e3095d2c84b7932a",
+       "width": 320
+      }
+     ],
+     "name": "Various Artists",
+     "uri": "spotify:artist:0LyfQWJT6nXafLPZqxe9Of"
+    }
+   ],
+   "copyright": {
+    "items": [
+     {
+      "text": "2017 NCS, under exclusive license to AEI Recordings",
+      "type": "C"
+     },
+     {
+      "text": "2017 NCS, under exclusive license to AEI Recordings",
+      "type": "P"
+     }
+    ],
+    "totalCount": 2
+   },
+   "copyrights": [
+    {
+     "text": "",
+     "type": ""
+    }
+   ],
+   "courtesyLine": "",
+   "coverArt": {
+    "extractedColors": {
+     "colorDark": {
+      "hex": "#3040B8"
+     },
+     "colorLight": {
+      "hex": "#4359FF"
+     },
+     "colorRaw": {
+      "hex": "#3040B8"
+     }
+    },
+    "sources": [
+     {
+      "height": 300,
+      "url": "https://i.scdn.co/image/ab67616d00001e0267cf92b139a3d7ea71a54118",
+      "width": 300
+     },
+     {
+      "height": 64,
+      "url": "https://i.scdn.co/image/ab67616d0000485167cf92b139a3d7ea71a54118",
+      "width": 64
+     },
+     {
+      "height": 640,
+      "url": "https://i.scdn.co/image/ab67616d0000b27367cf92b139a3d7ea71a54118",
+      "width": 640
+     }
+    ]
+   },
+   "date": {
+    "isoString": "2017-12-15T00:00:00Z",
+    "precision": "DAY"
+   },
+   "discs": {
+    "items": [
+     {
+      "number": 1,
+      "tracks": {
+       "totalCount": 16
+      }
+     }
+    ],
+    "totalCount": 1
+   },
+   "external_urls": {
+    "spotify": "https://open.spotify.com/album/4MQnUDGXmHOvnsWCpzeqWT"
+   },
+   "genres": [
+    ""
+   ],
+   "id": "4MQnUDGXmHOvnsWCpzeqWT",
+   "images": [
+    {
+     "height": 300,
+     "url": "https://i.scdn.co/image/ab67616d00001e0267cf92b139a3d7ea71a54118",
+     "width": 300
+    },
+    {
+     "height": 64,
+     "url": "https://i.scdn.co/image/ab67616d0000485167cf92b139a3d7ea71a54118",
+     "width": 64
+    },
+    {
+     "height": 640,
+     "url": "https://i.scdn.co/image/ab67616d0000b27367cf92b139a3d7ea71a54118",
+     "width": 640
+    }
+   ],
+   "isPreRelease": false,
+   "label": "NCS",
+   "moreAlbumsByArtist": {
+    "items": [
+     {
+      "discography": {
+       "popularReleasesAlbums": {
+        "items": []
+       }
+      }
+     }
+    ]
+   },
+   "name": "NCS: The Best of 2017",
+   "playability": {
+    "playable": true,
+    "reason": "PLAYABLE"
+   },
+   "preReleaseEndDateTime": null,
+   "release_date": "2017-12-15",
+   "releases": {
+    "items": [],
+    "totalCount": 0
+   },
+   "saved": false,
+   "sharingInfo": {
+    "shareId": "khRrWRFJSYiwV7-XVRqeMw",
+    "shareUrl": "https://open.spotify.com/album/4MQnUDGXmHOvnsWCpzeqWT?si=khRrWRFJSYiwV7-XVRqeMw"
+   },
+   "total_tracks": 16,
+   "tracks": {
+    "items": [
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/40HDiLfKm0tXk2FxlJx6aO"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/40HDiLfKm0tXk2FxlJx6aO",
+        "id": "40HDiLfKm0tXk2FxlJx6aO",
+        "images": [],
+        "name": "Jim Yosef",
+        "uri": "spotify:artist:40HDiLfKm0tXk2FxlJx6aO"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/2Ndq6RparrhEoceel7LC4Z"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/2Ndq6RparrhEoceel7LC4Z",
+        "id": "2Ndq6RparrhEoceel7LC4Z",
+        "images": [],
+        "name": "Anna Yvette",
+        "uri": "spotify:artist:2Ndq6RparrhEoceel7LC4Z"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 223218,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv"
+      },
+      "id": "2Ikdgh3J5vCRmnCL3Xcrtv",
+      "name": "Linked",
+      "popularity": 10,
+      "track_id": "2Ikdgh3J5vCRmnCL3Xcrtv",
+      "track_number": 1,
+      "type": "track"
+     },
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/5qtSloRk8XxPdlDWkVDwWW"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/5qtSloRk8XxPdlDWkVDwWW",
+        "id": "5qtSloRk8XxPdlDWkVDwWW",
+        "images": [],
+        "name": "Halcyon",
+        "uri": "spotify:artist:5qtSloRk8XxPdlDWkVDwWW"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/5v63dT2oEtPdBVdaG6M2ey"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/5v63dT2oEtPdBVdaG6M2ey",
+        "id": "5v63dT2oEtPdBVdaG6M2ey",
+        "images": [],
+        "name": "Valentina Franco",
+        "uri": "spotify:artist:5v63dT2oEtPdBVdaG6M2ey"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 208000,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/1T5dsbrRBL6K5QtAXgC6E0"
+      },
+      "id": "1T5dsbrRBL6K5QtAXgC6E0",
+      "name": "Runaway - Culture Code Remix",
+      "popularity": 10,
+      "track_id": "1T5dsbrRBL6K5QtAXgC6E0",
+      "track_number": 2,
+      "type": "track"
+     },
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/23ostNBoB9z6GMXLtHdg7y"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/23ostNBoB9z6GMXLtHdg7y",
+        "id": "23ostNBoB9z6GMXLtHdg7y",
+        "images": [],
+        "name": "Prismo",
+        "uri": "spotify:artist:23ostNBoB9z6GMXLtHdg7y"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 203930,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/55nZRG7TMAtFbsPzVTQ3iJ"
+      },
+      "id": "55nZRG7TMAtFbsPzVTQ3iJ",
+      "name": "Hold On",
+      "popularity": 10,
+      "track_id": "55nZRG7TMAtFbsPzVTQ3iJ",
+      "track_number": 3,
+      "type": "track"
+     },
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/6yPYDR9yFTpcGrusQU7rRx"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/6yPYDR9yFTpcGrusQU7rRx",
+        "id": "6yPYDR9yFTpcGrusQU7rRx",
+        "images": [],
+        "name": "Jordan Schor",
+        "uri": "spotify:artist:6yPYDR9yFTpcGrusQU7rRx"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/7kXDaUD3imvM6el5qK6tAu"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/7kXDaUD3imvM6el5qK6tAu",
+        "id": "7kXDaUD3imvM6el5qK6tAu",
+        "images": [],
+        "name": "Harley Bird",
+        "uri": "spotify:artist:7kXDaUD3imvM6el5qK6tAu"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 216941,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/16uxYaIhavk2ZcvNqfWowP"
+      },
+      "id": "16uxYaIhavk2ZcvNqfWowP",
+      "name": "Home",
+      "popularity": 10,
+      "track_id": "16uxYaIhavk2ZcvNqfWowP",
+      "track_number": 4,
+      "type": "track"
+     },
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/1AT64PJc0geIUwVRqYqkTu"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/1AT64PJc0geIUwVRqYqkTu",
+        "id": "1AT64PJc0geIUwVRqYqkTu",
+        "images": [],
+        "name": "Axol",
+        "uri": "spotify:artist:1AT64PJc0geIUwVRqYqkTu"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/06bun5reMRmLxFCbcB6UHW"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/06bun5reMRmLxFCbcB6UHW",
+        "id": "06bun5reMRmLxFCbcB6UHW",
+        "images": [],
+        "name": "The Tech Thieves",
+        "uri": "spotify:artist:06bun5reMRmLxFCbcB6UHW"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 251586,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/5sOxqYCpkHwnFF6sOJg1o6"
+      },
+      "id": "5sOxqYCpkHwnFF6sOJg1o6",
+      "name": "Bleed",
+      "popularity": 10,
+      "track_id": "5sOxqYCpkHwnFF6sOJg1o6",
+      "track_number": 5,
+      "type": "track"
+     },
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/0okpgBQamDqOZazBeH0J3I"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/0okpgBQamDqOZazBeH0J3I",
+        "id": "0okpgBQamDqOZazBeH0J3I",
+        "images": [],
+        "name": "Unknown Brain",
+        "uri": "spotify:artist:0okpgBQamDqOZazBeH0J3I"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/21XsCg8K5LT9pJzzGKSUWr"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/21XsCg8K5LT9pJzzGKSUWr",
+        "id": "21XsCg8K5LT9pJzzGKSUWr",
+        "images": [],
+        "name": "Spce CadeX",
+        "uri": "spotify:artist:21XsCg8K5LT9pJzzGKSUWr"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/0wJDbxpqtwjA2FxfU6KI0E"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/0wJDbxpqtwjA2FxfU6KI0E",
+        "id": "0wJDbxpqtwjA2FxfU6KI0E",
+        "images": [],
+        "name": "Max Landry",
+        "uri": "spotify:artist:0wJDbxpqtwjA2FxfU6KI0E"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 163224,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/2bNysgov8THEQCxIHnq1x7"
+      },
+      "id": "2bNysgov8THEQCxIHnq1x7",
+      "name": "Holding You",
+      "popularity": 10,
+      "track_id": "2bNysgov8THEQCxIHnq1x7",
+      "track_number": 6,
+      "type": "track"
+     },
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/5MI0dQrxPC7MEWdiCUmtMP"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/5MI0dQrxPC7MEWdiCUmtMP",
+        "id": "5MI0dQrxPC7MEWdiCUmtMP",
+        "images": [],
+        "name": "Oneeva",
+        "uri": "spotify:artist:5MI0dQrxPC7MEWdiCUmtMP"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 252000,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/2k0llDQbEqSkiDpj7vyTnw"
+      },
+      "id": "2k0llDQbEqSkiDpj7vyTnw",
+      "name": "Platform 9",
+      "popularity": 10,
+      "track_id": "2k0llDQbEqSkiDpj7vyTnw",
+      "track_number": 7,
+      "type": "track"
+     },
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/157L8iTHgbdrKVxdQEXluh"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/157L8iTHgbdrKVxdQEXluh",
+        "id": "157L8iTHgbdrKVxdQEXluh",
+        "images": [],
+        "name": "Lost Sky",
+        "uri": "spotify:artist:157L8iTHgbdrKVxdQEXluh"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/5Wpn7BDRJ8oq7CcF1EufWI"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/5Wpn7BDRJ8oq7CcF1EufWI",
+        "id": "5Wpn7BDRJ8oq7CcF1EufWI",
+        "images": [],
+        "name": "Chris Linton",
+        "uri": "spotify:artist:5Wpn7BDRJ8oq7CcF1EufWI"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 194181,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/649AbXFbU0UDYe2bhs9jSe"
+      },
+      "id": "649AbXFbU0UDYe2bhs9jSe",
+      "name": "Fearless Pt. II",
+      "popularity": 10,
+      "track_id": "649AbXFbU0UDYe2bhs9jSe",
+      "track_number": 8,
+      "type": "track"
+     },
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/6lO3fSdhsdpeOcrbqAJsRU"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/6lO3fSdhsdpeOcrbqAJsRU",
+        "id": "6lO3fSdhsdpeOcrbqAJsRU",
+        "images": [],
+        "name": "Aero Chord",
+        "uri": "spotify:artist:6lO3fSdhsdpeOcrbqAJsRU"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/4tp1pUIwgLWIIIIOo1yPYp"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/4tp1pUIwgLWIIIIOo1yPYp",
+        "id": "4tp1pUIwgLWIIIIOo1yPYp",
+        "images": [],
+        "name": "Anuka",
+        "uri": "spotify:artist:4tp1pUIwgLWIIIIOo1yPYp"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/57kgxuYPX6hANUyqNj6UZ4"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/57kgxuYPX6hANUyqNj6UZ4",
+        "id": "57kgxuYPX6hANUyqNj6UZ4",
+        "images": [],
+        "name": "Ddark",
+        "uri": "spotify:artist:57kgxuYPX6hANUyqNj6UZ4"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 261346,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/5vfIQRFlU3nEtA4i8xReqz"
+      },
+      "id": "5vfIQRFlU3nEtA4i8xReqz",
+      "name": "Incomplete - Moombahton VIP",
+      "popularity": 10,
+      "track_id": "5vfIQRFlU3nEtA4i8xReqz",
+      "track_number": 9,
+      "type": "track"
+     },
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/72et9F2RPU0kc5tQXtflxY"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/72et9F2RPU0kc5tQXtflxY",
+        "id": "72et9F2RPU0kc5tQXtflxY",
+        "images": [],
+        "name": "Beatcore",
+        "uri": "spotify:artist:72et9F2RPU0kc5tQXtflxY"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/6n8gDEl7sDBnK4z08bsijw"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/6n8gDEl7sDBnK4z08bsijw",
+        "id": "6n8gDEl7sDBnK4z08bsijw",
+        "images": [],
+        "name": "Ashley Apollodor",
+        "uri": "spotify:artist:6n8gDEl7sDBnK4z08bsijw"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 222857,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/32dTLL3RtX1P4fji8V6F3J"
+      },
+      "id": "32dTLL3RtX1P4fji8V6F3J",
+      "name": "Just Stay",
+      "popularity": 10,
+      "track_id": "32dTLL3RtX1P4fji8V6F3J",
+      "track_number": 10,
+      "type": "track"
+     },
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/7c5R9FOE8ceL55E6KUE1pj"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/7c5R9FOE8ceL55E6KUE1pj",
+        "id": "7c5R9FOE8ceL55E6KUE1pj",
+        "images": [],
+        "name": "CØDE",
+        "uri": "spotify:artist:7c5R9FOE8ceL55E6KUE1pj"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/7ahEpNiwqIG5GJ3NkfHt1L"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/7ahEpNiwqIG5GJ3NkfHt1L",
+        "id": "7ahEpNiwqIG5GJ3NkfHt1L",
+        "images": [],
+        "name": "Joseph Feinstein",
+        "uri": "spotify:artist:7ahEpNiwqIG5GJ3NkfHt1L"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 204080,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/6QCUiFTY59gMLP0lnzh4p5"
+      },
+      "id": "6QCUiFTY59gMLP0lnzh4p5",
+      "name": "We're Invincible",
+      "popularity": 10,
+      "track_id": "6QCUiFTY59gMLP0lnzh4p5",
+      "track_number": 11,
+      "type": "track"
+     },
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/2X0ndI9nIkbMvJE9YlLQr4"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/2X0ndI9nIkbMvJE9YlLQr4",
+        "id": "2X0ndI9nIkbMvJE9YlLQr4",
+        "images": [],
+        "name": "Lennart Schroot",
+        "uri": "spotify:artist:2X0ndI9nIkbMvJE9YlLQr4"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/0okpgBQamDqOZazBeH0J3I"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/0okpgBQamDqOZazBeH0J3I",
+        "id": "0okpgBQamDqOZazBeH0J3I",
+        "images": [],
+        "name": "Unknown Brain",
+        "uri": "spotify:artist:0okpgBQamDqOZazBeH0J3I"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/4E2VAmF3PSqniSS03cDoAw"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/4E2VAmF3PSqniSS03cDoAw",
+        "id": "4E2VAmF3PSqniSS03cDoAw",
+        "images": [],
+        "name": "SRU",
+        "uri": "spotify:artist:4E2VAmF3PSqniSS03cDoAw"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 179624,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/0QQe5wEaAFtXbLnHhuW87H"
+      },
+      "id": "0QQe5wEaAFtXbLnHhuW87H",
+      "name": "Kuyenda",
+      "popularity": 10,
+      "track_id": "0QQe5wEaAFtXbLnHhuW87H",
+      "track_number": 12,
+      "type": "track"
+     },
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/7daAovtbFBvpYCDg18wSU1"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/7daAovtbFBvpYCDg18wSU1",
+        "id": "7daAovtbFBvpYCDg18wSU1",
+        "images": [],
+        "name": "Paul Flint",
+        "uri": "spotify:artist:7daAovtbFBvpYCDg18wSU1"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/5Wpn7BDRJ8oq7CcF1EufWI"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/5Wpn7BDRJ8oq7CcF1EufWI",
+        "id": "5Wpn7BDRJ8oq7CcF1EufWI",
+        "images": [],
+        "name": "Chris Linton",
+        "uri": "spotify:artist:5Wpn7BDRJ8oq7CcF1EufWI"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 235500,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/6LSe3s5lwWJzjwQohLVtBC"
+      },
+      "id": "6LSe3s5lwWJzjwQohLVtBC",
+      "name": "Watch The World Burn",
+      "popularity": 10,
+      "track_id": "6LSe3s5lwWJzjwQohLVtBC",
+      "track_number": 13,
+      "type": "track"
+     },
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/1E7kD5wnDgBGtEFvUL5UWv"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/1E7kD5wnDgBGtEFvUL5UWv",
+        "id": "1E7kD5wnDgBGtEFvUL5UWv",
+        "images": [],
+        "name": "ElementD",
+        "uri": "spotify:artist:1E7kD5wnDgBGtEFvUL5UWv"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/7G04yMORrkn5bgsRs9Lv4x"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/7G04yMORrkn5bgsRs9Lv4x",
+        "id": "7G04yMORrkn5bgsRs9Lv4x",
+        "images": [],
+        "name": "Chordinatez",
+        "uri": "spotify:artist:7G04yMORrkn5bgsRs9Lv4x"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/0qhovkXzkzBWNDH3amp5W0"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/0qhovkXzkzBWNDH3amp5W0",
+        "id": "0qhovkXzkzBWNDH3amp5W0",
+        "images": [],
+        "name": "Mees van den Berg",
+        "uri": "spotify:artist:0qhovkXzkzBWNDH3amp5W0"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 211708,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/1cSmpGj0IFGDsfPhwdJkUG"
+      },
+      "id": "1cSmpGj0IFGDsfPhwdJkUG",
+      "name": "Radiate",
+      "popularity": 10,
+      "track_id": "1cSmpGj0IFGDsfPhwdJkUG",
+      "track_number": 14,
+      "type": "track"
+     },
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/4SdjRO432fApGQp8iHbgIF"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/4SdjRO432fApGQp8iHbgIF",
+        "id": "4SdjRO432fApGQp8iHbgIF",
+        "images": [],
+        "name": "Debris",
+        "uri": "spotify:artist:4SdjRO432fApGQp8iHbgIF"
+       },
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/3OuKwjd3qKLWANtBWDWrur"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/3OuKwjd3qKLWANtBWDWrur",
+        "id": "3OuKwjd3qKLWANtBWDWrur",
+        "images": [],
+        "name": "Dazers",
+        "uri": "spotify:artist:3OuKwjd3qKLWANtBWDWrur"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 176269,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/4dzc4wPhUltlFVHJlD9JJ1"
+      },
+      "id": "4dzc4wPhUltlFVHJlD9JJ1",
+      "name": "Double D",
+      "popularity": 10,
+      "track_id": "4dzc4wPhUltlFVHJlD9JJ1",
+      "track_number": 15,
+      "type": "track"
+     },
+     {
+      "album": [],
+      "artists": [
+       {
+        "external_urls": {
+         "spotify": "https://open.spotify.com/artist/6heMlLFM6RDDHRz99uKMqS"
+        },
+        "genres": [
+         ""
+        ],
+        "href": "https://api.spotify.com/v1/artists/6heMlLFM6RDDHRz99uKMqS",
+        "id": "6heMlLFM6RDDHRz99uKMqS",
+        "images": [],
+        "name": "RetroVision",
+        "uri": "spotify:artist:6heMlLFM6RDDHRz99uKMqS"
+       }
+      ],
+      "disc_number": 1,
+      "duration_ms": 173437,
+      "explicit": false,
+      "external_ids": {
+       "isrc": ""
+      },
+      "external_urls": {
+       "spotify": "https://open.spotify.com/track/4PDJE4qhWYWbwy5smF1ur5"
+      },
+      "id": "4PDJE4qhWYWbwy5smF1ur5",
+      "name": "Puzzle - VIP",
+      "popularity": 10,
+      "track_id": "4PDJE4qhWYWbwy5smF1ur5",
+      "track_number": 16,
+      "type": "track"
+     }
+    ]
+   },
+   "tracksV2": {
+    "items": [
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Jim Yosef"
+          },
+          "uri": "spotify:artist:40HDiLfKm0tXk2FxlJx6aO"
+         },
+         {
+          "profile": {
+           "name": "Anna Yvette"
+          },
+          "uri": "spotify:artist:2Ndq6RparrhEoceel7LC4Z"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 223218
+       },
+       "mediaType": "AUDIO",
+       "name": "Linked",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "40554161",
+       "relinkingInformation": {
+        "linkedTrack": {
+         "__typename": "Track",
+         "uri": "spotify:track:5NpOPMiMq3kmUYDSx39rhn"
+        }
+       },
+       "saved": false,
+       "trackNumber": 1,
+       "uri": "spotify:track:2Ikdgh3J5vCRmnCL3Xcrtv"
+      },
+      "uid": "0797ff03acdf4fa247c9"
+     },
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Halcyon"
+          },
+          "uri": "spotify:artist:5qtSloRk8XxPdlDWkVDwWW"
+         },
+         {
+          "profile": {
+           "name": "Valentina Franco"
+          },
+          "uri": "spotify:artist:5v63dT2oEtPdBVdaG6M2ey"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 208000
+       },
+       "mediaType": "AUDIO",
+       "name": "Runaway - Culture Code Remix",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "2013188",
+       "relinkingInformation": {
+        "linkedTrack": {
+         "__typename": "Track",
+         "uri": "spotify:track:6cewlezBpPLT7tzMRMrMHZ"
+        }
+       },
+       "saved": false,
+       "trackNumber": 2,
+       "uri": "spotify:track:1T5dsbrRBL6K5QtAXgC6E0"
+      },
+      "uid": "8482f87a5f9793064b86"
+     },
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Prismo"
+          },
+          "uri": "spotify:artist:23ostNBoB9z6GMXLtHdg7y"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 203930
+       },
+       "mediaType": "AUDIO",
+       "name": "Hold On",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "10905003",
+       "relinkingInformation": {
+        "linkedTrack": {
+         "__typename": "Track",
+         "uri": "spotify:track:7yKqU28pjZuuSr1Vrkwfgj"
+        }
+       },
+       "saved": false,
+       "trackNumber": 3,
+       "uri": "spotify:track:55nZRG7TMAtFbsPzVTQ3iJ"
+      },
+      "uid": "793add51f2ad6f5b9b8c"
+     },
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Jordan Schor"
+          },
+          "uri": "spotify:artist:6yPYDR9yFTpcGrusQU7rRx"
+         },
+         {
+          "profile": {
+           "name": "Harley Bird"
+          },
+          "uri": "spotify:artist:7kXDaUD3imvM6el5qK6tAu"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 216941
+       },
+       "mediaType": "AUDIO",
+       "name": "Home",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "2047131",
+       "relinkingInformation": {
+        "linkedTrack": {
+         "__typename": "Track",
+         "uri": "spotify:track:7pBDywimDErsjIGQn4tCUx"
+        }
+       },
+       "saved": false,
+       "trackNumber": 4,
+       "uri": "spotify:track:16uxYaIhavk2ZcvNqfWowP"
+      },
+      "uid": "cf7981d947b2454eb226"
+     },
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Axol"
+          },
+          "uri": "spotify:artist:1AT64PJc0geIUwVRqYqkTu"
+         },
+         {
+          "profile": {
+           "name": "The Tech Thieves"
+          },
+          "uri": "spotify:artist:06bun5reMRmLxFCbcB6UHW"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 251586
+       },
+       "mediaType": "AUDIO",
+       "name": "Bleed",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "11460623",
+       "relinkingInformation": {
+        "linkedTrack": {
+         "__typename": "Track",
+         "uri": "spotify:track:4wj2mfwzbfFnWTExjKGKNe"
+        }
+       },
+       "saved": false,
+       "trackNumber": 5,
+       "uri": "spotify:track:5sOxqYCpkHwnFF6sOJg1o6"
+      },
+      "uid": "67033c74790f512d3de8"
+     },
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Unknown Brain"
+          },
+          "uri": "spotify:artist:0okpgBQamDqOZazBeH0J3I"
+         },
+         {
+          "profile": {
+           "name": "Spce CadeX"
+          },
+          "uri": "spotify:artist:21XsCg8K5LT9pJzzGKSUWr"
+         },
+         {
+          "profile": {
+           "name": "Max Landry"
+          },
+          "uri": "spotify:artist:0wJDbxpqtwjA2FxfU6KI0E"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 163224
+       },
+       "mediaType": "AUDIO",
+       "name": "Holding You",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "4405096",
+       "relinkingInformation": {
+        "linkedTrack": {
+         "__typename": "Track",
+         "uri": "spotify:track:0DeP3CX317fUIFZU3RF6Md"
+        }
+       },
+       "saved": false,
+       "trackNumber": 6,
+       "uri": "spotify:track:2bNysgov8THEQCxIHnq1x7"
+      },
+      "uid": "a22951218d91b89c1735"
+     },
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Oneeva"
+          },
+          "uri": "spotify:artist:5MI0dQrxPC7MEWdiCUmtMP"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 252000
+       },
+       "mediaType": "AUDIO",
+       "name": "Platform 9",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "3324177",
+       "relinkingInformation": {
+        "linkedTrack": {
+         "__typename": "Track",
+         "uri": "spotify:track:6XpfBcrOkB6rEoRNxw6D4K"
+        }
+       },
+       "saved": false,
+       "trackNumber": 7,
+       "uri": "spotify:track:2k0llDQbEqSkiDpj7vyTnw"
+      },
+      "uid": "33927d796c8f76456cf0"
+     },
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Lost Sky"
+          },
+          "uri": "spotify:artist:157L8iTHgbdrKVxdQEXluh"
+         },
+         {
+          "profile": {
+           "name": "Chris Linton"
+          },
+          "uri": "spotify:artist:5Wpn7BDRJ8oq7CcF1EufWI"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 194181
+       },
+       "mediaType": "AUDIO",
+       "name": "Fearless Pt. II",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "348567506",
+       "relinkingInformation": {
+        "linkedTrack": {
+         "__typename": "Track",
+         "uri": "spotify:track:0bdx0Cr5WFxPCgg59CzNb5"
+        }
+       },
+       "saved": false,
+       "trackNumber": 8,
+       "uri": "spotify:track:649AbXFbU0UDYe2bhs9jSe"
+      },
+      "uid": "7f59b97a2f30eafc2450"
+     },
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Aero Chord"
+          },
+          "uri": "spotify:artist:6lO3fSdhsdpeOcrbqAJsRU"
+         },
+         {
+          "profile": {
+           "name": "Anuka"
+          },
+          "uri": "spotify:artist:4tp1pUIwgLWIIIIOo1yPYp"
+         },
+         {
+          "profile": {
+           "name": "Ddark"
+          },
+          "uri": "spotify:artist:57kgxuYPX6hANUyqNj6UZ4"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 261346
+       },
+       "mediaType": "AUDIO",
+       "name": "Incomplete - Moombahton VIP",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "936062",
+       "relinkingInformation": {
+        "linkedTrack": {
+         "__typename": "Track",
+         "uri": "spotify:track:76ncUjHSMSQMH1F0xkG2dx"
+        }
+       },
+       "saved": false,
+       "trackNumber": 9,
+       "uri": "spotify:track:5vfIQRFlU3nEtA4i8xReqz"
+      },
+      "uid": "a8dd48cba3dee266dfec"
+     },
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Beatcore"
+          },
+          "uri": "spotify:artist:72et9F2RPU0kc5tQXtflxY"
+         },
+         {
+          "profile": {
+           "name": "Ashley Apollodor"
+          },
+          "uri": "spotify:artist:6n8gDEl7sDBnK4z08bsijw"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 222857
+       },
+       "mediaType": "AUDIO",
+       "name": "Just Stay",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "1258356",
+       "relinkingInformation": {
+        "linkedTrack": {
+         "__typename": "Track",
+         "uri": "spotify:track:41u5EkjuodT0dPgavDYO9Z"
+        }
+       },
+       "saved": false,
+       "trackNumber": 10,
+       "uri": "spotify:track:32dTLL3RtX1P4fji8V6F3J"
+      },
+      "uid": "44086721b6ca75134d2d"
+     },
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "CØDE"
+          },
+          "uri": "spotify:artist:7c5R9FOE8ceL55E6KUE1pj"
+         },
+         {
+          "profile": {
+           "name": "Joseph Feinstein"
+          },
+          "uri": "spotify:artist:7ahEpNiwqIG5GJ3NkfHt1L"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 204080
+       },
+       "mediaType": "AUDIO",
+       "name": "We're Invincible",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "1844091",
+       "relinkingInformation": {
+        "linkedTrack": {
+         "__typename": "Track",
+         "uri": "spotify:track:1yEvcxPiEtWnkElFu7maF1"
+        }
+       },
+       "saved": false,
+       "trackNumber": 11,
+       "uri": "spotify:track:6QCUiFTY59gMLP0lnzh4p5"
+      },
+      "uid": "086e160e9679c44ffe77"
+     },
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Lennart Schroot"
+          },
+          "uri": "spotify:artist:2X0ndI9nIkbMvJE9YlLQr4"
+         },
+         {
+          "profile": {
+           "name": "Unknown Brain"
+          },
+          "uri": "spotify:artist:0okpgBQamDqOZazBeH0J3I"
+         },
+         {
+          "profile": {
+           "name": "SRU"
+          },
+          "uri": "spotify:artist:4E2VAmF3PSqniSS03cDoAw"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 179624
+       },
+       "mediaType": "AUDIO",
+       "name": "Kuyenda",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "6462378",
+       "relinkingInformation": {
+        "linkedTrack": {
+         "__typename": "Track",
+         "uri": "spotify:track:2dlxXCFwC7lAXoDIvhN9RN"
+        }
+       },
+       "saved": false,
+       "trackNumber": 12,
+       "uri": "spotify:track:0QQe5wEaAFtXbLnHhuW87H"
+      },
+      "uid": "233eaa83b954497891ba"
+     },
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Paul Flint"
+          },
+          "uri": "spotify:artist:7daAovtbFBvpYCDg18wSU1"
+         },
+         {
+          "profile": {
+           "name": "Chris Linton"
+          },
+          "uri": "spotify:artist:5Wpn7BDRJ8oq7CcF1EufWI"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 235500
+       },
+       "mediaType": "AUDIO",
+       "name": "Watch The World Burn",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "2884145",
+       "relinkingInformation": {
+        "linkedTrack": {
+         "__typename": "Track",
+         "uri": "spotify:track:4sfbMq2Hz8n3jw1SCEhRu8"
+        }
+       },
+       "saved": false,
+       "trackNumber": 13,
+       "uri": "spotify:track:6LSe3s5lwWJzjwQohLVtBC"
+      },
+      "uid": "674b6795a8809824aff2"
+     },
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "ElementD"
+          },
+          "uri": "spotify:artist:1E7kD5wnDgBGtEFvUL5UWv"
+         },
+         {
+          "profile": {
+           "name": "Chordinatez"
+          },
+          "uri": "spotify:artist:7G04yMORrkn5bgsRs9Lv4x"
+         },
+         {
+          "profile": {
+           "name": "Mees van den Berg"
+          },
+          "uri": "spotify:artist:0qhovkXzkzBWNDH3amp5W0"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 211708
+       },
+       "mediaType": "AUDIO",
+       "name": "Radiate",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "6283552",
+       "relinkingInformation": {
+        "linkedTrack": {
+         "__typename": "Track",
+         "uri": "spotify:track:3inwjwvK5O3hmZgQknxvqT"
+        }
+       },
+       "saved": false,
+       "trackNumber": 14,
+       "uri": "spotify:track:1cSmpGj0IFGDsfPhwdJkUG"
+      },
+      "uid": "150649c85c17a1b8048f"
+     },
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "Debris"
+          },
+          "uri": "spotify:artist:4SdjRO432fApGQp8iHbgIF"
+         },
+         {
+          "profile": {
+           "name": "Dazers"
+          },
+          "uri": "spotify:artist:3OuKwjd3qKLWANtBWDWrur"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 176269
+       },
+       "mediaType": "AUDIO",
+       "name": "Double D",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "2365866",
+       "relinkingInformation": {
+        "linkedTrack": {
+         "__typename": "Track",
+         "uri": "spotify:track:6c3cPwpj9FSYd3oaOMTPYi"
+        }
+       },
+       "saved": false,
+       "trackNumber": 15,
+       "uri": "spotify:track:4dzc4wPhUltlFVHJlD9JJ1"
+      },
+      "uid": "dd842615d3fc04b199a8"
+     },
+     {
+      "track": {
+       "artists": {
+        "items": [
+         {
+          "profile": {
+           "name": "RetroVision"
+          },
+          "uri": "spotify:artist:6heMlLFM6RDDHRz99uKMqS"
+         }
+        ]
+       },
+       "associationsV3": {
+        "audioAssociations": {
+         "totalCount": 0
+        },
+        "videoAssociations": {
+         "totalCount": 0
+        }
+       },
+       "contentRating": {
+        "label": "NONE"
+       },
+       "discNumber": 1,
+       "duration": {
+        "totalMilliseconds": 173437
+       },
+       "mediaType": "AUDIO",
+       "name": "Puzzle - VIP",
+       "playability": {
+        "playable": true
+       },
+       "playcount": "3593882",
+       "relinkingInformation": {
+        "linkedTrack": {
+         "__typename": "Track",
+         "uri": "spotify:track:0TRpyHPV5io6gVAcIHwrPX"
+        }
+       },
+       "saved": false,
+       "trackNumber": 16,
+       "uri": "spotify:track:4PDJE4qhWYWbwy5smF1ur5"
+      },
+      "uid": "1d576726c88eb7fdf65e"
+     }
+    ],
+    "totalCount": 16
+   },
+   "type": "COMPILATION",
+   "uri": "spotify:album:4MQnUDGXmHOvnsWCpzeqWT",
+   "visualIdentity": {
+    "squareCoverImage": {
+     "__typename": "VisualIdentityImage",
+     "extractedColorSet": {
+      "encoreBaseSetTextColor": {
+       "alpha": 255,
+       "blue": 255,
+       "green": 185,
+       "red": 160
+      },
+      "highContrast": {
+       "backgroundBase": {
+        "alpha": 255,
+        "blue": 184,
+        "green": 64,
+        "red": 48
+       },
+       "backgroundTintedBase": {
+        "alpha": 255,
+        "blue": 138,
+        "green": 9,
+        "red": 23
+       },
+       "textBase": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textBrightAccent": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textSubdued": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 205,
+        "red": 185
+       }
+      },
+      "higherContrast": {
+       "backgroundBase": {
+        "alpha": 255,
+        "blue": 148,
+        "green": 25,
+        "red": 27
+       },
+       "backgroundTintedBase": {
+        "alpha": 255,
+        "blue": 191,
+        "green": 71,
+        "red": 53
+       },
+       "textBase": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textBrightAccent": {
+        "alpha": 255,
+        "blue": 96,
+        "green": 215,
+        "red": 30
+       },
+       "textSubdued": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 205,
+        "red": 185
+       }
+      },
+      "minContrast": {
+       "backgroundBase": {
+        "alpha": 255,
+        "blue": 184,
+        "green": 64,
+        "red": 48
+       },
+       "backgroundTintedBase": {
+        "alpha": 255,
+        "blue": 138,
+        "green": 9,
+        "red": 23
+       },
+       "textBase": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textBrightAccent": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       },
+       "textSubdued": {
+        "alpha": 255,
+        "blue": 255,
+        "green": 255,
+        "red": 255
+       }
+      }
+     }
+    }
+   },
+   "watchFeedEntrypoint": null
+  }
+ },
+ "b16022adb406d99d68b2c865fbbe0973529e5ca2": {
+  "request": "[\"track\", [\"https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv\"], {}]",
+  "response": {
+   "album": {
+    "album_type": "album",
+    "artists": [
+     {
+      "external_urls": {
+       "spotify": "https://open.spotify.com/artist/40HDiLfKm0tXk2FxlJx6aO"
+      },
+      "genres": [
+       ""
+      ],
+      "href": "https://api.spotify.com/v1/artists/40HDiLfKm0tXk2FxlJx6aO",
+      "id": "40HDiLfKm0tXk2FxlJx6aO",
+      "images": [
+       {
+        "height": 640,
+        "url": "https://i.scdn.co/image/ab6761610000e5eb09e762803cd6db59cc952bb5",
+        "width": 640
+       },
+       {
+        "height": 160,
+        "url": "https://i.scdn.co/image/ab6761610000f17809e762803cd6db59cc952bb5",
+        "width": 160
+       },
+       {
+        "height": 320,
+        "url": "https://i.scdn.co/image/ab6761610000517409e762803cd6db59cc952bb5",
+        "width": 320
+       }
+      ],
+      "name": "Jim Yosef",
+      "uri": "spotify:artist:40HDiLfKm0tXk2FxlJx6aO"
+     },
+     {
+      "external_urls": {
+       "spotify": "https://open.spotify.com/artist/2Ndq6RparrhEoceel7LC4Z"
+      },
+      "genres": [
+       ""
+      ],
+      "href": "https://api.spotify.com/v1/artists/2Ndq6RparrhEoceel7LC4Z",
+      "id": "2Ndq6RparrhEoceel7LC4Z",
+      "images": [
+       {
+        "height": 640,
+        "url": "https://i.scdn.co/image/ab6761610000e5eb2754cf02ec1f42171c19b05d",
+        "width": 640
+       },
+       {
+        "height": 160,
+        "url": "https://i.scdn.co/image/ab6761610000f1782754cf02ec1f42171c19b05d",
+        "width": 160
+       },
+       {
+        "height": 320,
+        "url": "https://i.scdn.co/image/ab676161000051742754cf02ec1f42171c19b05d",
+        "width": 320
+       }
+      ],
+      "name": "Anna Yvette",
+      "uri": "spotify:artist:2Ndq6RparrhEoceel7LC4Z"
+     }
+    ],
+    "copyright": {
+     "items": [
+      {
+       "text": "2017 NCS, under exclusive license to AEI Recordings",
+       "type": "C"
+      },
+      {
+       "text": "2017 NCS, under exclusive license to AEI Recordings",
+       "type": "P"
+      }
+     ],
+     "totalCount": 2
+    },
+    "copyrights": [
+     {
+      "text": "",
+      "type": ""
+     }
+    ],
+    "courtesyLine": "",
+    "coverArt": {
+     "extractedColors": {
+      "colorRaw": {
+       "hex": "#3040B8"
+      }
+     },
+     "sources": [
+      {
+       "height": 300,
+       "url": "https://i.scdn.co/image/ab67616d00001e0267cf92b139a3d7ea71a54118",
+       "width": 300
+      },
+      {
+       "height": 64,
+       "url": "https://i.scdn.co/image/ab67616d0000485167cf92b139a3d7ea71a54118",
+       "width": 64
+      },
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab67616d0000b27367cf92b139a3d7ea71a54118",
+       "width": 640
+      }
+     ]
+    },
+    "date": {
+     "isoString": "2017-12-15T00:00:00Z",
+     "precision": "DAY",
+     "year": 2017
+    },
+    "external_urls": {
+     "spotify": "https://open.spotify.com/album/4MQnUDGXmHOvnsWCpzeqWT"
+    },
+    "genres": [
+     ""
+    ],
+    "id": "4MQnUDGXmHOvnsWCpzeqWT",
+    "images": [
+     {
+      "height": 300,
+      "url": "https://i.scdn.co/image/ab67616d00001e0267cf92b139a3d7ea71a54118",
+      "width": 300
+     },
+     {
+      "height": 64,
+      "url": "https://i.scdn.co/image/ab67616d0000485167cf92b139a3d7ea71a54118",
+      "width": 64
+     },
+     {
+      "height": 640,
+      "url": "https://i.scdn.co/image/ab67616d0000b27367cf92b139a3d7ea71a54118",
+      "width": 640
+     }
+    ],
+    "name": "NCS: The Best of 2017",
+    "playability": {
+     "playable": true
+    },
+    "release_date": "2017-12-15",
+    "sharingInfo": {
+     "shareId": "K0tHfztGRWWqnCppGeT0QQ",
+     "shareUrl": "https://open.spotify.com/album/4MQnUDGXmHOvnsWCpzeqWT?si=K0tHfztGRWWqnCppGeT0QQ"
+    },
+    "total_tracks": 16,
+    "tracks": {
+     "items": [
+      {
+       "track": {
+        "trackNumber": 1,
+        "uri": "spotify:track:2Ikdgh3J5vCRmnCL3Xcrtv"
+       }
+      },
+      {
+       "track": {
+        "trackNumber": 2,
+        "uri": "spotify:track:1T5dsbrRBL6K5QtAXgC6E0"
+       }
+      },
+      {
+       "track": {
+        "trackNumber": 3,
+        "uri": "spotify:track:55nZRG7TMAtFbsPzVTQ3iJ"
+       }
+      },
+      {
+       "track": {
+        "trackNumber": 4,
+        "uri": "spotify:track:16uxYaIhavk2ZcvNqfWowP"
+       }
+      },
+      {
+       "track": {
+        "trackNumber": 5,
+        "uri": "spotify:track:5sOxqYCpkHwnFF6sOJg1o6"
+       }
+      },
+      {
+       "track": {
+        "trackNumber": 6,
+        "uri": "spotify:track:2bNysgov8THEQCxIHnq1x7"
+       }
+      },
+      {
+       "track": {
+        "trackNumber": 7,
+        "uri": "spotify:track:2k0llDQbEqSkiDpj7vyTnw"
+       }
+      },
+      {
+       "track": {
+        "trackNumber": 8,
+        "uri": "spotify:track:649AbXFbU0UDYe2bhs9jSe"
+       }
+      },
+      {
+       "track": {
+        "trackNumber": 9,
+        "uri": "spotify:track:5vfIQRFlU3nEtA4i8xReqz"
+       }
+      },
+      {
+       "track": {
+        "trackNumber": 10,
+        "uri": "spotify:track:32dTLL3RtX1P4fji8V6F3J"
+       }
+      },
+      {
+       "track": {
+        "trackNumber": 11,
+        "uri": "spotify:track:6QCUiFTY59gMLP0lnzh4p5"
+       }
+      },
+      {
+       "track": {
+        "trackNumber": 12,
+        "uri": "spotify:track:0QQe5wEaAFtXbLnHhuW87H"
+       }
+      },
+      {
+       "track": {
+        "trackNumber": 13,
+        "uri": "spotify:track:6LSe3s5lwWJzjwQohLVtBC"
+       }
+      },
+      {
+       "track": {
+        "trackNumber": 14,
+        "uri": "spotify:track:1cSmpGj0IFGDsfPhwdJkUG"
+       }
+      },
+      {
+       "track": {
+        "trackNumber": 15,
+        "uri": "spotify:track:4dzc4wPhUltlFVHJlD9JJ1"
+       }
+      },
+      {
+       "track": {
+        "trackNumber": 16,
+        "uri": "spotify:track:4PDJE4qhWYWbwy5smF1ur5"
+       }
+      }
+     ]
+    },
+    "type": "COMPILATION",
+    "uri": "spotify:album:4MQnUDGXmHOvnsWCpzeqWT"
+   },
+   "artists": [
+    {
+     "external_urls": {
+      "spotify": "https://open.spotify.com/artist/40HDiLfKm0tXk2FxlJx6aO"
+     },
+     "genres": [
+      ""
+     ],
+     "href": "https://api.spotify.com/v1/artists/40HDiLfKm0tXk2FxlJx6aO",
+     "id": "40HDiLfKm0tXk2FxlJx6aO",
+     "images": [
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab6761610000e5eb09e762803cd6db59cc952bb5",
+       "width": 640
+      },
+      {
+       "height": 160,
+       "url": "https://i.scdn.co/image/ab6761610000f17809e762803cd6db59cc952bb5",
+       "width": 160
+      },
+      {
+       "height": 320,
+       "url": "https://i.scdn.co/image/ab6761610000517409e762803cd6db59cc952bb5",
+       "width": 320
+      }
+     ],
+     "name": "Jim Yosef",
+     "uri": "spotify:artist:40HDiLfKm0tXk2FxlJx6aO"
+    },
+    {
+     "external_urls": {
+      "spotify": "https://open.spotify.com/artist/2Ndq6RparrhEoceel7LC4Z"
+     },
+     "genres": [
+      ""
+     ],
+     "href": "https://api.spotify.com/v1/artists/2Ndq6RparrhEoceel7LC4Z",
+     "id": "2Ndq6RparrhEoceel7LC4Z",
+     "images": [
+      {
+       "height": 640,
+       "url": "https://i.scdn.co/image/ab6761610000e5eb2754cf02ec1f42171c19b05d",
+       "width": 640
+      },
+      {
+       "height": 160,
+       "url": "https://i.scdn.co/image/ab6761610000f1782754cf02ec1f42171c19b05d",
+       "width": 160
+      },
+      {
+       "height": 320,
+       "url": "https://i.scdn.co/image/ab676161000051742754cf02ec1f42171c19b05d",
+       "width": 320
+      }
+     ],
+     "name": "Anna Yvette",
+     "uri": "spotify:artist:2Ndq6RparrhEoceel7LC4Z"
+    }
+   ],
+   "disc_number": 1,
+   "duration_ms": 223218,
+   "explicit": false,
+   "external_ids": {
+    "isrc": ""
+   },
+   "external_urls": {
+    "spotify": "https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv"
+   },
+   "id": "2Ikdgh3J5vCRmnCL3Xcrtv",
+   "name": "Linked",
+   "popularity": 10,
+   "track_id": "2Ikdgh3J5vCRmnCL3Xcrtv",
+   "track_number": 1,
+   "type": "track"
+  }
+ }
+}

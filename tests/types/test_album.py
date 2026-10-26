@@ -52,6 +52,7 @@ def test_album_from_url():
 
 
 @pytest.mark.vcr()
+@pytest.mark.default_cassette("test_album_from_url")
 def test_album_length():
     """
     Tests if Album.length works correctly.

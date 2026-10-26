@@ -23,10 +23,6 @@ interactions:
         X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes,
         X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO,
         X-GitHub-Request-Id, Deprecation, Sunset
-      Content-Encoding:
-      - gzip
-      Content-Length:
-      - '125'
       Content-Security-Policy:
       - default-src 'none'
       Content-Type:
@@ -61,6 +57,8 @@ interactions:
       - '6'
       X-XSS-Protection:
       - '0'
+      content-length:
+      - '130'
       x-github-api-version-selected:
       - '2022-11-28'
     status:
@@ -81,10 +79,7 @@ interactions:
     uri: https://api.github.com/repos/spotdl/spotify-downloader-fail/releases/latest
   response:
     body:
-      string: !!binary |
-        H4sIAAAAAAAAAz2MMQrDMBAEvxIubWS5cOUHpMwXgmwfkkHSBd9eZfL3XBHcLAszzEmNVVNmmukl
-        uD3F+kYP2mS1xh0Ju/S3HdV5AT46x+hMh7yj2DKs0uLBCp/KSVmvc8+MgMKhJrgQ/oK31aumHpzG
-        ib4/pgZ1sYIAAAA=
+      string: '{"message":"Not Found","documentation_url":"https://docs.github.com/rest/releases/releases#get-the-latest-release","status":"404"}'
     headers:
       Access-Control-Allow-Origin:
       - '*'
@@ -93,10 +88,6 @@ interactions:
         X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes,
         X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO,
         X-GitHub-Request-Id, Deprecation, Sunset
-      Content-Encoding:
-      - gzip
-      Content-Length:
-      - '125'
       Content-Security-Policy:
       - default-src 'none'
       Content-Type:
@@ -131,6 +122,8 @@ interactions:
       - '8'
       X-XSS-Protection:
       - '0'
+      content-length:
+      - '130'
       x-github-api-version-selected:
       - '2022-11-28'
     status:

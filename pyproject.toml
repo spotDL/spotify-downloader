@@ -113,4 +113,7 @@ fail-under = 9
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-markers = ["vcr"]
+markers = [
+    "vcr",
+    "live: needs real network access to YouTube/Spotify, can't be replayed from cassettes",
+]
