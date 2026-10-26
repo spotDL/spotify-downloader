@@ -22,6 +22,7 @@ __all__ = [
     "fill_string",
     "create_clean_string",
     "sort_string",
+    "contains_words",
     "based_sort",
     "check_common_word",
     "check_forbidden_words",
@@ -146,6 +147,21 @@ def sort_string(strings: List[str], join_str: str) -> str:
     final_str.sort()
 
     return f"{join_str}".join(final_str)
+
+
+def contains_words(slug_words: str, slug_string: str) -> bool:
+    """
+    Check if every word of a slug is a whole word of another slug
+
+    ### Arguments
+    - slug_words: slug whose words to look for
+    - slug_string: slug to look in
+
+    ### Returns
+    - True if all words are present, False otherwise
+    """
+
+    return set(slug_words.split("-")) <= set(slug_string.split("-"))
 
 
 def based_sort(strings: List[str], based_on: List[str]) -> Tuple[List[str], List[str]]:
@@ -317,16 +333,12 @@ def calc_main_artist_match(song: Song, result: Result) -> float:
     slug_result_main_artist = sorted_result_artists[0]
 
     # Result has only one artist, but song has multiple artists
-    # credit every song artist (main included) found in the result's artist name,
-    # the other artists are often folded into the title instead of the artist name
+    # the result's artist name can contain the other artists too
+    # (e.g. "velmar-und-misdemeanor"), so check that the main artist is in it,
+    # the other artists are scored in calc_artists_match
     if len(song.artists) > 1 and len(result.artists) == 1:
-        res_main_artist = sort_string(slug_result_main_artist.split("-"), "-")
-
-        for artist in map(slugify, song.artists):
-            artist = sort_string(artist.split("-"), "-")
-
-            if artist in res_main_artist:
-                main_artist_match += 100 / len(song.artists)
+        if contains_words(slug_song_main_artist, slug_result_main_artist):
+            main_artist_match = 100.0
 
         debug(
             song.song_id,
@@ -378,6 +390,16 @@ def calc_artists_match(song: Song, result: Result) -> float:
     # Result has only one artist, return 0.0
     if len(song.artists) == 1 or not result.artists:
         return artist_match_number
+
+    # Result has only one artist, the other song artists are usually
+    # folded into the result's artist name or title (e.g. "Song (feat. Artist)")
+    if len(result.artists) == 1:
+        result_words = f"{slugify(result.artists[0])}-{slugify(result.name)}"
+        found_artists = sum(
+            contains_words(slugify(artist), result_words) for artist in song.artists[1:]
+        )
+
+        return found_artists / (len(song.artists) - 1) * 100
 
     artist1_list, artist2_list = based_sort(
         list(map(slugify, song.artists)), list(map(slugify, result.artists))
