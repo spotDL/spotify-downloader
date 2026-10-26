@@ -12,7 +12,6 @@ from datastar_py.fastapi import ReadSignals
 from datastar_py.fastapi import (
     ServerSentEventGenerator as SSE,  # DatastarResponse,; read_signals,
 )
-from datastar_py.fastapi import datastar_response
 from fastapi import APIRouter, Request
 from fastapi.templating import Jinja2Templates
 
@@ -23,7 +22,7 @@ from spotdl.utils.config import get_spotdl_path
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
 from spotdl.utils.search import get_search_results
 from spotdl.utils.web import Client, app_state, validate_search_term
-from spotdl.web.utils import Signals, handle_signals
+from spotdl.web.utils import Signals, datastar_response, handle_signals
 
 __all__ = ["router"]
 
@@ -41,8 +40,9 @@ async def home(request: Request):
     Handle the home page request.
     """
     return templates.TemplateResponse(
+        request=request,
         name="home.html.j2",
-        context={"request": request, "__version__": __version__},
+        context={"__version__": __version__},
     )
 
 
@@ -52,8 +52,9 @@ async def search(q: Optional[str], request: Request):
     Handle the search input.
     """
     return templates.TemplateResponse(
+        request=request,
         name="search.html.j2",
-        context={"request": request, "__version__": __version__, "search_term": q},
+        context={"__version__": __version__, "search_term": q},
     )
 
 
@@ -63,9 +64,9 @@ async def downloads(request: Request):
     Handle the downloads page request.
     """
     return templates.TemplateResponse(
+        request=request,
         name="downloads.html.j2",
         context={
-            "request": request,
             "__version__": __version__,
         },
     )

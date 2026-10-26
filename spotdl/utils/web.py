@@ -7,6 +7,7 @@ import argparse
 import asyncio
 import logging
 import mimetypes
+import re
 import threading
 from argparse import Namespace
 from typing import Any, Dict, Optional, Union
@@ -475,6 +476,8 @@ def validate_search_term(search_term: str) -> bool:
     ### Returns
     - True if the search term is valid, False otherwise.
     """
+    search_term = re.sub(r"\/intl-\w+\/", "/", search_term)
+
     return search_term != "" and (
         "://open.spotify.com/track/" in search_term
         or "://open.spotify.com/album/" in search_term

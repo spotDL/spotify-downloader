@@ -10,6 +10,7 @@ from spotdl.utils.ffmpeg import convert
 from spotdl.utils.metadata import embed_metadata, get_file_metadata
 
 
+@pytest.mark.live
 @pytest.mark.parametrize(
     "output_format",
     [

@@ -3,6 +3,7 @@ Module for all things matching related
 """
 
 import logging
+import re
 from itertools import product, zip_longest
 from math import exp
 from typing import Dict, List, Optional, Tuple
@@ -19,9 +20,11 @@ from spotdl.utils.logging import MATCH
 
 __all__ = [
     "FORBIDDEN_WORDS",
+    "ARTIST_JOIN_WORDS",
     "fill_string",
     "create_clean_string",
     "sort_string",
+    "contains_words",
     "based_sort",
     "check_common_word",
     "check_forbidden_words",
@@ -54,6 +57,22 @@ FORBIDDEN_WORDS = [
     "slowed",
     "instrumental",
     "cover",
+    "karaoke",
+]
+
+# Words that join artist names in a result's artist name or title
+# (e.g. "velmar-und-misdemeanor", "wasted-feat-alice-gray"),
+# YouTube Music results are in German so features can show up as "mit"
+ARTIST_JOIN_WORDS = [
+    "feat",
+    "ft",
+    "featuring",
+    "with",
+    "mit",
+    "x",
+    "and",
+    "und",
+    "vs",
 ]
 
 
@@ -146,6 +165,24 @@ def sort_string(strings: List[str], join_str: str) -> str:
     final_str.sort()
 
     return f"{join_str}".join(final_str)
+
+
+def contains_words(slug_words: str, slug_string: str) -> bool:
+    """
+    Check if a slug appears in another slug as a run of whole words
+
+    ### Arguments
+    - slug_words: slug to look for
+    - slug_string: slug to look in
+
+    ### Returns
+    - True if the words are present in order, False otherwise
+    """
+
+    if not slug_words:
+        return False
+
+    return f"-{slug_words}-" in f"-{slug_string}-"
 
 
 def based_sort(strings: List[str], based_on: List[str]) -> Tuple[List[str], List[str]]:
@@ -317,15 +354,45 @@ def calc_main_artist_match(song: Song, result: Result) -> float:
     slug_result_main_artist = sorted_result_artists[0]
 
     # Result has only one artist, but song has multiple artists
-    # we can assume that other artists are in the main artist name
+    # the result's artist name can contain the other artists too
+    # (e.g. "velmar-und-misdemeanor"), so check that the main artist is in it
+    # and that every other word is a song artist or a joining word,
+    # the other artists are scored in calc_artists_match
     if len(song.artists) > 1 and len(result.artists) == 1:
-        for artist in map(slugify, song.artists[1:]):
-            artist = sort_string(slugify(artist).split("-"), "-")
+        # Longest first, so an artist named like part of another one
+        # (e.g. "alpha" and "alpha-bravo") doesn't break up the longer name
+        leftover = f"-{slug_result_main_artist}-"
+        for artist in sorted(song_artists, key=len, reverse=True):
+            if artist:
+                leftover = leftover.replace(f"-{artist}-", "-", 1)
 
-            res_main_artist = sort_string(slug_result_main_artist.split("-"), "-")
+        leftover_words = [
+            word
+            for word in leftover.split("-")
+            if word and word not in ARTIST_JOIN_WORDS
+        ]
 
-            if artist in res_main_artist:
-                main_artist_match += 100 / len(song.artists)
+        if (
+            contains_words(slug_song_main_artist, slug_result_main_artist)
+            and not leftover_words
+        ):
+            main_artist_match = 100.0
+        else:
+            # Allow spelling differences (e.g. "a$ap-rocky" and "asap-rocky")
+            # but not different artists (e.g. "luco" and "luca", "drake" and "drake-bell")
+            spelling_match = ratio(
+                slug_song_main_artist.replace("-", ""),
+                slug_result_main_artist.replace("-", ""),
+            )
+
+            if spelling_match >= 85:
+                main_artist_match = spelling_match
+
+        debug(
+            song.song_id,
+            result.result_id,
+            f"Single result artist match: {main_artist_match}",
+        )
 
         return main_artist_match
 
@@ -371,6 +438,66 @@ def calc_artists_match(song: Song, result: Result) -> float:
     # Result has only one artist, return 0.0
     if len(song.artists) == 1 or not result.artists:
         return artist_match_number
+
+    # Result has only one artist, the other song artists are usually
+    # folded into the result's artist name or title (e.g. "Song (feat. Artist)"
+    # or "Artist/Artist - Song"), the song name is removed from the title so that
+    # artists named like a word of the song name are not matched
+    if len(result.artists) == 1:
+        slug_result_artist = slugify(result.artists[0])
+        slug_result_name = slugify(result.name)
+
+        # Song name without its own features (e.g. "Wasted (feat. Alice Gray)")
+        slug_song_name = slugify(
+            re.split(
+                r"\s(?:[(\[]\s*(?:feat|ft|featuring|with)\b|(?:feat|ft|featuring)\b)",
+                song.name,
+                maxsplit=1,
+                flags=re.IGNORECASE,
+            )[0]
+        )
+
+        if contains_words(slug_song_name, slug_result_name):
+            slug_title_artists = f"-{slug_result_name}-".replace(
+                f"-{slug_song_name}-", "-", 1
+            )
+        else:
+            # Song name not in the title, only check the part after a joining word
+            title_words = slug_result_name.split("-")
+            join_index = next(
+                (
+                    index
+                    for index, word in enumerate(title_words)
+                    if word in ARTIST_JOIN_WORDS
+                ),
+                len(title_words),
+            )
+            slug_title_artists = "-".join(title_words[join_index + 1 :])
+
+        # Remove the main artist, so that an other artist named like part of it
+        # (e.g. "khalid" in "dj-khalid") isn't found in the main artist's name.
+        # Not when the other artist's name contains the main artist instead
+        # (e.g. "dj-khalid" with main artist "khalid"), it would be broken up
+        slug_main_artist = slugify(song.artists[0])
+        slug_other_artists = f"-{slug_result_artist}-".replace(
+            f"-{slug_main_artist}-", "-", 1
+        )
+        slug_other_title_artists = f"-{slug_title_artists}-".replace(
+            f"-{slug_main_artist}-", "-", 1
+        )
+
+        found_artists = 0
+        for artist in map(slugify, song.artists[1:]):
+            if contains_words(slug_main_artist, artist):
+                found_artists += contains_words(
+                    artist, slug_result_artist
+                ) or contains_words(artist, slug_title_artists)
+            else:
+                found_artists += contains_words(
+                    artist, slug_other_artists
+                ) or contains_words(artist, slug_other_title_artists)
+
+        return found_artists / (len(song.artists) - 1) * 100
 
     artist1_list, artist2_list = based_sort(
         list(map(slugify, song.artists)), list(map(slugify, result.artists))
