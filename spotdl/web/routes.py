@@ -211,10 +211,18 @@ async def handle_post_client_settings(datastar_signals: ReadSignals):
     """
     signals = handle_signals(datastar_signals)
     client = Client.get_instance(signals.client_id)
-    if client is not None:
+    error = None
+    if client is not None and signals.downloader_settings is not None:
         app_state.logger.info(f"[{signals.client_id}] Updating settings...")
-        if signals.downloader_settings is not None:
-            client.downloader_settings = signals.downloader_settings
+        try:
+            client.update_settings(signals.downloader_settings)
+        except ValueError as exception:
+            error = str(exception)
+            app_state.logger.warning(
+                f"[{signals.client_id}] Invalid settings, not saved: {error}"
+            )
+
+    if client is not None and error is None:
         yield SSE.patch_elements("""
                 <div id="settings-status">
                     <div id="settings-is-saved" class="alert alert-success shadow-lg">
@@ -241,12 +249,20 @@ async def handle_post_client_settings(datastar_signals: ReadSignals):
             }
         )
     else:
-        app_state.logger.warning(
-            f"[{signals.client_id}] Client not found, cannot update settings."
-        )
-        yield SSE.patch_elements(
-            templates.get_template("status-disconnected.html.j2").render()
-        )
+        if client is None:
+            app_state.logger.warning(
+                f"[{signals.client_id}] Client not found, cannot update settings."
+            )
+            yield SSE.patch_elements(
+                templates.get_template("status-disconnected.html.j2").render()
+            )
+        else:
+            # Put the settings shown in the UI back to the saved ones
+            yield SSE.patch_signals(
+                {
+                    "downloader_settings": cast(Any, client.downloader_settings),
+                }
+            )
         yield SSE.patch_elements("""
                 <div id="settings-status">
                     <div id="settings-is-not-saved" class="alert alert-error shadow-lg">
@@ -312,8 +328,9 @@ async def gen_download(signals: Signals):
                 </button>
         """)
 
+    # Use the server's output setting, clients can't choose where files go
     if app_state.web_settings.get("web_use_output_dir", False):
-        client.downloader.settings["output"] = client.downloader_settings["output"]
+        client.downloader.settings["output"] = app_state.downloader_settings["output"]
     else:
         client.downloader.settings["output"] = str(
             (get_spotdl_path() / f"web/sessions/{client.client_id}").absolute()

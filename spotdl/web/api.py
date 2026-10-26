@@ -4,6 +4,7 @@ Module for handling API requests.
 
 import argparse
 import os
+import re
 import shutil
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -12,7 +13,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
 
 from spotdl._version import __version__
-from spotdl.download.downloader import Downloader
 from spotdl.types.album import Album
 from spotdl.types.artist import Artist
 from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
@@ -20,9 +20,11 @@ from spotdl.types.playlist import Playlist
 from spotdl.types.song import Song
 from spotdl.utils.arguments import create_parser
 from spotdl.utils.config import get_spotdl_path
+from spotdl.utils.ffmpeg import FFMPEG_FORMATS
 from spotdl.utils.github import RateLimitError, get_latest_version, get_status
 from spotdl.utils.search import get_search_results
 from spotdl.utils.web import (
+    WEB_EDITABLE_SETTINGS,
     ApplicationState,
     Client,
     app_state,
@@ -39,6 +41,10 @@ __all__ = [
 ]
 
 router = APIRouter()
+
+# Client ids are used in session directory names, so keep them path-safe.
+# The web UI generates UUIDs.
+CLIENT_ID_REGEX = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 
 
 # @router.websocket("/api/ws")
@@ -87,6 +93,9 @@ async def connect_endpoint(client_id: str):
     ### Arguments
     - websocket: The WebSocket instance.
     """
+
+    if not CLIENT_ID_REGEX.match(client_id):
+        raise HTTPException(status_code=400, detail="Invalid client_id.")
 
     await Client(client_id).connect()
 
@@ -177,8 +186,9 @@ async def download_url(
     - returns the file path if the song was downloaded.
     """
 
+    # Use the server's output setting, clients can't choose where files go
     if state.web_settings.get("web_use_output_dir", False):
-        client.downloader.settings["output"] = client.downloader_settings["output"]
+        client.downloader.settings["output"] = state.downloader_settings["output"]
     else:
         client.downloader.settings["output"] = str(
             (get_spotdl_path() / f"web/sessions/{client.client_id}").absolute()
@@ -225,20 +235,26 @@ async def download_file(
     - returns the file response, filename specified to return as attachment.
     """
 
-    expected_path = str((get_spotdl_path() / "web/sessions").absolute())
     if state.web_settings.get("web_use_output_dir", False):
-        expected_path = str(
-            Path(client.downloader_settings["output"].split("{", 1)[0]).absolute()
-        )
+        # Use the static part of the server's output template, if it ends
+        # partway through a file name, use the directory that file would be in
+        output_prefix = state.downloader_settings["output"].split("{", 1)[0]
+        expected_dir = Path(output_prefix)
+        if not output_prefix.endswith(("/", os.sep)):
+            expected_dir = expected_dir.parent
+    else:
+        expected_dir = get_spotdl_path() / f"web/sessions/{client.client_id}"
 
-    if (not file.endswith(client.downloader_settings["format"])) or (
-        not file.startswith(expected_path)
+    # Resolve both paths so ".." segments and symlinks can't escape the directory
+    file_path = Path(file).resolve()
+    if (file_path.suffix[1:] not in FFMPEG_FORMATS) or (
+        not file_path.is_relative_to(expected_dir.resolve())
     ):
         raise HTTPException(status_code=400, detail="Invalid download path.")
 
     return FileResponse(
-        file,
-        filename=os.path.basename(file),
+        file_path,
+        filename=file_path.name,
     )
 
 
@@ -263,7 +279,6 @@ def get_settings(
 def update_settings(
     settings: DownloaderOptionalOptions,
     client: Client = Depends(get_client),
-    state: ApplicationState = Depends(get_current_state),
 ) -> DownloaderOptions:
     """
     Update client settings, and re-initialize downloader.
@@ -271,30 +286,15 @@ def update_settings(
     ### Arguments
     - settings: The settings to change.
     - client: The client's state.
-    - state: The application state.
 
     ### Returns
-    - returns True if the settings were changed.
+    - returns the new settings.
     """
 
-    # Create shallow copy of settings
-    settings_cpy = client.downloader_settings.copy()
-
-    # Update settings with new settings that are not None
-    settings_cpy.update({k: v for k, v in settings.items() if v is not None})  # type: ignore
-
-    state.logger.info(f"Applying settings: {settings_cpy}")
-
-    new_settings = DownloaderOptions(**settings_cpy)  # type: ignore
-
-    # Re-initialize downloader
-    client.downloader_settings = new_settings
-    client.downloader = Downloader(
-        new_settings,
-        loop=state.loop,
-    )
-
-    return new_settings
+    try:
+        return client.update_settings(settings)
+    except ValueError as exception:
+        raise HTTPException(status_code=400, detail=str(exception)) from exception
 
 
 @router.get("/api/check_update")
@@ -333,46 +333,9 @@ def get_options() -> Dict[str, Any]:
 
     parser = create_parser()
 
-    # Forbidden actions
-    forbidden_actions = [
-        "help",
-        "operation",
-        "version",
-        "config",
-        "user_auth",
-        "use_official_api",
-        "client_id",
-        "client_secret",
-        "auth_token",
-        "cache_path",
-        "no_cache",
-        "cookie_file",
-        "ffmpeg",
-        "archive",
-        "host",
-        "port",
-        "keep_alive",
-        "enable_tls",
-        "key_file",
-        "cert_file",
-        "ca_file",
-        "allowed_origins",
-        "web_use_output_dir",
-        "keep_sessions",
-        "log_level",
-        "simple_tui",
-        "headless",
-        "download_ffmpeg",
-        "download_deno",
-        "generate_config",
-        "check_for_updates",
-        "profile",
-        "version",
-    ]
-
     options = {}
     for action in parser._actions:  # pylint: disable=protected-access
-        if action.dest in forbidden_actions:
+        if action.dest not in WEB_EDITABLE_SETTINGS:
             continue
 
         default = app_state.downloader_settings.get(action.dest, None)
