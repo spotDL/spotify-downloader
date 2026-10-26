@@ -5,7 +5,9 @@ from spotdl.types.song import Song
 
 
 @pytest.mark.vcr()
-def test_ytm_search():
+def test_ytm_search(mocker):
+    # Tie-breaking on view count goes through yt-dlp, which YouTube bot-checks on CI
+    mocker.patch.object(YouTubeMusic, "get_views", return_value=0)
     provider = YouTubeMusic()
 
     assert (

@@ -56,6 +56,7 @@ FORBIDDEN_WORDS = [
     "slowed",
     "instrumental",
     "cover",
+    "karaoke",
 ]
 
 # Words that join artist names in a result's artist name or title

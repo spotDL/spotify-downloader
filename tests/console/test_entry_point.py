@@ -52,6 +52,7 @@ def test_show_version(capsys, monkeypatch, argument):
     assert re.match(r"\d{1,2}\.\d{1,2}\.\d{1,3}", out) is not None
 
 
+@pytest.mark.live
 def test_download_song(capsys, monkeypatch, tmp_path):
     """
     This test checks if the song is downloaded correctly
@@ -82,6 +83,7 @@ def test_download_song(capsys, monkeypatch, tmp_path):
     assert "Downloaded" in out
 
 
+@pytest.mark.live
 def test_preload_song(capsys, monkeypatch, tmp_path):
     """
     This test checks if the song is preloaded correctly.

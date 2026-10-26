@@ -1802,8 +1802,6 @@ interactions:
         X-GitHub-Request-Id, Deprecation, Sunset
       Cache-Control:
       - public, max-age=60, s-maxage=60
-      Content-Encoding:
-      - gzip
       Content-Security-Policy:
       - default-src 'none'
       Content-Type:
@@ -1844,6 +1842,8 @@ interactions:
       - '1'
       X-XSS-Protection:
       - '0'
+      content-length:
+      - '368950'
       x-github-api-version-selected:
       - '2022-11-28'
     status:
@@ -1864,184 +1864,166 @@ interactions:
     uri: https://api.github.com/repos/spotdl/spotify-downloader/compare/master...dev
   response:
     body:
-      string: !!binary |
-        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
+      string: '{"url":"https://api.github.com/repos/spotDL/spotify-downloader/compare/master...dev","html_url":"https://github.com/spotDL/spotify-downloader/compare/master...dev","permalink_url":"https://github.com/spotDL/spotify-downloader/compare/spotDL:a316330...spotDL:55bec66","diff_url":"https://github.com/spotDL/spotify-downloader/compare/master...dev.diff","patch_url":"https://github.com/spotDL/spotify-downloader/compare/master...dev.patch","base_commit":{"sha":"a3163302c3032e8310dfee4dae5fe2490f0910a4","node_id":"C_kwDOA71kIdoAKGEzMTYzMzAyYzMwMzJlODMxMGRmZWU0ZGFlNWZlMjQ5MGYwOTEwYTQ","commit":{"author":{"name":"Jayden","email":"23619946+Silverarmor@users.noreply.github.com","date":"2025-08-19T06:29:43Z"},"committer":{"name":"GitHub","email":"noreply@github.com","date":"2025-08-19T06:29:43Z"},"message":"Publish
+        v4.4.1 (#2451)","tree":{"sha":"9d2ce4adbb09c6c514f29b86adb61edec7141314","url":"https://api.github.com/repos/spotDL/spotify-downloader/git/trees/9d2ce4adbb09c6c514f29b86adb61edec7141314"},"url":"https://api.github.com/repos/spotDL/spotify-downloader/git/commits/a3163302c3032e8310dfee4dae5fe2490f0910a4","comment_count":0,"verification":{"verified":true,"reason":"valid","signature":"-----BEGIN
+        PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJopBnXCRC1aQ7uu5UhlAAApREQACBsH2rdSqnxFDoKR8gBcStV\nqehCbNzrdFNCWEii/SlVLdgZ1LALlfvsEl4vIp4E8+r3f1AKOKKcOVhTRZO5NgWT\nxmu137AITvOFQhuDbVhyKafKHbg2wXCMY/7ybUJZp+X4UUMKIRPgf+1eIOtJEy4b\npZ1SxEoDt9+W2pi6Q4OJ03CybmEjoALOIMESuatqkhUYYPVXNea8LZuSwa84SuCd\nIP56iwSzwuaOuCZzateO2G0p7bvILTxSYKg/IoJOAeqiQmU6nZF8MR/CNhDDg619\nyX2C/8Q4WPzfkFQ0vxy8V2dRmcFawYAeqZfL8fBsVB8vKGCKylCqTEcu1tYhfjO4\nHaA77kb2OWRV1s+KZ2A7UtfwmSAeyVkqyrPQJqY5IM5edDiJ63TYGNlugNu3U8Jn\nbmwKMK4nJicS2rCi/Wo4mnvI2RHiyhT/zl+SH+EqjX8eQmjpsoacqEL+aB8Zs4lR\nb5Qe5Xse7/S4fK1a394VGqC3t4h96Fg2SX6v087f7CdgRIim6GLWbM9ETjZYGwMk\nX6ZNd1lV3kZUcjKpN3eZghPs5uGbaOE39ZDeVcGMsTWgfM9EkzUKDvMW0eDkiMIL\nIMPZGljfHi7SARt9lUEvHEwGR28mqQbkkshji6f2zx7qGIb1368q3e9oMVimgmgX\nFdTcx9ZOa5JtgONnsK8h\n=kTob\n-----END
+        PGP SIGNATURE-----\n","payload":"tree 9d2ce4adbb09c6c514f29b86adb61edec7141314\nparent
+        dce07ef61ec7397ba07340a827279af61b87e778\nparent 37ca3826aa120d4ee84a6ae7e9f89f827ad4396c\nauthor
+        Jayden <23619946+Silverarmor@users.noreply.github.com> 1755584983 +1200\ncommitter
+        GitHub <noreply@github.com> 1755584983 +1200\n\nPublish v4.4.1 (#2451)\n\n","verified_at":"2025-08-19T06:29:44Z"}},"url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/a3163302c3032e8310dfee4dae5fe2490f0910a4","html_url":"https://github.com/spotDL/spotify-downloader/commit/a3163302c3032e8310dfee4dae5fe2490f0910a4","comments_url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/a3163302c3032e8310dfee4dae5fe2490f0910a4/comments","author":{"login":"Silverarmor","id":23619946,"node_id":"MDQ6VXNlcjIzNjE5OTQ2","avatar_url":"https://avatars.githubusercontent.com/u/23619946?v=4","gravatar_id":"","url":"https://api.github.com/users/Silverarmor","html_url":"https://github.com/Silverarmor","followers_url":"https://api.github.com/users/Silverarmor/followers","following_url":"https://api.github.com/users/Silverarmor/following{/other_user}","gists_url":"https://api.github.com/users/Silverarmor/gists{/gist_id}","starred_url":"https://api.github.com/users/Silverarmor/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/Silverarmor/subscriptions","organizations_url":"https://api.github.com/users/Silverarmor/orgs","repos_url":"https://api.github.com/users/Silverarmor/repos","events_url":"https://api.github.com/users/Silverarmor/events{/privacy}","received_events_url":"https://api.github.com/users/Silverarmor/received_events","type":"User","user_view_type":"public","site_admin":false},"committer":{"login":"web-flow","id":19864447,"node_id":"MDQ6VXNlcjE5ODY0NDQ3","avatar_url":"https://avatars.githubusercontent.com/u/19864447?v=4","gravatar_id":"","url":"https://api.github.com/users/web-flow","html_url":"https://github.com/web-flow","followers_url":"https://api.github.com/users/web-flow/followers","following_url":"https://api.github.com/users/web-flow/following{/other_user}","gists_url":"https://api.github.com/users/web-flow/gists{/gist_id}","starred_url":"https://api.github.com/users/web-flow/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/web-flow/subscriptions","organizations_url":"https://api.github.com/users/web-flow/orgs","repos_url":"https://api.github.com/users/web-flow/repos","events_url":"https://api.github.com/users/web-flow/events{/privacy}","received_events_url":"https://api.github.com/users/web-flow/received_events","type":"User","user_view_type":"public","site_admin":false},"parents":[{"sha":"dce07ef61ec7397ba07340a827279af61b87e778","url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/dce07ef61ec7397ba07340a827279af61b87e778","html_url":"https://github.com/spotDL/spotify-downloader/commit/dce07ef61ec7397ba07340a827279af61b87e778"},{"sha":"37ca3826aa120d4ee84a6ae7e9f89f827ad4396c","url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/37ca3826aa120d4ee84a6ae7e9f89f827ad4396c","html_url":"https://github.com/spotDL/spotify-downloader/commit/37ca3826aa120d4ee84a6ae7e9f89f827ad4396c"}]},"merge_base_commit":{"sha":"a3163302c3032e8310dfee4dae5fe2490f0910a4","node_id":"C_kwDOA71kIdoAKGEzMTYzMzAyYzMwMzJlODMxMGRmZWU0ZGFlNWZlMjQ5MGYwOTEwYTQ","commit":{"author":{"name":"Jayden","email":"23619946+Silverarmor@users.noreply.github.com","date":"2025-08-19T06:29:43Z"},"committer":{"name":"GitHub","email":"noreply@github.com","date":"2025-08-19T06:29:43Z"},"message":"Publish
+        v4.4.1 (#2451)","tree":{"sha":"9d2ce4adbb09c6c514f29b86adb61edec7141314","url":"https://api.github.com/repos/spotDL/spotify-downloader/git/trees/9d2ce4adbb09c6c514f29b86adb61edec7141314"},"url":"https://api.github.com/repos/spotDL/spotify-downloader/git/commits/a3163302c3032e8310dfee4dae5fe2490f0910a4","comment_count":0,"verification":{"verified":true,"reason":"valid","signature":"-----BEGIN
+        PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJopBnXCRC1aQ7uu5UhlAAApREQACBsH2rdSqnxFDoKR8gBcStV\nqehCbNzrdFNCWEii/SlVLdgZ1LALlfvsEl4vIp4E8+r3f1AKOKKcOVhTRZO5NgWT\nxmu137AITvOFQhuDbVhyKafKHbg2wXCMY/7ybUJZp+X4UUMKIRPgf+1eIOtJEy4b\npZ1SxEoDt9+W2pi6Q4OJ03CybmEjoALOIMESuatqkhUYYPVXNea8LZuSwa84SuCd\nIP56iwSzwuaOuCZzateO2G0p7bvILTxSYKg/IoJOAeqiQmU6nZF8MR/CNhDDg619\nyX2C/8Q4WPzfkFQ0vxy8V2dRmcFawYAeqZfL8fBsVB8vKGCKylCqTEcu1tYhfjO4\nHaA77kb2OWRV1s+KZ2A7UtfwmSAeyVkqyrPQJqY5IM5edDiJ63TYGNlugNu3U8Jn\nbmwKMK4nJicS2rCi/Wo4mnvI2RHiyhT/zl+SH+EqjX8eQmjpsoacqEL+aB8Zs4lR\nb5Qe5Xse7/S4fK1a394VGqC3t4h96Fg2SX6v087f7CdgRIim6GLWbM9ETjZYGwMk\nX6ZNd1lV3kZUcjKpN3eZghPs5uGbaOE39ZDeVcGMsTWgfM9EkzUKDvMW0eDkiMIL\nIMPZGljfHi7SARt9lUEvHEwGR28mqQbkkshji6f2zx7qGIb1368q3e9oMVimgmgX\nFdTcx9ZOa5JtgONnsK8h\n=kTob\n-----END
+        PGP SIGNATURE-----\n","payload":"tree 9d2ce4adbb09c6c514f29b86adb61edec7141314\nparent
+        dce07ef61ec7397ba07340a827279af61b87e778\nparent 37ca3826aa120d4ee84a6ae7e9f89f827ad4396c\nauthor
+        Jayden <23619946+Silverarmor@users.noreply.github.com> 1755584983 +1200\ncommitter
+        GitHub <noreply@github.com> 1755584983 +1200\n\nPublish v4.4.1 (#2451)\n\n","verified_at":"2025-08-19T06:29:44Z"}},"url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/a3163302c3032e8310dfee4dae5fe2490f0910a4","html_url":"https://github.com/spotDL/spotify-downloader/commit/a3163302c3032e8310dfee4dae5fe2490f0910a4","comments_url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/a3163302c3032e8310dfee4dae5fe2490f0910a4/comments","author":{"login":"Silverarmor","id":23619946,"node_id":"MDQ6VXNlcjIzNjE5OTQ2","avatar_url":"https://avatars.githubusercontent.com/u/23619946?v=4","gravatar_id":"","url":"https://api.github.com/users/Silverarmor","html_url":"https://github.com/Silverarmor","followers_url":"https://api.github.com/users/Silverarmor/followers","following_url":"https://api.github.com/users/Silverarmor/following{/other_user}","gists_url":"https://api.github.com/users/Silverarmor/gists{/gist_id}","starred_url":"https://api.github.com/users/Silverarmor/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/Silverarmor/subscriptions","organizations_url":"https://api.github.com/users/Silverarmor/orgs","repos_url":"https://api.github.com/users/Silverarmor/repos","events_url":"https://api.github.com/users/Silverarmor/events{/privacy}","received_events_url":"https://api.github.com/users/Silverarmor/received_events","type":"User","user_view_type":"public","site_admin":false},"committer":{"login":"web-flow","id":19864447,"node_id":"MDQ6VXNlcjE5ODY0NDQ3","avatar_url":"https://avatars.githubusercontent.com/u/19864447?v=4","gravatar_id":"","url":"https://api.github.com/users/web-flow","html_url":"https://github.com/web-flow","followers_url":"https://api.github.com/users/web-flow/followers","following_url":"https://api.github.com/users/web-flow/following{/other_user}","gists_url":"https://api.github.com/users/web-flow/gists{/gist_id}","starred_url":"https://api.github.com/users/web-flow/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/web-flow/subscriptions","organizations_url":"https://api.github.com/users/web-flow/orgs","repos_url":"https://api.github.com/users/web-flow/repos","events_url":"https://api.github.com/users/web-flow/events{/privacy}","received_events_url":"https://api.github.com/users/web-flow/received_events","type":"User","user_view_type":"public","site_admin":false},"parents":[{"sha":"dce07ef61ec7397ba07340a827279af61b87e778","url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/dce07ef61ec7397ba07340a827279af61b87e778","html_url":"https://github.com/spotDL/spotify-downloader/commit/dce07ef61ec7397ba07340a827279af61b87e778"},{"sha":"37ca3826aa120d4ee84a6ae7e9f89f827ad4396c","url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/37ca3826aa120d4ee84a6ae7e9f89f827ad4396c","html_url":"https://github.com/spotDL/spotify-downloader/commit/37ca3826aa120d4ee84a6ae7e9f89f827ad4396c"}]},"status":"ahead","ahead_by":9,"behind_by":0,"total_commits":9,"commits":[{"sha":"a40a1431a11dca9483fd5526e368ede2a8f62cfe","node_id":"C_kwDOA71kIdoAKGE0MGExNDMxYTExZGNhOTQ4M2ZkNTUyNmUzNjhlZGUyYThmNjJjZmU","commit":{"author":{"name":"Satvik
+        Gosai","email":"136249990+satvikgosai@users.noreply.github.com","date":"2025-08-27T13:02:09Z"},"committer":{"name":"Satvik
+        Gosai","email":"136249990+satvikgosai@users.noreply.github.com","date":"2025-08-27T13:02:09Z"},"message":"fix
+        azlyrics request failure, handle too many redirects error and change user
+        agent","tree":{"sha":"b883afe2e9af6d8869608169db2ec1491cdbd683","url":"https://api.github.com/repos/spotDL/spotify-downloader/git/trees/b883afe2e9af6d8869608169db2ec1491cdbd683"},"url":"https://api.github.com/repos/spotDL/spotify-downloader/git/commits/a40a1431a11dca9483fd5526e368ede2a8f62cfe","comment_count":0,"verification":{"verified":false,"reason":"unsigned","signature":null,"payload":null,"verified_at":null}},"url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/a40a1431a11dca9483fd5526e368ede2a8f62cfe","html_url":"https://github.com/spotDL/spotify-downloader/commit/a40a1431a11dca9483fd5526e368ede2a8f62cfe","comments_url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/a40a1431a11dca9483fd5526e368ede2a8f62cfe/comments","author":{"login":"satvikgosai","id":136249990,"node_id":"U_kgDOCB8Chg","avatar_url":"https://avatars.githubusercontent.com/u/136249990?v=4","gravatar_id":"","url":"https://api.github.com/users/satvikgosai","html_url":"https://github.com/satvikgosai","followers_url":"https://api.github.com/users/satvikgosai/followers","following_url":"https://api.github.com/users/satvikgosai/following{/other_user}","gists_url":"https://api.github.com/users/satvikgosai/gists{/gist_id}","starred_url":"https://api.github.com/users/satvikgosai/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/satvikgosai/subscriptions","organizations_url":"https://api.github.com/users/satvikgosai/orgs","repos_url":"https://api.github.com/users/satvikgosai/repos","events_url":"https://api.github.com/users/satvikgosai/events{/privacy}","received_events_url":"https://api.github.com/users/satvikgosai/received_events","type":"User","user_view_type":"public","site_admin":false},"committer":{"login":"satvikgosai","id":136249990,"node_id":"U_kgDOCB8Chg","avatar_url":"https://avatars.githubusercontent.com/u/136249990?v=4","gravatar_id":"","url":"https://api.github.com/users/satvikgosai","html_url":"https://github.com/satvikgosai","followers_url":"https://api.github.com/users/satvikgosai/followers","following_url":"https://api.github.com/users/satvikgosai/following{/other_user}","gists_url":"https://api.github.com/users/satvikgosai/gists{/gist_id}","starred_url":"https://api.github.com/users/satvikgosai/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/satvikgosai/subscriptions","organizations_url":"https://api.github.com/users/satvikgosai/orgs","repos_url":"https://api.github.com/users/satvikgosai/repos","events_url":"https://api.github.com/users/satvikgosai/events{/privacy}","received_events_url":"https://api.github.com/users/satvikgosai/received_events","type":"User","user_view_type":"public","site_admin":false},"parents":[{"sha":"a3163302c3032e8310dfee4dae5fe2490f0910a4","url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/a3163302c3032e8310dfee4dae5fe2490f0910a4","html_url":"https://github.com/spotDL/spotify-downloader/commit/a3163302c3032e8310dfee4dae5fe2490f0910a4"}]},{"sha":"ab0544c79444acfbd385ee1ab42ccfa27fe1dd55","node_id":"C_kwDOA71kIdoAKGFiMDU0NGM3OTQ0NGFjZmJkMzg1ZWUxYWI0MmNjZmEyN2ZlMWRkNTU","commit":{"author":{"name":"Satvik
+        Gosai","email":"136249990+satvikgosai@users.noreply.github.com","date":"2025-08-28T06:53:34Z"},"committer":{"name":"Satvik
+        Gosai","email":"136249990+satvikgosai@users.noreply.github.com","date":"2025-08-28T06:53:34Z"},"message":"return
+        None instead of pass in azlyrics provider","tree":{"sha":"0e15902514de75776278e54eb48fe4ed772847f0","url":"https://api.github.com/repos/spotDL/spotify-downloader/git/trees/0e15902514de75776278e54eb48fe4ed772847f0"},"url":"https://api.github.com/repos/spotDL/spotify-downloader/git/commits/ab0544c79444acfbd385ee1ab42ccfa27fe1dd55","comment_count":0,"verification":{"verified":false,"reason":"unsigned","signature":null,"payload":null,"verified_at":null}},"url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/ab0544c79444acfbd385ee1ab42ccfa27fe1dd55","html_url":"https://github.com/spotDL/spotify-downloader/commit/ab0544c79444acfbd385ee1ab42ccfa27fe1dd55","comments_url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/ab0544c79444acfbd385ee1ab42ccfa27fe1dd55/comments","author":{"login":"satvikgosai","id":136249990,"node_id":"U_kgDOCB8Chg","avatar_url":"https://avatars.githubusercontent.com/u/136249990?v=4","gravatar_id":"","url":"https://api.github.com/users/satvikgosai","html_url":"https://github.com/satvikgosai","followers_url":"https://api.github.com/users/satvikgosai/followers","following_url":"https://api.github.com/users/satvikgosai/following{/other_user}","gists_url":"https://api.github.com/users/satvikgosai/gists{/gist_id}","starred_url":"https://api.github.com/users/satvikgosai/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/satvikgosai/subscriptions","organizations_url":"https://api.github.com/users/satvikgosai/orgs","repos_url":"https://api.github.com/users/satvikgosai/repos","events_url":"https://api.github.com/users/satvikgosai/events{/privacy}","received_events_url":"https://api.github.com/users/satvikgosai/received_events","type":"User","user_view_type":"public","site_admin":false},"committer":{"login":"satvikgosai","id":136249990,"node_id":"U_kgDOCB8Chg","avatar_url":"https://avatars.githubusercontent.com/u/136249990?v=4","gravatar_id":"","url":"https://api.github.com/users/satvikgosai","html_url":"https://github.com/satvikgosai","followers_url":"https://api.github.com/users/satvikgosai/followers","following_url":"https://api.github.com/users/satvikgosai/following{/other_user}","gists_url":"https://api.github.com/users/satvikgosai/gists{/gist_id}","starred_url":"https://api.github.com/users/satvikgosai/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/satvikgosai/subscriptions","organizations_url":"https://api.github.com/users/satvikgosai/orgs","repos_url":"https://api.github.com/users/satvikgosai/repos","events_url":"https://api.github.com/users/satvikgosai/events{/privacy}","received_events_url":"https://api.github.com/users/satvikgosai/received_events","type":"User","user_view_type":"public","site_admin":false},"parents":[{"sha":"a40a1431a11dca9483fd5526e368ede2a8f62cfe","url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/a40a1431a11dca9483fd5526e368ede2a8f62cfe","html_url":"https://github.com/spotDL/spotify-downloader/commit/a40a1431a11dca9483fd5526e368ede2a8f62cfe"}]},{"sha":"a610c3ac9d47c2331a94ff49ca9a8c683f164be1","node_id":"C_kwDOA71kIdoAKGE2MTBjM2FjOWQ0N2MyMzMxYTk0ZmY0OWNhOWE4YzY4M2YxNjRiZTE","commit":{"author":{"name":"Jayden","email":"23619946+Silverarmor@users.noreply.github.com","date":"2025-08-30T00:33:34Z"},"committer":{"name":"GitHub","email":"noreply@github.com","date":"2025-08-30T00:33:34Z"},"message":"Update
+        spotdl/providers/lyrics/azlyrics.py","tree":{"sha":"b883afe2e9af6d8869608169db2ec1491cdbd683","url":"https://api.github.com/repos/spotDL/spotify-downloader/git/trees/b883afe2e9af6d8869608169db2ec1491cdbd683"},"url":"https://api.github.com/repos/spotDL/spotify-downloader/git/commits/a610c3ac9d47c2331a94ff49ca9a8c683f164be1","comment_count":0,"verification":{"verified":true,"reason":"valid","signature":"-----BEGIN
+        PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJoskbeCRC1aQ7uu5UhlAAAta4QAExu23PGnwjrFPJCCmAKGWDk\noCI7LRi7UFHHIHtUtWGNI9T8i0nkgcRtHmyGQDYJJ5SWWUhxK12dfLTrR6eaETLU\nHjI2ivjxuifFLAqKYx/mt1FREZe67cuTS2wbk8uYYNXydAC4xWgf9AVVxgs+DSlw\nNKzEXjCKYUzpb4OMG6bCl28501flEMYYPQl05jkXbemv3jbRddZvSS/tNhTpTqik\nY0uqApGT/8LnWMCy1cUSOOG1gxasksf64YCsUpq4FJvYGjdpgkZAXs3zMRC17jGf\n/IfmULvi3QzIMKbI/RTkIU5ot0uis8ffe44xX5YmvInhMvZ4jRMNxNSun8inir7s\nbH9S1n8cKX44G9B6K8r4Sm3pOijWD2sRRKAgwjxt9nJfVxdH/3Lfp0S5qDKGADu4\nnVm7KuFnPcnF0VQkz/M+jmOLHLMD775Zv/0Err5rbDdCicvDrwxBywokuJRhQfsR\nz2is7weTxHSRg0PQ6/0og5iSJD3JjJhs6rvbq8iFVctXnZTE+G8rP76RTg2FSNHP\nzXoCfnCDh2CUAmAL9uIUFzLPEimwf/6AgF0T84gRAhKA6D+BuJQtbqq348kxwXW0\n20Mq9tQbInSLvDDp9bHvhDA+fXT8R3vdKuamBz8B5oKBEYZnmHoC1H+Tp1p2KXTq\nHiZggtYUuQycFLgcrgbk\n=YPmA\n-----END
+        PGP SIGNATURE-----\n","payload":"tree b883afe2e9af6d8869608169db2ec1491cdbd683\nparent
+        ab0544c79444acfbd385ee1ab42ccfa27fe1dd55\nauthor Jayden <23619946+Silverarmor@users.noreply.github.com>
+        1756514014 +1200\ncommitter GitHub <noreply@github.com> 1756514014 +1200\n\nUpdate
+        spotdl/providers/lyrics/azlyrics.py","verified_at":"2025-08-30T00:33:35Z"}},"url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/a610c3ac9d47c2331a94ff49ca9a8c683f164be1","html_url":"https://github.com/spotDL/spotify-downloader/commit/a610c3ac9d47c2331a94ff49ca9a8c683f164be1","comments_url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/a610c3ac9d47c2331a94ff49ca9a8c683f164be1/comments","author":{"login":"Silverarmor","id":23619946,"node_id":"MDQ6VXNlcjIzNjE5OTQ2","avatar_url":"https://avatars.githubusercontent.com/u/23619946?v=4","gravatar_id":"","url":"https://api.github.com/users/Silverarmor","html_url":"https://github.com/Silverarmor","followers_url":"https://api.github.com/users/Silverarmor/followers","following_url":"https://api.github.com/users/Silverarmor/following{/other_user}","gists_url":"https://api.github.com/users/Silverarmor/gists{/gist_id}","starred_url":"https://api.github.com/users/Silverarmor/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/Silverarmor/subscriptions","organizations_url":"https://api.github.com/users/Silverarmor/orgs","repos_url":"https://api.github.com/users/Silverarmor/repos","events_url":"https://api.github.com/users/Silverarmor/events{/privacy}","received_events_url":"https://api.github.com/users/Silverarmor/received_events","type":"User","user_view_type":"public","site_admin":false},"committer":{"login":"web-flow","id":19864447,"node_id":"MDQ6VXNlcjE5ODY0NDQ3","avatar_url":"https://avatars.githubusercontent.com/u/19864447?v=4","gravatar_id":"","url":"https://api.github.com/users/web-flow","html_url":"https://github.com/web-flow","followers_url":"https://api.github.com/users/web-flow/followers","following_url":"https://api.github.com/users/web-flow/following{/other_user}","gists_url":"https://api.github.com/users/web-flow/gists{/gist_id}","starred_url":"https://api.github.com/users/web-flow/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/web-flow/subscriptions","organizations_url":"https://api.github.com/users/web-flow/orgs","repos_url":"https://api.github.com/users/web-flow/repos","events_url":"https://api.github.com/users/web-flow/events{/privacy}","received_events_url":"https://api.github.com/users/web-flow/received_events","type":"User","user_view_type":"public","site_admin":false},"parents":[{"sha":"ab0544c79444acfbd385ee1ab42ccfa27fe1dd55","url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/ab0544c79444acfbd385ee1ab42ccfa27fe1dd55","html_url":"https://github.com/spotDL/spotify-downloader/commit/ab0544c79444acfbd385ee1ab42ccfa27fe1dd55"}]},{"sha":"76cc4dc1be734ba204d65333b70eaf5044220b8b","node_id":"C_kwDOA71kIdoAKDc2Y2M0ZGMxYmU3MzRiYTIwNGQ2NTMzM2I3MGVhZjUwNDQyMjBiOGI","commit":{"author":{"name":"Jayden","email":"23619946+Silverarmor@users.noreply.github.com","date":"2025-08-30T00:37:39Z"},"committer":{"name":"Jayden","email":"23619946+Silverarmor@users.noreply.github.com","date":"2025-08-30T00:37:39Z"},"message":"Black
+        formatting","tree":{"sha":"ecadf0cec0030c13975d24817dbeb9d2354359c7","url":"https://api.github.com/repos/spotDL/spotify-downloader/git/trees/ecadf0cec0030c13975d24817dbeb9d2354359c7"},"url":"https://api.github.com/repos/spotDL/spotify-downloader/git/commits/76cc4dc1be734ba204d65333b70eaf5044220b8b","comment_count":0,"verification":{"verified":false,"reason":"unsigned","signature":null,"payload":null,"verified_at":null}},"url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/76cc4dc1be734ba204d65333b70eaf5044220b8b","html_url":"https://github.com/spotDL/spotify-downloader/commit/76cc4dc1be734ba204d65333b70eaf5044220b8b","comments_url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/76cc4dc1be734ba204d65333b70eaf5044220b8b/comments","author":{"login":"Silverarmor","id":23619946,"node_id":"MDQ6VXNlcjIzNjE5OTQ2","avatar_url":"https://avatars.githubusercontent.com/u/23619946?v=4","gravatar_id":"","url":"https://api.github.com/users/Silverarmor","html_url":"https://github.com/Silverarmor","followers_url":"https://api.github.com/users/Silverarmor/followers","following_url":"https://api.github.com/users/Silverarmor/following{/other_user}","gists_url":"https://api.github.com/users/Silverarmor/gists{/gist_id}","starred_url":"https://api.github.com/users/Silverarmor/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/Silverarmor/subscriptions","organizations_url":"https://api.github.com/users/Silverarmor/orgs","repos_url":"https://api.github.com/users/Silverarmor/repos","events_url":"https://api.github.com/users/Silverarmor/events{/privacy}","received_events_url":"https://api.github.com/users/Silverarmor/received_events","type":"User","user_view_type":"public","site_admin":false},"committer":{"login":"Silverarmor","id":23619946,"node_id":"MDQ6VXNlcjIzNjE5OTQ2","avatar_url":"https://avatars.githubusercontent.com/u/23619946?v=4","gravatar_id":"","url":"https://api.github.com/users/Silverarmor","html_url":"https://github.com/Silverarmor","followers_url":"https://api.github.com/users/Silverarmor/followers","following_url":"https://api.github.com/users/Silverarmor/following{/other_user}","gists_url":"https://api.github.com/users/Silverarmor/gists{/gist_id}","starred_url":"https://api.github.com/users/Silverarmor/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/Silverarmor/subscriptions","organizations_url":"https://api.github.com/users/Silverarmor/orgs","repos_url":"https://api.github.com/users/Silverarmor/repos","events_url":"https://api.github.com/users/Silverarmor/events{/privacy}","received_events_url":"https://api.github.com/users/Silverarmor/received_events","type":"User","user_view_type":"public","site_admin":false},"parents":[{"sha":"a610c3ac9d47c2331a94ff49ca9a8c683f164be1","url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/a610c3ac9d47c2331a94ff49ca9a8c683f164be1","html_url":"https://github.com/spotDL/spotify-downloader/commit/a610c3ac9d47c2331a94ff49ca9a8c683f164be1"}]},{"sha":"cbcd5187f78ac2ac82f4e92f03446abf24d52aff","node_id":"C_kwDOA71kIdoAKGNiY2Q1MTg3Zjc4YWMyYWM4MmY0ZTkyZjAzNDQ2YWJmMjRkNTJhZmY","commit":{"author":{"name":"Jayden","email":"23619946+Silverarmor@users.noreply.github.com","date":"2025-08-30T00:46:44Z"},"committer":{"name":"GitHub","email":"noreply@github.com","date":"2025-08-30T00:46:44Z"},"message":"AZLyrics:
+        change user agent and catch too many redirects error (#2477)\n\n# Title\nToo
+        Many Redirects error causes spotdl to crash\n\n## Description\nOn `macOS Sequoia
+        15.5` with `Python 3.13.7` and  `spotdl 4.4.1`\nWhile trying to download a
+        track it crashes, cause of this crash seems\nto be unhandled `requests.TooManyRedirects`
+        error\n\nThere are two changes here\n1. It seems api is returning 302 because
+        of user agent spoofing, by\nusing different user agent this could be avoided\n2.
+        handle the error\n\n## Related Issue\n<!--- This project only accepts pull
+        requests related to open issues -->\n<!--- If suggesting a new feature or
+        change, please discuss it in an\nissue first -->\n<!--- If fixing a bug, there
+        should be an issue describing it with steps\nto reproduce -->\n<!--- Please
+        link to the issue here: -->\n\n## Motivation and Context\n<!--- Why is this
+        change required? What problem does it solve? -->\n\n## How Has This Been Tested?\nTested
+        it by downloading the content and it solved the issue  \n\n## Screenshots
+        (if appropriate)\n<img width=\"520\" height=\"800\" alt=\"Spotdl_crash\"\nsrc=\"https://github.com/user-attachments/assets/c7063ce2-b1ac-4ae9-a664-de71331a5743\"\n/>\n\n<img
+        width=\"394\" height=\"190\" alt=\"azlyrics_curl\"\nsrc=\"https://github.com/user-attachments/assets/69bed2ba-2068-4cb5-ada0-27017fea28f9\"\n/>\n\n##
+        Types of Changes\n<!--- What types of changes does your code introduce? Put
+        an `x` in all\nthe boxes that apply: -->\n- [x] Bug fix (non-breaking change
+        which fixes an issue)\n- [ ] New feature (non-breaking change which adds functionality)\n-
+        [ ] Breaking change (fix or feature that would cause existing\nfunctionality
+        to change)\n\n## Checklist\n<!--- Go over all the following points, and put
+        an `x` in all the boxes\nthat apply. -->\n<!--- If you''re unsure about any
+        of these, don''t hesitate to ask. We''re\nhere to help! -->\n- [x] My code
+        follows the code style of this project\n- [ ] My change requires a change
+        to the documentation\n- [ ] I have updated the documentation accordingly\n-
+        [x] I have read the [CONTRIBUTING](/docs/CONTRIBUTING.md) document\n- [ ]
+        I have added tests to cover my changes\n- [ ] All new and existing tests passed","tree":{"sha":"ecadf0cec0030c13975d24817dbeb9d2354359c7","url":"https://api.github.com/repos/spotDL/spotify-downloader/git/trees/ecadf0cec0030c13975d24817dbeb9d2354359c7"},"url":"https://api.github.com/repos/spotDL/spotify-downloader/git/commits/cbcd5187f78ac2ac82f4e92f03446abf24d52aff","comment_count":0,"verification":{"verified":true,"reason":"valid","signature":"-----BEGIN
+        PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJoskn0CRC1aQ7uu5UhlAAASK0QAH2B9/bM6S9erllYaXgP2Vzb\n2re5NcKVaSNQ8gWZZEb1Z+eDLtsw9F3VPajHMZHsjJ4OwOmoYdr9X2XMiOVQWBD8\ncCAa7hKbFhgMm9996B5YdNb3oOPvo7AglbVPhEhIjOcEniG1tkYIWYfr0lfVAwDs\n8Cgie9o66ftXkBSdt1Wz1K5CFsZcOP0agpY9HwIR6uqrvniooSqH5kk/n7sOdhSp\nSB0Nw6N0V2SlOMCRtPlNf6eQAgYhxdQsE4oEYHvJeOjQdwfKaonIUalP3lvTKGdE\ns89eZDqmgVRH3eNTvpd2UdPqIM30by+tuk1cgGOaqF4mp9Rp2zEc9H5CBoAoJp3U\nlFdghJz1pqVbgn85UV2CdGBkE7AxVaqcx6Yu6Z37ts5iPFHA5w7d6iucViWxtTgG\nxxaG9coJWlLYBEooj6oRsO0DcRyNvftsIaQbcSwzNoxSWjfv0/V0QrVXaEGnTqxi\n27dRQM+1kCnbgjI86B4Qc4GKDioHSnajhiRrw4qscBBTgk6POfjrRYsqmJKkgZUR\nXZzRia8LApm5wZYh72FYb6rSVT5vvu7/gnqszYeqNhpVL1Z6v4DUOUFvJ/GG8TmW\nFfPK/5sfJJpGaxKI3YAe3Q2y3uHkNE9HDdZgazv1RTV378sDHMVYfyErDgZtSpgm\nx11mIYyT/2vKHnhhyfHv\n=PgsN\n-----END
+        PGP SIGNATURE-----\n","payload":"tree ecadf0cec0030c13975d24817dbeb9d2354359c7\nparent
+        a3163302c3032e8310dfee4dae5fe2490f0910a4\nparent 76cc4dc1be734ba204d65333b70eaf5044220b8b\nauthor
+        Jayden <23619946+Silverarmor@users.noreply.github.com> 1756514804 +1200\ncommitter
+        GitHub <noreply@github.com> 1756514804 +1200\n\nAZLyrics: change user agent
+        and catch too many redirects error (#2477)\n\n# Title\nToo Many Redirects
+        error causes spotdl to crash\n\n## Description\nOn `macOS Sequoia 15.5` with
+        `Python 3.13.7` and  `spotdl 4.4.1`\nWhile trying to download a track it crashes,
+        cause of this crash seems\nto be unhandled `requests.TooManyRedirects` error\n\nThere
+        are two changes here\n1. It seems api is returning 302 because of user agent
+        spoofing, by\nusing different user agent this could be avoided\n2. handle
+        the error\n\n## Related Issue\n<!--- This project only accepts pull requests
+        related to open issues -->\n<!--- If suggesting a new feature or change, please
+        discuss it in an\nissue first -->\n<!--- If fixing a bug, there should be
+        an issue describing it with steps\nto reproduce -->\n<!--- Please link to
+        the issue here: -->\n\n## Motivation and Context\n<!--- Why is this change
+        required? What problem does it solve? -->\n\n## How Has This Been Tested?\nTested
+        it by downloading the content and it solved the issue  \n\n## Screenshots
+        (if appropriate)\n<img width=\"520\" height=\"800\" alt=\"Spotdl_crash\"\nsrc=\"https://github.com/user-attachments/assets/c7063ce2-b1ac-4ae9-a664-de71331a5743\"\n/>\n\n<img
+        width=\"394\" height=\"190\" alt=\"azlyrics_curl\"\nsrc=\"https://github.com/user-attachments/assets/69bed2ba-2068-4cb5-ada0-27017fea28f9\"\n/>\n\n##
+        Types of Changes\n<!--- What types of changes does your code introduce? Put
+        an `x` in all\nthe boxes that apply: -->\n- [x] Bug fix (non-breaking change
+        which fixes an issue)\n- [ ] New feature (non-breaking change which adds functionality)\n-
+        [ ] Breaking change (fix or feature that would cause existing\nfunctionality
+        to change)\n\n## Checklist\n<!--- Go over all the following points, and put
+        an `x` in all the boxes\nthat apply. -->\n<!--- If you''re unsure about any
+        of these, don''t hesitate to ask. We''re\nhere to help! -->\n- [x] My code
+        follows the code style of this project\n- [ ] My change requires a change
+        to the documentation\n- [ ] I have updated the documentation accordingly\n-
+        [x] I have read the [CONTRIBUTING](/docs/CONTRIBUTING.md) document\n- [ ]
+        I have added tests to cover my changes\n- [ ] All new and existing tests passed","verified_at":"2025-08-30T00:46:44Z"}},"url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/cbcd5187f78ac2ac82f4e92f03446abf24d52aff","html_url":"https://github.com/spotDL/spotify-downloader/commit/cbcd5187f78ac2ac82f4e92f03446abf24d52aff","comments_url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/cbcd5187f78ac2ac82f4e92f03446abf24d52aff/comments","author":{"login":"Silverarmor","id":23619946,"node_id":"MDQ6VXNlcjIzNjE5OTQ2","avatar_url":"https://avatars.githubusercontent.com/u/23619946?v=4","gravatar_id":"","url":"https://api.github.com/users/Silverarmor","html_url":"https://github.com/Silverarmor","followers_url":"https://api.github.com/users/Silverarmor/followers","following_url":"https://api.github.com/users/Silverarmor/following{/other_user}","gists_url":"https://api.github.com/users/Silverarmor/gists{/gist_id}","starred_url":"https://api.github.com/users/Silverarmor/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/Silverarmor/subscriptions","organizations_url":"https://api.github.com/users/Silverarmor/orgs","repos_url":"https://api.github.com/users/Silverarmor/repos","events_url":"https://api.github.com/users/Silverarmor/events{/privacy}","received_events_url":"https://api.github.com/users/Silverarmor/received_events","type":"User","user_view_type":"public","site_admin":false},"committer":{"login":"web-flow","id":19864447,"node_id":"MDQ6VXNlcjE5ODY0NDQ3","avatar_url":"https://avatars.githubusercontent.com/u/19864447?v=4","gravatar_id":"","url":"https://api.github.com/users/web-flow","html_url":"https://github.com/web-flow","followers_url":"https://api.github.com/users/web-flow/followers","following_url":"https://api.github.com/users/web-flow/following{/other_user}","gists_url":"https://api.github.com/users/web-flow/gists{/gist_id}","starred_url":"https://api.github.com/users/web-flow/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/web-flow/subscriptions","organizations_url":"https://api.github.com/users/web-flow/orgs","repos_url":"https://api.github.com/users/web-flow/repos","events_url":"https://api.github.com/users/web-flow/events{/privacy}","received_events_url":"https://api.github.com/users/web-flow/received_events","type":"User","user_view_type":"public","site_admin":false},"parents":[{"sha":"a3163302c3032e8310dfee4dae5fe2490f0910a4","url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/a3163302c3032e8310dfee4dae5fe2490f0910a4","html_url":"https://github.com/spotDL/spotify-downloader/commit/a3163302c3032e8310dfee4dae5fe2490f0910a4"},{"sha":"76cc4dc1be734ba204d65333b70eaf5044220b8b","url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/76cc4dc1be734ba204d65333b70eaf5044220b8b","html_url":"https://github.com/spotDL/spotify-downloader/commit/76cc4dc1be734ba204d65333b70eaf5044220b8b"}]},{"sha":"84cec2cefd554a5ee9898934254b49be80b661be","node_id":"C_kwDOA71kIdoAKDg0Y2VjMmNlZmQ1NTRhNWVlOTg5ODkzNDI1NGI0OWJlODBiNjYxYmU","commit":{"author":{"name":"Jayden","email":"23619946+Silverarmor@users.noreply.github.com","date":"2025-08-30T00:55:44Z"},"committer":{"name":"Jayden","email":"23619946+Silverarmor@users.noreply.github.com","date":"2025-08-30T00:55:44Z"},"message":"add
+        logic check for no js_code","tree":{"sha":"9139cb4d090d3730052bb1dc0edc0481b32ba4df","url":"https://api.github.com/repos/spotDL/spotify-downloader/git/trees/9139cb4d090d3730052bb1dc0edc0481b32ba4df"},"url":"https://api.github.com/repos/spotDL/spotify-downloader/git/commits/84cec2cefd554a5ee9898934254b49be80b661be","comment_count":0,"verification":{"verified":false,"reason":"unsigned","signature":null,"payload":null,"verified_at":null}},"url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/84cec2cefd554a5ee9898934254b49be80b661be","html_url":"https://github.com/spotDL/spotify-downloader/commit/84cec2cefd554a5ee9898934254b49be80b661be","comments_url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/84cec2cefd554a5ee9898934254b49be80b661be/comments","author":{"login":"Silverarmor","id":23619946,"node_id":"MDQ6VXNlcjIzNjE5OTQ2","avatar_url":"https://avatars.githubusercontent.com/u/23619946?v=4","gravatar_id":"","url":"https://api.github.com/users/Silverarmor","html_url":"https://github.com/Silverarmor","followers_url":"https://api.github.com/users/Silverarmor/followers","following_url":"https://api.github.com/users/Silverarmor/following{/other_user}","gists_url":"https://api.github.com/users/Silverarmor/gists{/gist_id}","starred_url":"https://api.github.com/users/Silverarmor/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/Silverarmor/subscriptions","organizations_url":"https://api.github.com/users/Silverarmor/orgs","repos_url":"https://api.github.com/users/Silverarmor/repos","events_url":"https://api.github.com/users/Silverarmor/events{/privacy}","received_events_url":"https://api.github.com/users/Silverarmor/received_events","type":"User","user_view_type":"public","site_admin":false},"committer":{"login":"Silverarmor","id":23619946,"node_id":"MDQ6VXNlcjIzNjE5OTQ2","avatar_url":"https://avatars.githubusercontent.com/u/23619946?v=4","gravatar_id":"","url":"https://api.github.com/users/Silverarmor","html_url":"https://github.com/Silverarmor","followers_url":"https://api.github.com/users/Silverarmor/followers","following_url":"https://api.github.com/users/Silverarmor/following{/other_user}","gists_url":"https://api.github.com/users/Silverarmor/gists{/gist_id}","starred_url":"https://api.github.com/users/Silverarmor/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/Silverarmor/subscriptions","organizations_url":"https://api.github.com/users/Silverarmor/orgs","repos_url":"https://api.github.com/users/Silverarmor/repos","events_url":"https://api.github.com/users/Silverarmor/events{/privacy}","received_events_url":"https://api.github.com/users/Silverarmor/received_events","type":"User","user_view_type":"public","site_admin":false},"parents":[{"sha":"cbcd5187f78ac2ac82f4e92f03446abf24d52aff","url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/cbcd5187f78ac2ac82f4e92f03446abf24d52aff","html_url":"https://github.com/spotDL/spotify-downloader/commit/cbcd5187f78ac2ac82f4e92f03446abf24d52aff"}]},{"sha":"7944c6c23500402dcfd46579b2d0575df42adf40","node_id":"C_kwDOA71kIdoAKDc5NDRjNmMyMzUwMDQwMmRjZmQ0NjU3OWIyZDA1NzVkZjQyYWRmNDA","commit":{"author":{"name":"Jayden","email":"23619946+Silverarmor@users.noreply.github.com","date":"2025-08-30T00:58:16Z"},"committer":{"name":"Jayden","email":"23619946+Silverarmor@users.noreply.github.com","date":"2025-08-30T00:58:16Z"},"message":"fix
+        trailing whitespace","tree":{"sha":"22d5a6ad8812357db042835aab1cd9a84ba825fe","url":"https://api.github.com/repos/spotDL/spotify-downloader/git/trees/22d5a6ad8812357db042835aab1cd9a84ba825fe"},"url":"https://api.github.com/repos/spotDL/spotify-downloader/git/commits/7944c6c23500402dcfd46579b2d0575df42adf40","comment_count":0,"verification":{"verified":false,"reason":"unsigned","signature":null,"payload":null,"verified_at":null}},"url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/7944c6c23500402dcfd46579b2d0575df42adf40","html_url":"https://github.com/spotDL/spotify-downloader/commit/7944c6c23500402dcfd46579b2d0575df42adf40","comments_url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/7944c6c23500402dcfd46579b2d0575df42adf40/comments","author":{"login":"Silverarmor","id":23619946,"node_id":"MDQ6VXNlcjIzNjE5OTQ2","avatar_url":"https://avatars.githubusercontent.com/u/23619946?v=4","gravatar_id":"","url":"https://api.github.com/users/Silverarmor","html_url":"https://github.com/Silverarmor","followers_url":"https://api.github.com/users/Silverarmor/followers","following_url":"https://api.github.com/users/Silverarmor/following{/other_user}","gists_url":"https://api.github.com/users/Silverarmor/gists{/gist_id}","starred_url":"https://api.github.com/users/Silverarmor/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/Silverarmor/subscriptions","organizations_url":"https://api.github.com/users/Silverarmor/orgs","repos_url":"https://api.github.com/users/Silverarmor/repos","events_url":"https://api.github.com/users/Silverarmor/events{/privacy}","received_events_url":"https://api.github.com/users/Silverarmor/received_events","type":"User","user_view_type":"public","site_admin":false},"committer":{"login":"Silverarmor","id":23619946,"node_id":"MDQ6VXNlcjIzNjE5OTQ2","avatar_url":"https://avatars.githubusercontent.com/u/23619946?v=4","gravatar_id":"","url":"https://api.github.com/users/Silverarmor","html_url":"https://github.com/Silverarmor","followers_url":"https://api.github.com/users/Silverarmor/followers","following_url":"https://api.github.com/users/Silverarmor/following{/other_user}","gists_url":"https://api.github.com/users/Silverarmor/gists{/gist_id}","starred_url":"https://api.github.com/users/Silverarmor/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/Silverarmor/subscriptions","organizations_url":"https://api.github.com/users/Silverarmor/orgs","repos_url":"https://api.github.com/users/Silverarmor/repos","events_url":"https://api.github.com/users/Silverarmor/events{/privacy}","received_events_url":"https://api.github.com/users/Silverarmor/received_events","type":"User","user_view_type":"public","site_admin":false},"parents":[{"sha":"84cec2cefd554a5ee9898934254b49be80b661be","url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/84cec2cefd554a5ee9898934254b49be80b661be","html_url":"https://github.com/spotDL/spotify-downloader/commit/84cec2cefd554a5ee9898934254b49be80b661be"}]},{"sha":"9824913f8a15366ac429d8cf1295e675398bb936","node_id":"C_kwDOA71kIdoAKDk4MjQ5MTNmOGExNTM2NmFjNDI5ZDhjZjEyOTVlNjc1Mzk4YmI5MzY","commit":{"author":{"name":"Jayden","email":"23619946+Silverarmor@users.noreply.github.com","date":"2025-08-30T01:07:24Z"},"committer":{"name":"GitHub","email":"noreply@github.com","date":"2025-08-30T01:07:24Z"},"message":"AZLyrics:
+        logic to fail if no js_code retrieved (#2483)\n\n# Title\n<!--- Provide a
+        general summary of your changes in the Title above -->\n\n## Description\n<!---
+        Describe your changes in detail -->\n\n## Related Issue\n#2458 \n\n\n## Types
+        of Changes\n<!--- What types of changes does your code introduce? Put an `x`
+        in all\nthe boxes that apply: -->\n- [x] Bug fix (non-breaking change which
+        fixes an issue)\n- [ ] New feature (non-breaking change which adds functionality)\n-
+        [ ] Breaking change (fix or feature that would cause existing\nfunctionality
+        to change)\n\n## Checklist\n<!--- Go over all the following points, and put
+        an `x` in all the boxes\nthat apply. -->\n<!--- If you''re unsure about any
+        of these, don''t hesitate to ask. We''re\nhere to help! -->\n- [x] My code
+        follows the code style of this project\n- [ ] My change requires a change
+        to the documentation\n- [ ] I have updated the documentation accordingly\n-
+        [x] I have read the [CONTRIBUTING](/docs/CONTRIBUTING.md) document\n- [ ]
+        I have added tests to cover my changes\n- [ ] All new and existing tests passed","tree":{"sha":"22d5a6ad8812357db042835aab1cd9a84ba825fe","url":"https://api.github.com/repos/spotDL/spotify-downloader/git/trees/22d5a6ad8812357db042835aab1cd9a84ba825fe"},"url":"https://api.github.com/repos/spotDL/spotify-downloader/git/commits/9824913f8a15366ac429d8cf1295e675398bb936","comment_count":0,"verification":{"verified":true,"reason":"valid","signature":"-----BEGIN
+        PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJosk7MCRC1aQ7uu5UhlAAAwwYQAHADmcHw1P3F94CJutfyAcmd\nzw4ZmWZbrib89CzLXwckXdabBETHIuvMoF19BnmbqPWikCCpKn6ip8aW5Uz1z/nO\nXEfGMH2ly7dC6fCUAu9QR/nFSVlOWUYPEZZ+K3msH73udy+tUyb9EFIY9wA+LIAT\nFL7wqwiTsyzkW1+ABPBpGqheVZ4cGeyILAKxy7cmskKxhRWDKOpbyMUTQdMbrQ9N\ntdGhqdEABax9XuHMxuHz+mBZdkbQHqQgyZgvliVJEgfsy+O0FK/Vds2HFPmy31ua\ncTjDZJ2+M5CNiNDeMcHAZ1OWzxQae6FkOURbeeGVqLgBA5UyvP1FVKpSohXaWJu2\ntEzZgmE8M30aWZm0aR035b4G//x9t9as4Sp0yazuBYATiGJyZXBKzfvS6xWxBQeh\no47co0kyOd5JF+hhzVXw7whrF2m9R6F3aeNep8l6JAiCAAGBT8ufFZp/Ka5IEXDR\nbGg0lNlk0FedAyk4J9FgPIq8b/hrOrb+m8mQdZ6niZzh1KkcNIGg7FEzVX2FMDLT\nignpxlOLbMa6bJfUz8Qin8uho00QI2e+c48JnWBHtivTeGoP8kPL0uzER3VPOpcA\nHLmysJ5Swnt7TpfmDukP/tf6K7s9U2PjMdorDW0dhQ3EoaRpfk1eglIduztCawMx\nmJGHayKCumUijVv+53YS\n=Ax4m\n-----END
+        PGP SIGNATURE-----\n","payload":"tree 22d5a6ad8812357db042835aab1cd9a84ba825fe\nparent
+        cbcd5187f78ac2ac82f4e92f03446abf24d52aff\nparent 7944c6c23500402dcfd46579b2d0575df42adf40\nauthor
+        Jayden <23619946+Silverarmor@users.noreply.github.com> 1756516044 +1200\ncommitter
+        GitHub <noreply@github.com> 1756516044 +1200\n\nAZLyrics: logic to fail if
+        no js_code retrieved (#2483)\n\n# Title\n<!--- Provide a general summary of
+        your changes in the Title above -->\n\n## Description\n<!--- Describe your
+        changes in detail -->\n\n## Related Issue\n#2458 \n\n\n## Types of Changes\n<!---
+        What types of changes does your code introduce? Put an `x` in all\nthe boxes
+        that apply: -->\n- [x] Bug fix (non-breaking change which fixes an issue)\n-
+        [ ] New feature (non-breaking change which adds functionality)\n- [ ] Breaking
+        change (fix or feature that would cause existing\nfunctionality to change)\n\n##
+        Checklist\n<!--- Go over all the following points, and put an `x` in all the
+        boxes\nthat apply. -->\n<!--- If you''re unsure about any of these, don''t
+        hesitate to ask. We''re\nhere to help! -->\n- [x] My code follows the code
+        style of this project\n- [ ] My change requires a change to the documentation\n-
+        [ ] I have updated the documentation accordingly\n- [x] I have read the [CONTRIBUTING](/docs/CONTRIBUTING.md)
+        document\n- [ ] I have added tests to cover my changes\n- [ ] All new and
+        existing tests passed","verified_at":"2025-08-30T01:07:25Z"}},"url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/9824913f8a15366ac429d8cf1295e675398bb936","html_url":"https://github.com/spotDL/spotify-downloader/commit/9824913f8a15366ac429d8cf1295e675398bb936","comments_url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/9824913f8a15366ac429d8cf1295e675398bb936/comments","author":{"login":"Silverarmor","id":23619946,"node_id":"MDQ6VXNlcjIzNjE5OTQ2","avatar_url":"https://avatars.githubusercontent.com/u/23619946?v=4","gravatar_id":"","url":"https://api.github.com/users/Silverarmor","html_url":"https://github.com/Silverarmor","followers_url":"https://api.github.com/users/Silverarmor/followers","following_url":"https://api.github.com/users/Silverarmor/following{/other_user}","gists_url":"https://api.github.com/users/Silverarmor/gists{/gist_id}","starred_url":"https://api.github.com/users/Silverarmor/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/Silverarmor/subscriptions","organizations_url":"https://api.github.com/users/Silverarmor/orgs","repos_url":"https://api.github.com/users/Silverarmor/repos","events_url":"https://api.github.com/users/Silverarmor/events{/privacy}","received_events_url":"https://api.github.com/users/Silverarmor/received_events","type":"User","user_view_type":"public","site_admin":false},"committer":{"login":"web-flow","id":19864447,"node_id":"MDQ6VXNlcjE5ODY0NDQ3","avatar_url":"https://avatars.githubusercontent.com/u/19864447?v=4","gravatar_id":"","url":"https://api.github.com/users/web-flow","html_url":"https://github.com/web-flow","followers_url":"https://api.github.com/users/web-flow/followers","following_url":"https://api.github.com/users/web-flow/following{/other_user}","gists_url":"https://api.github.com/users/web-flow/gists{/gist_id}","starred_url":"https://api.github.com/users/web-flow/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/web-flow/subscriptions","organizations_url":"https://api.github.com/users/web-flow/orgs","repos_url":"https://api.github.com/users/web-flow/repos","events_url":"https://api.github.com/users/web-flow/events{/privacy}","received_events_url":"https://api.github.com/users/web-flow/received_events","type":"User","user_view_type":"public","site_admin":false},"parents":[{"sha":"cbcd5187f78ac2ac82f4e92f03446abf24d52aff","url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/cbcd5187f78ac2ac82f4e92f03446abf24d52aff","html_url":"https://github.com/spotDL/spotify-downloader/commit/cbcd5187f78ac2ac82f4e92f03446abf24d52aff"},{"sha":"7944c6c23500402dcfd46579b2d0575df42adf40","url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/7944c6c23500402dcfd46579b2d0575df42adf40","html_url":"https://github.com/spotDL/spotify-downloader/commit/7944c6c23500402dcfd46579b2d0575df42adf40"}]},{"sha":"55bec6699f3b9849b751e168ebff46e1b6acba93","node_id":"C_kwDOA71kIdoAKDU1YmVjNjY5OWYzYjk4NDliNzUxZTE2OGViZmY0NmUxYjZhY2JhOTM","commit":{"author":{"name":"Jayden","email":"23619946+Silverarmor@users.noreply.github.com","date":"2025-08-30T01:28:12Z"},"committer":{"name":"Jayden","email":"23619946+Silverarmor@users.noreply.github.com","date":"2025-08-30T01:28:12Z"},"message":"Bump
+        ver to 4.4.2, yt-dlp to 2025.08.27","tree":{"sha":"6fed1f00723c2d9db570caca8673e9c2fa7494b3","url":"https://api.github.com/repos/spotDL/spotify-downloader/git/trees/6fed1f00723c2d9db570caca8673e9c2fa7494b3"},"url":"https://api.github.com/repos/spotDL/spotify-downloader/git/commits/55bec6699f3b9849b751e168ebff46e1b6acba93","comment_count":0,"verification":{"verified":false,"reason":"unsigned","signature":null,"payload":null,"verified_at":null}},"url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/55bec6699f3b9849b751e168ebff46e1b6acba93","html_url":"https://github.com/spotDL/spotify-downloader/commit/55bec6699f3b9849b751e168ebff46e1b6acba93","comments_url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/55bec6699f3b9849b751e168ebff46e1b6acba93/comments","author":{"login":"Silverarmor","id":23619946,"node_id":"MDQ6VXNlcjIzNjE5OTQ2","avatar_url":"https://avatars.githubusercontent.com/u/23619946?v=4","gravatar_id":"","url":"https://api.github.com/users/Silverarmor","html_url":"https://github.com/Silverarmor","followers_url":"https://api.github.com/users/Silverarmor/followers","following_url":"https://api.github.com/users/Silverarmor/following{/other_user}","gists_url":"https://api.github.com/users/Silverarmor/gists{/gist_id}","starred_url":"https://api.github.com/users/Silverarmor/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/Silverarmor/subscriptions","organizations_url":"https://api.github.com/users/Silverarmor/orgs","repos_url":"https://api.github.com/users/Silverarmor/repos","events_url":"https://api.github.com/users/Silverarmor/events{/privacy}","received_events_url":"https://api.github.com/users/Silverarmor/received_events","type":"User","user_view_type":"public","site_admin":false},"committer":{"login":"Silverarmor","id":23619946,"node_id":"MDQ6VXNlcjIzNjE5OTQ2","avatar_url":"https://avatars.githubusercontent.com/u/23619946?v=4","gravatar_id":"","url":"https://api.github.com/users/Silverarmor","html_url":"https://github.com/Silverarmor","followers_url":"https://api.github.com/users/Silverarmor/followers","following_url":"https://api.github.com/users/Silverarmor/following{/other_user}","gists_url":"https://api.github.com/users/Silverarmor/gists{/gist_id}","starred_url":"https://api.github.com/users/Silverarmor/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/Silverarmor/subscriptions","organizations_url":"https://api.github.com/users/Silverarmor/orgs","repos_url":"https://api.github.com/users/Silverarmor/repos","events_url":"https://api.github.com/users/Silverarmor/events{/privacy}","received_events_url":"https://api.github.com/users/Silverarmor/received_events","type":"User","user_view_type":"public","site_admin":false},"parents":[{"sha":"9824913f8a15366ac429d8cf1295e675398bb936","url":"https://api.github.com/repos/spotDL/spotify-downloader/commits/9824913f8a15366ac429d8cf1295e675398bb936","html_url":"https://github.com/spotDL/spotify-downloader/commit/9824913f8a15366ac429d8cf1295e675398bb936"}]}],"files":[{"sha":"e0d1c763c21fd91244526d7812275f6c84120574","filename":"pyproject.toml","status":"modified","additions":2,"deletions":2,"changes":4,"blob_url":"https://github.com/spotDL/spotify-downloader/blob/55bec6699f3b9849b751e168ebff46e1b6acba93/pyproject.toml","raw_url":"https://github.com/spotDL/spotify-downloader/raw/55bec6699f3b9849b751e168ebff46e1b6acba93/pyproject.toml","contents_url":"https://api.github.com/repos/spotDL/spotify-downloader/contents/pyproject.toml?ref=55bec6699f3b9849b751e168ebff46e1b6acba93","patch":"@@
+        -1,6 +1,6 @@\n [project]\n name = \"spotdl\"\n-version = \"4.4.1\"\n+version
+        = \"4.4.2\"\n requires-python = \">=3.10,<3.14\"\n \n description = \"Download
+        your Spotify playlists and songs along with album art and metadata\"\n@@ -34,7
+        +34,7 @@ dependencies = [\n     \"spotipy>=2.24.0,<3\",\n     \"ytmusicapi>=1.11.0,<2\",\n     \"pytube>=15.0.0,<16\",\n-    \"yt-dlp>=2025.07.21,<2026\",\n+    \"yt-dlp>=2025.08.27,<2026\",\n     \"mutagen>=1.47.0,<2\",\n     \"rich>=13.9.4,<14\",\n     \"beautifulsoup4>=4.12.3,<5\","},{"sha":"85ed98e03bf3d954e8a31bce3178b8c1a3d6aca8","filename":"spotdl/_version.py","status":"modified","additions":1,"deletions":1,"changes":2,"blob_url":"https://github.com/spotDL/spotify-downloader/blob/55bec6699f3b9849b751e168ebff46e1b6acba93/spotdl%2F_version.py","raw_url":"https://github.com/spotDL/spotify-downloader/raw/55bec6699f3b9849b751e168ebff46e1b6acba93/spotdl%2F_version.py","contents_url":"https://api.github.com/repos/spotDL/spotify-downloader/contents/spotdl%2F_version.py?ref=55bec6699f3b9849b751e168ebff46e1b6acba93","patch":"@@
+        -2,4 +2,4 @@\n Version module for spotdl.\n \"\"\"\n \n-__version__ = \"4.4.1\"\n+__version__
+        = \"4.4.2\""},{"sha":"d17c18c592f566305d94c495f285a1b83e23f863","filename":"spotdl/providers/lyrics/azlyrics.py","status":"modified","additions":7,"deletions":2,"changes":9,"blob_url":"https://github.com/spotDL/spotify-downloader/blob/55bec6699f3b9849b751e168ebff46e1b6acba93/spotdl%2Fproviders%2Flyrics%2Fazlyrics.py","raw_url":"https://github.com/spotDL/spotify-downloader/raw/55bec6699f3b9849b751e168ebff46e1b6acba93/spotdl%2Fproviders%2Flyrics%2Fazlyrics.py","contents_url":"https://api.github.com/repos/spotDL/spotify-downloader/contents/spotdl%2Fproviders%2Flyrics%2Fazlyrics.py?ref=55bec6699f3b9849b751e168ebff46e1b6acba93","patch":"@@
+        -28,7 +28,8 @@ def __init__(self):\n             {\n                 \"Host\":
+        \"www.azlyrics.com\",\n                 \"User-Agent\": (\n-                    \"Mozilla/5.0
+        (X11; Linux x86_64; rv:141.0) Gecko/20100101 Firefox/141.0\"\n+                    \"Mozilla/5.0
+        (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \"\n+                    \"(KHTML,
+        like Gecko) Chrome/96.0.4664.110 Safari/537.36 /CefSharp Browser 90.0\"\n                 ),\n                 \"Accept\":
+        \"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\",\n                 \"Accept-Language\":
+        \"en-US,en;q=0.5\",\n@@ -178,9 +179,13 @@ def _get_x_code(self) -> Optional[str]:\n             #     }\n             #
+        })();\n \n-        except requests.ConnectionError:\n+        except (requests.ConnectionError,
+        requests.TooManyRedirects):\n             pass\n \n+        if not js_code:\n+            logger.debug(\"AZLyrics:
+        Failed to retrieve js_code.\")\n+            return None\n+\n         # We
+        now filter the string so we can extract the x code.\n         start_index
+        = js_code.find(''value\"'') + 9\n         end_index = js_code[start_index:].find(''\");'')"},{"sha":"6ac97732f935b5de214c77c9e41d0568e2f8b4b0","filename":"uv.lock","status":"modified","additions":5,"deletions":5,"changes":10,"blob_url":"https://github.com/spotDL/spotify-downloader/blob/55bec6699f3b9849b751e168ebff46e1b6acba93/uv.lock","raw_url":"https://github.com/spotDL/spotify-downloader/raw/55bec6699f3b9849b751e168ebff46e1b6acba93/uv.lock","contents_url":"https://api.github.com/repos/spotDL/spotify-downloader/contents/uv.lock?ref=55bec6699f3b9849b751e168ebff46e1b6acba93","patch":"@@
+        -1613,7 +1613,7 @@ wheels = [\n \n [[package]]\n name = \"spotdl\"\n-version
+        = \"4.4.1\"\n+version = \"4.4.2\"\n source = { editable = \".\" }\n dependencies
+        = [\n     { name = \"beautifulsoup4\" },\n@@ -1690,7 +1690,7 @@ requires-dist
+        = [\n     { name = \"syncedlyrics\", specifier = \">=1.0.1,<2\" },\n     {
+        name = \"uvicorn\", specifier = \">=0.23.2,<0.24\" },\n     { name = \"websockets\",
+        specifier = \"~=14.1\" },\n-    { name = \"yt-dlp\", specifier = \">=2025.7.21,<2026\"
+        },\n+    { name = \"yt-dlp\", specifier = \">=2025.8.27,<2026\" },\n     {
+        name = \"ytmusicapi\", specifier = \">=1.11.0,<2\" },\n ]\n \n@@ -2229,11
+        +2229,11 @@ wheels = [\n \n [[package]]\n name = \"yt-dlp\"\n-version = \"2025.7.21\"\n+version
+        = \"2025.8.27\"\n source = { registry = \"https://pypi.org/simple\" }\n-sdist
+        = { url = \"https://files.pythonhosted.org/packages/7e/3a/343f7a0024ddd4c30f150e8d8f57fd7b924846f97d99fc0dcd75ea8d2773/yt_dlp-2025.7.21.tar.gz\",
+        hash = \"sha256:46fbb53eab1afbe184c45b4c17e9a6eba614be680e4c09de58b782629d0d7f43\",
+        size = 3050219, upload-time = \"2025-07-21T23:59:03.826Z\" }\n+sdist = { url
+        = \"https://files.pythonhosted.org/packages/f4/d4/d9dd231b03f09fdfb5f0fe70f30de0b5f59454aa54fa6b2b2aea49404988/yt_dlp-2025.8.27.tar.gz\",
+        hash = \"sha256:ed74768d2a93b29933ab14099da19497ef571637f7aa375140dd3d882b9c1854\",
+        size = 3038374, upload-time = \"2025-08-28T00:03:41.418Z\" }\n wheels = [\n-    {
+        url = \"https://files.pythonhosted.org/packages/e8/2f/abe59a3204c749fed494849ea29176bcefa186ec8898def9e43f649ddbcf/yt_dlp-2025.7.21-py3-none-any.whl\",
+        hash = \"sha256:d7aa2b53f9b2f35453346360f41811a0dad1e956e70b35a4ae95039d4d815d15\",
+        size = 3288681, upload-time = \"2025-07-21T23:59:01.788Z\" },\n+    { url
+        = \"https://files.pythonhosted.org/packages/cb/9c/b69fc0c800f80b94ea2f8eff1d1f473fecee6aa337681d297ba7c7c5d3fd/yt_dlp-2025.8.27-py3-none-any.whl\",
+        hash = \"sha256:0b8fd3bb7c54bc2e7ecb5cdac7d64c30e2503ea4d3dd9ae24d4f09e22aaa95f4\",
+        size = 3267059, upload-time = \"2025-08-28T00:03:38.793Z\" },\n ]\n \n [[package]]"}]}'
     headers:
       Accept-Ranges:
       - bytes
@@ -2054,8 +2036,6 @@ interactions:
         X-GitHub-Request-Id, Deprecation, Sunset
       Cache-Control:
       - public, max-age=60, s-maxage=60
-      Content-Encoding:
-      - gzip
       Content-Security-Policy:
       - default-src 'none'
       Content-Type:
@@ -2096,6 +2076,8 @@ interactions:
       - '3'
       X-XSS-Protection:
       - '0'
+      content-length:
+      - '57111'
       x-github-api-version-selected:
       - '2022-11-28'
     status:

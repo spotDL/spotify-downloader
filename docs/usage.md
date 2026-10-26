@@ -401,7 +401,7 @@ Main options:
                         You can only use album/playlist/tracks urls when downloading/matching youtube urls.
                         When using youtube url without spotify url, you won't be able to use `--fetch-albums` option.
 
-  --audio [{youtube,youtube-music,slider-kz,soundcloud,bandcamp,piped} ...]
+  --audio [{youtube,youtube-music,soundcloud,bandcamp,piped} ...]
                         The audio provider to use. You can provide more than one for fallback.
   --lyrics [{genius,musixmatch,azlyrics,synced} ...]
                         The lyrics provider to use. You can provide more than one for fallback. Synced lyrics might not work correctly with some music players. For such cases it's better
