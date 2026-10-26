@@ -68,6 +68,21 @@ def test_calc_main_artist_match_single_result_artist(mocker):
     result = mocker.Mock(result_id="result", artists=["Queens of the Stone Age"])
     assert calc_main_artist_match(song, result) == 0.0
 
+    # Different artist whose name contains the main artist gets no credit
+    song = mocker.Mock(song_id="song", artists=["Drake", "Rihanna"])
+    result = mocker.Mock(result_id="result", artists=["Drake Bell"])
+    assert calc_main_artist_match(song, result) == 0.0
+
+    # Repeated words are not matched against a single word
+    song = mocker.Mock(song_id="song", artists=["The The", "Alice Gray"])
+    result = mocker.Mock(result_id="result", artists=["The Weeknd"])
+    assert calc_main_artist_match(song, result) == 0.0
+
+    # Spelling differences in the main artist still get credit
+    song = mocker.Mock(song_id="song", artists=["A$AP Rocky", "Skepta"])
+    result = mocker.Mock(result_id="result", artists=["ASAP Rocky"])
+    assert calc_main_artist_match(song, result) >= 85
+
 
 def test_calc_artists_match_single_result_artist(mocker):
     """
@@ -89,6 +104,23 @@ def test_calc_artists_match_single_result_artist(mocker):
 
     # Other artist missing
     result.artists = ["LUCO"]
+    assert calc_artists_match(song, result) == 0.0
+
+    # Other artist named like a word of the song name, without a feature
+    song = mocker.Mock(artists=["LUCO", "Love"])
+    result.name = "Love Me"
+    assert calc_artists_match(song, result) == 0.0
+
+    # Other artist split between the result's artist name and title
+    song = mocker.Mock(artists=["Gray", "Alice Gray"])
+    result.artists = ["Gray"]
+    result.name = "Wasted (feat. Alice)"
+    assert calc_artists_match(song, result) == 0.0
+
+    # Other artist whose name has no slug
+    song = mocker.Mock(artists=["LUCO", "🔥"])
+    result.artists = ["LUCO"]
+    result.name = "🔥"
     assert calc_artists_match(song, result) == 0.0
 
 
@@ -113,6 +145,11 @@ def test_order_results_single_result_artist():
         ["Queen", "David Bowie"],
         "Under Pressure",
         ["Queens of the Stone Age"],
+    )
+    assert result not in order_results([result], song)
+
+    song, result = create_song_and_result(
+        "Too Good", ["Drake", "Rihanna"], "Too Good (feat. Rihanna)", ["Drake Bell"]
     )
     assert result not in order_results([result], song)
 
