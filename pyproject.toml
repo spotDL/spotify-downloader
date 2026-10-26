@@ -1,7 +1,7 @@
 [project]
 name = "spotdl"
 version = "4.5.2"
-requires-python = ">=3.10,<3.15"
+requires-python = ">=3.11,<3.16"
 
 description = "Download your Spotify playlists and songs along with album art and metadata"
 authors = [{ name = "spotDL Team", email = "spotdladmins@googlegroups.com" }]
@@ -19,11 +19,11 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Topic :: Multimedia",
     "Topic :: Multimedia :: Sound/Audio",
     "Topic :: Utilities",
