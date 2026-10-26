@@ -53,6 +53,11 @@ def datastar_response(
     datastar route. Keep the handler's signature so FastAPI still sees its
     parameters, but drop __wrapped__.
 
+    Without __wrapped__, FastAPI resolves string annotations against the
+    wrapper's module, so resolve them here against the handler's module. The
+    return annotation is DatastarResponse so FastAPI doesn't build a response
+    model from the handler's own return annotation.
+
     ### Arguments
     - func: The route handler, a function or generator function.
 
@@ -61,7 +66,9 @@ def datastar_response(
     """
 
     wrapper = _datastar_response(func)
-    wrapper.__signature__ = inspect.signature(func)  # type: ignore[attr-defined]
+    wrapper.__signature__ = inspect.signature(  # type: ignore[attr-defined]
+        func, eval_str=True
+    ).replace(return_annotation=DatastarResponse)
     del wrapper.__wrapped__  # type: ignore[attr-defined]
 
     return wrapper
