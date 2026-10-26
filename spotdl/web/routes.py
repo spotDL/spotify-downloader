@@ -41,8 +41,9 @@ async def home(request: Request):
     Handle the home page request.
     """
     return templates.TemplateResponse(
+        request=request,
         name="home.html.j2",
-        context={"request": request, "__version__": __version__},
+        context={"__version__": __version__},
     )
 
 
@@ -52,8 +53,9 @@ async def search(q: Optional[str], request: Request):
     Handle the search input.
     """
     return templates.TemplateResponse(
+        request=request,
         name="search.html.j2",
-        context={"request": request, "__version__": __version__, "search_term": q},
+        context={"__version__": __version__, "search_term": q},
     )
 
 
@@ -63,9 +65,9 @@ async def downloads(request: Request):
     Handle the downloads page request.
     """
     return templates.TemplateResponse(
+        request=request,
         name="downloads.html.j2",
         context={
-            "request": request,
             "__version__": __version__,
         },
     )
