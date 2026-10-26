@@ -10,7 +10,15 @@ def test_calc_main_artist_match_single_result_artist(mocker):
     song = mocker.Mock(song_id="song", artists=["LUCO", "Alice Gray"])
     result = mocker.Mock(result_id="result", artists=["LUCO"])
 
-    assert calc_main_artist_match(song, result) > 0.0
+    assert calc_main_artist_match(song, result) == 50.0
+
+    # All artists folded into the result's single artist name
+    result = mocker.Mock(result_id="result", artists=["LUCO & Alice Gray"])
+    assert calc_main_artist_match(song, result) == 100.0
+
+    # Similarly named but different main artist gets no credit
+    result = mocker.Mock(result_id="result", artists=["LUCA"])
+    assert calc_main_artist_match(song, result) == 0.0
 
 
 def test_calc_album_match_without_song_album(mocker):
