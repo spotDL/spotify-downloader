@@ -42,7 +42,7 @@ jobs:
       - name: Run tests
         timeout-minutes: 10
         run: |
-          uv run pytest -vvv -m "not live" --record-mode=none --block-network
+          uv run pytest -vvv -m "not live" --record-mode=none --block-network --allowed-hosts=127.0.0.1
         env:
           PLATFORM: ${{ matrix.platform }}
 
