@@ -81,7 +81,7 @@ jobs:
           ./scripts/make_binzip.sh
 
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             dist/*
@@ -119,7 +119,7 @@ jobs:
             for file in dist/spotdl*; do cp "$file" "${file}-aarch64"; done
 
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             dist/spotdl*-aarch64
