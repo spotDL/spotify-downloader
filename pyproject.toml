@@ -31,7 +31,7 @@ classifiers = [
 dependencies = [
     "spotipy>=2.26.0,<3",
     "spotipyFree>=1.9.13,<2",
-    "ytmusicapi>=1.12.1,<2",
+    "ytmusicapi>=1.12.1,!=1.12.2,!=1.12.3,<2",
     "yt-dlp[default]>=2026.10.21,<2027",
     "mutagen>=1.47.0,<2",
     "rich>=13.9.4,<14",
