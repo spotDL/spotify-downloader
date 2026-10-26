@@ -3,6 +3,7 @@ YTMusic module for downloading and searching songs.
 """
 
 import logging
+import re
 from typing import Any, Dict, List
 
 from ytmusicapi import YTMusic
@@ -14,6 +15,27 @@ from spotdl.utils.formatter import parse_duration
 __all__ = ["YouTubeMusic"]
 
 logger = logging.getLogger(__name__)
+
+# With language="de", ytmusicapi puts the view count of a result into its
+# artists list, e.g. {"name": "185.711\xa0Wiedergaben", "id": None}
+VIEW_COUNT_REGEX = re.compile(
+    r"^\d[\d.,]*(?: (?:Tsd|Mio|Mrd)\.)? Wiedergaben?$", re.IGNORECASE
+)
+
+
+def is_view_count(name: str) -> bool:
+    """
+    Check if an artist name from YouTube Music is actually a view count
+
+    ### Arguments
+    - name: The artist name to check.
+
+    ### Returns
+    - True if the name is a German view count string, False otherwise.
+    """
+
+    # split() also breaks on non-breaking spaces (\xa0, \u202f)
+    return VIEW_COUNT_REGEX.match(" ".join(name.split())) is not None
 
 
 class YouTubeMusic(AudioProvider):
@@ -75,11 +97,16 @@ class YouTubeMusic(AudioProvider):
             # Simplify results
             results = []
             for result in search_results:
-                if (
-                    result is None
-                    or result.get("videoId") is None
-                    or result.get("artists") in [[], None]
-                ):
+                if result is None or result.get("videoId") is None:
+                    continue
+
+                artists = [
+                    artist["name"]
+                    for artist in result.get("artists") or []
+                    if artist.get("name") and not is_view_count(artist["name"])
+                ]
+
+                if not artists:
                     continue
 
                 results.append(
@@ -92,8 +119,8 @@ class YouTubeMusic(AudioProvider):
                         verified=result.get("resultType") == "song",
                         name=result["title"],
                         result_id=result["videoId"],
-                        author=result["artists"][0]["name"],
-                        artists=tuple(map(lambda a: a["name"], result["artists"])),
+                        author=artists[0],
+                        artists=tuple(artists),
                         duration=parse_duration(result.get("duration")),
                         isrc_search=is_isrc_result,
                         search_query=search_term,
