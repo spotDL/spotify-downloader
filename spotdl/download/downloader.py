@@ -192,6 +192,17 @@ class Downloader:
                 if not access_token:
                     raise DownloaderError("Genius token not found in settings")
                 self.lyrics_providers.append(Genius(access_token))
+            elif lyrics_provider == "musixmatch":
+                musixmatch_email = self.settings.get("musixmatch_email")
+                musixmatch_password = self.settings.get("musixmatch_password")
+                if not musixmatch_email or not musixmatch_password:
+                    logger.debug(
+                        "MusixMatch email/password not found in settings. Skipping MusixMatch."
+                    )
+                    continue
+                self.lyrics_providers.append(
+                    MusixMatch(musixmatch_email, musixmatch_password)
+                )
             else:
                 self.lyrics_providers.append(lyrics_class())
 

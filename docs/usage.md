@@ -404,10 +404,15 @@ Main options:
   --audio [{youtube,youtube-music,slider-kz,soundcloud,bandcamp,piped} ...]
                         The audio provider to use. You can provide more than one for fallback.
   --lyrics [{genius,musixmatch,azlyrics,synced} ...]
-                        The lyrics provider to use. You can provide more than one for fallback. Synced lyrics might not work correctly with some music players. For such cases it's better
-                        to use `--generate-lrc` option.
+                        The lyrics provider to use. You can provide more than one for fallback. For MusixMatch, create an account via 'Continue with email' at https://auth.musixmatch.com/, and
+                        specify --musixmatch-email and --musixmatch-password. Synced lyrics might not work correctly with some music players. For such cases it's better to use `--generate-lrc`
+                        option.
   --genius-access-token GENIUS_TOKEN
                         Lets you choose your own Genius access token.
+  --musixmatch-email MUSIXMATCH_EMAIL
+                        Your MusixMatch login email. Create an account via 'Continue with email' at https://auth.musixmatch.com/ to use the MusixMatch lyrics provider.
+  --musixmatch-password MUSIXMATCH_PASSWORD
+                        Your MusixMatch login password. Create an account via 'Continue with email' at https://auth.musixmatch.com/ to use the MusixMatch lyrics provider.
   --config              Use the config file to download songs. It's located under C:\Users\user\.spotdl\config.json or ~/.spotdl/config.json under linux
   --search-query SEARCH_QUERY
                         The search query to use, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year},
