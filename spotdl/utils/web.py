@@ -3,6 +3,7 @@ Module which contains the web server related function
 FastAPI routes/classes etc.
 """
 
+import argparse
 import asyncio
 import logging
 import mimetypes
@@ -18,10 +19,12 @@ from uvicorn import Server
 from spotdl.download.downloader import Downloader
 from spotdl.download.progress_handler import ProgressHandler, SongTracker
 from spotdl.types.options import DownloaderOptions, WebOptions
+from spotdl.utils.arguments import create_parser
 from spotdl.utils.config import DOWNLOADER_OPTIONS, create_settings_type
 
 __all__ = [
     "ALLOWED_ORIGINS",
+    "WEB_EDITABLE_SETTINGS",
     "SPAStaticFiles",
     "Client",
     "ApplicationState",
@@ -29,7 +32,11 @@ __all__ = [
     "get_current_state",
     "get_client",
     "fix_mime_types",
+    "validate_setting",
+    "get_settings_changes",
 ]
+
+logger = logging.getLogger(__name__)
 
 ALLOWED_ORIGINS = [
     "http://localhost:8800",
@@ -37,6 +44,135 @@ ALLOWED_ORIGINS = [
     "https://localhost:8800",
     "https://127.0.0.1:8800",
 ]
+
+# Settings that clients are allowed to view and change through the web UI.
+# Anything else (executable paths, extra yt-dlp/ffmpeg arguments, file paths,
+# proxies, ...) can only be set by whoever started the server, because a
+# client able to change them could run commands or touch arbitrary files.
+WEB_EDITABLE_SETTINGS = {
+    "audio_providers",
+    "lyrics_providers",
+    "genius_token",
+    "search_query",
+    "filter_results",
+    "album_type",
+    "only_verified_results",
+    "threads",
+    "bitrate",
+    "format",
+    "preload",
+    "overwrite",
+    "restrict",
+    "print_errors",
+    "sponsor_block",
+    "playlist_numbering",
+    "playlist_retain_track_cover",
+    "scan_for_songs",
+    "fetch_albums",
+    "id3_separator",
+    "ytm_data",
+    "add_unavailable",
+    "generate_lrc",
+    "force_update_metadata",
+    "sync_without_deleting",
+    "max_filename_length",
+    "detect_formats",
+    "redownload",
+    "skip_album_art",
+    "ignore_albums",
+    "skip_explicit",
+    "create_skip_file",
+    "respect_skip_file",
+    "sync_remove_lrc",
+}
+
+# Inclusive (min, max) bounds for integer settings, None means unbounded
+INT_SETTING_BOUNDS = {
+    "threads": (1, 64),
+    "max_filename_length": (1, None),
+}
+
+
+def validate_setting(key: str, value: Any, action: argparse.Action) -> Optional[str]:
+    """
+    Validate a setting value against its command line argument definition.
+
+    ### Arguments
+    - key: The setting name.
+    - value: The new value.
+    - action: The argparse action that defines the setting.
+
+    ### Returns
+    - returns an error message, or None if the value is valid.
+    """
+
+    if action.choices is not None:
+        values = value if action.nargs == "*" else [value]
+        if not isinstance(values, list):
+            return f"{key} must be a list"
+
+        invalid = [item for item in values if str(item) not in action.choices]
+        if invalid:
+            return f"Invalid value for {key}: {invalid}"
+
+    if key in INT_SETTING_BOUNDS:
+        minimum, maximum = INT_SETTING_BOUNDS[key]
+        if not isinstance(value, int) or isinstance(value, bool):
+            return f"{key} must be an integer"
+
+        if value < minimum:
+            return f"{key} must be at least {minimum}"
+
+        if maximum is not None and value > maximum:
+            return f"{key} must be at most {maximum}"
+
+    return None
+
+
+def get_settings_changes(current: DownloaderOptions, settings: Any) -> Dict[str, Any]:
+    """
+    Get the setting changes a client is allowed to make.
+
+    ### Arguments
+    - current: The client's current settings.
+    - settings: The settings sent by the client.
+
+    ### Returns
+    - returns the changed settings that are allowed and valid.
+
+    ### Errors
+    - ValueError: if the settings aren't a dictionary, or a changed setting
+    has an invalid value.
+    """
+
+    if not isinstance(settings, dict):
+        raise ValueError("Settings must be an object")
+
+    actions = {
+        action.dest: action
+        for action in create_parser()._actions  # pylint: disable=protected-access
+    }
+
+    changes = {}
+    for key, value in settings.items():
+        # The web UI sends back every setting it received, so unchanged values
+        # (including ones it isn't allowed to change) are expected and skipped
+        if value is None or value == current.get(key):
+            continue
+
+        if key not in WEB_EDITABLE_SETTINGS:
+            logger.warning(
+                "Ignoring setting that can't be changed from the web UI: %s", key
+            )
+            continue
+
+        error = validate_setting(key, value, actions[key])
+        if error is not None:
+            raise ValueError(error)
+
+        changes[key] = value
+
+    return changes
 
 
 class SPAStaticFiles(StaticFiles):
@@ -106,17 +242,56 @@ class Client:
         # self.websocket = websocket
         self.client_id = client_id
         # self.update_callback = update_callback
-        self.downloader = Downloader(
-            settings=self.downloader_settings, loop=app_state.loop
-        )
+        self.downloader = self.create_downloader()
 
-        self.downloader.progress_handler = ProgressHandler(
+        self.disconnect_timer = None
+
+    def create_downloader(self) -> Downloader:
+        """
+        Create a downloader using the client's settings.
+
+        ### Returns
+        - returns the downloader.
+        """
+
+        downloader = Downloader(settings=self.downloader_settings, loop=app_state.loop)
+
+        downloader.progress_handler = ProgressHandler(
             simple_tui=True,
             update_callback=self.song_update,
             web_ui=True,
         )
 
-        self.disconnect_timer = None
+        return downloader
+
+    def update_settings(self, settings: Any) -> DownloaderOptions:
+        """
+        Apply the settings sent by the client and re-initialize the downloader.
+        Only settings in WEB_EDITABLE_SETTINGS can be changed, changes to other
+        settings are ignored.
+
+        ### Arguments
+        - settings: The settings sent by the client.
+
+        ### Returns
+        - returns the new settings.
+
+        ### Errors
+        - ValueError: if a changed setting has an invalid value.
+        """
+
+        changes = get_settings_changes(self.downloader_settings, settings)
+
+        new_settings = DownloaderOptions(
+            **{**self.downloader_settings, **changes}  # type: ignore
+        )
+
+        logger.info("Applying settings for client %s: %s", self.client_id, changes)
+
+        self.downloader_settings = new_settings
+        self.downloader = self.create_downloader()
+
+        return new_settings
 
     async def connect(self):
         """
