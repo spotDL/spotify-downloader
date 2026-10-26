@@ -61,8 +61,19 @@ FORBIDDEN_WORDS = [
 ]
 
 # Words that join artist names in a result's artist name or title
-# (e.g. "velmar-und-misdemeanor", "wasted-feat-alice-gray")
-ARTIST_JOIN_WORDS = ["feat", "ft", "featuring", "with", "x", "and", "und", "vs"]
+# (e.g. "velmar-und-misdemeanor", "wasted-feat-alice-gray"),
+# YouTube Music results are in German so features can show up as "mit"
+ARTIST_JOIN_WORDS = [
+    "feat",
+    "ft",
+    "featuring",
+    "with",
+    "mit",
+    "x",
+    "and",
+    "und",
+    "vs",
+]
 
 
 def debug(song_id: str, result_id: str, message: str) -> None:

@@ -68,6 +68,11 @@ def test_calc_main_artist_match_single_result_artist(mocker):
     result = mocker.Mock(result_id="result", artists=["Queens of the Stone Age"])
     assert calc_main_artist_match(song, result) == 0.0
 
+    # Artists joined with the German "mit"
+    song = mocker.Mock(song_id="song", artists=["LUCO", "Alice Gray"])
+    result = mocker.Mock(result_id="result", artists=["LUCO mit Alice Gray"])
+    assert calc_main_artist_match(song, result) == 100.0
+
     # Different artist whose name contains the main artist gets no credit
     song = mocker.Mock(song_id="song", artists=["Drake", "Rihanna"])
     result = mocker.Mock(result_id="result", artists=["Drake Bell"])
@@ -143,6 +148,11 @@ def test_calc_artists_match_single_result_artist(mocker):
     song = mocker.Mock(artists=["LUCO", "Alice Gray"])
     song.name = "With or Without You"
     result.name = "With or Without You (feat. Alice Gray)"
+    assert calc_artists_match(song, result) == 100.0
+
+    # Song name not in the title, other artist after the German "mit"
+    song.name = "Wasted - Remix"
+    result.name = "Wasted (mit Alice Gray) [Remix]"
     assert calc_artists_match(song, result) == 100.0
 
 
