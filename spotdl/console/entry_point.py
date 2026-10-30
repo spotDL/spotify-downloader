@@ -11,6 +11,7 @@ import time
 
 from spotdl.console.download import download
 from spotdl.console.meta import meta
+from spotdl.console.remove import remove as remove_cmd
 from spotdl.console.save import save
 from spotdl.console.sync import sync
 from spotdl.console.url import url
@@ -32,6 +33,7 @@ OPERATIONS = {
     "save": save,
     "meta": meta,
     "url": url,
+    "remove": remove_cmd,
 }
 
 logger = logging.getLogger(__name__)
@@ -88,8 +90,8 @@ def entry_point():
         if is_ffmpeg_installed() is False:
             download_ffmpeg()
 
-    # Check if ffmpeg is installed
-    if is_ffmpeg_installed(downloader_settings["ffmpeg"]) is False:
+    # Check if ffmpeg is installed (skip for remove command)
+    if arguments.operation != "remove" and is_ffmpeg_installed(downloader_settings["ffmpeg"]) is False:
         raise FFmpegError(
             "FFmpeg is not installed. Please run `spotdl --download-ffmpeg` to install it, "
             "or `spotdl --ffmpeg /path/to/ffmpeg` to specify the path to ffmpeg."
@@ -138,15 +140,20 @@ def entry_point():
             "Log in by adding the --user-auth flag"
         )
 
-    # Initialize the downloader
-    # for download, load and preload operations
-    downloader = Downloader(downloader_settings)
+    # For remove command, we don't need a downloader
+    if arguments.operation == "remove":
+        OPERATIONS[arguments.operation](arguments.query)
+        return None
+        
+    # Initialize downloader for other operations
+    downloader = Downloader(
+        downloader_settings,
+        skip_ffmpeg_check=arguments.operation == "remove"
+    )
 
     def graceful_exit(_signal, _frame):
         if spotify_settings["use_cache_file"]:
             save_spotify_cache(spotify_client.cache)
-
-        downloader.progress_handler.close()
         sys.exit(0)
 
     signal.signal(signal.SIGINT, graceful_exit)
