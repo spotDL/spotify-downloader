@@ -48,6 +48,10 @@ RUN mkdir -p /music && chown spotdl:spotdl /music
 # Create a volume for the output directory
 VOLUME /music
 
+# Copy entryPoint Script
+COPY dockerEntrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Change Workdir to download location
 WORKDIR /music
 
@@ -58,4 +62,4 @@ USER spotdl
 RUN uv run --project /app --no-dev --frozen --no-sync spotdl --download-deno
 
 # Entrypoint command
-ENTRYPOINT ["uv", "run", "--project", "/app", "--no-dev", "--frozen", "--no-sync", "spotdl"]
+ENTRYPOINT ["/entrypoint.sh"]
