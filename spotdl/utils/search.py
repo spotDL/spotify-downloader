@@ -17,6 +17,7 @@ from ytmusicapi import YTMusic
 
 from spotdl.types.album import Album
 from spotdl.types.artist import Artist
+from spotdl.types.csv_import import CSVImport, CSVImportError
 from spotdl.types.playlist import Playlist
 from spotdl.types.saved import Saved
 from spotdl.types.song import Song, SongList
@@ -297,6 +298,21 @@ def get_simple_songs(
                 for track in json.load(save_file):
                     # Append to songs
                     songs.append(Song.from_dict(track))
+        elif request.endswith(".csv"):
+            # Handle Exportify CSV files
+            try:
+                csv_list = CSVImport.from_csv_path(request, fetch_songs=False)
+                lists.append(csv_list)
+                logger.info(
+                    "Loaded %d songs from CSV file: %s",
+                    csv_list.length,
+                    request,
+                )
+            except CSVImportError as exc:
+                logger.error("Failed to load CSV file '%s': %s", request, exc)
+                raise QueryError(
+                    f"Failed to load CSV file '{request}': {exc}"
+                ) from exc
         else:
             songs.append(Song.from_search_term(request))
 

@@ -77,6 +77,43 @@ def entry_point():
     # Parse the arguments
     arguments = parse_arguments()
 
+    # Handle --from-csv: inject CSV path into query
+    from_csv = getattr(arguments, "from_csv", None)
+    if from_csv:
+        import os
+
+        if not os.path.isfile(from_csv):
+            raise FileNotFoundError(
+                f"CSV file not found: {from_csv}\n"
+                "Make sure the path to your Exportify CSV file is correct."
+            )
+
+        if not from_csv.lower().endswith(".csv"):
+            raise ValueError(
+                f"File does not have .csv extension: {from_csv}\n"
+                "Please provide a valid CSV file exported from Exportify."
+            )
+
+        # If no query provided, create one with just the CSV path
+        if not hasattr(arguments, "query") or arguments.query is None:
+            arguments.query = [from_csv]
+        else:
+            # Prepend CSV to existing query
+            arguments.query = [from_csv] + arguments.query
+
+        # Default to download operation if not specified
+        if (
+            not hasattr(arguments, "operation")
+            or arguments.operation is None
+        ):
+            arguments.operation = "download"
+
+        logger.info(
+            "Using Exportify CSV: %s (operation: %s)",
+            from_csv,
+            arguments.operation,
+        )
+
     # Create settings dicts
     spotify_settings, downloader_settings, web_settings = create_settings(arguments)
 
@@ -127,16 +164,6 @@ def entry_point():
     ):
         raise DownloaderError("Save file has to end with .spotdl")
 
-    # Check if the user is logged in
-    if (
-        arguments.query
-        and "saved" in arguments.query
-        and not spotify_settings["user_auth"]
-    ):
-        raise SpotifyError(
-            "You must be logged in to use the saved query. "
-            "Log in by adding the --user-auth flag"
-        )
 
     # Initialize the downloader
     # for download, load and preload operations

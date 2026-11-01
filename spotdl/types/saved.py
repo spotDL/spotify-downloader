@@ -2,6 +2,7 @@
 Saved module for handing the saved tracks from user library
 """
 
+import logging
 from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple
 
@@ -9,6 +10,27 @@ from spotdl.types.song import Song, SongList
 from spotdl.utils.spotify import SpotifyClient
 
 __all__ = ["Saved", "SavedError"]
+
+logger = logging.getLogger(__name__)
+
+EXPORTIFY_HELP_MESSAGE = """
+╔══════════════════════════════════════════════════════════════════════╗
+║  SPOTIFY API ERROR: Cannot fetch saved/liked tracks (HTTP 403)     ║
+║                                                                    ║
+║  This happens because Spotify's Web API requires the app owner     ║
+║  to have Spotify Premium to access /me/tracks.                     ║
+║                                                                    ║
+║  WORKAROUND — Use Exportify to export your liked songs:            ║
+║                                                                    ║
+║  1. Go to https://exportify.net                                    ║
+║  2. Log in with your Spotify account                               ║
+║  3. Export your "Liked Songs" playlist as a CSV file                ║
+║  4. Run: spotdl download --from-csv exported.csv                   ║
+║                                                                    ║
+║  This will download all your liked songs with full metadata,       ║
+║  no Premium required!                                              ║
+╚══════════════════════════════════════════════════════════════════════╝
+"""
 
 
 class SavedError(Exception):
@@ -34,15 +56,29 @@ class Saved(SongList):
         ### Returns
         - metadata: A dictionary containing the metadata for the saved list.
         - songs: A list of Song objects.
+
+        ### Raises
+        - SavedError: If the Spotify API returns 403 (Premium required) or
+          any other error. The error message includes instructions to use
+          Exportify as a workaround.
         """
 
         metadata = {"name": "Saved tracks", "url": url}
 
-        spotify_client = SpotifyClient()
-        if spotify_client.user_auth is False:  # type: ignore
-            raise SavedError("You must be logged in to use this function")
+        from spotdl.utils.exportify_auth import get_exportify_client
 
-        saved_tracks_response = spotify_client.current_user_saved_tracks()
+        try:
+            logger.info("Initializing Spotify client with Exportify credentials...")
+            spotify_client = get_exportify_client()
+            saved_tracks_response = spotify_client.current_user_saved_tracks()
+        except Exception as exc:
+            logger.error("Failed to authenticate or fetch saved tracks: %s", exc)
+            raise SavedError(
+                f"Failed to fetch saved tracks: {exc}\n\n"
+                "Please make sure you authorize the Exportify app in your browser "
+                "and copy/paste the redirection URL correctly."
+            ) from exc
+
         if saved_tracks_response is None:
             raise SavedError("Couldn't get saved tracks")
 

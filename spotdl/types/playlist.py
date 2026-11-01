@@ -45,7 +45,26 @@ class Playlist(SongList):
 
         spotify_client = SpotifyClient()
 
-        playlist = spotify_client.playlist(url)
+        try:
+            playlist = spotify_client.playlist(url)
+        except Exception as exc:
+            exc_str = str(exc).lower()
+            if "403" in exc_str or "404" in exc_str or "forbidden" in exc_str or "not found" in exc_str:
+                logger.info(
+                    "Playlist could not be loaded with standard client (possibly private). "
+                    "Trying Exportify client..."
+                )
+                from spotdl.utils.exportify_auth import get_exportify_client
+                try:
+                    spotify_client = get_exportify_client()
+                    playlist = spotify_client.playlist(url)
+                except Exception as inner_exc:
+                    raise PlaylistError(
+                        f"Wrong playlist ID or URL (Exportify client also failed: {inner_exc})"
+                    ) from inner_exc
+            else:
+                raise PlaylistError(f"Failed to fetch playlist: {exc}") from exc
+
         if playlist is None:
             raise PlaylistError("Invalid playlist URL.")
 
