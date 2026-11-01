@@ -82,6 +82,39 @@ def test_ytm_get_results_retries_with_new_client(mocker):
     assert second_client.search.call_count == 1
 
 
+def test_ytm_search_finds_audio_track_top_result(mocker):
+    client = mocker.Mock()
+    result = {
+        "videoId": "track_video_id",
+        "resultType": "album",
+        "videoType": "MUSIC_VIDEO_TYPE_ATV",
+        "title": "The Talented Mr. Tripley",
+        "duration": "3:14",
+        "artists": [],
+    }
+    client.search.side_effect = lambda *args, **kwargs: (
+        [] if "filter" in kwargs else [result]
+    )
+    client.get_song.return_value = {
+        "videoDetails": {"author": "DJ Koze"},
+    }
+    mocker.patch(
+        "spotdl.providers.audio.ytmusic.YTMusic",
+        return_value=client,
+    )
+
+    provider = YouTubeMusic()
+    song = Song.from_missing_data(
+        name="The Talented Mr. Tripley",
+        artists=["DJ Koze"],
+        artist="DJ Koze",
+        duration=194,
+    )
+
+    assert provider.search(song) == ("https://music.youtube.com/watch?v=track_video_id")
+    client.get_song.assert_called_once_with("track_video_id")
+
+
 @pytest.mark.parametrize(
     "name",
     [

@@ -4,9 +4,12 @@ YTMusic module for downloading and searching songs.
 
 import logging
 import re
+from json import JSONDecodeError
 from typing import Any, Dict, List
 
+from requests import RequestException
 from ytmusicapi import YTMusic
+from ytmusicapi.exceptions import YTMusicServerError
 
 from spotdl.providers.audio.base import ISRC_REGEX, AudioProvider
 from spotdl.types.result import Result
@@ -48,6 +51,7 @@ class YouTubeMusic(AudioProvider):
     GET_RESULTS_OPTS: List[Dict[str, Any]] = [
         {"filter": "songs", "ignore_spelling": True, "limit": 50},
         {"filter": "videos", "ignore_spelling": True, "limit": 50},
+        {"ignore_spelling": True, "limit": 10},
     ]
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -106,17 +110,41 @@ class YouTubeMusic(AudioProvider):
                     if artist.get("name") and not is_view_count(artist["name"])
                 ]
 
+                is_audio_track = result.get("videoType") == "MUSIC_VIDEO_TYPE_ATV"
+                if is_audio_track and result.get("resultType") != "song":
+                    try:
+                        song_data = self.client.get_song(result["videoId"])
+                        author = song_data.get("videoDetails", {}).get("author")
+                    except (
+                        RequestException,
+                        YTMusicServerError,
+                        JSONDecodeError,
+                    ) as error:
+                        logger.debug(
+                            "Could not retrieve YouTube Music details for %s: %s",
+                            result["videoId"],
+                            error,
+                        )
+                        author = None
+
+                    if author and author.casefold() not in {
+                        artist.casefold() for artist in artists
+                    }:
+                        artists.insert(0, author)
+
                 if not artists:
                     continue
+
+                verified = result.get("resultType") == "song" or is_audio_track
 
                 results.append(
                     Result(
                         source=self.name,
                         url=(
-                            f'https://{"music" if result["resultType"] == "song" else "www"}'
+                            f'https://{"music" if verified else "www"}'
                             f".youtube.com/watch?v={result['videoId']}"
                         ),
-                        verified=result.get("resultType") == "song",
+                        verified=verified,
                         name=result["title"],
                         result_id=result["videoId"],
                         author=artists[0],
