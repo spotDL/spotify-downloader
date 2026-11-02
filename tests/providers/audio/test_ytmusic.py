@@ -82,15 +82,19 @@ def test_ytm_get_results_retries_with_new_client(mocker):
     assert second_client.search.call_count == 1
 
 
-def test_ytm_search_finds_audio_track_top_result(mocker):
+def test_ytm_search_finds_audio_track_with_missing_artist(mocker):
     client = mocker.Mock()
     result = {
         "videoId": "track_video_id",
         "resultType": "album",
         "videoType": "MUSIC_VIDEO_TYPE_ATV",
-        "title": "The Talented Mr. Tripley",
+        "title": "Tu Dime Cuando",
         "duration": "3:14",
-        "artists": [],
+        "artists": [
+            {"name": "Ada"},
+            {"name": "Sofia Kourtesis"},
+            {"name": "Inéz"},
+        ],
     }
     client.search.side_effect = lambda *args, **kwargs: (
         [] if "filter" in kwargs else [result]
@@ -105,8 +109,8 @@ def test_ytm_search_finds_audio_track_top_result(mocker):
 
     provider = YouTubeMusic()
     song = Song.from_missing_data(
-        name="The Talented Mr. Tripley",
-        artists=["DJ Koze"],
+        name="Tu Dime Cuando",
+        artists=["DJ Koze", "Ada", "Sofia Kourtesis", "Inéz"],
         artist="DJ Koze",
         duration=194,
     )
