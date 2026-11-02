@@ -88,19 +88,18 @@ def test_ytm_search_finds_audio_track_with_missing_artist(mocker):
         "videoId": "track_video_id",
         "resultType": "album",
         "videoType": "MUSIC_VIDEO_TYPE_ATV",
-        "title": "Tu Dime Cuando",
+        "title": "Test Song",
         "duration": "3:14",
         "artists": [
-            {"name": "Ada"},
-            {"name": "Sofia Kourtesis"},
-            {"name": "Inéz"},
+            {"name": "Featured Artist"},
+            {"name": "Guest Artist"},
         ],
     }
     client.search.side_effect = lambda *args, **kwargs: (
         [] if "filter" in kwargs else [result]
     )
     client.get_song.return_value = {
-        "videoDetails": {"author": "DJ Koze"},
+        "videoDetails": {"author": "Main Artist"},
     }
     mocker.patch(
         "spotdl.providers.audio.ytmusic.YTMusic",
@@ -109,9 +108,9 @@ def test_ytm_search_finds_audio_track_with_missing_artist(mocker):
 
     provider = YouTubeMusic()
     song = Song.from_missing_data(
-        name="Tu Dime Cuando",
-        artists=["DJ Koze", "Ada", "Sofia Kourtesis", "Inéz"],
-        artist="DJ Koze",
+        name="Test Song",
+        artists=["Main Artist", "Featured Artist", "Guest Artist"],
+        artist="Main Artist",
         duration=194,
     )
 
