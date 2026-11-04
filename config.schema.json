@@ -1,0 +1,433 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "spotDL configuration",
+    "description": "Settings for spotDL's config.json. All settings are optional. Omitted or null values use built-in defaults unless overridden by command-line arguments.",
+    "type": "object",
+    "additionalProperties": true,
+    "properties": {
+        "$schema": {
+            "type": "string",
+            "description": "Local path or URL of the JSON Schema used by an editor to validate this file. Ignored by spotDL."
+        },
+        "client_id": {
+            "type": ["string", "null"],
+            "description": "Spotify client identifier used to log in to Spotify.",
+            "default": "5f573c9620494bae87890c0f08a60293"
+        },
+        "client_secret": {
+            "type": ["string", "null"],
+            "description": "Spotify client secret used to log in to Spotify.",
+            "default": "212476d9b0f3472eaa762d90b19b0ba8"
+        },
+        "auth_token": {
+            "type": ["string", "null"],
+            "description": "Authorization token used directly to log in to Spotify. Null uses the normal authentication flow.",
+            "default": null
+        },
+        "user_auth": {
+            "type": ["boolean", "null"],
+            "description": "Log in with a Spotify user account using OAuth.",
+            "default": false
+        },
+        "headless": {
+            "type": ["boolean", "null"],
+            "description": "Run Spotify authentication in headless mode without automatically opening a browser.",
+            "default": false
+        },
+        "cache_path": {
+            "type": ["string", "null"],
+            "description": "Path to the Spotipy token cache file. Defaults to .spotipy inside the spotDL configuration directory. On Windows and macOS, this is ~/.spotdl. On Linux, spotDL uses ~/.config/spotdl if it exists, otherwise an existing ~/.spotdl, or creates ~/.config/spotdl if neither exists."
+        },
+        "no_cache": {
+            "type": ["boolean", "null"],
+            "description": "Disable request and authentication-token caching.",
+            "default": false
+        },
+        "max_retries": {
+            "type": ["integer", "null"],
+            "description": "Maximum number of retries when fetching Spotify metadata.",
+            "default": 3
+        },
+        "use_cache_file": {
+            "type": ["boolean", "null"],
+            "description": "Use the .spotify_cache file in the spotDL configuration directory for track metadata. It is updated when metadata is fetched and may contain outdated information.",
+            "default": false
+        },
+        "use_official_api": {
+            "type": ["boolean", "null"],
+            "description": "Use the official Spotify Web API through Spotipy instead of the default SpotipyFree client.",
+            "default": false
+        },
+        "audio_providers": {
+            "type": ["array", "null"],
+            "description": "Audio providers in fallback order. At least one provider is needed. Corresponds to --audio.",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "youtube",
+                    "youtube-music",
+                    "soundcloud",
+                    "bandcamp",
+                    "piped"
+                ]
+            },
+            "minItems": 1,
+            "default": ["youtube-music"]
+        },
+        "lyrics_providers": {
+            "type": ["array", "null"],
+            "description": "Lyrics providers in fallback order. An empty array disables lyrics fetching. Include synced to generate synchronized lyric files. Corresponds to --lyrics.",
+            "items": {
+                "type": "string",
+                "enum": ["genius", "musixmatch", "azlyrics", "synced"]
+            },
+            "default": ["genius", "azlyrics", "musixmatch"]
+        },
+        "genius_token": {
+            "type": ["string", "null"],
+            "description": "Genius access token used by the Genius lyrics provider. Corresponds to --genius-access-token.",
+            "default": "alXXDbPZtK1m2RrZ8I4k2Hn8Ahsd0Gh_o076HYvcdlBvmc0ULL1H8Z8xRlew5qaG"
+        },
+        "playlist_numbering": {
+            "type": ["boolean", "null"],
+            "description": "Use playlist positions as track numbers, the playlist name as the album name, and the playlist icon as album artwork.",
+            "default": false
+        },
+        "playlist_retain_track_cover": {
+            "type": ["boolean", "null"],
+            "description": "Use playlist positions as track numbers and the playlist name as the album name while retaining each track's album artwork.",
+            "default": false
+        },
+        "scan_for_songs": {
+            "type": ["boolean", "null"],
+            "description": "Scan the output directory for existing songs. Combine with overwrite to control duplicates. The directory is the last directory in the output template that is not a template variable.",
+            "default": false
+        },
+        "m3u": {
+            "type": ["string", "null"],
+            "description": "Playlist filename or template. Null does not generate a playlist. Use {list} for each list or {list[0]} for the first list.",
+            "default": null
+        },
+        "output": {
+            "type": ["string", "null"],
+            "description": "Downloaded file path template. Supports song and playlist variables such as {artists}, {title}, {album}, {list-name}, {list-position} and {output-ext}.",
+            "default": "{artists} - {title}.{output-ext}"
+        },
+        "overwrite": {
+            "type": ["string", "null"],
+            "description": "How to handle existing files: skip them, force replacement, or update metadata only. With scan_for_songs, force removes duplicates, while metadata updates the latest copy and removes the others.",
+            "enum": ["force", "skip", "metadata", null],
+            "default": "skip"
+        },
+        "search_query": {
+            "type": ["string", "null"],
+            "description": "Custom audio-provider search query template, using the same song and playlist variables as output. Null uses the provider's normal search query.",
+            "default": null
+        },
+        "ffmpeg": {
+            "type": ["string", "null"],
+            "description": "FFmpeg executable name or path to use for audio conversion.",
+            "default": "ffmpeg"
+        },
+        "bitrate": {
+            "description": "Output bitrate, such as 128k, or a variable-quality setting from 0 through 9. Use auto for the source bitrate or disable to omit the bitrate option. For matching m4a and opus files, auto and disable can skip conversion. Null uses the default bitrate of 128k.",
+            "anyOf": [
+                {
+                    "type": "string",
+                    "enum": [
+                        "auto",
+                        "disable",
+                        "8k",
+                        "16k",
+                        "24k",
+                        "32k",
+                        "40k",
+                        "48k",
+                        "64k",
+                        "80k",
+                        "96k",
+                        "112k",
+                        "128k",
+                        "160k",
+                        "192k",
+                        "224k",
+                        "256k",
+                        "320k",
+                        "0",
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9"
+                    ]
+                },
+                {
+                    "type": "integer"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "default": "128k"
+        },
+        "ffmpeg_args": {
+            "type": ["string", "null"],
+            "description": "Additional FFmpeg arguments as a single string, or null for none.",
+            "default": null
+        },
+        "format": {
+            "type": ["string", "null"],
+            "description": "Audio format for downloaded files.",
+            "enum": ["mp3", "flac", "ogg", "opus", "m4a", "wav", null],
+            "default": "mp3"
+        },
+        "save_file": {
+            "type": ["string", "null"],
+            "description": "File used to save or load song metadata, normally ending in .spotdl. Used for save/sync and optionally download. Use - for standard output with save. Null does not select a file.",
+            "default": null
+        },
+        "filter_results": {
+            "type": ["boolean", "null"],
+            "description": "Filter audio-provider search results for matching songs. Set false for the behavior of --dont-filter-results.",
+            "default": true
+        },
+        "album_type": {
+            "type": ["string", "null"],
+            "description": "Album type to search for. Null does not limit the album type.",
+            "enum": ["album", "single", "compilation", null],
+            "default": null
+        },
+        "threads": {
+            "type": ["integer", "null"],
+            "description": "Number of concurrent song downloads.",
+            "default": 4
+        },
+        "cookie_file": {
+            "type": ["string", "null"],
+            "description": "Path to a cookies file for the audio provider, or null for none.",
+            "default": null
+        },
+        "restrict": {
+            "type": ["string", "boolean", "null"],
+            "description": "Filename sanitization mode: strict for a restricted character set, ascii for ASCII transliteration, or none for no extra restriction. Null uses normal platform sanitization. The deprecated value true is accepted and converted to strict.",
+            "enum": ["strict", "ascii", "none", true, null],
+            "default": null
+        },
+        "print_errors": {
+            "type": ["boolean", "null"],
+            "description": "Print failed downloads and incorrect matches when the operation finishes.",
+            "default": false
+        },
+        "sponsor_block": {
+            "type": ["boolean", "null"],
+            "description": "Use SponsorBlock to remove non-music segments from YouTube and YouTube Music downloads.",
+            "default": false
+        },
+        "preload": {
+            "type": ["boolean", "null"],
+            "description": "Preload download URLs when saving song metadata to speed up later downloads.",
+            "default": false
+        },
+        "archive": {
+            "type": ["string", "null"],
+            "description": "Filename for an archive of already downloaded songs, or null for no archive.",
+            "default": null
+        },
+        "load_config": {
+            "type": ["boolean", "null"],
+            "description": "Automatically load this configuration file when true. False, null or an omitted key prevents automatic loading. The --config flag loads the file regardless.",
+            "default": true
+        },
+        "log_level": {
+            "type": ["string", "null"],
+            "description": "Logging verbosity. Includes the FATAL and WARN aliases and the custom MATCH level.",
+            "enum": [
+                "CRITICAL",
+                "FATAL",
+                "ERROR",
+                "WARN",
+                "WARNING",
+                "INFO",
+                "MATCH",
+                "DEBUG",
+                "NOTSET",
+                null
+            ],
+            "default": "INFO"
+        },
+        "simple_tui": {
+            "type": ["boolean", "null"],
+            "description": "Use the simplified terminal user interface.",
+            "default": false
+        },
+        "fetch_albums": {
+            "type": ["boolean", "null"],
+            "description": "Fetch all albums containing songs in the query.",
+            "default": false
+        },
+        "id3_separator": {
+            "type": ["string", "null"],
+            "description": "Separator used between multiple values in ID3 metadata tags. Supported only for mp3 files.",
+            "default": "/"
+        },
+        "ytm_data": {
+            "type": ["boolean", "null"],
+            "description": "Use YouTube Music metadata instead of Spotify metadata when the query is a YouTube Music link.",
+            "default": false
+        },
+        "add_unavailable": {
+            "type": ["boolean", "null"],
+            "description": "Include unavailable songs in generated playlists and archives.",
+            "default": false
+        },
+        "generate_lrc": {
+            "type": ["boolean", "null"],
+            "description": "Generate .lrc synchronized lyric files for downloaded songs. Include synced in lyrics_providers to obtain synchronized lyrics.",
+            "default": false
+        },
+        "force_update_metadata": {
+            "type": ["boolean", "null"],
+            "description": "Force metadata updates for songs that already contain metadata.",
+            "default": false
+        },
+        "only_verified_results": {
+            "type": ["boolean", "null"],
+            "description": "Use only verified audio search results. Not all providers support this setting.",
+            "default": false
+        },
+        "sync_without_deleting": {
+            "type": ["boolean", "null"],
+            "description": "Synchronize without deleting local songs that are no longer in the query.",
+            "default": false
+        },
+        "max_filename_length": {
+            "type": ["integer", "null"],
+            "description": "Maximum filename length, subject to platform limits. Null does not set an additional length limit.",
+            "default": null
+        },
+        "yt_dlp_args": {
+            "type": ["string", "null"],
+            "description": "Additional arguments to pass to yt-dlp as a single string, or null for none.",
+            "default": null
+        },
+        "detect_formats": {
+            "type": ["array", "null"],
+            "description": "Formats to scan for when detecting existing downloads, including formats different from format. Null or an empty array scans only the configured output format. Only the first detected format is added to a generated playlist.",
+            "items": {
+                "type": "string",
+                "enum": ["mp3", "flac", "ogg", "opus", "m4a", "wav"]
+            },
+            "default": null
+        },
+        "save_errors": {
+            "type": ["string", "null"],
+            "description": "File in which to save failed downloads and incorrect matches, or null for no error file.",
+            "default": null
+        },
+        "ignore_albums": {
+            "type": ["array", "null"],
+            "description": "Ignore songs whose lowercased album names contain any of these substrings. Use lowercase entries. Null ignores no albums.",
+            "items": {
+                "type": "string"
+            },
+            "default": null
+        },
+        "proxy": {
+            "type": ["string", "null"],
+            "description": "HTTP or HTTPS proxy for downloads, or null for no proxy. Use an IPv4 address with optional credentials and port, for example http://127.0.0.1:8080.",
+            "default": null
+        },
+        "skip_explicit": {
+            "type": ["boolean", "null"],
+            "description": "Skip songs marked explicit.",
+            "default": false
+        },
+        "log_format": {
+            "type": ["string", "null"],
+            "description": "Custom Python logging format string using LogRecord attributes, or null for the standard format.",
+            "default": null
+        },
+        "redownload": {
+            "type": ["boolean", "null"],
+            "description": "Redownload local songs in the configured format during the meta operation.",
+            "default": false
+        },
+        "skip_album_art": {
+            "type": ["boolean", "null"],
+            "description": "Skip downloading album artwork during the meta operation.",
+            "default": false
+        },
+        "create_skip_file": {
+            "type": ["boolean", "null"],
+            "description": "Create a .skip marker file after each successful download.",
+            "default": false
+        },
+        "respect_skip_file": {
+            "type": ["boolean", "null"],
+            "description": "Skip downloading a song if its .skip marker file exists.",
+            "default": false
+        },
+        "sync_remove_lrc": {
+            "type": ["boolean", "null"],
+            "description": "Remove a song's matching .lrc lyric file when deleting the song during synchronization.",
+            "default": false
+        },
+        "web_use_output_dir": {
+            "type": ["boolean", "null"],
+            "description": "Use the configured output directory instead of a per-session directory for web downloads. Multiple simultaneous users may interfere with each other's files.",
+            "default": false
+        },
+        "port": {
+            "type": ["integer", "null"],
+            "description": "Port on which to run the web server.",
+            "default": 8800
+        },
+        "host": {
+            "type": ["string", "null"],
+            "description": "Host address on which to run the web server.",
+            "default": "localhost"
+        },
+        "keep_alive": {
+            "type": ["boolean", "null"],
+            "description": "Keep the web server running when no clients are connected.",
+            "default": false
+        },
+        "enable_tls": {
+            "type": ["boolean", "null"],
+            "description": "Enable Transport Layer Security for the web server using the configured certificate and key files.",
+            "default": false
+        },
+        "key_file": {
+            "type": ["string", "null"],
+            "description": "Path to the web server's private key in PEM format, or null if not configured.",
+            "default": null
+        },
+        "cert_file": {
+            "type": ["string", "null"],
+            "description": "Path to the web server's certificate in PEM format, or null if not configured.",
+            "default": null
+        },
+        "ca_file": {
+            "type": ["string", "null"],
+            "description": "Path to a certificate authority file in PEM format for the web server, or null if not configured.",
+            "default": null
+        },
+        "allowed_origins": {
+            "type": ["array", "null"],
+            "description": "Additional browser origins allowed to access the web server, appended to spotDL's built-in localhost origins. Null or an empty array adds none.",
+            "items": {
+                "type": "string"
+            },
+            "default": null
+        },
+        "keep_sessions": {
+            "type": ["boolean", "null"],
+            "description": "Keep web-session directories after the web server closes.",
+            "default": false
+        }
+    }
+}
