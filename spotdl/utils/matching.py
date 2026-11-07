@@ -21,6 +21,7 @@ from spotdl.utils.logging import MATCH
 __all__ = [
     "FORBIDDEN_WORDS",
     "ARTIST_JOIN_WORDS",
+    "MUSIC_VIDEO_WORDS",
     "fill_string",
     "create_clean_string",
     "sort_string",
@@ -28,6 +29,7 @@ __all__ = [
     "based_sort",
     "check_common_word",
     "check_forbidden_words",
+    "check_if_music_video",
     "create_match_strings",
     "get_best_matches",
     "calc_main_artist_match",
@@ -73,6 +75,12 @@ ARTIST_JOIN_WORDS = [
     "and",
     "und",
     "vs",
+]
+
+# Keywords in a result's title indicating that it's a music video
+MUSIC_VIDEO_WORDS = [
+    "video",
+    "mv",
 ]
 
 
@@ -256,6 +264,26 @@ def check_forbidden_words(song: Song, result: Result) -> Tuple[bool, List[str]]:
             words.append(word)
 
     return len(words) > 0, words
+
+
+def check_if_music_video(song: Song, result: Result) -> bool:
+    """
+    Checks if result is a music video
+
+    ### Arguments
+    - song: info to strip from result title
+    - result: provides title to parse
+    ### Returns
+    - True if result title contains a music video keyword, False otherwise
+    """
+    video_title = slugify(result.name)
+    to_strip = [slugify(song.name)] + list(map(slugify, song.artists))
+    for content in to_strip:
+        video_title = video_title.replace(content, "")
+    for word in MUSIC_VIDEO_WORDS:
+        if word in video_title:
+            return True
+    return False
 
 
 def create_match_strings(
@@ -917,8 +945,10 @@ def order_results(
                 f"Average match /w album match: {average_match}",
             )
 
+        is_mv = check_if_music_video(song, result)
+
         # Skip results with time match lower than 25%
-        if time_match < 25:
+        if (time_match < 25) and not is_mv:
             debug(
                 song.song_id,
                 result.result_id,
@@ -929,7 +959,7 @@ def order_results(
         # If the time match is lower than 50%
         # and the average match is lower than 75%
         # we skip the result
-        if time_match < 50 and average_match < 75:
+        if (time_match < 50 and average_match < 75) and not is_mv:
             debug(
                 song.song_id,
                 result.result_id,
@@ -938,8 +968,11 @@ def order_results(
             continue
 
         if (
-            (not result.isrc_search and average_match <= 85)
-            or result.source == "slider.kz"
+            (
+                (not result.isrc_search and average_match <= 85)
+                or result.source == "slider.kz"
+            )
+            and not is_mv
             or time_match < 0
         ):
             # Don't add time to avg match if average match is not the best
