@@ -152,6 +152,26 @@ def test_create_file_name_restrict():
         "Ornette - Crazy - Nôze Remix - Extended Club Version.mp3"
     )
 
+    # Directory parts of the output template are sanitized as well,
+    # not just the file name
+    assert create_file_name(
+        song, "{artist}/{album}/{title}", "mp3", restrict="strict"
+    ) == Path(
+        "Ornette/Crazy_Noze_Remix/Crazy-Noze_Remix-Extended_Club_Version.mp3"
+    )
+
+    assert create_file_name(
+        song, "{artist}/{album}/{title}", "mp3", restrict="ascii"
+    ) == Path(
+        "Ornette/Crazy (Noze Remix)/Crazy - Noze Remix - Extended Club Version.mp3"
+    )
+
+    assert create_file_name(
+        song, "{artist}/{album}/{title}", "mp3", restrict=None
+    ) == Path(
+        "Ornette/Crazy (Nôze Remix)/Crazy - Nôze Remix - Extended Club Version.mp3"
+    )
+
 
 def test_parse_duration():
     """

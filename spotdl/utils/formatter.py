@@ -504,7 +504,8 @@ def to_ms(
 
 def restrict_filename(pathobj: Path, strict: bool = True) -> Path:
     """
-    Sanitizes the filename part of a Path object. Returns modified object.
+    Sanitizes every part of a Path object, directory names included.
+    Returns modified object.
 
     ### Arguments
     - pathobj: the Path object to sanitize
@@ -516,18 +517,25 @@ def restrict_filename(pathobj: Path, strict: bool = True) -> Path:
     ### Notes
     - Based on the `sanitize_filename` function from yt-dlp
     """
-    if strict:
-        result = sanitize_filename(pathobj.name, True, False)  # type: ignore
-        result = result.replace("_-_", "-")
-    else:
-        result = (
-            normalize("NFKD", pathobj.name).encode("ascii", "ignore").decode("utf-8")
+
+    def sanitize_part(part: str) -> str:
+        if strict:
+            result = sanitize_filename(part, True, False)  # type: ignore
+            result = result.replace("_-_", "-")
+        else:
+            result = normalize("NFKD", part).encode("ascii", "ignore").decode("utf-8")
+
+        if not result:
+            result = "_"
+
+        return result
+
+    return Path(
+        *(
+            part if part == pathobj.anchor else sanitize_part(part)
+            for part in pathobj.parts
         )
-
-    if not result:
-        result = "_"
-
-    return pathobj.with_name(result)
+    )
 
 
 @lru_cache()
