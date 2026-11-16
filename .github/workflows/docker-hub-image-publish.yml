@@ -31,20 +31,20 @@ jobs:
 
     steps:
       - name: Checkout dev branch for nightly build
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.wants_production_build) }}
         with:
           ref: "refs/heads/dev"
 
       - name: Checkout main branch for production build
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
         if: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.wants_production_build) }}
         with:
           ref: "refs/heads/master"
 
       - name: Extract metadata (tags, labels) for Docker tags & labels
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
@@ -53,20 +53,20 @@ jobs:
             type=raw,value=nightly,priority=300,enable=${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.wants_production_build) }}
 
       - name: Set up QEMU for multi-arch builds
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v4
 
       - name: Set up Docker Buildx for multi-arch builds
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v4
 
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
       - name: Build and push Docker image to DockerHub
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: true
