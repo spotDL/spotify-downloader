@@ -64,6 +64,80 @@ class Song:
     album_type: Optional[str] = None
 
     @classmethod
+    def from_raw(cls, raw_track_meta: Dict[str, Any]) -> "Song":
+        """
+        Creates a Song object from raw data.
+
+        This uses placeholder values for disc_count, year, date, tracks_count and publisher, since
+        the track data doesn't contain these.
+        You can fetch this extra data by calling song.with_album_data() after this.
+
+        ### Arguments
+        - raw_track_meta: The raw data from Spotify's API.
+
+        ### Returns
+        - The Song object.
+        """
+
+        return cls(
+            name=raw_track_meta["name"],
+            artists=[artist["name"] for artist in raw_track_meta["artists"]],
+            artist=raw_track_meta["artists"][0]["name"],
+            artist_id=raw_track_meta["artists"][0]["id"],
+            album_id=raw_track_meta["album"]["id"],
+            album_name=raw_track_meta["album"]["name"],
+            album_artist=raw_track_meta["album"]["artists"][0]["name"],
+            album_type=raw_track_meta["album"]["album_type"],
+            copyright_text=(
+                raw_track_meta["album"]["copyrights"][0]["text"]
+                if raw_track_meta["album"].get("copyrights")
+                else ""
+            ),
+            genres=[
+                g
+                for g in raw_track_meta["album"].get("genres", [])
+                + raw_track_meta["artists"][0].get("genres", [])
+                if g
+            ],
+            disc_number=raw_track_meta.get("disc_number", 1),
+            disc_count=1,
+            duration=int(raw_track_meta["duration_ms"] / 1000),
+            year=0,
+            date="",
+            track_number=raw_track_meta.get("track_number", 1),
+            tracks_count=1,
+            isrc=raw_track_meta.get("external_ids", {}).get("isrc"),
+            song_id=raw_track_meta["id"],
+            explicit=raw_track_meta["explicit"],
+            publisher="",
+            url=raw_track_meta["external_urls"]["spotify"],
+            popularity=raw_track_meta["popularity"],
+            cover_url=(
+                max(
+                    raw_track_meta["album"]["images"],
+                    key=lambda i: i["width"] * i["height"],
+                )["url"]
+                if raw_track_meta["album"]["images"]
+                else None
+            ),
+        )
+
+    def fetch_album_data(self):
+        """
+        Populates album data in this song.
+
+        See from_raw's doc comment for context.
+        """
+        # get album info
+        raw_album_meta: Dict[str, Any] = SpotifyClient().album(self.album_id)  # type: ignore
+
+        self.disc_count = int(raw_album_meta["tracks"]["items"][-1]["disc_number"])
+        self.year = int(raw_album_meta["release_date"][:4])
+        self.date = raw_album_meta["release_date"]
+        self.tracks_count = raw_album_meta["total_tracks"]
+        self.publisher = raw_album_meta.get("label", "")
+
+    @classmethod
     def from_url(cls, url: str) -> "Song":
         """
         Creates a Song object from a URL.
@@ -79,11 +153,8 @@ class Song:
             raise SongError(f"Invalid URL: {url}")
         url = re.sub(r"\/intl-\w+\/", "/", url)
 
-        # query spotify for song, artist, album details
-        spotify_client = SpotifyClient()
-
         # get track info
-        raw_track_meta = spotify_client.track(url)
+        raw_track_meta = SpotifyClient().track(url)
 
         if raw_track_meta is None:
             raise SongError(
@@ -93,51 +164,10 @@ class Song:
         if raw_track_meta["duration_ms"] == 0 or raw_track_meta["name"].strip() == "":
             raise SongError(f"Track no longer exists: {url}")
 
-        # get artist info
-        primary_artist_id = raw_track_meta["artists"][0]["id"]
-        raw_artist_meta: Dict[str, Any] = spotify_client.artist(primary_artist_id)  # type: ignore
+        song = Song.from_raw(raw_track_meta)
+        song.fetch_album_data()
 
-        # get album info
-        album_id = raw_track_meta["album"]["id"]
-        raw_album_meta: Dict[str, Any] = spotify_client.album(album_id)  # type: ignore
-
-        # create song object
-        return cls(
-            name=raw_track_meta["name"],
-            artists=[artist["name"] for artist in raw_track_meta["artists"]],
-            artist=raw_track_meta["artists"][0]["name"],
-            artist_id=primary_artist_id,
-            album_id=album_id,
-            album_name=raw_album_meta["name"],
-            album_artist=raw_album_meta["artists"][0]["name"],
-            album_type=raw_album_meta.get("album_type"),
-            copyright_text=(
-                raw_album_meta["copyrights"][0]["text"]
-                if raw_album_meta["copyrights"]
-                else None
-            ),
-            genres=raw_album_meta.get("genres", []) + raw_artist_meta.get("genres", []),
-            disc_number=raw_track_meta["disc_number"],
-            disc_count=int(raw_album_meta["tracks"]["items"][-1]["disc_number"]),
-            duration=int(raw_track_meta["duration_ms"] / 1000),
-            year=int(raw_album_meta["release_date"][:4]),
-            date=raw_album_meta["release_date"],
-            track_number=raw_track_meta["track_number"],
-            tracks_count=raw_album_meta["total_tracks"],
-            isrc=raw_track_meta.get("external_ids", {}).get("isrc"),
-            song_id=raw_track_meta["id"],
-            explicit=raw_track_meta["explicit"],
-            publisher=raw_album_meta.get("label", ""),
-            url=raw_track_meta["external_urls"]["spotify"],
-            popularity=raw_track_meta.get("popularity"),
-            cover_url=(
-                max(raw_album_meta["images"], key=lambda i: i["width"] * i["height"])[
-                    "url"
-                ]
-                if raw_album_meta["images"]
-                else None
-            ),
-        )
+        return song
 
     @staticmethod
     def search(search_term: str):
@@ -194,16 +224,10 @@ class Song:
 
         raw_search_results = Song.search(search_term)
 
-        songs = []
-        for idx, _ in enumerate(raw_search_results.get("tracks", []).get("items", [])):
-            songs.append(
-                Song.from_url(
-                    "http://open.spotify.com/track/"
-                    + raw_search_results["tracks"]["items"][idx]["id"]
-                )
-            )
-
-        return songs
+        return [
+            Song.from_raw(item)
+            for item in raw_search_results.get("tracks", []).get("items", [])
+        ]
 
     @classmethod
     def from_data_dump(cls, data: str) -> "Song":
