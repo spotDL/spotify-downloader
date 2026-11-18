@@ -4,6 +4,7 @@ AZLyrics lyrics module.
 
 import logging
 from typing import Dict, List, Optional
+from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup, Tag
@@ -26,13 +27,12 @@ class AzLyrics(LyricsProvider):
         self.session = requests.Session()
         # No User-Agent override: AZLyrics traps requests claiming to be a
         # browser in a redirect loop, while requests' default UA is served
-        # normally (see #2682).
+        # normally (see #2682). A `Host` header also causes a redirect loop.
         self.session.headers.update(
             {
-                "Host": "www.azlyrics.com",
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                 "Accept-Language": "en-US,en;q=0.5",
-                "Accept-Encoding": "gzip, deflate, br, zstd",
+                "Accept-Encoding": "gzip, deflate, br",
                 "DNT": "1",
                 "Connection": "keep-alive",
                 "Upgrade-Insecure-Requests": "1",
@@ -45,6 +45,53 @@ class AzLyrics(LyricsProvider):
         )
 
         self.x_code = None
+        self._is_blocked = False
+
+    @staticmethod
+    def _blocked(response: requests.Response) -> bool:
+        """Return True when AZLyrics answered with its bot-check interstitial.
+
+        AZLyrics answers requests from flagged networks with a
+        "request for access" page on the b.azlyrics.com subnet instead of
+        real content. Detect it so we fail fast instead of retrying a page
+        that contains no results.
+        """
+        if (
+            any(
+                urlparse(hop.url).hostname == "b.azlyrics.com"
+                for hop in response.history
+            )
+            or urlparse(response.url).hostname == "b.azlyrics.com"
+        ):
+            return True
+        soup = BeautifulSoup(response.text, "html.parser")
+        title = soup.title.get_text().lower() if soup.title else ""
+        return (
+            "request for access" in title
+            or "detected unusual activity" in title
+            or "az_unblock" in response.text
+        )
+
+    def _get(self, url: str, **kwargs) -> Optional[requests.Response]:
+        """Fetch through the session; None when the bot wall was served."""
+
+        if self._is_blocked:
+            return None
+
+        try:
+            response = self.session.get(url, **kwargs)
+        except (requests.ConnectionError, requests.TooManyRedirects):
+            logger.debug("AZLyrics: request failed: %s", url)
+            return None
+
+        if self._blocked(response):
+            self._is_blocked = True
+            logger.debug(
+                "AZLyrics: bot-check interstitial present (%s), aborting.", response.url
+            )
+            return None
+
+        return response
 
     def get_results(self, name: str, artists: List[str], **_) -> Dict[str, str]:
         """
@@ -72,22 +119,18 @@ class AzLyrics(LyricsProvider):
 
         soup = None
         for i in range(4):  # Retry up to 4 times
-            try:
-                response = self.session.get(
-                    "https://www.azlyrics.com/search/", params=params
-                )
+            response = self._get("https://www.azlyrics.com/search/", params=params)
 
-                if not response.ok:
-                    continue
-
-                soup = BeautifulSoup(response.content, "html.parser")
-                break
-
-            except requests.ConnectionError:
-                logger.debug(
-                    "AZLyrics: ConnectionError on attempt %s with params: %s", i, params
-                )
+            if response is None:
+                if self._is_blocked:
+                    break
                 continue
+
+            if not response.ok:
+                continue
+
+            soup = BeautifulSoup(response.text, "html.parser")
+            break
 
         if soup is None:
             return {}
@@ -133,10 +176,12 @@ class AzLyrics(LyricsProvider):
         - The lyrics of the song or None if no lyrics were found.
         """
 
-        response = self.session.get(url)
-        soup = BeautifulSoup(response.content, "html.parser")
+        response = self._get(url)
+        if response is None:
+            return None
 
         # Find all divs that don't have a class
+        soup = BeautifulSoup(response.text, "html.parser")
         div_tags = soup.find_all("div", class_=False, id_=False)
 
         # Find the div with the longest text
@@ -156,35 +201,29 @@ class AzLyrics(LyricsProvider):
         - The x_code used by AZLyrics or None if it couldn't be retrieved.
         """
 
-        x_code = None
-        js_code = None
-
-        try:
-            self.session.get("https://www.azlyrics.com/")
-
-            resp = self.session.get("https://www.azlyrics.com/geo.js")
-            js_code = resp.text
-
-            # /geo.js returns a JS script, in which that 'x' code is located. e.g.
-            # var az_country_code;
-            # az_country_code = "HN";
-            # (function() {
-            #     var ep = document.createElement("input");
-            #     ep.setAttribute("type", "hidden");
-            #     ep.setAttribute("name", "x");
-            #     ep.setAttribute("value", "x code goes here");
-            #     var els = document.querySelectorAll('form.search');
-            #     for (var n = 0; n < els.length; n++) {
-            #         els[n].appendChild(ep.cloneNode());
-            #     }
-            # })();
-
-        except (requests.ConnectionError, requests.TooManyRedirects):
-            pass
-
-        if not js_code:
-            logger.debug("AZLyrics: Failed to retrieve js_code.")
+        home = self._get("https://www.azlyrics.com/")
+        if home is None:
             return None
+
+        resp = self._get("https://www.azlyrics.com/geo.js")
+        if resp is None:
+            return None
+
+        js_code = resp.text
+
+        # /geo.js returns a JS script, in which that 'x' code is located. e.g.
+        # var az_country_code;
+        # az_country_code = "HN";
+        # (function() {
+        #     var ep = document.createElement("input");
+        #     ep.setAttribute("type", "hidden");
+        #     ep.setAttribute("name", "x");
+        #     ep.setAttribute("value", "x code goes here");
+        #     var els = document.querySelectorAll('form.search');
+        #     for (var n = 0; n < els.length; n++) {
+        #         els[n].appendChild(ep.cloneNode());
+        #     }
+        # })();
 
         # We now filter the string so we can extract the x code.
         start_index = js_code.find('value"') + 9
