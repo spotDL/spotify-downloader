@@ -7,7 +7,7 @@ import pytest
 import spotapi
 
 import spotdl.utils.spotify as spotify_module
-from spotdl.utils.spotify import SpotifyClient, SpotifyError
+from spotdl.utils.spotify import SpotifyClient, SpotifyError, _FreeSpotifyClient
 
 
 def test_init(patch_dependencies):
@@ -181,6 +181,68 @@ def test_init_uses_official_client_for_official_api_only_options(monkeypatch, ca
     assert calls[0][0] == "official"
     assert SpotifyClient._use_official_api is True
     assert "Using the official Spotify Web API because" in caplog.text
+
+
+def test_artist_discography_reads_beyond_first_page(mocker):
+    groups = [
+        {"releases": {"items": [{"id": f"album-{index}"}]}} for index in range(52)
+    ]
+
+    def discography(artist_id, *, section, offset, **kwargs):
+        assert artist_id == "artist-id"
+        items = {
+            ("albums", 0): groups[:1],
+            ("singles", 0): groups[:50],
+            ("singles", 50): [groups[0], groups[50]],
+            ("compilations", 0): groups[-1:],
+        }[section, offset]
+        page = {
+            section: {"totalCount": 52 if section == "singles" else 1, "items": items}
+        }
+        return {"data": {"artistUnion": {"discography": page}}}
+
+    pages = mocker.patch.object(
+        spotapi.Artist, "get_artist_discography", side_effect=discography
+    )
+    client = _FreeSpotifyClient()
+    album = mocker.patch.object(client, "album", side_effect=lambda aid: {"id": aid})
+
+    result = client.artist_albums(
+        "https://open.spotify.com/artist/artist-id?si=share",
+        include_groups="album,single,compilation",
+    )
+
+    assert [item["id"] for item in result["items"]] == [f"album-{i}" for i in range(52)]
+    assert result["total"] == album.call_count == 52
+    assert [
+        (c.kwargs["section"], c.kwargs["offset"]) for c in pages.call_args_list
+    ] == [
+        ("albums", 0),
+        ("singles", 0),
+        ("singles", 50),
+        ("compilations", 0),
+    ]
+
+
+@pytest.mark.parametrize(
+    ("failure", "error"),
+    [(None, ValueError), (RuntimeError("unavailable"), RuntimeError)],
+)
+def test_artist_discography_does_not_silently_drop_failed_releases(
+    mocker, failure, error
+):
+    api = mocker.patch.object(spotapi, "Artist").return_value
+    api.paginate_artist_discography.return_value = [
+        [{"releases": {"items": [{"id": "missing"}]}}]
+    ]
+    client = _FreeSpotifyClient()
+    mocker.patch.object(client, "album", side_effect=failure, return_value=None)
+
+    with pytest.raises(error):
+        client.artist_albums("spotify:artist:artist-id", include_groups="single")
+    api.paginate_artist_discography.assert_called_once_with(
+        "artist-id", section="singles"
+    )
 
 
 @pytest.fixture

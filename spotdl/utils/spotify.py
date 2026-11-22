@@ -29,6 +29,7 @@ from spotipy import Spotify
 from spotipy.cache_handler import CacheFileHandler, MemoryCacheHandler
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 from SpotipyFree import Spotify as FreeSpotify
+from SpotipyFree.Formatter import SpotifyFormatter
 
 from spotdl.utils.config import get_cache_path, get_spotify_cache_path
 
@@ -275,6 +276,41 @@ def _init_base_client(
     client.on_auth_failure = on_auth_failure
 
 
+class _FreeSpotifyClient(FreeSpotify):
+    """Use full discography queries instead of the ten-release artist overview."""
+
+    # Match the SpotipyFree signature, including its unused paging arguments.
+    def artist_albums(  # pylint: disable=invalid-name,unused-argument,keyword-arg-before-vararg
+        self, artistId, limit=-1, offset=0, include_groups="album", *args, **kwargs
+    ) -> Dict[str, Any]:
+        """Return every release in the requested discography sections."""
+        artist_id = self.urlToId(artistId.partition("?")[0].rstrip("/")).rsplit(":", 1)[
+            -1
+        ]
+        requested = set(include_groups.split(","))
+        api = spotapi.Artist()
+        sections = (
+            ("album", "albums"),
+            ("single", "singles"),
+            ("compilation", "compilations"),
+        )
+        release_ids: Dict[str, None] = {}
+        for group, section in sections:
+            if group in requested:
+                for page in api.paginate_artist_discography(artist_id, section=section):
+                    for item in page:
+                        for release in item["releases"]["items"]:
+                            release_ids[release["id"]] = None
+
+        releases = []
+        for release_id in release_ids:
+            album = self.album(release_id)
+            if not album:
+                raise ValueError(f"Could not get artist release: {release_id}")
+            releases.append(album)
+        return SpotifyFormatter.addChunkInfo(releases)
+
+
 def _init_official_spotify_client(**kwargs) -> _OfficialSpotifyClient:
     """
     Initialize the official Spotipy client.
@@ -289,7 +325,7 @@ def _init_free_spotify_client(**kwargs) -> Any:
     """
 
     BaseClient.__init__ = _init_base_client  # type: ignore[method-assign]
-    return FreeSpotify(**kwargs)
+    return _FreeSpotifyClient(**kwargs)
 
 
 class SpotifyClient:
