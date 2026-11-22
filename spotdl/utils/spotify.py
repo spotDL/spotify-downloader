@@ -8,11 +8,23 @@ spotify.Spotify.init(client_id, client_secret)
 ```
 """
 
+import atexit
+import concurrent.futures
+import inspect
 import json
 import logging
+from contextlib import suppress
+from functools import lru_cache, partial
+from threading import Lock, local
 from typing import Any, Dict, Optional
 
 import requests
+import spotapi
+from spotapi.client import BaseClient
+from spotapi.exceptions import BaseClientError, RequestError
+from spotapi.http.request import TLSClient
+from spotapi.types.alias import _Undefined
+from spotapi.utils.strings import combine_chunks, extract_mappings
 from spotipy import Spotify
 from spotipy.cache_handler import CacheFileHandler, MemoryCacheHandler
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
@@ -149,6 +161,120 @@ class _OfficialSpotifyClient(Spotify):
         return response
 
 
+@lru_cache(maxsize=2)
+def _load_query_definitions(player_url: str) -> str:
+    # These CDN requests carry no Spotify authentication or user metadata.
+    with TLSClient("chrome120", "", auto_retries=3) as transport:
+        atexit.unregister(transport.close)
+
+        def fetch(url: str) -> str:
+            response = transport.get(url)
+            if response.fail:
+                raise BaseClientError(
+                    "Could not get general hashes", error=response.error.string
+                )
+            return str(response.response)
+
+        player = fetch(player_url)
+        names, hashes = extract_mappings(player)
+        urls = [
+            f"https://open.spotifycdn.com/cdn/build/web-player/{chunk}"
+            for chunk in combine_chunks(hashes, names)
+        ]
+        with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+            return player + "".join(executor.map(fetch, urls))
+
+
+_SHARED_TLS_CLIENTS = {
+    kwdefaults["client"]
+    for cls in (
+        spotapi.Song,
+        spotapi.PublicAlbum,
+        spotapi.Artist,
+        spotapi.PublicPlaylist,
+    )
+    if (kwdefaults := inspect.unwrap(cls.__init__).__kwdefaults__)
+    and kwdefaults.get("client") is not None
+}
+_ORIG_BASE_INIT = BaseClient.__init__
+_thread_local = local()
+_session_lock = Lock()
+
+
+class _ThreadTLSClient(TLSClient):
+    """Per-thread TLSClient that resets its connection pool after a request error."""
+
+    def build_request(self, method, url, **kwargs):
+        """Discard the transport after exhausted retries."""
+        try:
+            return super().build_request(method, url, **kwargs)
+        except RequestError:
+            if getattr(_thread_local, "client", None) is self:
+                del _thread_local.client
+            with suppress(Exception):
+                self.close()
+            raise
+
+
+@lru_cache(maxsize=1)
+def _anonymous_session() -> BaseClient:
+    transport = TLSClient("chrome120", "", auto_retries=3)
+    atexit.unregister(transport.close)
+    return BaseClient(transport)
+
+
+def _reuse_query_definitions(base: BaseClient) -> None:
+    with _session_lock:
+        session = _anonymous_session()
+        if session.js_pack is _Undefined:
+            session.get_session()
+        if session.raw_hashes is _Undefined:
+            session.raw_hashes = _load_query_definitions(str(session.js_pack))
+        base.raw_hashes = session.raw_hashes
+
+
+def _init_base_client(
+    self: BaseClient, client: TLSClient, language: str = "en"
+) -> None:
+    if client not in _SHARED_TLS_CLIENTS:
+        _ORIG_BASE_INIT(self, client, language=language)
+        return
+
+    # SpotAPI's public endpoints share transport callbacks. Isolate them by thread.
+    if not hasattr(_thread_local, "client"):
+        _thread_local.client = _ThreadTLSClient("chrome120", "", auto_retries=3)
+    client = _thread_local.client
+    _ORIG_BASE_INIT(self, client, language=language)
+    atexit.unregister(client.close)
+    sent_token = None
+
+    def authenticate(kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        nonlocal sent_token
+        with _session_lock:
+            session = _anonymous_session()
+            # pylint: disable-next=protected-access
+            kwargs = session._auth_rule(kwargs)
+            sent_token = session.access_token
+        kwargs["headers"]["Accept-Language"] = language
+        return kwargs
+
+    def on_auth_failure(resp: Any) -> bool:
+        with _session_lock:
+            session = _anonymous_session()
+            if (
+                resp.status_code == 401
+                and sent_token is not None
+                and sent_token != session.access_token
+            ):
+                return True
+            # pylint: disable-next=protected-access
+            return session._handle_auth_failure(resp)
+
+    self.get_sha256_hash = partial(_reuse_query_definitions, self)  # type: ignore[method-assign]
+    client.authenticate = authenticate
+    client.on_auth_failure = on_auth_failure
+
+
 def _init_official_spotify_client(**kwargs) -> _OfficialSpotifyClient:
     """
     Initialize the official Spotipy client.
@@ -162,6 +288,7 @@ def _init_free_spotify_client(**kwargs) -> Any:
     Initialize the default SpotipyFree client.
     """
 
+    BaseClient.__init__ = _init_base_client  # type: ignore[method-assign]
     return FreeSpotify(**kwargs)
 
 

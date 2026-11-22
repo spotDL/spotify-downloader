@@ -21,9 +21,7 @@ WEB_COMPONENTS_PATH = str(Path(spotdl.__file__).parent / "web" / "components")
 modules = set(
     module.split(" ")[0] for module in metadata("spotdl").get_all("Requires-Dist", [])
 )
-# spotapi is a transitive dependency (via spotipyFree), so it is not in
-# Requires-Dist; curl_cffi is spotapi's HTTP backend and ships a compiled
-# extension with no pyinstaller-hooks-contrib hook, so collect it explicitly
+# Collect SpotAPI and its compiled HTTP backend explicitly for PyInstaller.
 modules.update(
     {
         "spotapi",

@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.11, <3.16"
 resolution-markers = [
     "python_full_version >= '3.15' and platform_python_implementation == 'CPython'",
@@ -2419,6 +2419,7 @@ dependencies = [
     { name = "requests", marker = "platform_python_implementation == 'CPython'" },
     { name = "rich", marker = "platform_python_implementation == 'CPython'" },
     { name = "soundcloud-v2", marker = "platform_python_implementation == 'CPython'" },
+    { name = "spotapi", marker = "platform_python_implementation == 'CPython'" },
     { name = "spotipy", marker = "platform_python_implementation == 'CPython'" },
     { name = "spotipyfree", marker = "platform_python_implementation == 'CPython'" },
     { name = "syncedlyrics", marker = "platform_python_implementation == 'CPython'" },
@@ -2481,6 +2482,7 @@ requires-dist = [
     { name = "requests", specifier = ">=2.32.3,<3" },
     { name = "rich", specifier = ">=13.9.4,<14" },
     { name = "soundcloud-v2", specifier = ">=1.6.0,<2" },
+    { name = "spotapi", specifier = ">=1.2.8,<2" },
     { name = "spotipy", specifier = ">=2.26.0,<3" },
     { name = "spotipyfree", specifier = ">=1.9.13,<2" },
     { name = "syncedlyrics", specifier = ">=1.0.1,<2" },
