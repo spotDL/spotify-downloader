@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from rapidfuzz import fuzz
 
-from spotdl.utils.spotify import SpotifyClient, SpotifyMetadata
+from spotdl.utils.spotify import SpotifyClient
 
 __all__ = ["Song", "SongList", "SongError"]
 
@@ -64,15 +64,12 @@ class Song:
     album_type: Optional[str] = None
 
     @classmethod
-    def from_url(
-        cls, url: str, *, metadata: Optional[SpotifyMetadata] = None
-    ) -> "Song":
+    def from_url(cls, url: str) -> "Song":
         """
         Creates a Song object from a URL.
 
         ### Arguments
         - url: The URL of the song.
-        - metadata: Shared lookups when resolving a collection of songs.
 
         ### Returns
         - The Song object.
@@ -83,7 +80,7 @@ class Song:
         url = re.sub(r"\/intl-\w+\/", "/", url)
 
         # query spotify for song, artist, album details
-        spotify_client = metadata or SpotifyClient()
+        spotify_client = SpotifyClient()
 
         # get track info
         raw_track_meta = spotify_client.track(url)
@@ -162,15 +159,12 @@ class Song:
         return raw_search_results
 
     @classmethod
-    def from_search_term(
-        cls, search_term: str, metadata: Optional[SpotifyMetadata] = None
-    ) -> "Song":
+    def from_search_term(cls, search_term: str) -> "Song":
         """
         Creates a list of Song objects from a search term.
 
         ### Arguments
         - search_term: The search term to use.
-        - metadata: Shared lookups when resolving a collection of songs.
 
         ### Returns
         - The Song object.
@@ -183,8 +177,7 @@ class Song:
 
         return Song.from_url(
             "http://open.spotify.com/track/"
-            + raw_search_results["tracks"]["items"][0]["id"],
-            metadata=metadata,
+            + raw_search_results["tracks"]["items"][0]["id"]
         )
 
     @classmethod
@@ -201,13 +194,16 @@ class Song:
 
         raw_search_results = Song.search(search_term)
 
-        metadata = SpotifyMetadata()
-        return [
-            cls.from_url(
-                "http://open.spotify.com/track/" + track["id"], metadata=metadata
+        songs = []
+        for idx, _ in enumerate(raw_search_results.get("tracks", []).get("items", [])):
+            songs.append(
+                Song.from_url(
+                    "http://open.spotify.com/track/"
+                    + raw_search_results["tracks"]["items"][idx]["id"]
+                )
             )
-            for track in raw_search_results.get("tracks", {}).get("items", [])
-        ]
+
+        return songs
 
     @classmethod
     def from_data_dump(cls, data: str) -> "Song":
@@ -322,8 +318,7 @@ class SongList:
         urls = [song.url for song in songs]
 
         if fetch_songs:
-            lookup = SpotifyMetadata()
-            songs = [Song.from_url(song.url, metadata=lookup) for song in songs]
+            songs = [Song.from_url(song.url) for song in songs]
 
         return cls(**metadata, urls=urls, songs=songs)
 

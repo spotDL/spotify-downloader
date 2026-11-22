@@ -21,7 +21,7 @@ from spotdl.types.playlist import Playlist
 from spotdl.types.saved import Saved
 from spotdl.types.song import Song, SongList
 from spotdl.utils.metadata import get_file_metadata
-from spotdl.utils.spotify import SpotifyClient, SpotifyError, SpotifyMetadata
+from spotdl.utils.spotify import SpotifyClient, SpotifyError
 
 __all__ = [
     "QueryError",
@@ -95,21 +95,17 @@ def parse_query(
     - List of song objects
     """
 
-    metadata = SpotifyMetadata()
     songs: List[Song] = get_simple_songs(
         query,
         use_ytm_data=use_ytm_data,
         playlist_numbering=playlist_numbering,
         album_type=album_type,
         playlist_retain_track_cover=playlist_retain_track_cover,
-        metadata=metadata,
     )
 
     results = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
-        future_to_song = {
-            executor.submit(reinit_song, song, metadata): song for song in songs
-        }
+        future_to_song = {executor.submit(reinit_song, song): song for song in songs}
         for future in concurrent.futures.as_completed(future_to_song):
             song = future_to_song[future]
             try:
@@ -127,20 +123,16 @@ def get_simple_songs(
     albums_to_ignore=None,
     album_type=None,
     playlist_retain_track_cover: bool = False,
-    metadata: Optional[SpotifyMetadata] = None,
 ) -> List[Song]:
     """
     Parse query and return list containing simple song objects
 
     ### Arguments
     - query: List of strings containing query
-    - metadata: Shared Spotify responses for this query and its subsequent enrichment.
 
     ### Returns
     - List of simple song objects
     """
-
-    metadata = metadata or SpotifyMetadata()
 
     songs: List[Song] = []
     lists: List[SongList] = []
@@ -191,7 +183,7 @@ def get_simple_songs(
                 continue
 
             yt_song = Song.from_search_term(
-                f"{video_details['author']} - {video_details['title']}", metadata
+                f"{video_details['author']} - {video_details['title']}"
             )
 
             if use_ytm_data:
@@ -264,7 +256,7 @@ def get_simple_songs(
 
                     lists.append(spot_list)
         elif "open.spotify.com" in request and "track" in request:
-            songs.append(Song.from_url(request, metadata=metadata))
+            songs.append(Song.from_url(url=request))
         elif "https://spotify.link/" in request:
             resp = requests.head(request, allow_redirects=True, timeout=10)
             full_url = resp.url
@@ -274,7 +266,6 @@ def get_simple_songs(
                 playlist_numbering=playlist_numbering,
                 album_type=album_type,
                 playlist_retain_track_cover=playlist_retain_track_cover,
-                metadata=metadata,
             )
             songs.extend(full_lists)
         elif "open.spotify.com" in request and "playlist" in request:
@@ -307,7 +298,7 @@ def get_simple_songs(
                     # Append to songs
                     songs.append(Song.from_dict(track))
         else:
-            songs.append(Song.from_search_term(request, metadata))
+            songs.append(Song.from_search_term(request))
 
     for song_list in lists:
         logger.info(
@@ -551,36 +542,39 @@ def get_all_saved_playlists() -> List[Playlist]:
     ]
 
 
-def reinit_song(song: Song, metadata: Optional[SpotifyMetadata] = None) -> Song:
+def reinit_song(song: Song) -> Song:
     """
     Update song object with new data
     from Spotify
 
     ### Arguments
     - song: Song object
-    - metadata: Shared Spotify responses when resolving multiple songs.
 
     ### Returns
     - Updated song object
     """
 
     data = song.json
-    url = data.get("url")
-    if not url and data.get("song_id"):
-        url = "https://open.spotify.com/track/" + data["song_id"]
-
-    if url:
-        new_data = Song.from_url(url, metadata=metadata).json
-    elif data.get("name") and data.get("artist"):
-        new_data = Song.from_search_term(
-            f"{data['artist']} - {data['name']}", metadata
+    if data.get("url"):
+        new_data = Song.from_url(data["url"]).json
+    elif data.get("song_id"):
+        new_data = Song.from_url(
+            "https://open.spotify.com/track/" + data["song_id"]
         ).json
+    elif data.get("name") and data.get("artist"):
+        new_data = Song.from_search_term(f"{data['artist']} - {data['name']}").json
     else:
         raise QueryError("Song object is missing required data to be reinitialized")
 
-    data.update(
-        {key: value for key, value in new_data.items() if data.get(key) is None}
-    )
+    for key in Song.__dataclass_fields__:  # type: ignore # pylint: disable=E1101
+        val = data.get(key)
+        new_val = new_data.get(key)
+        if new_val is not None and val is None:
+            data[key] = new_val
+        elif new_val is not None and val is not None:
+            data[key] = val
+
+    # return reinitialized song object
     return Song(**data)
 
 
