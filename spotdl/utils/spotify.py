@@ -36,6 +36,7 @@ from spotdl.utils.config import get_cache_path, get_spotify_cache_path
 __all__ = [
     "SpotifyError",
     "SpotifyClient",
+    "SpotifyMetadata",
     "save_spotify_cache",
 ]
 
@@ -420,6 +421,16 @@ class SpotifyClient:
         cls._use_official_api = use_official_api
 
         return cls._instance
+
+
+class SpotifyMetadata:
+    """Reuse read-only track, album and artist responses within one parse."""
+
+    def __init__(self):
+        cache = lru_cache(maxsize=128)
+        self.track = cache(lambda url: SpotifyClient().track(url))
+        self.artist = cache(lambda artist_id: SpotifyClient().artist(artist_id))
+        self.album = cache(lambda album_id: SpotifyClient().album(album_id))
 
 
 def save_spotify_cache(cache: Dict[str, Optional[Dict]]):
