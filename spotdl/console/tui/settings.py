@@ -58,16 +58,15 @@ def build_downloader_settings(options: Dict[str, Any]) -> Dict[str, Any]:
     """
 
     settings = dict(DOWNLOADER_OPTIONS_DEFAULTS)
+    template = options.get("output_template", "{artists} - {title}.{output-ext}")
+    if options.get("playlist_folder") and "{list-name}" not in template:
+        template = "{list-name}/" + template
+
     output_dir = options.get("output_dir")
     if output_dir:
-        settings["output"] = os.path.join(
-            str(output_dir),
-            options.get("output_template", "{artists} - {title}.{output-ext}"),
-        )
+        settings["output"] = os.path.join(str(output_dir), template)
     else:
-        settings["output"] = options.get(
-            "output_template", "{artists} - {title}.{output-ext}"
-        )
+        settings["output"] = template
 
     for key, value in options.items():
         if key in settings and value is not None:

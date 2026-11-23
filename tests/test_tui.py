@@ -1,3 +1,5 @@
+import os
+
 import pytest
 from textual.widgets import Button, OptionList
 
@@ -237,10 +239,30 @@ def test_downloader_settings_simple_tui():
     assert settings["format"] == "opus"
     assert settings["bitrate"] == "320k"
 
+    assert settings["output"] == "{artists} - {title}.{output-ext}"
+
     downloader = Downloader(dict(DOWNLOADER_OPTIONS))
     assert downloader.progress_handler.simple_tui is False
     downloader.progress_handler.update_callback = lambda tracker, message: None
     assert callable(downloader.progress_handler.update_callback)
+
+
+def test_downloader_settings_playlist_folder():
+    settings = build_downloader_settings(
+        {"output_dir": "music", "playlist_folder": True}
+    )
+    assert settings["output"] == os.path.join(
+        "music", "{list-name}/{artists} - {title}.{output-ext}"
+    )
+    assert "playlist_folder" not in settings
+
+    settings = build_downloader_settings(
+        {
+            "playlist_folder": True,
+            "output_template": "{list-name}/{title}.{output-ext}",
+        }
+    )
+    assert settings["output"] == "{list-name}/{title}.{output-ext}"
 
 
 @pytest.mark.asyncio

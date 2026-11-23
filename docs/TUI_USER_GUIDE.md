@@ -59,6 +59,10 @@ Set `SPOTDL_SKIP_AUTO_SETUP=1` to never open the wizard automatically.
     A primary and a fallback audio provider can be chosen; the fallback is only used when the
     primary one has no usable result.
 
+    With **Save in a folder named after the playlist** turned on, the songs of a playlist or
+    album are saved in a subfolder named after it on Spotify (the `{list-name}` template
+    variable). Single songs stay in the output directory.
+
 4. Select **Search**. The songs found are listed with a checkbox each. Toggle them with a click
    or with `Space`, or use **All**, **None** and **Invert**.
 5. Continue to the summary screen and select **Download**, or **Modify** (`Esc`) to go back.

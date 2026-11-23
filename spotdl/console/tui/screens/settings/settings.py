@@ -163,6 +163,12 @@ class SettingsScreen(Screen):
                         id="set-m3u-switch",
                     )
 
+                    yield Label(TR("settings.playlist_folder_label"))
+                    yield Switch(
+                        value=bool(self._settings.get("playlist_folder", False)),
+                        id="set-playlist-folder-switch",
+                    )
+
                     yield Label(TR("settings.playlist_numbering_label"))
                     yield Switch(
                         value=bool(self._settings.get("playlist_numbering", False)),
@@ -529,6 +535,9 @@ class SettingsScreen(Screen):
             "overwrite": self.query_one("#set-overwrite-select", Select).value,
             "restrict": self.query_one("#set-restrict-select", Select).value,
             "m3u": self.query_one("#set-m3u-switch", Switch).value,
+            "playlist_folder": self.query_one(
+                "#set-playlist-folder-switch", Switch
+            ).value,
             "playlist_numbering": self.query_one("#set-numbering-switch", Switch).value,
             "playlist_retain_track_cover": self.query_one(
                 "#set-retain-cover-switch", Switch

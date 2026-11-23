@@ -102,6 +102,7 @@ _QUERY_LABELS = {
     "lbl-query-output-template": "query.output_template",
     "lbl-query-overwrite": "query.overwrite",
     "lbl-query-m3u": "query.m3u",
+    "lbl-query-playlist-folder": "query.playlist_folder",
     "lbl-query-playlist-numbering": "query.playlist_numbering",
     "lbl-query-retain-cover": "query.playlist_retain_track_cover",
     "lbl-query-fetch-albums": "query.fetch_albums",
@@ -149,6 +150,7 @@ _SWITCH_OPTIONS = {
     "only_verified_results": "only-verified-results-checkbox",
     "scan_for_songs": "scan-for-songs-checkbox",
     "generate_lrc": "generate-lrc-checkbox",
+    "playlist_folder": "playlist-folder-checkbox",
     "playlist_numbering": "playlist-numbering-checkbox",
     "playlist_retain_track_cover": "playlist-retain-track-cover-checkbox",
     "fetch_albums": "fetch-albums-checkbox",
@@ -259,6 +261,7 @@ class QueryScreen(Screen):
         )
         default_overwrite = user_settings.get("overwrite", "skip")
         default_m3u = bool(user_settings.get("m3u", False))
+        default_playlist_folder = bool(user_settings.get("playlist_folder", False))
         default_numbering = bool(user_settings.get("playlist_numbering", False))
         default_retain_cover = bool(
             user_settings.get("playlist_retain_track_cover", False)
@@ -369,6 +372,10 @@ class QueryScreen(Screen):
                     yield self._label("lbl-query-output-template")
                     yield self._input(
                         "output-template-input", value=default_output_template
+                    )
+                    yield self._label("lbl-query-playlist-folder")
+                    yield Switch(
+                        value=default_playlist_folder, id="playlist-folder-checkbox"
                     )
                     yield self._label("lbl-query-overwrite")
                     yield self._translated_select(

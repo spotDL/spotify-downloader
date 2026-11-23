@@ -32,6 +32,7 @@ DEFAULT_SETTINGS: Dict[str, Any] = {
     "skip_album_art": False,
     "force_update_metadata": False,
     "m3u": False,
+    "playlist_folder": False,
     "playlist_numbering": False,
     "playlist_retain_track_cover": False,
     "fetch_albums": False,
