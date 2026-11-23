@@ -6,7 +6,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple
 
-from spotdl.types.song import Song, SongList
+from spotdl.types.song import Song, SongList, upgrade_cover_url
 from spotdl.utils.spotify import SpotifyClient
 
 __all__ = ["Playlist", "PlaylistError"]
@@ -55,7 +55,7 @@ class Playlist(SongList):
             "description": playlist["description"],
             "author_url": playlist["external_urls"]["spotify"],
             "author_name": playlist["owner"]["display_name"],
-            "cover_url": (
+            "cover_url": upgrade_cover_url(
                 max(
                     playlist["images"],
                     key=lambda i: (
@@ -133,7 +133,7 @@ class Playlist(SongList):
                 explicit=track_meta["explicit"],
                 url=track_meta["external_urls"]["spotify"],
                 isrc=track_meta.get("external_ids", {}).get("isrc"),
-                cover_url=(
+                cover_url=upgrade_cover_url(
                     max(album_meta["images"], key=lambda i: i["width"] * i["height"])[
                         "url"
                     ]

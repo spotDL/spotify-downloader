@@ -5,7 +5,7 @@ Artist module for retrieving artist data from Spotify.
 from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple
 
-from spotdl.types.song import Song, SongList
+from spotdl.types.song import Song, SongList, upgrade_cover_url
 from spotdl.utils.spotify import SpotifyClient
 
 __all__ = ["Album", "AlbumError"]
@@ -97,11 +97,12 @@ class Album(SongList):
                 tracks_count=album_metadata["total_tracks"],
                 song_id=track["id"],
                 explicit=track["explicit"],
-                publisher=album_metadata["label"],
+                publisher=album_metadata.get("label", ""),
                 url=track["external_urls"]["spotify"],
-                cover_url=(
+                cover_url=upgrade_cover_url(
                     max(
-                        album_metadata["images"], key=lambda i: i["width"] * i["height"]
+                        album_metadata["images"],
+                        key=lambda i: i["width"] * i["height"],
                     )["url"]
                     if album_metadata["images"]
                     else None

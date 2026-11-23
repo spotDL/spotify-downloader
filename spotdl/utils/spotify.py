@@ -10,9 +10,12 @@ spotify.Spotify.init(client_id, client_secret)
 
 import json
 import logging
+import threading
+import time
 from typing import Any, Dict, Optional
 
 import requests
+from spotapi.client import BaseClient
 from spotipy import Spotify
 from spotipy.cache_handler import CacheFileHandler, MemoryCacheHandler
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
@@ -27,6 +30,10 @@ __all__ = [
 ]
 
 logger = logging.getLogger(__name__)
+
+_HASHES_LOCK = threading.Lock()
+_HASHES_TTL = 3600.0
+_SHARED_HASHES: Dict[str, Any] = {}
 
 OFFICIAL_API_ONLY_OPTIONS = {
     "auth_token": "--auth-token",
@@ -157,11 +164,38 @@ def _init_official_spotify_client(**kwargs) -> _OfficialSpotifyClient:
     return _OfficialSpotifyClient.init(**kwargs)
 
 
+def _share_web_player_hashes() -> None:
+    """
+    Make every SpotAPI client reuse the web player hashes already downloaded.
+
+    SpotAPI downloads the whole web player bundle for each client it creates,
+    and SpotipyFree creates a new client for every request.
+    """
+
+    original = BaseClient.get_sha256_hash
+    if getattr(original, "shares_hashes", False):
+        return
+
+    def get_sha256_hash(self) -> None:
+        with _HASHES_LOCK:
+            stored = _SHARED_HASHES.get("hashes")
+            if stored is not None and time.monotonic() - stored[0] < _HASHES_TTL:
+                self.raw_hashes = stored[1]
+                return
+
+            original(self)
+            _SHARED_HASHES["hashes"] = (time.monotonic(), self.raw_hashes)
+
+    get_sha256_hash.shares_hashes = True  # type: ignore[attr-defined]
+    BaseClient.get_sha256_hash = get_sha256_hash  # type: ignore[method-assign]
+
+
 def _init_free_spotify_client(**kwargs) -> Any:
     """
     Initialize the default SpotipyFree client.
     """
 
+    _share_web_player_hashes()
     return FreeSpotify(**kwargs)
 
 

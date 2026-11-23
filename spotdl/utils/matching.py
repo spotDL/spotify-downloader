@@ -2,11 +2,13 @@
 Module for all things matching related
 """
 
+# pylint: disable=too-many-lines
+
 import logging
 import re
 from itertools import product, zip_longest
 from math import exp
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 from spotdl.types.result import Result
 from spotdl.types.song import Song
@@ -42,21 +44,47 @@ __all__ = [
 
 logger = logging.getLogger(__name__)
 
+REMASTER_REGEX = re.compile(
+    r"[-\u2013\u2014/]\s*(?:(?:\d{4}\s*)?remaster(?:ed)?|\bremaster(?:ed)?(?:\s*\d{4})?)\b.*$",
+    re.IGNORECASE,
+)
+
 FORBIDDEN_WORDS = [
     "bassboosted",
+    "bassboost",
     "remix",
     "remastered",
     "remaster",
     "reverb",
-    "bassboost",
+    "reverbed",
     "live",
     "acoustic",
     "8daudio",
+    "8d",
     "concert",
     "acapella",
     "slowed",
+    "slow",
     "instrumental",
     "cover",
+    "edit",
+    "nightcore",
+    "spedup",
+    "speedup",
+    "tiktok",
+    "bootleg",
+    "fanmade",
+    "remake",
+    "tutorial",
+    "lofi",
+    "slowedreverb",
+    "reverbedit",
+    "pitched",
+    "parody",
+    "parodia",
+    "amv",
+    "animatic",
+    "mashup",
     "karaoke",
 ]
 
@@ -237,25 +265,40 @@ def check_common_word(song: Song, result: Result) -> bool:
 
 def check_forbidden_words(song: Song, result: Result) -> Tuple[bool, List[str]]:
     """
-    Check if a forbidden word is present in the result name
+    Check if a forbidden word is present in the result name or author,
+    which is NOT present in the song name or album name.
 
     ### Arguments
     - song: song to match
     - result: result to match
 
     ### Returns
-    - True if forbidden word is present in result name, False otherwise
+    - True if forbidden word is present in result name or author, False otherwise
     """
 
-    song_name = slugify(song.name).replace("-", "")
-    to_check = slugify(result.name).replace("-", "")
+    song_terms = _slug_terms(song.name) | _slug_terms(song.album_name)
+    result_terms = _slug_terms(result.name) | _slug_terms(result.author)
 
-    words = []
-    for word in FORBIDDEN_WORDS:
-        if word in to_check and word not in song_name:
-            words.append(word)
+    words = [
+        word
+        for word in FORBIDDEN_WORDS
+        if _has_term(result_terms, word) and not _has_term(song_terms, word)
+    ]
 
     return len(words) > 0, words
+
+
+def _slug_terms(text: Optional[str]) -> Set[str]:
+    tokens = [token for token in slugify(text or "").split("-") if token]
+    return {
+        "".join(tokens[start:end])
+        for start in range(len(tokens))
+        for end in range(start + 1, min(start + 3, len(tokens)) + 1)
+    }
+
+
+def _has_term(terms: Set[str], word: str) -> bool:
+    return any(word + suffix in terms for suffix in ("", "s", "es", "ed", "ing"))
 
 
 def create_match_strings(
@@ -736,6 +779,21 @@ def calc_name_match(
 
         name_match = max(name_match, second_name_match)
 
+    clean_title = REMASTER_REGEX.sub("", song.name).strip().strip('"').strip("'")
+    if clean_title and clean_title != song.name:
+        clean_song_slug = slugify(clean_title)
+        res_slug = slugify(result.name)
+        res_sorted, clean_sorted = based_sort(
+            res_slug.split("-"), clean_song_slug.split("-")
+        )
+        clean_match = ratio("-".join(res_sorted), "-".join(clean_sorted))
+        debug(
+            song.song_id,
+            result.result_id,
+            f"Remaster-stripped name match ({clean_title}): {clean_match}",
+        )
+        name_match = max(name_match, clean_match)
+
     return name_match
 
 
@@ -751,8 +809,11 @@ def calc_time_match(song: Song, result: Result) -> float:
     - time difference between song and result
     """
 
+    if not result.duration or not song.duration:
+        return 50.0
+
     time_diff = abs(song.duration - result.duration)
-    score = exp(-0.1 * time_diff)
+    score = exp(-0.05 * time_diff)
     return score * 100
 
 
@@ -859,11 +920,10 @@ def order_results(
         name_match = calc_name_match(song, result, search_query)
         debug(song.song_id, result.result_id, f"Initial name match: {name_match}")
 
-        # Check if result contains forbidden words
         contains_fwords, found_fwords = check_forbidden_words(song, result)
         if contains_fwords:
             for _ in found_fwords:
-                name_match -= 15
+                name_match -= 35
 
         debug(
             song.song_id,
@@ -902,6 +962,73 @@ def order_results(
         average_match = (artists_match + name_match) / 2
         debug(song.song_id, result.result_id, f"Average match: {average_match}")
 
+        if contains_fwords:
+            average_match -= 25.0 * len(found_fwords)
+            debug(
+                song.song_id,
+                result.result_id,
+                f"Average match after forbidden words penalty: {average_match}",
+            )
+
+        if "instrumental" in found_fwords:
+            average_match -= 30.0
+            debug(
+                song.song_id,
+                result.result_id,
+                "Additional penalty for instrumental result on non-instrumental song",
+            )
+
+        song_slug = slugify(song.name + " " + (song.album_name or "")).split("-")
+        res_slug = slugify(result.name).split("-")
+        live_kw = {"live", "concert", "envivo"}
+        song_is_live = bool(live_kw.intersection(set(song_slug)))
+        res_is_live = bool(live_kw.intersection(set(res_slug)))
+
+        if song_is_live and not res_is_live:
+            average_match -= 25.0
+            debug(
+                song.song_id,
+                result.result_id,
+                "Lowering match: Song is Live but Result is not Live",
+            )
+        elif not song_is_live and res_is_live:
+            average_match -= 35.0
+            debug(
+                song.song_id,
+                result.result_id,
+                "Lowering match: Result is Live but Song is not Live",
+            )
+
+        author_name = result.author or ""
+        is_topic_channel = author_name.endswith(" - Topic") or "topic" in slugify(
+            author_name
+        ).split("-")
+        is_verified_ytm = result.verified and (
+            "music" in result.source.lower() or result.source == "YouTubeMusic"
+        )
+
+        if is_topic_channel:
+            average_match += 15.0
+            debug(
+                song.song_id, result.result_id, "Boosting match for '- Topic' channel"
+            )
+
+        if is_verified_ytm:
+            average_match += 10.0
+            debug(
+                song.song_id,
+                result.result_id,
+                "Boosting match for verified YouTube Music result",
+            )
+
+        if album_match >= 80:
+            average_match += 5.0
+            debug(
+                song.song_id,
+                result.result_id,
+                f"Boosting match for album match: {album_match}",
+            )
+
         if (
             result.verified
             and not result.isrc_search
@@ -917,23 +1044,24 @@ def order_results(
                 f"Average match /w album match: {average_match}",
             )
 
-        # Skip results with time match lower than 25%
-        if time_match < 25:
+        # Skip results with time match lower than 15%
+        # (unless name and artist match are both exceptionally high >= 75%)
+        if time_match < 15 and not (name_match >= 75 and artists_match >= 75):
             debug(
                 song.song_id,
                 result.result_id,
-                "Skipping result due to time match lower than 25%",
+                "Skipping result due to time match lower than 15%",
             )
             continue
 
-        # If the time match is lower than 50%
-        # and the average match is lower than 75%
+        # If the time match is lower than 35%
+        # and the average match is lower than 70%
         # we skip the result
-        if time_match < 50 and average_match < 75:
+        if time_match < 35 and average_match < 70:
             debug(
                 song.song_id,
                 result.result_id,
-                "Skipping result due to time match < 50% and average match < 75%",
+                "Skipping result due to time match < 35% and average match < 70%",
             )
             continue
 

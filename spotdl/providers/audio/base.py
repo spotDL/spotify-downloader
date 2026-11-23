@@ -5,7 +5,7 @@ Base audio provider module.
 import logging
 import re
 import shlex
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from yt_dlp import YoutubeDL
 
@@ -18,7 +18,12 @@ from spotdl.utils.formatter import (
     create_search_query,
     create_song_title,
 )
-from spotdl.utils.matching import get_best_matches, order_results
+from spotdl.utils.matching import (
+    calc_time_match,
+    check_common_word,
+    get_best_matches,
+    order_results,
+)
 
 __all__ = ["AudioProviderError", "AudioProvider", "ISRC_REGEX", "YTDLLogger"]
 
@@ -116,7 +121,11 @@ class AudioProvider:
             "cookiefile": self.cookie_file,
             "outtmpl": str((get_temp_path() / "%(id)s.%(ext)s").resolve()),
             "retries": 5,
-            "extractor_args": {},
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["android", "web"],
+                },
+            },
         }
 
         yt_dlp_options.update(get_local_deno_yt_dlp_options())
@@ -155,7 +164,7 @@ class AudioProvider:
 
         data = self.get_download_metadata(url)
 
-        return data["view_count"]
+        return data.get("view_count") or 0
 
     def search(self, song: Song, only_verified: bool = False) -> Optional[str]:
         """
@@ -280,9 +289,20 @@ class AudioProvider:
                 # Order results
                 new_results = order_results(search_results, song, self.search_query)
             else:
+                # When filtering is disabled, do not take the first result blindly:
+                # it is often unrelated (e.g. another song by the same artist).
+                # Pick the first result that shares a word with the song title
+                # and has a plausible duration instead.
                 new_results = {}
-                if len(search_results) > 0:
-                    new_results = {search_results[0]: 100.0}
+                for result in search_results:
+                    if not check_common_word(song, result):
+                        continue
+
+                    if result.duration and calc_time_match(song, result) < 50:
+                        continue
+
+                    new_results = {result: 100.0}
+                    break
 
             logger.debug("[%s] Filtered to %s results", song.song_id, len(new_results))
 
@@ -291,7 +311,7 @@ class AudioProvider:
             # we are almost 100% sure that this is the correct link
             if len(new_results) != 0:
                 # get the result with highest score
-                best_result, best_score = self.get_best_result(new_results)
+                best_result, best_score = self.get_best_result(new_results, song)
                 logger.debug(
                     "[%s] Best result is %s with score %s",
                     song.song_id,
@@ -318,7 +338,7 @@ class AudioProvider:
             return None
 
         # get the result with highest score
-        best_result, best_score = self.get_best_result(results)
+        best_result, best_score = self.get_best_result(results, song)
         logger.debug(
             "[%s] Returning best result %s with score %s",
             song.song_id,
@@ -328,13 +348,16 @@ class AudioProvider:
 
         return best_result.url
 
-    def get_best_result(self, results: Dict[Result, float]) -> Tuple[Result, float]:
+    def get_best_result(
+        self, results: Dict[Result, float], song: Optional[Song] = None
+    ) -> Tuple[Result, float]:
         """
         Get the best match from the results
         using views and average match
 
         ### Arguments
         - results: A dictionary of results and their scores
+        - song: Optional Song object to match artists against author
 
         ### Returns
         - The best match URL and its score
@@ -354,16 +377,65 @@ class AudioProvider:
         if best_result[1] > 80 and best_result[0].isrc_search:
             return best_result[0], best_result[1]
 
-        # If we have more than one result,
-        # return the one with the highest score
-        # and most views
         if len(best_results) > 1:
             views: List[int] = []
-            for best_result in best_results:
-                if best_result[0].views:
-                    views.append(best_result[0].views)
+            unplayable_urls: Set[str] = set()
+            for res_tuple in best_results:
+                if res_tuple[0].views:
+                    views.append(res_tuple[0].views)
                 else:
-                    views.append(self.get_views(best_result[0].url))
+                    try:
+                        views.append(self.get_views(res_tuple[0].url))
+                    except AudioProviderError as exc:
+                        logger.debug(
+                            "Failed to get views for %s: %s", res_tuple[0].url, exc
+                        )
+                        views.append(0)
+                        unplayable_urls.add(res_tuple[0].url)
+
+            # Filter out candidates that failed metadata extraction if playable alternatives exist
+            playable_results = [
+                res for res in best_results if res[0].url not in unplayable_urls
+            ]
+            candidates_pool = playable_results if playable_results else best_results
+
+            official_candidates = [
+                res
+                for res in candidates_pool
+                if (res[0].author and res[0].author.endswith(" - Topic"))
+                or (
+                    res[0].verified
+                    and (
+                        "music" in res[0].source.lower()
+                        or res[0].source == "YouTubeMusic"
+                    )
+                )
+                or (
+                    song
+                    and res[0].author
+                    and any(
+                        artist.lower() == res[0].author.lower()
+                        for artist in song.artists
+                    )
+                )
+            ]
+
+            if official_candidates:
+                top_official = max(
+                    official_candidates,
+                    key=lambda x: (
+                        1 if getattr(x[0], "verified", False) else 0,
+                        x[1],
+                        getattr(x[0], "views", 0) or 0,
+                    ),
+                )
+                if (best_result[1] - top_official[1]) <= 12.0:
+                    logger.debug(
+                        "Selecting official topic/verified result %s with score %s",
+                        top_official[0].url,
+                        top_official[1],
+                    )
+                    return top_official[0], top_official[1]
 
             highest_views = max(views)
             lowest_views = min(views)
@@ -372,16 +444,19 @@ class AudioProvider:
                 return best_result[0], best_result[1]
 
             weighted_results: List[Tuple[Result, float]] = []
-            for index, best_result in enumerate(best_results):
+            for index, res_tuple in enumerate(best_results):
+                if res_tuple[0].url in unplayable_urls and playable_results:
+                    continue
                 result_views = views[index]
                 views_score = (
                     (result_views - lowest_views) / (highest_views - lowest_views)
                 ) * 15
-                score = min(best_result[1] + views_score, 100)
-                weighted_results.append((best_result[0], score))
+                score = min(res_tuple[1] + views_score, 100)
+                weighted_results.append((res_tuple[0], score))
 
             # Now we return the result with the highest score
-            return max(weighted_results, key=lambda x: x[1])
+            if weighted_results:
+                return max(weighted_results, key=lambda x: x[1])
 
         return best_result[0], best_result[1]
 
@@ -406,7 +481,9 @@ class AudioProvider:
                 warn_if_deno_missing()
 
             logger.debug(exception)
-            raise AudioProviderError(f"YT-DLP download error - {url}") from exception
+            raise AudioProviderError(
+                f"YT-DLP download error - {url}: {exception}"
+            ) from exception
 
         raise AudioProviderError(f"No metadata found for the provided url {url}")
 
