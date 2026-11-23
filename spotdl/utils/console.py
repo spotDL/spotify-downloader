@@ -5,6 +5,7 @@ Module for holding console related actions.
 import json
 import sys
 
+from spotdl.console.tui.setup_app import run_setup
 from spotdl.utils.config import DEFAULT_CONFIG, get_config_file
 from spotdl.utils.deno import download_deno as deno_download
 from spotdl.utils.deno import get_local_deno, is_deno_installed
@@ -20,6 +21,7 @@ __all__ = [
     "check_for_updates",
     "download_ffmpeg",
     "download_deno",
+    "run_setup",
     "ACTIONS",
 ]
 
@@ -150,4 +152,5 @@ ACTIONS = {
     "--check-for-updates": check_for_updates,
     "--download-ffmpeg": download_ffmpeg,
     "--download-deno": download_deno,
+    "--setup": run_setup,
 }

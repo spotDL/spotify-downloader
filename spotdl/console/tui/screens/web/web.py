@@ -1,0 +1,128 @@
+"""
+Screen that starts the web interface in the background.
+"""
+
+import socket
+import threading
+from typing import cast
+
+from textual.app import ComposeResult
+from textual.binding import Binding
+from textual.containers import Center, Horizontal, Vertical
+from textual.screen import Screen
+from textual.widgets import Button, Static
+
+from spotdl.console.tui import i18n
+from spotdl.console.tui.navigation import AppBar, VersionFooter
+from spotdl.console.tui.settings import build_downloader_settings
+from spotdl.console.web import web
+from spotdl.types.options import DownloaderOptions, WebOptions
+
+TR = i18n.tr
+
+
+def _find_available_port(start_port: int = 8080) -> int:
+    for port in range(start_port, start_port + 100):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            try:
+                sock.bind(("127.0.0.1", port))
+                return port
+            except OSError:
+                continue
+    return start_port
+
+
+class WebScreen(Screen):
+    """
+    Starts the web interface on the first free local port and shows its address.
+    """
+
+    BINDINGS = [
+        Binding("escape", "back", "back"),
+    ]
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.port = _find_available_port(8080)
+
+    def compose(self) -> ComposeResult:
+        """
+        Build the address text and the back button.
+        """
+
+        yield AppBar(TR("appbar.title"))
+        with Center():
+            with Vertical(classes="box"):
+                yield Static(TR("web.title"), id="web-title", classes="menu-title")
+                yield Static(TR("web.info"), id="web-info")
+                yield Static(
+                    TR("web.starting", host="127.0.0.1", port=str(self.port)),
+                    id="web-starting",
+                )
+                with Horizontal(classes="row"):
+                    yield Button(TR("common.back"), id="back-btn")
+                yield Static("", id="status")
+        yield VersionFooter()
+
+    def on_mount(self) -> None:
+        """
+        Start the web server in a daemon thread.
+        """
+
+        web_settings: WebOptions = {
+            "host": "127.0.0.1",
+            "port": self.port,
+            "keep_alive": False,
+            "enable_tls": False,
+            "allowed_origins": None,
+            "key_file": None,
+            "cert_file": None,
+            "ca_file": None,
+            "keep_sessions": False,
+            "web_use_output_dir": False,
+        }
+        downloader_settings = build_downloader_settings(
+            {
+                "audio_providers": ["youtube-music"],
+                "lyrics_providers": ["genius"],
+                "format": "mp3",
+                "bitrate": "auto",
+                "threads": 4,
+                "output_dir": None,
+                "save_file": None,
+            }
+        )
+        threading.Thread(
+            target=web,
+            args=(web_settings, cast(DownloaderOptions, downloader_settings)),
+            daemon=True,
+        ).start()
+
+    def action_back(self) -> None:
+        """
+        Go back to the previous screen.
+        """
+
+        self.app.pop_screen()
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        """
+        Go back when the back button is pressed.
+        """
+
+        if event.button.id == "back-btn":
+            self.action_back()
+
+    def refresh_language(self) -> None:
+        """
+        Translate the screen to the current language.
+        """
+
+        self.query_one(AppBar).set_title(TR("appbar.title"))
+        self.query_one("#web-title", Static).update(TR("web.title"))
+        self.query_one("#web-info", Static).update(TR("web.info"))
+        self.query_one("#web-starting", Static).update(
+            TR("web.starting", host="127.0.0.1", port=str(self.port))
+        )
+        self.query_one("#back-btn", Button).label = TR("common.back")
+        self.query_one(VersionFooter).refresh_language()

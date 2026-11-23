@@ -127,8 +127,19 @@ There are different **operations** spotDL can perform. The _default_ is `downloa
 The **query** for spotDL is usually a list of Spotify URLs, but for some operations like **sync**, only a single link or file is required.
 For a list of all **options** use ```spotdl -h```
 
+### Interactive mode
+
+Run `spotdl` with no arguments, or `spotdl interactive`, to open a terminal interface where songs
+and options are picked from menus. It can queue several playlists at once, retry only the songs
+that failed, and quit from the **Quit** button in the top bar. Use `spotdl --no-gui` to keep the
+plain command line. See the [Interactive mode guide](docs/TUI_USER_GUIDE.md).
+
 <details>
 <summary style="font-size:1em"><strong>Supported operations</strong></summary>
+
+- `interactive`: Starts an interactive terminal interface to pick the songs and options. Running `spotdl` without arguments in a terminal also opens it. See [Interactive mode](docs/TUI_USER_GUIDE.md).
+    - Usage:
+        `spotdl interactive [query]`
 
 - `save`: Saves only the metadata from Spotify without downloading anything.
     - Usage:
