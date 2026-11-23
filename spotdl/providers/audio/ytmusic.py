@@ -4,8 +4,11 @@ YTMusic module for downloading and searching songs.
 
 import logging
 import re
+from functools import partial
 from typing import Any, Dict, List
 
+import requests
+from requests.adapters import HTTPAdapter
 from ytmusicapi import YTMusic
 
 from spotdl.providers.audio.base import ISRC_REGEX, AudioProvider
@@ -66,10 +69,14 @@ class YouTubeMusic(AudioProvider):
     @staticmethod
     def _create_client() -> YTMusic:
         """
-        Create a YTMusic API client.
+        Create a YTMusic API client whose connection pool is large enough for
+        concurrent searches from every download thread.
         """
 
-        return YTMusic(language="de")
+        session = requests.Session()
+        session.mount("https://", HTTPAdapter(pool_connections=50, pool_maxsize=50))
+        session.request = partial(session.request, timeout=30)  # type: ignore[method-assign]
+        return YTMusic(language="de", requests_session=session)
 
     def get_results(
         self, search_term: str, log_search_failures: bool = True, **kwargs
@@ -109,6 +116,16 @@ class YouTubeMusic(AudioProvider):
                 if not artists:
                     continue
 
+                duration_val = result.get("duration")
+                duration_sec = result.get("duration_seconds")
+                if duration_sec is not None:
+                    try:
+                        duration = float(duration_sec)
+                    except (ValueError, TypeError):
+                        duration = parse_duration(duration_val)
+                else:
+                    duration = parse_duration(duration_val)
+
                 results.append(
                     Result(
                         source=self.name,
@@ -121,7 +138,7 @@ class YouTubeMusic(AudioProvider):
                         result_id=result["videoId"],
                         author=artists[0],
                         artists=tuple(artists),
-                        duration=parse_duration(result.get("duration")),
+                        duration=duration,
                         isrc_search=is_isrc_result,
                         search_query=search_term,
                         explicit=result.get("isExplicit"),

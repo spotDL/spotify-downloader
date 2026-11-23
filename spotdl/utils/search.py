@@ -10,7 +10,7 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Callable, Dict, List, Optional
 
 import requests
 from ytmusicapi import YTMusic
@@ -30,6 +30,7 @@ __all__ = [
     "get_simple_songs",
     "reinit_song",
     "get_song_from_file_metadata",
+    "is_matching_song_file",
     "gather_known_songs",
     "create_ytm_album",
     "create_ytm_playlist",
@@ -83,6 +84,7 @@ def parse_query(
     playlist_numbering: bool = False,
     album_type=None,
     playlist_retain_track_cover: bool = False,
+    status_callback: Optional[Callable[[str], None]] = None,
 ) -> List[Song]:
     """
     Parse query and return list containing song object
@@ -101,6 +103,7 @@ def parse_query(
         playlist_numbering=playlist_numbering,
         album_type=album_type,
         playlist_retain_track_cover=playlist_retain_track_cover,
+        status_callback=status_callback,
     )
 
     results = []
@@ -123,6 +126,7 @@ def get_simple_songs(
     albums_to_ignore=None,
     album_type=None,
     playlist_retain_track_cover: bool = False,
+    status_callback: Optional[Callable[[str], None]] = None,
 ) -> List[Song]:
     """
     Parse query and return list containing simple song objects
@@ -138,6 +142,8 @@ def get_simple_songs(
     lists: List[SongList] = []
     for request in query:
         logger.info("Processing query: %s", request)
+        if status_callback:
+            status_callback(request)
 
         # Remove /intl-xxx/ from Spotify URLs with regex
         request = re.sub(r"\/intl-\w+\/", "/", request)
@@ -595,6 +601,46 @@ def get_song_from_file_metadata(file: Path, id3_separator: str = "/") -> Optiona
         return None
 
     return Song.from_missing_data(**file_metadata)
+
+
+def is_matching_song_file(file: Path, song: Song, id3_separator: str = "/") -> bool:
+    """
+    Check whether an audio file on disk holds `song` or a different song.
+
+    ### Arguments
+    - file: Path to the audio file.
+    - song: Song that is about to be saved.
+    - id3_separator: Separator used for ID3 tags with several values.
+
+    ### Returns
+    - False only when the file metadata belongs to a different song, such as
+    a live version saved under the same file name. Files whose metadata can
+    not be read count as a match.
+    """
+
+    try:
+        file_song = get_song_from_file_metadata(file, id3_separator)
+    except Exception as exc:
+        logger.debug("Could not read the metadata of %s: %s", file, exc)
+        return True
+
+    if file_song is None:
+        return True
+
+    def normalized(value: Optional[str]) -> str:
+        return (value or "").strip().lower()
+
+    return bool(
+        (song.url and file_song.url == song.url)
+        or (song.song_id and file_song.song_id == song.song_id)
+        or file_song.duplicate_key == song.duplicate_key
+        or (
+            file_song.name
+            and song.name
+            and normalized(file_song.name) == normalized(song.name)
+            and normalized(file_song.album_name) == normalized(song.album_name)
+        )
+    )
 
 
 def gather_known_songs(output: str, output_format: str) -> Dict[str, List[Path]]:

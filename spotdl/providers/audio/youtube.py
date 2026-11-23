@@ -52,6 +52,7 @@ class YouTube(AudioProvider):
             if not video_id:
                 continue
 
+            uploader = entry.get("uploader") or ""
             results.append(
                 Result(
                     source=self.name,
@@ -59,7 +60,8 @@ class YouTube(AudioProvider):
                     verified=False,
                     name=entry.get("title", ""),
                     duration=entry.get("duration") or 0,
-                    author=entry.get("uploader") or "",
+                    author=uploader,
+                    artists=(uploader,) if uploader else tuple(),
                     search_query=search_term,
                     views=entry.get("view_count") or 0,
                     result_id=video_id,
