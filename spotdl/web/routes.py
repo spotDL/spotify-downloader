@@ -168,10 +168,36 @@ async def handle_get_client_search(datastar_signals: ReadSignals):
             f"[{signals.client_id}] Valid URL detected, redirecting to downloads..."
         )
         signals.song_url = signals.search_term
+        url = signals.song_url
+        existing_client = Client.get_instance(signals.client_id)
+        if existing_client is not None and url in existing_client.active_download_urls:
+            # Datastar retry of a request that is already being handled.
+            yield SSE.redirect("/downloads")
+            return
+
+        # Resolve the track list BEFORE redirecting, so the queue page is never
+        # shown empty while album/playlist metadata is fetched (the search
+        # button keeps its loading state meanwhile). If this fails,
+        # gen_download retries it.
+        songs = None
+        if existing_client is not None:
+            existing_client.active_download_urls.add(url)
+            try:
+                app_state.logger.info(
+                    f"[{signals.client_id}] Fetching metadata before redirect..."
+                )
+                songs = await asyncio.to_thread(get_simple_songs, [url])
+            except Exception as exc:  # pylint: disable=broad-except
+                app_state.logger.error(
+                    f"[{signals.client_id}] Could not resolve {url}: {exc}"
+                )
+            finally:
+                existing_client.active_download_urls.discard(url)
+
         # Start the download as a background task BEFORE redirecting.
         # If we redirect first, the browser closes this SSE connection and the
         # generator gets cancelled before gen_download can run.
-        _spawn_background_task(_run_download_task(signals))
+        _spawn_background_task(_run_download_task(signals, songs))
         yield SSE.redirect("/downloads")
         return
 
@@ -325,7 +351,7 @@ async def handle_post_client_download(datastar_signals: ReadSignals):
 # HELPERS
 
 
-async def _run_download_task(signals: Signals):
+async def _run_download_task(signals: Signals, songs: Optional[list] = None):
     """
     Background task wrapper for gen_download.
     Consumes the generator without yielding to any SSE stream,
@@ -349,7 +375,7 @@ async def _run_download_task(signals: Signals):
         return
     client.active_download_urls.add(url)
     try:
-        async for _ in gen_download(signals):
+        async for _ in gen_download(signals, songs):
             pass
     except BaseException as exc:
         app_state.logger.error(
@@ -362,7 +388,7 @@ async def _run_download_task(signals: Signals):
         )
 
 
-async def gen_download(signals: Signals):
+async def gen_download(signals: Signals, resolved_songs: Optional[list] = None):
     """
     Generate the download process for the client.
     """
@@ -406,8 +432,11 @@ async def gen_download(signals: Signals):
         #     root) and ffmpeg fails with "Permission denied".
         # It internally calls asyncio.run() via spotipyfree, so it must run in a
         # worker thread to avoid clashing with the server's running event loop.
-        app_state.logger.info(f"[{signals.client_id}] Fetching metadata...")
-        songs = await asyncio.to_thread(get_simple_songs, [url])
+        if resolved_songs is None:
+            app_state.logger.info(f"[{signals.client_id}] Fetching metadata...")
+            songs = await asyncio.to_thread(get_simple_songs, [url])
+        else:
+            songs = resolved_songs
 
         app_state.logger.info(
             f"[{signals.client_id}] Resolved {len(songs)} song(s), starting download from: {url}"
