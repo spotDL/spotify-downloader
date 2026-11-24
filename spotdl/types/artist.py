@@ -3,11 +3,10 @@ Artist module for retrieving artist data from Spotify.
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, Tuple
 
 from spotdl.types.album import Album
 from spotdl.types.song import Song, SongList
-from spotdl.utils.formatter import slugify
 from spotdl.utils.spotify import SpotifyClient
 
 __all__ = ["Artist", "ArtistError"]
@@ -63,47 +62,32 @@ class Artist(SongList):
                 "Couldn't get albums, check if you have passed correct artist id"
             )
 
-        # get artist albums and remove duplicates
-        # duplicates can occur if the artist has the same album available in
-        # different countries
-        albums: List[str] = []
-        known_albums: Set[str] = set()
-        for album in artist_albums["items"]:
-            albums.append(album["external_urls"]["spotify"])
-            known_albums.add(slugify(album["name"]))
+        releases: Dict[str, Dict[str, Any]] = {}
+        while artist_albums:
+            for album in artist_albums["items"]:
+                album_url = album["external_urls"]["spotify"]
+                releases.setdefault(album_url, album)
 
-        # Fetch all artist albums
-        while artist_albums and artist_albums["next"]:
+            if not artist_albums.get("next"):
+                break
             artist_albums = spotify_client.next(artist_albums)
             if artist_albums is None:
-                break
+                raise ArtistError(f"Failed to get artist releases: {url}")
 
-            for album in artist_albums["items"]:
-                album_name = slugify(album["name"])
-
-                if album_name not in known_albums:
-                    albums.append(album["external_urls"]["spotify"])
-                    known_albums.add(album_name)
-
-        songs = []
-        for album in albums:
-            album_obj = Album.from_url(album, fetch_songs=False)
-            songs.extend(album_obj.songs)
-
-        # Very aggressive deduplication
-        songs_list = []
-        songs_names = set()
-        for song in songs:
-            slug_name = slugify(song.name)
-            if song.name not in songs_names:
-                songs_list.append(song)
-                songs_names.add(slug_name)
+        songs: Dict[str, Song] = {}
+        for album_url, release in releases.items():
+            # SpotipyFree returns full albums here. Spotipy returns summaries.
+            _, tracks = Album.get_metadata(
+                album_url, release if "tracks" in release else None
+            )
+            for song in tracks:
+                songs.setdefault(song.song_id, song)
 
         metadata = {
             "name": raw_artist_meta["name"],
             "genres": raw_artist_meta["genres"],
             "url": url,
-            "albums": albums,
+            "albums": list(releases),
         }
 
-        return metadata, songs_list
+        return metadata, list(songs.values())

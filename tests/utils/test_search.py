@@ -3,6 +3,7 @@ import pytest
 from spotdl.types.saved import SavedError
 from spotdl.types.song import Song, SongListError
 from spotdl.utils.search import get_search_results, get_simple_songs, parse_query
+from spotdl.utils.spotify import SpotifyClient
 
 SONG = ["https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv"]
 PLAYLIST = ["https://open.spotify.com/playlist/78Lg6HmUqlTnmipvNxc536"]
@@ -19,12 +20,13 @@ SAVED = ["saved"]
 
 
 @pytest.mark.vcr()
-def test_parse_song():
+def test_parse_song(mocker):
+    track = mocker.spy(SpotifyClient(), "track")
     songs = parse_query(SONG)
 
-    song = songs[0]
     assert len(songs) == 1
-    assert song.download_url == None
+    assert songs[0].download_url is None
+    track.assert_called_once_with(SONG[0])
 
 
 @pytest.mark.vcr()
