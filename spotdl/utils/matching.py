@@ -971,7 +971,7 @@ def order_results(
             (not result.isrc_search and average_match <= 85)
             or result.source == "slider.kz"
             or time_match < 0
-        ) or not is_music_video:
+        ) and not is_music_video:
             # If result is not a music video:
             # Don't add time to avg match if average match is not the best
             # (lower than 85%), always include time match if result is from
