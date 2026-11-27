@@ -83,6 +83,7 @@ MUSIC_VIDEO_WORDS = [
     "mv",
 ]
 
+
 def debug(song_id: str, result_id: str, message: str) -> None:
     """
     Log a message with MATCH level
@@ -264,6 +265,7 @@ def check_forbidden_words(song: Song, result: Result) -> Tuple[bool, List[str]]:
 
     return len(words) > 0, words
 
+
 def check_if_music_video(song: Song, result: Result) -> bool:
     """
     Checks if result is a music video
@@ -282,6 +284,7 @@ def check_if_music_video(song: Song, result: Result) -> bool:
         if word in video_title:
             return True
     return False
+
 
 def create_match_strings(
     song: Song, result: Result, search_query: Optional[str] = None
@@ -965,8 +968,10 @@ def order_results(
             continue
 
         if (
-            ((not result.isrc_search and average_match <= 85)
-            or result.source == "slider.kz")
+            (
+                (not result.isrc_search and average_match <= 85)
+                or result.source == "slider.kz"
+            )
             and not is_mv
             or time_match < 0
         ):
