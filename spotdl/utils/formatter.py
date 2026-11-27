@@ -143,12 +143,8 @@ def slugify(string: str) -> str:
     # Workaround for japanese characters
     # because slugify incorrectly converts them
     # to latin characters
-    normal_slug = py_slugify(
-        string,
-        regex_pattern=JAP_REGEX.pattern,
-    )
 
-    results = KKS.convert(normal_slug)
+    results = KKS.convert(string)
 
     result = ""
     for index, item in enumerate(results):
