@@ -29,7 +29,7 @@ __all__ = [
     "based_sort",
     "check_common_word",
     "check_forbidden_words",
-    "check_if_music_video"
+    "check_if_music_video",
     "create_match_strings",
     "get_best_matches",
     "calc_main_artist_match",
